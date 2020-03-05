@@ -23,6 +23,15 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
+          <div v-for="app in activityComposerApplications" :key="app[0].key" class="appsItem">
+            <div class="appsItemIcon"><i :class="app[0].iconClass"></i></div>
+            <div class="appsItemDescription">
+              <div class="AppLabel">{{ app[0].labelKey }}</div>
+              <div class="description">
+                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </v-app>
@@ -32,6 +41,7 @@
 
 <script>
 import * as composerServices from '../composerServices';
+import {activityComposerApplications, installExtensions} from '../extension';
 
 export default {
   data() {
@@ -40,7 +50,8 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       showMessageComposer: false,
       message: '',
-      showErrorMessage: false
+      showErrorMessage: false,
+      activityComposerApplications: []
     };
   },
   computed: {
@@ -54,8 +65,14 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
+    },
+    activityComposerApplications() {
+      console.log(this.activityComposerApplications);
     }
-
+  },
+  created() {
+    installExtensions();
+    this.activityComposerApplications = activityComposerApplications;
   },
   methods: {
     openMessageComposer: function() {
