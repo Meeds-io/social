@@ -23,7 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -46,14 +51,16 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   private static final Log         LOG                     = ExoLogger.getLogger(GroupSpaceBindingServiceImpl.class);
 
-  private static final int         USERS_TO_BIND_PAGE_SIZE = 100;
+  private static final int         USERS_TO_BIND_PAGE_SIZE = 20;
 
   private GroupSpaceBindingStorage groupSpaceBindingStorage;
 
   private OrganizationService      organizationService;
 
   private SpaceService             spaceService;
-
+  
+  private static Boolean requestStarted = false;
+  
   /**
    * GroupSpaceBindingServiceImpl constructor Initialize
    * 
@@ -243,22 +250,30 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   @Override
   public void bindUsersFromGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding) {
+    ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
     String[] members = space.getMembers();
     long count, toBind;
     int limit, offset = 0;
+    long startTime = System.currentTimeMillis();
+    
     try {
       List<UserSpaceBinding> userSpaceBindings = new LinkedList<>();
       ListAccess<User> groupMembersAccess = organizationService.getUserHandler().findUsersByGroupId(groupSpaceBinding.getGroup());
       List<User> users;
       int totalGroupMembersSize = groupMembersAccess.getSize();
       do {
+        long startBunchTime = System.currentTimeMillis();
         toBind = totalGroupMembersSize - offset;
         limit = toBind < USERS_TO_BIND_PAGE_SIZE ? (int) toBind : USERS_TO_BIND_PAGE_SIZE;
         users = Arrays.asList(groupMembersAccess.load(offset, limit));
         count = users.size();
-
+        int currentCount = offset;
         for (User user : users) {
+          currentCount++;
+          startRequest();
+          long startTimeUser = System.currentTimeMillis();
+  
           String userId = user.getUserName();
           UserSpaceBinding userSpaceBinding = new UserSpaceBinding();
           userSpaceBinding.setUser(userId);
@@ -276,14 +291,25 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           userSpaceBindings.add(userSpaceBinding);
           spaceService.addMember(space, userId);
           groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
+          long endTimeUser = System.currentTimeMillis();
+          long totalTimeUser =endTimeUser-startTimeUser;
+          LOG.debug("Time to treat user "+userId+" ("+currentCount+"/"+totalGroupMembersSize+") : "+totalTimeUser+" ms");
+          endRequest();
         }
         offset += count;
         LOG.info("Binding process: Bound Users({})", offset);
+        long endBunchTime = System.currentTimeMillis();
+        long totalBunchTime = endBunchTime-startBunchTime;
+        LOG.info("Time to treat "+count +" ("+offset+"/"+totalGroupMembersSize+") users : "+ totalBunchTime+" ms");
       } while (offset < totalGroupMembersSize);
     } catch (Exception e) {
       LOG.error("Error Binding" + e);
       throw new RuntimeException("Failed saving groupSpaceBinding", e);
     }
+    long endTime = System.currentTimeMillis();
+  
+    long totalTime = endTime-startTime;
+    LOG.debug("Time to treat all users : ("+offset+") : "+ totalTime+" ms");
   }
 
   public boolean isUserBoundAndMemberBefore(String spaceId, String userId) {
@@ -298,6 +324,24 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   @Override
   public void deleteFromBindingQueue(GroupSpaceBindingQueue bindingQueue) {
     groupSpaceBindingStorage.deleteGroupBindingQueue(bindingQueue.getId());
+  }
+  
+  private void endRequest() {
+    if (requestStarted && organizationService instanceof ComponentRequestLifecycle) {
+      try {
+        ((ComponentRequestLifecycle) organizationService).endRequest(PortalContainer.getInstance());
+      } catch (Exception e) {
+        LOG.warn(e.getMessage(), e);
+      }
+      requestStarted = false;
+    }
+  }
+  
+  private void startRequest() {
+    if (organizationService instanceof ComponentRequestLifecycle) {
+      ((ComponentRequestLifecycle) organizationService).startRequest(PortalContainer.getInstance());
+      requestStarted = true;
+    }
   }
 
   @Override
