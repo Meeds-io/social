@@ -23,17 +23,19 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div v-for="app in activityComposerApplications" :key="app.key">
-            <div class="appsItem" @click="openApp(app)">
-              <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
-              <div class="appsItemDescription">
-                <div class="AppLabel">{{ app.labelKey }}</div>
-                <div class="appDescription">
-                  <p>{{ app.description }}</p>
+          <div class="composerApps">
+            <div v-for="app in activityComposerApplications" :key="app.key" :class="`${app.appClass}App`">
+              <div class="appsItem" @click="openApp(app)">
+                <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
+                <div class="appsItemDescription">
+                  <div class="AppLabel">{{ app.labelKey }}</div>
+                  <div class="appDescription">
+                    <p>{{ app.description }}</p>
+                  </div>
                 </div>
               </div>
+              <div :class="app.appClass" v-html="app.component"></div>
             </div>
-            <div :class="app.appClass" v-html="app.component"></div>
           </div>
         </div>
       </div>
@@ -68,9 +70,6 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
-    },
-    activityComposerApplications() {
-      console.log('composerApps',this.activityComposerApplications);
     }
   },
   created() {
@@ -90,7 +89,9 @@ export default {
         composerServices.postMessageInSpace(msg, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
-          .then(() => this.message = '')
+          .then(() => {
+            this.message = '';
+          })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
@@ -99,7 +100,9 @@ export default {
         composerServices.postMessageInUserStream(msg, eXo.env.portal.userName)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
-          .then(() => this.message = '')
+          .then(() => {
+            this.message = '';
+          })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
