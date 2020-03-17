@@ -5,7 +5,7 @@
       v-if="!editorReady"
       :width="3"
       indeterminate
-      class="loadingRing" />
+      class="loadingRing"/>
     <div v-show="editorReady" :class="charsCount > maxLength ? 'tooManyChars' : ''" class="activityCharsCount">
       {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
       <i class="uiIconMessageLength"></i>
@@ -58,15 +58,16 @@ export default {
   },
   methods: {
     initCKEditor: function () {
+      CKEDITOR.plugins.addExternal('embedsemantic','/commons-extension/eXoPlugins/embedsemantic/','plugin.js');
       if (typeof CKEDITOR.instances['activityContent'] !== 'undefined') {
         CKEDITOR.instances['activityContent'].destroy(true);
       }
-      let extraPlugins = 'simpleLink,suggester';
+      let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
         // Disable suggester on smart-phone landscape
-        extraPlugins = 'simpleLink';
+        extraPlugins = 'simpleLink,embedsemantic';
       }
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
@@ -74,6 +75,7 @@ export default {
       $(this.$refs.editor).ckeditor({
         customConfig: '/commons-extension/ckeditorCustom/config.js',
         extraPlugins: extraPlugins,
+        allowedContent: true,
         removePlugins: 'image,confirmBeforeReload,maximize,resize',
         toolbar: [
           ['Bold','Italic','BulletedList', 'NumberedList', 'Blockquote'],
@@ -103,8 +105,13 @@ export default {
       CKEDITOR.instances['activityContent'].focus();
     },
     getMessage: function() {
+      let  pureText = '';
       const newData = CKEDITOR.instances['activityContent'].getData();
-      const pureText = newData ? newData.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+      if (newData.includes('<oembed>')){
+        pureText = newData ? newData.replace(/&nbsp;/g, '').trim() : '';
+      }else {
+        pureText = newData ? newData.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+      }
       return pureText;
     }
   }

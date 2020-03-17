@@ -121,7 +121,10 @@
     <type>org.exoplatform.social.service.rest.api.ActivityStreamResources</type>
   </component>
 <!-- Social Rest API resources for latest -->
-
+  <!-- -->
+  <component>
+    <type>org.exoplatform.social.processor.EmbedProcessor</type>
+  </component>
 <!-- Social request/response filter -->
   <external-component-plugins>
       <target-component>org.exoplatform.services.rest.impl.RequestHandlerImpl</target-component>
