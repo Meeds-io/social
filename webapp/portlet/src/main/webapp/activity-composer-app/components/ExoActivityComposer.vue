@@ -32,9 +32,9 @@
               <div class="appsItem" @click="openApp(app)">
                 <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
                 <div class="appsItemDescription">
-                  <div class="AppLabel">{{ app.labelKey }}</div>
+                  <div class="appLabel">{{ $t(app.labelKey) }}</div>
                   <div class="appDescription">
-                    <p>{{ app.description }}</p>
+                    <p>{{ $t(app.description) }}</p>
                   </div>
                 </div>
               </div>
