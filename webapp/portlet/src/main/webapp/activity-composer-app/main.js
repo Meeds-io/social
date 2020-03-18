@@ -9,7 +9,10 @@ const vuetify = new Vuetify({
 // getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
-const url = `/portal/rest/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const urls = [
+  `/portal/rest/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
+  `/portal/rest/i18n/bundle/locale.attachmentsSelector.attachments-${lang}.json`
+];
 
 // get overridden components if exists
 if (extensionRegistry) {
@@ -23,7 +26,7 @@ if (extensionRegistry) {
 
 // getting locale resources
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale resources are ready
     new Vue({
       el: '#activityComposer',

@@ -7,7 +7,4 @@ function getExtensionsByType(type) {
 
 export function installExtensions() {
   activityComposerApplications = getExtensionsByType('activity-composer-application');
-  activityComposerApplications.forEach(app => {
-    app.install();
-  });
 }
