@@ -18,6 +18,10 @@
           <div class="composerActions">
             <button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes" @click="postMessage()">{{ $t('activity.composer.post') }}</button>
           </div>
+          <div v-if="attachments.length" class="attachments-list">
+            <i class="uiIconAttach"></i>
+            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          </div>
           <transition name="fade">
             <div v-show="showErrorMessage" class="alert alert-error">
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
@@ -34,7 +38,7 @@
                   </div>
                 </div>
               </div>
-              <div :class="app.appClass" v-html="app.component"></div>
+              <component v-show="showMessageComposer" v-model="attachments" :is="app.component"></component>
             </div>
           </div>
         </div>
@@ -56,13 +60,17 @@ export default {
       showMessageComposer: false,
       message: '',
       showErrorMessage: false,
-      activityComposerApplications: []
+      activityComposerApplications: [],
+      attachments: []
     };
   },
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
       return pureText.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH;
+    },
+    activityType: function() {
+      return this.attachments.length ? 'files:spaces' : '';
     }
   },
   watch: {
@@ -83,7 +91,7 @@ export default {
     },
     postMessage() {
       if(eXo.env.portal.spaceId) {
-        composerServices.postMessageInSpace(this.message, eXo.env.portal.spaceId)
+        composerServices.postMessageInSpace(this.message, this.activityType, this.attachments, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
@@ -94,7 +102,7 @@ export default {
             this.showErrorMessage = true;
           });
       } else {
-        composerServices.postMessageInUserStream(this.message, eXo.env.portal.userName)
+        composerServices.postMessageInUserStream(this.message, this.activityType, this.attachments, eXo.env.portal.userName)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
