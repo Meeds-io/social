@@ -9,7 +9,7 @@
               {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.title') }}
             </span>
           </v-flex>
-          <v-flex class="xs1 mr-2">
+          <v-flex xs1>
             <v-btn
               icon
               class="rightIcon"
@@ -24,6 +24,17 @@
         </v-layout>
       </v-card-title>
       <div class="content">
+        <v-layout align-content-center
+                  class="mt-2 pl-1"
+                  wrap>
+          <v-flex align-center xs1>
+            <img v-if="spaceToBind.avatarUrl != null" :src="spaceToBind.avatarUrl" class="avatar" />
+            <img v-else :src="avatar" class="avatar" />
+          </v-flex>
+          <v-flex class="spaceName">
+            <span> {{ spaceToBind.displayName }} </span>
+          </v-flex>
+        </v-layout>
         <v-layout
           class="pt-7 pl-3 mb-4"
           wrap>
@@ -124,10 +135,11 @@
 
 <script>
 import * as spacesAdministrationServices from '../../spacesAdministrationServices';
+import {spacesConstants} from '../../../js/spacesConstants';
 
 export default {
   props: {
-    spaceId: {
+    spaceToBind: {
       type: String,
       default: null,
     },
@@ -141,6 +153,7 @@ export default {
       textAreaValue : '',
       groups: [],
       showSelectGroupsTree : false,
+      avatar : spacesConstants.DEFAULT_SPACE_AVATAR,
     };
   },
   computed : {
