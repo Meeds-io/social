@@ -78,9 +78,6 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
-    },
-    activityComposerApplications() {
-      console.log(this.activityComposerApplications);
     }
   },
   created() {
