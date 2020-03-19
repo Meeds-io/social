@@ -613,7 +613,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
             LOG.warn("No file storage plugin for datasource with name '{}'", activityFile.getStorage());
           }
         }
-        activityFileStoragePlugin.storeAttachments(activity, streamOwner, files.toArray(new ActivityFile[files.size()]));
+        activityFileStoragePlugin.storeAttachments(activity, streamOwner, activityFile);
       }
       activity.getTemplateParams().put("MESSAGE", activity.getTitle());
     }
