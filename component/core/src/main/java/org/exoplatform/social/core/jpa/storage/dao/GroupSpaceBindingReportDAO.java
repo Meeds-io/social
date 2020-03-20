@@ -26,5 +26,5 @@ public interface GroupSpaceBindingReportDAO extends GenericDAO<GroupSpaceBinding
   
   /** Get reports for csv generation */
   List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId, long groupSpaceBindingId, String group,
-                                                               String action);
+                                                               List<String> actions);
 }

@@ -123,10 +123,11 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   }
   
   @Override
-  public List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, String action) {
-    LOG.debug("Retrieving GroupSpaceBindingReports for space={}, groupSpaceBinding={}, group={}, action={}",spaceId,
-              groupSpaceBindingId,group,action);
-    return groupSpaceBindingStorage.findReportsForCsv(spaceId,groupSpaceBindingId,group,action);
+  public List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
+                                                         List<String> actions) {
+    LOG.debug("Retrieving GroupSpaceBindingReports for space={}, groupSpaceBinding={}, group={}, actions={}",spaceId,
+              groupSpaceBindingId,group,actions);
+    return groupSpaceBindingStorage.findReportsForCsv(spaceId,groupSpaceBindingId,group,actions);
   }
   
   /**
@@ -402,9 +403,5 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
   }
 
-  @Override
-  public void deleteUserSpaceBinding(UserSpaceBinding userSpaceBinding) {
-    groupSpaceBindingStorage.deleteUserBinding(userSpaceBinding.getId());
-  }
 
 }

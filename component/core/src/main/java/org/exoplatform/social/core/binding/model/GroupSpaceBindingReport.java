@@ -49,9 +49,10 @@ public class GroupSpaceBindingReport {
   private boolean wasPresentBefore;
   
   public static final String ADD_ACTION = "ADD";
-  public static final String REMOVE_ACTION = "REMOVE";
-  public static final String UPDATE_NEW_ACTION = "UPDATE_NEW";
+  public static final String REMOVE_ACTION        = "REMOVE";
+  public static final String UPDATE_ADD_ACTION    = "UPDATE_ADD";
   public static final String UPDATE_REMOVE_ACTION = "UPDATE_REMOVE";
+  public static final String SYNCHRONIZE_ACTION = "SYNCHRONIZE";
   
   
   public GroupSpaceBindingReport(long id,
