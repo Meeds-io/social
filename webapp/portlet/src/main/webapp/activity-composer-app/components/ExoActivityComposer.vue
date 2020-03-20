@@ -32,9 +32,9 @@
               <div class="appsItem" @click="openApp(app)">
                 <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
                 <div class="appsItemDescription">
-                  <div class="appLabel">{{ $t(app.labelKey) }}</div>
+                  <div class="appLabel">{{ getLabel(app.labelKey) }}</div>
                   <div class="appDescription">
-                    <p>{{ $t(app.description) }}</p>
+                    <p>{{ getLabel(app.description) }}</p>
                   </div>
                 </div>
               </div>
@@ -88,6 +88,10 @@ export default {
     openMessageComposer: function() {
       this.$refs.richEditor.setFocus();
       this.showMessageComposer = true;
+    },
+    getLabel: function(labelKey) {
+      const label = this.$t(labelKey);
+      return label ? label : labelKey;
     },
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
