@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -84,7 +85,19 @@ public interface GroupSpaceBindingService {
    * @return A list of group bindings
    */
   List<UserSpaceBinding> findUserBindingsByUser(String userName);
-
+  
+  
+  /**
+   * Get the binding report for generate the csv file
+   *
+   * @param spaceId
+   * @param groupSpaceBindingId
+   * @param group
+   * @param action
+   * @return
+   */
+  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
+                                                  String action);
   /**
    * Saves a list of user bindings
    *

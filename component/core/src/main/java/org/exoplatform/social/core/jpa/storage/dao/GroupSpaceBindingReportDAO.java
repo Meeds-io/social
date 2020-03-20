@@ -20,5 +20,11 @@ package org.exoplatform.social.core.jpa.storage.dao;
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
 
+import java.util.List;
+
 public interface GroupSpaceBindingReportDAO extends GenericDAO<GroupSpaceBindingReportEntity, Long> {
+  
+  /** Get reports for csv generation */
+  List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId, long groupSpaceBindingId, String group,
+                                                               String action);
 }

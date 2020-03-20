@@ -27,6 +27,15 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @Entity(name = "SocGroupSpaceBindingReport")
 @ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT")
+@NamedQueries({
+    @NamedQuery(name = "SocGroupSpaceBindingReport.findReportForCSV", query = "SELECT groupSpaceBindingReport "
+        + " FROM SocGroupSpaceBindingReport groupSpaceBindingReport"
+        + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
+        + " AND groupSpaceBindingReport.space = :spaceId"
+        + " AND groupSpaceBindingReport.group = :group"
+        + " AND groupSpaceBindingReport.action = :action"
+        + " ORDER BY groupSpaceBindingReport.date ASC")
+   })
 public class GroupSpaceBindingReportEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID")

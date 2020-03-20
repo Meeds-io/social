@@ -34,6 +34,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
@@ -120,7 +121,14 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     LOG.debug("Retrieving user bindings for member:" + userName);
     return groupSpaceBindingStorage.findUserSpaceBindingsByUser(userName);
   }
-
+  
+  @Override
+  public List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, String action) {
+    LOG.debug("Retrieving GroupSpaceBindingReports for space={}, groupSpaceBinding={}, group={}, action={}",spaceId,
+              groupSpaceBindingId,group,action);
+    return groupSpaceBindingStorage.findReportsForCsv(spaceId,groupSpaceBindingId,group,action);
+  }
+  
   /**
    * {@inheritDoc}
    */
