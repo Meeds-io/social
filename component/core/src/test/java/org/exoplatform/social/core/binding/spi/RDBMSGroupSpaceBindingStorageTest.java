@@ -18,10 +18,12 @@
 package org.exoplatform.social.core.binding.spi;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -39,6 +41,7 @@ import org.exoplatform.social.core.storage.api.SpaceStorage;
 public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
 
   private List<GroupSpaceBinding>      tearDownGroupbindingList      = new ArrayList<>();
+  private List<GroupSpaceBindingReport>      tearDownGroupbindingReportList      = new ArrayList<>();
 
   private List<GroupSpaceBindingQueue> tearDownGroupbindingQueueList = new ArrayList<>();
 
@@ -96,17 +99,16 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   }
 
   protected void deleteAllBindings() {
-    for (UserSpaceBinding userSpaceBinding : tearDownUserbindingList) {
-      groupSpaceBindingStorage.deleteUserBinding(userSpaceBinding.getId());
-    }
-    for (GroupSpaceBinding binding : tearDownGroupbindingList) {
-      groupSpaceBindingStorage.deleteGroupBinding(binding.getId());
-    }
-    for (GroupSpaceBindingQueue binding : tearDownGroupbindingQueueList) {
-      groupSpaceBindingStorage.deleteGroupBindingQueue(binding.getId());
-    }
+    
+    tearDownUserbindingList.stream().forEach(userSpaceBinding -> groupSpaceBindingStorage.deleteUserBinding(userSpaceBinding.getId()));
+    tearDownGroupbindingList.stream().forEach(binding -> groupSpaceBindingStorage.deleteGroupBinding(binding.getId()));
+    tearDownGroupbindingQueueList.stream().forEach(binding -> groupSpaceBindingStorage.deleteGroupBindingQueue(binding.getId()));
+    tearDownGroupbindingReportList.stream().forEach(groupSpaceBindingReport -> groupSpaceBindingStorage.deleteGroupBindingReport(groupSpaceBindingReport.getId()));
+  
     tearDownGroupbindingList = new ArrayList<>();
     tearDownUserbindingList = new ArrayList<>();
+    tearDownGroupbindingQueueList = new ArrayList<>();
+    tearDownGroupbindingReportList = new ArrayList<>();
   }
 
   /**
@@ -150,6 +152,17 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     groupSpaceBinding.setSpaceId(spaceId);
     groupSpaceBinding.setGroup(group);
     return groupSpaceBinding;
+  }
+  
+  private GroupSpaceBindingReport getGroupSpaceBindingReportInstance(long id, long spaceId,
+                                                               long groupSpaceBindingId,
+                                                               String group,
+                                                               String user,
+                                                               String action,
+                                                               boolean wasPresentBefore) {
+    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(id, groupSpaceBindingId, spaceId, group, user,
+                                                                                  action, new Date(), wasPresentBefore);
+    return groupSpaceBindingReport;
   }
 
   /**
@@ -459,6 +472,7 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/users", "john").size());
   }
   
+<<<<<<< HEAD
   public void testCountUserBindingsBySpace() throws Exception {
     GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(1, spaceId, "/platform/administrators");
     groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
@@ -485,4 +499,35 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  2,
                  groupSpaceBindingStorage.countBoundUsers(spaceId));
   }
+=======
+  
+  public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
+  
+    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(1,1,1,"/platform/administrators",
+        "user1",GroupSpaceBindingReport.ADD_ACTION,false);
+  
+    groupSpaceBindingReport=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport);
+    
+    tearDownGroupbindingReportList.add(groupSpaceBindingReport);
+  
+    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(2,1,1,"/platform/administrators",
+                                                                                              "user2",
+                                                                                               GroupSpaceBindingReport.ADD_ACTION,false);
+  
+    groupSpaceBindingReport1=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport1);
+    tearDownGroupbindingReportList.add(groupSpaceBindingReport1);
+  
+    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(3,2,2,"/platform/administrators",
+                                                                                               "user2",
+                                                                                               GroupSpaceBindingReport.ADD_ACTION,false);
+  
+    groupSpaceBindingReport2=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport2);
+    tearDownGroupbindingReportList.add(groupSpaceBindingReport2);
+  
+    assertEquals("findReportsForCSV(1,1,'/platform/administrators','ADD') must return 2",2,
+                 groupSpaceBindingStorage.findReportsForCsv(1,1,"/platform/administrators",GroupSpaceBindingReport.ADD_ACTION).size());
+  
+  }
+  
+>>>>>>> 7a1f78f78... SOC-6150 : Create GroupSpaceBindingReports :
 }
