@@ -472,7 +472,6 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/users", "john").size());
   }
   
-<<<<<<< HEAD
   public void testCountUserBindingsBySpace() throws Exception {
     GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(1, spaceId, "/platform/administrators");
     groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
@@ -499,7 +498,6 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  2,
                  groupSpaceBindingStorage.countBoundUsers(spaceId));
   }
-=======
   
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
   
@@ -523,11 +521,12 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   
     groupSpaceBindingReport2=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport2);
     tearDownGroupbindingReportList.add(groupSpaceBindingReport2);
+    List<String> actions = new ArrayList<>();
+    actions.add(GroupSpaceBindingReport.ADD_ACTION);
   
     assertEquals("findReportsForCSV(1,1,'/platform/administrators','ADD') must return 2",2,
-                 groupSpaceBindingStorage.findReportsForCsv(1,1,"/platform/administrators",GroupSpaceBindingReport.ADD_ACTION).size());
+                 groupSpaceBindingStorage.findReportsForCsv(1,1,"/platform/administrators",actions).size());
   
   }
   
->>>>>>> 7a1f78f78... SOC-6150 : Create GroupSpaceBindingReports :
 }

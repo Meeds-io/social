@@ -221,10 +221,10 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   public List<GroupSpaceBindingReport> findReportsForCsv(long spaceId,
                                                          long groupSpaceBindingId,
                                                          String group,
-                                                         String action) {
+                                                         List<String> actions) {
     
     return buildGroupBindingReportListFromEntities(groupSpaceBindingReportDAO.findReportsForCSV(spaceId,groupSpaceBindingId,group,
-                                                                                        action));
+                                                                                        actions));
   }
   
   private List<GroupSpaceBindingReport> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportEntity> entities) {

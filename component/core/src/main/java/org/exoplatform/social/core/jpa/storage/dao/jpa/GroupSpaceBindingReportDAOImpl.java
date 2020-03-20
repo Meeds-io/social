@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingQueueDAO;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
@@ -31,14 +32,14 @@ public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpace
   
   @Override
   public List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId, long groupSpaceBindingId, String group,
-                                                               String action) {
+                                                               List<String> actions) {
     TypedQuery<GroupSpaceBindingReportEntity> query =
         getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.findReportForCSV",
                                             GroupSpaceBindingReportEntity.class);
     query.setParameter("spaceId", spaceId);
     query.setParameter("groupSpaceBindingId", groupSpaceBindingId);
     query.setParameter("group", group);
-    query.setParameter("action", action);
+    query.setParameter("action", actions);
     return query.getResultList();
   }
   

@@ -33,7 +33,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
         + " AND groupSpaceBindingReport.space = :spaceId"
         + " AND groupSpaceBindingReport.group = :group"
-        + " AND groupSpaceBindingReport.action = :action"
+        + " AND groupSpaceBindingReport.action IN ( :action )"
         + " ORDER BY groupSpaceBindingReport.date ASC")
    })
 public class GroupSpaceBindingReportEntity implements Serializable {

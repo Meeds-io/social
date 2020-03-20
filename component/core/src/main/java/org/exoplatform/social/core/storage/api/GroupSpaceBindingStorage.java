@@ -227,9 +227,9 @@ public interface GroupSpaceBindingStorage {
    * @param spaceId
    * @param groupSpaceBindingId
    * @param group
-   * @param action
+   * @param actions
    * @return
    */
   List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
-                                                  String action);
+                                                  List<String> actions);
 }
