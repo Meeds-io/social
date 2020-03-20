@@ -1,4 +1,3 @@
-
 export let activityComposerApplications;
 
 function getExtensionsByType(type) {
