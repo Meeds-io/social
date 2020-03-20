@@ -78,6 +78,9 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
+    },
+    activityComposerApplications() {
+      console.log(this.activityComposerApplications);
     }
   },
   created() {
@@ -100,6 +103,8 @@ export default {
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
+            this.attachments = [];
+            this.showErrorMessage = false;
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
@@ -111,6 +116,8 @@ export default {
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
+            this.attachments = [];
+            this.showErrorMessage = false;
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
