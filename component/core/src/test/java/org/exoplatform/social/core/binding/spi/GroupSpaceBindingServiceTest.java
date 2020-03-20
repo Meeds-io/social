@@ -20,11 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.services.organization.idm.UserDAOImpl;
-import org.exoplatform.services.organization.idm.UserImpl;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -32,9 +27,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.idm.UserDAOImpl;
+import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.social.core.binding.impl.GroupSpaceBindingServiceImpl;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -106,7 +108,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link GroupSpaceBindingService#findUserBindingsBySpace(String, String)}
+   * Test
+   * {@link GroupSpaceBindingService#findUserSpaceBindingsBySpace(String, String)}
    *
    * @throws Exception
    */
@@ -144,7 +147,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
                                                                                          spaceService);
-    List<UserSpaceBinding> results = groupSpaceBindingService.findUserBindingsBySpace("1", "john");
+    List<UserSpaceBinding> results = groupSpaceBindingService.findUserSpaceBindingsBySpace("1", "john");
     UserSpaceBinding result1 = results.get(0);
     UserSpaceBinding result2 = results.get(1);
 
@@ -159,7 +162,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link GroupSpaceBindingService#deleteUserBinding(UserSpaceBinding)}
+   * Test
+   * {@link GroupSpaceBindingService#deleteUserBindingAndSpaceMembership(UserSpaceBinding)}
    *
    * @throws Exception
    */
@@ -184,7 +188,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
                                                                                          spaceService);
-    groupSpaceBindingService.deleteUserBinding(ub1);
+    groupSpaceBindingService.deleteUserBindingAndSpaceMembership(ub1);
 
     // Then
     ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
@@ -353,7 +357,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link GroupSpaceBindingService#findUserBindingsBySpace(String, String)}
+   * Test
+   * {@link GroupSpaceBindingService#findUserSpaceBindingsBySpace(String, String)}
    *
    * @throws Exception
    */
@@ -367,7 +372,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
 
     List<UserSpaceBinding> userSpaceBindings = new ArrayList<>();
     userSpaceBindings.add(new UserSpaceBinding());
-    Mockito.when(groupSpaceBindingStorage.findUserSpaceBindingsBySpace(Mockito.eq("1"), Mockito.eq("john"))).thenReturn(userSpaceBindings);
+    Mockito.when(groupSpaceBindingStorage.findUserSpaceBindingsBySpace(Mockito.eq("1"), Mockito.eq("john")))
+           .thenReturn(userSpaceBindings);
 
     // When
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
@@ -376,7 +382,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          spaceService);
 
     // Then
-    assertEquals(true, groupSpaceBindingService.findUserBindingsBySpace("1", "john").size() > 0);
+    assertEquals(true, groupSpaceBindingService.findUserSpaceBindingsBySpace("1", "john").size() > 0);
   }
 
   /**

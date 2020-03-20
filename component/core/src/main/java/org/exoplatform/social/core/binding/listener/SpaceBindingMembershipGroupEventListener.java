@@ -17,6 +17,7 @@
  **************************************************************************/
 package org.exoplatform.social.core.binding.listener;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -26,6 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
@@ -39,27 +41,29 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
 
   private SpaceService             spaceService;
 
+  private OrganizationService      organizationService;
+
   @Override
   public void postSave(Membership m, boolean isNew) throws Exception {
-    if (isNew && !isASpaceGroup(m.getGroupId())) {
+    String userName = m.getUserName();
+    String groupId = m.getGroupId();
+    if (isNew && !isASpaceGroup(groupId)) {
       RequestLifeCycle.begin(PortalContainer.getInstance());
       try {
-        groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-        spaceService = CommonsUtils.getService(SpaceService.class);
+        if (isUserNewMemberToGroup(userName, groupId)) {
+          groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+          spaceService = CommonsUtils.getService(SpaceService.class);
 
-        String userName = m.getUserName();
-        // Retrieve all bindings of the group.
-        List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsByGroup(m.getGroupId());
-        // For each bound space of the group add a user binding to it.
-        for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
-          Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
-          groupSpaceBindingService.saveUserBinding(userName, groupSpaceBinding, space);
+          // Retrieve all bindings of the group.
+          List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsByGroup(groupId);
+          // For each bound space of the group add a user binding to it.
+          for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
+            Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
+            groupSpaceBindingService.saveUserBinding(userName, groupSpaceBinding, space);
+          }
         }
       } catch (Exception e) {
-        LOG.warn("Problem occurred when saving user bindings for user ({}) from group ({}): ",
-                 m.getUserName(),
-                 m.getGroupId(),
-                 e);
+        LOG.warn("Problem occurred when saving user bindings for user ({}) from group ({}): ", userName, groupId, e);
       } finally {
         RequestLifeCycle.end();
       }
@@ -68,27 +72,58 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
 
   @Override
   public void postDelete(Membership m) throws Exception {
-    if (!isASpaceGroup(m.getGroupId())) {
+    String userName = m.getUserName();
+    String groupId = m.getGroupId();
+    if (!isASpaceGroup(groupId)) {
       RequestLifeCycle.begin(PortalContainer.getInstance());
       try {
-        groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-        // Retrieve removed user's all bindings.
-        List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByGroup(m.getGroupId(),
-                                                                                                    m.getUserName());
-        // Remove them.
-        for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
-          groupSpaceBindingService.deleteUserBinding(userSpaceBinding);
+        if (isUserNoMoreMemberOfGroup(userName, groupId)) {
+          groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+          spaceService = CommonsUtils.getService(SpaceService.class);
+          // Retrieve removed user's all bindings.
+          List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByGroup(groupId, userName);
+          // Remove them.
+          for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
+            // Delete user binding.
+            groupSpaceBindingService.deleteUserSpaceBinding(userSpaceBinding);
+            // Check if user has other bindings to the space.
+            boolean hasOtherBindings = groupSpaceBindingService
+                                                               .findUserSpaceBindingsBySpace(userSpaceBinding.getGroupBinding()
+                                                                                                             .getSpaceId(),
+                                                                                             userSpaceBinding.getUser())
+                                                               .size() > 0;
+            if (!hasOtherBindings) {
+              Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
+              // Remove user membership from the space.
+              spaceService.removeMember(space, userName);
+            }
+          }
         }
       } catch (Exception e) {
-        LOG.warn("Problem occurred when removing user bindings for user ({}): ", m.getUserName(), e);
+        LOG.warn("Problem occurred when removing user bindings for user ({}): ", userName, e);
       } finally {
         RequestLifeCycle.end();
       }
     }
   }
 
-  public boolean isASpaceGroup(String groupName) {
+  private boolean isASpaceGroup(String groupName) {
     return groupName.startsWith("/spaces");
+  }
+
+  private boolean isUserNoMoreMemberOfGroup(String userName, String groupId) throws Exception {
+    organizationService = CommonsUtils.getOrganizationService();
+    Collection<Membership> userMemberships = organizationService.getMembershipHandler()
+                                                                .findMembershipsByUserAndGroup(userName, groupId);
+    return userMemberships.isEmpty();
+  }
+
+  private boolean isUserNewMemberToGroup(String userName, String groupId) throws Exception {
+    organizationService = CommonsUtils.getOrganizationService();
+    Collection<Membership> userMemberships = organizationService.getMembershipHandler()
+                                                                .findMembershipsByUserAndGroup(userName, groupId);
+    // If user has more than 1 membership then he is a member before of the group.
+    return userMemberships.size() == 1;
   }
 
 }

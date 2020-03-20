@@ -25,8 +25,6 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
@@ -109,7 +107,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
    * {@inheritDoc}
    */
   @Override
-  public List<UserSpaceBinding> findUserBindingsBySpace(String spaceId, String userName) {
+  public List<UserSpaceBinding> findUserSpaceBindingsBySpace(String spaceId, String userName) {
     LOG.debug("Retrieving user bindings for member:" + userName + "/" + spaceId);
     return groupSpaceBindingStorage.findUserSpaceBindingsBySpace(spaceId, userName);
   }
@@ -161,7 +159,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     LOG.debug("Delete binding group :" + groupSpaceBinding.getGroup() + " for space :" + groupSpaceBinding.getSpaceId());
     // Call the delete user binding to also update space membership.
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroup(groupSpaceBinding.getGroup())) {
-      deleteUserBinding(userSpaceBinding);
+      deleteUserBindingAndSpaceMembership(userSpaceBinding);
     }
     // The deletion of the groupSpaceBinding will also remove it from the
     // groupSpaceBindingQueue.
@@ -172,7 +170,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
    * {@inheritDoc}
    */
   @Override
-  public void deleteUserBinding(UserSpaceBinding userSpaceBinding) {
+  public void deleteUserBindingAndSpaceMembership(UserSpaceBinding userSpaceBinding) {
     LOG.debug("Delete user binding for member : {} from ",
               userSpaceBinding.getUser(),
               userSpaceBinding.getGroupBinding().getSpaceId());
@@ -364,6 +362,11 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     }
     spaceService.addMember(space, userId);
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
+  }
+
+  @Override
+  public void deleteUserSpaceBinding(UserSpaceBinding userSpaceBinding) {
+    groupSpaceBindingStorage.deleteUserBinding(userSpaceBinding.getId());
   }
 
 }

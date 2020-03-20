@@ -18,18 +18,18 @@
 
 package org.exoplatform.social.core.binding.listener;
 
+import java.util.List;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
-
-import java.util.List;
 
 public class SpaceBindingGroupEventListener extends GroupEventListener {
   private static final Log         LOG = ExoLogger.getLogger(SpaceBindingGroupEventListener.class);
@@ -53,7 +53,6 @@ public class SpaceBindingGroupEventListener extends GroupEventListener {
       } finally {
         RequestLifeCycle.end();
       }
-
     }
   }
 }

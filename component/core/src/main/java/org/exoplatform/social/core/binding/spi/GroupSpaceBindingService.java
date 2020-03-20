@@ -61,7 +61,7 @@ public interface GroupSpaceBindingService {
    * @param userName The space member's username.
    * @return The list of users binding for this space member.
    */
-  List<UserSpaceBinding> findUserBindingsBySpace(String spaceId, String userName);
+  List<UserSpaceBinding> findUserSpaceBindingsBySpace(String spaceId, String userName);
 
   /**
    * Get user bindings in space
@@ -107,7 +107,7 @@ public interface GroupSpaceBindingService {
    *
    * @param userSpaceBinding The user binding to be deleted.
    */
-  void deleteUserBinding(UserSpaceBinding userSpaceBinding);
+  void deleteUserBindingAndSpaceMembership(UserSpaceBinding userSpaceBinding);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all
@@ -196,4 +196,11 @@ public interface GroupSpaceBindingService {
    * @param space
    */
   void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space);
+
+  /**
+   * Delete a user space binding.
+   * 
+   * @param userSpaceBinding
+   */
+  void deleteUserSpaceBinding(UserSpaceBinding userSpaceBinding);
 }

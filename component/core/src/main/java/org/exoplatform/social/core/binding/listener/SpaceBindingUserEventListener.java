@@ -17,6 +17,8 @@
  **************************************************************************/
 package org.exoplatform.social.core.binding.listener;
 
+import java.util.List;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -26,8 +28,6 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
-
-import java.util.List;
 
 public class SpaceBindingUserEventListener extends UserEventListener {
   private static final Log         LOG = ExoLogger.getLogger(SpaceBindingUserEventListener.class);
@@ -43,7 +43,7 @@ public class SpaceBindingUserEventListener extends UserEventListener {
       List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByUser(user.getUserName());
       // Remove all user's bindings.
       for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
-        groupSpaceBindingService.deleteUserBinding(userSpaceBinding);
+        groupSpaceBindingService.deleteUserBindingAndSpaceMembership(userSpaceBinding);
       }
     } catch (Exception e) {
       LOG.warn("Problem occurred when removing user bindings for user ({}): ", user.getUserName(), e);

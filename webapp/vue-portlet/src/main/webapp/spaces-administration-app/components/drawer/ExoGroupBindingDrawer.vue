@@ -28,11 +28,11 @@
           class="mt-4 pl-2"
           wrap>
           <v-flex align-center xs1>
-            <img v-if="spaceToBind.avatarUrl != null" :src="spaceToBind.avatarUrl" class="avatar" />
+            <img v-if="spaceToBind && spaceToBind.avatarUrl != null" :src="spaceToBind.avatarUrl" class="avatar" />
             <img v-else :src="avatar" class="avatar" />
           </v-flex>
           <v-flex pt-1 class="spaceName">
-            <span> {{ spaceToBind.displayName }} </span>
+            <span> {{ spaceDisplayName }} </span>
           </v-flex>
         </v-layout>
         <v-layout
@@ -135,7 +135,7 @@
 
 <script>
 import * as spacesAdministrationServices from '../../spacesAdministrationServices';
-import {spacesConstants} from '../../../js/spacesConstants';
+import { spacesConstants } from '../../../js/spacesConstants';
 
 export default {
   props: {
@@ -159,6 +159,12 @@ export default {
   computed : {
     isAllowToSave() {
       return this.groups && this.groups.length > 0;
+    },
+    spaceDisplayName() {
+      return  this.spaceToBind ? this.spaceToBind.displayName : '';
+    },
+    boundGroups() {
+      return this.groupSpaceBindings? this.groupSpaceBindings.map(binding => binding.group) : [];
     }
   },
   mounted() {
@@ -239,8 +245,9 @@ export default {
 
       spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
+        const boundGroups = this.groupSpaceBindings.map(binding => binding.group);
         for(const group of data) {
-          if (!group.id.startsWith('/spaces')) {
+          if (!group.id.startsWith('/spaces') && !boundGroups.includes(group.id)) {
             groups.push({
               avatarUrl: null,
               text: group.id,
