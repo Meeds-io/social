@@ -613,7 +613,21 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
             LOG.warn("No file storage plugin for datasource with name '{}'", activityFile.getStorage());
           }
         }
-        activityFileStoragePlugin.storeAttachments(activity, streamOwner, activityFile);
+        if (StringUtils.isEmpty(activityFile.getId()) && StringUtils.isNotEmpty(activityFile.getUploadId())) {
+          try {
+            activityFileStoragePlugin.storeAttachments(activity, streamOwner, activityFile);
+          } catch (Exception e) {
+            LOG.error("Error while adding attachment to activity " + activityFile.getId(), e);
+          }
+        }
+        //Attachments from existing resource
+        else {
+          try {
+            activityFileStoragePlugin.attachExistingFiles(activity, streamOwner, activityFile);
+          } catch (Exception e) {
+            LOG.error("Error while adding attachment to activity " + activityFile.getId(), e);
+          }
+        }
       }
       activity.getTemplateParams().put("MESSAGE", activity.getTitle());
     }

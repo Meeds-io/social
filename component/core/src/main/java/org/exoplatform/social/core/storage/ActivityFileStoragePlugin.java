@@ -18,13 +18,13 @@ public abstract class ActivityFileStoragePlugin extends BaseComponentPlugin {
 
   public static final String ACTIVITY_FILE_STORAGE_PARAM_NAME = "storage";
 
-  public static final String ACTIVITY_FILE_ID_PARAM_NAME      = "id";
+  public static final String ACTIVITY_FILE_ID_PARAM_NAME = "id";
 
-  public static final String TEMPLATE_PARAMS_SEPARATOR        = "|@|";
+  public static final String TEMPLATE_PARAMS_SEPARATOR = "|@|";
 
-  protected String           datasourceName;
+  protected String datasourceName;
 
-  protected int              priority;
+  protected int priority;
 
   public ActivityFileStoragePlugin(InitParams initParams) {
     if (initParams == null) {
@@ -45,7 +45,7 @@ public abstract class ActivityFileStoragePlugin extends BaseComponentPlugin {
 
   /**
    * Store attachments to a given activity
-   * 
+   *
    * @param activity
    * @param streamOwner
    * @param attachments
@@ -54,6 +54,16 @@ public abstract class ActivityFileStoragePlugin extends BaseComponentPlugin {
   public abstract void storeAttachments(ExoSocialActivity activity,
                                         Identity streamOwner,
                                         ActivityFile... attachments) throws Exception;
+
+  /**
+   * Attach existing files to a given activity
+   *
+   * @param activity
+   * @param streamOwner
+   * @param attachments
+   * @throws Exception
+   */
+  public abstract void attachExistingFiles(ExoSocialActivity activity, Identity streamOwner, ActivityFile... attachments) throws Exception;
 
   public String getDatasourceName() {
     return datasourceName;

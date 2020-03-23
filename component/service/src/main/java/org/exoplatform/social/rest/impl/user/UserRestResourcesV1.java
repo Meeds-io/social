@@ -53,7 +53,6 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserRestResources;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.social.service.rest.api.models.ActivityFileRestIn;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 
 import javax.annotation.security.RolesAllowed;
@@ -656,7 +655,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     if(model.getFiles() != null) {
       activity.setFiles(model.getFiles()
               .stream()
-              .map(fileModel -> new ActivityFile(fileModel.getUploadId(), fileModel.getStorage()))
+              .map(fileModel -> new ActivityFile(fileModel.getId(), fileModel.getUploadId(), fileModel.getStorage()))
               .collect(Collectors.toList()));
     }
     CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(target, activity);
