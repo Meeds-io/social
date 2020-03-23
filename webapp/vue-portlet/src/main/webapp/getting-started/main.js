@@ -1,4 +1,12 @@
 import './initComponents.js';
+import { spacesConstants } from '../js/spacesConstants.js';
+
+// getting language of the PLF 
+const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+
+// should expose the locale ressources as REST API 
+const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.social.GettingStartedPortlet-${lang}.json`;
+
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -17,8 +25,11 @@ const vuetify = new Vuetify({
 });
 
 export function init() {
-  new Vue({
-    template: '<exo-getting-started></exo-getting-started>',
-    vuetify,
-  }).$mount('#GettingStarted');
+  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    new Vue({
+      template: '<exo-getting-started></exo-getting-started>',
+      i18n,
+      vuetify,
+    }).$mount('#GettingStarted');
+  });
 }
