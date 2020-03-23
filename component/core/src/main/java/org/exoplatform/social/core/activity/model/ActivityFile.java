@@ -3,6 +3,9 @@ package org.exoplatform.social.core.activity.model;
 import java.io.InputStream;
 
 public class ActivityFile {
+
+  private String      id;
+
   private String      uploadId;
 
   private String      storage;
@@ -25,6 +28,19 @@ public class ActivityFile {
    * @param storage
    */
   public ActivityFile(String uploadId, String storage) {
+    this.uploadId = uploadId;
+    this.storage = storage;
+  }
+
+  /**
+   * Constructor
+   *
+   * @param id
+   * @param uploadId
+   * @param storage
+   */
+  public ActivityFile(String id, String uploadId, String storage) {
+    this.id = id;
     this.uploadId = uploadId;
     this.storage = storage;
   }
@@ -156,5 +172,13 @@ public class ActivityFile {
    */
   public InputStream getInputStream() {
     return inputStream;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

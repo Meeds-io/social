@@ -70,4 +70,10 @@ public class RDBMSActivityFileStoragePlugin extends ActivityFileStoragePlugin {
     }
   }
 
+  public void attachExistingFiles(ExoSocialActivity activity, Identity streamOwner, ActivityFile... attachments) throws Exception {
+    if (attachments == null || attachments.length == 0) {
+      return;
+    }
+  }
+
 }
