@@ -18,15 +18,15 @@
           <div class="composerActions">
             <button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes" @click="postMessage()">{{ $t('activity.composer.post') }}</button>
           </div>
-          <div v-if="attachments.length" class="attachments-list">
-            <i class="uiIconAttach"></i>
-            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
-          </div>
           <transition name="fade">
             <div v-show="showErrorMessage" class="alert alert-error">
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
+          <div v-if="attachments.length" class="attachments-list">
+            <i class="uiIconAttach"></i>
+            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          </div>
           <div class="composerApps">
             <div v-for="app in activityComposerApplications" :key="app.key" :class="`${app.appClass}App`">
               <div class="appsItem" @click="openApp(app)">
