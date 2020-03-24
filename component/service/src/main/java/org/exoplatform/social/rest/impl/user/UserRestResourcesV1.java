@@ -659,6 +659,7 @@ public class UserRestResourcesV1 implements UserRestResources {
               .map(fileModel -> new ActivityFile(fileModel.getUploadId(), fileModel.getStorage()))
               .collect(Collectors.toList()));
     }
+    activity.setTemplateParams(model.getTemplateParams());
     CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(target, activity);
 
     logMetrics(activity);

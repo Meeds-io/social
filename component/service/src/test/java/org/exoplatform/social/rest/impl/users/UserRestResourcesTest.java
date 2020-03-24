@@ -17,6 +17,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -232,6 +233,22 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(2, collections.getEntities().size());
+  }
+
+  public void testAddActivityByUser() throws Exception {
+    //root posts another activity
+    String input = "{\"title\":titleOfActivity,\"templateParams\":{\"param1\": value1,\"param2\":value2}}";
+    startSessionAs("john");
+    ContainerResponse response = getResponse("POST", getURLResource("users/john/activities"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    DataEntity responseEntity = (DataEntity) response.getEntity();
+    String title = (String) responseEntity.get("title");
+    assertNotNull(title);
+    assertEquals("titleOfActivity", title);
+    DataEntity templateParams = (DataEntity) responseEntity.get("templateParams");
+    assertNotNull(templateParams);
+    assertEquals(2, templateParams.size());
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {
