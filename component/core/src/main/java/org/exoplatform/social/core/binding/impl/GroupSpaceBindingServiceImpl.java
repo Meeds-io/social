@@ -171,7 +171,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   
     // Call the delete user binding to also update space membership.
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroup(groupSpaceBinding.getGroup())) {
-      deleteUserBindingAndSpaceMembership(userSpaceBinding);
+      deleteUserBinding(userSpaceBinding,GroupSpaceBindingReport.REMOVE_ACTION);
     }
     // The deletion of the groupSpaceBinding will also remove it from the
     // groupSpaceBindingQueue.
@@ -190,23 +190,28 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
    * {@inheritDoc}
    */
   @Override
-  public void deleteUserBindingAndSpaceMembership(UserSpaceBinding userSpaceBinding) {
+  public void deleteUserBinding(UserSpaceBinding userSpaceBinding, String action) {
     LOG.debug("Delete user binding for member : {} from ",
               userSpaceBinding.getUser(),
               userSpaceBinding.getGroupBinding().getSpaceId());
     // Remove user binding.
     groupSpaceBindingStorage.deleteUserBinding(userSpaceBinding.getId());
     // check if the user has other binding to the target space before removing.
-    boolean hasOtherBindings = groupSpaceBindingStorage.findUserSpaceBindingsBySpace(
-                                                                                     userSpaceBinding.getGroupBinding()
+    boolean hasOtherBindings = groupSpaceBindingStorage.findUserSpaceBindingsBySpace(userSpaceBinding.getGroupBinding()
                                                                                                      .getSpaceId(),
-                                                                                     userSpaceBinding.getUser())
-                                                       .size() > 0;
+                                                                                     userSpaceBinding.getUser()).size() > 0;
     if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
       // no binding to the target space in this case remove user from space.
       spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
                                 userSpaceBinding.getUser());
     }
+    GroupSpaceBindingReport report = new GroupSpaceBindingReport(userSpaceBinding.getGroupBinding().getId(),
+                                                                 Long.parseLong(userSpaceBinding.getGroupBinding().getSpaceId()),
+                                                                 userSpaceBinding.getGroupBinding().getGroup(),
+                                                                 userSpaceBinding.getUser(),
+                                                                 action,
+                                                                 userSpaceBinding.isMemberBefore());
+    groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
   }
 
   /**
@@ -306,8 +311,18 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           }
           userSpaceBinding.setGroupBinding(groupSpaceBinding);
           userSpaceBindings.add(userSpaceBinding);
+          
+          GroupSpaceBindingReport report = new GroupSpaceBindingReport(groupSpaceBinding.getId(),
+                                                                       Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                       groupSpaceBinding.getGroup(),
+                                                                       userId,
+                                                                       GroupSpaceBindingReport.ADD_ACTION,
+                                                                       userSpaceBinding.isMemberBefore());
+          
           spaceService.addMember(space, userId);
           groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
+          groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+          
           long endTimeUser = System.currentTimeMillis();
           long totalTimeUser = endTimeUser - startTimeUser;
           LOG.debug("Time to treat user " + userId + " (" + currentCount + "/" + totalGroupMembersSize + ") : " + totalTimeUser

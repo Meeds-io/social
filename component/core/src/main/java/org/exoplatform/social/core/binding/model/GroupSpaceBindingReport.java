@@ -43,7 +43,7 @@ public class GroupSpaceBindingReport {
   private String action;
   
   /** The date */
-  private Date date;
+  private Date date = new Date();
   
   /** true if the user was present in the space before the binding */
   private boolean wasPresentBefore;
@@ -55,19 +55,16 @@ public class GroupSpaceBindingReport {
   public static final String SYNCHRONIZE_ACTION = "SYNCHRONIZE";
   
   
-  public GroupSpaceBindingReport(long id,
-                                 long groupSpaceBindingId,
+  public GroupSpaceBindingReport(long groupSpaceBindingId,
                                  long spaceId,
                                  String group,
                                  String username,
-                                 String action, Date date, boolean wasPresentBefore) {
-    this.id = id;
+                                 String action, boolean wasPresentBefore) {
     this.groupSpaceBindingId = groupSpaceBindingId;
     this.spaceId = spaceId;
     this.group = group;
     this.username = username;
     this.action = action;
-    this.date = date;
     this.wasPresentBefore = wasPresentBefore;
   }
   

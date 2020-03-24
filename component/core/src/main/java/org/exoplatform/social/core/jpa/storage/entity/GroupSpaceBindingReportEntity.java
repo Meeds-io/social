@@ -49,7 +49,7 @@ public class GroupSpaceBindingReportEntity implements Serializable {
   @Column(name = "SPACE_ID")
   private long    space;
 
-  @Column(name = "GROUP")
+  @Column(name = "GROUP_ID")
   private String  group;
 
   @Column(name = "USERNAME")
@@ -60,7 +60,7 @@ public class GroupSpaceBindingReportEntity implements Serializable {
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "DATE")
-  private Date    date;
+  private Date    date = new Date();
 
   @Column(name = "WAS_PRESENT_BEFORE")
   private boolean wasPresentBefore;

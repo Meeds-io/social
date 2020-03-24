@@ -154,14 +154,14 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     return groupSpaceBinding;
   }
   
-  private GroupSpaceBindingReport getGroupSpaceBindingReportInstance(long id, long spaceId,
+  private GroupSpaceBindingReport getGroupSpaceBindingReportInstance(long spaceId,
                                                                long groupSpaceBindingId,
                                                                String group,
                                                                String user,
                                                                String action,
                                                                boolean wasPresentBefore) {
-    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(id, groupSpaceBindingId, spaceId, group, user,
-                                                                                  action, new Date(), wasPresentBefore);
+    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(groupSpaceBindingId, spaceId, group, user,
+                                                                                  action, wasPresentBefore);
     return groupSpaceBindingReport;
   }
 
@@ -501,21 +501,21 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
   
-    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(1,1,1,"/platform/administrators",
+    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(1,1,"/platform/administrators",
         "user1",GroupSpaceBindingReport.ADD_ACTION,false);
   
     groupSpaceBindingReport=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport);
     
     tearDownGroupbindingReportList.add(groupSpaceBindingReport);
   
-    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(2,1,1,"/platform/administrators",
+    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(1,1,"/platform/administrators",
                                                                                               "user2",
                                                                                                GroupSpaceBindingReport.ADD_ACTION,false);
   
     groupSpaceBindingReport1=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport1);
     tearDownGroupbindingReportList.add(groupSpaceBindingReport1);
   
-    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(3,2,2,"/platform/administrators",
+    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(2,2,"/platform/administrators",
                                                                                                "user2",
                                                                                                GroupSpaceBindingReport.ADD_ACTION,false);
   
