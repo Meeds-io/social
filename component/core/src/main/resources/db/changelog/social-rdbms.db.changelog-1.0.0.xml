@@ -682,7 +682,7 @@
       <column name="SPACE_ID" type="BIGINT">
         <constraints nullable="false"/>
       </column>
-      <column name="GROUP" type="NVARCHAR(200)">
+      <column name="GROUP_ID" type="NVARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="USERNAME" type="NVARCHAR(200)">

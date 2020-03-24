@@ -252,14 +252,14 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     if (entity == null) {
       return null;
     }
-    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(entity.getId(),
-                                                                                  entity.getGroupSpaceBindingId(),
+    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(entity.getGroupSpaceBindingId(),
                                                                                   entity.getSpace(),
                                                                                   entity.getGroup(),
                                                                                   entity.getUser(),
                                                                                   entity.getAction(),
-                                                                                  entity.getDate(),
                                                                                   entity.isWasPresentBefore());
+    groupSpaceBindingReport.setId(entity.getId());
+    groupSpaceBindingReport.setDate(entity.getDate());
     return groupSpaceBindingReport;
   }
   

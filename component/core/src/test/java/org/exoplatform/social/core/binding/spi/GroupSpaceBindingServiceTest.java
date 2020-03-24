@@ -20,6 +20,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.idm.UserDAOImpl;
+import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -188,7 +194,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
                                                                                          spaceService);
-    groupSpaceBindingService.deleteUserBindingAndSpaceMembership(ub1);
+
+    groupSpaceBindingService.deleteUserBinding(ub1, GroupSpaceBindingReport.REMOVE_ACTION);
 
     // Then
     ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);

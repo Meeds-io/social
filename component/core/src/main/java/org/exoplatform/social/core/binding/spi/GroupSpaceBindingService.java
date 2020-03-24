@@ -124,8 +124,9 @@ public interface GroupSpaceBindingService {
    * Delete a user binding. When a binding is deleted
    *
    * @param userSpaceBinding The user binding to be deleted.
+   * @param action : the action which lead to the deletion (for the report)
    */
-  void deleteUserBindingAndSpaceMembership(UserSpaceBinding userSpaceBinding);
+  void deleteUserBinding(UserSpaceBinding userSpaceBinding, String action);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all

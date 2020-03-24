@@ -29,6 +29,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
@@ -89,26 +90,14 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
       try {
         if (isUserNoMoreMemberOfGroup(userName, groupId)) {
           groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-          spaceService = CommonsUtils.getService(SpaceService.class);
           // Retrieve removed user's all bindings.
-          List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByGroup(groupId, userName);
+          List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByGroup(m.getGroupId(),
+                                                                                                      m.getUserName());
           // Remove them.
           for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
             Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
             long startTime=System.currentTimeMillis();
-  
-            // Delete user binding.
-            groupSpaceBindingService.deleteUserSpaceBinding(userSpaceBinding);
-            // Check if user has other bindings to the space.
-            boolean hasOtherBindings = groupSpaceBindingService
-                                                               .findUserSpaceBindingsBySpace(userSpaceBinding.getGroupBinding()
-                                                                                                             .getSpaceId(),
-                                                                                             userSpaceBinding.getUser())
-                                                               .size() > 0;
-            if (!hasOtherBindings) {
-              // Remove user membership from the space.
-              spaceService.removeMember(space, userName);
-            }
+            groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReport.UPDATE_REMOVE_ACTION);
             long totalTime=System.currentTimeMillis() - startTime;
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
                          + "duration_ms={}",
