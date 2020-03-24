@@ -99,13 +99,6 @@ public interface GroupSpaceBindingService {
   List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
                                                   List<String> actions);
   /**
-   * Saves a list of user bindings
-   *
-   * @param userSpaceBindings The list of user bindings to be created
-   */
-  void saveUserBindings(List<UserSpaceBinding> userSpaceBindings);
-
-  /**
    * Saves a group space binding queue
    *
    * @param groupSpaceBindingsQueue The group space binding queue to save
@@ -222,12 +215,5 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBinding
    * @param space
    */
-  void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space);
-
-  /**
-   * Delete a user space binding.
-   * 
-   * @param userSpaceBinding
-   */
-  void deleteUserSpaceBinding(UserSpaceBinding userSpaceBinding);
+  void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space, String action);
 }

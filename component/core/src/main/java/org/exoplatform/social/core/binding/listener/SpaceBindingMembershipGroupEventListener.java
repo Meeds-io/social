@@ -54,14 +54,18 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
         if (isUserNewMemberToGroup(userName, groupId)) {
           groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
           spaceService = CommonsUtils.getService(SpaceService.class);
-
+  
           // Retrieve all bindings of the group.
           List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsByGroup(m.getGroupId());
           // For each bound space of the group add a user binding to it.
           for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
             Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
             long startTime = System.currentTimeMillis();
-            groupSpaceBindingService.saveUserBinding(userName, groupSpaceBinding, space);
+    
+            groupSpaceBindingService.saveUserBinding(userName,
+                                                     groupSpaceBinding,
+                                                     space,
+                                                     GroupSpaceBindingReport.UPDATE_ADD_ACTION);
             long totalTime = System.currentTimeMillis() - startTime;
     
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "

@@ -138,23 +138,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     LOG.debug("Retrieving user bindings for user : " + userName + " with group : " + group);
     return groupSpaceBindingStorage.findUserSpaceBindingsByGroup(group, userName);
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void saveUserBindings(List<UserSpaceBinding> userSpaceBindings) {
-    LOG.debug("Saving user bindings, ({}) to save", userSpaceBindings.size());
-    try {
-      for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
-        groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
-      }
-    } catch (Exception e) {
-      LOG.error("Error when saving user binding "+userSpaceBindings,e);
-      throw new RuntimeException("Failed saving user bindings", e);
-    }
-  }
-
+  
   @Override
   public void createGroupSpaceBindingQueue(GroupSpaceBindingQueue groupSpaceBindingsQueue) {
     groupSpaceBindingStorage.createGroupSpaceBindingQueue(groupSpaceBindingsQueue);
@@ -297,31 +281,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           long startTimeUser = System.currentTimeMillis();
 
           String userId = user.getUserName();
-          UserSpaceBinding userSpaceBinding = new UserSpaceBinding();
-          userSpaceBinding.setUser(userId);
-          // If user exists in space members before any binding set isMemberBefore to
-          // true.
-          boolean isUserAlreadyBound = countUserBindings(groupSpaceBinding.getSpaceId(), userId) > 0;
-          if (!isUserAlreadyBound) {
-            // If user is not already bound then check if is member of the space.
-            userSpaceBinding.setIsMemberBefore(ArrayUtils.contains(members, userId));
-          } else {
-            // If user is already bound then check if is member before.
-            userSpaceBinding.setIsMemberBefore(isUserBoundAndMemberBefore(groupSpaceBinding.getSpaceId(), userId));
-          }
-          userSpaceBinding.setGroupBinding(groupSpaceBinding);
-          userSpaceBindings.add(userSpaceBinding);
-          
-          GroupSpaceBindingReport report = new GroupSpaceBindingReport(groupSpaceBinding.getId(),
-                                                                       Long.parseLong(groupSpaceBinding.getSpaceId()),
-                                                                       groupSpaceBinding.getGroup(),
-                                                                       userId,
-                                                                       GroupSpaceBindingReport.ADD_ACTION,
-                                                                       userSpaceBinding.isMemberBefore());
-          
-          spaceService.addMember(space, userId);
-          groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
-          groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+          this.saveUserBinding(userId,groupSpaceBinding,space, GroupSpaceBindingReport.ADD_ACTION);
           
           long endTimeUser = System.currentTimeMillis();
           long totalTimeUser = endTimeUser - startTimeUser;
@@ -401,7 +361,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   }
 
   @Override
-  public void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space) {
+  public void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space, String action) {
     String[] members = space.getMembers();
     UserSpaceBinding userSpaceBinding = new UserSpaceBinding(userId, groupSpaceBinding);
     // If user exists in space members before any binding set isMemberBefore to
@@ -414,8 +374,16 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
       // If user is already bound then check if is member before.
       userSpaceBinding.setIsMemberBefore(isUserBoundAndMemberBefore(groupSpaceBinding.getSpaceId(), userId));
     }
+    GroupSpaceBindingReport report = new GroupSpaceBindingReport(groupSpaceBinding.getId(),
+                                                                 Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                 groupSpaceBinding.getGroup(),
+                                                                 userId,
+                                                                 action,
+                                                                 userSpaceBinding.isMemberBefore());
+  
     spaceService.addMember(space, userId);
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
+    groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
   }
 
 
