@@ -33,28 +33,22 @@
   </v-app>
 </template>
 <script>
+import * as gettingStartedService from '../gettingStartedService.js';
 export default {
   data () {
     return {
-      gettingStratedSteps: [
-        {
-          name: 'Upload your profile picture',
-          status: true
-        },
-        {
-          name: 'Connect with collegues',
-          status: false
-        },
-        {
-          name: 'Join a space',
-          status: false
-        },
-        {
-          name: 'Post an activity',
-          status: true
-        }
-      ]
+      gettingStratedSteps: []
     };
+  },
+  created() {
+    this.initGettingStarted();
+  },
+  methods : {
+    initGettingStarted() {
+      gettingStartedService.getGettingStartedSteps().then(data => {
+        this.gettingStratedSteps = data;
+      });
+    }
   }
 };
 </script>
