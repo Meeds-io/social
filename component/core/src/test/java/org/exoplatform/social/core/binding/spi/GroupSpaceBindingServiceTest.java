@@ -345,39 +345,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
    * Mockito.verify(groupSpaceBindingStorage,
    * Mockito.times(1)).saveGroupBinding(binding3, true); }
    */
-
-  /**
-   * Test {@link GroupSpaceBindingService#saveUserBindings(List)}
-   *
-   * @throws Exception
-   */
-  @Test
-  public void saveUserBindings() throws Exception {
-    // Given
-    List<UserSpaceBinding> userSpaceBindings = new LinkedList<>();
-    GroupSpaceBinding binding1 = new GroupSpaceBinding();
-    binding1.setId(1);
-    binding1.setGroup("/platform/administrators");
-    binding1.setSpaceId("1");
-
-    UserSpaceBinding ub1 = new UserSpaceBinding();
-    ub1.setId(1);
-    ub1.setGroupBinding(binding1);
-    ub1.setUser("john");
-    userSpaceBindings.add(ub1);
-
-    // When
-    Mockito.when(orgService.getMembershipHandler()).thenReturn(membershipHandler);
-
-    GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
-                                                                                         groupSpaceBindingStorage,
-                                                                                         orgService,
-                                                                                         spaceService);
-    groupSpaceBindingService.saveUserBindings(userSpaceBindings);
-
-    // Then
-    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveUserBinding(ub1);
-  }
+  
 
   /**
    * Test
