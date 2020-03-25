@@ -166,7 +166,10 @@ export default {
     },
     applyActions(item) {
       $(`#${item}`).find('li').each(function () {
-        const dataLink = $(this).find('.contentSmall:first').data('link');
+        let dataLink = $(this).find('.contentSmall:first').data('link');
+        if (typeof dataLink === 'undefined') {
+          dataLink = $(this).find('.media').children('a').attr('href');
+        }        
         dataLink.replace(/\/portal\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
         const linkId = dataLink.split(`${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
         const dataId = $(this).data('id').toString();
