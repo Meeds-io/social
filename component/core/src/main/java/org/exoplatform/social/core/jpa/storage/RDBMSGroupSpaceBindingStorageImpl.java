@@ -238,7 +238,8 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   private GroupSpaceBindingReportEntity buildEntityGroupSpaceBindingReportFrom(GroupSpaceBindingReport groupSpaceBindingReport) {
     GroupSpaceBindingReportEntity groupSpaceBindingReportEntity = new GroupSpaceBindingReportEntity();
     groupSpaceBindingReportEntity.setGroupSpaceBindingId(groupSpaceBindingReport.getGroupSpaceBindingId());
-    groupSpaceBindingReportEntity.setSpace(groupSpaceBindingReport.getSpaceId());
+    SpaceEntity spaceEntity = spaceDAO.find(groupSpaceBindingReport.getSpaceId());
+    groupSpaceBindingReportEntity.setSpace(spaceEntity);
     groupSpaceBindingReportEntity.setGroup(groupSpaceBindingReport.getGroup());
     groupSpaceBindingReportEntity.setUser(groupSpaceBindingReport.getUsername());
     groupSpaceBindingReportEntity.setAction(groupSpaceBindingReport.getAction());
@@ -253,7 +254,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
       return null;
     }
     GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(entity.getGroupSpaceBindingId(),
-                                                                                  entity.getSpace(),
+                                                                                  entity.getSpace().getId(),
                                                                                   entity.getGroup(),
                                                                                   entity.getUser(),
                                                                                   entity.getAction(),

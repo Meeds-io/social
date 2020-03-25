@@ -31,7 +31,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
     @NamedQuery(name = "SocGroupSpaceBindingReport.findReportForCSV", query = "SELECT groupSpaceBindingReport "
         + " FROM SocGroupSpaceBindingReport groupSpaceBindingReport"
         + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
-        + " AND groupSpaceBindingReport.space = :spaceId"
+        + " AND groupSpaceBindingReport.space.id = :spaceId"
         + " AND groupSpaceBindingReport.group = :group"
         + " AND groupSpaceBindingReport.action IN ( :action )"
         + " ORDER BY groupSpaceBindingReport.date ASC")
@@ -45,9 +45,10 @@ public class GroupSpaceBindingReportEntity implements Serializable {
 
   @Column(name = "GROUP_SPACE_BINDING_ID")
   private long    groupSpaceBindingId;
-
-  @Column(name = "SPACE_ID")
-  private long    space;
+  
+  @ManyToOne
+  @JoinColumn(name = "SPACE_ID", referencedColumnName = "SPACE_ID", nullable = false)
+  private SpaceEntity space;
 
   @Column(name = "GROUP_ID")
   private String  group;
@@ -80,12 +81,12 @@ public class GroupSpaceBindingReportEntity implements Serializable {
   public void setGroupSpaceBindingId(long groupSpaceBindingId) {
     this.groupSpaceBindingId = groupSpaceBindingId;
   }
-
-  public long getSpace() {
+  
+  public SpaceEntity getSpace() {
     return space;
   }
-
-  public void setSpace(long space) {
+  
+  public void setSpace(SpaceEntity space) {
     this.space = space;
   }
 
