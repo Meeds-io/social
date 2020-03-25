@@ -42,10 +42,10 @@ public class GettingStartedRestService implements ResourceContainer {
   @ApiOperation(value = "Collect Getting Started Steps", httpMethod = "GET", response = Response.class, produces = "application/json", notes = "Return getting started steps in json format")
   @ApiResponses(value = { @ApiResponse(code = HTTPStatus.OK, message = "Request fulfilled"),
       @ApiResponse(code = 500, message = "Internal server error") })
-  public Response getGettingStartedSteps(@ApiParam(value = "User language", required = true) @QueryParam("lang") String lang) {
+  public Response getGettingStartedSteps() {
     ConversationState current = ConversationState.getCurrent();
     try {
-      List<GettingStartedStep> gettinStartedSteps = gettingStartedService.getUserSteps(lang);
+      List<GettingStartedStep> gettinStartedSteps = gettingStartedService.getUserSteps();
       return Response.ok(gettinStartedSteps).build();
     } catch (Exception e) {
       LOG.warn("Unknown error occurred while getting user steps", e);

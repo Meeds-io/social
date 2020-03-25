@@ -29,31 +29,28 @@ public class GettingStartedService {
 
   private List<GettingStartedStep> gettingStartedSteps;
 
-  public List<GettingStartedStep> getUserSteps(String lang) {
+  public List<GettingStartedStep> getUserSteps() {
 
     String userId = ConversationState.getCurrent().getIdentity().getUserId();
     List<GettingStartedStep> gettingStartedSteps = new ArrayList<>();
-    ResourceBundleService resourceBundleService = CommonsUtils.getService(ResourceBundleService.class);
-    ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.social.GettingStartedPortlet",
-                                                                            new Locale(lang));
 
     GettingStartedStep stepAvatar = new GettingStartedStep();
-    stepAvatar.setName(resourceBundle.getString("social.portlet.gettingStarted.avatar"));
+    stepAvatar.setName("avatar");
     stepAvatar.setStatus(hasAvatar(userId));
     gettingStartedSteps.add(stepAvatar);
 
     GettingStartedStep stepSpaces = new GettingStartedStep();
-    stepSpaces.setName(resourceBundle.getString("social.portlet.gettingStarted.spaces"));
+    stepSpaces.setName("spaces");
     stepSpaces.setStatus(hasSpaces(userId));
     gettingStartedSteps.add(stepSpaces);
 
     GettingStartedStep stepContact = new GettingStartedStep();
-    stepContact.setName(resourceBundle.getString("social.portlet.gettingStarted.contacts"));
+    stepContact.setName("contacts");
     stepContact.setStatus(hasContacts(userId));
     gettingStartedSteps.add(stepContact);
 
     GettingStartedStep stepActivities = new GettingStartedStep();
-    stepActivities.setName(resourceBundle.getString("social.portlet.gettingStarted.activities"));
+    stepActivities.setName("activities");
     stepActivities.setStatus(hasActivities(userId));
     gettingStartedSteps.add(stepActivities);
 
