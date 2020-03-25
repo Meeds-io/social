@@ -1,4 +1,4 @@
-package org.exoplatform.social.gettingStarted.dto;
+package org.exoplatform.social.core.model;
 
 import java.io.Serializable;
 

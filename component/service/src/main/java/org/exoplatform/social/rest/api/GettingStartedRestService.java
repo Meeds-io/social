@@ -1,4 +1,4 @@
-package org.exoplatform.social.gettingStarted.rest;
+package org.exoplatform.social.rest.api;
 
 import java.util.List;
 
@@ -6,7 +6,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -15,8 +14,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.social.gettingStarted.dto.GettingStartedStep;
-import org.exoplatform.social.gettingStarted.service.GettingStartedService;
+import org.exoplatform.social.core.model.GettingStartedStep;
+import org.exoplatform.social.core.service.GettingStartedService;
 
 import io.swagger.annotations.*;
 
@@ -45,7 +44,7 @@ public class GettingStartedRestService implements ResourceContainer {
   public Response getGettingStartedSteps() {
     ConversationState current = ConversationState.getCurrent();
     try {
-      List<GettingStartedStep> gettinStartedSteps = gettingStartedService.getUserSteps();
+      List<GettingStartedStep> gettinStartedSteps = gettingStartedService.getUserSteps(current.getIdentity().getUserId());
       return Response.ok(gettinStartedSteps).build();
     } catch (Exception e) {
       LOG.warn("Unknown error occurred while getting user steps", e);

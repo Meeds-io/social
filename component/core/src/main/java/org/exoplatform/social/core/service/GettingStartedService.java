@@ -1,17 +1,12 @@
-package org.exoplatform.social.gettingStarted.service;
+package org.exoplatform.social.core.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.resources.ResourceBundleService;
-import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -19,19 +14,31 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.model.GettingStartedStep;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.gettingStarted.dto.GettingStartedStep;
 
 public class GettingStartedService {
 
   private static final Log         LOG = ExoLogger.getLogger(GettingStartedService.class);
-
+  IdentityManager                  identityManager;
+  SpaceService                     spaceService;
+  RelationshipManager              relationshipManager;
+  ActivityManager                  activityService;
   private List<GettingStartedStep> gettingStartedSteps;
 
-  public List<GettingStartedStep> getUserSteps() {
+  public GettingStartedService(IdentityManager identityManager,
+                               SpaceService spaceService,
+                               RelationshipManager relationshipManager,
+                               ActivityManager activityService) {
+    this.identityManager = identityManager;
+    this.spaceService = spaceService;
+    this.relationshipManager = relationshipManager;
+    this.activityService = activityService;
+  }
 
-    String userId = ConversationState.getCurrent().getIdentity().getUserId();
+  public List<GettingStartedStep> getUserSteps(String userId) {
+
     List<GettingStartedStep> gettingStartedSteps = new ArrayList<>();
 
     GettingStartedStep stepAvatar = new GettingStartedStep();
@@ -59,8 +66,6 @@ public class GettingStartedService {
 
   private boolean hasAvatar(String userId) {
     try {
-      IdentityManager identityManager = (IdentityManager) ExoContainerContext.getCurrentContainer()
-                                                                             .getComponentInstanceOfType(IdentityManager.class);
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       Profile profile = identity.getProfile();
 
@@ -76,8 +81,6 @@ public class GettingStartedService {
 
   private boolean hasSpaces(String userId) {
     try {
-      SpaceService spaceService = (SpaceService) ExoContainerContext.getCurrentContainer()
-                                                                    .getComponentInstanceOfType(SpaceService.class);
       Space[] spaces = spaceService.getAccessibleSpacesWithListAccess(userId).load(0, 1);
       return spaces != null && spaces.length > 0;
 
@@ -89,11 +92,6 @@ public class GettingStartedService {
 
   private boolean hasContacts(String userId) {
     try {
-      IdentityManager identityManager = (IdentityManager) ExoContainerContext.getCurrentContainer()
-                                                                             .getComponentInstanceOfType(IdentityManager.class);
-      RelationshipManager relationshipManager =
-                                              (RelationshipManager) ExoContainerContext.getCurrentContainer()
-                                                                                       .getComponentInstanceOfType(RelationshipManager.class);
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       ListAccess<Identity> confirmedContacts = relationshipManager.getConnections(identity);
 
@@ -106,11 +104,7 @@ public class GettingStartedService {
 
   private boolean hasActivities(String userId) {
     try {
-      IdentityManager identityManager = (IdentityManager) ExoContainerContext.getCurrentContainer()
-                                                                             .getComponentInstanceOfType(IdentityManager.class);
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-      ActivityManager activityService = (ActivityManager) ExoContainerContext.getCurrentContainer()
-                                                                             .getComponentInstanceOfType(ActivityManager.class);
       RealtimeListAccess activities = activityService.getActivitiesWithListAccess(identity);
 
       if (activities.getSize() != 0) {
