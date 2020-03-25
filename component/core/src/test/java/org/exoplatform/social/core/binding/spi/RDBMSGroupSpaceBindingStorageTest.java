@@ -87,6 +87,7 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     Space space = this.getSpaceInstance(1);
     spaceStorage.saveSpace(space, true);
     spaceId = spaceStorage.getSpaceByPrettyName("myspacetestbinding1").getId();
+    
   }
 
   /**
@@ -501,21 +502,31 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
   
-    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(1,1,"/platform/administrators",
+    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
+                                                                                              "/platform"
+                                                                                                  + "/administrators",
         "user1",GroupSpaceBindingReport.ADD_ACTION,false);
   
     groupSpaceBindingReport=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport);
     
     tearDownGroupbindingReportList.add(groupSpaceBindingReport);
   
-    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(1,1,"/platform/administrators",
+    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
+                                                                                               "/platform"
+                                                                                                   + "/administrators",
                                                                                               "user2",
                                                                                                GroupSpaceBindingReport.ADD_ACTION,false);
   
     groupSpaceBindingReport1=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport1);
     tearDownGroupbindingReportList.add(groupSpaceBindingReport1);
   
-    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(2,2,"/platform/administrators",
+    Space space2 = this.getSpaceInstance(2);
+    spaceStorage.saveSpace(space2, true);
+    space2 = spaceStorage.getSpaceByPrettyName(space2.getPrettyName());
+  
+    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(Long.parseLong(space2.getId()),2,
+                                                                                               "/platform"
+                                                                                                   + "/administrators",
                                                                                                "user2",
                                                                                                GroupSpaceBindingReport.ADD_ACTION,false);
   
@@ -524,8 +535,8 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     List<String> actions = new ArrayList<>();
     actions.add(GroupSpaceBindingReport.ADD_ACTION);
   
-    assertEquals("findReportsForCSV(1,1,'/platform/administrators','ADD') must return 2",2,
-                 groupSpaceBindingStorage.findReportsForCsv(1,1,"/platform/administrators",actions).size());
+    assertEquals("findReportsForCSV("+spaceId+",1,'/platform/administrators','ADD') must return 2",2,
+                 groupSpaceBindingStorage.findReportsForCsv(Long.parseLong(spaceId),1,"/platform/administrators",actions).size());
   
   }
   

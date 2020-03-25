@@ -680,7 +680,8 @@
         <constraints nullable="false"/>
       </column>
       <column name="SPACE_ID" type="BIGINT">
-        <constraints nullable="false"/>
+          <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPOR_SPACEID" references="SOC_SPACES(SPACE_ID)"
+                       nullable="false"/>
       </column>
       <column name="GROUP_ID" type="NVARCHAR(200)">
         <constraints nullable="false"/>
