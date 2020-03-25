@@ -34,7 +34,7 @@
                 <span class="notifDrawerTitle">{{ $t('UIIntranetNotificationsPortlet.title.notifications') }}</span>
               </v-list-item-content>
               <v-list-item-action class="notifDrawerIcons">
-                <i :title="$t('UIIntranetNotificationsPortlet.title.notificationsSetting')" class="uiSettingsIcon notifDrawerSettings mr-3" @click="navigateTo('settings')"></i>
+                <i :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')" class="uiSettingsIcon notifDrawerSettings mr-3" @click="navigateTo('settings')"></i>
                 <i class="uiCloseIcon notifDrawerClose" @click="closeDrawer()"></i>
               </v-list-item-action>
             </v-list-item>
