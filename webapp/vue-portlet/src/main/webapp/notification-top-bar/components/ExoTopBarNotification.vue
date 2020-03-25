@@ -167,7 +167,7 @@ export default {
     applyActions(item) {
       $(`#${item}`).find('li').each(function () {
         const dataLink = $(this).find('.contentSmall:first').data('link');
-        dataLink.replace('/portal/intranet', `${eXo.env.portal.context}/${eXo.env.portal.portalName}`);
+        dataLink.replace(/\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}`);
         const linkId = dataLink.split(`${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
         const dataId = $(this).data('id').toString();
 
