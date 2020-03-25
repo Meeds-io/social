@@ -21,7 +21,7 @@
                   <i v-if="step.status" class="UICheckIcon white--text"></i>
                   <span v-else class="step-number font-weight-bold text-center white--text">{{ index+1 }}</span>
                 </v-list-item-icon>
-                <v-list-item-content :class="{ inactiveStep: !step.status }">
+                <v-list-item-content :class="{ inactiveStep: !step.status }" class="pb-3">
                   <v-list-item-title class="body-2">{{ $t(`locale.portlet.gettingStarted.step.${step.name}`) }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
