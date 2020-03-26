@@ -48,12 +48,17 @@ public class GroupSpaceBindingReport {
   /** true if the user was present in the space before the binding */
   private boolean wasPresentBefore;
   
+  /** true if the user is still present in space after remove.
+   * false if the user is no more in space after remove
+   * null for other actions
+   */
+  private boolean stillInSpace;
+  
   public static final String ADD_ACTION = "ADD";
   public static final String REMOVE_ACTION        = "REMOVE";
   public static final String UPDATE_ADD_ACTION    = "UPDATE_ADD";
   public static final String UPDATE_REMOVE_ACTION = "UPDATE_REMOVE";
   public static final String SYNCHRONIZE_ACTION = "SYNCHRONIZE";
-  
   
   public GroupSpaceBindingReport(long groupSpaceBindingId,
                                  long spaceId,
@@ -131,5 +136,12 @@ public class GroupSpaceBindingReport {
   public void setWasPresentBefore(boolean wasPresentBefore) {
     this.wasPresentBefore = wasPresentBefore;
   }
-
+  
+  public boolean isStillInSpace() {
+    return stillInSpace;
+  }
+  
+  public void setStillInSpace(boolean stillInSpace) {
+    this.stillInSpace = stillInSpace;
+  }
 }

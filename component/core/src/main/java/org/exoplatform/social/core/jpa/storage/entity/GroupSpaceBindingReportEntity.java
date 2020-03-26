@@ -65,6 +65,9 @@ public class GroupSpaceBindingReportEntity implements Serializable {
 
   @Column(name = "WAS_PRESENT_BEFORE")
   private boolean wasPresentBefore;
+  
+  @Column(name = "STILL_IN_SPACE")
+  private boolean stillInSpace;
 
   public long getId() {
     return id;
@@ -128,5 +131,13 @@ public class GroupSpaceBindingReportEntity implements Serializable {
 
   public void setWasPresentBefore(boolean wasPresentBefore) {
     this.wasPresentBefore = wasPresentBefore;
+  }
+  
+  public boolean isStillInSpace() {
+    return stillInSpace;
+  }
+  
+  public void setStillInSpace(boolean stillInSpace) {
+    this.stillInSpace = stillInSpace;
   }
 }
