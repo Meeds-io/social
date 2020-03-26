@@ -135,7 +135,7 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      action.init();
+      action.onExecute();
     }
   }
 };
