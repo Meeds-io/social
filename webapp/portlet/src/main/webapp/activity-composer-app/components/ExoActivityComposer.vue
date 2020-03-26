@@ -28,17 +28,17 @@
             <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
           </div>
           <div class="composerActions">
-            <div v-for="app in activityComposerApplications" :key="app.key" :class="`${app.appClass}App`">
-              <div class="appsItem" @click="executeAction(app)">
-                <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
-                <div class="appsItemDescription">
-                  <div class="appLabel">{{ getLabel(app.labelKey) }}</div>
-                  <div class="appDescription">
-                    <p>{{ getLabel(app.description) }}</p>
+            <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
+              <div class="actionItem" @click="executeAction(action)">
+                <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
+                <div class="actionItemDescription">
+                  <div class="actionLabel">{{ getLabel(action.labelKey) }}</div>
+                  <div class="actionDescription">
+                    <p>{{ getLabel(action.description) }}</p>
                   </div>
                 </div>
               </div>
-              <component v-show="showMessageComposer" v-model="attachments" :is="app.component"></component>
+              <component v-show="showMessageComposer" v-model="attachments" :is="action.component"></component>
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
 
 <script>
 import * as composerServices from '../composerServices';
-import {activityComposerApplications, installExtensions} from '../extension';
+import {activityComposerActions, installExtensions} from '../extension';
 
 export default {
   data() {
@@ -60,7 +60,7 @@ export default {
       showMessageComposer: false,
       message: '',
       showErrorMessage: false,
-      activityComposerApplications: [],
+      activityComposerActions: [],
       attachments: []
     };
   },
@@ -82,7 +82,7 @@ export default {
   },
   created() {
     installExtensions();
-    this.activityComposerApplications = activityComposerApplications;
+    this.activityComposerActions = activityComposerActions;
   },
   methods: {
     openMessageComposer: function() {
@@ -134,8 +134,8 @@ export default {
     closeMessageComposer: function() {
       this.showMessageComposer = false;
     },
-    executeAction(app) {
-      app.init();
+    executeAction(action) {
+      action.init();
     }
   }
 };

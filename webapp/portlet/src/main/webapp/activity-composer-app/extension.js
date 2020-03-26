@@ -1,9 +1,9 @@
-export let activityComposerApplications;
+export let activityComposerActions;
 
 function getExtensionsByType(type) {
   return extensionRegistry.loadExtensions('ActivityComposer', type);
 }
 
 export function installExtensions() {
-  activityComposerApplications = getExtensionsByType('activity-composer-application');
+  activityComposerActions = getExtensionsByType('activity-composer-action');
 }
