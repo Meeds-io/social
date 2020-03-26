@@ -698,6 +698,9 @@
       <column name="WAS_PRESENT_BEFORE" type="BOOLEAN">
         <constraints nullable="false"/>
       </column>
+      <column name="STILL_IN_SPACE" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
   </changeSet>
 

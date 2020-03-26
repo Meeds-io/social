@@ -184,10 +184,12 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     boolean hasOtherBindings = groupSpaceBindingStorage.findUserSpaceBindingsBySpace(userSpaceBinding.getGroupBinding()
                                                                                                      .getSpaceId(),
                                                                                      userSpaceBinding.getUser()).size() > 0;
+    boolean isStillPresent=true;
     if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
       // no binding to the target space in this case remove user from space.
       spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
                                 userSpaceBinding.getUser());
+      isStillPresent=false;
     }
     GroupSpaceBindingReport report = new GroupSpaceBindingReport(userSpaceBinding.getGroupBinding().getId(),
                                                                  Long.parseLong(userSpaceBinding.getGroupBinding().getSpaceId()),
@@ -195,6 +197,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                  userSpaceBinding.getUser(),
                                                                  action,
                                                                  userSpaceBinding.isMemberBefore());
+    report.setStillInSpace(isStillPresent);
     groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
   }
 
