@@ -433,12 +433,14 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       sbResult.append(reports.get(reports.size()-1).getDate()+"\n");
     }
     //headers :
-    sbResult.append("Username,Action,Date,Present Before\n");
+    sbResult.append("Username,Action,Date,Present Before,Still in space\n");
     
     reports.stream().forEach(groupSpaceBindingReport -> {
       sbResult.append(groupSpaceBindingReport.getUsername()+",");
-      if (action.equals(GroupSpaceBindingReport.REMOVE_ACTION)  && groupSpaceBindingReport.isWasPresentBefore()) {
-        //if the action is "remove", and the user present in the space  before, then, he was not removed
+      if ((action.equals(GroupSpaceBindingReport.REMOVE_ACTION) | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) &&
+          (groupSpaceBindingReport.isWasPresentBefore() |groupSpaceBindingReport.isStillInSpace())) {
+        //if the action is "remove" or "update_remove", and the user present in the space  before, then, he was not removed
+        //if the action is "remove" or "update_remove", and the user is still present in the space
         //so, display nothing for the action in the report
         sbResult.append(",");
       } else {
@@ -452,7 +454,13 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
         }
       }
       sbResult.append(groupSpaceBindingReport.getDate()+",");
-      sbResult.append(groupSpaceBindingReport.isWasPresentBefore()+"\n");
+      sbResult.append(groupSpaceBindingReport.isWasPresentBefore()+",");
+      
+      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.REMOVE_ACTION) ||groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+        //in case of add action, stillPresentInSpace is not relevant, so do not display
+        sbResult.append(groupSpaceBindingReport.isStillInSpace());
+      }
+      sbResult.append("\n");
       
     });
   
