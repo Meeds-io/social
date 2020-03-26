@@ -19,13 +19,9 @@ import org.exoplatform.social.core.service.GettingStartedService;
 
 import io.swagger.annotations.*;
 
-/**
- * Provides REST Services in order to check user getting started steps.
- */
-
 @Path("getting-started")
 @RolesAllowed("users")
-@Api(value = "/getting-started", description = "Check getting Started steps for users")
+@Api(value = "/getting-started", description = "Check getting Started steps for currently authenticated user")
 public class GettingStartedRestService implements ResourceContainer {
 
   private static final Log      LOG = ExoLogger.getLogger(GettingStartedRestService.class);

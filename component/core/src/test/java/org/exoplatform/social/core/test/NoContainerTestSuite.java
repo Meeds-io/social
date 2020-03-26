@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -41,6 +42,7 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
     StorageUtilsTest.class,
     ActivityIteratorTest.class,
     IdentityResultTest.class,
+    GettingStartedServiceTest.class,
 })
 public class NoContainerTestSuite {
 
