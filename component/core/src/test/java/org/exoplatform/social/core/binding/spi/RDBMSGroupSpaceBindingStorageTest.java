@@ -473,6 +473,12 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/users", "john").size());
   }
   
+  /**
+   * Test
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#countUserBindings(String, String)}
+   *
+   * @throws Exception
+   **/
   public void testCountUserBindingsBySpace() throws Exception {
     GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(1, spaceId, "/platform/administrators");
     groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
@@ -500,6 +506,14 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  groupSpaceBindingStorage.countBoundUsers(spaceId));
   }
   
+  /**
+   * Test
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#findReportsForCsv(long, long, String, List)}
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReport)}
+   *
+   *
+   * @throws Exception
+   **/
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
   
     GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
@@ -539,5 +553,6 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                  groupSpaceBindingStorage.findReportsForCsv(Long.parseLong(spaceId),1,"/platform/administrators",actions).size());
   
   }
+  
   
 }
