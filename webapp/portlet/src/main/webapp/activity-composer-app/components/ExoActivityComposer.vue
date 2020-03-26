@@ -15,7 +15,7 @@
         </div>
         <div class="content">
           <exo-activity-rich-editor ref="richEditor" v-model="message" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
-          <div class="composerActions">
+          <div class="composerButtons">
             <button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes" @click="postMessage()">{{ $t('activity.composer.post') }}</button>
           </div>
           <transition name="fade">
