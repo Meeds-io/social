@@ -34,7 +34,7 @@
                 <span class="notifDrawerTitle">{{ $t('UIIntranetNotificationsPortlet.title.notifications') }}</span>
               </v-list-item-content>
               <v-list-item-action class="notifDrawerIcons">
-                <i class="uiSettingsIcon notifDrawerSettings mr-3" @click="navigateTo('settings')"></i>
+                <i :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')" class="uiSettingsIcon notifDrawerSettings mr-3" @click="navigateTo('settings')"></i>
                 <i class="uiCloseIcon notifDrawerClose" @click="closeDrawer()"></i>
               </v-list-item-action>
             </v-list-item>
@@ -59,7 +59,7 @@
               <p>{{ $t('UIIntranetNotificationsPortlet.label.NoNotifications') }}</p>
             </div>
           </div>
-          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0">
+          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0 px-3">
             <v-card 
               flat
               tile 
@@ -166,7 +166,10 @@ export default {
     },
     applyActions(item) {
       $(`#${item}`).find('li').each(function () {
-        const dataLink = $(this).find('.contentSmall:first').data('link');
+        let dataLink = $(this).find('.contentSmall:first').data('link');
+        if (typeof dataLink === 'undefined') {
+          dataLink = $(this).find('.media').children('a').attr('href');
+        }        
         dataLink.replace(/\/portal\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
         const linkId = dataLink.split(`${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
         const dataId = $(this).data('id').toString();
