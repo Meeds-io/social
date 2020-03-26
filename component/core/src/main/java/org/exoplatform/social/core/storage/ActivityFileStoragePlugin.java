@@ -60,10 +60,10 @@ public abstract class ActivityFileStoragePlugin extends BaseComponentPlugin {
    *
    * @param activity
    * @param streamOwner
-   * @param attachments
+   * @param attachment
    * @throws Exception
    */
-  public abstract void attachExistingFiles(ExoSocialActivity activity, Identity streamOwner, ActivityFile... attachments) throws Exception;
+  public abstract void attachExistingFile(ExoSocialActivity activity, Identity streamOwner, ActivityFile attachment) throws Exception;
 
   public String getDatasourceName() {
     return datasourceName;

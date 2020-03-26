@@ -23,13 +23,13 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div v-if="attachments.length" class="attachments-list">
+          <div v-if="attachments.length" class="attachmentsList">
             <i class="uiIconAttach"></i>
             <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
           </div>
-          <div class="composerApps">
+          <div class="composerActions">
             <div v-for="app in activityComposerApplications" :key="app.key" :class="`${app.appClass}App`">
-              <div class="appsItem" @click="openApp(app)">
+              <div class="appsItem" @click="executeAction(app)">
                 <div class="appsItemIcon"><div :class="app.iconClass"></div></div>
                 <div class="appsItemDescription">
                   <div class="appLabel">{{ getLabel(app.labelKey) }}</div>
@@ -134,7 +134,7 @@ export default {
     closeMessageComposer: function() {
       this.showMessageComposer = false;
     },
-    openApp(app) {
+    executeAction(app) {
       app.init();
     }
   }

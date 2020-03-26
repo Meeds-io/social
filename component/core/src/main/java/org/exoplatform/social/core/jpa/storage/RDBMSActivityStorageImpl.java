@@ -617,13 +617,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
           try {
             activityFileStoragePlugin.storeAttachments(activity, streamOwner, activityFile);
           } catch (Exception e) {
-            LOG.error("Error while adding attachment to activity " + activityFile.getId(), e);
+            LOG.error("Error while adding attachment to activity " + activityFile.getName(), e);
           }
         }
         //Attachments from existing resource
         else {
           try {
-            activityFileStoragePlugin.attachExistingFiles(activity, streamOwner, activityFile);
+            activityFileStoragePlugin.attachExistingFile(activity, streamOwner, activityFile);
           } catch (Exception e) {
             LOG.error("Error while adding attachment to activity " + activityFile.getId(), e);
           }
