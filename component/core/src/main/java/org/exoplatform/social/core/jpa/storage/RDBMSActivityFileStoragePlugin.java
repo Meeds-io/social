@@ -70,4 +70,8 @@ public class RDBMSActivityFileStoragePlugin extends ActivityFileStoragePlugin {
     }
   }
 
+  public void attachExistingFile(ExoSocialActivity activity, Identity streamOwner, ActivityFile attachment) throws Exception {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
 }

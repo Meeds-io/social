@@ -15,7 +15,7 @@
         </div>
         <div class="content">
           <exo-activity-rich-editor ref="richEditor" v-model="message" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
-          <div class="composerActions">
+          <div class="composerButtons">
             <button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes" @click="postMessage()">{{ $t('activity.composer.post') }}</button>
           </div>
           <transition name="fade">
@@ -23,6 +23,24 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
+          <div v-if="attachments.length" class="attachmentsList">
+            <i class="uiIconAttach"></i>
+            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          </div>
+          <div class="composerActions">
+            <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
+              <div class="actionItem" @click="executeAction(action)">
+                <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
+                <div class="actionItemDescription">
+                  <div class="actionLabel">{{ getLabel(action.labelKey) }}</div>
+                  <div class="actionDescription">
+                    <p>{{ getLabel(action.description) }}</p>
+                  </div>
+                </div>
+              </div>
+              <component v-show="showMessageComposer" v-model="attachments" :is="action.component"></component>
+            </div>
+          </div>
         </div>
       </div>
     </v-app>
@@ -32,6 +50,7 @@
 
 <script>
 import * as composerServices from '../composerServices';
+import {activityComposerActions, installExtensions} from '../extension';
 
 export default {
   data() {
@@ -40,13 +59,18 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       showMessageComposer: false,
       message: '',
-      showErrorMessage: false
+      showErrorMessage: false,
+      activityComposerActions: [],
+      attachments: []
     };
   },
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
       return pureText.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH;
+    },
+    activityType: function() {
+      return this.attachments.length ? 'files:spaces' : '';
     }
   },
   watch: {
@@ -55,31 +79,46 @@ export default {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
     }
-
+  },
+  created() {
+    installExtensions();
+    this.activityComposerActions = activityComposerActions;
   },
   methods: {
     openMessageComposer: function() {
       this.$refs.richEditor.setFocus();
       this.showMessageComposer = true;
     },
+    getLabel: function(labelKey) {
+      const label = this.$t(labelKey);
+      return label ? label : labelKey;
+    },
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
       const msg = this.$refs.richEditor.getMessage();
       if(eXo.env.portal.spaceId) {
-        composerServices.postMessageInSpace(msg, eXo.env.portal.spaceId)
+        composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
-          .then(() => this.message = '')
+          .then(() => {
+            this.message = '';
+            this.attachments = [];
+            this.showErrorMessage = false;
+          })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
           });
       } else {
-        composerServices.postMessageInUserStream(msg, eXo.env.portal.userName)
+        composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
-          .then(() => this.message = '')
+          .then(() => {
+            this.message = '';
+            this.attachments = [];
+            this.showErrorMessage = false;
+          })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
@@ -94,6 +133,9 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
+    },
+    executeAction(action) {
+      action.onExecute();
     }
   }
 };

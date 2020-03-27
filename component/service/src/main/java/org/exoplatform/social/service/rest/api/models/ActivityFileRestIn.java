@@ -18,6 +18,8 @@
 package org.exoplatform.social.service.rest.api.models;
 
 public class ActivityFileRestIn {
+  private String id;
+
   private String uploadId;
 
   private String storage;
@@ -25,7 +27,7 @@ public class ActivityFileRestIn {
   public String getUploadId() {
     return uploadId;
   }
-  
+
   public void setUploadId(String uploadId) {
     this.uploadId = uploadId;
   }
@@ -33,8 +35,16 @@ public class ActivityFileRestIn {
   public String getStorage() {
     return storage;
   }
-  
+
   public void setStorage(String storage) {
     this.storage = storage;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }
