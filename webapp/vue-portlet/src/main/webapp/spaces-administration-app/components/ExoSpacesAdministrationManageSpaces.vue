@@ -21,7 +21,9 @@
           {{ $t('social.spaces.administration.manageSpaces.registration') }}
         </th>
         <th>
-          {{ $t('social.spaces.administration.manageSpaces.users') }}
+          <span v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.users.tooltip')">
+            {{ $t('social.spaces.administration.manageSpaces.users') }}
+          </span>
         </th>
         <th>
           {{ $t('social.spaces.administration.manageSpaces.actions') }}
