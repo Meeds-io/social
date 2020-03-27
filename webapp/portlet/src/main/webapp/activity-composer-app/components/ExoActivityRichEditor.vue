@@ -97,6 +97,7 @@ export default {
           },
           destroy: function () {
             self.inputVal = '';
+            self.charsCount = 0;
           }
         }
       });
