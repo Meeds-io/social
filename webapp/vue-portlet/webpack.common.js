@@ -11,6 +11,7 @@ let config = {
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
     topBarLogo: './src/main/webapp/logo-top-bar/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
+    gettingStarted: './src/main/webapp/getting-started/main.js',
   },
   module: {
     rules: [

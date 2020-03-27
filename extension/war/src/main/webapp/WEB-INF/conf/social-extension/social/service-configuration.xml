@@ -125,6 +125,16 @@
   <component>
     <type>org.exoplatform.social.processor.EmbedProcessor</type>
   </component>
+
+<!-- Getting Started Services -->
+  <component>
+    <type>org.exoplatform.social.core.service.GettingStartedService</type>
+  </component>
+  <component>
+    <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
+  </component>
+<!-- Getting Started Services -->
+
 <!-- Social request/response filter -->
   <external-component-plugins>
       <target-component>org.exoplatform.services.rest.impl.RequestHandlerImpl</target-component>
