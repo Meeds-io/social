@@ -51,11 +51,11 @@ public class GettingStartedService {
 
   /**
    * Computed the Getting Started steps for an authenticated user on the following
-   * steps :<br/>
-   * - Upload user avatar<br/>
-   * - Join a space<br/>
-   * - Add Connections<br/>
-   * - Post a message<br/>
+   * steps :
+   * - Upload user avatar
+   * - Join a space
+   * - Add Connections
+   * - Post a message
    * 
    * @param userId username of type {@link String}
    * @return {@link List} of {@link GettingStartedStep} contain list of user steps
