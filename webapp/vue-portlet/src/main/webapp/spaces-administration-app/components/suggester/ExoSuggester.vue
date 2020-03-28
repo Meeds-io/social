@@ -59,8 +59,12 @@ export default {
   methods: {
     bindSelectedItems() {
       const selectize = $(this.$el)[0].selectize;
+      if (this.selectedItems.length === 1 && !this.selectedItems[0].startsWith('/')) {
+        this.selectedItems.shift();
+      }
       //
       const removeItems = [];
+      const  addedItems = [];
       selectize.items.forEach(item => {
         if (!this.selectedItems.includes(item)) {
           removeItems.push(item);
@@ -69,7 +73,36 @@ export default {
       removeItems.forEach(item => {
         selectize.removeItem(item, true);
       });
-    }
+      
+      // add newly added items
+      this.selectedItems.forEach(item => {
+        if (item && item.startsWith('/') && !selectize.items.includes(item)) {
+          addedItems.push(item);
+        }
+      });
+
+      if (addedItems && addedItems.length > 0) {
+        addedItems.forEach(item => {
+          this.addItem(item);
+        });
+      }
+    },
+    addItem(item) {
+      if (item) {
+        const selectize = $(this.$el)[0].selectize;
+        // if selectize options doesn't contain the option of this item add it
+        if (!selectize.options[`${item}`]) {
+          selectize.options[`${item}`] = {
+            avatarUrl: null,
+            text: item,
+            value: item,
+            type: 'group'
+          };
+        }
+        // add item
+        selectize.addItem(item);
+      }
+    },
   }
 };
 </script>

@@ -121,11 +121,27 @@ export default {
       search: null,
       allItems: [],
       active: [],
+      confirmedSelection: [],
     };
   },
   computed : {
     isAllowToSave() {
-      return this.selection && this.selection.length > 0;
+      // retrieve none confirmed selections
+      const nonConfirmedSelection = [];
+      const confirmed = this.confirmedSelection.map(group => group.id);
+      const allSelection = this.selection.map(group => group.id);
+      // check for non confirmed changes
+      allSelection.forEach(groupId => {
+        if (!confirmed.includes(groupId)) {
+          nonConfirmedSelection.push(groupId);
+        }
+      });
+      confirmed.forEach(groupId => {
+        if (!allSelection.includes(groupId)) {
+          nonConfirmedSelection.push(groupId);
+        }
+      });
+      return this.selection && this.selection.length > 0 && nonConfirmedSelection.length > 0;
     },
     searching() {
       return this.search;
@@ -137,7 +153,42 @@ export default {
         id: groupId,
         name: groupId,
       }));
-      this.selection.push(...selected);
+      if (this.confirmedSelection.length === 0) {
+        this.confirmedSelection.push(...selected);
+        this.selection.push(...selected);
+      } else {
+        const removedGroupIds = [];
+        const  addedGroupIds = [];
+        
+        // retrieve removed items
+        const confirmed = this.confirmedSelection.map(item => item.id);
+        confirmed.forEach(groupId => {
+          if (!this.alreadySelected.includes(groupId)) {
+            removedGroupIds.push(groupId);
+          }
+        });
+        
+        // retrieve added items
+        this.alreadySelected.forEach(groupId => {
+          if (!confirmed.includes(groupId)) {
+            addedGroupIds.push(groupId);
+          }
+        });
+        
+        // synchronize confirmed selection
+        removedGroupIds.forEach(groupId => {
+          this.selection = this.selection.filter(group => group.id !== groupId);
+        });
+        addedGroupIds.forEach(groupId => {
+          this.selection.push({
+            id: groupId,
+            name: groupId
+          });
+        });
+        // update confirmed selection
+        this.confirmedSelection = [];
+        this.confirmedSelection.push(...selected);
+      }
     },
     search() {
       if (this.search) {
@@ -215,7 +266,6 @@ export default {
     },
     saveSelection() {
       this.$emit('selectionSaved', this.selection.map(group => group.id));
-      this.selection = [];
     },
   },
 };
