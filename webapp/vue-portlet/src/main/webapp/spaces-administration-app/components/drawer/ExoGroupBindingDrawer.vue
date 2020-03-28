@@ -39,8 +39,11 @@
           class="pt-5 pl-3 mb-4"
           wrap>
           <v-flex xs9>
-            <exo-suggester v-model="groups" :options="suggesterOptions" :source-providers="[findGroups]"
-                           :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')"/>
+            <exo-suggester 
+              v-model="groups"
+              :options="suggesterOptions"
+              :source-providers="[findGroups]"
+              :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')"/>
           </v-flex>
           <v-flex xs1/>
           <v-flex xs1>
@@ -217,6 +220,7 @@ export default {
     },
     selectionSaved(groupsIds) {
       this.showSelectGroupsTree = false;
+      this.groups = [];
       this.groups.push(...groupsIds);
     },
   }
