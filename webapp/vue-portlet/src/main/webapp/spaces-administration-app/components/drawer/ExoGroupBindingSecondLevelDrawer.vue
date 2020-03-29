@@ -77,7 +77,7 @@
           v-model="selection"
           :items="items"
           :search="search"
-          :open="allItems"
+          :open="openItems"
           :active="active"
           selection-type="independent"
           dense
@@ -120,6 +120,7 @@ export default {
       items: [],
       search: null,
       allItems: [],
+      openItems: [],
       active: [],
       confirmedSelection: [],
     };
@@ -193,9 +194,13 @@ export default {
     search() {
       if (this.search) {
         this.active = this.allItems.filter(item => item.name.toLowerCase().match(this.search.toLowerCase()));
+        if (this.active.length > 0) {
+          this.openItems = this.getItemsToOpen();
+        }
       } else {
         // init activate.
         this.active = [];
+        this.openItems = [];
       }
     },
   },
@@ -257,8 +262,35 @@ export default {
         this.allItems.push(...children);
       });
     },
+    getItemsToOpen() {
+      // count parents of each active element
+      const toOpenIds = [];
+      this.active.forEach(item => {
+        // skip root parent
+        let currentItem = item;
+        const countParents = currentItem.id.split('/').length - 1;
+        let parent;
+        for (let i = countParents - 1; i > 0; i--) {
+          parent = this.getItem(currentItem.parentId);
+          if (!toOpenIds.includes(parent.id)) {
+            toOpenIds.push(parent.id);
+          }
+          currentItem = parent;
+        }
+      });
+      // retrieve items to be opened by ids
+      const toOpen = [];
+      toOpenIds.forEach(id => {
+        toOpen.push(this.getItem(id));
+      });
+      return toOpen;
+    },
+    getItem(id) {
+      return this.allItems.filter(item => item.id === id)[0];
+    },
     closeDrawer() {
       this.selection = [];
+      this.search = '';
       this.$emit('close');
     },
     cancelSelection() {
