@@ -41,9 +41,11 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
        String url = "";
        if (StringUtils.isNotBlank(defaultValue)) {
            firstIndex = defaultValue.indexOf(openingOembed, firstIndex);
-           lastIndex = defaultValue.indexOf(closingOembed, lastIndex);
+           if (firstIndex >= 0) {
+             lastIndex = defaultValue.indexOf(closingOembed, firstIndex);
+           }
        }
-       if (firstIndex != -1 && lastIndex != -1) {
+       if (firstIndex >= 0 && lastIndex > firstIndex) {
            firstMessage = defaultValue.substring(0, firstIndex);
            String urlCoder = defaultValue.substring(firstIndex + openingOembed.length(), lastIndex);
            url = URLDecoder.decode(urlCoder, StandardCharsets.UTF_8.toString());
