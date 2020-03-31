@@ -43,6 +43,7 @@
               v-model="groups"
               :options="suggesterOptions"
               :source-providers="[findGroups]"
+              :bound-groups="groupSpaceBindings"
               :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')"/>
           </v-flex>
           <v-flex xs1/>
@@ -112,7 +113,7 @@
       </v-card-actions>      
     </v-flex>
     <div v-show="showSelectGroupsTree">
-      <exo-group-binding-second-level-drawer :already-selected="groups" @selectionSaved="selectionSaved" @back="back" @close="closeDrawer"></exo-group-binding-second-level-drawer>
+      <exo-group-binding-second-level-drawer :already-selected="groups" :group-space-bindings="groupSpaceBindings" @selectionSaved="selectionSaved" @back="back" @close="closeDrawer"></exo-group-binding-second-level-drawer>
     </div>
   </div>
 </template>
