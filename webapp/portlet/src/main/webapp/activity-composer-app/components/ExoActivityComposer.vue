@@ -97,9 +97,6 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
-    },
-    postDisabled: function() {
-      console.log(this.postDisabled);
     }
   },
   created() {
