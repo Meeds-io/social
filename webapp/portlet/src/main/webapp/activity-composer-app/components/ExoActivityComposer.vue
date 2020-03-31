@@ -50,7 +50,7 @@
 
 <script>
 import * as composerServices from '../composerServices';
-import {activityComposerActions, installExtensions} from '../extension';
+import {getActivityComposerExtensions, executeExtensionAction} from '../extension';
 
 export default {
   data() {
@@ -81,8 +81,7 @@ export default {
     }
   },
   created() {
-    installExtensions();
-    this.activityComposerActions = activityComposerActions;
+    this.activityComposerActions = getActivityComposerExtensions();
   },
   methods: {
     openMessageComposer: function() {
@@ -135,7 +134,7 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      action.onExecute();
+      executeExtensionAction(action);
     }
   }
 };

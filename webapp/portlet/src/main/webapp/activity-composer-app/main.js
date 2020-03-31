@@ -1,4 +1,5 @@
 import './components/initComponents.js';
+import { getActivityComposerExtensions } from './extension.js';
 
 Vue.use(Vuetify);
 
@@ -10,8 +11,7 @@ const vuetify = new Vuetify({
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 const urls = [
-  `/portal/rest/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `/portal/rest/i18n/bundle/locale.attachmentsSelector.attachments-${lang}.json`
+  `/portal/rest/i18n/bundle/locale.portlet.Portlets-${lang}.json`
 ];
 
 // get overridden components if exists
@@ -26,6 +26,12 @@ if (extensionRegistry) {
 
 // getting locale resources
 export function init() {
+  getActivityComposerExtensions().forEach(extension => {
+    if(extension.resourceBundle) {
+      urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
+    }
+  });
+
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale resources are ready
     new Vue({
