@@ -21,6 +21,10 @@ export default {
     selectedItems: {
       type: Array,
       default: () => []
+    },
+    boundGroups: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -89,18 +93,21 @@ export default {
     },
     addItem(item) {
       if (item) {
-        const selectize = $(this.$el)[0].selectize;
-        // if selectize options doesn't contain the option of this item add it
-        if (!selectize.options[`${item}`]) {
-          selectize.options[`${item}`] = {
-            avatarUrl: null,
-            text: item,
-            value: item,
-            type: 'group'
-          };
+        const boundGroups = this.boundGroups.map(binding => binding.group);
+        if (!boundGroups.includes(item)) {
+          const selectize = $(this.$el)[0].selectize;
+          // if selectize options doesn't contain the option of this item add it
+          if (!selectize.options[`${item}`]) {
+            selectize.options[`${item}`] = {
+              avatarUrl: null,
+              text: item,
+              value: item,
+              type: 'group'
+            };
+          }
+          // add item
+          selectize.addItem(item);
         }
-        // add item
-        selectize.addItem(item);
       }
     },
   }

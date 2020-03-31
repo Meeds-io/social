@@ -60,8 +60,10 @@
         </div>
         <v-treeview
           v-show="!loading && !searching"
+          id="treeDisplayMode"
           v-model="selection"
           :items="items"
+          :open="openedNodes"
           :active="selection"
           selection-type="independent"
           expand-icon="mdi-chevron-down"
@@ -70,16 +72,19 @@
           hoverable
           selectable
           open-on-click
-          return-object>
+          return-object
+          @update:open="updateBoundNodes">
         </v-treeview>
         <v-treeview
           v-show="searching"
+          id="treeSearchMode"
           v-model="selection"
           :items="items"
           :search="search"
           :open="openItems"
           :active="active"
           selection-type="independent"
+          expand-icon="mdi-chevron-down"
           dense
           shaped
           hoverable
@@ -87,7 +92,8 @@
           activatable
           multiple-active
           open-on-click
-          return-object>
+          return-object
+          @update:open="updateBoundNodes">
         </v-treeview>
       </v-flex>
     </v-layout>
@@ -112,6 +118,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    groupSpaceBindings: {
+      type: Array,
+      default: null,
+    },
   },
   data() {
     return {
@@ -120,6 +130,7 @@ export default {
       items: [],
       search: null,
       allItems: [],
+      openedNodes: [],
       openItems: [],
       active: [],
       confirmedSelection: [],
@@ -142,7 +153,7 @@ export default {
           nonConfirmedSelection.push(groupId);
         }
       });
-      return this.selection && this.selection.length > 0 && nonConfirmedSelection.length > 0;
+      return nonConfirmedSelection.length > 0;
     },
     searching() {
       return this.search;
@@ -203,8 +214,16 @@ export default {
         this.openItems = [];
       }
     },
+    groupSpaceBindings() {
+      this.selection = [];
+      this.openedNodes = [];
+      // make sure that bound groups are already selected and disabled.
+      const boundItems = this.getBoundItems();
+      this.selection.push(...boundItems);
+      this.disableBoundNodes(document.getElementById('treeDisplayMode'));
+    },
   },
-  created() {
+  mounted() {
     this.getRootChildGroups();
   },
   methods : {
@@ -288,13 +307,138 @@ export default {
     getItem(id) {
       return this.allItems.filter(item => item.id === id)[0];
     },
+    getBoundItems() {
+      const boundItems = [];
+      if (this.groupSpaceBindings && this.groupSpaceBindings.length > 0) {
+        const boundGroupIds = this.groupSpaceBindings.map(binding => binding.group);
+        boundGroupIds.forEach(groupId => {
+          boundItems.push(this.getItem(groupId));
+        });
+      }
+      return boundItems;
+    },
+    disableBoundNodes(node) {
+      const boundItems = this.getBoundItems();
+      const parentNode = node ? node : document;
+      if (this.groupSpaceBindings && this.groupSpaceBindings.length > 0) {
+        const labels = parentNode.getElementsByClassName('v-treeview-node__label');
+        // disable bound groups selection
+        const boundGroupsLabels = boundItems.map(item => item.name);
+        if (labels) {
+          Array.prototype.forEach.call(labels, function (label) {
+            if (boundGroupsLabels.includes(label.innerHTML)) {
+              const content = label.parentElement;
+              content.setAttribute('class', 'v-treeview-node__content bound');
+              const parentNode = label.parentElement.parentElement;
+              parentNode.setAttribute('class', 'v-treeview-node__root bound');
+              const checkboxButton = parentNode.getElementsByClassName('v-treeview-node__checkbox')[0];
+              checkboxButton.disabled = true;
+            }
+          });
+        }
+      }
+    },
+    updateBoundNodes(openNodes) {
+      let opened;
+      const self = this;
+      // wait till child elements are rendered
+      Vue.nextTick()
+        .finally(function () {
+          const openedNode = self.getLastOpened(openNodes);
+          const hasBoundNodes = openedNode ? self.hasBoundNodes(openedNode.id) : false;
+          if (openedNode && hasBoundNodes) {
+            if (!self.searching) {
+              // in display mode
+              const displayModeDiv = document.getElementById('treeDisplayMode');
+
+              // get opened node
+              opened = self.getNodeByLabel(openedNode.name, displayModeDiv);
+              self.waitForElement(opened.getElementsByClassName('v-treeview-node__children')[0]).then(() => {
+                self.disableBoundNodes(opened.getElementsByClassName('v-treeview-node__children')[0]);
+              });
+            }
+          }
+          if (self.searching) {
+            // in search mode
+            const searchModeDiv = document.getElementById('treeSearchMode');
+            self.disableBoundNodes(searchModeDiv);
+          }
+        });
+    },
+    getNodeByLabel(name, parent) {
+      const labels = parent.getElementsByClassName('v-treeview-node__label');
+      let node = null;
+      if (labels) {
+        Array.prototype.forEach.call(labels, function (label) {
+          if (name === label.innerHTML) {
+            node = label.parentElement.parentElement.parentElement;
+          }
+        });
+      }
+      return node;
+    },
+    getLastOpened(nodes) {
+      if (this.openedNodes && this.openedNodes.length > 0) {
+        const nodesIds = nodes.map(node => node.id);
+        const openedIds = this.openedNodes.map(node => node.id);
+        let lastOpened;
+        nodesIds.forEach(nodeId => {
+          if (!openedIds.includes(nodeId)) {
+            lastOpened = this.getItem(nodeId);
+          }
+        });
+        // update opened nodes
+        this.openedNodes = [];
+        this.openedNodes.push(...nodes);
+        return lastOpened;
+      } else {
+        this.openedNodes.push(...nodes);
+        return this.openedNodes[0];
+      }
+    },
+    hasBoundNodes(id) {
+      let result = false;
+      this.groupSpaceBindings.forEach(binding => {
+        if (binding.group.startsWith(id)) {
+          result = true;
+        }
+      });
+      return result;
+    },
+    waitForElement(element) {
+      return new Promise(function(resolve) {
+        if(element) {
+          resolve(element);
+          return;
+        }
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            const nodes = Array.from(mutation.addedNodes);
+            for(const node of nodes) {
+              if(node.matches && node.matches(element)) {
+                observer.disconnect();
+                resolve(node);
+                return;
+              }
+            }
+          });
+        });
+
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      });
+    },
     closeDrawer() {
       this.selection = [];
       this.search = '';
       this.$emit('close');
     },
     cancelSelection() {
-      this.selection = [];
+      // get last index of bound groups
+      const index = this.groupSpaceBindings.length -1;
+      // count unbound groups
+      const count = this.selection.length - this.groupSpaceBindings.length;
+      // deselect only unbound groups
+      this.selection.splice(index + 1, count);
     },
     saveSelection() {
       this.$emit('selectionSaved', this.selection.map(group => group.id));
