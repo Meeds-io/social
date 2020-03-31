@@ -23,10 +23,20 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div v-if="attachments.length" class="attachmentsList">
-            <i class="uiIconAttach"></i>
-            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          <div class="VuetifyApp">
+            <v-app>
+              <div v-if="attachments.length" class="attachmentsList">
+                <v-progress-circular
+                  :class="uploading ? 'uploading' : ''"
+                  :indeterminate="false"
+                  :value="attachmentsProgress">
+                  <i class="uiIconAttach"></i>
+                </v-progress-circular>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
+              </div>
+            </v-app>
           </div>
+
           <div class="composerActions">
             <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
               <div class="actionItem" @click="executeAction(action)">
@@ -38,7 +48,9 @@
                   </div>
                 </div>
               </div>
-              <component v-show="showMessageComposer" v-model="attachments" :is="action.component"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
+                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
+                         v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -53,6 +65,26 @@ import * as composerServices from '../composerServices';
 import {getActivityComposerExtensions, executeExtensionAction} from '../extension';
 
 export default {
+  directives: {
+    DynamicEvents: {
+      bind: function (el, binding, vnode) {
+        const allEvents = binding.value;
+        if (allEvents) {
+          allEvents.forEach((event) => {
+            // register handler in the dynamic component
+            vnode.componentInstance.$on(event.event, (eventData) => {
+              const param = eventData ? eventData : event.listenerParam;
+              // when the event is fired, the eventListener function is going to be called
+              vnode.context[event.listener](param);
+            });
+          });
+        }
+      },
+      unbind: function (el, binding, vnode) {
+        vnode.componentInstance.$off();
+      },
+    }
+  },
   data() {
     return {
       MESSAGE_MAX_LENGTH: 2000,
@@ -61,16 +93,26 @@ export default {
       message: '',
       showErrorMessage: false,
       activityComposerActions: [],
-      attachments: []
+      attachments: [],
+      uploadingCount: 0,
+      percent: 100,
+      actionsData: [],
+      actionsEvents: []
     };
   },
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
+    },
+    attachmentsProgress: function() {
+      return this.uploadingCount * this.percent / this.attachments.length;
+    },
+    uploading: function() {
+      return this.uploadingCount < this.attachments.length;
     }
   },
   watch: {
@@ -82,6 +124,12 @@ export default {
   },
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
+    this.activityComposerActions.forEach(action => {
+      if (action.component) {
+        this.actionsData[action.key] = action.component.model;
+        this.actionsEvents[action.key] = action.component.events;
+      }
+    });
   },
   methods: {
     openMessageComposer: function() {
@@ -103,6 +151,7 @@ export default {
           .then(() => {
             this.message = '';
             this.attachments = [];
+            this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
           .catch(error => {
@@ -116,6 +165,7 @@ export default {
           .then(() => {
             this.message = '';
             this.attachments = [];
+            this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
           .catch(error => {
@@ -134,7 +184,21 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      executeExtensionAction(action);
+      executeExtensionAction(action, this.$refs[action.key]);
+    },
+    setUploadingCount: function(action) {
+      if (action === 'add') {
+        this.uploadingCount++;
+      } else if (action === 'addExisting') {
+        this.uploadingCount = this.attachments
+          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
+      } else if (action === 'remove' && this.uploadingCount !== 0) {
+        this.uploadingCount = this.attachments
+          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
+      }
+    },
+    updateAttachments(attachments) {
+      this.attachments = attachments;
     }
   }
 };
