@@ -23,10 +23,21 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div v-if="attachments.length" class="attachmentsList">
-            <i class="uiIconAttach"></i>
-            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          <div class="VuetifyApp">
+            <v-app>
+              <div v-if="attachments.length" class="attachmentsList">
+                <v-progress-circular
+                  :class="uploading ? 'uploading' : ''"
+                  :indeterminate="false"
+                  :value="attachmentsProgress">
+                  <i class="uiIconAttach"></i>
+                </v-progress-circular>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
+                <div class="attachmentsProgress"> ({{ uploadingCount }})</div>
+              </div>
+            </v-app>
           </div>
+
           <div class="composerActions">
             <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
               <div class="actionItem" @click="executeAction(action)">
@@ -38,7 +49,7 @@
                   </div>
                 </div>
               </div>
-              <component v-show="showMessageComposer" v-model="attachments" :is="action.component"></component>
+              <component v-show="showMessageComposer" v-model="attachments" :is="action.component" @uploadingFileFinished="setUploadingCount('add')" @removingFileFinished="setUploadingCount('remove')"></component>
             </div>
           </div>
         </div>
@@ -61,16 +72,24 @@ export default {
       message: '',
       showErrorMessage: false,
       activityComposerActions: [],
-      attachments: []
+      attachments: [],
+      uploadingCount: 0,
+      percent: 100
     };
   },
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
+    },
+    attachmentsProgress: function() {
+      return this.uploadingCount * this.percent / this.attachments.length;
+    },
+    uploading: function() {
+      return this.uploadingCount !== this.attachments.length;
     }
   },
   watch: {
@@ -135,6 +154,13 @@ export default {
     },
     executeAction(action) {
       executeExtensionAction(action);
+    },
+    setUploadingCount: function(action) {
+      if (action === 'add') {
+        this.uploadingCount++;
+      } else if (action === 'remove') {
+        this.uploadingCount--;
+      }
     }
   }
 };
