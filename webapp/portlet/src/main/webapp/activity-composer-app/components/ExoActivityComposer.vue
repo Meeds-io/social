@@ -158,7 +158,7 @@ export default {
     setUploadingCount: function(action) {
       if (action === 'add') {
         this.uploadingCount++;
-      } else if (action === 'remove') {
+      } else if (action === 'remove' && this.uploadingCount !== 0) {
         this.uploadingCount--;
       }
     }
