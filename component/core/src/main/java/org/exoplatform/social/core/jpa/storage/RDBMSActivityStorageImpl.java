@@ -1128,7 +1128,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       updatedActivity.setHidden(existingActivity.isHidden());
       updatedActivity.setComment(existingActivity.isComment());
       updatedActivity.setLocked(existingActivity.isLocked());
-      processActivity(existingActivity);
 
       activityDAO.update(updatedActivity);
     } else {
