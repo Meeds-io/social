@@ -470,7 +470,19 @@ export default {
       this.selection.splice(index + 1, count);
     },
     saveSelection() {
-      this.$emit('selectionSaved', this.selection.map(group => group.id));
+      // selection data shouldn't be modified directly. 
+      const saved = [];
+      saved.push(...this.selection);
+      // get last index of bound groups
+      const index = this.groupSpaceBindings.length -1;
+      // deselect only unbound groups
+      saved.splice(0, index + 1);
+      // clear open items, active items, search and search mode.
+      this.openItems = [];
+      this.active = [];
+      this.search = '';
+      this.searchMode = false;      
+      this.$emit('selectionSaved', saved.map(group => group.id));
     },
   },
 };
