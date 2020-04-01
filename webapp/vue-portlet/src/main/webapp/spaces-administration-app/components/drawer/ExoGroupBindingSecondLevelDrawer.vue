@@ -3,6 +3,7 @@
     <v-card-title
       class="title">
       <v-layout
+        v-show="!searchMode"
         pa-2
         justify-center
         align-baseline
@@ -23,12 +24,39 @@
             {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.selectGroups') }}
           </span>
         </v-flex>
-        <v-flex xs4>
+        <v-flex xs1>
+          <v-btn icon @click="searchMode = true">
+            <v-icon class="closeIcon">search</v-icon>
+          </v-btn>
+        </v-flex>
+        <v-flex xs1 mr-2>
+          <v-btn
+            icon
+            class="rightIcon"
+            @click="closeDrawer">
+            <v-icon
+              large
+              class="closeIcon">
+              close
+            </v-icon>
+          </v-btn>
+        </v-flex>
+      </v-layout>
+      <v-layout
+        v-show="searchMode"
+        pa-2
+        justify-center
+        align-baseline
+        wrap
+        row>
+        <v-flex pl-4>
           <v-text-field
             v-model="search"
+            :placeholder="$t(`social.spaces.administration.manageSpaces.spaceBindingForm.selectGroups.search`)"
             append-icon="search"
             class="treeGroupSearch"
             single-line
+            clearable
             solo
             flat
             hide-details>
@@ -38,7 +66,7 @@
           <v-btn
             icon
             class="rightIcon"
-            @click="closeDrawer">
+            @click="searchMode = false">
             <v-icon
               large
               class="closeIcon">
@@ -126,6 +154,7 @@ export default {
   data() {
     return {
       loading: true,
+      searchMode: false,
       selection: [],
       items: [],
       search: null,
@@ -153,7 +182,7 @@ export default {
           nonConfirmedSelection.push(groupId);
         }
       });
-      return nonConfirmedSelection.length > 0;
+      return nonConfirmedSelection.length - this.groupSpaceBindings.length > 0;
     },
     searching() {
       return this.search;
