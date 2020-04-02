@@ -25,14 +25,14 @@
           </transition>
           <div class="VuetifyApp">
             <v-app>
-              <div v-if="actionsData['file'].attachments.length" class="attachmentsList">
+              <div v-if="actionsData['file'].value.length" class="attachmentsList">
                 <v-progress-circular
                   :class="uploading ? 'uploading' : ''"
                   :indeterminate="false"
                   :value="attachmentsProgress">
                   <i class="uiIconAttach"></i>
                 </v-progress-circular>
-                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ actionsData['file'].attachments.length }})</div>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ actionsData['file'].value.length }})</div>
                 <div class="attachmentsProgress"> ({{ uploadingCount }})</div>
               </div>
             </v-app>
@@ -49,7 +49,7 @@
                   </div>
                 </div>
               </div>
-              <component v-dynamic-events="actionsEvents[action.key]" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key][action.data]" :is="action.component.name"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default {
       unbind: function (el, binding, vnode) {
         vnode.componentInstance.$off();
       },
-    },
+    }
   },
   data() {
     return {
@@ -99,16 +99,16 @@ export default {
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
+      return pureText.length === 0 && this.actionsData['file'].value.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
     },
     activityType: function() {
-      return this.attachments.length ? 'files:spaces' : '';
+      return this.actionsData['file'].value.length ? 'files:spaces' : '';
     },
     attachmentsProgress: function() {
-      return this.uploadingCount !== 0 ? this.uploadingCount * this.percent / this.attachments.length : 0;
+      return this.uploadingCount !== 0 ? this.uploadingCount * this.percent / this.actionsData['file'].value.length : 0;
     },
     uploading: function() {
-      return this.uploadingCount !== this.attachments.length;
+      return this.uploadingCount !== this.actionsData['file'].value.length;
     }
   },
   watch: {
@@ -121,7 +121,7 @@ export default {
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
     this.activityComposerActions.forEach(action => {
-      this.actionsData[action.key] = action.component.vModel;
+      this.actionsData[action.key] = action.component.model;
       this.actionsEvents[action.key] = action.component.events;
     });
   },
@@ -139,12 +139,12 @@ export default {
       // be sure to get the most up to date value of the message
       const msg = this.$refs.richEditor.value;
       if(eXo.env.portal.spaceId) {
-        composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
+        composerServices.postMessageInSpace(msg, this.activityType, this.actionsData['file'].value, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
-            this.attachments = [];
+            this.actionsData['file'].value = [];
             this.showErrorMessage = false;
           })
           .catch(error => {
@@ -152,12 +152,12 @@ export default {
             this.showErrorMessage = true;
           });
       } else {
-        composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
+        composerServices.postMessageInUserStream(msg, this.activityType, this.actionsData['file'].value, eXo.env.portal.userName)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
-            this.attachments = [];
+            this.actionsData['file'].value = [];
             this.showErrorMessage = false;
           })
           .catch(error => {
