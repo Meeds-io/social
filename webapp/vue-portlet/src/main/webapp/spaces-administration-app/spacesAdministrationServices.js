@@ -1,15 +1,15 @@
 import { spacesConstants } from '../js/spacesConstants.js';
 
 export function getSpaces() {
-  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=members`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function searchSpaces(search) {
-  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?q=${search}&sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?q=${search}&sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=members`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function getSpacesPerPage(offset) {
-  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?offset=${offset}&sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${spacesConstants.SOCIAL_SPACE_API}?offset=${offset}&sort=date&order=desc&limit=${spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=members`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function deleteSpaceById(id) {
@@ -84,5 +84,9 @@ export function removeBinding(bindingId) {
   return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/removeGroupSpaceBinding/${bindingId}`, {
     credentials: 'include',
     method: 'delete'});
+}
+
+export function getGroupsTree() {
+  return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/getGroupsTree`, {credentials: 'include'}).then(resp => resp.json());
 }
 
