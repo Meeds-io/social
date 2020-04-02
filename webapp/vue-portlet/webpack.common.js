@@ -12,6 +12,7 @@ let config = {
     topBarLogo: './src/main/webapp/logo-top-bar/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
+    spacesList: './src/main/webapp/spaces-list/main.js',
   },
   module: {
     rules: [

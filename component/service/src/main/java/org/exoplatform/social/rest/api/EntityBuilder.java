@@ -216,6 +216,7 @@ public class EntityBuilder {
       spaceEntity.setMembers(memebers);
     }
     spaceEntity.setDisplayName(space.getDisplayName());
+    spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setDescription(space.getDescription());
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());

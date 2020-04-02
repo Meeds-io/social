@@ -37,7 +37,7 @@ public class SpaceEntity extends BaseEntity {
     setProperty("displayName", displayName);
     return this;
   }
-
+  
   public String getDisplayName() {
     return getString("displayName");
   }
@@ -58,6 +58,15 @@ public class SpaceEntity extends BaseEntity {
 
   public String getGroupId() {
     return getString("groupId");
+  }
+
+  public SpaceEntity setPrettyName(String prettyName) {
+    setProperty("prettyName", prettyName);
+    return this;
+  }
+
+  public String getPrettyName() {
+    return getString("prettyName");
   }
   
   public SpaceEntity setHasBindings(boolean hasBindings) {
