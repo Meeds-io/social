@@ -26,6 +26,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
@@ -48,7 +49,7 @@ public class SpaceBindingUserEventListener extends UserEventListener {
       for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
         Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
         long startTime=System.currentTimeMillis();
-        groupSpaceBindingService.deleteUserBindingAndSpaceMembership(userSpaceBinding);
+        groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReport.UPDATE_REMOVE_ACTION);
         long totalTime=System.currentTimeMillis() - startTime;
         LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
                      + "duration_ms={}",

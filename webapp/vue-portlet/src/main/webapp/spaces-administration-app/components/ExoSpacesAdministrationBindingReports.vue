@@ -22,7 +22,7 @@
           </v-flex>
           <v-flex xs2>
             <v-select
-              :items="items"
+              :items="operationTypes"
               label="All bindings"
               solo
               flat
@@ -32,7 +32,7 @@
       </v-card-title>
       <v-data-table
         :headers="headers"
-        :items="desserts"
+        :items="actions"
         :search="search"
         disable-sort
       ></v-data-table>
@@ -46,17 +46,22 @@ export default {
     return {
       loading: false,
       search: '',
-      items: ['All bindings', 'New binding', 'Removing binding', 'Synchronization'],
-      desserts: [],
+      operationTypes: [
+        `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`, 
+        `${this.$t('social.spaces.administration.binding.reports.filter.new.binding')}`,
+        `${this.$t('social.spaces.administration.binding.reports.filter.remove.binding')}`,
+        `${this.$t('social.spaces.administration.binding.reports.filter.synchronization')}`
+      ],
+      actions: [],
       headers: [
-        { text: 'Space',value: 'space' },
-        { text: 'Group', value: 'group' },
-        { text: 'Start date', value: 'startDate' },
-        { text: 'End date', value: 'endDate' },
-        { text: 'Operation Type', value: 'operationType' },
-        { text: 'Added users', value: 'addedUsers' },
-        { text: 'Removed users', value: 'removedUsers' },
-        { text: 'File', value: 'file' },
+        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`,value: 'space' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, value: 'group' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, value: 'startDate' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, value: 'endDate' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`, value: 'operationType' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, value: 'addedUsers' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, value: 'removedUsers' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, value: 'file' },
       ],
     };
   }

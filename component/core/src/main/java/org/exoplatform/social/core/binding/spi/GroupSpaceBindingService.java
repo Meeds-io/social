@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -84,14 +85,19 @@ public interface GroupSpaceBindingService {
    * @return A list of group bindings
    */
   List<UserSpaceBinding> findUserBindingsByUser(String userName);
-
+  
+  
   /**
-   * Saves a list of user bindings
+   * Get the binding report for generate the csv file
    *
-   * @param userSpaceBindings The list of user bindings to be created
+   * @param spaceId
+   * @param groupSpaceBindingId
+   * @param group
+   * @param actions
+   * @return
    */
-  void saveUserBindings(List<UserSpaceBinding> userSpaceBindings);
-
+  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
+                                                  List<String> actions);
   /**
    * Saves a group space binding queue
    *
@@ -111,8 +117,9 @@ public interface GroupSpaceBindingService {
    * Delete a user binding. When a binding is deleted
    *
    * @param userSpaceBinding The user binding to be deleted.
+   * @param action : the action which lead to the deletion (for the report)
    */
-  void deleteUserBindingAndSpaceMembership(UserSpaceBinding userSpaceBinding);
+  void deleteUserBinding(UserSpaceBinding userSpaceBinding, String action);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all
@@ -208,12 +215,5 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBinding
    * @param space
    */
-  void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space);
-
-  /**
-   * Delete a user space binding.
-   * 
-   * @param userSpaceBinding
-   */
-  void deleteUserSpaceBinding(UserSpaceBinding userSpaceBinding);
+  void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space, String action);
 }

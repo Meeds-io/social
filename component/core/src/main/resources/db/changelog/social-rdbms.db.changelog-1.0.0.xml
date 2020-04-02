@@ -671,4 +671,41 @@
     <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID" startValue="1"/>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-72">
+    <createTable tableName="SOC_GROUP_SPACE_BINDING_REPORT">
+      <column name="GROUP_SPACE_BINDING_REPORT_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_REPORT_ID"/>
+      </column>
+      <column name="GROUP_SPACE_BINDING_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SPACE_ID" type="BIGINT">
+          <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPOR_SPACEID" references="SOC_SPACES(SPACE_ID)"
+                       nullable="false"/>
+      </column>
+      <column name="GROUP_ID" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="USERNAME" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ACTION" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DATE" type="TIMESTAMP" defaultValueDate="${now}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="WAS_PRESENT_BEFORE" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STILL_IN_SPACE" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-73" dbms="postgresql">
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID" startValue="1"/>
+  </changeSet>
+
 </databaseChangeLog>

@@ -62,7 +62,7 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     groupSpaceBindingService = getContainer().getComponentInstanceOfType(GroupSpaceBindingService.class);
-    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRestResourcesV1(groupSpaceBindingService, userACL);
+    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRestResourcesV1(spaceService,groupSpaceBindingService, userACL);
     registry(groupSpaceBindingRestResourcesV1);
   }
 
