@@ -25,14 +25,14 @@
           </transition>
           <div class="VuetifyApp">
             <v-app>
-              <div v-if="attachments.length" class="attachmentsList">
+              <div v-if="actionsData['file'].attachments.length" class="attachmentsList">
                 <v-progress-circular
                   :class="uploading ? 'uploading' : ''"
                   :indeterminate="false"
                   :value="attachmentsProgress">
                   <i class="uiIconAttach"></i>
                 </v-progress-circular>
-                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ actionsData['file'].attachments.length }})</div>
                 <div class="attachmentsProgress"> ({{ uploadingCount }})</div>
               </div>
             </v-app>
@@ -49,7 +49,7 @@
                   </div>
                 </div>
               </div>
-              <component v-show="showMessageComposer" v-model="attachments" :is="action.component" @uploadingFileFinished="setUploadingCount('add')" @removingFileFinished="setUploadingCount('remove')"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key][action.data]" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -64,6 +64,23 @@ import * as composerServices from '../composerServices';
 import {getActivityComposerExtensions, executeExtensionAction} from '../extension';
 
 export default {
+  directives: {
+    DynamicEvents: {
+      bind: function (el, binding, vnode) {
+        const allEvents = binding.value;
+        allEvents.forEach((event) => {
+          // register handler in the dynamic component
+          vnode.componentInstance.$on(event.event, () => {
+            // when the event is fired, the eventListener function is going to be called
+            vnode.context[event.listener](event.listenerParam);
+          });
+        });
+      },
+      unbind: function (el, binding, vnode) {
+        vnode.componentInstance.$off();
+      },
+    },
+  },
   data() {
     return {
       MESSAGE_MAX_LENGTH: 2000,
@@ -74,7 +91,9 @@ export default {
       activityComposerActions: [],
       attachments: [],
       uploadingCount: 0,
-      percent: 100
+      percent: 100,
+      actionsData: [],
+      actionsEvents: []
     };
   },
   computed: {
@@ -86,7 +105,7 @@ export default {
       return this.attachments.length ? 'files:spaces' : '';
     },
     attachmentsProgress: function() {
-      return this.uploadingCount * this.percent / this.attachments.length;
+      return this.uploadingCount !== 0 ? this.uploadingCount * this.percent / this.attachments.length : 0;
     },
     uploading: function() {
       return this.uploadingCount !== this.attachments.length;
@@ -101,6 +120,10 @@ export default {
   },
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
+    this.activityComposerActions.forEach(action => {
+      this.actionsData[action.key] = action.component.vModel;
+      this.actionsEvents[action.key] = action.component.events;
+    });
   },
   methods: {
     openMessageComposer: function() {
