@@ -42,31 +42,25 @@
     </v-img>
 
     <div class="spaceAvatarImg">
-      <v-img
-        :src="spaceAvatarUrl"
-        class="mx-auto mt-3"
-        height="50px"
-        width="50px"
-        max-height="50px"
-        max-width="50px">
-      </v-img>
+      <a :href="url">
+        <v-img
+          :src="spaceAvatarUrl"
+          class="mx-auto mt-3"
+          height="50px"
+          width="50px"
+          max-height="50px"
+          max-width="50px">
+        </v-img>
+      </a>
     </div>
 
-    <v-card-text v-if="front" class="align-center">
-      <div :title="space.displayName" class="text-truncate">{{ space.displayName }}</div>
+    <v-card-text class="align-center">
+      <a :href="url" :title="space.displayName"  class="spaceDisplayName text-truncate">{{ space.displayName }}</a>
       <v-card-subtitle class="pb-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
     </v-card-text>
-    <div v-else class="align-center pa-0 ma-4">
-      <ellipsis
-        :title="space.description"
-        :data="space.description"
-        :line-clamp="5"
-        end-char="...">
-      </ellipsis>
-    </div>
 
-    <v-card-actions v-if="front" class="spaceCardActions">
-      <exo-spaces-confirm-dialog
+    <v-card-actions class="spaceCardActions">
+      <exo-confirm-dialog
         ref="confirmDialog"
         :title="confirmTitle"
         :message="confirmMessage"
@@ -176,10 +170,6 @@ export default {
       type: Object,
       default: null,
     },
-    front: {
-      type: Boolean,
-      default: () => false,
-    },
     spaceActionExtensions: {
       type: Array,
       default: () => [],
@@ -206,7 +196,15 @@ export default {
       return this.space && this.space.id && `spaceMenuParent-${this.space.id}` || 'spaceMenuParent';
     },
     canUseActionsMenu() {
-      return this.front && this.space && (this.space.isManager || this.spaceActionExtensions && this.spaceActionExtensions.length);
+      return this.space && (this.space.isManager || this.spaceActionExtensions && this.spaceActionExtensions.length);
+    },
+    url() {
+      if (this.space && this.space.groupId) {
+        const uriPart = this.space.groupId.replace(/\//g, ':');
+        return `${eXo.env.portal.context}/g/${uriPart}/`;
+      } else {
+        return '#';
+      }
     },
   },
   created() {
@@ -230,6 +228,16 @@ export default {
         this.removeSpace);
     },
     removeSpace() {
+      this.sendingAction = true;
+      spaceService.removeSpace(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
     },
     leaveConfirm() {
       if (this.space.isManager && this.space.managersCount <= 1) {
@@ -248,6 +256,7 @@ export default {
       spaceService.leave(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {
@@ -259,6 +268,7 @@ export default {
       spaceService.accept(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {
@@ -270,6 +280,7 @@ export default {
       spaceService.deny(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {
@@ -281,6 +292,7 @@ export default {
       spaceService.join(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {
@@ -292,6 +304,7 @@ export default {
       spaceService.requestJoin(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {
@@ -303,6 +316,7 @@ export default {
       spaceService.cancel(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
+          // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         })
         .finally(() => {

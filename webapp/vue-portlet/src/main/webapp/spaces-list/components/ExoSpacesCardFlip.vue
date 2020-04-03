@@ -11,10 +11,9 @@
         @refresh="$emit('refresh')" />
     </div>
     <div class="spaceCardBack">
-      <exo-spaces-card-item
+      <exo-spaces-card-item-flipped
         :space="space"
-        @flip="flipCard = false"
-        @refresh="$emit('refresh')" />
+        @flip="flipCard = false" />
     </div>
   </v-col>
 </template>

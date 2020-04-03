@@ -1,5 +1,5 @@
 export function getSpaces(query, offset, limit, filter) {
-  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&all=${filter === 'all'}&returnSize=true`, {
+  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&all=${filter === 'all'}&returnSize=true&expand=managers`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -7,6 +7,17 @@ export function getSpaces(query, offset, limit, filter) {
       throw new Error('Response code indicates a server error', resp);
     } else {
       return resp.json();
+    }
+  });
+}
+
+export function removeSpace(spaceId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
     }
   });
 }
