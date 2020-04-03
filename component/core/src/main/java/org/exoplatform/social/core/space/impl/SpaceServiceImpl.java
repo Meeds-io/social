@@ -1217,7 +1217,12 @@ public class SpaceServiceImpl implements SpaceService {
       return;
     }
 
-    if (ArrayUtils.contains(space.getPendingUsers(), userId)) {
+    if (ArrayUtils.contains(space.getPendingUsers(),userId)) {
+      //user is already pending. Do nothing
+      return;
+    }
+
+    if (ArrayUtils.contains(space.getInvitedUsers(), userId)) {
       this.addMember(space, userId);
       space = removeInvited(space, userId);
       this.updateSpace(space);

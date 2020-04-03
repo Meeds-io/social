@@ -101,6 +101,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
                             @ApiParam(value = "Order", required = false) @QueryParam("order") String order,
                             @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                            @ApiParam(value = "Whether include all visible spaces or only currently accessible spaces only", required = false) @QueryParam("all") boolean allVisible,
                             @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -127,6 +128,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (spaceService.isSuperManager(authenticatedUser)) {
       listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
+    } else if(allVisible) {
+      listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
     } else {
       listAccess = spaceService.getAccessibleSpacesByFilter(authenticatedUser, spaceFilter);
     }
@@ -160,7 +163,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     return builder.build();
   }
-  
+
   /**
    * {@inheritDoc}
    */

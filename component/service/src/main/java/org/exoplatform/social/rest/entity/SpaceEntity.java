@@ -129,6 +129,15 @@ public class SpaceEntity extends BaseEntity {
     return getString("description");
   }
 
+  public SpaceEntity setIsManager(boolean isManager) {
+    setProperty("isManager", isManager);
+    return this;
+  }
+
+  public Boolean getIsManager() {
+    return (Boolean) getProperty("isManager");
+  }
+
   public SpaceEntity setManagers(LinkEntity managers) {
     setProperty("managers", managers.getData());
     return this;
@@ -136,6 +145,24 @@ public class SpaceEntity extends BaseEntity {
 
   public String getManagers() {
     return getString("managers");
+  }
+
+  public SpaceEntity setManagersCount(int managersCount) {
+    setProperty("managersCount", managersCount);
+    return this;
+  }
+
+  public Integer getManagersCount() {
+    return (Integer) getProperty("managersCount");
+  }
+
+  public SpaceEntity setIsMember(boolean isMember) {
+    setProperty("isMember", isMember);
+    return this;
+  }
+
+  public Boolean getIsMember() {
+    return (Boolean) getProperty("isMember");
   }
 
   public SpaceEntity setMembers(LinkEntity members) {
@@ -146,4 +173,32 @@ public class SpaceEntity extends BaseEntity {
   public String getMembers() {
     return getString("members");
   }
+
+  public SpaceEntity setMembersCount(int membersCount) {
+    setProperty("membersCount", membersCount);
+    return this;
+  }
+  
+  public Integer getMembersCount() {
+    return (Integer) getProperty("membersCount");
+  }
+
+  public SpaceEntity setIsPending(boolean isPending) {
+    setProperty("isPending", isPending);
+    return this;
+  }
+
+  public Boolean getIsPending() {
+    return (Boolean) getProperty("isPending");
+  }
+
+  public SpaceEntity setIsInvited(boolean isInvited) {
+    setProperty("isInvited", isInvited);
+    return this;
+  }
+
+  public Boolean getIsInvited() {
+    return (Boolean) getProperty("isInvited");
+  }
+
 }

@@ -12,6 +12,7 @@ if (extensionRegistry) {
 }
 
 Vue.use(Vuetify);
+Vue.use(VueEllipsis);
 const vuetify = new Vuetify({
   dark: true,
   iconfont: '',

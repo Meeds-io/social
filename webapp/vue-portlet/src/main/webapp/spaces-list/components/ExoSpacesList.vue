@@ -38,19 +38,20 @@
             </select>
           </v-scale-transition>
         </v-toolbar>
-        <v-card-text id="spacesListBody">
+        <v-card-text id="spacesListBody" class="pb-0">
           <v-item-group>
-            <v-container>
+            <v-container class="pb-0">
               <v-row class="border-box-sizing">
-                <exo-spaces-list-item
+                <exo-spaces-card-flip
                   v-for="space in filteredSpaces"
                   :key="space.id"
-                  :space="space" />
+                  :space="space"
+                  @refresh="searchSpaces" />
               </v-row>
             </v-container>
           </v-item-group>
         </v-card-text>
-        <v-card-actions id="spacesListFooter" class="border-box-sizing">
+        <v-card-actions id="spacesListFooter" class="px-5 border-box-sizing">
           <v-btn
             v-if="canShowMore"
             :loading="loadingSpaces"
@@ -85,8 +86,8 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     offset: 0,
-    pageSize: 12,
-    limit: 12,
+    pageSize: 20,
+    limit: 20,
     keyword: null,
     spacesSize: 0,
     spaces: [],
@@ -155,7 +156,7 @@ export default {
   methods: {
     searchSpaces() {
       this.loadingSpaces = true;
-      spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch)
+      return spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;

@@ -12,6 +12,7 @@
     "globals": {
         "Vue": true,
         "Vuetify": true,
+        "VueEllipsis": true,
         "VueI18n": true,
         "cCometd": true,
         "eXo": true,

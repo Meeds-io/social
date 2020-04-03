@@ -201,7 +201,10 @@ public class EntityBuilder {
       spaceEntity.setHasBindings(space.hasBindings());
       spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
       spaceEntity.setApplications(getSpaceApplications(space));
-      LinkEntity managers, memebers;
+      spaceEntity.setIsManager(spaceService.isSuperManager(userId) || spaceService.isManager(space, userId));
+      spaceEntity.setManagersCount(space.getManagers().length);
+
+      LinkEntity managers, members;
       if(RestProperties.MANAGERS.equals(expand)) {
         managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
       } else {
@@ -209,11 +212,11 @@ public class EntityBuilder {
       }
       spaceEntity.setManagers(managers);
       if(RestProperties.MEMBERS.equals(expand)) {
-        memebers = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
+        members = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
       } else {
-        memebers = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
+        members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
       }
-      spaceEntity.setMembers(memebers);
+      spaceEntity.setMembers(members);
     }
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setPrettyName(space.getPrettyName());
@@ -222,6 +225,10 @@ public class EntityBuilder {
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
+    spaceEntity.setIsMember(spaceService.isMember(space, userId));
+    spaceEntity.setMembersCount(space.getMembers().length);
+    spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
+    spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
 
     return spaceEntity;
   }

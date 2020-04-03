@@ -1,0 +1,335 @@
+<template>
+  <v-card :id="spaceMenuParentId" class="spaceCardItem">
+    <v-img
+      :src="spaceBannerUrl"
+      class="white--text align-start"
+      height="80px">
+      <div class="d-flex pa-2">
+        <v-btn icon class="spaceInfoIcon">
+          <v-icon small @click="$emit('flip')">fa-info</v-icon>
+        </v-btn>
+        <v-spacer />
+        <template v-if="canUseActionsMenu">
+          <v-btn icon depressed class="spaceActionIcon" @click="displayActionMenu = true">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+          <v-menu
+            ref="actionMenu"
+            v-model="displayActionMenu"
+            :attach="`#${spaceMenuParentId}`"
+            transition="slide-x-reverse-transition"
+            content-class="spaceActionMenu"
+            offset-y>
+            <v-list class="pa-0">
+              <template v-if="space.isManager">
+                <v-list-item @click="editSpace">
+                  <v-list-item-title>{{ $t('spacesList.button.edit') }}</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="removeSpaceConfirm">
+                  <v-list-item-title>{{ $t('spacesList.button.remove') }}</v-list-item-title>
+                </v-list-item>
+              </template>
+              <v-list-item
+                v-for="(extension, i) in spaceActionExtensions"
+                :key="i"
+                @click="extension.click">
+                <v-list-item-title>{{ extension.title }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+      </div>
+    </v-img>
+
+    <div class="spaceAvatarImg">
+      <v-img
+        :src="spaceAvatarUrl"
+        class="mx-auto mt-3"
+        height="50px"
+        width="50px"
+        max-height="50px"
+        max-width="50px">
+      </v-img>
+    </div>
+
+    <v-card-text v-if="front" class="align-center">
+      <div :title="space.displayName" class="text-truncate">{{ space.displayName }}</div>
+      <v-card-subtitle class="pb-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
+    </v-card-text>
+    <div v-else class="align-center pa-0 ma-4">
+      <ellipsis
+        :title="space.description"
+        :data="space.description"
+        :line-clamp="5"
+        end-char="...">
+      </ellipsis>
+    </div>
+
+    <v-card-actions v-if="front" class="spaceCardActions">
+      <exo-spaces-confirm-dialog
+        ref="confirmDialog"
+        :title="confirmTitle"
+        :message="confirmMessage"
+        :ok-label="$t('spacesList.label.ok')"
+        :cancel-label="okMethod && $t('spacesList.label.cancel')"
+        @ok="okConfirmDialog"
+        @dialog-closed="closeConfirmDialog" />
+      <v-btn
+        v-if="space.isMember"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn mx-auto leaveSpaceButton"
+        depressed
+        block
+        @click="leaveConfirm">
+        <v-icon>mdi-minus</v-icon>
+        {{ $t('spacesList.button.leave') }}
+      </v-btn>
+      <div v-else-if="space.isInvited" class="invitationButtons">
+        <div class="acceptToJoinSpaceButtonParent">
+          <v-btn
+            :loading="sendingAction"
+            :disabled="sendingAction"
+            class="btn mx-auto acceptToJoinSpaceButton"
+            depressed
+            @click="acceptToJoin">
+            <v-icon>mdi-check</v-icon>
+            {{ $t('spacesList.button.acceptToJoin') }}
+          </v-btn>
+          <v-btn
+            class="btn spaceButtonMenu"
+            depressed
+            x-small
+            @click="displaySecondButton = !displaySecondButton">
+            <v-icon>mdi-menu-down</v-icon>
+          </v-btn>
+        </div>
+        <v-btn
+          v-show="displaySecondButton"
+          :loading="sendingSecondAction"
+          :disabled="sendingSecondAction"
+          class="btn mx-auto refuseToJoinSpaceButton"
+          depressed
+          block
+          @click="refuseToJoin">
+          <v-icon>mdi-close</v-icon>
+          {{ $t('spacesList.button.refuseToJoin') }}
+        </v-btn>
+      </div>
+      <v-btn
+        v-else-if="space.isPending"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn mx-auto cancelRequestToJoinSpaceButton"
+        depressed
+        block
+        @click="cancelRequest">
+        <v-icon>mdi-close</v-icon>
+        {{ $t('spacesList.button.cancelRequest') }}
+      </v-btn>
+      <v-btn
+        v-else-if="space.subscription === 'open'"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn mx-auto joinSpaceButton"
+        depressed
+        block
+        @click="join">
+        <v-icon>mdi-plus</v-icon>
+        {{ $t('spacesList.button.join') }}
+      </v-btn>
+      <v-btn
+        v-else-if="space.subscription === 'validation'"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn mx-auto joinSpaceButton"
+        depressed
+        block
+        @click="requestJoin">
+        <v-icon>mdi-plus</v-icon>
+        {{ $t('spacesList.button.requestJoin') }}
+      </v-btn>
+      <div
+        v-else
+        :title="$t('spacesList.label.closedSpace')"
+        class="joinSpaceDisabledLabel">
+        <v-btn
+          disabled
+          class="btn mx-auto joinSpaceButton"
+          depressed
+          block
+          @click="join">
+          <v-icon>mdi-plus</v-icon>
+          {{ $t('spacesList.button.join') }}
+        </v-btn>
+      </div>
+    </v-card-actions>
+  </v-card>
+</template>
+
+<script>
+import * as spaceService from '../js/SpaceService.js'; 
+
+export default {
+  props: {
+    space: {
+      type: Object,
+      default: null,
+    },
+    front: {
+      type: Boolean,
+      default: () => false,
+    },
+    spaceActionExtensions: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  data: () => ({
+    displayActionMenu: false,
+    waitTimeUntilCloseMenu: 200,
+    sendingAction: false,
+    sendingSecondAction: false,
+    confirmTitle: '',
+    confirmMessage: '',
+    okMethod: null,
+    displaySecondButton: false,
+  }),
+  computed: {
+    spaceAvatarUrl() {
+      return this.space && (this.space.avatarUrl || `/portal/rest/v1/social/spaces/${this.space.prettyName}/avatar`);
+    },
+    spaceBannerUrl() {
+      return this.space && (this.space.bannerUrl || `/portal/rest/v1/social/spaces/${this.space.prettyName}/banner`);
+    },
+    spaceMenuParentId() {
+      return this.space && this.space.id && `spaceMenuParent-${this.space.id}` || 'spaceMenuParent';
+    },
+    canUseActionsMenu() {
+      return this.front && this.space && (this.space.isManager || this.spaceActionExtensions && this.spaceActionExtensions.length);
+    },
+  },
+  created() {
+    $(document).on('mousedown', () => {
+      if (this.displayActionMenu) {
+        window.setTimeout(() => {
+          this.displayActionMenu = false;
+          this.displaySecondButton = false;
+        }, this.waitTimeUntilCloseMenu);
+      }
+    });
+  },
+  methods: {
+    editSpace() {
+      console.log('editSpace');
+    },
+    removeSpaceConfirm() {
+      this.openConfirmDialog(
+        this.$t('spacesList.title.deleteSpace'),
+        this.$t('spacesList.message.deleteSpace'),
+        this.removeSpace);
+    },
+    removeSpace() {
+    },
+    leaveConfirm() {
+      if (this.space.isManager && this.space.managersCount <= 1) {
+        this.openConfirmDialog(
+          this.$t('spacesList.warning'),
+          this.$t('spacesList.warning.lastManager'));
+      } else {
+        this.openConfirmDialog(
+          this.$t('spacesList.title.leaveSpace'),
+          this.$t('spacesList.message.leaveSpace', {0: `<b>${this.space.displayName}</b>`}),
+          this.leave);
+      }
+    },
+    leave() {
+      this.sendingAction = true;
+      spaceService.leave(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    acceptToJoin() {
+      this.sendingAction = true;
+      spaceService.accept(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    refuseToJoin() {
+      this.sendingSecondAction = true;
+      spaceService.deny(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingSecondAction = false;
+        });
+    },
+    join() {
+      this.sendingAction = true;
+      spaceService.join(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    requestJoin() {
+      this.sendingAction = true;
+      spaceService.requestJoin(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    cancelRequest() {
+      this.sendingAction = true;
+      spaceService.cancel(this.space.id)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    openConfirmDialog(title, message, okMethod) {
+      this.confirmTitle = title;
+      this.confirmMessage = message;
+      if (okMethod) {
+        this.okMethod = okMethod;
+      } else {
+        this.okMethod = null;
+      }
+      this.$refs.confirmDialog.open();
+    },
+    okConfirmDialog() {
+      if (this.okMethod) {
+        this.okMethod();
+      }
+    },
+    closeConfirmDialog() {
+      this.confirmTitle = '';
+      this.confirmMessage = '';
+      this.okMethod = null;
+    },
+  },
+};
+</script>
+
