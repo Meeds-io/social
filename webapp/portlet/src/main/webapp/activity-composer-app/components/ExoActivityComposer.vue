@@ -33,7 +33,6 @@
                   <i class="uiIconAttach"></i>
                 </v-progress-circular>
                 <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ actionsData['file'].value.length }})</div>
-                <div class="attachmentsProgress"> ({{ uploadingCount }})</div>
               </div>
             </v-app>
           </div>
@@ -49,7 +48,7 @@
                   </div>
                 </div>
               </div>
-              <component v-dynamic-events="actionsEvents[action.key]" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key].value" :is="action.component.name"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -105,10 +104,10 @@ export default {
       return this.actionsData['file'].value.length ? 'files:spaces' : '';
     },
     attachmentsProgress: function() {
-      return this.uploadingCount !== 0 ? this.uploadingCount * this.percent / this.actionsData['file'].value.length : 0;
+      return this.uploadingCount * this.percent / this.actionsData['file'].value.length;
     },
     uploading: function() {
-      return this.uploadingCount !== this.actionsData['file'].value.length;
+      return this.uploadingCount < this.actionsData['file'].value.length;
     }
   },
   watch: {
@@ -121,8 +120,10 @@ export default {
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
     this.activityComposerActions.forEach(action => {
-      this.actionsData[action.key] = action.component.model;
-      this.actionsEvents[action.key] = action.component.events;
+      if (action.component) {
+        this.actionsData[action.key] = action.component.model;
+        this.actionsEvents[action.key] = action.component.events;
+      }
     });
   },
   methods: {
@@ -145,6 +146,7 @@ export default {
           .then(() => {
             this.message = '';
             this.actionsData['file'].value = [];
+            this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
           .catch(error => {
@@ -158,6 +160,7 @@ export default {
           .then(() => {
             this.message = '';
             this.actionsData['file'].value = [];
+            this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
           .catch(error => {
@@ -181,8 +184,12 @@ export default {
     setUploadingCount: function(action) {
       if (action === 'add') {
         this.uploadingCount++;
+      } else if (action === 'addExisting') {
+        this.uploadingCount = this.actionsData['file'].value
+          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       } else if (action === 'remove' && this.uploadingCount !== 0) {
-        this.uploadingCount--;
+        this.uploadingCount = this.actionsData['file'].value
+          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       }
     }
   }
