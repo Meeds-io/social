@@ -2,6 +2,8 @@
   Object filter = request.getAttribute("filter");
   if (filter == null) {
     filter = "";
+  } else {
+    filter = ((String[])filter)[0];
   }
 %>
 <div class="VuetifyApp">

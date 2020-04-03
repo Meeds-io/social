@@ -499,9 +499,9 @@
     <title>All Spaces</title>
     <access-permissions>*:/platform/users</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="sociallayout" template="system:/groovy/portal/webui/container/UITableColumnContainer.gtmpl">
+    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
-      <container id="AllSpacesPortlet" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+      <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
@@ -514,6 +514,9 @@
           <show-application-state>true</show-application-state>
         </portlet-application>
       </container>
+      <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>*:/platform/users</access-permissions>
+      </container>
     </container>
   </page>
 
@@ -522,9 +525,9 @@
     <title>Spaces</title>
     <access-permissions>*:/platform/users</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="sociallayout" template="system:/groovy/portal/webui/container/UITableColumnContainer.gtmpl">
+    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
-      <container id="MySpacesPortlet" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+      <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
@@ -542,6 +545,9 @@
           <show-info-bar>false</show-info-bar>
           <show-application-state>true</show-application-state>
         </portlet-application>
+      </container>
+      <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>*:/platform/users</access-permissions>
       </container>
     </container>
   </page>

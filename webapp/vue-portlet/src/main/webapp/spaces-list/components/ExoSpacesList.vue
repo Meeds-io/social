@@ -1,56 +1,68 @@
 <template>
   <v-app 
-    id="GettingStartedPortlet"
+    id="spacesListApplication"
     class="transparent"
     flat>
-    <v-card>
-      <v-toolbar flat>
-        <v-toolbar-title>
-          <button class="btn btn-primary">
-            <v-icon dark>mdi-plus</v-icon>
-            {{ $t('spacesList.button.addNewSpace') }}
-          </button>
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-scale-transition>
-          <v-text-field
-            v-model="keyword"
-            :placeholder="$t('spacesList.label.filterSpaces')"
-            prepend-inner-icon="fa-filter" 
-            class="pa-0"></v-text-field>
-        </v-scale-transition>
-        <v-scale-transition>
-          <v-select
-            v-model="filter"
-            :items="spaceFilters"
-            outlined>
-          </v-select>
-        </v-scale-transition>
-      </v-toolbar>
-      <v-card-text>
-        <v-item-group>
-          <v-container>
-            <v-row class="border-box-sizing">
-              <exo-spaces-list-item
-                v-for="space in spaces"
-                :key="space.id"
-                :space="space" />
-            </v-row>
-          </v-container>
-        </v-item-group>
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions class="border-box-sizing">
-        <v-btn
-          v-if="canShowMore"
-          :loading="loadingSpaces"
-          class="ma-auto"
-          block
-          @click="loadNextPage">
-          {{ $t('spacesList.button.loadMore') }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <main>
+      <v-card flat>
+        <v-toolbar id="spacesListToolbar" flat>
+          <v-toolbar-title>
+            <button class="btn btn-primary">
+              <v-icon dark>mdi-plus</v-icon>
+              <span class="mobile-hidden">
+                {{ $t('spacesList.button.addNewSpace') }}
+              </span>
+            </button>
+          </v-toolbar-title>
+          <v-card-subtitle>
+            {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
+          </v-card-subtitle>
+          <v-spacer></v-spacer>
+          <v-scale-transition>
+            <v-text-field
+              v-model="keyword"
+              :placeholder="$t('spacesList.label.filterSpaces')"
+              prepend-inner-icon="fa-filter"
+              class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
+          </v-scale-transition>
+          <v-scale-transition>
+            <select
+              v-model="filter"
+              class="selectSpacesFilter my-auto mr-2 ignore-vuetify-classes">
+              <option
+                v-for="spaceFilter in spaceFilters"
+                :key="spaceFilter.value"
+                :value="spaceFilter.value">
+                {{ spaceFilter.text }}
+              </option>
+            </select>
+          </v-scale-transition>
+        </v-toolbar>
+        <v-card-text id="spacesListBody">
+          <v-item-group>
+            <v-container>
+              <v-row class="border-box-sizing">
+                <exo-spaces-list-item
+                  v-for="space in filteredSpaces"
+                  :key="space.id"
+                  :space="space" />
+              </v-row>
+            </v-container>
+          </v-item-group>
+        </v-card-text>
+        <v-card-actions id="spacesListFooter" class="border-box-sizing">
+          <v-btn
+            v-if="canShowMore"
+            :loading="loadingSpaces"
+            :disabled="loadingSpaces"
+            class="loadMoreButton ma-auto btn"
+            block
+            @click="loadNextPage">
+            {{ $t('spacesList.button.showMore') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </main>
   </v-app>    
 </template>
 
@@ -69,13 +81,14 @@ export default {
     },
   },
   data: () => ({
-    startSearchAfterInMilliseconds: 400,
+    startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     offset: 0,
     pageSize: 12,
     limit: 12,
     keyword: null,
+    spacesSize: 0,
     spaces: [],
     loadingSpaces: false,
     limitToFetch: 0,
@@ -87,8 +100,8 @@ export default {
         text: this.$t('spacesList.filter.all'),
         value: 'all',
       },{
-        text: this.$t('spacesList.filter.mySpaces'),
-        value: 'mySpaces',
+        text: this.$t('spacesList.filter.userSpaces'),
+        value: 'userSpaces',
       },{
         text: this.$t('spacesList.filter.invitedSpaces'),
         value: 'invitedSpaces',
@@ -98,10 +111,10 @@ export default {
       }];
     },
     canShowMore() {
-      return this.spaces.length >= this.limitToFetch;
+      return this.loadingSpaces || this.spaces.length >= this.limitToFetch;
     },
     filteredSpaces() {
-      if (!this.keyword) {
+      if (!this.keyword || !this.loadingSpaces) {
         return this.spaces;
       } else {
         return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
@@ -126,10 +139,13 @@ export default {
     },
     spaces() {
       this.spaces.forEach(space => {
-        space.spaceUrl = `${eXo.env.portal.context}${space.spaceUrl}`;
+        space.spaceUrl = `${eXo.env.portal.context}${space.url}`;
       });
     },
     limitToFetch() {
+      this.searchSpaces();
+    },
+    filter() {
       this.searchSpaces();
     },
   }, 
@@ -138,9 +154,11 @@ export default {
   },
   methods: {
     searchSpaces() {
+      this.loadingSpaces = true;
       spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch)
         .then(data => {
           this.spaces = data && data.spaces || [];
+          this.spacesSize = data && data.size || 0;
           return this.$nextTick();
         })
         .then(() => {
