@@ -20,13 +20,13 @@
             transition="slide-x-reverse-transition"
             content-class="spaceActionMenu"
             offset-y>
-            <v-list class="pa-0">
+            <v-list class="pa-0" dense>
               <template v-if="space.isManager">
                 <v-list-item @click="editSpace">
-                  <v-list-item-title>{{ $t('spacesList.button.edit') }}</v-list-item-title>
+                  <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.edit') }}</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="removeSpaceConfirm">
-                  <v-list-item-title>{{ $t('spacesList.button.remove') }}</v-list-item-title>
+                  <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.remove') }}</v-list-item-title>
                 </v-list-item>
               </template>
               <v-list-item
