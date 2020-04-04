@@ -82,7 +82,7 @@ export default {
     width: {
       type: String,
       default: function() {
-        return '290px';
+        return '400px';
       },
     },
   },
