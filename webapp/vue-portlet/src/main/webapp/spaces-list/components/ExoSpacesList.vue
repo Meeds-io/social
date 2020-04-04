@@ -41,13 +41,16 @@
         <v-card-text id="spacesListBody" class="pb-0">
           <v-item-group>
             <v-container class="pb-0">
-              <v-row class="border-box-sizing">
+              <v-row v-if="filteredSpaces && filteredSpaces.length" class="border-box-sizing">
                 <exo-space-card
                   v-for="space in filteredSpaces"
                   :key="space.id"
                   :space="space"
                   @refresh="searchSpaces" />
               </v-row>
+              <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
+                <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
+              </div>
             </v-container>
           </v-item-group>
         </v-card-text>
