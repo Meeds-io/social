@@ -42,7 +42,7 @@
           <v-item-group>
             <v-container class="pb-0">
               <v-row class="border-box-sizing">
-                <exo-spaces-card-flip
+                <exo-space-card
                   v-for="space in filteredSpaces"
                   :key="space.id"
                   :space="space"

@@ -4,14 +4,14 @@
     cols="12"
     md="3">
     <div class="spaceCardFront">
-      <exo-spaces-card-item
+      <exo-space-card-front
         :space="space"
         front
         @flip="flipCard = true"
         @refresh="$emit('refresh')" />
     </div>
     <div class="spaceCardBack">
-      <exo-spaces-card-item-flipped
+      <exo-space-card-reverse
         :space="space"
         @flip="flipCard = false" />
     </div>

@@ -10,6 +10,9 @@
         <path>/js/spacesList.bundle.js</path>
       </script>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
@@ -222,4 +225,33 @@
       </module>
   </portlet>
 
+  <module>
+    <name>commonVueComponents</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/commonVueComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>vueEllipsis</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>userPopupPlugin</module>
+    </depends>
+  </module>
 </gatein-resources>
