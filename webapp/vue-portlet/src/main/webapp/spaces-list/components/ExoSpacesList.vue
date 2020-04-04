@@ -63,6 +63,7 @@
           </v-btn>
         </v-card-actions>
       </v-card>
+      <exo-space-managers-drawer />
     </main>
   </v-app>    
 </template>
@@ -103,12 +104,6 @@ export default {
       },{
         text: this.$t('spacesList.filter.userSpaces'),
         value: 'userSpaces',
-      },{
-        text: this.$t('spacesList.filter.invitedSpaces'),
-        value: 'invitedSpaces',
-      },{
-        text: this.$t('spacesList.filter.pendingSpaces'),
-        value: 'pendingSpaces',
       }];
     },
     canShowMore() {

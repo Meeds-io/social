@@ -2,11 +2,13 @@
   <a
     :id="id"
     :href="url"
-    rel="nofollow"
-    target="_blank">
+    class="flex-nowrap flex-shrink-0">
     <v-avatar :size="size">
       <img :src="avatarUrl" />
     </v-avatar>
+    <span v-if="fullname" class="text-truncate subtitle-1 text-color ml-2">
+      {{ fullname }}
+    </span>
   </a>
 </template>
 
@@ -17,9 +19,15 @@ export default {
   props: {
     username: {
       type: String,
-      default: function() {
-        return null;
-      },
+      default: () => null,
+    },
+    fullname: {
+      type: String,
+      default: () => null,
+    },
+    tiptip: {
+      type: Boolean,
+      default: () => false,
     },
     size: {
       type: Number,
@@ -60,14 +68,14 @@ export default {
   },
   watch: {
     username() {
-      if (this.username) {
+      if (this.username && this.tiptip) {
         // TODO disable tiptip because of high CPU usage using its code
         this.initTiptip();
       }
     },
   },
   created() {
-    if (this.username) {
+    if (this.username && this.tiptip) {
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
     }

@@ -5,8 +5,8 @@
       class="white--text align-start"
       height="80px">
       <div class="d-flex pa-2">
-        <v-btn icon class="spaceInfoIcon">
-          <v-icon small @click="$emit('flip')">fa-info</v-icon>
+        <v-btn icon class="spaceInfoIcon" @click="$emit('flip')">
+          <v-icon small>fa-info</v-icon>
         </v-btn>
         <v-spacer />
         <template v-if="canUseActionsMenu">
@@ -55,7 +55,7 @@
     </div>
 
     <v-card-text class="align-center">
-      <a :href="url" :title="space.displayName"  class="spaceDisplayName text-truncate">{{ space.displayName }}</a>
+      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate">{{ space.displayName }}</a>
       <v-card-subtitle class="pb-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
     </v-card-text>
 
