@@ -3,8 +3,7 @@
     v-model="dialog"
     :width="width"
     content-class="uiPopup"
-    max-width="100vw"
-    @keydown.esc="close">
+    max-width="100vw">
     <v-card class="elevation-12">
       <div class="ignore-vuetify-classes popupHeader ClearFix">
         <a
@@ -97,6 +96,13 @@ export default {
         this.$emit('dialog-closed');
       }
     },
+  },
+  created() {
+    $(document).on('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.dialog = false;
+      }
+    });
   },
   methods: {
     ok() {
