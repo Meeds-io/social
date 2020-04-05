@@ -26,7 +26,7 @@
           </v-flex>
           <v-divider class="my-1" />
         </template>
-        <v-flex class="drawerContent flex-grow-1 px-4 py-3 overflow-auto">
+        <v-flex class="drawerContent flex-grow-1 px-4 py-3 overflow-auto border-box-sizing">
           <slot name="content"></slot>
         </v-flex>
         <template v-if="$slots.footer">
@@ -59,8 +59,10 @@ export default {
     drawer() {
       if (this.drawer) {
         $('body').addClass('hide-scroll');
+        this.$emit('opened');
       } else {
         $('body').removeClass('hide-scroll');
+        this.$emit('closed');
       }
       this.$nextTick().then(() => {
         $('.v-overlay').off('click').on('click', () => {
