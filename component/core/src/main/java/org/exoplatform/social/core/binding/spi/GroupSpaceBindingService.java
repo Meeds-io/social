@@ -31,10 +31,13 @@ import org.exoplatform.social.core.space.model.Space;
  */
 
 public interface GroupSpaceBindingService {
-  
-  public final static String LOG_SERVICE_NAME = "group-binding";
-  public final static String LOG_NEW_OPERATION_NAME = "new-binding";
+
+  public final static String LOG_SERVICE_NAME          = "group-binding";
+
+  public final static String LOG_NEW_OPERATION_NAME    = "new-binding";
+
   public final static String LOG_REMOVE_OPERATION_NAME = "remove-binding";
+
   public final static String LOG_UPDATE_OPERATION_NAME = "update-binding";
 
   /**
@@ -85,8 +88,7 @@ public interface GroupSpaceBindingService {
    * @return A list of group bindings
    */
   List<UserSpaceBinding> findUserBindingsByUser(String userName);
-  
-  
+
   /**
    * Get the binding report for generate the csv file
    *
@@ -96,8 +98,8 @@ public interface GroupSpaceBindingService {
    * @param actions
    * @return
    */
-  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
-                                                  List<String> actions);
+  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+
   /**
    * Saves a group space binding queue
    *
@@ -145,7 +147,7 @@ public interface GroupSpaceBindingService {
    * @return a List of UserSpaceBinding.
    */
   long countUserBindings(String spaceId, String userName);
-  
+
   /**
    * Count number of bound users for the space.
    *
@@ -153,7 +155,7 @@ public interface GroupSpaceBindingService {
    * @return number of bound users.
    */
   long countBoundUsers(String spaceId);
-  
+
   /**
    * Checks if user is already bound and member of the space.
    * 
@@ -177,6 +179,14 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBindings
    */
   void saveGroupSpaceBindings(List<GroupSpaceBinding> groupSpaceBindings);
+
+  /**
+   * Save a group space binding.
+   * 
+   * @param groupSpaceBinding
+   * @return
+   */
+  GroupSpaceBinding saveGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding);
 
   /**
    * Save a UserSpaceBinding for each user of the group
