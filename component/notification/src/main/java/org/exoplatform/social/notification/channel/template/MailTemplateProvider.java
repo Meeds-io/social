@@ -601,6 +601,9 @@ public class MailTemplateProvider extends TemplateProvider {
       String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, notification.getValueOwnerParameter("likersId"), true);
+      if (identity == null) {
+        return null;
+      }
 
       templateContext.put("USER", identity.getProfile().getFullName());
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
@@ -697,6 +700,9 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String remoteId = notification.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
       Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, true);
+      if (identity == null) {
+        return null;
+      }
       Profile userProfile = identity.getProfile();
 
       templateContext.put("USER", userProfile.getFullName());
@@ -728,6 +734,9 @@ public class MailTemplateProvider extends TemplateProvider {
           String remoteId = message.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
 
           Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId);
+          if (identity == null) {
+            continue;
+          }
           //
           if (identity.isDeleted() == true) {
             continue;
@@ -834,7 +843,13 @@ public class MailTemplateProvider extends TemplateProvider {
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
       Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
+      if (spaceIdentity == null) {
+        return null;
+      }
       Space space = Utils.getSpaceService().getSpaceByPrettyName(spaceIdentity.getRemoteId());
+      if (space == null) {
+        return null;
+      }
 
       templateContext.put("USER", identity.getProfile().getFullName());
       templateContext.put("SPACE", space.getDisplayName());
@@ -876,6 +891,9 @@ public class MailTemplateProvider extends TemplateProvider {
             continue;
           }
           Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
+          if (space == null) {
+            continue;
+          }
           if (!Arrays.asList(space.getMembers()).contains(message.getTo())) {
             continue;
           }
@@ -969,7 +987,13 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
       Space space = Utils.getSpaceService().getSpaceById(spaceId);
+      if (space == null) {
+        return null;
+      }
       Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, notification.getValueOwnerParameter("request_from"), true);
+      if (identity == null) {
+        return null;
+      }
       Profile userProfile = identity.getProfile();
 
       templateContext.put("SPACE", space.getDisplayName());
@@ -1003,6 +1027,9 @@ public class MailTemplateProvider extends TemplateProvider {
           String spaceId = message.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
           String fromUser = message.getValueOwnerParameter("request_from");
           Space space = Utils.getSpaceService().getSpaceById(spaceId);
+          if (space == null) {
+            continue;
+          }
           if (ArrayUtils.contains(space.getPendingUsers(), fromUser) == false || !ArrayUtils.contains(space.getManagers(), message.getTo())) {
             continue;
           }
@@ -1033,6 +1060,9 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
       Space space = Utils.getSpaceService().getSpaceById(spaceId);
+      if (space == null) {
+        return null;
+      }
 
       templateContext.put("SPACE", space.getDisplayName());
       templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
