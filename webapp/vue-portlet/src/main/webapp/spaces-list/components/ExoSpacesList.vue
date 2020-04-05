@@ -9,12 +9,12 @@
           <v-toolbar-title>
             <button class="btn btn-primary" @click="$root.$emit('addNewSpace')">
               <v-icon dark>mdi-plus</v-icon>
-              <span class="mobile-hidden">
+              <span class="d-none d-sm-inline">
                 {{ $t('spacesList.label.addNewSpace') }}
               </span>
             </button>
           </v-toolbar-title>
-          <v-card-subtitle class="mobile-hidden">
+          <v-card-subtitle class="d-none d-sm-flex">
             {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
           </v-card-subtitle>
           <v-spacer></v-spacer>
@@ -38,7 +38,7 @@
             </select>
           </v-scale-transition>
         </v-toolbar>
-        <v-card-subtitle class="mobile-display">
+        <v-card-subtitle class="d-sm-none align-center">
           {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
         </v-card-subtitle>
         <v-card-text id="spacesListBody" class="pb-0">

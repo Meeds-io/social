@@ -4,8 +4,10 @@
     :width="width"
     :right="right"
     :left="!right"
+    :class="!drawer && 'd-none d-sm-flex'"
     absolute
     temporary
+    touchless
     height="100vh"
     max-height="100vh"
     max-width="100vw"

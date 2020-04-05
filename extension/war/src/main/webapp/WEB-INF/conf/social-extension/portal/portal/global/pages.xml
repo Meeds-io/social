@@ -499,7 +499,7 @@
     <title>All Spaces</title>
     <access-permissions>*:/platform/users</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
       <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
@@ -525,7 +525,7 @@
     <title>Spaces</title>
     <access-permissions>*:/platform/users</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+    <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
       <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
