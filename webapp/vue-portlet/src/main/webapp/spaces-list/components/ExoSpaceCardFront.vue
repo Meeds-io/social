@@ -5,7 +5,10 @@
       class="white--text align-start"
       height="80px">
       <div class="d-flex pa-2">
-        <v-btn icon class="spaceInfoIcon" @click="$emit('flip')">
+        <v-btn
+          icon
+          class="spaceInfoIcon"
+          @click="$emit('flip')">
           <v-icon small>fa-info</v-icon>
         </v-btn>
         <v-spacer />
@@ -219,7 +222,7 @@ export default {
   },
   methods: {
     editSpace() {
-      console.log('editSpace');
+      this.$root.$emit('editSpace', this.space);
     },
     removeSpaceConfirm() {
       this.openConfirmDialog(

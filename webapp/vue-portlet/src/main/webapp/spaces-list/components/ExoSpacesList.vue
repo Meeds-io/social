@@ -7,10 +7,10 @@
       <v-card flat>
         <v-toolbar id="spacesListToolbar" flat>
           <v-toolbar-title>
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" @click="$root.$emit('addNewSpace')">
               <v-icon dark>mdi-plus</v-icon>
               <span class="mobile-hidden">
-                {{ $t('spacesList.button.addNewSpace') }}
+                {{ $t('spacesList.label.addNewSpace') }}
               </span>
             </button>
           </v-toolbar-title>
@@ -28,7 +28,7 @@
           <v-scale-transition>
             <select
               v-model="filter"
-              class="selectSpacesFilter my-auto mr-2 ignore-vuetify-classes">
+              class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes">
               <option
                 v-for="spaceFilter in spaceFilters"
                 :key="spaceFilter.value"
@@ -70,6 +70,7 @@
         </v-card-actions>
       </v-card>
       <exo-space-managers-drawer />
+      <exo-space-form-drawer />
     </main>
   </v-app>    
 </template>

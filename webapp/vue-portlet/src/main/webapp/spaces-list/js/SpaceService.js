@@ -1,3 +1,16 @@
+export function getSpaceTemplates() {
+  return fetch(`/portal/rest/v1/social/spaceTemplates/templates?lang=${eXo.env.portal.language}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getSpaces(query, offset, limit, filter) {
   return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&all=${filter === 'all'}&returnSize=true&expand=managers`, {
     method: 'GET',
@@ -18,6 +31,44 @@ export function removeSpace(spaceId) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function updateSpace(space) {
+  return fetch(`/portal/rest/v1/social/spaces/${space.id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(space),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function createSpace(space) {
+  return fetch('/portal/rest/v1/social/spaces/', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(space),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
     }
   });
 }

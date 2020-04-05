@@ -5,7 +5,7 @@
     </v-btn>
     <v-card-title class="flex-grow-0 pa-3">
       <span class="mx-auto mt-2">
-        {{ $t('spacesList.title.description') }}
+        {{ $t('spacesList.label.description') }}
       </span>
     </v-card-title>
     <v-card-text class="align-center pa-0 flex-grow-1">

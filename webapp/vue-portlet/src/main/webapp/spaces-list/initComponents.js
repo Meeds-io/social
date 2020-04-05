@@ -3,6 +3,7 @@ import ExoSpaceCard from './components/ExoSpaceCard.vue';
 import ExoSpaceCardFront from './components/ExoSpaceCardFront.vue';
 import ExoSpaceCardReverse from './components/ExoSpaceCardReverse.vue';
 import ExoSpaceManagersDrawer from './components/ExoSpaceManagersDrawer.vue';
+import ExoSpaceFormDrawer from './components/ExoSpaceFormDrawer.vue';
 
 const components = {
   'exo-spaces-list': ExoSpacesList,
@@ -10,6 +11,7 @@ const components = {
   'exo-space-card-front': ExoSpaceCardFront,
   'exo-space-card-reverse': ExoSpaceCardReverse,
   'exo-space-managers-drawer': ExoSpaceManagersDrawer,
+  'exo-space-form-drawer': ExoSpaceFormDrawer,
 };
 
 for (const key in components) {
