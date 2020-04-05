@@ -1,47 +1,10 @@
 <template>
   <v-card :id="spaceMenuParentId" class="spaceCardItem">
+
     <v-img
       :src="spaceBannerUrl"
-      class="white--text align-start"
-      height="80px">
-      <div class="d-flex pa-2">
-        <v-btn
-          icon
-          class="spaceInfoIcon"
-          @click="$emit('flip')">
-          <v-icon small>fa-info</v-icon>
-        </v-btn>
-        <v-spacer />
-        <template v-if="canUseActionsMenu">
-          <v-btn icon depressed class="spaceActionIcon" @click="displayActionMenu = true">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-          <v-menu
-            ref="actionMenu"
-            v-model="displayActionMenu"
-            :attach="`#${spaceMenuParentId}`"
-            transition="slide-x-reverse-transition"
-            content-class="spaceActionMenu"
-            offset-y>
-            <v-list class="pa-0" dense>
-              <template v-if="space.isManager">
-                <v-list-item @click="editSpace">
-                  <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.edit') }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="removeSpaceConfirm">
-                  <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.remove') }}</v-list-item-title>
-                </v-list-item>
-              </template>
-              <v-list-item
-                v-for="(extension, i) in spaceActionExtensions"
-                :key="i"
-                @click="extension.click">
-                <v-list-item-title>{{ extension.title }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </template>
-      </div>
+      height="80px"
+      class="white--text align-start d-none d-sm-block">
     </v-img>
 
     <div class="spaceAvatarImg">
@@ -57,7 +20,46 @@
       </a>
     </div>
 
-    <v-card-text class="align-center">
+    <div class="spaceToolbarIcons pa-2">
+      <v-btn
+        icon
+        class="spaceInfoIcon d-none d-sm-flex"
+        @click="$emit('flip')">
+        <v-icon small>fa-info</v-icon>
+      </v-btn>
+      <v-spacer />
+      <template v-if="canUseActionsMenu">
+        <v-btn icon depressed class="spaceActionIcon" @click="displayActionMenu = true">
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+        <v-menu
+          ref="actionMenu"
+          v-model="displayActionMenu"
+          :attach="`#${spaceMenuParentId}`"
+          transition="slide-x-reverse-transition"
+          content-class="spaceActionMenu"
+          offset-y>
+          <v-list class="pa-0" dense>
+            <template v-if="space.isManager">
+              <v-list-item @click="editSpace">
+                <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.edit') }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="removeSpaceConfirm">
+                <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.remove') }}</v-list-item-title>
+              </v-list-item>
+            </template>
+            <v-list-item
+              v-for="(extension, i) in spaceActionExtensions"
+              :key="i"
+              @click="extension.click">
+              <v-list-item-title>{{ extension.title }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+    </div>
+
+    <v-card-text class="spaceCardBody align-center">
       <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate">{{ space.displayName }}</a>
       <v-card-subtitle class="pb-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
     </v-card-text>
@@ -80,7 +82,9 @@
         block
         @click="leaveConfirm">
         <v-icon>mdi-minus</v-icon>
-        {{ $t('spacesList.button.leave') }}
+        <span class="d-none d-sm-inline">
+          {{ $t('spacesList.button.leave') }}
+        </span>
       </v-btn>
       <div v-else-if="space.isInvited" class="invitationButtons">
         <div class="acceptToJoinSpaceButtonParent">
@@ -91,10 +95,12 @@
             depressed
             @click="acceptToJoin">
             <v-icon>mdi-check</v-icon>
-            {{ $t('spacesList.button.acceptToJoin') }}
+            <span class="d-none d-sm-flex">
+              {{ $t('spacesList.button.acceptToJoin') }}
+            </span>
           </v-btn>
           <v-btn
-            class="btn spaceButtonMenu"
+            class="btn spaceButtonMenu d-none d-sm-inline"
             depressed
             x-small
             @click="displaySecondButton = !displaySecondButton">
@@ -110,7 +116,9 @@
           block
           @click="refuseToJoin">
           <v-icon>mdi-close</v-icon>
-          {{ $t('spacesList.button.refuseToJoin') }}
+          <span class="d-none d-sm-flex">
+            {{ $t('spacesList.button.refuseToJoin') }}
+          </span>
         </v-btn>
       </div>
       <v-btn
@@ -122,7 +130,9 @@
         block
         @click="cancelRequest">
         <v-icon>mdi-close</v-icon>
-        {{ $t('spacesList.button.cancelRequest') }}
+        <span class="d-none d-sm-inline">
+          {{ $t('spacesList.button.cancelRequest') }}
+        </span>
       </v-btn>
       <v-btn
         v-else-if="space.subscription === 'open'"
@@ -133,7 +143,9 @@
         block
         @click="join">
         <v-icon>mdi-plus</v-icon>
-        {{ $t('spacesList.button.join') }}
+        <span class="d-none d-sm-inline">
+          {{ $t('spacesList.button.join') }}
+        </span>
       </v-btn>
       <v-btn
         v-else-if="space.subscription === 'validation'"
@@ -144,7 +156,9 @@
         block
         @click="requestJoin">
         <v-icon>mdi-plus</v-icon>
-        {{ $t('spacesList.button.requestJoin') }}
+        <span class="d-none d-sm-inline">
+          {{ $t('spacesList.button.requestJoin') }}
+        </span>
       </v-btn>
       <div
         v-else
@@ -157,7 +171,9 @@
           block
           @click="join">
           <v-icon>mdi-plus</v-icon>
-          {{ $t('spacesList.button.join') }}
+          <span class="d-none d-sm-inline">
+            {{ $t('spacesList.button.join') }}
+          </span>
         </v-btn>
       </div>
     </v-card-actions>
