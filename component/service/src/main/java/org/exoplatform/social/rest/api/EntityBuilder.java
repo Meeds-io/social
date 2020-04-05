@@ -219,6 +219,7 @@ public class EntityBuilder {
       spaceEntity.setMembers(members);
     }
     spaceEntity.setDisplayName(space.getDisplayName());
+    spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setDescription(space.getDescription());
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));

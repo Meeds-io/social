@@ -388,26 +388,6 @@ public class SpaceServiceImpl implements SpaceService {
       throw new RuntimeException("Error while creating group for space " + space.getPrettyName(), e);
     }
 
-    List<String> inviteds = new ArrayList<String>();
-    if (identitiesToInvite != null) {
-      Set<String> userIds = getUsersToInvite(identitiesToInvite);
-      userIds.remove(creator);
-      for (String userId : userIds) {
-        String[] invitedUsers = space.getInvitedUsers();
-        if (isSuperManager(userId)) {
-          members = space.getMembers();
-          if (!ArrayUtils.contains(members, userId)) {
-            members = (String[]) ArrayUtils.add(members, userId);
-            space.setMembers(members);
-          }
-        } else if (!ArrayUtils.contains(invitedUsers, userId)) {
-          invitedUsers = (String[]) ArrayUtils.add(invitedUsers, userId);
-          inviteds.add(userId);
-          space.setInvitedUsers(invitedUsers);
-        }
-      }
-    }
-
     String prettyName = groupId.split("/")[2];
 
     if (!prettyName.equals(space.getPrettyName())) {
@@ -448,13 +428,31 @@ public class SpaceServiceImpl implements SpaceService {
 
     saveSpace(space, true);
     spaceLifeCycle.spaceCreated(space, creator);
-
-    //process invited user list
-    for (String invited : inviteds) {
-      spaceLifeCycle.addInvitedUser(space, invited);
-    }
     updateSpaceBanner(space);
+
+    inviteIdentities(space, identitiesToInvite);
+
     return space;
+  }
+
+  @Override
+  public void inviteIdentities(Space space, List<Identity> identitiesToInvite) {
+    if (identitiesToInvite == null || identitiesToInvite.isEmpty()) {
+      return;
+    }
+
+    Set<String> userIds = getUsersToInvite(identitiesToInvite);
+    for (String userId : userIds) {
+      if (isMember(space, userId)) {
+        continue;
+      }
+
+      if (isSuperManager(userId)) {
+        addMember(space, userId);
+      } else if (!isInvited(space, userId)) {
+        inviteMember(space, userId);
+      }
+    }
   }
 
   private Set<String> getUsersToInvite(List<Identity> identities) {
@@ -1464,12 +1462,23 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
-  public Space updateSpace(Space existingSpace) {
+  @Override
+  public Space updateSpace(Space existingSpace, List<Identity> identitiesToInvite) {
     spaceStorage.saveSpace(existingSpace, false);
     if (UpdatedField.DESCRIPTION.equals(existingSpace.getField())) {
       spaceLifeCycle.spaceDescriptionEdited(existingSpace, existingSpace.getEditor());
     }
+
+    inviteIdentities(existingSpace, identitiesToInvite);
+
     return existingSpace;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Space updateSpace(Space existingSpace) {
+    return this.updateSpace(existingSpace, null);
   }
 
   public Space updateSpaceAvatar(Space existingSpace) {

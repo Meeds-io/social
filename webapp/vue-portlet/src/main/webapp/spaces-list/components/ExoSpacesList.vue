@@ -14,7 +14,7 @@
               </span>
             </button>
           </v-toolbar-title>
-          <v-card-subtitle>
+          <v-card-subtitle class="mobile-hidden">
             {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
           </v-card-subtitle>
           <v-spacer></v-spacer>
@@ -38,6 +38,9 @@
             </select>
           </v-scale-transition>
         </v-toolbar>
+        <v-card-subtitle class="mobile-display">
+          {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
+        </v-card-subtitle>
         <v-card-text id="spacesListBody" class="pb-0">
           <v-item-group>
             <v-container class="pb-0">

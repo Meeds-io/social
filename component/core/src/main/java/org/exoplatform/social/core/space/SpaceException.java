@@ -135,6 +135,7 @@ public class SpaceException extends Exception{
    * @param code the code
    */
   public SpaceException(Code code) {
+    super(code.name());
     this.code = code;
   }
 

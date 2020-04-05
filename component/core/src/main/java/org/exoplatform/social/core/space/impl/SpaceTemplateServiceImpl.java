@@ -138,6 +138,21 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
           templatePermission.deleteCharAt(index);
         }
       }
+      ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portal.webui", new Locale(lang));
+      if (resourceBundle != null) {
+        try {
+          spaceTemplate.setResolvedLabel(resourceBundle.getString("space.template." + spaceTemplate.getName()));
+        } catch (MissingResourceException e) {
+          LOG.debug(e.getMessage());
+        }
+        try {
+          spaceTemplate.setResolvedDescription(resourceBundle.getString("social.spaces.templates.description."
+              + spaceTemplate.getName()));
+        } catch (MissingResourceException e) {
+          LOG.debug(e.getMessage());
+        }
+      }
+
       spaceTemplate.setPermissionsLabels(templatePermission.toString());
       templatelist.add(spaceTemplate);
     }

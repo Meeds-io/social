@@ -18,9 +18,7 @@ package org.exoplatform.social.rest.impl.space;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
@@ -39,9 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -52,16 +48,10 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
-import org.exoplatform.social.core.space.SpaceException;
-import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
+import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.RestProperties;
-import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.SpaceRestResources;
+import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -101,7 +91,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
                             @ApiParam(value = "Order", required = false) @QueryParam("order") String order,
                             @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                            @ApiParam(value = "Whether include all visible spaces or only currently accessible spaces only", required = false) @QueryParam("all") boolean allVisible,
+                            @ApiParam(value = "Whether include all visible spaces or only user spaces", required = false) @QueryParam("all") boolean allVisible,
                             @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -201,15 +191,15 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     //
     Space space = new Space();
     fillSpaceFromModel(space, model);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    space.setGroupId("/spaces/space" + space.getPrettyName());
-    space.setType(DefaultSpaceApplicationHandler.NAME);
-    String[] managers = new String[] {authenticatedUser};
-    String[] members = new String[] {authenticatedUser};
+    space.setEditor(authenticatedUser);
+
+    String[] managers = new String[] { authenticatedUser };
+    String[] members = new String[] { authenticatedUser };
     space.setManagers(managers);
     space.setMembers(members);
+
     //
-    spaceService.createSpace(space, authenticatedUser);
+    spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -394,12 +384,15 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(space.getDisplayName())) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    if(model.getGroupId() != null && model.getGroupId().length() > 0) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+
+    if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
+      spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
     }
+
     fillSpaceFromModel(space, model);
-    spaceService.updateSpace(space);
-    
+    space.setEditor(authenticatedUser);
+    spaceService.updateSpace(space, model.getInvitedMembers());
+
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
@@ -653,35 +646,41 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   }
 
   private void fillSpaceFromModel(Space space, SpaceEntity model) {
-    if (model.getDisplayName() != null && model.getDisplayName().length() > 0) {
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+
+    if (StringUtils.isNotBlank(model.getDisplayName())) {
       space.setDisplayName(model.getDisplayName());
-    }
-    if (model.getDescription() != null && model.getDescription().length() > 0) {
-      space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
-    }
-    if (space.getGroupId() == null) {
-      String groupId = model.getDisplayName();
-      if (model.getGroupId() != null && model.getGroupId().length() > 0) {
-        groupId = model.getGroupId();
-        if (groupId.indexOf("/") >= 0) {
-          groupId = groupId.substring(groupId.lastIndexOf("/") + 1);
-        }
-        if (groupId == "") {
-          groupId = model.getDisplayName();
-        }
+
+      if (StringUtils.isBlank(space.getPrettyName())) {
+        space.setPrettyName(model.getDisplayName());
       }
-      space.setPrettyName(groupId);
+    } else if (StringUtils.isNotBlank(model.getPrettyName())) {
+      space.setPrettyName(model.getPrettyName());
+
+      if (StringUtils.isBlank(space.getDisplayName())) {
+        space.setDisplayName(model.getPrettyName());
+      }
     }
 
-    if (Space.HIDDEN.equalsIgnoreCase(model.getVisibility())) {
+    if (StringUtils.isNotBlank(model.getDescription())) {
+      space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
+    }
+
+    if (StringUtils.isNotBlank(model.getTemplate())) {
+      space.setTemplate(model.getTemplate());
+    }
+
+    if (StringUtils.equalsIgnoreCase(Space.HIDDEN, model.getVisibility())) {
       space.setVisibility(Space.HIDDEN);
     } else {
       space.setVisibility(Space.PRIVATE);
     }
 
-    if (Space.OPEN.equals(model.getSubscription()) || Space.CLOSE.equals(model.getSubscription())) {
-      space.setRegistration(model.getSubscription());
-    } else if (space.getRegistration() == null || space.getRegistration().length() == 0) {
+    if (StringUtils.equalsIgnoreCase(Space.OPEN, model.getSubscription())) {
+      space.setRegistration(Space.OPEN);
+    } else if (StringUtils.equalsIgnoreCase(Space.CLOSE, model.getSubscription())) {
+      space.setRegistration(Space.CLOSE);
+    } else {
       space.setRegistration(Space.VALIDATION);
     }
   }

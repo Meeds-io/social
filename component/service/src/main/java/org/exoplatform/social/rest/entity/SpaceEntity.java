@@ -19,6 +19,8 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.List;
 
+import org.exoplatform.social.core.identity.model.Identity;
+
 public class SpaceEntity extends BaseEntity {
   private static final long serialVersionUID = -5407676622915680099L;
 
@@ -28,6 +30,7 @@ public class SpaceEntity extends BaseEntity {
   public SpaceEntity(String id) {
     super(id);
   }
+
   public SpaceEntity setIdentity(LinkEntity identity) {
     setProperty("identity", identity.getData());
     return this;
@@ -40,6 +43,15 @@ public class SpaceEntity extends BaseEntity {
   
   public String getDisplayName() {
     return getString("displayName");
+  }
+
+  public SpaceEntity setTemplate(String displayName) {
+    setProperty("template", displayName);
+    return this;
+  }
+
+  public String getTemplate() {
+    return getString("template");
   }
 
   public SpaceEntity setUrl(String url) {
@@ -199,6 +211,15 @@ public class SpaceEntity extends BaseEntity {
 
   public Boolean getIsInvited() {
     return (Boolean) getProperty("isInvited");
+  }
+
+  public SpaceEntity setInvitedMembers(List<Identity> invitedIdentities) {
+    setProperty("invitedMembers", invitedIdentities);
+    return this;
+  }
+
+  public List<Identity> getInvitedMembers() {
+    return (List<Identity>) getProperty("invitedMembers");
   }
 
 }
