@@ -27,7 +27,7 @@
         icon
         class="spaceInfoIcon d-none d-sm-flex"
         @click="$emit('flip')">
-        <v-icon small>fa-info</v-icon>
+        <v-icon size="14">fa-info</v-icon>
       </v-btn>
       <v-spacer />
       <template v-if="canUseActionsMenu">

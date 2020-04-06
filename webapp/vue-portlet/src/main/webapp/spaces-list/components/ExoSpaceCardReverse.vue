@@ -6,10 +6,10 @@
       icon
       class="spaceInfoIcon ma-2"
       @click="$emit('flip')">
-      <v-icon small size="30" small>fa-info</v-icon>
+      <v-icon size="14">fa-info</v-icon>
     </v-btn>
-    <v-card-title class="flex-grow-0 pa-3">
-      <span class="mx-auto mt-2">
+    <v-card-title class="flex-grow-0 pa-2">
+      <span class="mx-auto">
         {{ $t('spacesList.label.description') }}
       </span>
     </v-card-title>
