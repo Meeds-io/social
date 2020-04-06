@@ -141,7 +141,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
       ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portal.webui", new Locale(lang));
       if (resourceBundle != null) {
         try {
-          spaceTemplate.setResolvedLabel(resourceBundle.getString("space.template." + spaceTemplate.getName()));
+          spaceTemplate.setResolvedLabel(resourceBundle.getString("social.spaces.templates.name." + spaceTemplate.getName()));
         } catch (MissingResourceException e) {
           LOG.debug(e.getMessage());
         }
