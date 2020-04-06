@@ -231,10 +231,12 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
     List<DataEntity> groupNodesDataEntities = buildGroupTree();
 
-    CollectionEntity collectionBinding =
-                                       new CollectionEntity(groupNodesDataEntities, EntityBuilder.ORGANIZATION_GROUP_TYPE, 0, 10);
+    CollectionEntity collectionGroupEntity = new CollectionEntity(groupNodesDataEntities,
+                                                                  EntityBuilder.ORGANIZATION_GROUP_TYPE,
+                                                                  0,
+                                                                  10);
 
-    return EntityBuilder.getResponse(collectionBinding, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(collectionGroupEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   /**
@@ -320,7 +322,12 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       bindingOperationReportsDataEntities.add(operationReportEntity.getDataEntity());
     }
 
-    return Response.ok().build();
+    CollectionEntity collectionBindingReports = new CollectionEntity(bindingOperationReportsDataEntities,
+                                                                     EntityBuilder.GROUP_SPACE_BINDING_TYPE,
+                                                                     0,
+                                                                     10);
+
+    return EntityBuilder.getResponse(collectionBindingReports, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   public List<DataEntity> buildGroupTree() throws Exception {
