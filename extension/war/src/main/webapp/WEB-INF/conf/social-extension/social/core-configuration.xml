@@ -122,6 +122,10 @@
         <key>org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO</key>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.GroupSpaceBindingReportDAOImpl</type>
     </component>
+    <component>
+        <key>org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportUserDAO</key>
+        <type>org.exoplatform.social.core.jpa.storage.dao.jpa.GroupSpaceBindingReportUserDAOImpl</type>
+    </component>
     <!--
       Identity storage components.
     -->
