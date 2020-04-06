@@ -121,10 +121,10 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   }
 
   @Override
-  public List<GroupSpaceBindingReport> findReportsForCsv(long spaceId,
-                                                         long groupSpaceBindingId,
-                                                         String group,
-                                                         List<String> actions) {
+  public List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
+                                                               long groupSpaceBindingId,
+                                                               String group,
+                                                               List<String> actions) {
     LOG.debug("Retrieving GroupSpaceBindingReports for space={}, groupSpaceBinding={}, group={}, actions={}",
               spaceId,
               groupSpaceBindingId,
@@ -141,8 +141,8 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     // Treat binding operations of synchronization.
     for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
       String operationAction = bindingOperationReport.getAction();
-      if (operationAction.equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION)
-          || operationAction.equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+      if (operationAction.equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION)
+          || operationAction.equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
         // Get index of the operation
         int index = bindingOperationReports.indexOf(bindingOperationReport);
         // Get number of added and removed users
@@ -150,19 +150,19 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                              bindingOperationReports.stream()
                                                     .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
                                                     .filter(operation -> operation.getAction()
-                                                                                  .equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION))
+                                                                                  .equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
                                                     .count();
         long removedUsersCount =
                                bindingOperationReports.stream()
                                                       .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
                                                       .filter(operation -> operation.getAction()
-                                                                                    .equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+                                                                                    .equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
                                                       .count();
         // Regroup all synchronization actions for the binding in one operation.
         GroupSpaceBindingOperationReport synchronizeOperationReport =
                                                                     new GroupSpaceBindingOperationReport(bindingOperationReport.getSpaceId(),
                                                                                                          bindingOperationReport.getGroup(),
-                                                                                                         GroupSpaceBindingReport.SYNCHRONIZE_ACTION,
+                                                                                                         GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION,
                                                                                                          bindingOperationReport.getGroupSpaceBindingId(),
                                                                                                          addedUsersCount,
                                                                                                          removedUsersCount,
@@ -173,13 +173,13 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                    bindingOperationReports.stream()
                                                                                           .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
                                                                                           .filter(operation -> operation.getAction()
-                                                                                                                        .equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION))
+                                                                                                                        .equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
                                                                                           .collect(Collectors.toList());
         List<GroupSpaceBindingOperationReport> removeOperationReports =
                                                                       bindingOperationReports.stream()
                                                                                              .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
                                                                                              .filter(operation -> operation.getAction()
-                                                                                                                           .equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+                                                                                                                           .equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
                                                                                              .collect(Collectors.toList());
         bindingOperationReports.removeAll(addOperationReports);
         bindingOperationReports.removeAll(removeOperationReports);
@@ -252,7 +252,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                        .size() > 0;
     boolean isStillPresent = true;
     // Make sure to treat the two cases of remove,
-    if (action.equals(GroupSpaceBindingReport.REMOVE_ACTION)) {
+    if (action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)) {
       // In case of binding removed.
       if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
         // no binding to the target space in this case remove user from space if he was
@@ -261,7 +261,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                   userSpaceBinding.getUser());
         isStillPresent = false;
       }
-    } else if (action.equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+    } else if (action.equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
       // In case of user removed from a group.
       if (!hasOtherBindings) {
         // remove membership from space even if he was member before the binding
@@ -273,7 +273,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
     }
 
-    GroupSpaceBindingReport report = new GroupSpaceBindingReport(userSpaceBinding.getGroupBinding().getId(),
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(userSpaceBinding.getGroupBinding().getId(),
                                                                  Long.parseLong(userSpaceBinding.getGroupBinding().getSpaceId()),
                                                                  userSpaceBinding.getGroupBinding().getGroup(),
                                                                  userSpaceBinding.getUser(),
@@ -371,7 +371,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           long startTimeUser = System.currentTimeMillis();
 
           String userId = user.getUserName();
-          this.saveUserBinding(userId, groupSpaceBinding, space, GroupSpaceBindingReport.ADD_ACTION);
+          this.saveUserBinding(userId, groupSpaceBinding, space, GroupSpaceBindingReportAction.ADD_ACTION);
 
           long endTimeUser = System.currentTimeMillis();
           long totalTimeUser = endTimeUser - startTimeUser;
@@ -469,7 +469,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
       // If user is already bound then check if is member before.
       userSpaceBinding.setIsMemberBefore(isUserBoundAndMemberBefore(groupSpaceBinding.getSpaceId(), userId));
     }
-    GroupSpaceBindingReport report = new GroupSpaceBindingReport(groupSpaceBinding.getId(),
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
                                                                  Long.parseLong(groupSpaceBinding.getSpaceId()),
                                                                  groupSpaceBinding.getGroup(),
                                                                  userId,

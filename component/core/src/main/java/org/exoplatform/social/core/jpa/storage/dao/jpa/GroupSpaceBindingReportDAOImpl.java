@@ -26,21 +26,21 @@ import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
+import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
-public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportEntity, Long>
+public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportActionEntity, Long>
     implements GroupSpaceBindingReportDAO {
 
   @Override
-  public List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId,
-                                                               long groupSpaceBindingId,
-                                                               String group,
-                                                               List<String> actions) {
-    TypedQuery<GroupSpaceBindingReportEntity> query =
+  public List<GroupSpaceBindingReportActionEntity> findReportsForCSV(long spaceId,
+                                                                     long groupSpaceBindingId,
+                                                                     String group,
+                                                                     List<String> actions) {
+    TypedQuery<GroupSpaceBindingReportActionEntity> query =
                                                     getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.findReportForCSV",
-                                                                                        GroupSpaceBindingReportEntity.class);
+                                                                                        GroupSpaceBindingReportActionEntity.class);
     query.setParameter("spaceId", spaceId);
     query.setParameter("groupSpaceBindingId", groupSpaceBindingId);
     query.setParameter("group", group);
@@ -67,11 +67,11 @@ public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpace
       Date startDate = (Date) tuple.get(5);
       Date endDate = (Date) tuple.get(6);
 
-      long addedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReport.ADD_ACTION)
-          || tuple.get(2).toString().equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION) ? Long.parseLong(tuple.get(4).toString())
+      long addedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReportAction.ADD_ACTION)
+          || tuple.get(2).toString().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION) ? Long.parseLong(tuple.get(4).toString())
                                                                                        : 0;
-      long removedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReport.REMOVE_ACTION)
-          || tuple.get(2).toString().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)
+      long removedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+          || tuple.get(2).toString().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)
                                                                                           ? Long.parseLong(tuple.get(4)
                                                                                                                 .toString())
                                                                                           : 0;

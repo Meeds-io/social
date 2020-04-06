@@ -23,7 +23,7 @@ import java.util.Date;
  * Group Space Binding Report Model (between space ang organization group)
  */
 
-public class GroupSpaceBindingReport {
+public class GroupSpaceBindingReportAction {
   /** The id */
   private long               id;
 
@@ -36,46 +36,29 @@ public class GroupSpaceBindingReport {
   /** The group id. */
   private String             group;
 
-  /** The username */
-  private String             username;
-
   /** The action */
   private String             action;
 
-  /** The date */
-  private Date               date                 = new Date();
+  /** The action startDate */
+  private Date               startDate          = new Date();
 
-  /** true if the user was present in the space before the binding */
-  private boolean            wasPresentBefore;
+  /** The action endDate */
+  private Date               endDate;
 
-  /**
-   * true if the user is still present in space after remove. false if the user is
-   * no more in space after remove null for other actions
-   */
-  private boolean            stillInSpace;
+  public static final String ADD_ACTION         = "ADD";
 
-  public static final String ADD_ACTION           = "ADD";
+  public static final String REMOVE_ACTION      = "REMOVE";
 
-  public static final String REMOVE_ACTION        = "REMOVE";
+  public static final String SYNCHRONIZE_ACTION = "SYNCHRONIZE";
 
-  public static final String UPDATE_ADD_ACTION    = "UPDATE_ADD";
+  public GroupSpaceBindingReportAction() {
+  }
 
-  public static final String UPDATE_REMOVE_ACTION = "UPDATE_REMOVE";
-
-  public static final String SYNCHRONIZE_ACTION   = "SYNCHRONIZE";
-
-  public GroupSpaceBindingReport(long groupSpaceBindingId,
-                                 long spaceId,
-                                 String group,
-                                 String username,
-                                 String action,
-                                 boolean wasPresentBefore) {
+  public GroupSpaceBindingReportAction(long groupSpaceBindingId, long spaceId, String group, String action) {
     this.groupSpaceBindingId = groupSpaceBindingId;
     this.spaceId = spaceId;
     this.group = group;
-    this.username = username;
     this.action = action;
-    this.wasPresentBefore = wasPresentBefore;
   }
 
   public long getId() {
@@ -110,14 +93,6 @@ public class GroupSpaceBindingReport {
     this.group = group;
   }
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
   public String getAction() {
     return action;
   }
@@ -126,27 +101,19 @@ public class GroupSpaceBindingReport {
     this.action = action;
   }
 
-  public Date getDate() {
-    return date;
+  public Date getStartDate() {
+    return startDate;
   }
 
-  public void setDate(Date date) {
-    this.date = date;
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
   }
 
-  public boolean isWasPresentBefore() {
-    return wasPresentBefore;
+  public Date getEndDate() {
+    return endDate;
   }
 
-  public void setWasPresentBefore(boolean wasPresentBefore) {
-    this.wasPresentBefore = wasPresentBefore;
-  }
-
-  public boolean isStillInSpace() {
-    return stillInSpace;
-  }
-
-  public void setStillInSpace(boolean stillInSpace) {
-    this.stillInSpace = stillInSpace;
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
   }
 }

@@ -37,7 +37,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " report.action, report.groupSpaceBindingId, COUNT (report.id) as users, MIN (report.date) AS startDate, MAX (report.date) AS endDate "
         + " FROM SocGroupSpaceBindingReportAction report GROUP BY report.sapce, report.group, report.action, report.groupSpaceBindingId "
         + " ORDER BY startDate DESC ") })
-public class GroupSpaceBindingReportEntity implements Serializable {
+public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")

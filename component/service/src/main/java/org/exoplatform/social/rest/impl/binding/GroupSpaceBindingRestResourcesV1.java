@@ -260,14 +260,14 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     List<String> actions = new ArrayList<>();
-    if (action.equals(GroupSpaceBindingReport.SYNCHRONIZE_ACTION)) {
-      actions.add(GroupSpaceBindingReport.UPDATE_ADD_ACTION);
-      actions.add(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION);
+    if (action.equals(GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION)) {
+      actions.add(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION);
+      actions.add(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION);
     } else {
       actions.add(action);
     }
 
-    List<GroupSpaceBindingReport> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
+    List<GroupSpaceBindingReportAction> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
                                                                                        Long.parseLong(groupBindingId),
                                                                                        group,
                                                                                        actions);
@@ -441,7 +441,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     return childrenDataEntities;
   }
 
-  private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReport> reports) {
+  private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportAction> reports) {
     StringBuilder sbResult = new StringBuilder();
 
     Space space = spaceService.getSpaceById(spaceId);
@@ -459,8 +459,8 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
     reports.stream().forEach(groupSpaceBindingReport -> {
       sbResult.append(groupSpaceBindingReport.getUsername() + ",");
-      if ((action.equals(GroupSpaceBindingReport.REMOVE_ACTION)
-          | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+      if ((action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+          | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
           && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
         // if the action is "remove" or "update_remove", and the user present in the
         // space before, then, he was not removed
@@ -470,10 +470,10 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
         sbResult.append(",");
       } else {
         // else, display the action
-        if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION)) {
-          sbResult.append(GroupSpaceBindingReport.ADD_ACTION + ",");
-        } else if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
-          sbResult.append(GroupSpaceBindingReport.REMOVE_ACTION + ",");
+        if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION)) {
+          sbResult.append(GroupSpaceBindingReportAction.ADD_ACTION + ",");
+        } else if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
+          sbResult.append(GroupSpaceBindingReportAction.REMOVE_ACTION + ",");
         } else {
           sbResult.append(groupSpaceBindingReport.getAction() + ",");
         }
@@ -481,8 +481,8 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       sbResult.append(groupSpaceBindingReport.getDate() + ",");
       sbResult.append(groupSpaceBindingReport.isWasPresentBefore() + ",");
 
-      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.REMOVE_ACTION)
-          || groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+          || groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
         // in case of add action, stillPresentInSpace is not relevant, so do not display
         sbResult.append(groupSpaceBindingReport.isStillInSpace());
       }
