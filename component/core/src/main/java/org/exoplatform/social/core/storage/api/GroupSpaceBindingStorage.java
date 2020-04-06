@@ -112,10 +112,10 @@ public interface GroupSpaceBindingStorage {
   /**
    * Saves a group space binding report.
    *
-   * @param groupSpaceBindingReport
+   * @param groupSpaceBindingReportAction
    * @throws GroupSpaceBindingStorageException
    */
-  GroupSpaceBindingReport saveGroupSpaceBindingReport(GroupSpaceBindingReport groupSpaceBindingReport) throws GroupSpaceBindingStorageException;
+  GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction) throws GroupSpaceBindingStorageException;
 
   /**
    * Deletes a binding by binding id.
@@ -227,7 +227,7 @@ public interface GroupSpaceBindingStorage {
    * @param actions
    * @return
    */
-  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
 
   /**
    * Gets all the GroupSpaceBindingOperations Report.

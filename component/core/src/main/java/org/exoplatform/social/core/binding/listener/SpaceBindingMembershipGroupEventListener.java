@@ -29,7 +29,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
@@ -65,7 +65,7 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
             groupSpaceBindingService.saveUserBinding(userName,
                                                      groupSpaceBinding,
                                                      space,
-                                                     GroupSpaceBindingReport.UPDATE_ADD_ACTION);
+                                                     GroupSpaceBindingReportAction.UPDATE_ADD_ACTION);
             long totalTime = System.currentTimeMillis() - startTime;
     
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
@@ -102,7 +102,7 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
           for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
             Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
             long startTime=System.currentTimeMillis();
-            groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReport.UPDATE_REMOVE_ACTION);
+            groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION);
             long totalTime=System.currentTimeMillis() - startTime;
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
                          + "duration_ms={}",

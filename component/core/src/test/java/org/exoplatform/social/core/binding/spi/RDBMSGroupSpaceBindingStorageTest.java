@@ -18,12 +18,11 @@
 package org.exoplatform.social.core.binding.spi;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -41,7 +40,7 @@ import org.exoplatform.social.core.storage.api.SpaceStorage;
 public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
 
   private List<GroupSpaceBinding>      tearDownGroupbindingList      = new ArrayList<>();
-  private List<GroupSpaceBindingReport>      tearDownGroupbindingReportList      = new ArrayList<>();
+  private List<GroupSpaceBindingReportAction>      tearDownGroupbindingReportList      = new ArrayList<>();
 
   private List<GroupSpaceBindingQueue> tearDownGroupbindingQueueList = new ArrayList<>();
 
@@ -155,15 +154,15 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     return groupSpaceBinding;
   }
   
-  private GroupSpaceBindingReport getGroupSpaceBindingReportInstance(long spaceId,
-                                                               long groupSpaceBindingId,
-                                                               String group,
-                                                               String user,
-                                                               String action,
-                                                               boolean wasPresentBefore) {
-    GroupSpaceBindingReport groupSpaceBindingReport = new GroupSpaceBindingReport(groupSpaceBindingId, spaceId, group, user,
+  private GroupSpaceBindingReportAction getGroupSpaceBindingReportInstance(long spaceId,
+                                                                           long groupSpaceBindingId,
+                                                                           String group,
+                                                                           String user,
+                                                                           String action,
+                                                                           boolean wasPresentBefore) {
+    GroupSpaceBindingReportAction groupSpaceBindingReportAction = new GroupSpaceBindingReportAction(groupSpaceBindingId, spaceId, group, user,
                                                                                   action, wasPresentBefore);
-    return groupSpaceBindingReport;
+    return groupSpaceBindingReportAction;
   }
 
   /**
@@ -509,45 +508,45 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   /**
    * Test
    * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#findReportsForCsv(long, long, String, List)}
-   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReport)}
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReportAction)}
    *
    *
    * @throws Exception
    **/
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
   
-    GroupSpaceBindingReport groupSpaceBindingReport = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
+    GroupSpaceBindingReportAction groupSpaceBindingReportAction = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
                                                                                               "/platform"
                                                                                                   + "/administrators",
-        "user1",GroupSpaceBindingReport.ADD_ACTION,false);
+        "user1", GroupSpaceBindingReportAction.ADD_ACTION,false);
   
-    groupSpaceBindingReport=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport);
+    groupSpaceBindingReportAction =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction);
     
-    tearDownGroupbindingReportList.add(groupSpaceBindingReport);
+    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction);
   
-    GroupSpaceBindingReport groupSpaceBindingReport1 = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
+    GroupSpaceBindingReportAction groupSpaceBindingReportAction1 = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
                                                                                                "/platform"
                                                                                                    + "/administrators",
                                                                                               "user2",
-                                                                                               GroupSpaceBindingReport.ADD_ACTION,false);
+                                                                                               GroupSpaceBindingReportAction.ADD_ACTION,false);
   
-    groupSpaceBindingReport1=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport1);
-    tearDownGroupbindingReportList.add(groupSpaceBindingReport1);
+    groupSpaceBindingReportAction1 =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction1);
+    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction1);
   
     Space space2 = this.getSpaceInstance(2);
     spaceStorage.saveSpace(space2, true);
     space2 = spaceStorage.getSpaceByPrettyName(space2.getPrettyName());
   
-    GroupSpaceBindingReport groupSpaceBindingReport2 = this.getGroupSpaceBindingReportInstance(Long.parseLong(space2.getId()),2,
+    GroupSpaceBindingReportAction groupSpaceBindingReportAction2 = this.getGroupSpaceBindingReportInstance(Long.parseLong(space2.getId()),2,
                                                                                                "/platform"
                                                                                                    + "/administrators",
                                                                                                "user2",
-                                                                                               GroupSpaceBindingReport.ADD_ACTION,false);
+                                                                                               GroupSpaceBindingReportAction.ADD_ACTION,false);
   
-    groupSpaceBindingReport2=groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReport2);
-    tearDownGroupbindingReportList.add(groupSpaceBindingReport2);
+    groupSpaceBindingReportAction2 =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction2);
+    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction2);
     List<String> actions = new ArrayList<>();
-    actions.add(GroupSpaceBindingReport.ADD_ACTION);
+    actions.add(GroupSpaceBindingReportAction.ADD_ACTION);
   
     assertEquals("findReportsForCSV("+spaceId+",1,'/platform/administrators','ADD') must return 2",2,
                  groupSpaceBindingStorage.findReportsForCsv(Long.parseLong(spaceId),1,"/platform/administrators",actions).size());
