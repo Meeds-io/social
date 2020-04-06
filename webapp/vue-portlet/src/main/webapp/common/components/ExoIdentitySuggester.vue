@@ -1,5 +1,5 @@
 <template>
-  <v-flex :id="id" class="contactAutoComplete">
+  <v-flex :id="id">
     <v-autocomplete
       ref="selectAutoComplete"
       v-model="value"
@@ -12,9 +12,11 @@
       :required="required"
       :items="items"
       :search-input.sync="searchTerm"
-      menu-props="closeOnClick, closeOnContentClick"
-      class="contactAutoComplete"
-      content-class="contactAutoCompleteContent"
+      :height="height"
+      append-icon=""
+      menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
+      class="identitySuggester"
+      content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
       item-text="profile.fullName"
@@ -43,7 +45,7 @@
           v-if="item.profile"
           :input-value="selected"
           close
-          class="autocompleteSelectedItem"
+          class="identitySuggesterItem"
           @click:close="remove(item)">
           <v-avatar left>
             <v-img :src="item.profile.avatarUrl"></v-img>
@@ -118,6 +120,12 @@ export default {
       type: Array,
       default: function() {
         return [];
+      },
+    },
+    height: {
+      type: Number,
+      default: function() {
+        return null;
       },
     },
   },

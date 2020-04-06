@@ -1,38 +1,28 @@
 <template>
-  <v-card :id="spaceMenuParentId" class="spaceCardItem">
+  <v-card :id="spaceMenuParentId" class="spaceCardItem d-block d-sm-flex" flat>
 
     <v-img
       :src="spaceBannerUrl"
       height="80px"
-      class="white--text align-start d-none d-sm-block">
+      class="white--text align-start d-none d-sm-block spaceBannerImg">
     </v-img>
 
-    <div class="spaceAvatarImg">
-      <a :href="url">
-        <v-img
-          :src="spaceAvatarUrl"
-          class="mx-auto mt-3"
-          height="50px"
-          width="50px"
-          max-height="50px"
-          max-width="50px">
-        </v-img>
-      </a>
-    </div>
-
-    <div class="spaceToolbarIcons pa-2">
+    <div class="spaceToolbarIcons pl-2">
       <v-btn
         icon
         small
         icon
         class="spaceInfoIcon d-none d-sm-flex"
         @click="$emit('flip')">
-        <v-icon size="14">fa-info</v-icon>
+        <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-spacer />
       <template v-if="canUseActionsMenu">
-        <v-btn icon depressed class="spaceActionIcon" @click="displayActionMenu = true">
-          <v-icon>mdi-dots-vertical</v-icon>
+        <v-btn v-if="space.canEdit" icon text class="spaceActionIcon d-block d-sm-none" @click="editSpace">
+          <i class="uiIcon uiIconEdit" />
+        </v-btn>
+        <v-btn icon text class="spaceActionIcon d-none d-sm-block" @click="displayActionMenu = true">
+          <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu
           ref="actionMenu"
@@ -44,26 +34,48 @@
           <v-list class="pa-0" dense>
             <template v-if="space.canEdit">
               <v-list-item @click="editSpace">
-                <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.edit') }}</v-list-item-title>
+                <v-list-item-title class="subtitle-2">
+                  <i class="uiIcon uiIconEdit" />
+                  {{ $t('spacesList.button.edit') }}
+                </v-list-item-title>
               </v-list-item>
               <v-list-item @click="removeSpaceConfirm">
-                <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.remove') }}</v-list-item-title>
+                <v-list-item-title class="subtitle-2">
+                  <i class="uiIcon uiIconTrash" />
+                  {{ $t('spacesList.button.remove') }}
+                </v-list-item-title>
               </v-list-item>
             </template>
             <v-list-item
               v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
               @click="extension.click(space)">
-              <v-list-item-title>{{ extension.title }}</v-list-item-title>
+              <v-list-item-title>
+                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon " />
+                {{ extension.title }}
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </template>
     </div>
 
-    <v-card-text class="spaceCardBody align-center">
-      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate">{{ space.displayName }}</a>
-      <v-card-subtitle class="pb-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
+    <div class="spaceAvatarImg">
+      <a :href="url">
+        <v-img
+          :src="spaceAvatarUrl"
+          class="mx-auto"
+          height="75px"
+          width="75px"
+          max-height="75px"
+          max-width="75px">
+        </v-img>
+      </a>
+    </div>
+
+    <v-card-text class="spaceCardBody align-center pt-2 pb-1">
+      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate d-block">{{ space.displayName }}</a>
+      <v-card-subtitle class="spaceMembersLabel py-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
     </v-card-text>
 
     <v-card-actions class="spaceCardActions">

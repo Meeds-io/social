@@ -28,7 +28,7 @@
           </v-flex>
           <v-divider class="my-1" />
         </template>
-        <v-flex class="drawerContent flex-grow-1 px-4 py-3 overflow-auto border-box-sizing">
+        <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
         </v-flex>
         <template v-if="$slots.footer">

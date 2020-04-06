@@ -1,12 +1,12 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title>
-      <button class="btn btn-primary addNewSpaceButton" @click="$root.$emit('addNewSpace')">
+      <v-btn class="btn btn-primary pr-2 pl-0 addNewSpaceButton" @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
           {{ $t('spacesList.label.addNewSpace') }}
         </span>
-      </button>
+      </v-btn>
     </v-toolbar-title>
     <v-card-subtitle class="d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
@@ -34,7 +34,7 @@
     <v-icon class="d-sm-none" @click="openBottomMenu">fa-filter</v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
-        <v-toolbar color="primary" dark>
+        <v-toolbar color="primary" dark class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('spacesList.button.cancel') }}
           </v-btn>

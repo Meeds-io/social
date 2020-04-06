@@ -1,21 +1,34 @@
 <template>
-  <v-card-text id="spacesListBody" class="pb-0">
-    <v-item-group>
-      <v-container class="pb-0">
-        <v-row v-if="filteredSpaces && filteredSpaces.length" class="border-box-sizing">
-          <exo-space-card
-            v-for="space in filteredSpaces"
-            :key="space.id"
-            :space="space"
-            :profile-action-extensions="profileActionExtensions"
-            @refresh="searchSpaces" />
-        </v-row>
-        <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
-          <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
-        </div>
-      </v-container>
-    </v-item-group>
-  </v-card-text>
+  <v-card flat>
+    <v-card-text id="spacesListBody" class="pb-0">
+      <v-item-group>
+        <v-container class="pa-0">
+          <v-row v-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
+            <exo-space-card
+              v-for="space in filteredSpaces"
+              :key="space.id"
+              :space="space"
+              :profile-action-extensions="profileActionExtensions"
+              @refresh="searchSpaces" />
+          </v-row>
+          <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
+            <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
+          </div>
+        </v-container>
+      </v-item-group>
+    </v-card-text>
+    <v-card-actions id="spacesListFooter" class="pt-0 px-5 border-box-sizing">
+      <v-btn
+        v-if="canShowMore"
+        :loading="loadingSpaces"
+        :disabled="loadingSpaces"
+        class="loadMoreButton ma-auto btn"
+        block
+        @click="loadNextPage">
+        {{ $t('spacesList.button.showMore') }}
+      </v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>

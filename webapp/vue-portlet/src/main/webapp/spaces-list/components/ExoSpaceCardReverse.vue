@@ -1,14 +1,14 @@
 <template>
-  <v-card :id="spaceMenuParentId" class="spaceCardItem d-flex flex-column">
+  <v-card :id="spaceMenuParentId" class="spaceCardItem d-flex flex-column" flat>
     <v-btn
       absolute
       small
       icon
       class="spaceInfoIcon ma-2"
       @click="$emit('flip')">
-      <v-icon size="14">fa-info</v-icon>
+      <v-icon size="12">fa-info</v-icon>
     </v-btn>
-    <v-card-title class="flex-grow-0 pa-2">
+    <v-card-title class="flex-grow-0 px-2">
       <span class="mx-auto">
         {{ $t('spacesList.label.description') }}
       </span>
@@ -23,7 +23,7 @@
     </v-card-text>
 
     <template v-if="space && space.managers && space.managers.length">
-      <v-card-title class="pa-3 flex-grow-0">
+      <v-card-title class="px-3 pt-3 pb-2 flex-grow-0">
         <span class="ma-auto">
           {{ $t('spacesList.title.managers') }}
         </span>
