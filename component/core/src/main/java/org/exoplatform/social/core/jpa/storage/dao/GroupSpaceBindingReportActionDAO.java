@@ -23,7 +23,7 @@ import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
-public interface GroupSpaceBindingReportDAO extends GenericDAO<GroupSpaceBindingReportActionEntity, Long> {
+public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceBindingReportActionEntity, Long> {
 
   /**
    * Get reports for csv generation
