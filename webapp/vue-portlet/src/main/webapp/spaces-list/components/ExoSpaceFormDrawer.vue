@@ -52,7 +52,7 @@
                 v-for="item in templates"
                 :key="item.name"
                 :value="item.name">
-                {{ item.resolvedLabel }}
+                {{ item.resolvedLabel || item.name }}
               </option>
             </select>
             <div class="caption font-italic font-weight-light pl-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
