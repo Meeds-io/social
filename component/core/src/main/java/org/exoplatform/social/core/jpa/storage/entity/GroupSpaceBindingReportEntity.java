@@ -24,24 +24,24 @@ import javax.persistence.*;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
-@Entity(name = "SocGroupSpaceBindingReport")
+@Entity(name = "SocGroupSpaceBindingReportAction")
 @ExoEntity
-@Table(name = "SOC_GROUP_SPACE_BINDING_REPORT")
+@Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_ACTION")
 @NamedQueries({
-    @NamedQuery(name = "SocGroupSpaceBindingReport.findReportForCSV", query = "SELECT groupSpaceBindingReport "
-        + " FROM SocGroupSpaceBindingReport groupSpaceBindingReport"
+    @NamedQuery(name = "SocGroupSpaceBindingReportAction.findReportForCSV", query = "SELECT groupSpaceBindingReport "
+        + " FROM SocGroupSpaceBindingReportAction groupSpaceBindingReport"
         + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
         + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND groupSpaceBindingReport.group = :group"
         + " AND groupSpaceBindingReport.action IN ( :action )" + " ORDER BY groupSpaceBindingReport.date ASC"),
-    @NamedQuery(name = "SocGroupSpaceBindingReport.getGroupSpaceBindingReportOperations", query = "select report.sapce, report.group,"
+    @NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperations", query = "select report.sapce, report.group,"
         + " report.action, report.groupSpaceBindingId, COUNT (report.id) as users, MIN (report.date) AS startDate, MAX (report.date) AS endDate "
-        + " FROM SocGroupSpaceBindingReport report GROUP BY report.sapce, report.group, report.action, report.groupSpaceBindingId "
+        + " FROM SocGroupSpaceBindingReportAction report GROUP BY report.sapce, report.group, report.action, report.groupSpaceBindingId "
         + " ORDER BY startDate DESC ") })
 public class GroupSpaceBindingReportEntity implements Serializable {
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID")
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID")
-  @Column(name = "GROUP_SPACE_BINDING_REPORT_ID")
+  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
+  @Column(name = "GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   private long        id;
 
   @Column(name = "GROUP_SPACE_BINDING_ID")
@@ -54,21 +54,16 @@ public class GroupSpaceBindingReportEntity implements Serializable {
   @Column(name = "GROUP_ID")
   private String      group;
 
-  @Column(name = "USERNAME")
-  private String      user;
-
   @Column(name = "ACTION")
   private String      action;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "DATE")
-  private Date        date = new Date();
+  @Column(name = "startDATE")
+  private Date        startDate = new Date();
 
-  @Column(name = "WAS_PRESENT_BEFORE")
-  private boolean     wasPresentBefore;
-
-  @Column(name = "STILL_IN_SPACE")
-  private boolean     stillInSpace;
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "endDATE")
+  private Date        endDate;
 
   public long getId() {
     return id;
@@ -102,14 +97,6 @@ public class GroupSpaceBindingReportEntity implements Serializable {
     this.group = group;
   }
 
-  public String getUser() {
-    return user;
-  }
-
-  public void setUser(String user) {
-    this.user = user;
-  }
-
   public String getAction() {
     return action;
   }
@@ -118,27 +105,19 @@ public class GroupSpaceBindingReportEntity implements Serializable {
     this.action = action;
   }
 
-  public Date getDate() {
-    return date;
+  public Date getStartDate() {
+    return startDate;
   }
 
-  public void setDate(Date date) {
-    this.date = date;
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
   }
 
-  public boolean isWasPresentBefore() {
-    return wasPresentBefore;
+  public Date getEndDate() {
+    return endDate;
   }
 
-  public void setWasPresentBefore(boolean wasPresentBefore) {
-    this.wasPresentBefore = wasPresentBefore;
-  }
-
-  public boolean isStillInSpace() {
-    return stillInSpace;
-  }
-
-  public void setStillInSpace(boolean stillInSpace) {
-    this.stillInSpace = stillInSpace;
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
   }
 }
