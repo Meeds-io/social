@@ -27,11 +27,11 @@ import javax.persistence.TypedQuery;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO;
+import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
-public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportActionEntity, Long>
-    implements GroupSpaceBindingReportDAO {
+public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportActionEntity, Long>
+    implements GroupSpaceBindingReportActionDAO {
 
   @Override
   public List<GroupSpaceBindingReportActionEntity> findReportsForCSV(long spaceId,

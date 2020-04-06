@@ -51,16 +51,16 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private UserSpaceBindingDAO                                        userSpaceBindingDAO;
 
-  private GroupSpaceBindingReportDAO                                 groupSpaceBindingReportDAO;
+  private GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO;
 
   public RDBMSGroupSpaceBindingStorageImpl(GroupSpaceBindingDAO groupSpaceBindingDAO,
                                            GroupSpaceBindingQueueDAO groupSpaceBindingQueueDAO,
                                            UserSpaceBindingDAO userSpaceBindingDAO,
-                                           GroupSpaceBindingReportDAO groupSpaceBindingReportDAO,
+                                           GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO,
                                            SpaceDAO spaceDAO) {
     this.groupSpaceBindingDAO = groupSpaceBindingDAO;
     this.groupSpaceBindingQueueDAO = groupSpaceBindingQueueDAO;
-    this.groupSpaceBindingReportDAO = groupSpaceBindingReportDAO;
+    this.groupSpaceBindingReportActionDAO = groupSpaceBindingReportActionDAO;
     this.userSpaceBindingDAO = userSpaceBindingDAO;
     this.spaceDAO = spaceDAO;
   }
@@ -126,7 +126,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   @ExoTransactional
   public GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingReportActionEntity entity;
-    entity = groupSpaceBindingReportDAO.create(buildEntityGroupSpaceBindingReportFrom(groupSpaceBindingReportAction));
+    entity = groupSpaceBindingReportActionDAO.create(buildEntityGroupSpaceBindingReportFrom(groupSpaceBindingReportAction));
     return fillGroupBindingReportFromEntity(entity);
   }
 
@@ -142,7 +142,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public void deleteGroupBindingReport(long id) throws GroupSpaceBindingStorageException {
-    groupSpaceBindingReportDAO.delete(groupSpaceBindingReportDAO.find(id));
+    groupSpaceBindingReportActionDAO.delete(groupSpaceBindingReportActionDAO.find(id));
 
   }
 
@@ -210,7 +210,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                                                String group,
                                                                List<String> actions) {
 
-    return buildGroupBindingReportListFromEntities(groupSpaceBindingReportDAO.findReportsForCSV(spaceId,
+    return buildGroupBindingReportListFromEntities(groupSpaceBindingReportActionDAO.findReportsForCSV(spaceId,
                                                                                                 groupSpaceBindingId,
                                                                                                 group,
                                                                                                 actions));
@@ -218,7 +218,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
-    return groupSpaceBindingReportDAO.getGroupSpaceBindingReportOperations();
+    return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportOperations();
   }
 
   private List<GroupSpaceBindingReportAction> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportActionEntity> entities) {
