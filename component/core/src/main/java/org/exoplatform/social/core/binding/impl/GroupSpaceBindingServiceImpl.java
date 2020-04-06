@@ -195,12 +195,28 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                                      userSpaceBinding.getUser())
                                                        .size() > 0;
     boolean isStillPresent = true;
-    if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
-      // no binding to the target space in this case remove user from space.
-      spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
-                                userSpaceBinding.getUser());
-      isStillPresent = false;
+    // Make sure to treat the two cases of remove,
+    if (action.equals(GroupSpaceBindingReport.REMOVE_ACTION)) {
+      // In case of binding removed.
+      if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
+        // no binding to the target space in this case remove user from space if he was
+        // not a member before.
+        spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
+                                  userSpaceBinding.getUser());
+        isStillPresent = false;
+      }
+    } else if (action.equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+      // In case of user removed from a group.
+      if (!hasOtherBindings) {
+        // remove membership from space even if he was member before the binding
+        // occurred
+        spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
+                                  userSpaceBinding.getUser());
+        isStillPresent = false;
+      }
+
     }
+
     GroupSpaceBindingReport report = new GroupSpaceBindingReport(userSpaceBinding.getGroupBinding().getId(),
                                                                  Long.parseLong(userSpaceBinding.getGroupBinding().getSpaceId()),
                                                                  userSpaceBinding.getGroupBinding().getGroup(),
