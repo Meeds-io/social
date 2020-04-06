@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -157,8 +158,34 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                       .filter(operation -> operation.getAction()
                                                                                     .equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
                                                       .count();
-        GroupSpaceBindingOperationReport synchronizeOperationReport = new GroupSpaceBindingOperationReport();
+        // Regroup all synchronization actions for the binding in one operation.
+        GroupSpaceBindingOperationReport synchronizeOperationReport =
+                                                                    new GroupSpaceBindingOperationReport(bindingOperationReport.getSpaceId(),
+                                                                                                         bindingOperationReport.getGroup(),
+                                                                                                         GroupSpaceBindingReport.SYNCHRONIZE_ACTION,
+                                                                                                         bindingOperationReport.getGroupSpaceBindingId(),
+                                                                                                         addedUsersCount,
+                                                                                                         removedUsersCount,
+                                                                                                         bindingOperationReport.getStartDate(),
+                                                                                                         bindingOperationReport.getEndDate());
+        // Keep just the first occurrence of the synchronize actions.
+        List<GroupSpaceBindingOperationReport> addOperationReports =
+                                                                   bindingOperationReports.stream()
+                                                                                          .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
+                                                                                          .filter(operation -> operation.getAction()
+                                                                                                                        .equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION))
+                                                                                          .collect(Collectors.toList());
+        List<GroupSpaceBindingOperationReport> removeOperationReports =
+                                                                      bindingOperationReports.stream()
+                                                                                             .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
+                                                                                             .filter(operation -> operation.getAction()
+                                                                                                                           .equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+                                                                                             .collect(Collectors.toList());
+        bindingOperationReports.removeAll(addOperationReports);
+        bindingOperationReports.removeAll(removeOperationReports);
 
+        // Replace first occurrence by the new generated synchronize operation.
+        bindingOperationReports.add(index, synchronizeOperationReport);
       }
     }
     return bindingOperationReports;
