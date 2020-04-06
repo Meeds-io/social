@@ -94,6 +94,7 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
       try {
         if (isUserNoMoreMemberOfGroup(userName, groupId)) {
           groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+          spaceService = CommonsUtils.getService(SpaceService.class);
           // Retrieve removed user's all bindings.
           List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByGroup(m.getGroupId(),
                                                                                                       m.getUserName());
