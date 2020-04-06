@@ -17,14 +17,32 @@
 
 package org.exoplatform.social.core.jpa.storage.dao;
 
-import org.exoplatform.commons.api.persistence.GenericDAO;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
-
 import java.util.List;
 
+import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
+import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
+
 public interface GroupSpaceBindingReportDAO extends GenericDAO<GroupSpaceBindingReportEntity, Long> {
-  
-  /** Get reports for csv generation */
-  List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId, long groupSpaceBindingId, String group,
-                                                               List<String> actions);
+
+  /**
+   * Get reports for csv generation
+   * 
+   * @param spaceId
+   * @param groupSpaceBindingId
+   * @param group
+   * @param actions
+   * @return
+   */
+  List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId,
+                                                        long groupSpaceBindingId,
+                                                        String group,
+                                                        List<String> actions);
+
+  /**
+   * Gets all the GroupSpaceBindingOperations Report.
+   * 
+   * @return
+   */
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
 }

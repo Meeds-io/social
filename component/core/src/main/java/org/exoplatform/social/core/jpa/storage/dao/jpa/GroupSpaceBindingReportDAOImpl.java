@@ -17,30 +17,76 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingQueueDAO;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
-
-import javax.persistence.TypedQuery;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportEntity, Long> implements
-    GroupSpaceBindingReportDAO {
-  
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+
+import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
+import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportDAO;
+import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportEntity;
+
+public class GroupSpaceBindingReportDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportEntity, Long>
+    implements GroupSpaceBindingReportDAO {
+
   @Override
-  public List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId, long groupSpaceBindingId, String group,
+  public List<GroupSpaceBindingReportEntity> findReportsForCSV(long spaceId,
+                                                               long groupSpaceBindingId,
+                                                               String group,
                                                                List<String> actions) {
     TypedQuery<GroupSpaceBindingReportEntity> query =
-        getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.findReportForCSV",
-                                            GroupSpaceBindingReportEntity.class);
+                                                    getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.findReportForCSV",
+                                                                                        GroupSpaceBindingReportEntity.class);
     query.setParameter("spaceId", spaceId);
     query.setParameter("groupSpaceBindingId", groupSpaceBindingId);
     query.setParameter("group", group);
     query.setParameter("action", actions);
     return query.getResultList();
   }
-  
+
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
+    TypedQuery<Tuple> query =
+                            getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.getGroupSpaceBindingReportOperations",
+                                                                Tuple.class);
+    List<Tuple> tuples = query.getResultList();
+    return convertToGroupSpaceBindingOperationReport(tuples);
+  }
+
+  private List<GroupSpaceBindingOperationReport> convertToGroupSpaceBindingOperationReport(List<Tuple> tuples) {
+    List<GroupSpaceBindingOperationReport> bindingOperationReports = new ArrayList<>();
+    for (Tuple tuple : tuples) {
+      long spaceId = Long.parseLong(tuple.get(0).toString());
+      String group = tuple.get(1).toString();
+      String action = tuple.get(2).toString();
+      long groupSpaceBindingId = Long.parseLong(tuple.get(3).toString());
+      Date startDate = (Date) tuple.get(5);
+      Date endDate = (Date) tuple.get(6);
+
+      long addedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReport.ADD_ACTION)
+          || tuple.get(2).toString().equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION) ? Long.parseLong(tuple.get(4).toString())
+                                                                                       : 0;
+      long removedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReport.REMOVE_ACTION)
+          || tuple.get(2).toString().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)
+                                                                                          ? Long.parseLong(tuple.get(4)
+                                                                                                                .toString())
+                                                                                          : 0;
+
+      bindingOperationReports.add(new GroupSpaceBindingOperationReport(spaceId,
+                                                                       group,
+                                                                       action,
+                                                                       groupSpaceBindingId,
+                                                                       addedUsers,
+                                                                       removedUsers,
+                                                                       startDate,
+                                                                       endDate));
+
+    }
+    return bindingOperationReports;
+  }
+
 }

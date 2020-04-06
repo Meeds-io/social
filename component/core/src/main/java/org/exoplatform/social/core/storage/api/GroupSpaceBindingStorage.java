@@ -19,10 +19,7 @@ package org.exoplatform.social.core.storage.api;
 
 import java.util.List;
 
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.storage.GroupSpaceBindingStorageException;
 
 /**
@@ -111,7 +108,7 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   UserSpaceBinding saveUserBinding(UserSpaceBinding binding) throws GroupSpaceBindingStorageException;
-  
+
   /**
    * Saves a group space binding report.
    *
@@ -127,8 +124,7 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   void deleteGroupBinding(long id) throws GroupSpaceBindingStorageException;
-  
-  
+
   /**
    * Deletes a binding report by bindingReport id.
    *
@@ -136,6 +132,7 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   void deleteGroupBindingReport(long id) throws GroupSpaceBindingStorageException;
+
   /**
    * Deletes a binding by binding id.
    *
@@ -212,7 +209,7 @@ public interface GroupSpaceBindingStorage {
    * @return
    */
   boolean isBoundSpace(String spaceId);
-  
+
   /**
    * Count the number of bound users in a space
    *
@@ -220,8 +217,8 @@ public interface GroupSpaceBindingStorage {
    * @return number of bound users
    */
   long countBoundUsers(String spaceId);
-   
-   /**
+
+  /**
    * Get the binding report for generate the csv file
    *
    * @param spaceId
@@ -230,6 +227,12 @@ public interface GroupSpaceBindingStorage {
    * @param actions
    * @return
    */
-  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group,
-                                                  List<String> actions);
+  List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+
+  /**
+   * Gets all the GroupSpaceBindingOperations Report.
+   * 
+   * @return
+   */
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
 }

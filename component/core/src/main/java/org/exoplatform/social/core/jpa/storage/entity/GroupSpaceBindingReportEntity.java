@@ -31,43 +31,44 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
     @NamedQuery(name = "SocGroupSpaceBindingReport.findReportForCSV", query = "SELECT groupSpaceBindingReport "
         + " FROM SocGroupSpaceBindingReport groupSpaceBindingReport"
         + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
-        + " AND groupSpaceBindingReport.space.id = :spaceId"
-        + " AND groupSpaceBindingReport.group = :group"
-        + " AND groupSpaceBindingReport.action IN ( :action )"
-        + " ORDER BY groupSpaceBindingReport.date ASC")
-   })
+        + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND groupSpaceBindingReport.group = :group"
+        + " AND groupSpaceBindingReport.action IN ( :action )" + " ORDER BY groupSpaceBindingReport.date ASC"),
+    @NamedQuery(name = "SocGroupSpaceBindingReport.getGroupSpaceBindingReportOperations", query = "select report.sapce, report.group,"
+        + " report.action, report.groupSpaceBindingId, COUNT (report.id) as users, MIN (report.date) AS startDate, MAX (report.date) AS endDate "
+        + " FROM SocGroupSpaceBindingReport report GROUP BY report.sapce, report.group, report.action, report.groupSpaceBindingId "
+        + " ORDER BY startDate DESC ") })
 public class GroupSpaceBindingReportEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID")
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ID")
   @Column(name = "GROUP_SPACE_BINDING_REPORT_ID")
-  private long    id;
+  private long        id;
 
   @Column(name = "GROUP_SPACE_BINDING_ID")
-  private long    groupSpaceBindingId;
-  
+  private long        groupSpaceBindingId;
+
   @ManyToOne
   @JoinColumn(name = "SPACE_ID", referencedColumnName = "SPACE_ID", nullable = false)
   private SpaceEntity space;
 
   @Column(name = "GROUP_ID")
-  private String  group;
+  private String      group;
 
   @Column(name = "USERNAME")
-  private String  user;
+  private String      user;
 
   @Column(name = "ACTION")
-  private String  action;
+  private String      action;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "DATE")
-  private Date    date = new Date();
+  private Date        date = new Date();
 
   @Column(name = "WAS_PRESENT_BEFORE")
-  private boolean wasPresentBefore;
-  
+  private boolean     wasPresentBefore;
+
   @Column(name = "STILL_IN_SPACE")
-  private boolean stillInSpace;
+  private boolean     stillInSpace;
 
   public long getId() {
     return id;
@@ -84,11 +85,11 @@ public class GroupSpaceBindingReportEntity implements Serializable {
   public void setGroupSpaceBindingId(long groupSpaceBindingId) {
     this.groupSpaceBindingId = groupSpaceBindingId;
   }
-  
+
   public SpaceEntity getSpace() {
     return space;
   }
-  
+
   public void setSpace(SpaceEntity space) {
     this.space = space;
   }
@@ -132,11 +133,11 @@ public class GroupSpaceBindingReportEntity implements Serializable {
   public void setWasPresentBefore(boolean wasPresentBefore) {
     this.wasPresentBefore = wasPresentBefore;
   }
-  
+
   public boolean isStillInSpace() {
     return stillInSpace;
   }
-  
+
   public void setStillInSpace(boolean stillInSpace) {
     this.stillInSpace = stillInSpace;
   }

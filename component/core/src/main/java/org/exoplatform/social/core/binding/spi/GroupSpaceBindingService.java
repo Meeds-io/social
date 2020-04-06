@@ -19,10 +19,7 @@ package org.exoplatform.social.core.binding.spi;
 
 import java.util.List;
 
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.space.model.Space;
 
 /**
@@ -99,6 +96,13 @@ public interface GroupSpaceBindingService {
    * @return
    */
   List<GroupSpaceBindingReport> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+
+  /**
+   * Gets all the GroupSpaceBindingOperations Report.
+   * 
+   * @return
+   */
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
 
   /**
    * Saves a group space binding queue
