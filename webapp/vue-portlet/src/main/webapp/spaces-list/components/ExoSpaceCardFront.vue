@@ -23,6 +23,8 @@
     <div class="spaceToolbarIcons pa-2">
       <v-btn
         icon
+        small
+        icon
         class="spaceInfoIcon d-none d-sm-flex"
         @click="$emit('flip')">
         <v-icon small>fa-info</v-icon>

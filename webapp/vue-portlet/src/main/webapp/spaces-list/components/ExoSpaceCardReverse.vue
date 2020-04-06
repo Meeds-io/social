@@ -1,7 +1,12 @@
 <template>
   <v-card :id="spaceMenuParentId" class="spaceCardItem d-flex flex-column">
-    <v-btn icon absolute class="spaceInfoIcon ma-2" @click="$emit('flip')">
-      <v-icon small>fa-info</v-icon>
+    <v-btn
+      absolute
+      small
+      icon
+      class="spaceInfoIcon ma-2"
+      @click="$emit('flip')">
+      <v-icon small size="30" small>fa-info</v-icon>
     </v-btn>
     <v-card-title class="flex-grow-0 pa-3">
       <span class="mx-auto mt-2">
