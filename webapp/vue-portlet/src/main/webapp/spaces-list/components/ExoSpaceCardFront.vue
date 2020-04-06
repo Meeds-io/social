@@ -49,9 +49,9 @@
               </v-list-item>
             </template>
             <v-list-item
-              v-for="(extension, i) in spaceActionExtensions"
+              v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
-              @click="extension.click">
+              @click="extension.click(space)">
               <v-list-item-title>{{ extension.title }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -189,7 +189,7 @@ export default {
       type: Object,
       default: null,
     },
-    spaceActionExtensions: {
+    profileActionExtensions: {
       type: Array,
       default: () => [],
     },
@@ -214,8 +214,14 @@ export default {
     spaceMenuParentId() {
       return this.space && this.space.id && `spaceMenuParent-${this.space.id}` || 'spaceMenuParent';
     },
+    enabledProfileActionExtensions() {
+      if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
+        return [];
+      }
+      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
+    },
     canUseActionsMenu() {
-      return this.space && (this.space.isManager || this.spaceActionExtensions && this.spaceActionExtensions.length);
+      return this.space && (this.space.isManager || this.enabledProfileActionExtensions.length);
     },
     url() {
       if (this.space && this.space.groupId) {

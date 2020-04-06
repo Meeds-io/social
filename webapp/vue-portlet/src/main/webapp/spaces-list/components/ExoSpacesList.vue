@@ -85,6 +85,7 @@
                   v-for="space in filteredSpaces"
                   :key="space.id"
                   :space="space"
+                  :profile-action-extensions="profileActionExtensions"
                   @refresh="searchSpaces" />
               </v-row>
               <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
@@ -126,6 +127,7 @@ export default {
     },
   },
   data: () => ({
+    profileActionExtensions: [],
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
@@ -192,8 +194,14 @@ export default {
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
+
+    document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    this.refreshExtensions();
   },
   methods: {
+    refreshExtensions() {
+      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    },
     searchSpaces() {
       this.loadingSpaces = true;
       return spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)

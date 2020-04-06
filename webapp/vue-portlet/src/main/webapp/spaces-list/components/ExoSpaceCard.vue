@@ -6,6 +6,7 @@
     <div class="spaceCardFront">
       <exo-space-card-front
         :space="space"
+        :profile-action-extensions="profileActionExtensions"
         front
         @flip="flipCard = true"
         @refresh="$emit('refresh')" />
@@ -24,6 +25,10 @@ export default {
     space: {
       type: Object,
       default: () => ({}),
+    },
+    profileActionExtensions: {
+      type: Array,
+      default: () => [],
     },
   },
   data: () => ({
