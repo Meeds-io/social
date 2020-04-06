@@ -251,26 +251,24 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                                      userSpaceBinding.getUser())
                                                        .size() > 0;
     boolean isStillPresent = true;
-    // Make sure to treat the two cases of remove,
-    if (action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)) {
-      // In case of binding removed.
-      if (!hasOtherBindings && !userSpaceBinding.isMemberBefore()) {
-        // no binding to the target space in this case remove user from space if he was
-        // not a member before.
-        spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
-                                  userSpaceBinding.getUser());
-        isStillPresent = false;
-      }
-    } else if (action.equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
-      // In case of user removed from a group.
-      if (!hasOtherBindings) {
-        // remove membership from space even if he was member before the binding
-        // occurred
-        spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
-                                  userSpaceBinding.getUser());
-        isStillPresent = false;
-      }
-
+    boolean shouldBeRemovedFromSpace = !hasOtherBindings;
+    if (action.equals(GroupSpaceBindingReport.REMOVE_ACTION)) {
+      //we remove the binding, so we need to check
+      //1) if the user was memberBefore
+      //2) if he is still bound by another binding
+      shouldBeRemovedFromSpace = shouldBeRemovedFromSpace && !userSpaceBinding.isMemberBefore();
+    
+    }
+    // else
+    //action is UPDATE_REMOVE
+    //so we remove the user from the space even if he was present before. We only need to check if he is bound by another
+    // binding
+    if (shouldBeRemovedFromSpace) {
+      // remove membership from space even if he was member before the binding
+      // occurred
+      spaceService.removeMember(spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId()),
+                                userSpaceBinding.getUser());
+      isStillPresent = false;
     }
 
     GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(userSpaceBinding.getGroupBinding().getId(),
