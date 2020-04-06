@@ -159,7 +159,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
 
     // Call the delete user binding to also update space membership.
-    for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroup(groupSpaceBinding.getGroup())) {
+    for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
       deleteUserBinding(userSpaceBinding, GroupSpaceBindingReport.REMOVE_ACTION);
     }
     // The deletion of the groupSpaceBinding will also remove it from the

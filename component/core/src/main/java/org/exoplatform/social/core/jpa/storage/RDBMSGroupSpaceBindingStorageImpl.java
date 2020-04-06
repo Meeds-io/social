@@ -104,8 +104,8 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   @ExoTransactional
-  public List<UserSpaceBinding> findUserAllBindingsByGroup(String group) {
-    return buildUserBindingListFromEntities(userSpaceBindingDAO.findUserAllBindingsByGroup(group));
+  public List<UserSpaceBinding> findUserAllBindingsByGroupBinding(GroupSpaceBinding binding) {
+    return buildUserBindingListFromEntities(userSpaceBindingDAO.findBoundUsersByBindingId(binding.getId()));
   }
 
   @ExoTransactional

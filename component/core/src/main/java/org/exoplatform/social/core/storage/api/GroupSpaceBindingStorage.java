@@ -86,7 +86,7 @@ public interface GroupSpaceBindingStorage {
    * @param group the group
    * @return A list of group bindings
    */
-  List<UserSpaceBinding> findUserAllBindingsByGroup(String group) throws GroupSpaceBindingStorageException;
+  List<UserSpaceBinding> findUserAllBindingsByGroupBinding(GroupSpaceBinding binding) throws GroupSpaceBindingStorageException;
 
   /**
    * Saves a new binding.
