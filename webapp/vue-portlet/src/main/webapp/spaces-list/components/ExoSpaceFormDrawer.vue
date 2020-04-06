@@ -1,7 +1,6 @@
 <template>
   <exo-drawer
     ref="spaceFormDrawer"
-    width="600"
     right
     @opened="stepper = 1"
     @closed="stepper = 0">

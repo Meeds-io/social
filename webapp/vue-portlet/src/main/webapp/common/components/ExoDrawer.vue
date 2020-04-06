@@ -1,7 +1,6 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :width="width"
     :right="right"
     :left="!right"
     :class="!drawer && 'd-none d-sm-flex'"
@@ -10,6 +9,7 @@
     touchless
     height="100vh"
     max-height="100vh"
+    width="420px"
     max-width="100vw"
     class="drawerParent">
     <v-container fill-height class="pa-0">
@@ -48,10 +48,6 @@ export default {
     right: {
       type: Boolean,
       default: () => false,
-    },
-    width: {
-      type: Number,
-      default: () => 400,
     },
   },
   data: () => ({
