@@ -238,7 +238,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     groupSpaceBindingReportEntity.setGroup(groupSpaceBindingReport.getGroup());
     groupSpaceBindingReportEntity.setUser(groupSpaceBindingReport.getUsername());
     groupSpaceBindingReportEntity.setAction(groupSpaceBindingReport.getAction());
-    groupSpaceBindingReportEntity.setDate(groupSpaceBindingReport.getDate());
+    groupSpaceBindingReportEntity.setStartDate(groupSpaceBindingReport.getDate());
     groupSpaceBindingReportEntity.setWasPresentBefore(groupSpaceBindingReport.isWasPresentBefore());
     groupSpaceBindingReportEntity.setStillInSpace(groupSpaceBindingReport.isStillInSpace());
     return groupSpaceBindingReportEntity;
@@ -257,7 +257,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                                                                   entity.isWasPresentBefore());
 
     groupSpaceBindingReport.setId(entity.getId());
-    groupSpaceBindingReport.setDate(entity.getDate());
+    groupSpaceBindingReport.setDate(entity.getStartDate());
     groupSpaceBindingReport.setStillInSpace(entity.isStillInSpace());
     return groupSpaceBindingReport;
   }
