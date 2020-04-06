@@ -134,66 +134,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   @Override
   public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
-    List<GroupSpaceBindingOperationReport> bindingOperationReports =
-                                                                   groupSpaceBindingStorage.getGroupSpaceBindingReportOperations();
-
-    // // Treat binding operations of synchronization.
-    // for (GroupSpaceBindingOperationReport bindingOperationReport :
-    // bindingOperationReports) {
-    // String operationAction = bindingOperationReport.getAction();
-    // if (operationAction.equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION)
-    // ||
-    // operationAction.equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
-    // // Get index of the operation
-    // int index = bindingOperationReports.indexOf(bindingOperationReport);
-    // // Get number of added and removed users
-    // long addedUsersCount =
-    // bindingOperationReports.stream()
-    // .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId()
-    // == bindingOperationReport.getGroupSpaceBindingId())
-    // .filter(operation -> operation.getAction()
-    // .equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
-    // .count();
-    // long removedUsersCount =
-    // bindingOperationReports.stream()
-    // .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId()
-    // == bindingOperationReport.getGroupSpaceBindingId())
-    // .filter(operation -> operation.getAction()
-    // .equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
-    // .count();
-    // // Regroup all synchronization actions for the binding in one operation.
-    // GroupSpaceBindingOperationReport synchronizeOperationReport =
-    // new GroupSpaceBindingOperationReport(bindingOperationReport.getSpaceId(),
-    // bindingOperationReport.getGroup(),
-    // GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION,
-    // bindingOperationReport.getGroupSpaceBindingId(),
-    // addedUsersCount,
-    // removedUsersCount,
-    // bindingOperationReport.getStartDate(),
-    // bindingOperationReport.getEndDate());
-    // // Keep just the first occurrence of the synchronize actions.
-    // List<GroupSpaceBindingOperationReport> addOperationReports =
-    // bindingOperationReports.stream()
-    // .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId()
-    // == bindingOperationReport.getGroupSpaceBindingId())
-    // .filter(operation -> operation.getAction()
-    // .equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
-    // .collect(Collectors.toList());
-    // List<GroupSpaceBindingOperationReport> removeOperationReports =
-    // bindingOperationReports.stream()
-    // .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId()
-    // == bindingOperationReport.getGroupSpaceBindingId())
-    // .filter(operation -> operation.getAction()
-    // .equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
-    // .collect(Collectors.toList());
-    // bindingOperationReports.removeAll(addOperationReports);
-    // bindingOperationReports.removeAll(removeOperationReports);
-    //
-    // // Replace first occurrence by the new generated synchronize operation.
-    // bindingOperationReports.add(index, synchronizeOperationReport);
-    // }
-    // }
-    return bindingOperationReports;
+    return groupSpaceBindingStorage.getGroupSpaceBindingReportOperations();
   }
 
   /**

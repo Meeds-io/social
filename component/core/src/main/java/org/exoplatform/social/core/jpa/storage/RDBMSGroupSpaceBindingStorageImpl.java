@@ -146,7 +146,8 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action) {
-    return fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionDAO.findGroupSpaceBindingReportAction(bindingId, action));
+    return fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionDAO.findGroupSpaceBindingReportAction(bindingId,
+                                                                                                                     action));
   }
 
   @ExoTransactional
@@ -237,7 +238,63 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
-    return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportOperations();
+    List<GroupSpaceBindingOperationReport> bindingOperationReports = new ArrayList<>();
+    List<GroupSpaceBindingReportAction> bindingReportActions =
+                                                             groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate();
+    for (GroupSpaceBindingReportAction bindingReportAction : bindingReportActions) {
+      List<GroupSpaceBindingReportUser> bindingReportUsers =
+                                                           buildGroupBindingReportUserListFromEntities(groupSpaceBindingReportUserDAO.findBindingReportUsersByBindingReportAction(bindingReportAction.getId()));
+      long addedUsers = 0;
+      long removedUsers = 0;
+      switch (bindingReportAction.getAction()) {
+      case GroupSpaceBindingReportAction.ADD_ACTION:
+        addedUsers = bindingReportUsers.size();
+        removedUsers = 0;
+        bindingOperationReports.add(new GroupSpaceBindingOperationReport(bindingReportAction.getSpaceId(),
+                                                                         bindingReportAction.getGroup(),
+                                                                         bindingReportAction.getAction(),
+                                                                         bindingReportAction.getGroupSpaceBindingId(),
+                                                                         addedUsers,
+                                                                         removedUsers,
+                                                                         bindingReportAction.getStartDate(),
+                                                                         bindingReportAction.getEndDate()));
+        break;
+      case GroupSpaceBindingReportAction.REMOVE_ACTION:
+        addedUsers = 0;
+        removedUsers = bindingReportUsers.size();
+        bindingOperationReports.add(new GroupSpaceBindingOperationReport(bindingReportAction.getSpaceId(),
+                                                                         bindingReportAction.getGroup(),
+                                                                         bindingReportAction.getAction(),
+                                                                         bindingReportAction.getGroupSpaceBindingId(),
+                                                                         addedUsers,
+                                                                         removedUsers,
+                                                                         bindingReportAction.getStartDate(),
+                                                                         bindingReportAction.getEndDate()));
+        break;
+      default:
+        addedUsers =
+                   bindingReportUsers.stream()
+                                     .filter(bindingReportUser -> bindingReportUser.getAction()
+                                                                                   .equals(GroupSpaceBindingReportUser.ACTION_ADD_USER))
+                                     .count();
+        removedUsers =
+                     bindingReportUsers.stream()
+                                       .filter(bindingReportUser -> bindingReportUser.getAction()
+                                                                                     .equals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER))
+                                       .count();
+
+        bindingOperationReports.add(new GroupSpaceBindingOperationReport(bindingReportAction.getSpaceId(),
+                                                                         bindingReportAction.getGroup(),
+                                                                         bindingReportAction.getAction(),
+                                                                         bindingReportAction.getGroupSpaceBindingId(),
+                                                                         addedUsers,
+                                                                         removedUsers,
+                                                                         bindingReportAction.getStartDate(),
+                                                                         bindingReportAction.getEndDate()));
+        break;
+      }
+    }
+    return bindingOperationReports;
   }
 
   private List<GroupSpaceBindingReportAction> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportActionEntity> entities) {
@@ -247,6 +304,14 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                       .map(groupSpaceBindingReportActionEntity -> fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionEntity))
                                       .collect(Collectors.toList());
     return groupSpaceBindingsReports;
+  }
+
+  private List<GroupSpaceBindingReportUser> buildGroupBindingReportUserListFromEntities(List<GroupSpaceBindingReportUserEntity> bindingReportUserEntities) {
+    List<GroupSpaceBindingReportUser> bindingReportUsers =
+                                                         bindingReportUserEntities.stream()
+                                                                                  .map(groupSpaceBindingReportUserEntity -> fillGroupBindingReportUserFromEntity(groupSpaceBindingReportUserEntity))
+                                                                                  .collect(Collectors.toList());
+    return bindingReportUsers;
   }
 
   private GroupSpaceBindingReportActionEntity buildEntityGroupSpaceBindingReportActionFrom(GroupSpaceBindingReportAction groupSpaceBindingReportAction) {
