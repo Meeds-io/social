@@ -17,16 +17,12 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Tuple;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
@@ -39,8 +35,8 @@ public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<Grou
                                                                      String group,
                                                                      List<String> actions) {
     TypedQuery<GroupSpaceBindingReportActionEntity> query =
-                                                    getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.findReportForCSV",
-                                                                                        GroupSpaceBindingReportActionEntity.class);
+                                                          getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.findReportForCSV",
+                                                                                              GroupSpaceBindingReportActionEntity.class);
     query.setParameter("spaceId", spaceId);
     query.setParameter("groupSpaceBindingId", groupSpaceBindingId);
     query.setParameter("group", group);
@@ -49,44 +45,16 @@ public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<Grou
   }
 
   @Override
-  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
-    TypedQuery<Tuple> query =
-                            getEntityManager().createNamedQuery("SocGroupSpaceBindingReport.getGroupSpaceBindingReportOperations",
-                                                                Tuple.class);
-    List<Tuple> tuples = query.getResultList();
-    return convertToGroupSpaceBindingOperationReport(tuples);
-  }
-
-  private List<GroupSpaceBindingOperationReport> convertToGroupSpaceBindingOperationReport(List<Tuple> tuples) {
-    List<GroupSpaceBindingOperationReport> bindingOperationReports = new ArrayList<>();
-    for (Tuple tuple : tuples) {
-      long spaceId = Long.parseLong(tuple.get(0).toString());
-      String group = tuple.get(1).toString();
-      String action = tuple.get(2).toString();
-      long groupSpaceBindingId = Long.parseLong(tuple.get(3).toString());
-      Date startDate = (Date) tuple.get(5);
-      Date endDate = (Date) tuple.get(6);
-
-      long addedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReportAction.ADD_ACTION)
-          || tuple.get(2).toString().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION) ? Long.parseLong(tuple.get(4).toString())
-                                                                                       : 0;
-      long removedUsers = tuple.get(2).toString().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
-          || tuple.get(2).toString().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)
-                                                                                          ? Long.parseLong(tuple.get(4)
-                                                                                                                .toString())
-                                                                                          : 0;
-
-      bindingOperationReports.add(new GroupSpaceBindingOperationReport(spaceId,
-                                                                       group,
-                                                                       action,
-                                                                       groupSpaceBindingId,
-                                                                       addedUsers,
-                                                                       removedUsers,
-                                                                       startDate,
-                                                                       endDate));
-
+  public GroupSpaceBindingReportActionEntity findGroupSpaceBindingReportAction(long bindingId, String action) {
+    TypedQuery<GroupSpaceBindingReportActionEntity> query =
+                                                          getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction",
+                                                                                              GroupSpaceBindingReportActionEntity.class);
+    query.setParameter("bindingId", bindingId);
+    query.setParameter("action", action);
+    try {
+      return query.getSingleResult();
+    } catch (NoResultException ex) {
+      return null;
     }
-    return bindingOperationReports;
   }
-
 }

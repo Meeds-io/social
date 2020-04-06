@@ -227,7 +227,10 @@ public interface GroupSpaceBindingStorage {
    * @param actions
    * @return
    */
-  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
+                                                        long groupSpaceBindingId,
+                                                        String group,
+                                                        List<String> actions);
 
   /**
    * Gets all the GroupSpaceBindingOperations Report.
@@ -235,4 +238,10 @@ public interface GroupSpaceBindingStorage {
    * @return
    */
   List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
+
+  GroupSpaceBindingReportUser saveGroupSpaceBindingReportUser(GroupSpaceBindingReportUser groupSpaceBindingReportUser);
+
+  void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction);
+
+  GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action);
 }
