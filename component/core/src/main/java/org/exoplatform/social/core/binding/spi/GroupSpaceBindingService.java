@@ -29,13 +29,13 @@ import org.exoplatform.social.core.space.model.Space;
 
 public interface GroupSpaceBindingService {
 
-  public final static String LOG_SERVICE_NAME          = "group-binding";
+  String LOG_SERVICE_NAME          = "group-binding";
 
-  public final static String LOG_NEW_OPERATION_NAME    = "new-binding";
+  String LOG_NEW_OPERATION_NAME    = "new-binding";
 
-  public final static String LOG_REMOVE_OPERATION_NAME = "remove-binding";
+  String LOG_REMOVE_OPERATION_NAME = "remove-binding";
 
-  public final static String LOG_UPDATE_OPERATION_NAME = "update-binding";
+  String LOG_UPDATE_OPERATION_NAME = "update-binding";
 
   /**
    * Get the first GroupSpaceBindingQueue to treat
@@ -95,7 +95,10 @@ public interface GroupSpaceBindingService {
    * @param actions
    * @return
    */
-  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, List<String> actions);
+  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
+                                                        long groupSpaceBindingId,
+                                                        String group,
+                                                        List<String> actions);
 
   /**
    * Gets all the GroupSpaceBindingOperations Report.
@@ -121,11 +124,11 @@ public interface GroupSpaceBindingService {
 
   /**
    * Delete a user binding. When a binding is deleted
-   *
-   * @param userSpaceBinding The user binding to be deleted.
-   * @param action : the action which lead to the deletion (for the report)
+   *  @param userSpaceBinding The user binding to be deleted.
+   * @param bindingReportAction : the action which lead to the deletion (for the
+   * @return
    */
-  void deleteUserBinding(UserSpaceBinding userSpaceBinding, String action);
+  GroupSpaceBindingReportUser deleteUserBinding(UserSpaceBinding userSpaceBinding, GroupSpaceBindingReportAction bindingReportAction);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all
@@ -228,6 +231,17 @@ public interface GroupSpaceBindingService {
    * @param userId
    * @param groupSpaceBinding
    * @param space
+   * @param bindingReportAction
+   * @return
    */
-  void saveUserBinding(String userId, GroupSpaceBinding groupSpaceBinding, Space space, String action);
+  GroupSpaceBindingReportUser saveUserBinding(String userId,
+                                              GroupSpaceBinding groupSpaceBinding,
+                                              Space space,
+                                              GroupSpaceBindingReportAction bindingReportAction);
+
+  GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
+
+  GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action);
+
+  void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
 }

@@ -53,7 +53,7 @@ public class GroupSpaceBindingReportUserEntity implements Serializable {
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "DATE")
-  private Date    date = new Date();
+  private Date    date;
 
   public long getId() {
     return id;

@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.binding.listener;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -54,23 +55,42 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
         if (isUserNewMemberToGroup(userName, groupId)) {
           groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
           spaceService = CommonsUtils.getService(SpaceService.class);
-  
+
           // Retrieve all bindings of the group.
           List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsByGroup(m.getGroupId());
           // For each bound space of the group add a user binding to it.
           for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
             Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
             long startTime = System.currentTimeMillis();
-    
-            groupSpaceBindingService.saveUserBinding(userName,
-                                                     groupSpaceBinding,
-                                                     space,
-                                                     GroupSpaceBindingReportAction.UPDATE_ADD_ACTION);
+
+            // Retrieve bindingReportAction of synchronize.
+            GroupSpaceBindingReportAction bindingReportAddSynchronizeAction =
+                                                                            groupSpaceBindingService.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                                                                                       GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION);
+            // If bindingReportAction for synchronize is not already created, create it.
+            if (bindingReportAddSynchronizeAction == null) {
+              GroupSpaceBindingReportAction report =
+                                                   new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                                     Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                                     groupSpaceBinding.getGroup(),
+                                                                                     GroupSpaceBindingReportAction.ADD_ACTION);
+              bindingReportAddSynchronizeAction = groupSpaceBindingService.saveGroupSpaceBindingReport(report);
+            }
+
+            Date addedUserDate = groupSpaceBindingService.saveUserBinding(userName,
+                                                                          groupSpaceBinding,
+                                                                          space,
+                                                                          bindingReportAddSynchronizeAction)
+                                                         .getDate();
+            // Finally save the end date for the bindingReportAction.
+            bindingReportAddSynchronizeAction.setEndDate(addedUserDate);
+            groupSpaceBindingService.updateGroupSpaceBindingReportAction(bindingReportAddSynchronizeAction);
+
             long totalTime = System.currentTimeMillis() - startTime;
-    
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
-                         + "duration_ms={}",
-                     GroupSpaceBindingService.LOG_SERVICE_NAME, GroupSpaceBindingService.LOG_UPDATE_OPERATION_NAME,
+                + "duration_ms={}",
+                     GroupSpaceBindingService.LOG_SERVICE_NAME,
+                     GroupSpaceBindingService.LOG_UPDATE_OPERATION_NAME,
                      space.getPrettyName(),
                      space.getMembers().length,
                      groupSpaceBindingService.countBoundUsers(space.getId()),
@@ -100,13 +120,34 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
                                                                                                       m.getUserName());
           // Remove them.
           for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
-            Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
-            long startTime=System.currentTimeMillis();
-            groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION);
-            long totalTime=System.currentTimeMillis() - startTime;
+            GroupSpaceBinding binding = userSpaceBinding.getGroupBinding();
+            Space space = spaceService.getSpaceById(binding.getSpaceId());
+            long startTime = System.currentTimeMillis();
+
+            // Retrieve bindingReportAction of synchronize.
+            GroupSpaceBindingReportAction bindingReportAddSynchronizeAction =
+                                                                            groupSpaceBindingService.findGroupSpaceBindingReportAction(binding.getId(),
+                                                                                                                                       GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION);
+            // If bindingReportAction for synchronize is not already created, create it.
+            if (bindingReportAddSynchronizeAction == null) {
+              GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding.getId(),
+                                                                                       Long.parseLong(binding.getSpaceId()),
+                                                                                       binding.getGroup(),
+                                                                                       GroupSpaceBindingReportAction.ADD_ACTION);
+              bindingReportAddSynchronizeAction = groupSpaceBindingService.saveGroupSpaceBindingReport(report);
+            }
+
+            Date deletedUserDate = groupSpaceBindingService.deleteUserBinding(userSpaceBinding, bindingReportAddSynchronizeAction)
+                                                           .getDate();
+            // Finally save the end date for the bindingReportAction.
+            bindingReportAddSynchronizeAction.setEndDate(deletedUserDate);
+            groupSpaceBindingService.updateGroupSpaceBindingReportAction(bindingReportAddSynchronizeAction);
+
+            long totalTime = System.currentTimeMillis() - startTime;
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
-                         + "duration_ms={}",
-                     GroupSpaceBindingService.LOG_SERVICE_NAME, GroupSpaceBindingService.LOG_UPDATE_OPERATION_NAME,
+                + "duration_ms={}",
+                     GroupSpaceBindingService.LOG_SERVICE_NAME,
+                     GroupSpaceBindingService.LOG_UPDATE_OPERATION_NAME,
                      space.getPrettyName(),
                      space.getMembers().length,
                      groupSpaceBindingService.countBoundUsers(space.getId()),

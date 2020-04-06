@@ -51,7 +51,9 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private UserSpaceBindingDAO                                        userSpaceBindingDAO;
 
-  private GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO;
+  private GroupSpaceBindingReportActionDAO                           groupSpaceBindingReportActionDAO;
+
+  private GroupSpaceBindingReportUserDAO                             groupSpaceBindingReportUserDAO;
 
   public RDBMSGroupSpaceBindingStorageImpl(GroupSpaceBindingDAO groupSpaceBindingDAO,
                                            GroupSpaceBindingQueueDAO groupSpaceBindingQueueDAO,
@@ -126,8 +128,25 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   @ExoTransactional
   public GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingReportActionEntity entity;
-    entity = groupSpaceBindingReportActionDAO.create(buildEntityGroupSpaceBindingReportFrom(groupSpaceBindingReportAction));
-    return fillGroupBindingReportFromEntity(entity);
+    entity = groupSpaceBindingReportActionDAO.create(buildEntityGroupSpaceBindingReportActionFrom(groupSpaceBindingReportAction));
+    return fillGroupBindingReportActionFromEntity(entity);
+  }
+
+  @Override
+  public GroupSpaceBindingReportUser saveGroupSpaceBindingReportUser(GroupSpaceBindingReportUser groupSpaceBindingReportUser) {
+    GroupSpaceBindingReportUserEntity entity;
+    entity = groupSpaceBindingReportUserDAO.create(buildEntityGroupSpaceBindingReportUserFrom(groupSpaceBindingReportUser));
+    return fillGroupBindingReportUserFromEntity(entity);
+  }
+
+  @Override
+  public void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction) {
+    groupSpaceBindingReportActionDAO.update(buildEntityGroupSpaceBindingReportActionFrom(bindingReportAction));
+  }
+
+  @Override
+  public GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action) {
+    return fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionDAO.findGroupSpaceBindingReportAction(bindingId, action));
   }
 
   @ExoTransactional
@@ -211,9 +230,9 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                                                List<String> actions) {
 
     return buildGroupBindingReportListFromEntities(groupSpaceBindingReportActionDAO.findReportsForCSV(spaceId,
-                                                                                                groupSpaceBindingId,
-                                                                                                group,
-                                                                                                actions));
+                                                                                                      groupSpaceBindingId,
+                                                                                                      group,
+                                                                                                      actions));
   }
 
   @Override
@@ -222,15 +241,15 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   private List<GroupSpaceBindingReportAction> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportActionEntity> entities) {
-    List<GroupSpaceBindingReportAction> groupSpaceBindingsReports = new LinkedList<>();
+    List<GroupSpaceBindingReportAction> groupSpaceBindingsReports;
     groupSpaceBindingsReports =
                               entities.stream()
-                                      .map(groupSpaceBindingReportActionEntity -> fillGroupBindingReportFromEntity(groupSpaceBindingReportActionEntity))
+                                      .map(groupSpaceBindingReportActionEntity -> fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionEntity))
                                       .collect(Collectors.toList());
     return groupSpaceBindingsReports;
   }
 
-  private GroupSpaceBindingReportActionEntity buildEntityGroupSpaceBindingReportFrom(GroupSpaceBindingReportAction groupSpaceBindingReportAction) {
+  private GroupSpaceBindingReportActionEntity buildEntityGroupSpaceBindingReportActionFrom(GroupSpaceBindingReportAction groupSpaceBindingReportAction) {
     GroupSpaceBindingReportActionEntity groupSpaceBindingReportActionEntity = new GroupSpaceBindingReportActionEntity();
     groupSpaceBindingReportActionEntity.setGroupSpaceBindingId(groupSpaceBindingReportAction.getGroupSpaceBindingId());
     SpaceEntity spaceEntity = spaceDAO.find(groupSpaceBindingReportAction.getSpaceId());
@@ -240,22 +259,49 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     groupSpaceBindingReportActionEntity.setStartDate(groupSpaceBindingReportAction.getStartDate());
     groupSpaceBindingReportActionEntity.setEndDate(groupSpaceBindingReportAction.getEndDate());
     return groupSpaceBindingReportActionEntity;
-
   }
 
-  private GroupSpaceBindingReportAction fillGroupBindingReportFromEntity(GroupSpaceBindingReportActionEntity entity) {
+  private GroupSpaceBindingReportUserEntity buildEntityGroupSpaceBindingReportUserFrom(GroupSpaceBindingReportUser groupSpaceBindingReportUser) {
+    GroupSpaceBindingReportUserEntity groupSpaceBindingReportUserEntity = new GroupSpaceBindingReportUserEntity();
+    groupSpaceBindingReportUserEntity.setGroupSpaceBindingReportActionId(groupSpaceBindingReportUser.getGroupSpaceBindingReportAction()
+                                                                                                    .getId());
+    groupSpaceBindingReportUserEntity.setUser(groupSpaceBindingReportUser.getUsername());
+    groupSpaceBindingReportUserEntity.setAction(groupSpaceBindingReportUser.getAction());
+    groupSpaceBindingReportUserEntity.setWasPresentBefore(groupSpaceBindingReportUser.isWasPresentBefore());
+    groupSpaceBindingReportUserEntity.setStillInSpace(groupSpaceBindingReportUser.isStillInSpace());
+    groupSpaceBindingReportUserEntity.setDate(groupSpaceBindingReportUser.getDate());
+    return null;
+  }
+
+  private GroupSpaceBindingReportAction fillGroupBindingReportActionFromEntity(GroupSpaceBindingReportActionEntity entity) {
     if (entity == null) {
       return null;
     }
-    GroupSpaceBindingReportAction groupSpaceBindingReportAction = new GroupSpaceBindingReportAction(entity.getGroupSpaceBindingId(),
-                                                                                  entity.getSpace().getId(),
-                                                                                  entity.getGroup(),
-                                                                                  entity.getAction());
+    GroupSpaceBindingReportAction groupSpaceBindingReportAction =
+                                                                new GroupSpaceBindingReportAction(entity.getGroupSpaceBindingId(),
+                                                                                                  entity.getSpace().getId(),
+                                                                                                  entity.getGroup(),
+                                                                                                  entity.getAction());
 
     groupSpaceBindingReportAction.setId(entity.getId());
     groupSpaceBindingReportAction.setStartDate(entity.getStartDate());
     groupSpaceBindingReportAction.setEndDate(entity.getEndDate());
     return groupSpaceBindingReportAction;
+  }
+
+  private GroupSpaceBindingReportUser fillGroupBindingReportUserFromEntity(GroupSpaceBindingReportUserEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+    GroupSpaceBindingReportUser groupSpaceBindingReportUser = new GroupSpaceBindingReportUser();
+    groupSpaceBindingReportUser.setId(entity.getId());
+    groupSpaceBindingReportUser.setGroupSpaceBindingReportAction(fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionDAO.find(entity.getGroupSpaceBindingReportActionId())));
+    groupSpaceBindingReportUser.setUsername(entity.getUser());
+    groupSpaceBindingReportUser.setAction(entity.getAction());
+    groupSpaceBindingReportUser.setWasPresentBefore(entity.isWasPresentBefore());
+    groupSpaceBindingReportUser.setStillInSpace(entity.isStillInSpace());
+    groupSpaceBindingReportUser.setDate(entity.getDate());
+    return groupSpaceBindingReportUser;
   }
 
   /**

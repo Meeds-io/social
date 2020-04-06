@@ -5,37 +5,37 @@ import java.util.Date;
 public class GroupSpaceBindingReportUser {
 
   /** The id */
-  private long               id;
+  private long                          id;
 
-  private long               bindingReportActionId;
+  private GroupSpaceBindingReportAction groupSpaceBindingReportAction;
 
   /** The username */
-  private String             username;
+  private String                        username;
 
   /** The action */
-  private String             action;
+  private String                        action;
 
   /** true if the user was present in the space before the binding */
-  private boolean            wasPresentBefore;
+  private boolean                       wasPresentBefore;
 
   /**
    * true if the user is still present in space after remove. false if the user is
    * no more in space after remove null for other actions
    */
-  private boolean            stillInSpace;
+  private boolean                       stillInSpace;
 
   /** The action startDate */
-  private Date               date                 = new Date();
+  private Date                          date               = new Date();
 
-  public static final String UPDATE_ADD_ACTION    = "ADD_USER";
+  public static final String            ACTION_ADD_USER    = "ADD_USER";
 
-  public static final String UPDATE_REMOVE_ACTION = "REMOVE_USER";
+  public static final String            ACTION_REMOVE_USER = "REMOVE_USER";
 
   public GroupSpaceBindingReportUser() {
   }
 
-  public GroupSpaceBindingReportUser(long bindingReportActionId, String username, String action) {
-    this.bindingReportActionId = bindingReportActionId;
+  public GroupSpaceBindingReportUser(GroupSpaceBindingReportAction spaceBindingReportAction, String username, String action) {
+    this.groupSpaceBindingReportAction = spaceBindingReportAction;
     this.username = username;
     this.action = action;
   }
@@ -48,12 +48,12 @@ public class GroupSpaceBindingReportUser {
     this.id = id;
   }
 
-  public long getBindingReportActionId() {
-    return bindingReportActionId;
+  public GroupSpaceBindingReportAction getGroupSpaceBindingReportAction() {
+    return groupSpaceBindingReportAction;
   }
 
-  public void setBindingReportActionId(long bindingReportActionId) {
-    this.bindingReportActionId = bindingReportActionId;
+  public void setGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction) {
+    this.groupSpaceBindingReportAction = groupSpaceBindingReportAction;
   }
 
   public String getUsername() {

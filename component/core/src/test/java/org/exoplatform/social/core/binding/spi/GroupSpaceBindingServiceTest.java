@@ -165,7 +165,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
 
   /**
    * Test
-   * {@link GroupSpaceBindingService#deleteUserBinding(UserSpaceBinding, String)}
+   * {@link GroupSpaceBindingService#deleteUserBinding(UserSpaceBinding, GroupSpaceBindingReportAction)}
    * (UserSpaceBinding)}
    *
    * @throws Exception
