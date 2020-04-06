@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.rest.api;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,7 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.binding.model.GroupNode;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -823,5 +826,27 @@ public class EntityBuilder {
     groupNodeEntity.setParentId(parentId);
     groupNodeEntity.setChildGroupNodesEntities(new ArrayList<>());
     return groupNodeEntity;
+  }
+
+  /**
+   * Build rest bindingOperationReport entity from bindingOperationReport object
+   *
+   * @param bindingOperationReport the bindingOperationReport object
+   * @return the bindingOperationReport rest object
+   */
+  public static GroupSpaceBindingOperationReportEntity buildEntityFromGroupSpaceBindingOperationReport(GroupSpaceBindingOperationReport bindingOperationReport) {
+    GroupSpaceBindingOperationReportEntity operationReportEntity = new GroupSpaceBindingOperationReportEntity();
+    operationReportEntity.setSpaceId(Long.toString(bindingOperationReport.getSpaceId()));
+    operationReportEntity.setGroup(bindingOperationReport.getGroup());
+    operationReportEntity.setAction(bindingOperationReport.getAction());
+    operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
+    operationReportEntity.setAddedUsersCount(Long.toString(bindingOperationReport.getAddedUsers()));
+    operationReportEntity.setRemovedUsersCount(Long.toString(bindingOperationReport.getRemovedUsers()));
+    DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy h:mm a");
+    Date startDate = bindingOperationReport.getStartDate();
+    Date endDate = bindingOperationReport.getEndDate();
+    operationReportEntity.setStartDate(dateFormat.format(startDate));
+    operationReportEntity.setEndDate(dateFormat.format(endDate));
+    return operationReportEntity;
   }
 }

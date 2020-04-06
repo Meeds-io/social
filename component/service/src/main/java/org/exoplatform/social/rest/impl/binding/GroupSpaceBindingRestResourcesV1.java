@@ -38,24 +38,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.social.core.binding.model.GroupNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.GroupSpaceBindingRestResources;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.GroupNodeEntity;
-import org.exoplatform.social.rest.entity.GroupSpaceBindingEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.annotations.*;
@@ -71,21 +65,20 @@ import io.swagger.annotations.*;
 public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestResources {
 
   private GroupSpaceBindingService groupSpaceBindingService;
-  
-  private SpaceService spaceService;
-  
-  private SimpleDateFormat formater = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
-  
-  
+
+  private SpaceService             spaceService;
+
+  private SimpleDateFormat         formater = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
+
   private UserACL                  userACL;
-  
-  private static final Log LOG = ExoLogger.getLogger(GroupSpaceBindingRestResourcesV1.class);
-  
-  
-  public GroupSpaceBindingRestResourcesV1(SpaceService spaceService,GroupSpaceBindingService groupSpaceBindingService,
+
+  private static final Log         LOG      = ExoLogger.getLogger(GroupSpaceBindingRestResourcesV1.class);
+
+  public GroupSpaceBindingRestResourcesV1(SpaceService spaceService,
+                                          GroupSpaceBindingService groupSpaceBindingService,
                                           UserACL userACL) {
     this.groupSpaceBindingService = groupSpaceBindingService;
-    this.spaceService=spaceService;
+    this.spaceService = spaceService;
     this.userACL = userACL;
   }
 
@@ -251,10 +244,9 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @RolesAllowed("administrators")
   @Produces("application/vnd.ms-excel")
   @Path("getExport")
-  @ApiOperation(value = "Gets CSV report", httpMethod = "GET", response =
-          Response.class, notes = "Given a (space,group,action,groupBindingId), it return all lines of the report in a csv file")
+  @ApiOperation(value = "Gets CSV report", httpMethod = "GET", response = Response.class, notes = "Given a (space,group,action,groupBindingId), it return all lines of the report in a csv file")
   @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
   public Response getReport(@Context UriInfo uriInfo,
                             @ApiParam(value = "spaceId", required = true) @QueryParam("spaceId") String spaceId,
                             @ApiParam(value = "action", required = true) @QueryParam("action") String action,
@@ -274,19 +266,19 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     List<GroupSpaceBindingReport> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
-            Long.parseLong(groupBindingId),
-            group,
-            actions);
+                                                                                       Long.parseLong(groupBindingId),
+                                                                                       group,
+                                                                                       actions);
 
-    String csvString = computeCSV(spaceId,group,action,reports);
+    String csvString = computeCSV(spaceId, group, action, reports);
     try {
-      String filename=action.substring(0,1).toUpperCase()+action.substring(1,action.length()).toLowerCase()+"Binding_";
-      filename+=spaceService.getSpaceById(spaceId).getPrettyName()+"_";
+      String filename = action.substring(0, 1).toUpperCase() + action.substring(1, action.length()).toLowerCase() + "Binding_";
+      filename += spaceService.getSpaceById(spaceId).getPrettyName() + "_";
       if (group.charAt(0) == '/') {
-        group=group.substring(1,group.length());
+        group = group.substring(1, group.length());
       }
-      filename+=group.replace("/","_")+"_";
-      filename+=formater.format(new Date());
+      filename += group.replace("/", "_") + "_";
+      filename += formater.format(new Date());
 
       File temp = null;
       temp = File.createTempFile(filename, ".csv");
@@ -296,7 +288,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       bw.close();
 
       Response.ResponseBuilder response = Response.ok((Object) temp);
-      response.header("Content-Disposition", "attachment; filename="+filename+".csv");
+      response.header("Content-Disposition", "attachment; filename=" + filename + ".csv");
       return response.build();
     } catch (Exception e) {
       LOG.error("Error when creating temp file");
@@ -304,7 +296,31 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
     }
 
+  }
 
+  @GET
+  @RolesAllowed("administrators")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("getBindingReportOperations")
+  @ApiOperation(value = "Gets list of groups entities from the parent group root.", httpMethod = "GET", response = Response.class, notes = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
+  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
+      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  public Response getBindingReportOperations(@Context UriInfo uriInfo) throws Exception {
+    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    List<GroupSpaceBindingOperationReport> bindingOperationReports =
+                                                                   groupSpaceBindingService.getGroupSpaceBindingReportOperations();
+
+    List<DataEntity> bindingOperationReportsDataEntities = new ArrayList<>();
+    for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
+      GroupSpaceBindingOperationReportEntity operationReportEntity =
+                                                                   EntityBuilder.buildEntityFromGroupSpaceBindingOperationReport(bindingOperationReport);
+      bindingOperationReportsDataEntities.add(operationReportEntity.getDataEntity());
+    }
+
+    return Response.ok().build();
   }
 
   public List<DataEntity> buildGroupTree() throws Exception {
@@ -418,53 +434,55 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     return childrenDataEntities;
   }
 
-  
-  private String computeCSV(String spaceId,String group,String action, List<GroupSpaceBindingReport> reports) {
+  private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReport> reports) {
     StringBuilder sbResult = new StringBuilder();
-    
+
     Space space = spaceService.getSpaceById(spaceId);
     sbResult.append(space.getDisplayName() + "\n");
     sbResult.append(group + "\n");
     sbResult.append(action + "\n");
-    //startDate
-    //endDate
-    if (reports.size()!=0)  {
-      sbResult.append(reports.get(0).getDate()+"\n");
-      sbResult.append(reports.get(reports.size()-1).getDate()+"\n");
+    // startDate
+    // endDate
+    if (reports.size() != 0) {
+      sbResult.append(reports.get(0).getDate() + "\n");
+      sbResult.append(reports.get(reports.size() - 1).getDate() + "\n");
     }
-    //headers :
+    // headers :
     sbResult.append("Username,Action,Date,Present Before,Still in space\n");
-    
+
     reports.stream().forEach(groupSpaceBindingReport -> {
-      sbResult.append(groupSpaceBindingReport.getUsername()+",");
-      if ((action.equals(GroupSpaceBindingReport.REMOVE_ACTION) | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) &&
-          (groupSpaceBindingReport.isWasPresentBefore() |groupSpaceBindingReport.isStillInSpace())) {
-        //if the action is "remove" or "update_remove", and the user present in the space  before, then, he was not removed
-        //if the action is "remove" or "update_remove", and the user is still present in the space
-        //so, display nothing for the action in the report
+      sbResult.append(groupSpaceBindingReport.getUsername() + ",");
+      if ((action.equals(GroupSpaceBindingReport.REMOVE_ACTION)
+          | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
+        // if the action is "remove" or "update_remove", and the user present in the
+        // space before, then, he was not removed
+        // if the action is "remove" or "update_remove", and the user is still present
+        // in the space
+        // so, display nothing for the action in the report
         sbResult.append(",");
       } else {
-        //else, display the action
+        // else, display the action
         if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION)) {
-          sbResult.append(GroupSpaceBindingReport.ADD_ACTION+",");
+          sbResult.append(GroupSpaceBindingReport.ADD_ACTION + ",");
         } else if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
-          sbResult.append(GroupSpaceBindingReport.REMOVE_ACTION+",");
-        }  else {
+          sbResult.append(GroupSpaceBindingReport.REMOVE_ACTION + ",");
+        } else {
           sbResult.append(groupSpaceBindingReport.getAction() + ",");
         }
       }
-      sbResult.append(groupSpaceBindingReport.getDate()+",");
-      sbResult.append(groupSpaceBindingReport.isWasPresentBefore()+",");
-      
-      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.REMOVE_ACTION) ||groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
-        //in case of add action, stillPresentInSpace is not relevant, so do not display
+      sbResult.append(groupSpaceBindingReport.getDate() + ",");
+      sbResult.append(groupSpaceBindingReport.isWasPresentBefore() + ",");
+
+      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.REMOVE_ACTION)
+          || groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+        // in case of add action, stillPresentInSpace is not relevant, so do not display
         sbResult.append(groupSpaceBindingReport.isStillInSpace());
       }
       sbResult.append("\n");
-      
+
     });
-  
-  
+
     return sbResult.toString();
   }
 }
