@@ -32,10 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReport;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -133,6 +130,38 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
               group,
               actions);
     return groupSpaceBindingStorage.findReportsForCsv(spaceId, groupSpaceBindingId, group, actions);
+  }
+
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
+    List<GroupSpaceBindingOperationReport> bindingOperationReports =
+                                                                   groupSpaceBindingStorage.getGroupSpaceBindingReportOperations();
+
+    // Treat binding operations of synchronization.
+    for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
+      String operationAction = bindingOperationReport.getAction();
+      if (operationAction.equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION)
+          || operationAction.equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION)) {
+        // Get index of the operation
+        int index = bindingOperationReports.indexOf(bindingOperationReport);
+        // Get number of added and removed users
+        long addedUsersCount =
+                             bindingOperationReports.stream()
+                                                    .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
+                                                    .filter(operation -> operation.getAction()
+                                                                                  .equals(GroupSpaceBindingReport.UPDATE_ADD_ACTION))
+                                                    .count();
+        long removedUsersCount =
+                               bindingOperationReports.stream()
+                                                      .filter(synchronizeOperation -> synchronizeOperation.getGroupSpaceBindingId() == bindingOperationReport.getGroupSpaceBindingId())
+                                                      .filter(operation -> operation.getAction()
+                                                                                    .equals(GroupSpaceBindingReport.UPDATE_REMOVE_ACTION))
+                                                      .count();
+        GroupSpaceBindingOperationReport synchronizeOperationReport = new GroupSpaceBindingOperationReport();
+
+      }
+    }
+    return bindingOperationReports;
   }
 
   /**
