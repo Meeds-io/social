@@ -150,6 +150,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("isManager");
   }
 
+  public SpaceEntity setCanEdit(boolean canEdit) {
+    setProperty("canEdit", canEdit);
+    return this;
+  }
+
+  public Boolean getCanEdit() {
+    return (Boolean) getProperty("canEdit");
+  }
+
   public SpaceEntity setManagers(LinkEntity managers) {
     setProperty("managers", managers.getData());
     return this;

@@ -40,7 +40,7 @@
           content-class="spaceActionMenu"
           offset-y>
           <v-list class="pa-0" dense>
-            <template v-if="space.isManager">
+            <template v-if="space.canEdit">
               <v-list-item @click="editSpace">
                 <v-list-item-title class="subtitle-2">{{ $t('spacesList.button.edit') }}</v-list-item-title>
               </v-list-item>
@@ -221,7 +221,7 @@ export default {
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
     },
     canUseActionsMenu() {
-      return this.space && (this.space.isManager || this.enabledProfileActionExtensions.length);
+      return this.space && (this.space.canEdit || this.enabledProfileActionExtensions.length);
     },
     url() {
       if (this.space && this.space.groupId) {
@@ -265,7 +265,8 @@ export default {
         });
     },
     leaveConfirm() {
-      if (this.space.isManager && this.space.managersCount <= 1) {
+      const isOnlyManagrLeftInSpace = this.space.isManager && this.space.managersCount <= 1;
+      if (isOnlyManagrLeftInSpace) {
         this.openConfirmDialog(
           this.$t('spacesList.warning'),
           this.$t('spacesList.warning.lastManager'));

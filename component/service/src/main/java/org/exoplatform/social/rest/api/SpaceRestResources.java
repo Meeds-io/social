@@ -40,12 +40,12 @@ public interface SpaceRestResources extends SocialRest {
  * @param uriInfo
  * @param request
  * @param q
+ * @param typeFilter
  * @param offset
  * @param limit
  * @param sort
  * @param order
  * @param returnSize
- * @param allVisible
  * @param expand
  * @return
  * @throws Exception
@@ -54,12 +54,12 @@ public interface SpaceRestResources extends SocialRest {
   public abstract Response getSpaces(@Context UriInfo uriInfo,
                                      @Context Request request,
                                      @QueryParam("q") String q,
+                                     @QueryParam("all") String typeFilter,
                                      @QueryParam("offset") int offset,
                                      @QueryParam("limit") int limit,
                                      @QueryParam("sort") String sort,
                                      @QueryParam("order") String order,
                                      @QueryParam("returnSize") boolean returnSize,
-                                     @QueryParam("all") boolean allVisible,
                                      @QueryParam("expand") String expand) throws Exception;
 
   /**

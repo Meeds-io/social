@@ -63,6 +63,14 @@ import io.swagger.annotations.*;
 @Api(tags = VersionResources.VERSION_ONE + "/social/spaces", value = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRestResourcesV1 implements SpaceRestResources {
 
+  private static final String SPACE_FILTER_TYPE_ALL = "all";
+  
+  private static final String SPACE_FILTER_TYPE_MEMBER = "member";
+
+  private static final String SPACE_FILTER_TYPE_PENDING = "pending";
+  
+  private static final String SPACE_FILTER_TYPE_INVITED = "invited";
+
   private IdentityManager identityManager;
   private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
 
@@ -78,7 +86,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @ApiOperation(value = "Gets spaces of user",
                 httpMethod = "GET",
                 response = Response.class,
-                notes = "This returns a list of spaces in the following cases: <br/><ul><li>the authenticated user is a member of the spaces</li><li>the spaces are \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
+                notes = "This returns a list of spaces switch request paramters")
   @ApiResponses(value = {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
@@ -86,16 +94,20 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaces(@Context UriInfo uriInfo,
                             @Context Request request,
                             @ApiParam(value = "Space name search information", required = false) @QueryParam("q") String q,
+                            @ApiParam(value = "Type of spaces to retrieve: all, userSpaces, invited, pending", defaultValue = SPACE_FILTER_TYPE_ALL, required = false) @QueryParam("filterType") String filterType,
                             @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                             @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
                             @ApiParam(value = "Order", required = false) @QueryParam("order") String order,
                             @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                            @ApiParam(value = "Whether include all visible spaces or only user spaces", required = false) @QueryParam("all") boolean allVisible,
                             @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+
+    if (StringUtils.isBlank(filterType)) {
+      filterType = SPACE_FILTER_TYPE_ALL;
+    }
 
     SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
 
@@ -116,12 +128,18 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (spaceService.isSuperManager(authenticatedUser)) {
-      listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
-    } else if(allVisible) {
-      listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
-    } else {
-      listAccess = spaceService.getAccessibleSpacesByFilter(authenticatedUser, spaceFilter);
+    if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
+      if (spaceService.isSuperManager(authenticatedUser)) {
+        listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
+      } else {
+        listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
+      }
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER, filterType)) {
+      listAccess = spaceService.getMemberSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_PENDING, filterType)) {
+      listAccess = spaceService.getPendingSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_INVITED, filterType)) {
+      listAccess = spaceService.getInvitedSpacesByFilter(authenticatedUser, spaceFilter);
     }
     List<DataEntity> spaceInfos = new ArrayList<>();
     GroupSpaceBindingService spaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
