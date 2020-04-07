@@ -27,7 +27,7 @@ export default {
     },
     tiptip: {
       type: Boolean,
-      default: () => false,
+      default: () => true,
     },
     size: {
       type: Number,
