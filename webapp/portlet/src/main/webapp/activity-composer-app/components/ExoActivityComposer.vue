@@ -48,7 +48,9 @@
                   </div>
                 </div>
               </div>
-              <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component" v-show="showMessageComposer" v-bind="action.component.props" v-model="actionsData[action.key].value" :is="action.component.name"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
+                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
+                         v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -67,13 +69,15 @@ export default {
     DynamicEvents: {
       bind: function (el, binding, vnode) {
         const allEvents = binding.value;
-        allEvents.forEach((event) => {
-          // register handler in the dynamic component
-          vnode.componentInstance.$on(event.event, () => {
-            // when the event is fired, the eventListener function is going to be called
-            vnode.context[event.listener](event.listenerParam);
+        if (allEvents) {
+          allEvents.forEach((event) => {
+            // register handler in the dynamic component
+            vnode.componentInstance.$on(event.event, () => {
+              // when the event is fired, the eventListener function is going to be called
+              vnode.context[event.listener](event.listenerParam);
+            });
           });
-        });
+        }
       },
       unbind: function (el, binding, vnode) {
         vnode.componentInstance.$off();
@@ -179,7 +183,7 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      executeExtensionAction(action);
+      executeExtensionAction(action, this.$refs[action.key]);
     },
     setUploadingCount: function(action) {
       if (action === 'add') {
