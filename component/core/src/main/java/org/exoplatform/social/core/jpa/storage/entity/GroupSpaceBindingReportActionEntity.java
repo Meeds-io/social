@@ -18,7 +18,9 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -28,11 +30,14 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_ACTION")
 @NamedQueries({
-//    @NamedQuery(name = "SocGroupSpaceBindingReportAction.findReportForCSV", query = "SELECT groupSpaceBindingReport "
-//        + " FROM SocGroupSpaceBindingReportAction groupSpaceBindingReport"
-//        + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
-//        + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND groupSpaceBindingReport.group = :group"
-//        + " AND groupSpaceBindingReport.action = :action" + " ORDER BY groupSpaceBindingReport.date ASC"),
+    // @NamedQuery(name = "SocGroupSpaceBindingReportAction.findReportForCSV", query
+    // = "SELECT groupSpaceBindingReport "
+    // + " FROM SocGroupSpaceBindingReportAction groupSpaceBindingReport"
+    // + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
+    // + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND
+    // groupSpaceBindingReport.group = :group"
+    // + " AND groupSpaceBindingReport.action = :action" + " ORDER BY
+    // groupSpaceBindingReport.date ASC"),
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
         + " WHERE report.groupSpaceBindingId = :bindingId AND report.action = :action "),
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportActions", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
@@ -42,28 +47,31 @@ public class GroupSpaceBindingReportActionEntity implements Serializable {
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   @Column(name = "GROUP_SPACE_BINDING_REPORT_ACTION_ID")
-  private long        id;
+  private long                                    id;
 
   @Column(name = "GROUP_SPACE_BINDING_ID")
-  private long        groupSpaceBindingId;
+  private long                                    groupSpaceBindingId;
 
   @ManyToOne
   @JoinColumn(name = "SPACE_ID", referencedColumnName = "SPACE_ID", nullable = false)
-  private SpaceEntity space;
+  private SpaceEntity                             space;
 
   @Column(name = "GROUP_ID")
-  private String      group;
+  private String                                  group;
+
+  @OneToMany(mappedBy = "groupSpaceBinding", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<GroupSpaceBindingReportUserEntity> bindingReportUserEntities = new ArrayList<>();
 
   @Column(name = "ACTION")
-  private String      action;
+  private String                                  action;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "startDATE")
-  private Date        startDate = new Date();
+  private Date                                    startDate                 = new Date();
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "endDATE")
-  private Date        endDate;
+  private Date                                    endDate;
 
   public long getId() {
     return id;

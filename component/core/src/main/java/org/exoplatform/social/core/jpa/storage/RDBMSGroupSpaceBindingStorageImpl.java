@@ -55,16 +55,18 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private GroupSpaceBindingReportUserDAO                             groupSpaceBindingReportUserDAO;
 
-  public RDBMSGroupSpaceBindingStorageImpl(GroupSpaceBindingDAO groupSpaceBindingDAO,
+  public RDBMSGroupSpaceBindingStorageImpl(SpaceDAO spaceDAO,
+                                           GroupSpaceBindingDAO groupSpaceBindingDAO,
                                            GroupSpaceBindingQueueDAO groupSpaceBindingQueueDAO,
                                            UserSpaceBindingDAO userSpaceBindingDAO,
                                            GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO,
-                                           SpaceDAO spaceDAO) {
+                                           GroupSpaceBindingReportUserDAO groupSpaceBindingReportUserDAO) {
+    this.spaceDAO = spaceDAO;
     this.groupSpaceBindingDAO = groupSpaceBindingDAO;
     this.groupSpaceBindingQueueDAO = groupSpaceBindingQueueDAO;
-    this.groupSpaceBindingReportActionDAO = groupSpaceBindingReportActionDAO;
     this.userSpaceBindingDAO = userSpaceBindingDAO;
-    this.spaceDAO = spaceDAO;
+    this.groupSpaceBindingReportActionDAO = groupSpaceBindingReportActionDAO;
+    this.groupSpaceBindingReportUserDAO = groupSpaceBindingReportUserDAO;
   }
 
   @ExoTransactional
@@ -328,13 +330,14 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private GroupSpaceBindingReportUserEntity buildEntityGroupSpaceBindingReportUserFrom(GroupSpaceBindingReportUser groupSpaceBindingReportUser) {
     GroupSpaceBindingReportUserEntity groupSpaceBindingReportUserEntity = new GroupSpaceBindingReportUserEntity();
-    groupSpaceBindingReportUserEntity.setGroupSpaceBindingReportAction(buildEntityGroupSpaceBindingReportActionFrom(groupSpaceBindingReportUser.getGroupSpaceBindingReportAction()));
+    groupSpaceBindingReportUserEntity.setGroupSpaceBindingReportAction(groupSpaceBindingReportActionDAO.find(groupSpaceBindingReportUser.getGroupSpaceBindingReportAction()
+                                                                                                                                        .getId()));
     groupSpaceBindingReportUserEntity.setUser(groupSpaceBindingReportUser.getUsername());
     groupSpaceBindingReportUserEntity.setAction(groupSpaceBindingReportUser.getAction());
     groupSpaceBindingReportUserEntity.setWasPresentBefore(groupSpaceBindingReportUser.isWasPresentBefore());
     groupSpaceBindingReportUserEntity.setStillInSpace(groupSpaceBindingReportUser.isStillInSpace());
     groupSpaceBindingReportUserEntity.setDate(groupSpaceBindingReportUser.getDate());
-    return null;
+    return groupSpaceBindingReportUserEntity;
   }
 
   private GroupSpaceBindingReportAction fillGroupBindingReportActionFromEntity(GroupSpaceBindingReportActionEntity entity) {
