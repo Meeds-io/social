@@ -165,15 +165,13 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                              groupSpaceBinding.getGroup(),
                                                                              GroupSpaceBindingReportAction.REMOVE_ACTION);
     GroupSpaceBindingReportAction bindingReportRemoveAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
-    Date lastDeletedUserDate = null;
 
     // Call the delete user binding to also update space membership.
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
-      lastDeletedUserDate = deleteUserBinding(userSpaceBinding, bindingReportRemoveAction).getDate();
+      deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);
     }
     // Finally save the end date for the bindingReportAction.
-    bindingReportRemoveAction.setEndDate(lastDeletedUserDate != null ? lastDeletedUserDate
-                                                                     : bindingReportRemoveAction.getStartDate());
+    bindingReportRemoveAction.setEndDate(new Date());
     groupSpaceBindingStorage.updateGroupSpaceBindingReportAction(bindingReportRemoveAction);
 
     // The deletion of the groupSpaceBinding will also remove it from the
@@ -318,7 +316,6 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                                groupSpaceBinding.getGroup(),
                                                                                GroupSpaceBindingReportAction.ADD_ACTION);
       GroupSpaceBindingReportAction bindingReportAddAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
-      Date lastAddedUserDate = null;
       do {
         long startBunchTime = System.currentTimeMillis();
         toBind = totalGroupMembersSize - offset;
@@ -332,7 +329,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           long startTimeUser = System.currentTimeMillis();
 
           String userId = user.getUserName();
-          lastAddedUserDate = saveUserBinding(userId, groupSpaceBinding, space, bindingReportAddAction).getDate();
+          saveUserBinding(userId, groupSpaceBinding, space, bindingReportAddAction);
 
           long endTimeUser = System.currentTimeMillis();
           long totalTimeUser = endTimeUser - startTimeUser;
@@ -347,7 +344,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         LOG.info("Time to treat " + count + " (" + offset + "/" + totalGroupMembersSize + ") users : " + totalBunchTime + " ms");
       } while (offset < totalGroupMembersSize);
       // Finally save the end date for the bindingReportAction.
-      bindingReportAddAction.setEndDate(lastAddedUserDate != null ? lastAddedUserDate : bindingReportAddAction.getStartDate());
+      bindingReportAddAction.setEndDate(new Date());
       groupSpaceBindingStorage.updateGroupSpaceBindingReportAction(bindingReportAddAction);
 
     } catch (Exception e) {
@@ -440,7 +437,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                             new GroupSpaceBindingReportUser(bindingReportAction,
                                                                                             userId,
                                                                                             GroupSpaceBindingReportUser.ACTION_ADD_USER);
-
+    groupSpaceBindingReportUser.setWasPresentBefore(userSpaceBinding.isMemberBefore());
     spaceService.addMember(space, userId);
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     return groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(groupSpaceBindingReportUser);
