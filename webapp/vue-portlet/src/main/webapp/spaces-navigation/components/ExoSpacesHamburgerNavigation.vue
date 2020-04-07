@@ -23,7 +23,7 @@ export default {
   data() {
     return {
       spaces : [],
-      spacesLimit: 5,
+      spacesLimit: 7,
       secondLevelVueInstance: null,
     };
   },
