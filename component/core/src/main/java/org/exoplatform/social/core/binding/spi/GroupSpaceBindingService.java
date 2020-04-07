@@ -92,13 +92,13 @@ public interface GroupSpaceBindingService {
    * @param spaceId
    * @param groupSpaceBindingId
    * @param group
-   * @param actions
+   * @param action
    * @return
    */
   List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
                                                         long groupSpaceBindingId,
                                                         String group,
-                                                        List<String> actions);
+                                                        String action);
 
   /**
    * Gets all the GroupSpaceBindingOperations Report.

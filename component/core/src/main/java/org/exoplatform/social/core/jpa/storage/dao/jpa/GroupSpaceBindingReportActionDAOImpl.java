@@ -34,14 +34,14 @@ public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<Grou
   public List<GroupSpaceBindingReportActionEntity> findReportsForCSV(long spaceId,
                                                                      long groupSpaceBindingId,
                                                                      String group,
-                                                                     List<String> actions) {
+                                                                     String action) {
     TypedQuery<GroupSpaceBindingReportActionEntity> query =
                                                           getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.findReportForCSV",
                                                                                               GroupSpaceBindingReportActionEntity.class);
     query.setParameter("spaceId", spaceId);
     query.setParameter("groupSpaceBindingId", groupSpaceBindingId);
     query.setParameter("group", group);
-    query.setParameter("action", actions);
+    query.setParameter("action", action);
     return query.getResultList();
   }
 

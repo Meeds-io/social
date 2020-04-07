@@ -123,13 +123,13 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
                                                                long groupSpaceBindingId,
                                                                String group,
-                                                               List<String> actions) {
+                                                               String action) {
     LOG.debug("Retrieving GroupSpaceBindingReports for space={}, groupSpaceBinding={}, group={}, actions={}",
               spaceId,
               groupSpaceBindingId,
               group,
-              actions);
-    return groupSpaceBindingStorage.findReportsForCsv(spaceId, groupSpaceBindingId, group, actions);
+              action);
+    return groupSpaceBindingStorage.findReportsForCsv(spaceId, groupSpaceBindingId, group, action);
   }
 
   @Override

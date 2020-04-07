@@ -259,18 +259,10 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    List<String> actions = new ArrayList<>();
-    if (action.equals(GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION)) {
-      actions.add(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION);
-      actions.add(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION);
-    } else {
-      actions.add(action);
-    }
-
     List<GroupSpaceBindingReportAction> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
                                                                                        Long.parseLong(groupBindingId),
                                                                                        group,
-                                                                                       actions);
+                                                                                       action);
 
     String csvString = computeCSV(spaceId, group, action, reports);
     try {

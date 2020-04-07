@@ -31,13 +31,13 @@ public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceB
    * @param spaceId
    * @param groupSpaceBindingId
    * @param group
-   * @param actions
+   * @param action
    * @return
    */
   List<GroupSpaceBindingReportActionEntity> findReportsForCSV(long spaceId,
                                                               long groupSpaceBindingId,
                                                               String group,
-                                                              List<String> actions);
+                                                              String action);
 
   /**
    * Get binding report action by bindingId and action type

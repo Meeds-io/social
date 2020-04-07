@@ -228,12 +228,12 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   public List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
                                                                long groupSpaceBindingId,
                                                                String group,
-                                                               List<String> actions) {
+                                                               String action) {
 
     return buildGroupBindingReportListFromEntities(groupSpaceBindingReportActionDAO.findReportsForCSV(spaceId,
                                                                                                       groupSpaceBindingId,
                                                                                                       group,
-                                                                                                      actions));
+                                                                                                      action));
   }
 
   @Override

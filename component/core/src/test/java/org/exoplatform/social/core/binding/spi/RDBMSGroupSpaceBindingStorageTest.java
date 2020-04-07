@@ -507,7 +507,7 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   
   /**
    * Test
-   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#findReportsForCsv(long, long, String, List)}
+   * {@link GroupSpaceBindingStorage#findReportsForCsv(long, long, String, String)}
    * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReportAction)}
    *
    *
