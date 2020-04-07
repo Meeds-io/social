@@ -32,7 +32,7 @@
       </v-card-title>
       <v-data-table
         :headers="headers"
-        :items="actions"
+        :items="operations"
         :search="search"
         disable-sort
       ></v-data-table>
@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import * as spacesAdministrationServices from '../spacesAdministrationServices';  
 export default {
   data() {
     return {
@@ -52,7 +53,7 @@ export default {
         `${this.$t('social.spaces.administration.binding.reports.filter.remove.binding')}`,
         `${this.$t('social.spaces.administration.binding.reports.filter.synchronization')}`
       ],
-      actions: [],
+      operations: [],
       headers: [
         { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`,value: 'space' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, value: 'group' },
@@ -64,6 +65,12 @@ export default {
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, value: 'file' },
       ],
     };
+  },
+  mounted() {
+    spacesAdministrationServices.getBindingReportOperations().then(data => {
+      this.operations = data.groupSpaceBindingReportOperations;
+      console.log('Data: ', data);
+    });
   }
 };
 </script>

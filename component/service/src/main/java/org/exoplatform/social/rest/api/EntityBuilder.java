@@ -92,6 +92,8 @@ public class EntityBuilder {
   public static final String  GROUP_SPACE_BINDING_TYPE = "groupSpaceBindings";
   /** Child Groups of group root */
   public static final String  ORGANIZATION_GROUP_TYPE             = "childGroups";
+  /** Group Space Binding */
+  public static final String  GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
 
   /**
    * Get a IdentityEntity from an identity in order to build a json object for the rest service

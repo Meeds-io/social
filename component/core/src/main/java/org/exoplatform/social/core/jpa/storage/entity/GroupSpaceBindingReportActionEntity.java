@@ -59,7 +59,7 @@ public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Column(name = "GROUP_ID")
   private String                                  group;
 
-  @OneToMany(mappedBy = "groupSpaceBinding", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "groupSpaceBindingReportAction", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<GroupSpaceBindingReportUserEntity> bindingReportUserEntities = new ArrayList<>();
 
   @Column(name = "ACTION")
@@ -103,6 +103,14 @@ public class GroupSpaceBindingReportActionEntity implements Serializable {
 
   public void setGroup(String group) {
     this.group = group;
+  }
+
+  public List<GroupSpaceBindingReportUserEntity> getBindingReportUserEntities() {
+    return bindingReportUserEntities;
+  }
+
+  public void setBindingReportUserEntities(List<GroupSpaceBindingReportUserEntity> bindingReportUserEntities) {
+    this.bindingReportUserEntities = bindingReportUserEntities;
   }
 
   public String getAction() {

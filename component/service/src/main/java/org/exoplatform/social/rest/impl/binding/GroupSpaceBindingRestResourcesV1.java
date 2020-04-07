@@ -44,7 +44,6 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
-import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.GroupSpaceBindingRestResources;
@@ -260,9 +259,9 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     List<GroupSpaceBindingReportAction> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
-                                                                                       Long.parseLong(groupBindingId),
-                                                                                       group,
-                                                                                       action);
+                                                                                             Long.parseLong(groupBindingId),
+                                                                                             group,
+                                                                                             action);
 
     String csvString = computeCSV(spaceId, group, action, reports);
     try {
@@ -315,7 +314,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     CollectionEntity collectionBindingReports = new CollectionEntity(bindingOperationReportsDataEntities,
-                                                                     EntityBuilder.GROUP_SPACE_BINDING_TYPE,
+                                                                     EntityBuilder.GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE,
                                                                      0,
                                                                      10);
 
@@ -436,51 +435,62 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportAction> reports) {
     StringBuilder sbResult = new StringBuilder();
 
-//    Space space = spaceService.getSpaceById(spaceId);
-//    sbResult.append(space.getDisplayName() + "\n");
-//    sbResult.append(group + "\n");
-//    sbResult.append(action + "\n");
-//    // startDate
-//    // endDate
-//    if (reports.size() != 0) {
-//      sbResult.append(reports.get(0).getDate() + "\n");
-//      sbResult.append(reports.get(reports.size() - 1).getDate() + "\n");
-//    }
-//    // headers :
-//    sbResult.append("Username,Action,Date,Present Before,Still in space\n");
-//
-//    reports.stream().forEach(groupSpaceBindingReport -> {
-//      sbResult.append(groupSpaceBindingReport.getUsername() + ",");
-//      if ((action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
-//          | groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
-//          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
-//        // if the action is "remove" or "update_remove", and the user present in the
-//        // space before, then, he was not removed
-//        // if the action is "remove" or "update_remove", and the user is still present
-//        // in the space
-//        // so, display nothing for the action in the report
-//        sbResult.append(",");
-//      } else {
-//        // else, display the action
-//        if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION)) {
-//          sbResult.append(GroupSpaceBindingReportAction.ADD_ACTION + ",");
-//        } else if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
-//          sbResult.append(GroupSpaceBindingReportAction.REMOVE_ACTION + ",");
-//        } else {
-//          sbResult.append(groupSpaceBindingReport.getAction() + ",");
-//        }
-//      }
-//      sbResult.append(groupSpaceBindingReport.getDate() + ",");
-//      sbResult.append(groupSpaceBindingReport.isWasPresentBefore() + ",");
-//
-//      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
-//          || groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION)) {
-//        // in case of add action, stillPresentInSpace is not relevant, so do not display
-//        sbResult.append(groupSpaceBindingReport.isStillInSpace());
-//      }
-//      sbResult.append("\n");
-//
-//    });
+    // Space space = spaceService.getSpaceById(spaceId);
+    // sbResult.append(space.getDisplayName() + "\n");
+    // sbResult.append(group + "\n");
+    // sbResult.append(action + "\n");
+    // // startDate
+    // // endDate
+    // if (reports.size() != 0) {
+    // sbResult.append(reports.get(0).getDate() + "\n");
+    // sbResult.append(reports.get(reports.size() - 1).getDate() + "\n");
+    // }
+    // // headers :
+    // sbResult.append("Username,Action,Date,Present Before,Still in space\n");
+    //
+    // reports.stream().forEach(groupSpaceBindingReport -> {
+    // sbResult.append(groupSpaceBindingReport.getUsername() + ",");
+    // if ((action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+    // |
+    // groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // && (groupSpaceBindingReport.isWasPresentBefore() |
+    // groupSpaceBindingReport.isStillInSpace())) {
+    // // if the action is "remove" or "update_remove", and the user present in the
+    // // space before, then, he was not removed
+    // // if the action is "remove" or "update_remove", and the user is still
+    // present
+    // // in the space
+    // // so, display nothing for the action in the report
+    // sbResult.append(",");
+    // } else {
+    // // else, display the action
+    // if
+    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
+    // {
+    // sbResult.append(GroupSpaceBindingReportAction.ADD_ACTION + ",");
+    // } else if
+    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // {
+    // sbResult.append(GroupSpaceBindingReportAction.REMOVE_ACTION + ",");
+    // } else {
+    // sbResult.append(groupSpaceBindingReport.getAction() + ",");
+    // }
+    // }
+    // sbResult.append(groupSpaceBindingReport.getDate() + ",");
+    // sbResult.append(groupSpaceBindingReport.isWasPresentBefore() + ",");
+    //
+    // if
+    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+    // ||
+    // groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // {
+    // // in case of add action, stillPresentInSpace is not relevant, so do not
+    // display
+    // sbResult.append(groupSpaceBindingReport.isStillInSpace());
+    // }
+    // sbResult.append("\n");
+    //
+    // });
 
     return sbResult.toString();
   }
