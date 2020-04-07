@@ -90,3 +90,6 @@ export function getGroupsTree() {
   return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/getGroupsTree`, {credentials: 'include'}).then(resp => resp.json());
 }
 
+export function getBindingReportOperations() {
+  return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations`, {credentials: 'include'}).then(resp => resp.json());
+}

@@ -143,7 +143,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction) {
-    groupSpaceBindingReportActionDAO.update(buildEntityGroupSpaceBindingReportActionFrom(bindingReportAction));
+    groupSpaceBindingReportActionDAO.update(groupSpaceBindingReportActionDAO.find(bindingReportAction.getId()));
   }
 
   @Override
@@ -242,7 +242,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
     List<GroupSpaceBindingOperationReport> bindingOperationReports = new ArrayList<>();
     List<GroupSpaceBindingReportAction> bindingReportActions =
-                                                             groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate();
+                                                             buildGroupBindingReportListFromEntities(groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate());
     for (GroupSpaceBindingReportAction bindingReportAction : bindingReportActions) {
       List<GroupSpaceBindingReportUser> bindingReportUsers =
                                                            buildGroupBindingReportUserListFromEntities(groupSpaceBindingReportUserDAO.findBindingReportUsersByBindingReportAction(bindingReportAction.getId()));
