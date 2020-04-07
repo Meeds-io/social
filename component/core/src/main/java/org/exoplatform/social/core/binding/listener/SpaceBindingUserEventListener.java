@@ -49,7 +49,10 @@ public class SpaceBindingUserEventListener extends UserEventListener {
       for (UserSpaceBinding userSpaceBinding : userSpaceBindings) {
         Space space = spaceService.getSpaceById(userSpaceBinding.getGroupBinding().getSpaceId());
         long startTime=System.currentTimeMillis();
-        groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION);
+        
+        //TODO
+        //groupSpaceBindingService.deleteUserBinding(userSpaceBinding, GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION);
+        
         long totalTime=System.currentTimeMillis() - startTime;
         LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
                      + "duration_ms={}",
