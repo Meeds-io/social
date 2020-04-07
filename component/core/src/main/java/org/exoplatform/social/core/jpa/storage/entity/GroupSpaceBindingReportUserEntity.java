@@ -39,7 +39,7 @@ public class GroupSpaceBindingReportUserEntity implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "GROUP_SPACE_BINDING_REPORT_ACTION_ID", referencedColumnName = "GROUP_SPACE_BINDING_REPORT_ACTION_ID", nullable = false)
-  private long    groupSpaceBindingReportActionId;
+  private GroupSpaceBindingReportActionEntity groupSpaceBindingReportAction;
 
   @Column(name = "USERNAME")
   private String  user;
@@ -65,12 +65,12 @@ public class GroupSpaceBindingReportUserEntity implements Serializable {
     this.id = id;
   }
 
-  public long getGroupSpaceBindingReportActionId() {
-    return groupSpaceBindingReportActionId;
+  public GroupSpaceBindingReportActionEntity getGroupSpaceBindingReportAction() {
+    return groupSpaceBindingReportAction;
   }
 
-  public void setGroupSpaceBindingReportActionId(long groupSpaceBindingReportActionId) {
-    this.groupSpaceBindingReportActionId = groupSpaceBindingReportActionId;
+  public void setGroupSpaceBindingReportAction(GroupSpaceBindingReportActionEntity groupSpaceBindingReportAction) {
+    this.groupSpaceBindingReportAction = groupSpaceBindingReportAction;
   }
 
   public String getUser() {
