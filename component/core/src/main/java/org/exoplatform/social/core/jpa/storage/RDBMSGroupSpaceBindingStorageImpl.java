@@ -328,8 +328,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private GroupSpaceBindingReportUserEntity buildEntityGroupSpaceBindingReportUserFrom(GroupSpaceBindingReportUser groupSpaceBindingReportUser) {
     GroupSpaceBindingReportUserEntity groupSpaceBindingReportUserEntity = new GroupSpaceBindingReportUserEntity();
-    groupSpaceBindingReportUserEntity.setGroupSpaceBindingReportActionId(groupSpaceBindingReportUser.getGroupSpaceBindingReportAction()
-                                                                                                    .getId());
+    groupSpaceBindingReportUserEntity.setGroupSpaceBindingReportAction(buildEntityGroupSpaceBindingReportActionFrom(groupSpaceBindingReportUser.getGroupSpaceBindingReportAction()));
     groupSpaceBindingReportUserEntity.setUser(groupSpaceBindingReportUser.getUsername());
     groupSpaceBindingReportUserEntity.setAction(groupSpaceBindingReportUser.getAction());
     groupSpaceBindingReportUserEntity.setWasPresentBefore(groupSpaceBindingReportUser.isWasPresentBefore());
@@ -360,7 +359,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     }
     GroupSpaceBindingReportUser groupSpaceBindingReportUser = new GroupSpaceBindingReportUser();
     groupSpaceBindingReportUser.setId(entity.getId());
-    groupSpaceBindingReportUser.setGroupSpaceBindingReportAction(fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionDAO.find(entity.getGroupSpaceBindingReportActionId())));
+    groupSpaceBindingReportUser.setGroupSpaceBindingReportAction(fillGroupBindingReportActionFromEntity(entity.getGroupSpaceBindingReportAction()));
     groupSpaceBindingReportUser.setUsername(entity.getUser());
     groupSpaceBindingReportUser.setAction(entity.getAction());
     groupSpaceBindingReportUser.setWasPresentBefore(entity.isWasPresentBefore());
