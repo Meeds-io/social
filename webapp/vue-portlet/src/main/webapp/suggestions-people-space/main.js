@@ -24,10 +24,10 @@ const vuetify = new Vuetify({
   iconfont: '',
 });
 
-export function init() {
+export function init(suggestionsType) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     new Vue({
-      template: '<exo-suggestions-people-and-space></exo-suggestions-people-and-space>',
+      template: `<exo-suggestions-people-and-space suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
       vuetify,
     }).$mount('#SuggestionsPeopleAndSpace');

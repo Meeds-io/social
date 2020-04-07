@@ -5,7 +5,7 @@
         <v-flex d-flex xs12>
           <v-card flat class="flex suggestions-wrapper">
             <v-card-title class="suggestions-title subtitle-1 text-uppercase pb-0"> {{ $t('suggestions.label') }}</v-card-title>
-            <v-list v-if="peopleSuggestionsList.length > 0" dense class="suggestions-list people-list py-4 mx-4">
+            <v-list v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'" dense class="suggestions-list people-list py-4 mx-4">
               <v-list-item v-for="(people, index) in getLastSuggestionsPeople"
                            :key="index"
                            :id="'people-item-'+people.suggestionId"
@@ -30,7 +30,7 @@
               </v-list-item>
             
             </v-list>
-            <v-list v-if="spacesSuggestionsList.length > 0" dense class="suggestions-list space-list py-4 mx-4">
+            <v-list v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'" dense class="suggestions-list space-list py-4 mx-4">
               <v-list-item v-for="(space, index) in getLastSuggestionsSpace"
                            :key="index"
                            class="suggestions-list-item suggestions-space-list-item pa-0">
@@ -62,6 +62,12 @@
 <script>
 import * as suggestionsServices from '../suggestionsServices.js';
 export default {
+  props: {
+    suggestionsType: {
+      type: String,
+      default: null,
+    },
+  },
   data () {
     return {
       peopleSuggestionsList: [],
