@@ -28,11 +28,11 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_ACTION")
 @NamedQueries({
-    @NamedQuery(name = "SocGroupSpaceBindingReportAction.findReportForCSV", query = "SELECT groupSpaceBindingReport "
-        + " FROM SocGroupSpaceBindingReportAction groupSpaceBindingReport"
-        + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
-        + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND groupSpaceBindingReport.group = :group"
-        + " AND groupSpaceBindingReport.action = :action" + " ORDER BY groupSpaceBindingReport.date ASC"),
+//    @NamedQuery(name = "SocGroupSpaceBindingReportAction.findReportForCSV", query = "SELECT groupSpaceBindingReport "
+//        + " FROM SocGroupSpaceBindingReportAction groupSpaceBindingReport"
+//        + " WHERE groupSpaceBindingReport.groupSpaceBindingId = :groupSpaceBindingId"
+//        + " AND groupSpaceBindingReport.space.id = :spaceId" + " AND groupSpaceBindingReport.group = :group"
+//        + " AND groupSpaceBindingReport.action = :action" + " ORDER BY groupSpaceBindingReport.date ASC"),
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
         + " WHERE report.groupSpaceBindingId = :bindingId AND report.action = :action "),
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportActions", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "

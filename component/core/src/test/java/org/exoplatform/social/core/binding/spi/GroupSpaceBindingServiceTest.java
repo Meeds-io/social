@@ -817,7 +817,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                  groupSpaceBindingService.findReportsForCsv(Long.parseLong(space1.getId()),
                                                             binding1.getId(),
                                                             binding1.getGroup(),
-                                                            Arrays.asList(GroupSpaceBindingReportAction.ADD_ACTION)));
+                                                            GroupSpaceBindingReportAction.ADD_ACTION));
 
   }
 
