@@ -838,7 +838,6 @@ public class EntityBuilder {
    */
   public static GroupSpaceBindingOperationReportEntity buildEntityFromGroupSpaceBindingOperationReport(GroupSpaceBindingOperationReport bindingOperationReport) {
     GroupSpaceBindingOperationReportEntity operationReportEntity = new GroupSpaceBindingOperationReportEntity();
-    operationReportEntity.setSpaceId(Long.toString(bindingOperationReport.getSpaceId()));
     operationReportEntity.setGroup(bindingOperationReport.getGroup());
     operationReportEntity.setOperationType(bindingOperationReport.getAction());
     operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
