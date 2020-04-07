@@ -459,10 +459,9 @@ window.initQuickSearch = function initQuickSearch(portletId,seeAllMsg, noResultM
       $(this).toggleClass('uiIconCloseSearchBox')
              .parents('#ToolBarSearch').find('input[type="text"]').toggleClass("showInputSearch").removeClass('loadding').focus()
              .parents('#ToolBarSearch').find('.uiQuickSearchResult').hide()
-             .parents('#PlatformAdminToolbarContainer').toggleClass('activeInputSearch')
+             .parents('#ToolBarSearch').toggleClass('activeInputSearch')
              .parents('body').toggleClass('quickSearchDisplay');
     });
-    
 
     //collapse the input search field when clicking outside the search box
     $('body').click(function (evt) {
@@ -470,7 +469,7 @@ window.initQuickSearch = function initQuickSearch(portletId,seeAllMsg, noResultM
         // $(txtQuickSearchQuery_id).hide();
         $(txtQuickSearchQuery_id).removeClass("showInputSearch");
         $("#ToolBarSearch .uiIconPLF24x24Search").removeClass('uiIconCloseSearchBox');
-        $('#PlatformAdminToolbarContainer').removeClass('activeInputSearch');
+        $('#ToolBarSearch').removeClass('activeInputSearch');
         $('#ToolBarSearch').find('input[type="text"]').removeClass('loadding');
         $('body').removeClass('quickSearchDisplay');
         $(quickSearchResult_id).hide();        
