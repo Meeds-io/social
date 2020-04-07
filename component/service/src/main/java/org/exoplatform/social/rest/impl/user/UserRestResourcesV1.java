@@ -655,7 +655,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     if(model.getFiles() != null) {
       activity.setFiles(model.getFiles()
               .stream()
-              .map(fileModel -> new ActivityFile(fileModel.getId(), fileModel.getUploadId(), fileModel.getStorage()))
+              .map(fileModel -> new ActivityFile(fileModel.getId(), fileModel.getUploadId(), fileModel.getStorage(), fileModel.getDestinationFolder()))
               .collect(Collectors.toList()));
     }
     activity.setTemplateParams(model.getTemplateParams());
