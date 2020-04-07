@@ -11,7 +11,6 @@
       <v-btn
         icon
         small
-        icon
         class="spaceInfoIcon d-none d-sm-flex"
         @click="$emit('flip')">
         <v-icon size="12">fa-info</v-icon>
@@ -195,7 +194,7 @@
 </template>
 
 <script>
-import * as spaceService from '../js/SpaceService.js'; 
+import * as spaceService from '../../common/js/SpaceService.js'; 
 
 export default {
   props: {

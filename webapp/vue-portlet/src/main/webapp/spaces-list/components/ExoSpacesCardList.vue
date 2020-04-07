@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import * as spaceService from '../js/SpaceService.js'; 
+import * as spaceService from '../../common/js/SpaceService.js'; 
 
 export default {
   props: {

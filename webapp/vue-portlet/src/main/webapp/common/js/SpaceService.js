@@ -12,7 +12,7 @@ export function getSpaceTemplates() {
 }
 
 export function getSpaces(query, offset, limit, filter) {
-  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&all=${filter === 'all'}&returnSize=true&expand=managers`, {
+  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=managers`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

@@ -165,7 +165,7 @@
         </v-btn>
         <v-btn
           :loading="savingSpace"
-          :disabled="savingSpace || spaceSaved || stepper < 3"
+          :disabled="saveButtonDisabled"
           class="btn btn-primary"
           @click="saveSpace">
           <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
@@ -181,7 +181,7 @@
   </exo-drawer>
 </template>
 <script>
-import * as spaceService from '../js/SpaceService.js'; 
+import * as spaceService from '../../common/js/SpaceService.js'; 
 
 export default {
   data: () => ({
@@ -196,6 +196,9 @@ export default {
     templates: [],
   }),
   computed: {
+    saveButtonDisabled() {
+      return this.savingSpace || this.spaceSaved || this.stepper < 3 && !this.space.id;
+    },
     displayedForm() {
       return this.$refs && this.$refs[`form${this.stepper}`];
     },
@@ -310,7 +313,7 @@ export default {
           invitedMembers: this.space.invitedMembers,
         })
           .then(space => {
-            Object.assign(this.spaceToUpdate, space);
+            Object.assign(this.spaceToUpdate, space, {managers: this.spaceToUpdate.managers});
             this.spaceSaved = true;
 
             window.setTimeout(() => {

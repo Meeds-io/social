@@ -6,7 +6,7 @@
       </span>
     </template>
     <template v-if="space && space.managers" slot="content">
-      <v-layout column>
+      <v-layout column class="ma-3">
         <v-flex
           v-for="manager in space.managers"
           :key="manager.id"

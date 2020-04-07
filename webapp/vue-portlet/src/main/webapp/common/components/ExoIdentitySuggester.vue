@@ -14,7 +14,7 @@
       :search-input.sync="searchTerm"
       :height="height"
       append-icon=""
-      menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
+      menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
       content-class="identitySuggesterContent"
       width="100%"
@@ -22,7 +22,7 @@
       item-text="profile.fullName"
       item-value="id"
       return-object
-      hide-details
+      persistent-hint
       hide-selected
       chips
       cache-items
@@ -163,6 +163,13 @@ export default {
     value() {
       this.emitSelectedValue(this.value);
     },
+  },
+  mounted() {
+    $(`#${this.id} input`).on('blur', () => {
+      // A hack to close on select
+      // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
+      this.$refs.selectAutoComplete.isFocused = false;
+    });
   },
   methods: {
     emitSelectedValue(value) {

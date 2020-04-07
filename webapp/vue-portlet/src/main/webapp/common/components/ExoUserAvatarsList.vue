@@ -10,9 +10,9 @@
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
-      class="notDisplayedManagersOverlay"
-      @click="$root.$emit('displaySpaceManagers', space)">
-      <div class="notDisplayedManagers">
+      class="notDisplayedIdentitiesOverlay"
+      @click="$emit('open-detail')">
+      <div class="notDisplayedIdentities">
         +{{ notDisplayedItems }}
       </div>
     </v-avatar>
@@ -22,7 +22,7 @@
 <script>
 export default {
   props: {
-    space: {
+    users: {
       type: Object,
       default: () => null,
     },
@@ -37,9 +37,6 @@ export default {
     };
   },
   computed: {
-    users() {
-      return this.space && this.space.managers;
-    },
     usersToDisplay() {
       return this.users && this.users.slice(0, this.max);
     },

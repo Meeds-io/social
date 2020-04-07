@@ -8,9 +8,9 @@
         </span>
       </v-btn>
     </v-toolbar-title>
-    <v-card-subtitle class="d-none d-sm-flex">
+    <div class="text-sub-title ml-3 d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
-    </v-card-subtitle>
+    </div>
     <v-spacer></v-spacer>
     <v-scale-transition>
       <v-text-field
@@ -98,7 +98,7 @@ export default {
         value: 'all',
       },{
         text: this.$t('spacesList.filter.userSpaces'),
-        value: 'userSpaces',
+        value: 'member',
       }];
     },
   },
