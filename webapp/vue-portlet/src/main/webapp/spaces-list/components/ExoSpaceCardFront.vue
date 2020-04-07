@@ -7,7 +7,7 @@
       class="white--text align-start d-none d-sm-block spaceBannerImg">
     </v-img>
 
-    <div class="spaceToolbarIcons pl-2">
+    <div class="spaceToolbarIcons px-2">
       <v-btn
         icon
         small
@@ -21,7 +21,7 @@
         <v-btn v-if="space.canEdit" icon text class="spaceActionIcon d-block d-sm-none" @click="editSpace">
           <i class="uiIcon uiIconEdit" />
         </v-btn>
-        <v-btn icon text class="spaceActionIcon d-none d-sm-block" @click="displayActionMenu = true">
+        <v-btn icon text class="spaceMenuIcon d-none d-sm-block" @click="displayActionMenu = true">
           <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu

@@ -8,7 +8,7 @@
       @click="$emit('flip')">
       <v-icon size="12">fa-info</v-icon>
     </v-btn>
-    <v-card-title class="flex-grow-0 px-2">
+    <v-card-title class="flex-grow-0 column pt-1 pb-2">
       <span class="mx-auto">
         {{ $t('spacesList.label.description') }}
       </span>
