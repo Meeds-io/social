@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -211,8 +212,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                              Long.parseLong(ub1.getGroupBinding().getSpaceId()),
                                                                              ub1.getGroupBinding().getGroup(),
                                                                              GroupSpaceBindingReportAction.REMOVE_ACTION);
-    GroupSpaceBindingReportAction bindingReportRemoveAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
-    groupSpaceBindingService.deleteUserBinding(ub1, bindingReportRemoveAction);
+    groupSpaceBindingService.deleteUserBinding(ub1, report);
 
     // Then
     ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
@@ -220,35 +220,31 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     long id = idCaptor.getValue();
     assertEquals(1, id);
 
-    ArgumentCaptor<GroupSpaceBindingReportAction> reportCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportAction.class);
-    Mockito.verify(groupSpaceBindingStorage).saveGroupSpaceBindingReport(reportCaptur.capture());
-    GroupSpaceBindingReportAction capturedReport = reportCaptur.getValue();
-    assertEquals(GroupSpaceBindingReportAction.REMOVE_ACTION, capturedReport.getAction());
-    // TODO fix
-
-    // assertEquals(true,capturedReport.isStillInSpace());
-    // assertEquals(false,capturedReport.isWasPresentBefore());
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage).saveGroupSpaceBindingReportUser(reportCaptur.capture());
+    GroupSpaceBindingReportUser capturedReport = reportCaptur.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER, capturedReport.getAction());
+    assertEquals(true,capturedReport.isStillInSpace());
+    assertEquals(false,capturedReport.isWasPresentBefore());
 
     // When remove second binding
     GroupSpaceBindingReportAction report1 = new GroupSpaceBindingReportAction(ub2.getGroupBinding().getId(),
                                                                               Long.parseLong(ub2.getGroupBinding().getSpaceId()),
                                                                               ub2.getGroupBinding().getGroup(),
                                                                               GroupSpaceBindingReportAction.REMOVE_ACTION);
-    GroupSpaceBindingReportAction bindingReportRemoveAction1 = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report1);
-    groupSpaceBindingService.deleteUserBinding(ub2, bindingReportRemoveAction1);
+    groupSpaceBindingService.deleteUserBinding(ub2, report1);
     // Then
     ArgumentCaptor<Long> idCaptor2 = ArgumentCaptor.forClass(Long.class);
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(2)).deleteUserBinding(idCaptor2.capture());
     long id2 = idCaptor2.getValue();
     assertEquals(2, id2);
 
-    ArgumentCaptor<GroupSpaceBindingReportAction> reportCaptur2 = ArgumentCaptor.forClass(GroupSpaceBindingReportAction.class);
-    Mockito.verify(groupSpaceBindingStorage, Mockito.times(2)).saveGroupSpaceBindingReport(reportCaptur2.capture());
-    GroupSpaceBindingReportAction capturedReport2 = reportCaptur2.getValue();
-    assertEquals(GroupSpaceBindingReportAction.REMOVE_ACTION, capturedReport2.getAction());
-    // TODO fix
-    // assertEquals(false, capturedReport2.isStillInSpace());
-    // assertEquals(false, capturedReport2.isWasPresentBefore());
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportCaptur2 = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(2)).saveGroupSpaceBindingReportUser(reportCaptur2.capture());
+    GroupSpaceBindingReportUser capturedReport2 = reportCaptur2.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER, capturedReport2.getAction());
+     assertEquals(false, capturedReport2.isStillInSpace());
+     assertEquals(false, capturedReport2.isWasPresentBefore());
 
   }
 
@@ -273,7 +269,14 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     space.setMembers(new String[] { "root" });
     Mockito.when(spaceService.getSpaceById(Mockito.any())).thenReturn(space);
     Mockito.when(groupSpaceBindingStorage.countBoundUsers(Mockito.any())).thenReturn(0L);
-
+  
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                              Long.parseLong(binding1.getSpaceId()),
+                                                                              binding1.getGroup(),
+                                                                              GroupSpaceBindingReportAction.REMOVE_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report);
+  
+  
     // When
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
@@ -315,7 +318,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     GroupSpaceBinding binding3 = new GroupSpaceBinding();
     binding3.setId(3);
     binding3.setGroup("/platform/web-contributors");
-    binding3.setSpaceId("1");
+    binding3.setSpaceId("3");
     groupSpaceBindings.add(binding3);
 
     GroupSpaceBinding binding4 = new GroupSpaceBinding();
@@ -333,7 +336,19 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     space.setMembers(new String[] { "root" });
     Mockito.when(spaceService.getSpaceById(Mockito.any())).thenReturn(space);
     Mockito.when(groupSpaceBindingStorage.countBoundUsers(Mockito.any())).thenReturn(0L);
-
+  
+  
+    GroupSpaceBindingReportAction report1 = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                             Long.parseLong(binding1.getSpaceId()),
+                                                                              binding1.getGroup(),
+                                                                             GroupSpaceBindingReportAction.REMOVE_ACTION);
+    GroupSpaceBindingReportAction report2 = new GroupSpaceBindingReportAction(binding4.getId(),
+                                                                              Long.parseLong(binding4.getSpaceId()),
+                                                                              binding4.getGroup(),
+                                                                              GroupSpaceBindingReportAction.REMOVE_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report1,report2);
+  
+  
     // When
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
@@ -539,6 +554,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.when(userDAO.findUsersByGroupId("/platform/administrators")).thenReturn(userListAccess);
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
     Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+  
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                             Long.parseLong(binding1.getSpaceId()),
+                                                                             binding1.getGroup(),
+                                                                             GroupSpaceBindingReportAction.ADD_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report);
+    
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
@@ -556,9 +578,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReport(reportCaptur.capture());
     GroupSpaceBindingReportAction capturedReport = reportCaptur.getValue();
     assertEquals(GroupSpaceBindingReportAction.ADD_ACTION, capturedReport.getAction());
-    //TODO fix
-//    assertEquals(false, capturedReport.isWasPresentBefore());
-//    assertEquals(false, capturedReport.isStillInSpace());
+  
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportUserCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReportUser(reportUserCaptur.capture());
+    GroupSpaceBindingReportUser capturedUserReport = reportUserCaptur.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_ADD_USER, capturedUserReport.getAction());
+    assertEquals(false, capturedUserReport.isWasPresentBefore());
+    assertEquals(false, capturedUserReport.isStillInSpace());
 
   }
 
@@ -603,6 +629,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
     Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
     Mockito.when(groupSpaceBindingStorage.countUserBindings(Mockito.anyString(), Mockito.anyString())).thenReturn(0L);
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                             Long.parseLong(binding1.getSpaceId()),
+                                                                             binding1.getGroup(),
+                                                                             GroupSpaceBindingReportAction.ADD_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report);
+    
+    
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
@@ -619,9 +652,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReport(reportCaptur.capture());
     GroupSpaceBindingReportAction capturedReport = reportCaptur.getValue();
     assertEquals(GroupSpaceBindingReportAction.ADD_ACTION, capturedReport.getAction());
-    //TODO fix
-//    assertEquals(true, capturedReport.isWasPresentBefore());
-//    assertEquals(false, capturedReport.isStillInSpace());
+  
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportUserCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReportUser(reportUserCaptur.capture());
+    GroupSpaceBindingReportUser capturedUserReport = reportUserCaptur.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_ADD_USER, capturedUserReport.getAction());
+    assertEquals(true, capturedUserReport.isWasPresentBefore());
+    assertEquals(false, capturedUserReport.isStillInSpace());
 
   }
 
@@ -668,7 +705,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
     Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
     Mockito.when(groupSpaceBindingStorage.countUserBindings(Mockito.anyString(), Mockito.anyString())).thenReturn(1L);
-
+  
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                             Long.parseLong(binding1.getSpaceId()),
+                                                                             binding1.getGroup(),
+                                                                             GroupSpaceBindingReportAction.ADD_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report);
+    
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
@@ -685,9 +728,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReport(reportCaptur.capture());
     GroupSpaceBindingReportAction capturedReport = reportCaptur.getValue();
     assertEquals(GroupSpaceBindingReportAction.ADD_ACTION, capturedReport.getAction());
-    //TODO fix
-//    assertEquals(false, capturedReport.isWasPresentBefore());
-//    assertEquals(false, capturedReport.isStillInSpace());
+  
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportUserCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReportUser(reportUserCaptur.capture());
+    GroupSpaceBindingReportUser capturedUserReport = reportUserCaptur.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_ADD_USER, capturedUserReport.getAction());
+    assertEquals(false, capturedUserReport.isWasPresentBefore());
+    assertEquals(false, capturedUserReport.isStillInSpace());
 
   }
 
@@ -733,7 +780,14 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.when(userDAO.findUsersByGroupId("/platform/administrators")).thenReturn(userListAccess);
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
     Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-
+    Mockito.when(groupSpaceBindingStorage.countUserBindings(Mockito.anyString(), Mockito.anyString())).thenReturn(1L);
+  
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
+                                                                             Long.parseLong(binding1.getSpaceId()),
+                                                                             binding1.getGroup(),
+                                                                             GroupSpaceBindingReportAction.ADD_ACTION);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBindingReport(Mockito.any())).thenReturn(report);
+    
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
@@ -750,9 +804,13 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReport(reportCaptur.capture());
     GroupSpaceBindingReportAction capturedReport = reportCaptur.getValue();
     assertEquals(GroupSpaceBindingReportAction.ADD_ACTION, capturedReport.getAction());
-    //TODO fix
-//    assertEquals(true, capturedReport.isWasPresentBefore());
-//    assertEquals(false, capturedReport.isStillInSpace());
+  
+    ArgumentCaptor<GroupSpaceBindingReportUser> reportUserCaptur = ArgumentCaptor.forClass(GroupSpaceBindingReportUser.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReportUser(reportUserCaptur.capture());
+    GroupSpaceBindingReportUser capturedUserReport = reportUserCaptur.getValue();
+    assertEquals(GroupSpaceBindingReportUser.ACTION_ADD_USER, capturedUserReport.getAction());
+    assertEquals(true, capturedUserReport.isWasPresentBefore());
+    assertEquals(false, capturedUserReport.isStillInSpace());
 
   }
 
