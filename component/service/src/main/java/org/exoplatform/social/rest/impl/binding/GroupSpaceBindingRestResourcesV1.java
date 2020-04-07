@@ -452,7 +452,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     // sbResult.append(groupSpaceBindingReport.getUsername() + ",");
     // if ((action.equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
     // |
-    // groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // groupSpaceBindingReport.getOperationType().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
     // && (groupSpaceBindingReport.isWasPresentBefore() |
     // groupSpaceBindingReport.isStillInSpace())) {
     // // if the action is "remove" or "update_remove", and the user present in the
@@ -465,24 +465,24 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     // } else {
     // // else, display the action
     // if
-    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
+    // (groupSpaceBindingReport.getOperationType().equals(GroupSpaceBindingReportAction.UPDATE_ADD_ACTION))
     // {
     // sbResult.append(GroupSpaceBindingReportAction.ADD_ACTION + ",");
     // } else if
-    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // (groupSpaceBindingReport.getOperationType().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
     // {
     // sbResult.append(GroupSpaceBindingReportAction.REMOVE_ACTION + ",");
     // } else {
-    // sbResult.append(groupSpaceBindingReport.getAction() + ",");
+    // sbResult.append(groupSpaceBindingReport.getOperationType() + ",");
     // }
     // }
     // sbResult.append(groupSpaceBindingReport.getDate() + ",");
     // sbResult.append(groupSpaceBindingReport.isWasPresentBefore() + ",");
     //
     // if
-    // (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
+    // (groupSpaceBindingReport.getOperationType().equals(GroupSpaceBindingReportAction.REMOVE_ACTION)
     // ||
-    // groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
+    // groupSpaceBindingReport.getOperationType().equals(GroupSpaceBindingReportAction.UPDATE_REMOVE_ACTION))
     // {
     // // in case of add action, stillPresentInSpace is not relevant, so do not
     // display

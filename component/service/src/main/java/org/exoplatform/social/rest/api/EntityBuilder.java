@@ -840,7 +840,7 @@ public class EntityBuilder {
     GroupSpaceBindingOperationReportEntity operationReportEntity = new GroupSpaceBindingOperationReportEntity();
     operationReportEntity.setSpaceId(Long.toString(bindingOperationReport.getSpaceId()));
     operationReportEntity.setGroup(bindingOperationReport.getGroup());
-    operationReportEntity.setAction(bindingOperationReport.getAction());
+    operationReportEntity.setOperationType(bindingOperationReport.getAction());
     operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
     operationReportEntity.setAddedUsersCount(Long.toString(bindingOperationReport.getAddedUsers()));
     operationReportEntity.setRemovedUsersCount(Long.toString(bindingOperationReport.getRemovedUsers()));
