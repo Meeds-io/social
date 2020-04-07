@@ -169,9 +169,13 @@ export default {
         let dataLink = $(this).find('.contentSmall:first').data('link');
         if (typeof dataLink === 'undefined') {
           dataLink = $(this).find('.media').children('a').attr('href');
-        }        
-        dataLink.replace(/\/portal\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
-        const linkId = dataLink.split(`${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
+        }
+        if (dataLink.includes('/portal/g/') || dataLink.includes('/portal/rest/')){
+          dataLink.replace(/\/portal\//,`${eXo.env.portal.context}/`);
+        } else {
+          dataLink.replace(/\/portal\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
+        }
+        const linkId = dataLink.split(`${eXo.env.portal.context}/`);
         const dataId = $(this).data('id').toString();
 
         // ----------------- Mark as read
@@ -183,11 +187,16 @@ export default {
             $(this).removeClass('unread').addClass('read');
           }
           notificationlAPI.updateNotification(dataId,'markAsRead');
-          if(linkId.length >1 ) {
-            location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/${linkId[1]}`;
+
+          if(linkId != null && linkId.length >1 ) {
+            if (linkId[0].includes('/view_full_activity/')) {
+              const id = linkId[0].split('/view_full_activity/')[1];
+              location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
+            } else {
+              location.href = `${eXo.env.portal.context}/${linkId[1]}`;
+            }
           } else {
-            const id = linkId[0].split('/view_full_activity/')[1];
-            location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
+            location.href = dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`);
           }
         });
 
