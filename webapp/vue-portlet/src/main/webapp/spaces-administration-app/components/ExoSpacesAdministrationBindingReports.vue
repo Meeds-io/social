@@ -55,7 +55,7 @@ export default {
       ],
       operations: [],
       headers: [
-        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`,value: 'space' },
+        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`,value: 'spaceId' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, value: 'group' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, value: 'startDate' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, value: 'endDate' },

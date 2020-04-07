@@ -25,13 +25,13 @@ public class GroupSpaceBindingOperationReportEntity extends BaseEntity {
     return getString("group");
   }
 
-  public GroupSpaceBindingOperationReportEntity setAction(String action) {
-    setProperty("action", action);
+  public GroupSpaceBindingOperationReportEntity setOperationType(String operationType) {
+    setProperty("operationType", operationType);
     return this;
   }
 
-  public String getAction() {
-    return getString("action");
+  public String getOperationType() {
+    return getString("operationType");
   }
 
   public GroupSpaceBindingOperationReportEntity setBindingId(String bindingId) {
