@@ -7,13 +7,13 @@ public class GroupSpaceBindingOperationReportEntity extends BaseEntity {
   public GroupSpaceBindingOperationReportEntity() {
   }
 
-  public GroupSpaceBindingOperationReportEntity setSpaceId(String spaceId) {
-    setProperty("spaceId", spaceId);
+  public GroupSpaceBindingOperationReportEntity setSpace(DataEntity spaceEntity) {
+    setProperty("space", spaceEntity);
     return this;
   }
 
-  public String getSpaceId() {
-    return getString("spaceId");
+  public String getSpace() {
+    return getString("space");
   }
 
   public GroupSpaceBindingOperationReportEntity setGroup(String group) {

@@ -42,8 +42,10 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.GroupSpaceBindingRestResources;
@@ -305,11 +307,16 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     List<DataEntity> bindingOperationReportsDataEntities = new ArrayList<>();
     for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
       GroupSpaceBindingOperationReportEntity operationReportEntity =
                                                                    EntityBuilder.buildEntityFromGroupSpaceBindingOperationReport(bindingOperationReport);
+      // Set the space entity to the operation report entity.
+      Space space = spaceService.getSpaceById(Long.toString(bindingOperationReport.getSpaceId()));
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), "members");
+      operationReportEntity.setSpace(spaceEntity.getDataEntity());
       bindingOperationReportsDataEntities.add(operationReportEntity.getDataEntity());
     }
 
