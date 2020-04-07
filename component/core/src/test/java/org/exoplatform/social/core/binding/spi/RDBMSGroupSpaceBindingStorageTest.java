@@ -510,6 +510,35 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   
   /**
    * Test
+   * {@link GroupSpaceBindingStorage#findGroupSpaceBindingsByGroup(String)}
+   *
+   * @throws Exception
+   **/
+  public void testFindGroupSpaceBindingsByGroup() {
+    //todo
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#findUserSpaceBindingsByGroup(String, String)}
+   *
+   * @throws Exception
+   **/
+  public void testFindUserSpaceBindingsByGroup() {
+    //todo
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#findUserSpaceBindingsByUser(String)}
+   *
+   * @throws Exception
+   **/
+  public void testFindUserSpaceBindingsByUser() {
+    //todo
+  }
+  /**
+   * Test
    * {@link GroupSpaceBindingStorage#findReportsForCsv(long, long, String, String)}
    * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReportAction)}
    *
@@ -558,4 +587,59 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
 //
   }
   
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#getGroupSpaceBindingReportOperations()}
+   *
+   *
+   * @throws Exception
+   **/
+  public void testGetGroupSpaceBindingReportOperations() {
+  //todo
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#getGroupSpaceBindingsFromQueueByAction(String)}
+   *
+   *
+   * @throws Exception
+   **/
+  public void testGetGroupSpaceBindingsFromQueueByAction() {
+    //todo
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#saveGroupSpaceBindingReport(GroupSpaceBindingReportAction)}
+   *
+   *
+   * @throws Exception
+   **/
+  public void testSaveGroupSpaceBindingReport() {
+    //todo
+  }
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#findGroupSpaceBindingReportAction(long, String)}
+   *
+   *
+   *
+   * @throws Exception
+   **/
+  public void testFindGroupSpaceBindingReportAction() {
+    //todo
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction)}
+   *
+   *
+   *
+   * @throws Exception
+   **/
+  public void UpdateGroupSpaceBindingReportAction() {
+    //todo
+  }
 }
