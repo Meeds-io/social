@@ -696,40 +696,34 @@
         <constraints nullable="true"/>
       </column>
     </createTable>
-  </changeSet>
-
-  <changeSet author="social" id="1.0.0-73" dbms="postgresql">
-    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" startValue="1"/>
-  </changeSet>
-
-  <changeSet author="social" id="1.0.0-74">
     <createTable tableName="SOC_GROUP_SPACE_BINDING_REPORT_USER">
       <column name="GROUP_SPACE_BINDING_REPORT_USER_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_REPORT_ACTION_ID"/>
+          <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_REPORT_USER_ID"/>
       </column>
       <column name="GROUP_SPACE_BINDING_REPORT_ACTION_ID" type="BIGINT">
-        <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" references="SOC_GROUP_SPACE_BINDING_REPORT_ACTION(GROUP_SPACE_BINDING_REPORT_ACTION_ID)"
-                     nullable="false"/>
+          <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" references="SOC_GROUP_SPACE_BINDING_REPORT_ACTION(GROUP_SPACE_BINDING_REPORT_ACTION_ID)"
+                       nullable="false"/>
       </column>
       <column name="USERNAME" type="NVARCHAR(200)">
-        <constraints nullable="false"/>
+          <constraints nullable="false"/>
       </column>
       <column name="ACTION" type="NVARCHAR(200)">
-        <constraints nullable="false"/>
+          <constraints nullable="false"/>
       </column>
       <column name="WAS_PRESENT_BEFORE" type="BOOLEAN">
-        <constraints nullable="false"/>
+          <constraints nullable="false"/>
       </column>
       <column name="STILL_IN_SPACE" type="BOOLEAN">
-        <constraints nullable="false"/>
+          <constraints nullable="false"/>
       </column>
       <column name="DATE" type="TIMESTAMP" defaultValueDate="${now}">
-        <constraints nullable="false"/>
+          <constraints nullable="false"/>
       </column>
     </createTable>
   </changeSet>
 
-  <changeSet author="social" id="1.0.0-75" dbms="postgresql">
+  <changeSet author="social" id="1.0.0-73" dbms="postgresql">
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" startValue="1"/>
     <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID" startValue="1"/>
   </changeSet>
 
