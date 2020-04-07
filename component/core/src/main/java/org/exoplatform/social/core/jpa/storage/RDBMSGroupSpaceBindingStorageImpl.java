@@ -143,7 +143,9 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @Override
   public void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction) {
-    groupSpaceBindingReportActionDAO.update(groupSpaceBindingReportActionDAO.find(bindingReportAction.getId()));
+    GroupSpaceBindingReportActionEntity reportActionEntity = groupSpaceBindingReportActionDAO.find(bindingReportAction.getId());
+    reportActionEntity.setEndDate(bindingReportAction.getEndDate());
+    groupSpaceBindingReportActionDAO.update(reportActionEntity);
   }
 
   @Override

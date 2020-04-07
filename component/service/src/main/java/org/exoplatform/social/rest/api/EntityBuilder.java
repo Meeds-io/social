@@ -847,8 +847,8 @@ public class EntityBuilder {
     DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy h:mm a");
     Date startDate = bindingOperationReport.getStartDate();
     Date endDate = bindingOperationReport.getEndDate();
-    operationReportEntity.setStartDate(dateFormat.format(startDate));
-    operationReportEntity.setEndDate(dateFormat.format(endDate));
+    operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
+    operationReportEntity.setEndDate(endDate != null ? dateFormat.format(endDate) : "null");
     return operationReportEntity;
   }
 }
