@@ -275,12 +275,12 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     return userSpaceBindingDAO.countBoundUsers(Long.parseLong(spaceId));
   }
 
-  public List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
+  public List<GroupSpaceBindingReportUser> findReportsForCsv(long spaceId,
                                                                long groupSpaceBindingId,
                                                                String group,
                                                                String action) {
 
-    return buildGroupBindingReportListFromEntities(groupSpaceBindingReportActionDAO.findReportsForCSV(spaceId,
+    return buildGroupBindingReportUserListFromEntities(groupSpaceBindingReportUserDAO.findReportsForCSV(spaceId,
                                                                                                       groupSpaceBindingId,
                                                                                                       group,
                                                                                                       action));

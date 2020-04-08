@@ -120,7 +120,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   }
 
   @Override
-  public List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
+  public List<GroupSpaceBindingReportUser> findReportsForCsv(long spaceId,
                                                                long groupSpaceBindingId,
                                                                String group,
                                                                String action) {

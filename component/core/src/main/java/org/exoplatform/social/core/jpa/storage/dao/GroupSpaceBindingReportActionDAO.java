@@ -24,19 +24,7 @@ import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportAct
 
 public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceBindingReportActionEntity, Long> {
 
-  /**
-   * Get reports for csv generation
-   * 
-   * @param spaceId
-   * @param groupSpaceBindingId
-   * @param group
-   * @param action
-   * @return
-   */
-  List<GroupSpaceBindingReportActionEntity> findReportsForCSV(long spaceId,
-                                                              long groupSpaceBindingId,
-                                                              String group,
-                                                              String action);
+  
 
   /**
    * Get binding report action by bindingId and action type
