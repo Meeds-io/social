@@ -297,6 +297,8 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   @Override
   public GroupSpaceBinding saveGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding) {
+    
+    groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
     GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
                                                                              Long.parseLong(groupSpaceBinding.getSpaceId()),
                                                                              groupSpaceBinding.getGroup(),
@@ -304,7 +306,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     if (groupSpaceBindingStorage.findGroupSpaceBindingReportAction(report.getGroupSpaceBindingId(),report.getAction())==null) {
       groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
     }
-    return groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
+    return groupSpaceBinding;
   }
 
   @Override
