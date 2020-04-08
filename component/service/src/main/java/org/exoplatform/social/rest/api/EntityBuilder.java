@@ -32,6 +32,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -52,6 +56,7 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRestResourcesV1;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 public class EntityBuilder {
@@ -94,7 +99,9 @@ public class EntityBuilder {
   public static final String  ORGANIZATION_GROUP_TYPE             = "childGroups";
   /** Group Space Binding */
   public static final String  GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
-
+  
+  private static final Log LOG = ExoLogger.getLogger(EntityBuilder.class);
+  
   /**
    * Get a IdentityEntity from an identity in order to build a json object for the rest service
    * 
@@ -837,13 +844,24 @@ public class EntityBuilder {
    * @return the bindingOperationReport rest object
    */
   public static GroupSpaceBindingOperationReportEntity buildEntityFromGroupSpaceBindingOperationReport(GroupSpaceBindingOperationReport bindingOperationReport) {
+  
+    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+  
     GroupSpaceBindingOperationReportEntity operationReportEntity = new GroupSpaceBindingOperationReportEntity();
-    operationReportEntity.setGroup(bindingOperationReport.getGroup());
+    Group group=null;
+    try {
+      group = organizationService.getGroupHandler().findGroupById(bindingOperationReport.getGroup());
+    } catch (Exception e) {
+      LOG.error("Unable to get group {}", bindingOperationReport.getGroup());
+    }
+    String groupDisplayName = group!=null && !group.getLabel().equals("") ? group.getLabel() : bindingOperationReport.getGroup();
+    
+    operationReportEntity.setGroup(groupDisplayName);
     operationReportEntity.setOperationType(bindingOperationReport.getAction());
     operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
     operationReportEntity.setAddedUsersCount(Long.toString(bindingOperationReport.getAddedUsers()));
     operationReportEntity.setRemovedUsersCount(Long.toString(bindingOperationReport.getRemovedUsers()));
-    DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY HH:MM:ss");
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss");
     Date startDate = bindingOperationReport.getStartDate();
     Date endDate = bindingOperationReport.getEndDate();
     operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
