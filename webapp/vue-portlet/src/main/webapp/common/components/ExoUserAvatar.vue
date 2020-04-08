@@ -5,12 +5,12 @@
       :href="url"
       class="flex-nowrap d-flex flex-shrink-0 align-center">
       <v-avatar :size="size" :tile="tile">
-        <img :src="avatarurl" />
+        <img :src="avatarUrl" />
       </v-avatar>
     </a>
-    <div v-if="fullname || subtitle" class="d-flex flex-wrap flex-grow-1 flex-shrink-1 ml-2 text-left">
+    <div v-if="fullname || $slots.subTitle" class="d-flex flex-wrap flex-grow-1 flex-shrink-1 ml-2 text-left">
       <p v-if="fullname" class=" mb-0 exo-avatar-item-title">
-        <a :href="url" class="text-truncate body-2 font-weight-bold text-color">{{ fullname }}</a>
+        <a :href="url" :class="boldTitle && 'font-weight-bold'" class="text-truncate body-2 text-color">{{ fullname }}</a>
       </p>
       <p v-if="$slots.subTitle " class="caption text-sub-title mb-0 exo-avatar-item-subtitle">
         <slot name="subTitle"></slot>
@@ -35,6 +35,10 @@ export default {
       type: String,
       default: () => null,
     },
+    boldTitle: {
+      type: Boolean,
+      default: () => false,
+    },
     tiptip: {
       type: Boolean,
       default: () => true,
@@ -54,7 +58,7 @@ export default {
         return null;
       },
     },
-    avatarurl: {
+    avatarUrl: {
       type: String,
       default: function() {
         return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;

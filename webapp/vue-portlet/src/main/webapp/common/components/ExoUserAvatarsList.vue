@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-nowrap">
+  <div class="d-flex flex-nowrap">
     <exo-user-avatar
       v-for="user in usersToDisplay"
       :key="user"
