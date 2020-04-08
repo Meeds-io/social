@@ -57,7 +57,18 @@
             <td class="text-md-center">{{ props.item.operationType }}</td>
             <td class="text-md-center">{{ props.item.addedUsers }}</td>
             <td class="text-md-center">{{ props.item.removedUsers }}</td>
-            <td class="text-md-center">{{ props.item.file }}</td>
+            <td class="text-md-center"> 
+              <v-btn
+                icon
+                class="rightIcon"
+                @click="uploadCSVFile(props.item.space.id, props.item.operationType, props.item.group, props.item.bindingId)">
+                <v-icon
+                  medium
+                  class="uploadFile">
+                  mdi-download
+                </v-icon>
+              </v-btn>
+            </td>
           </tr>
         </template>
       </v-data-table>
@@ -101,24 +112,11 @@ export default {
       this.operations.forEach(operation => {
         this.spaces.push(operation.space);
       });
-      console.log('Data', data);
     }).finally(() => this.loading = false);
   }, methods: {
-    getSpaceDisplayName(spaceId) {
-      console.log('spaceId: ', spaceId);
-      const displayName = this.spaces.filter(space => space.id === spaceId)[0].displayName;
-      return displayName;
+    uploadCSVFile() {
+      console.log('Upload CSV file !');
     },
-    getSpaceAvatar(spaceId) {
-      console.log('spaceId: ', spaceId);
-      console.log('Spaces: ', this.spaces);
-      const avatar = this.spaces.filter(space => space.id === spaceId)[0].avatar;
-      return avatar;
-    },
-    displayItem(item) {
-      console.log('Item: ', item);
-      return item;
-    }
   }
 };
 </script>
