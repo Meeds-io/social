@@ -97,6 +97,50 @@ public interface SpaceStorage {
   boolean isSpaceIgnored(String spaceId, String userId);
 
   /**
+   * Gets the count of the spaces that a user has the "manager" role.
+   *
+   * @param userId
+   * @return the count of the manager spaces
+   * @throws SpaceStorageException
+   * @since 1.2.0-GA
+   */
+  public int getManagerSpacesCount(String userId);
+
+  /**
+   * Gets the count of the spaces which user has "manager" role by filter.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @return
+   * @since 1.2.0-GA
+   */
+  public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
+
+  /**
+   * Gets the spaces that a user has the "manager" role with offset, limit.
+   *
+   * @param userId
+   * @param offset
+   * @param limit
+   * @return a list of the manager spaces with offset, limit
+   * @throws SpaceStorageException
+   * @since 1.2.0-GA
+   */
+  public List<Space> getManagerSpaces(String userId, long offset, long limit);
+
+  /**
+   * Gets the manager spaces of the user id by the filter with offset, limit.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @param offset
+   * @param limit
+   * @return
+   * @since 1.2.0-GA
+   */
+  public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
+
+  /**
    * Gets the count of the spaces that a user has the "member" role.
    *
    * @param userId
@@ -105,7 +149,7 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public int getMemberSpacesCount(String userId) throws SpaceStorageException;
-
+  
   /**
    * Gets the count of the spaces which user has "member" role by filter.
    *
@@ -115,17 +159,20 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public int getMemberSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
-
+  
   /**
    * Gets the spaces that a user has the "member" role.
    *
    * @param userId
    * @return a list of the member spaces
    * @throws SpaceStorageException
+   * @deprecated use {@link SpaceStorage#getMemberSpaces(String, long, long)}
+   *             instead with offset and limit
    * @since 1.2.0-GA
    */
+  @Deprecated
   public List<Space> getMemberSpaces(String userId) throws SpaceStorageException;
-
+  
   /**
    * Gets the spaces that a user has the "member" role with offset, limit.
    *
@@ -137,7 +184,7 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public List<Space> getMemberSpaces(String userId, long offset, long limit) throws SpaceStorageException;
-
+  
   /**
    * Gets the member spaces of the user id by the filter with offset, limit.
    *
@@ -634,4 +681,5 @@ public interface SpaceStorage {
    * @throws SpaceStorageException
    */
   public List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
+
 }

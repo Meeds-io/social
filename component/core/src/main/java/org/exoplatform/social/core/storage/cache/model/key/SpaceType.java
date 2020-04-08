@@ -23,6 +23,7 @@ package org.exoplatform.social.core.storage.cache.model.key;
  */
 public enum SpaceType {
   MEMBER,
+  MANAGER,
   PENDING,
   INVITED,
   PUBLIC,

@@ -3,22 +3,22 @@
     <a
       :id="id"
       :href="url"
-      class="flex-nowrap d-flex flex-shrink-0 align-center">
-      <v-avatar :size="size" :tile="tile">
-        <img :src="avatarUrl" />
-      </v-avatar>
+      class="flex-nowrap flex-shrink-0 d-flex">
+       <v-avatar :size="size" class="pull-left my-auto">
+        <img :src="avatarUrl" :tile="tile" />
+       </v-avatar>
+      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2">
+        <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
+          {{ fullname }}
+        </p>
+        <p v-if="$slots.subTitle"  class="text-sub-title my-0">
+          <slot name="subTitle"></slot>
+        </p>
+      </div>
+      <template v-if="$slots.actions">
+        <slot name="actions"></slot>
+      </template>
     </a>
-    <div v-if="fullname || $slots.subTitle" class="d-flex flex-wrap flex-grow-1 flex-shrink-1 ml-2 text-left">
-      <p v-if="fullname" class=" mb-0 exo-avatar-item-title">
-        <a :href="url" :class="boldTitle && 'font-weight-bold'" class="text-truncate body-2 text-color">{{ fullname }}</a>
-      </p>
-      <p v-if="$slots.subTitle " class="caption text-sub-title mb-0 exo-avatar-item-subtitle">
-        <slot name="subTitle"></slot>
-      </p>
-    </div>
-    <template v-if="$slots.actions">
-      <slot name="actions"></slot>
-    </template>
   </div>
 </template>
 
@@ -48,15 +48,9 @@ export default {
       // eslint-disable-next-line no-magic-numbers
       default: () => 37,
     },
-    tile: {
-      type: Boolean,
-      default: () => false,
-    },
     tiptipPosition: {
       type: String,
-      default: function() {
-        return null;
-      },
+      default: () => null,
     },
     avatarUrl: {
       type: String,
@@ -73,7 +67,7 @@ export default {
   },
   data() {
     return {
-      id: `chip${parseInt(Math.random() * randomMax)
+      id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
     };
@@ -90,15 +84,7 @@ export default {
       };
     },
   },
-  watch: {
-    username() {
-      if (this.username && this.tiptip) {
-        // TODO disable tiptip because of high CPU usage using its code
-        this.initTiptip();
-      }
-    },
-  },
-  created() {
+  mounted() {
     if (this.username && this.tiptip) {
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();

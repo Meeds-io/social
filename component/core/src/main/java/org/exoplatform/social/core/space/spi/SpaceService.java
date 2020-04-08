@@ -113,6 +113,30 @@ public interface SpaceService {
   ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter);
 
   /**
+   * Gets a list access containing all spaces that a user has the "manager" role.
+   *
+   * @param userId The remote user Id.
+   * @return The list access.
+   * @LevelAPI Platform
+   */
+  default ListAccess<Space> getManagerSpaces(String userId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Gets a list access containing all spaces that a user has the "manager" role. This list access matches with the provided space
+   * filter.
+   *
+   * @param userId The remote user Id.
+   * @param spaceFilter The space filter.
+   * @return The list access.
+   * @LevelAPI Platform
+   */
+  default ListAccess<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access containing all spaces that a user has the "member" role.
    *
    * @param userId The remote user Id.
@@ -121,7 +145,7 @@ public interface SpaceService {
    * @since  1.2.0-GA
    */
   ListAccess<Space> getMemberSpaces(String userId);
-
+  
   /**
    * Gets a list access containing all spaces that a user has the "member" role. This list access matches with the provided space
    * filter.

@@ -516,6 +516,16 @@
       </container>
       <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>social-vue-portlet</application-ref>
+            <portlet-ref>SpacesOverview</portlet-ref>
+          </portlet>
+          <title>Spaces Overview Portlet</title>
+          <access-permissions>*:/platform/users</access-permissions>
+          <show-info-bar>false</show-info-bar>
+          <show-application-state>true</show-application-state>
+        </portlet-application>
       </container>
     </container>
   </page>
@@ -548,6 +558,16 @@
       </container>
       <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>social-vue-portlet</application-ref>
+            <portlet-ref>SpacesOverview</portlet-ref>
+          </portlet>
+          <title>Spaces Overview Portlet</title>
+          <access-permissions>*:/platform/users</access-permissions>
+          <show-info-bar>false</show-info-bar>
+          <show-application-state>true</show-application-state>
+        </portlet-application>
       </container>
     </container>
   </page>

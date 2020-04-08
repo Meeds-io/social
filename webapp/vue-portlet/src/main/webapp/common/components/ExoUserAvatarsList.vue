@@ -6,10 +6,12 @@
       :username="user.username"
       :title="user.fullname"
       :size="iconSize"
+      :labels="labels"
       class="mx-auto" />
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
+      :tiptip="false"
       class="notDisplayedIdentitiesOverlay"
       @click="$emit('open-detail')">
       <div class="notDisplayedIdentities">
