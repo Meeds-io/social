@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
  */
 public class SpaceTemplate implements Cloneable {
   private String name;
+  private String resolvedLabel;
+  private String resolvedDescription;
   private String visibility;
   private String registration;
   private String bannerPath;
@@ -52,6 +54,38 @@ public class SpaceTemplate implements Cloneable {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Set resolved label switch a selected language
+   * 
+   * @param resolvedLabel
+   */
+  public void setResolvedLabel(String resolvedLabel) {
+    this.resolvedLabel = resolvedLabel;
+  }
+
+  /**
+   * @return resolved label switch a selected language
+   */
+  public String getResolvedLabel() {
+    return resolvedLabel;
+  }
+
+  /**
+   * Sets a resolved description switch a selected language
+   * 
+   * @param resolvedDescription
+   */
+  public void setResolvedDescription(String resolvedDescription) {
+    this.resolvedDescription = resolvedDescription;
+  }
+
+  /**
+   * @return resolved space template description switch a selected language
+   */
+  public String getResolvedDescription() {
+    return resolvedDescription;
   }
 
   /**

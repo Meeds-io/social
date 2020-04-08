@@ -706,6 +706,9 @@ public class WebTemplateProvider extends TemplateProvider {
       Profile profile = identity.getProfile();
       Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
       Space space = Utils.getSpaceService().getSpaceByPrettyName(spaceIdentity.getRemoteId());
+      if (space == null) {
+        return null;
+      }
       templateContext.put("isIntranet", "true");
       Calendar cal = Calendar.getInstance();
       cal.setTimeInMillis(notification.getLastModifiedDate());
@@ -791,6 +794,9 @@ public class WebTemplateProvider extends TemplateProvider {
       String status = notification.getValueOwnerParameter("status");
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
       Space space = Utils.getSpaceService().getSpaceById(spaceId);
+      if (space == null) {
+        return null;
+      }
       Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, notification.getValueOwnerParameter("request_from"), true);
       Profile userProfile = identity.getProfile();
       templateContext.put("isIntranet", "true");
@@ -835,6 +841,9 @@ public class WebTemplateProvider extends TemplateProvider {
       String status = notification.getValueOwnerParameter("status");
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
       Space space = Utils.getSpaceService().getSpaceById(spaceId);
+      if (space == null) {
+        return null;
+      }
       templateContext.put("isIntranet", "true");
       Calendar cal = Calendar.getInstance();
       cal.setTimeInMillis(notification.getLastModifiedDate());

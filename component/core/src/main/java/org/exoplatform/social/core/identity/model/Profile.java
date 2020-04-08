@@ -222,6 +222,9 @@ public class Profile {
   /** The last updated time of avatar ( in millisecond) */
   private Long                 bannerLastUpdated;
 
+  public Profile() {
+  }
+
   /**
    * Instantiates a new profile.
    *

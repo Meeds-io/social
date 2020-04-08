@@ -84,8 +84,8 @@ public class RelationshipsRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     
     RelationshipEntity result = getBaseEntity(response.getEntity(), RelationshipEntity.class);
-    assertEquals("/rest/" + VersionResources.VERSION_ONE + "/social/users/root", result.getSender());
-    assertEquals("/rest/" + VersionResources.VERSION_ONE + "/social/users/demo", result.getReceiver());
+    assertEquals("/portal/rest/" + VersionResources.VERSION_ONE + "/social/users/root", result.getSender());
+    assertEquals("/portal/rest/" + VersionResources.VERSION_ONE + "/social/users/demo", result.getReceiver());
     assertEquals("CONFIRMED", result.getStatus());
     
     Relationship relationship = relationshipManager.get(result.getId());

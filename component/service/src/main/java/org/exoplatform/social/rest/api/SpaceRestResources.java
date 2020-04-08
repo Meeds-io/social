@@ -38,7 +38,9 @@ public interface SpaceRestResources extends SocialRest {
  * Process to return a list of space in json format
  * 
  * @param uriInfo
+ * @param request
  * @param q
+ * @param typeFilter
  * @param offset
  * @param limit
  * @param sort
@@ -52,6 +54,7 @@ public interface SpaceRestResources extends SocialRest {
   public abstract Response getSpaces(@Context UriInfo uriInfo,
                                      @Context Request request,
                                      @QueryParam("q") String q,
+                                     @QueryParam("all") String typeFilter,
                                      @QueryParam("offset") int offset,
                                      @QueryParam("limit") int limit,
                                      @QueryParam("sort") String sort,

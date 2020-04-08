@@ -258,6 +258,19 @@ public interface SpaceService {
   Space createSpace(Space space, String creatorUserId);
 
   /**
+   * Updates information of a space and invites all users from
+   * identitiesToInvite to join this space.
+   *
+   * @param existingSpace The existing space to be updated.
+   * @param identitiesToInvite The list of identities who are invited to join
+   *          the space. Identity could be of type user or space
+   * @return updated space entity
+   */
+  default Space updateSpace(Space existingSpace, List<Identity> identitiesToInvite) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Updates information of a space.
    *
    * @param existingSpace The existing space to be updated.
@@ -1402,5 +1415,17 @@ public interface SpaceService {
    * @return true if the user is member of super administrators groups, else false
    */
   boolean isSuperManager(String userId);
+
+  /**
+   * Invites users or members of spaces identified by identities list into a a
+   * designated space
+   * 
+   * @param space target {@link Space} to invite identites
+   * @param identitiesToInvite {@link List} of {@link Identity} (space or user)
+   *          to invite
+   */
+  default void inviteIdentities(Space space, List<Identity> identitiesToInvite) {
+    throw new UnsupportedOperationException();
+  }
 
 }

@@ -3,6 +3,41 @@
                   xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
 
   <portlet>
+    <name>SpacesList</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/spacesList.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>vueEllipsis</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>userPopupPlugin</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>TopBarNotification</name>
     <module>
       <script>
@@ -131,9 +166,6 @@
               <as>$</as>
             </depends>
             <depends>
-              <module>suggester</module>
-            </depends>
-            <depends>
                 <module>extensionRegistry</module>
             </depends> 
         </module>
@@ -190,4 +222,33 @@
       </module>
   </portlet>
 
+  <module>
+    <name>commonVueComponents</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/commonVueComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>vueEllipsis</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>userPopupPlugin</module>
+    </depends>
+  </module>
 </gatein-resources>

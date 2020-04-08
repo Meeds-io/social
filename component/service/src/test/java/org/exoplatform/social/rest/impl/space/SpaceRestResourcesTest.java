@@ -118,12 +118,18 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     // demo is member of only one space then he got just 1 result
+    assertEquals(3, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
     HashSet<MembershipEntry> ms = new HashSet<MembershipEntry>();
     ms.add(new MembershipEntry("/platform/administrators"));
     startSessionAs("john", ms);
-    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
+    response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
@@ -131,6 +137,18 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     // Only the super user can see all the spaces.
     startSessionAs("root", ms);
+    response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces?limit=5&offset=1&filterType=member"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
     response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -163,6 +181,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
     assertNotNull(response);
     assertEquals(304, response.getStatus());
+
+    response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
   }
 
   public void testCreateSpace() throws Exception {
