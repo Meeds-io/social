@@ -126,8 +126,7 @@ public interface GroupSpaceBindingService {
    * @param bindingReportAction : the action which lead to the deletion (for the
    * @return
    */
-  GroupSpaceBindingReportUser deleteUserBinding(UserSpaceBinding userSpaceBinding,
-                                                GroupSpaceBindingReportAction bindingReportAction);
+  void deleteUserBinding(UserSpaceBinding userSpaceBinding, GroupSpaceBindingReportAction bindingReportAction);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all
@@ -233,11 +232,11 @@ public interface GroupSpaceBindingService {
    * @param bindingReportAction
    * @return
    */
-  GroupSpaceBindingReportUser saveUserBinding(String userId,
-                                              GroupSpaceBinding groupSpaceBinding,
-                                              Space space,
-                                              GroupSpaceBindingReportAction bindingReportAction);
-
+  void saveUserBinding(String userId,
+                       GroupSpaceBinding groupSpaceBinding,
+                       Space space,
+                       GroupSpaceBindingReportAction bindingReportAction);
+  
   GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
 
   GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action);

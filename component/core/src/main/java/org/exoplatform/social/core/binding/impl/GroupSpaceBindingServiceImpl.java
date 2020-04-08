@@ -196,7 +196,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
    * @return
    */
   @Override
-  public GroupSpaceBindingReportUser deleteUserBinding(UserSpaceBinding userSpaceBinding,
+  public void deleteUserBinding(UserSpaceBinding userSpaceBinding,
                                                        GroupSpaceBindingReportAction bindingReportAction) {
     LOG.debug("Delete user binding for member : {} from ",
               userSpaceBinding.getUser(),
@@ -235,7 +235,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                          userSpaceBinding.getUser(),
                                                                          GroupSpaceBindingReportUser.ACTION_REMOVE_USER);
     report.setStillInSpace(isStillPresent);
-    return groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(report);
+    groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(report);
   }
 
   /**
@@ -417,10 +417,10 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   }
 
   @Override
-  public GroupSpaceBindingReportUser saveUserBinding(String userId,
-                                                     GroupSpaceBinding groupSpaceBinding,
-                                                     Space space,
-                                                     GroupSpaceBindingReportAction bindingReportAction) {
+  public void saveUserBinding(String userId,
+                             GroupSpaceBinding groupSpaceBinding,
+                             Space space,
+                             GroupSpaceBindingReportAction bindingReportAction) {
     String[] members = space.getMembers();
     UserSpaceBinding userSpaceBinding = new UserSpaceBinding(userId, groupSpaceBinding);
     // If user exists in space members before any binding set isMemberBefore to
@@ -440,7 +440,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     groupSpaceBindingReportUser.setWasPresentBefore(userSpaceBinding.isMemberBefore());
     spaceService.addMember(space, userId);
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
-    return groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(groupSpaceBindingReportUser);
+    groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(groupSpaceBindingReportUser);
   }
 
   @Override
