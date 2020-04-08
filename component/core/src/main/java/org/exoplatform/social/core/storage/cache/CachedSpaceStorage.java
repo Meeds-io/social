@@ -377,10 +377,84 @@ public class CachedSpaceStorage implements SpaceStorage {
   /**
    * {@inheritDoc}
    */
+  public List<Space> getManagerSpaces(final String userId, final long offset, final long limit) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MANAGER);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+    ListSpacesData keys = spacesCache.get(
+                                          new ServiceContext<ListSpacesData>() {
+                                            public ListSpacesData execute() {
+                                              if (limit == 0) {
+                                                return buildIds(Collections.emptyList());
+                                              }
+                                              List<Space> got = storage.getManagerSpaces(userId, offset, limit);
+                                              return buildIds(got);
+                                            }
+                                          },
+                                          listKey);
+    return buildSpaces(keys);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<Space> getManagerSpacesByFilter(
+                                              final String userId,
+                                              final SpaceFilter spaceFilter,
+                                              final long offset,
+                                              final long limit) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+    ListSpacesData keys = spacesCache.get(
+                                          new ServiceContext<ListSpacesData>() {
+                                            public ListSpacesData execute() {
+                                              if (limit == 0) {
+                                                return buildIds(Collections.emptyList());
+                                              }
+                                              List<Space> got = storage.getManagerSpacesByFilter(userId,
+                                                                                                 spaceFilter,
+                                                                                                 offset,
+                                                                                                 limit);
+                                              return buildIds(got);
+                                            }
+                                          },
+                                          listKey);
+    return buildSpaces(keys);
+
+  }
+
+  @Override
+  public int getManagerSpacesCount(String userId) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MANAGER);
+    return spacesCountCache.get(
+                                new ServiceContext<IntegerData>() {
+                                  public IntegerData execute() {
+                                    return new IntegerData(storage.getManagerSpacesCount(userId));
+                                  }
+                                },
+                                key)
+                           .build();
+  }
+
+  @Override
+  public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
+    return spacesCountCache.get(
+                                new ServiceContext<IntegerData>() {
+                                  public IntegerData execute() {
+                                    return new IntegerData(storage.getManagerSpacesByFilterCount(userId, spaceFilter));
+                                  }
+                                },
+                                key)
+                           .build();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public int getMemberSpacesCount(final String userId) throws SpaceStorageException {
 
     //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, null);
+    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MEMBER);
 
     //
     return spacesCountCache.get(

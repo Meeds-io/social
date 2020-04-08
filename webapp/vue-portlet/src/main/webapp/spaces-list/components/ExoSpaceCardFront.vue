@@ -59,7 +59,7 @@
       </template>
     </div>
 
-    <div class="spaceAvatarImg">
+    <div class="spaceAvatar">
       <a :href="url">
         <v-img
           :src="spaceAvatarUrl"

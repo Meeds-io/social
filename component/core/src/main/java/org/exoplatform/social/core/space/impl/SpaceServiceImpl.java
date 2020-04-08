@@ -1284,6 +1284,20 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  public ListAccess<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter) {
+    return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.MANAGER_FILTER);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ListAccess<Space> getManagerSpaces(String userId) {
+    return new SpaceListAccess(this.spaceStorage, userId, SpaceListAccess.Type.MANAGER);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public ListAccess<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter) {
     return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.MEMBER_FILTER);
   }
