@@ -132,6 +132,13 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   void deleteGroupBindingReport(long id) throws GroupSpaceBindingStorageException;
+  /**
+   * Deletes a binding report user by bindingReport id.
+   *
+   * @param id
+   * @throws GroupSpaceBindingStorageException
+   */
+  void deleteGroupBindingReportUser(long id) throws GroupSpaceBindingStorageException;
 
   /**
    * Deletes a binding by binding id.
@@ -235,12 +242,20 @@ public interface GroupSpaceBindingStorage {
    * @return
    */
   List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
-
-  GroupSpaceBindingReportUser saveGroupSpaceBindingReportUser(GroupSpaceBindingReportUser groupSpaceBindingReportUser);
+  
+  void saveGroupSpaceBindingReportUser(GroupSpaceBindingReportUser groupSpaceBindingReportUser);
 
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction);
 
   GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action);
 
   List<GroupSpaceBindingQueue> getAllFromBindingQueue();
+  
+  
+  List<GroupSpaceBinding> findAllGroupSpaceBinding();
+  List<UserSpaceBinding> findAllUserSpaceBinding();
+  List<GroupSpaceBindingQueue> findAllGroupSpaceBindingQueue();
+  List<GroupSpaceBindingReportAction> findAllGroupSpaceBindingReportAction();
+  List<GroupSpaceBindingReportUser> findAllGroupSpaceBindingReportUser();
+  
 }
