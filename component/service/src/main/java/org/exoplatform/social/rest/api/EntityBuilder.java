@@ -35,12 +35,10 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.binding.model.GroupNode;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
@@ -56,7 +54,6 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
-import org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRestResourcesV1;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 public class EntityBuilder {
@@ -822,16 +819,16 @@ public class EntityBuilder {
   }
 
   /**
-   * Build rest group entity from groupNode object
+   * Build rest group entity from group object
    *
-   * @param groupNode the groupNode object
+   * @param group the group object
    * @return the groupNodeEntity rest object
    */
-  public static GroupNodeEntity buildEntityFromGroupNode(GroupNode groupNode) {
+  public static GroupNodeEntity buildEntityFromGroup(Group group) {
     GroupNodeEntity groupNodeEntity = new GroupNodeEntity();
-    groupNodeEntity.setId(groupNode.getId());
-    groupNodeEntity.setGroupName(StringUtils.capitalize(groupNode.getGroupName()));
-    String parentId = groupNode.getParentId() == null ? "root" : groupNode.getParentId();
+    groupNodeEntity.setId(group.getId());
+    groupNodeEntity.setGroupName(StringUtils.capitalize(group.getGroupName()));
+    String parentId = group.getParentId() == null ? "root" : group.getParentId();
     groupNodeEntity.setParentId(parentId);
     groupNodeEntity.setChildGroupNodesEntities(new ArrayList<>());
     return groupNodeEntity;
@@ -844,19 +841,7 @@ public class EntityBuilder {
    * @return the bindingOperationReport rest object
    */
   public static GroupSpaceBindingOperationReportEntity buildEntityFromGroupSpaceBindingOperationReport(GroupSpaceBindingOperationReport bindingOperationReport) {
-  
-    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
-  
     GroupSpaceBindingOperationReportEntity operationReportEntity = new GroupSpaceBindingOperationReportEntity();
-    Group group=null;
-    try {
-      group = organizationService.getGroupHandler().findGroupById(bindingOperationReport.getGroup());
-    } catch (Exception e) {
-      LOG.error("Unable to get group {}", bindingOperationReport.getGroup());
-    }
-    String groupDisplayName = group!=null && !group.getLabel().equals("") ? group.getLabel() : bindingOperationReport.getGroup();
-    
-    operationReportEntity.setGroup(groupDisplayName);
     operationReportEntity.setOperationType(bindingOperationReport.getAction());
     operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
     operationReportEntity.setAddedUsersCount(Long.toString(bindingOperationReport.getAddedUsers()));

@@ -22,6 +22,7 @@
           </v-flex>
           <v-flex xs2>
             <v-select
+              v-model="action"
               :items="operationTypes"
               label="All bindings"
               solo
@@ -34,6 +35,7 @@
         :headers="headers"
         :items="operations"
         :search="search"
+        item-key="operationType"
         disable-sort
       >
         <template slot="item" slot-scope="props">
@@ -43,7 +45,7 @@
               <img v-else :src="avatar" class="avatar" />
               {{ props.item.space.displayName }}
             </td>
-            <td class="text-md-center">{{ props.item.group }}</td>
+            <td class="text-md-center">{{ props.item.group.name }}</td>
             <td class="text-md-center">{{ props.item.startDate }}</td>
             <td class="text-md-center">
               <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
@@ -61,7 +63,7 @@
               <v-btn
                 icon
                 class="rightIcon"
-                @click="uploadCSVFile(props.item.space.id, props.item.operationType, props.item.group, props.item.bindingId)">
+                @click="uploadCSVFile(props.item.space.id, props.item.operationType, props.item.group.id, props.item.bindingId)">
                 <v-icon
                   medium
                   class="uploadFile">
@@ -86,37 +88,54 @@ export default {
       loading: true,
       avatar: spacesConstants.DEFAULT_SPACE_AVATAR,
       search: '',
+      action: `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`,
       operationTypes: [
         `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`, 
-        `${this.$t('social.spaces.administration.binding.reports.filter.new.binding')}`,
-        `${this.$t('social.spaces.administration.binding.reports.filter.remove.binding')}`,
-        `${this.$t('social.spaces.administration.binding.reports.filter.synchronization')}`
+        `${this.$t('social.spaces.administration.binding.reports.filter.add')}`,
+        `${this.$t('social.spaces.administration.binding.reports.filter.remove')}`,
+        `${this.$t('social.spaces.administration.binding.reports.filter.synchronize')}`
       ],
       operations: [],
-      spaces: [],
-      headers: [
+    };
+  },
+  computed: {
+    headers() {
+      return [
         { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`,
+          align: 'center',
+          value: 'operationType',
+          filter: value => {
+            if (this.action === `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`) {
+              return true;
+            }
+            return value.toLowerCase() === this.action.toLowerCase();
+          },
+        },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, align: 'center' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, align: 'center' },
-      ],
-    };
+      ];
+    }
   },
   created() {
     spacesAdministrationServices.getBindingReportOperations().then(data => {
       this.operations = data.groupSpaceBindingReportOperations;
       this.operations.forEach(operation => {
-        this.spaces.push(operation.space);
+        operation.operationType = this.getOperationType(operation.operationType);
       });
     }).finally(() => this.loading = false);
   }, methods: {
     uploadCSVFile(spaceId, action, groupId, groupBindingId) {
       spacesAdministrationServices.getReport(spaceId, action, groupId, groupBindingId);
     },
-  }
+    getOperationType(type) {
+      const action = type.toLowerCase();
+      return `${this.$t(`social.spaces.administration.binding.reports.filter.${action}`)}`;
+    }
+  },
 };
 </script>

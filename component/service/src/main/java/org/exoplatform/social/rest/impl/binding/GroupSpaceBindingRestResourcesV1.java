@@ -43,7 +43,10 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.social.core.binding.model.*;
+import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -308,13 +311,19 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     // Get binding operations from the binding queue
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();
-    
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     List<DataEntity> bindingOperationReportsDataEntities = new ArrayList<>();
     for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
       GroupSpaceBindingOperationReportEntity operationReportEntity =
                                                                    EntityBuilder.buildEntityFromGroupSpaceBindingOperationReport(bindingOperationReport);
+      // Set group entity to the operation report entity
+      OrganizationService organizationService = CommonsUtils.getOrganizationService();
+      Group group = organizationService.getGroupHandler().findGroupById(bindingOperationReport.getGroup());
+      GroupNodeEntity groupNodeEntity = EntityBuilder.buildEntityFromGroup(group);
+      operationReportEntity.setGroup(groupNodeEntity.getDataEntity());
+
       // Set the space entity to the operation report entity.
       Space space = spaceService.getSpaceById(Long.toString(bindingOperationReport.getSpaceId()));
       SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), "members");
@@ -343,14 +352,10 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       highestLevel = highestLevel > level ? highestLevel : level;
     }
 
-    // Convert groups to group nodes.
-    List<GroupNode> allGroupNodes = new ArrayList<>();
-    groups.stream().forEach(group -> allGroupNodes.add(new GroupNode(group.getId(), group.getLabel(), group.getParentId())));
-
     // convert to group node entities
     List<GroupNodeEntity> allGroupNodesEntities = new ArrayList<>();
-    for (GroupNode groupNode : allGroupNodes) {
-      GroupNodeEntity groupNodeEntity = EntityBuilder.buildEntityFromGroupNode(groupNode);
+    for (Group group : groups) {
+      GroupNodeEntity groupNodeEntity = EntityBuilder.buildEntityFromGroup(group);
       allGroupNodesEntities.add(groupNodeEntity);
     }
 
@@ -471,11 +476,11 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
     // headers :
     sbResult.append("Username,Action,Date,Present Before,Still in space\n");
-    
+
     reports.stream().forEach(groupSpaceBindingReport -> {
       sbResult.append(groupSpaceBindingReport.getUsername() + ",");
       if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER)
-        && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
+          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
         // if the action is "remove", and the user present in the
         // space before, then, he was not removed
         // if the action is "remove", and the user is still present
@@ -484,7 +489,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
         sbResult.append(",");
       } else {
         // else, display the action
-        
+
         sbResult.append(groupSpaceBindingReport.getAction() + ",");
       }
       sbResult.append(groupSpaceBindingReport.getDate() + ",");

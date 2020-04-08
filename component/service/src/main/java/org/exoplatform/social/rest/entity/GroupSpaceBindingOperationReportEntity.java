@@ -16,7 +16,7 @@ public class GroupSpaceBindingOperationReportEntity extends BaseEntity {
     return getString("space");
   }
 
-  public GroupSpaceBindingOperationReportEntity setGroup(String group) {
+  public GroupSpaceBindingOperationReportEntity setGroup(DataEntity group) {
     setProperty("group", group);
     return this;
   }
