@@ -431,6 +431,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
                                                                                          spaceService);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBinding(Mockito.any())).thenReturn(binding1,binding2,binding3,binding4);
     groupSpaceBindingService.saveGroupSpaceBindings(groupSpaceBindings);
   
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(4)).saveGroupSpaceBinding(Mockito.any());
@@ -456,6 +457,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          groupSpaceBindingStorage,
                                                                                          orgService,
                                                                                          spaceService);
+    Mockito.when(groupSpaceBindingStorage.saveGroupSpaceBinding(Mockito.any())).thenReturn(binding1);
+  
     groupSpaceBindingService.saveGroupSpaceBinding(binding1);
     
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBinding(Mockito.any());
