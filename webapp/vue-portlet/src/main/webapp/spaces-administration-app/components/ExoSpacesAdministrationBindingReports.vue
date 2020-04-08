@@ -36,7 +36,7 @@
         :search="search"
         disable-sort
       >
-        <template v-slot:item="{ item }">
+        <template v-slot:item.space.displayName="{ item }">
           <div>
             <!--            <img v-if="getSpaceAvatar(item) != null" :src="getSpaceAvatar(item)" class="avatar" />-->
             <!--            <img v-else :src="avatar" class="avatar" />-->
@@ -97,6 +97,10 @@ export default {
       console.log('Spaces: ', this.spaces);
       const avatar = this.spaces.filter(space => space.id === spaceId)[0].avatar;
       return avatar;
+    },
+    displayItem(item) {
+      console.log('Item: ', item);
+      return item;
     }
   }
 };
