@@ -260,7 +260,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    List<GroupSpaceBindingReportAction> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
+    List<GroupSpaceBindingReportUser> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
                                                                                              Long.parseLong(groupBindingId),
                                                                                              group,
                                                                                              action);
@@ -471,8 +471,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     bindingOperationReport.setGroupSpaceBindingId(bindingQueue.getGroupSpaceBinding().getId());
     return bindingOperationReport;
   }
-
-  private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportAction> reports) {
+  private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportUser> reports) {
     StringBuilder sbResult = new StringBuilder();
 
     // Space space = spaceService.getSpaceById(spaceId);
