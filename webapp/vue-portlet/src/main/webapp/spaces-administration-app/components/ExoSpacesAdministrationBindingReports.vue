@@ -114,8 +114,10 @@ export default {
       });
     }).finally(() => this.loading = false);
   }, methods: {
-    uploadCSVFile() {
-      console.log('Upload CSV file !');
+    uploadCSVFile(spaceId, action, groupId, groupBindingId) {
+      spacesAdministrationServices.getReport(spaceId, action, groupId, groupBindingId).then(data => {
+        window.open(`${data}`, '_blank');
+      });
     },
   }
 };
