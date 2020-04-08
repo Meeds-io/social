@@ -55,7 +55,7 @@
                 </v-progress-circular> <span>In progress</span>
               </div>
             </td>
-            <td class="text-md-center">{{ props.item.operationType }}</td>
+            <td class="text-md-center">{{ getOperationType(props.item.operationType) }}</td>
             <td class="text-md-center">{{ props.item.addedUsers }}</td>
             <td class="text-md-center">{{ props.item.removedUsers }}</td>
             <td class="text-md-center"> 
@@ -124,10 +124,7 @@ export default {
   created() {
     spacesAdministrationServices.getBindingReportOperations().then(data => {
       this.operations = data.groupSpaceBindingReportOperations;
-      this.operations.forEach(operation => {
-        operation.operationType = this.getOperationType(operation.operationType);
-        operation.spaceName = operation.space.displayName;
-      });
+      
     }).finally(() => this.loading = false);
   }, methods: {
     uploadCSVFile(spaceId, action, groupId, groupBindingId) {
