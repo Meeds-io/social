@@ -95,7 +95,7 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const msg = this.$refs.richEditor.getMessage();
+      const msg = this.$refs.richEditor.value;
       if(eXo.env.portal.spaceId) {
         composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
