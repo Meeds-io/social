@@ -95,10 +95,7 @@ public interface GroupSpaceBindingService {
    * @param action
    * @return
    */
-  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId,
-                                                        long groupSpaceBindingId,
-                                                        String group,
-                                                        String action);
+  List<GroupSpaceBindingReportAction> findReportsForCsv(long spaceId, long groupSpaceBindingId, String group, String action);
 
   /**
    * Gets all the GroupSpaceBindingOperations Report.
@@ -124,11 +121,13 @@ public interface GroupSpaceBindingService {
 
   /**
    * Delete a user binding. When a binding is deleted
-   *  @param userSpaceBinding The user binding to be deleted.
+   * 
+   * @param userSpaceBinding The user binding to be deleted.
    * @param bindingReportAction : the action which lead to the deletion (for the
    * @return
    */
-  GroupSpaceBindingReportUser deleteUserBinding(UserSpaceBinding userSpaceBinding, GroupSpaceBindingReportAction bindingReportAction);
+  GroupSpaceBindingReportUser deleteUserBinding(UserSpaceBinding userSpaceBinding,
+                                                GroupSpaceBindingReportAction bindingReportAction);
 
   /**
    * Delete all group bindings for a specific space. When bindings is deleted, all
@@ -244,4 +243,6 @@ public interface GroupSpaceBindingService {
   GroupSpaceBindingReportAction findGroupSpaceBindingReportAction(long bindingId, String action);
 
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
+
+  List<GroupSpaceBindingQueue> getAllFromBindingQueue();
 }

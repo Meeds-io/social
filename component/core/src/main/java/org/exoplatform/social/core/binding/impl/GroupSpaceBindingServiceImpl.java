@@ -458,4 +458,9 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     groupSpaceBindingStorage.updateGroupSpaceBindingReportAction(groupSpaceBindingReportAction);
   }
 
+  @Override
+  public List<GroupSpaceBindingQueue> getAllFromBindingQueue() {
+    return groupSpaceBindingStorage.getAllFromBindingQueue();
+  }
+
 }
