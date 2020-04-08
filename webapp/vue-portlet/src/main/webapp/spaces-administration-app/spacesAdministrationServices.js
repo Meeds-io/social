@@ -95,5 +95,5 @@ export function getBindingReportOperations() {
 }
 
 export function getReport(spaceId, action, groupId, groupBindingId) {
-  return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, {credentials: 'include'}).then(resp => resp.json());
+  window.open(`${spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, '_blank');
 }
