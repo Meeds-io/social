@@ -305,12 +305,28 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
+    // Get binding operations from the binding queue
+    List<GroupSpaceBindingQueue> bindingQueueList = groupSpaceBindingService.getAllFromBindingQueue();
+    List<GroupSpaceBindingOperationReport> allBindingOperationReports =
+                                                                      convertBindingQueueListToReportOperations(bindingQueueList);
+
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();
+    // Check if first binding is being treated
+    GroupSpaceBindingOperationReport firstOperationReport = allBindingOperationReports.get(allBindingOperationReports.size() - 1);
+    GroupSpaceBindingOperationReport lastOperationReport = bindingOperationReports.get(0);
+    if (firstOperationReport.getGroupSpaceBindingId() == lastOperationReport.getGroupSpaceBindingId()
+        && firstOperationReport.getAction() == lastOperationReport.getAction()) {
+      allBindingOperationReports.remove(firstOperationReport);
+    }
+    
+    // Add bindingOperationReports to the allBindingOperationReports
+    allBindingOperationReports.addAll(bindingOperationReports);
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     List<DataEntity> bindingOperationReportsDataEntities = new ArrayList<>();
-    for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
+    for (GroupSpaceBindingOperationReport bindingOperationReport : allBindingOperationReports) {
       GroupSpaceBindingOperationReportEntity operationReportEntity =
                                                                    EntityBuilder.buildEntityFromGroupSpaceBindingOperationReport(bindingOperationReport);
       // Set the space entity to the operation report entity.
@@ -437,6 +453,23 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       childrenDataEntities.add(childGroupNodeEntity.getDataEntity());
     }
     return childrenDataEntities;
+  }
+
+  private List<GroupSpaceBindingOperationReport> convertBindingQueueListToReportOperations(List<GroupSpaceBindingQueue> bindingQueueList) {
+    List<GroupSpaceBindingOperationReport> bindingOperationReports =
+                                                                   bindingQueueList.stream()
+                                                                                   .map(bindingQueue -> convertBindingQueueToOperationReport(bindingQueue))
+                                                                                   .collect(Collectors.toList());
+    return bindingOperationReports;
+  }
+
+  private GroupSpaceBindingOperationReport convertBindingQueueToOperationReport(GroupSpaceBindingQueue bindingQueue) {
+    GroupSpaceBindingOperationReport bindingOperationReport = new GroupSpaceBindingOperationReport();
+    bindingOperationReport.setSpaceId(Long.parseLong(bindingQueue.getGroupSpaceBinding().getSpaceId()));
+    bindingOperationReport.setGroup(bindingQueue.getGroupSpaceBinding().getGroup());
+    bindingOperationReport.setAction(bindingQueue.getAction());
+    bindingOperationReport.setGroupSpaceBindingId(bindingQueue.getGroupSpaceBinding().getId());
+    return bindingOperationReport;
   }
 
   private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportAction> reports) {
