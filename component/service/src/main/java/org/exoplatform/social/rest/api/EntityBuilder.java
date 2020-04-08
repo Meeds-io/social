@@ -843,7 +843,7 @@ public class EntityBuilder {
     operationReportEntity.setBindingId(Long.toString(bindingOperationReport.getGroupSpaceBindingId()));
     operationReportEntity.setAddedUsersCount(Long.toString(bindingOperationReport.getAddedUsers()));
     operationReportEntity.setRemovedUsersCount(Long.toString(bindingOperationReport.getRemovedUsers()));
-    DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy h:mm a");
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY HH:MM:ss");
     Date startDate = bindingOperationReport.getStartDate();
     Date endDate = bindingOperationReport.getEndDate();
     operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
