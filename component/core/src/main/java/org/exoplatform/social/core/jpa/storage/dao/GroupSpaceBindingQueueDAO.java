@@ -17,11 +17,11 @@
 
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.util.List;
+
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingQueueEntity;
-
-import java.util.List;
 
 public interface GroupSpaceBindingQueueDAO extends GenericDAO<GroupSpaceBindingQueueEntity, Long> {
 
@@ -39,4 +39,12 @@ public interface GroupSpaceBindingQueueDAO extends GenericDAO<GroupSpaceBindingQ
    * @return
    */
   List<GroupSpaceBindingEntity> getGroupSpaceBindingsFromQueueByAction(String action);
+
+  /**
+   * Gets all GroupSpaceBindingQueues in a descending order for the operation
+   * report
+   * 
+   * @return
+   */
+  List<GroupSpaceBindingQueueEntity> getAllFromBindingQueue();
 }
