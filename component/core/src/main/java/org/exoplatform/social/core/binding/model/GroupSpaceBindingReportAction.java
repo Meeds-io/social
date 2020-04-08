@@ -45,11 +45,11 @@ public class GroupSpaceBindingReportAction {
   /** The action endDate */
   private Date               endDate;
 
-  public static final String ADD_ACTION         = "New binding";
+  public static final String ADD_ACTION         = "ADD";
 
-  public static final String REMOVE_ACTION      = "Remove binding";
+  public static final String REMOVE_ACTION      = "REMOVE";
 
-  public static final String SYNCHRONIZE_ACTION = "";
+  public static final String SYNCHRONIZE_ACTION = "SYNCHRONIZE";
 
   public GroupSpaceBindingReportAction() {
   }
