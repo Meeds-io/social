@@ -31,21 +31,21 @@
         </v-layout>
       </v-card-title>
       <v-data-table
-          :headers="headers"
+        :headers="headers"
         :items="operations"
         :search="search"
         disable-sort
       >
         <template slot="item" slot-scope="props">
           <tr>
-            <td>
+            <td class="text-md-center">
               <img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" />
               <img v-else :src="avatar" class="avatar" />
               {{ props.item.space.displayName }}
             </td>
-            <td>{{ props.item.group }}</td>
-            <td>{{ props.item.startDate }}</td>
-            <td>
+            <td class="text-md-center">{{ props.item.group }}</td>
+            <td class="text-md-center">{{ props.item.startDate }}</td>
+            <td class="text-md-center">
               <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
               <div v-else class="inProgress">
                 <v-progress-circular
@@ -54,10 +54,10 @@
                 </v-progress-circular> <span>In progress</span>
               </div>
             </td>
-            <td>{{ props.item.operationType }}</td>
-            <td>{{ props.item.addedUsers }}</td>
-            <td>{{ props.item.removedUsers }}</td>
-            <td>{{ props.item.file }}</td>
+            <td class="text-md-center">{{ props.item.operationType }}</td>
+            <td class="text-md-center">{{ props.item.addedUsers }}</td>
+            <td class="text-md-center">{{ props.item.removedUsers }}</td>
+            <td class="text-md-center">{{ props.item.file }}</td>
           </tr>
         </template>
       </v-data-table>
