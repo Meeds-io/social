@@ -261,9 +261,9 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     List<GroupSpaceBindingReportUser> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
-                                                                                             Long.parseLong(groupBindingId),
-                                                                                             group,
-                                                                                             action);
+                                                                                           Long.parseLong(groupBindingId),
+                                                                                           group,
+                                                                                           action);
 
     String csvString = computeCSV(spaceId, group, action, reports);
     try {
@@ -313,13 +313,16 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();
     // Check if first binding is being treated
-    GroupSpaceBindingOperationReport firstOperationReport = allBindingOperationReports.get(allBindingOperationReports.size() - 1);
-    GroupSpaceBindingOperationReport lastOperationReport = bindingOperationReports.get(0);
-    if (firstOperationReport.getGroupSpaceBindingId() == lastOperationReport.getGroupSpaceBindingId()
-        && firstOperationReport.getAction() == lastOperationReport.getAction()) {
-      allBindingOperationReports.remove(firstOperationReport);
+    if (allBindingOperationReports.size() > 0) {
+      GroupSpaceBindingOperationReport firstOperationReport =
+                                                            allBindingOperationReports.get(allBindingOperationReports.size() - 1);
+      GroupSpaceBindingOperationReport lastOperationReport = bindingOperationReports.get(0);
+      if (firstOperationReport.getGroupSpaceBindingId() == lastOperationReport.getGroupSpaceBindingId()
+          && firstOperationReport.getAction() == lastOperationReport.getAction()) {
+        allBindingOperationReports.remove(firstOperationReport);
+      }
     }
-    
+
     // Add bindingOperationReports to the allBindingOperationReports
     allBindingOperationReports.addAll(bindingOperationReports);
 
@@ -471,6 +474,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     bindingOperationReport.setGroupSpaceBindingId(bindingQueue.getGroupSpaceBinding().getId());
     return bindingOperationReport;
   }
+
   private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportUser> reports) {
     StringBuilder sbResult = new StringBuilder();
 
