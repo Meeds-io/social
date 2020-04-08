@@ -437,6 +437,31 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(4)).createGroupSpaceBindingQueue(Mockito.any());
   
   }
+  
+  /**
+   * Test {@link GroupSpaceBindingService#saveGroupSpaceBindings(List)}
+   * *
+   * @throws Exception
+   */
+  @Test
+  public void testSaveGroupSpaceBinding() throws Exception {
+    GroupSpaceBinding binding1 = new GroupSpaceBinding();
+    binding1.setGroup("/platform/administrators");
+    binding1.setSpaceId("1");
+    
+    
+    
+    // When
+    GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
+                                                                                         groupSpaceBindingStorage,
+                                                                                         orgService,
+                                                                                         spaceService);
+    groupSpaceBindingService.saveGroupSpaceBinding(binding1);
+    
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBinding(Mockito.any());
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).saveGroupSpaceBindingReport(Mockito.any());
+    
+  }
 
   /**
    * Test

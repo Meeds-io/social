@@ -297,6 +297,13 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   @Override
   public GroupSpaceBinding saveGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding) {
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                             Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                             groupSpaceBinding.getGroup(),
+                                                                             GroupSpaceBindingReportAction.ADD_ACTION);
+    if (groupSpaceBindingStorage.findGroupSpaceBindingReportAction(report.getGroupSpaceBindingId(),report.getAction())==null) {
+      groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+    }
     return groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
   }
 
@@ -311,11 +318,17 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
       ListAccess<User> groupMembersAccess = organizationService.getUserHandler().findUsersByGroupId(groupSpaceBinding.getGroup());
       List<User> users;
       int totalGroupMembersSize = groupMembersAccess.getSize();
-      GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                                                                               Long.parseLong(groupSpaceBinding.getSpaceId()),
-                                                                               groupSpaceBinding.getGroup(),
-                                                                               GroupSpaceBindingReportAction.ADD_ACTION);
-      GroupSpaceBindingReportAction bindingReportAddAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+      GroupSpaceBindingReportAction bindingReportAddAction=
+          groupSpaceBindingStorage.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                     GroupSpaceBindingReportAction.ADD_ACTION);
+      if (bindingReportAddAction==null) {
+        GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                                 Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                                 groupSpaceBinding.getGroup(),
+                                                                                 GroupSpaceBindingReportAction.ADD_ACTION);
+        bindingReportAddAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+      }
+     
       do {
         long startBunchTime = System.currentTimeMillis();
         toBind = totalGroupMembersSize - offset;
