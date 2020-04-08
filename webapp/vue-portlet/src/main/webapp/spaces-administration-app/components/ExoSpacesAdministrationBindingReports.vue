@@ -37,38 +37,50 @@
       >
         <template slot="header" slot-scope="props">
           <tr>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.manageSpaces.space') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.group') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.start.date') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.end.date') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.operation.type') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.added.users') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.removed.users') }}
             </th>
-            <th colspan="1" class="text-xs-center">
+            <th colspan="1" class="text-md-center">
               {{ $t('social.spaces.administration.binding.reports.table.title.File') }}
             </th>
           </tr>
         </template>
         <template slot="item" slot-scope="props">
           <tr>
-            <td><img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" /> <img v-else :src="avatar" class="avatar" /> {{ props.item.space.displayName }} </td>
+            <td>
+              <img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" />
+              <img v-else :src="avatar" class="avatar" />
+              {{ props.item.space.displayName }}
+            </td>
             <td>{{ props.item.group }}</td>
             <td>{{ props.item.startDate }}</td>
-            <td>{{ props.item.endDate }}</td>
+            <td>
+              <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
+              <div v-else class="inProgress">
+                <v-progress-circular
+                  indeterminate
+                  color="primary">
+                </v-progress-circular> <span>In progress</span>
+              </div>
+            </td>
             <td>{{ props.item.operationType }}</td>
             <td>{{ props.item.addedUsers }}</td>
             <td>{{ props.item.removedUsers }}</td>
