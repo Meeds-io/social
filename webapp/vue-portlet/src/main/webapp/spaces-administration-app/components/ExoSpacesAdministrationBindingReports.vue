@@ -1,5 +1,5 @@
 <template>
-  <div id="bindingReports">
+  <div class="bindingReports">
     <div v-if="loading">
       <v-skeleton-loader
         class="mx-auto"
@@ -31,17 +31,49 @@
         </v-layout>
       </v-card-title>
       <v-data-table
-        :headers="headers"
         :items="operations"
         :search="search"
         disable-sort
       >
-        <template v-slot:item.space.displayName="{ item }">
-          <div>
-            <!--            <img v-if="getSpaceAvatar(item) != null" :src="getSpaceAvatar(item)" class="avatar" />-->
-            <!--            <img v-else :src="avatar" class="avatar" />-->
-            {{ item }}
-          </div>          
+        <template slot="header" slot-scope="props">
+          <tr>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.manageSpaces.space') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.group') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.start.date') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.end.date') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.operation.type') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.added.users') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.removed.users') }}
+            </th>
+            <th colspan="1" class="text-xs-center">
+              {{ $t('social.spaces.administration.binding.reports.table.title.File') }}
+            </th>
+          </tr>
+        </template>
+        <template slot="item" slot-scope="props">
+          <tr>
+            <td><img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" /> <img v-else :src="avatar" class="avatar" /> {{ props.item.space.displayName }} </td>
+            <td>{{ props.item.group }}</td>
+            <td>{{ props.item.startDate }}</td>
+            <td>{{ props.item.endDate }}</td>
+            <td>{{ props.item.operationType }}</td>
+            <td>{{ props.item.addedUsers }}</td>
+            <td>{{ props.item.removedUsers }}</td>
+            <td>{{ props.item.file }}</td>
+          </tr>
         </template>
       </v-data-table>
     </div>
