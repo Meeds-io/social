@@ -33,7 +33,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
         + " WHERE report.groupSpaceBindingId = :bindingId AND report.action = :action "),
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportActions", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
-        + " ORDER BY report.endDate DESC ") })
+        + " ORDER BY report.endDate DESC NULLS FIRST") })
 public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")

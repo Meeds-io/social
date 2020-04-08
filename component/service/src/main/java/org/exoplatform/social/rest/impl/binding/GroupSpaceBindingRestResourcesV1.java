@@ -306,30 +306,13 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     }
 
     // Get binding operations from the binding queue
-    List<GroupSpaceBindingQueue> bindingQueueList = groupSpaceBindingService.getAllFromBindingQueue();
-    List<GroupSpaceBindingOperationReport> allBindingOperationReports =
-                                                                      convertBindingQueueListToReportOperations(bindingQueueList);
-
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();
-    // Check if first binding is being treated
-    if (allBindingOperationReports.size() > 0) {
-      GroupSpaceBindingOperationReport firstOperationReport =
-                                                            allBindingOperationReports.get(allBindingOperationReports.size() - 1);
-      GroupSpaceBindingOperationReport lastOperationReport = bindingOperationReports.get(0);
-      if (firstOperationReport.getGroupSpaceBindingId() == lastOperationReport.getGroupSpaceBindingId()
-          && firstOperationReport.getAction() == lastOperationReport.getAction()) {
-        allBindingOperationReports.remove(firstOperationReport);
-      }
-    }
-
-    // Add bindingOperationReports to the allBindingOperationReports
-    allBindingOperationReports.addAll(bindingOperationReports);
-
+    
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     List<DataEntity> bindingOperationReportsDataEntities = new ArrayList<>();
-    for (GroupSpaceBindingOperationReport bindingOperationReport : allBindingOperationReports) {
+    for (GroupSpaceBindingOperationReport bindingOperationReport : bindingOperationReports) {
       GroupSpaceBindingOperationReportEntity operationReportEntity =
                                                                    EntityBuilder.buildEntityFromGroupSpaceBindingOperationReport(bindingOperationReport);
       // Set the space entity to the operation report entity.
