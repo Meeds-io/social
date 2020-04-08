@@ -31,38 +31,11 @@
         </v-layout>
       </v-card-title>
       <v-data-table
+          :headers="headers"
         :items="operations"
         :search="search"
         disable-sort
       >
-        <template slot="header" slot-scope="props">
-          <tr>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.manageSpaces.space') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.group') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.start.date') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.end.date') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.operation.type') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.added.users') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.removed.users') }}
-            </th>
-            <th colspan="1" class="text-md-center">
-              {{ $t('social.spaces.administration.binding.reports.table.title.File') }}
-            </th>
-          </tr>
-        </template>
         <template slot="item" slot-scope="props">
           <tr>
             <td>
@@ -111,14 +84,14 @@ export default {
       operations: [],
       spaces: [],
       headers: [
-        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center',value: 'space.displayName' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center', value: 'group' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center', value: 'startDate' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center', value: 'endDate' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`, align: 'center', value: 'operationType' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center', value: 'addedUsers' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, align: 'center', value: 'removedUsers' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, align: 'center', value: 'file' },
+        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, align: 'center' },
       ],
     };
   },
