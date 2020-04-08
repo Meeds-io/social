@@ -62,7 +62,9 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
           for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
             Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
             long startTime = System.currentTimeMillis();
-
+  
+           
+            
             // Retrieve bindingReportAction of synchronize.
             GroupSpaceBindingReportAction bindingReportAddSynchronizeAction =
                                                                             groupSpaceBindingService.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
@@ -77,10 +79,16 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
               bindingReportAddSynchronizeAction = groupSpaceBindingService.saveGroupSpaceBindingReport(report);
             }
 
+            groupSpaceBindingService.saveUserBinding(userName,
+                                                     groupSpaceBinding,
+                                                     space,
+                                                     bindingReportAddSynchronizeAction);
+  
             // Finally save the end date for the bindingReportAction.
             bindingReportAddSynchronizeAction.setEndDate(new Date());
             groupSpaceBindingService.updateGroupSpaceBindingReportAction(bindingReportAddSynchronizeAction);
 
+            
             long totalTime = System.currentTimeMillis() - startTime;
             LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
                 + "duration_ms={}",
