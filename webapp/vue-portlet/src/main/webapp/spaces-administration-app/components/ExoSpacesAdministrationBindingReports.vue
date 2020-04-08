@@ -35,7 +35,6 @@
         :headers="headers"
         :items="operations"
         :search="search"
-        item-key="operationType"
         disable-sort
       >
         <template slot="item" slot-scope="props">
@@ -101,12 +100,13 @@ export default {
   computed: {
     headers() {
       return [
-        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center', value: 'spaceName' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center', filterable: false },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center', filterable: false },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center', filterable: false },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`,
           align: 'center',
+          filterable: false,
           value: 'operationType',
           filter: value => {
             if (this.action === `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`) {
@@ -115,9 +115,9 @@ export default {
             return value.toLowerCase() === this.action.toLowerCase();
           },
         },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, align: 'center' },
-        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, align: 'center' },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center', filterable: false },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.removed.users')}`, align: 'center', filterable: false },
+        { text: `${this.$t('social.spaces.administration.binding.reports.table.title.File')}`, align: 'center', filterable: false },
       ];
     }
   },
@@ -126,6 +126,7 @@ export default {
       this.operations = data.groupSpaceBindingReportOperations;
       this.operations.forEach(operation => {
         operation.operationType = this.getOperationType(operation.operationType);
+        operation.spaceName = operation.space.displayName;
       });
     }).finally(() => this.loading = false);
   }, methods: {
