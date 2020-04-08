@@ -535,43 +535,49 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
   public void testfindGroupSpaceBindingReportsForCSV() throws Exception {
     
     //TODO
-//
-//    GroupSpaceBindingReportAction groupSpaceBindingReportAction = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
-//                                                                                              "/platform"
-//                                                                                                  + "/administrators",
-//        "user1", GroupSpaceBindingReportAction.ADD_ACTION,false);
-//
-//    groupSpaceBindingReportAction =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction);
-//
-//    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction);
-//
-//    GroupSpaceBindingReportAction groupSpaceBindingReportAction1 = this.getGroupSpaceBindingReportInstance(Long.parseLong(spaceId),1,
-//                                                                                               "/platform"
-//                                                                                                   + "/administrators",
-//                                                                                              "user2",
-//                                                                                               GroupSpaceBindingReportAction.ADD_ACTION,false);
-//
-//    groupSpaceBindingReportAction1 =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction1);
-//    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction1);
-//
-//    Space space2 = this.getSpaceInstance(2);
-//    spaceStorage.saveSpace(space2, true);
-//    space2 = spaceStorage.getSpaceByPrettyName(space2.getPrettyName());
-//
-//    GroupSpaceBindingReportAction groupSpaceBindingReportAction2 = this.getGroupSpaceBindingReportInstance(Long.parseLong(space2.getId()),2,
-//                                                                                               "/platform"
-//                                                                                                   + "/administrators",
-//                                                                                               "user2",
-//                                                                                               GroupSpaceBindingReportAction.ADD_ACTION,false);
-//
-//    groupSpaceBindingReportAction2 =groupSpaceBindingStorage.saveGroupSpaceBindingReport(groupSpaceBindingReportAction2);
-//    tearDownGroupbindingReportList.add(groupSpaceBindingReportAction2);
-//    List<String> actions = new ArrayList<>();
-//    actions.add(GroupSpaceBindingReportAction.ADD_ACTION);
-//
-//    assertEquals("findReportsForCSV("+spaceId+",1,'/platform/administrators','ADD') must return 2",2,
-//                 groupSpaceBindingStorage.findReportsForCsv(Long.parseLong(spaceId),1,"/platform/administrators",actions).size());
-//
+    GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
+    groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
+    GroupSpaceBindingReportAction createActionReport = getGroupSpaceBindingReportActionInstance(groupSpaceBinding.getId(),
+                                                                                                groupSpaceBinding.getGroup(),
+                                                                                                GroupSpaceBindingReportAction.ADD_ACTION,
+                                                                                                Long.parseLong(spaceId));
+    createActionReport=groupSpaceBindingStorage.saveGroupSpaceBindingReport(createActionReport);
+    int totalReports=5;
+    for (int i=1;i<=totalReports;i++) {
+    
+      GroupSpaceBindingReportUser reportUser = getGroupSpaceBindingReportUserInstance(GroupSpaceBindingReportUser.ACTION_ADD_USER,
+                                                                                      createActionReport,
+                                                                                      false,
+                                                                                      false, "user"+i);
+      groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(reportUser);
+    
+    }
+    
+    Space space2 = this.getSpaceInstance(2);
+    spaceStorage.saveSpace(space2, true);
+    space2 = spaceStorage.getSpaceByPrettyName(space2.getPrettyName());
+    GroupSpaceBinding groupSpaceBinding2 = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
+    groupSpaceBinding2 = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding2);
+    GroupSpaceBindingReportAction createActionReport2 = getGroupSpaceBindingReportActionInstance(groupSpaceBinding2.getId(),
+                                                                                                groupSpaceBinding2.getGroup(),
+                                                                                                GroupSpaceBindingReportAction.ADD_ACTION,
+                                                                                                Long.parseLong(space2.getId()));
+    createActionReport2=groupSpaceBindingStorage.saveGroupSpaceBindingReport(createActionReport2);
+    for (int i=1;i<=totalReports;i++) {
+    
+      GroupSpaceBindingReportUser reportUser = getGroupSpaceBindingReportUserInstance(GroupSpaceBindingReportUser.ACTION_ADD_USER,
+                                                                                      createActionReport2,
+                                                                                      false,
+                                                                                      false, "user"+i);
+      groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(reportUser);
+    
+    }
+    
+    assertEquals(totalReports,
+                 groupSpaceBindingStorage.findReportsForCsv(Long.parseLong(spaceId),groupSpaceBinding.getId(),"/platform"
+                                                                + "/administrators",
+                                                            GroupSpaceBindingReportAction.ADD_ACTION).size());
+
   }
   
   /**
