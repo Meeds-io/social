@@ -6,52 +6,78 @@
           <v-card flat class="flex suggestions-wrapper">
             <v-card-title class="suggestions-title subtitle-1 text-uppercase pb-0"> {{ $t('suggestions.label') }}</v-card-title>
             <v-list v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'" dense class="suggestions-list people-list py-4 mx-4">
-              <v-list-item v-for="(people, index) in getLastSuggestionsPeople"
-                           :key="index"
-                           :id="'people-item-'+people.suggestionId"
-                           class="suggestions-list-item suggestions-people-list-item pa-0">
-                <v-list-item-avatar size="37">
-                  <v-img :src="people.avatar"></v-img>
-                </v-list-item-avatar>
-                <v-list-item-content class="pb-3">
-                  <v-list-item-title class="body-2 font-weight-bold suggestions-list-item-title">{{ people.suggestionName }}</v-list-item-title>
-                  <v-list-item-subtitle class="caption suggestions-list-item-subtitle">{{ people.number }} {{ $t('connection.label') }}</v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action class="suggestions-list-item-actions">
-                  <v-btn-toggle class="transparent" dark>
-                    <a text icon small min-width="auto" class="px-0 suggestions-btn-action connexion-accept-btn" @click="connectionRequest(people)">
-                      <i class="uiIconInviteUser"></i>
-                    </a>
-                    <a text small min-width="auto" class="px-0 suggestions-btn-action connexion-refuse-btn" @click="ignoredConnection(currentUser, people)">
-                      <i class="uiIconCloseCircled"></i>
-                    </a>
-                  </v-btn-toggle>
-                </v-list-item-action>
-              </v-list-item>
-            
+              <transition-group name="fade" tag="div">
+                <exo-user-avatar
+                  v-for="people in peoplesToDisplay"
+                  :key="people"
+                  :username="people.username"
+                  :fullname="people.suggestionName"
+                  :size="iconSize"
+                  :avatarurl="people.avatar"
+                  class="mx-auto py-2">
+                  <template slot="subTitle">
+                    {{ people.number }} {{ $t('connection.label') }}
+                  </template>
+                  <template slot="actions">
+                    <v-btn-toggle class="transparent" dark>
+                      <a
+                        text
+                        icon
+                        small
+                        min-width="auto"
+                        class="px-0 suggestions-btn-action connexion-accept-btn"
+                        @click="connectionRequest(people)">
+                        <i class="uiIconInviteUser"></i>
+                      </a>
+                      <a
+                        text
+                        small
+                        min-width="auto"
+                        class="px-0 suggestions-btn-action connexion-refuse-btn ml-2"
+                        @click="ignoredConnection(currentUser, people)">
+                        <i class="uiIconCloseCircled tertiary-color"></i>
+                      </a>
+                    </v-btn-toggle>
+                  </template>
+                </exo-user-avatar>
+              </transition-group>
             </v-list>
             <v-list v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'" dense class="suggestions-list space-list py-4 mx-4">
-              <v-list-item v-for="(space, index) in getLastSuggestionsSpace"
-                           :key="index"
-                           class="suggestions-list-item suggestions-space-list-item pa-0">
-                <v-list-item-avatar tile size="37">
-                  <v-img :src="space.spaceAvatarUrl"></v-img>
-                </v-list-item-avatar>
-                <v-list-item-content class="pb-3">
-                  <v-list-item-title class="body-2 font-weight-bold suggestions-list-item-title">{{ space.displayName }}</v-list-item-title>
-                  <v-list-item-subtitle class="caption suggestions-list-item-subtitle">{{ space.members }} {{ $t('spacemember.Label') }}</v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action class="suggestions-list-item-actions">
-                  <v-btn-toggle class="transparent" dark>
-                    <a text icon small min-width="auto" class="px-0 suggestions-btn-action connexion-accept-btn" @click="joinSpace(space)">
-                      <i class="uiIconPlusLight"></i>
-                    </a>
-                    <a text small min-width="auto" class="px-0 suggestions-btn-action connexion-refuse-btn" @click="ignoredSuggestionSpace(space)">
-                      <i class="uiIconCloseCircled"></i>
-                    </a>
-                  </v-btn-toggle>
-                </v-list-item-action>
-              </v-list-item>
+              <transition-group name="fade" tag="div">
+                <exo-user-avatar
+                  v-for="space in spacesToDisplay"
+                  :key="space"
+                  :fullname="space.displayName"
+                  :size="iconSize"
+                  :avatarurl="space.spaceAvatarUrl"
+                  :tile="true"
+                  class="mx-auto py-2">
+                  <template slot="subTitle">
+                    {{ space.members }} {{ $t('spacemember.Label') }}
+                  </template>
+                  <template slot="actions">
+                    <v-btn-toggle class="transparent" dark>
+                      <a
+                        text
+                        icon
+                        small
+                        min-width="auto"
+                        class="px-0 suggestions-btn-action connexion-accept-btn"
+                        @click="joinSpace(space)">
+                        <i class="uiIconPlusLight"></i>
+                      </a>
+                      <a
+                        text
+                        small
+                        min-width="auto"
+                        class="px-0 suggestions-btn-action connexion-refuse-btn ml-2"
+                        @click="ignoredSuggestionSpace(space)">
+                        <i class="uiIconCloseCircled tertiary-color"></i>
+                      </a>
+                    </v-btn-toggle>
+                  </template>
+                </exo-user-avatar>
+              </transition-group>
             </v-list>
           </v-card>
         </v-flex>
@@ -76,10 +102,10 @@ export default {
     };
   },
   computed : {
-    getLastSuggestionsPeople() {
+    peoplesToDisplay() {
       return this.peopleSuggestionsList.slice(0, 2);
     },
-    getLastSuggestionsSpace() {
+    spacesToDisplay() {
       return this.spacesSuggestionsList.slice(0, 2);
     }
   },
