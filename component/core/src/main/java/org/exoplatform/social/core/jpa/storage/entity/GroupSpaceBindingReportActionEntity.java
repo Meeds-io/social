@@ -58,11 +58,11 @@ public class GroupSpaceBindingReportActionEntity implements Serializable {
   private String                                  action;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "startDATE")
+  @Column(name = "START_DATE")
   private Date                                    startDate                 = new Date();
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "endDATE")
+  @Column(name = "END_DATE")
   private Date                                    endDate;
 
   public long getId() {

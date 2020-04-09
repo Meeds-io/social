@@ -689,10 +689,10 @@
       <column name="ACTION" type="NVARCHAR(200)">
         <constraints nullable="false"/>
       </column>
-      <column name="startDATE" type="TIMESTAMP" defaultValueDate="${now}">
+      <column name="START_DATE" type="TIMESTAMP" defaultValueDate="${now}">
         <constraints nullable="false"/>
       </column>
-      <column name="endDATE" type="TIMESTAMP">
+      <column name="END_DATE" type="TIMESTAMP">
         <constraints nullable="true"/>
       </column>
     </createTable>
