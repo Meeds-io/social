@@ -25,14 +25,14 @@
           </transition>
           <div class="VuetifyApp">
             <v-app>
-              <div v-if="actionsData['file'].value.length" class="attachmentsList">
+              <div v-if="attachments.length" class="attachmentsList">
                 <v-progress-circular
                   :class="uploading ? 'uploading' : ''"
                   :indeterminate="false"
                   :value="attachmentsProgress">
                   <i class="uiIconAttach"></i>
                 </v-progress-circular>
-                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ actionsData['file'].value.length }})</div>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
               </div>
             </v-app>
           </div>
@@ -102,16 +102,16 @@ export default {
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.actionsData['file'].value.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
     },
     activityType: function() {
-      return this.actionsData['file'].value.length ? 'files:spaces' : '';
+      return this.attachments.length ? 'files:spaces' : '';
     },
     attachmentsProgress: function() {
-      return this.uploadingCount * this.percent / this.actionsData['file'].value.length;
+      return this.uploadingCount * this.percent / this.attachments.length;
     },
     uploading: function() {
-      return this.uploadingCount < this.actionsData['file'].value.length;
+      return this.uploadingCount < this.attachments.length;
     }
   },
   watch: {
@@ -129,6 +129,9 @@ export default {
         this.actionsEvents[action.key] = action.component.events;
       }
     });
+    this.$watch('actionsData.file.value', function () {
+      this.attachments = this.actionsData.file.value;
+    }, {deep:true});
   },
   methods: {
     openMessageComposer: function() {
@@ -144,12 +147,12 @@ export default {
       // be sure to get the most up to date value of the message
       const msg = this.$refs.richEditor.value;
       if(eXo.env.portal.spaceId) {
-        composerServices.postMessageInSpace(msg, this.activityType, this.actionsData['file'].value, eXo.env.portal.spaceId)
+        composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
-            this.actionsData['file'].value = [];
+            this.attachments = [];
             this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
@@ -158,12 +161,12 @@ export default {
             this.showErrorMessage = true;
           });
       } else {
-        composerServices.postMessageInUserStream(msg, this.activityType, this.actionsData['file'].value, eXo.env.portal.userName)
+        composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
             this.message = '';
-            this.actionsData['file'].value = [];
+            this.attachments = [];
             this.uploadingCount = 0;
             this.showErrorMessage = false;
           })
@@ -189,10 +192,10 @@ export default {
       if (action === 'add') {
         this.uploadingCount++;
       } else if (action === 'addExisting') {
-        this.uploadingCount = this.actionsData['file'].value
+        this.uploadingCount = this.attachments
           .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       } else if (action === 'remove' && this.uploadingCount !== 0) {
-        this.uploadingCount = this.actionsData['file'].value
+        this.uploadingCount = this.attachments
           .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       }
     }
