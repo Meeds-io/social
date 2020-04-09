@@ -118,6 +118,13 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBinding The binding to be deleted.
    */
   void deleteGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding);
+  
+  /**
+   * Prepare the group binding deletion : create the reportAction, and create the GroupBindingQueue
+   *
+   * @param groupSpaceBinding The binding to be prepared.
+   */
+  void prepareDeleteGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding);
 
   /**
    * Delete a user binding. When a binding is deleted

@@ -150,6 +150,23 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public void createGroupSpaceBindingQueue(GroupSpaceBindingQueue groupSpaceBindingsQueue) {
     groupSpaceBindingStorage.createGroupSpaceBindingQueue(groupSpaceBindingsQueue);
   }
+  
+  @Override
+  public void prepareDeleteGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding) {
+  
+    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                             Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                             groupSpaceBinding.getGroup(),
+                                                                             GroupSpaceBindingReportAction.REMOVE_ACTION);
+  
+  
+    if (groupSpaceBindingStorage.findGroupSpaceBindingReportAction(report.getGroupSpaceBindingId(),report.getAction())==null) {
+      groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+    }
+    
+    GroupSpaceBindingQueue bindingQueue = new GroupSpaceBindingQueue(groupSpaceBinding, GroupSpaceBindingQueue.ACTION_REMOVE);
+    groupSpaceBindingStorage.createGroupSpaceBindingQueue(bindingQueue);
+  }
 
   /**
    * {@inheritDoc}
@@ -160,12 +177,18 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     long startTime = System.currentTimeMillis();
     Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
 
-    GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                                                                             Long.parseLong(groupSpaceBinding.getSpaceId()),
-                                                                             groupSpaceBinding.getGroup(),
-                                                                             GroupSpaceBindingReportAction.REMOVE_ACTION);
-    GroupSpaceBindingReportAction bindingReportRemoveAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
-
+    
+    GroupSpaceBindingReportAction bindingReportRemoveAction =
+        groupSpaceBindingStorage.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                   GroupSpaceBindingReportAction.REMOVE_ACTION);
+    if (bindingReportRemoveAction==null) {
+      GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                                                                               Long.parseLong(groupSpaceBinding.getSpaceId()),
+                                                                               groupSpaceBinding.getGroup(),
+                                                                               GroupSpaceBindingReportAction.REMOVE_ACTION);
+      bindingReportRemoveAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+    }
+  
     // Call the delete user binding to also update space membership.
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
       deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);

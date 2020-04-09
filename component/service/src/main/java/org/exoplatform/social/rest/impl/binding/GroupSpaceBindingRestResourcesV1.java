@@ -214,8 +214,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     GroupSpaceBinding binding;
     binding = groupSpaceBindingService.findGroupSpaceBindingById(bindingId);
     if (binding != null) {
-      GroupSpaceBindingQueue bindingQueue = new GroupSpaceBindingQueue(binding, GroupSpaceBindingQueue.ACTION_REMOVE);
-      groupSpaceBindingService.createGroupSpaceBindingQueue(bindingQueue);
+      groupSpaceBindingService.prepareDeleteGroupSpaceBinding(binding);
     }
     return Response.ok().build();
   }
