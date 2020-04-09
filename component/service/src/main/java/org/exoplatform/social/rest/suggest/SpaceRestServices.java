@@ -2,6 +2,7 @@ package org.exoplatform.social.rest.suggest;
 
 import java.util.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.RuntimeDelegate;
@@ -22,6 +23,9 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+
+import io.swagger.annotations.*;
 
 
 @Path("/homepage/intranet/spaces/")
@@ -281,6 +285,74 @@ public class SpaceRestServices implements ResourceContainer {
             LOG.error("Error in space deny rest service: " + e.getMessage(), e);
             return Response.ok("error").cacheControl(cacheControl).build();
         }
+    }
+
+    @DELETE
+    @Path("leave/{spaceId}")
+    @RolesAllowed("users")
+    @ApiOperation(value = "A user leaves a space", httpMethod = "POST", response = Response.class, notes = "This can only be done by the logged in user.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Request fulfilled"),
+        @ApiResponse(code = 500, message = "Internal server error"),
+        @ApiResponse(code = 404, message = "Space not found") })
+    public Response leave(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
+                          @Context SecurityContext sc,
+                          @Context UriInfo uriInfo) {
+      try {
+        String userId = getUserId(sc, uriInfo);
+        if (userId == null) {
+          return Response.status(HTTPStatus.INTERNAL_ERROR).build();
+        }
+  
+        SpaceService spaceService = container.getComponentInstanceOfType(SpaceService.class);
+        Space space = spaceService.getSpaceById(spaceId);
+        if (space == null) {
+          return Response.status(HTTPStatus.NOT_FOUND).build();
+        }
+  
+        if (spaceService.isMember(space, userId)) {
+          spaceService.removeMember(space, userId);
+        }
+  
+        return Response.ok().build();
+      } catch (Exception e) {
+        LOG.error("Error in space deny rest service: " + e.getMessage(), e);
+        return Response.ok("error").cacheControl(cacheControl).build();
+      }
+    }
+
+    @DELETE
+    @Path("cancel/{spaceId}")
+    @RolesAllowed("users")
+    @ApiOperation(value = "A user cancels his request to join a space", httpMethod = "POST", response = Response.class, notes = "This can only be done by the logged in user.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Request fulfilled"),
+        @ApiResponse(code = 500, message = "Internal server error"),
+        @ApiResponse(code = 404, message = "Space not found") })
+    public Response cancel(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
+                          @Context SecurityContext sc,
+                          @Context UriInfo uriInfo) {
+      try {
+        String userId = getUserId(sc, uriInfo);
+        if (userId == null) {
+          return Response.status(HTTPStatus.INTERNAL_ERROR).build();
+        }
+
+        SpaceService spaceService = container.getComponentInstanceOfType(SpaceService.class);
+        Space space = spaceService.getSpaceById(spaceId);
+        if (space == null) {
+          return Response.status(HTTPStatus.NOT_FOUND).build();
+        }
+
+        if (spaceService.isPendingUser(space, userId)) {
+          spaceService.removePendingUser(space, userId);
+        }
+
+        return Response.ok().build();
+      } catch (Exception e) {
+        LOG.error("Error in space deny rest service: " + e.getMessage(), e);
+        return Response.ok("error").cacheControl(cacheControl).build();
+      }
     }
 
     @GET

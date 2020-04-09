@@ -351,15 +351,27 @@ public class LinkProvider {
     }
 
     if(providerId.equals(OrganizationIdentityProvider.NAME)) {
-      return new StringBuilder("/").append(CommonsUtils.getRestContextName()).append(BASE_URL_SOCIAL_REST_API).append("/users")
-              .append("/").append(username)
-              .append("/").append(type)
-              .toString();
-    } else if(providerId.equals(SpaceIdentityProvider.NAME)) {
-      return new StringBuilder("/").append(CommonsUtils.getRestContextName()).append(BASE_URL_SOCIAL_REST_API).append("/spaces")
-              .append("/").append(username)
-              .append("/").append(type)
-              .toString();
+      return new StringBuilder("/").append(PortalContainer.getCurrentPortalContainerName())
+                                   .append("/")
+                                   .append(CommonsUtils.getRestContextName())
+                                   .append(BASE_URL_SOCIAL_REST_API)
+                                   .append("/users")
+                                   .append("/")
+                                   .append(username)
+                                   .append("/")
+                                   .append(type)
+                                   .toString();
+    } else if (providerId.equals(SpaceIdentityProvider.NAME)) {
+      return new StringBuilder("/").append(PortalContainer.getCurrentPortalContainerName())
+                                   .append("/")
+                                   .append(CommonsUtils.getRestContextName())
+                                   .append(BASE_URL_SOCIAL_REST_API)
+                                   .append("/spaces")
+                                   .append("/")
+                                   .append(username)
+                                   .append("/")
+                                   .append(type)
+                                   .toString();
     }
     return null;
   }

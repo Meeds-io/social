@@ -5,6 +5,7 @@ let config = {
   // set the entry point of the application
   // can use multiple entry
   entry: {
+    commonVueComponents: './src/main/webapp/common/main.js',
     spacesAdministration: './src/main/webapp/spaces-administration-app/main.js',
     spaceTemplates: './src/main/webapp/space-templates-app/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
@@ -12,6 +13,7 @@ let config = {
     topBarLogo: './src/main/webapp/logo-top-bar/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
+    spacesList: './src/main/webapp/spaces-list/main.js',
   },
   module: {
     rules: [

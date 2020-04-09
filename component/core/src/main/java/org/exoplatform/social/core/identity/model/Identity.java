@@ -49,6 +49,9 @@ public class Identity implements Cloneable {
   /** The global id. */
   GlobalId globalId;
 
+  public Identity() {
+  }
+
   /**
    * Instantiates a new identity.
    *

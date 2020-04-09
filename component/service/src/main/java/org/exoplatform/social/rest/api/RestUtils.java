@@ -32,6 +32,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ISO8601;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
@@ -141,7 +142,11 @@ public class RestUtils {
    * @return base rest url like : https://localhost:8080/rest
    */
   public static String getBaseRestUrl() {
-    return new StringBuffer(getBaseUrl()).append("/").append(CommonsUtils.getRestContextName()).toString();
+    return new StringBuffer(getBaseUrl()).append("/")
+                                         .append(PortalContainer.getCurrentPortalContainerName())
+                                         .append("/")
+                                         .append(CommonsUtils.getRestContextName())
+                                         .toString();
   }
 
   /** 
