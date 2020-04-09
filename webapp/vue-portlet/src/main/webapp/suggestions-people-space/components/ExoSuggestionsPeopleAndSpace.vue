@@ -126,20 +126,32 @@ export default {
       });
     },
     connectionRequest(item) {
-      suggestionsServices.sendConnectionRequest(item.suggestionId);
-      this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
+      suggestionsServices.sendConnectionRequest(item.suggestionId).then(
+        ()=> {
+          this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
+        }
+      );
     },
     ignoredConnection(sender, receiverItem) {
-      suggestionsServices.ignoredSuggestionConnection(sender, receiverItem.username);
-      this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
+      suggestionsServices.ignoredSuggestionConnection(sender, receiverItem.username).then(
+        () => {
+          this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
+        }
+      );
     },
     joinSpace(item) {
-      suggestionsServices.joinSpace(item.spaceId);
-      this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+      suggestionsServices.joinSpace(item.spaceId).then(
+        () => {
+          this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+        }
+      );
     },
     ignoredSuggestionSpace(item) {
-      suggestionsServices.ignoredSuggestionSpace(item);
-      this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+      suggestionsServices.ignoredSuggestionSpace(item).then(
+        () => {
+          this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+        }
+      );
     },
   },
 };
