@@ -65,7 +65,7 @@ export function updateSpacesAdministrationSetting(key, value) {
   });
 }
 
-export function saveGroupsSpaceBindings(spaceId, groupNames, callback) {
+export function saveGroupsSpaceBindings(spaceId, groupNames) {
   return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/saveGroupsSpaceBindings/${spaceId}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -73,17 +73,17 @@ export function saveGroupsSpaceBindings(spaceId, groupNames, callback) {
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify(groupNames)
-  }).then(callback());
+  });
 }
 
 export function getGroupSpaceBindings(spaceId) {
   return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/${spaceId}`, {credentials: 'include'}).then(resp => resp.json());
 }
 
-export function removeBinding(bindingId,callback) {
+export function removeBinding(bindingId) {
   return fetch(`${spacesConstants.SPACE_GROUP_BINDING_API}/removeGroupSpaceBinding/${bindingId}`, {
     credentials: 'include',
-    method: 'delete'}).then(callback());
+    method: 'delete'});
 }
 
 export function getGroupsTree() {
