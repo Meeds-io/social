@@ -17,22 +17,19 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 
 public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Long> implements SpaceMemberDAO {
 
@@ -205,4 +202,38 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
       return null;
     }
   }
+
+  @Override
+  public List<Tuple> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
+    if (offset < 0) {
+      throw new IllegalArgumentException("offset must be positive");
+    }
+    if (limit <= 0) {
+      throw new IllegalArgumentException("limit must be > 0");
+    }
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceMember.getPendingSpaceRequestsToManage",
+                                                                              Tuple.class);
+    query.setParameter("userId", username);
+    query.setParameter("status", Status.PENDING);
+    query.setParameter("user_status", Status.MANAGER);
+
+    query.setFirstResult(offset);
+    query.setMaxResults(limit);
+
+    try {
+      return query.getResultList();
+    } catch (NoResultException ex) {
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public int countPendingSpaceRequestsToManage(String username) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.countPendingSpaceRequestsToManage", Long.class);
+    query.setParameter("userId", username);
+    query.setParameter("status", Status.PENDING);
+    query.setParameter("user_status", Status.MANAGER);
+    return query.getSingleResult().intValue();
+  }
+
 }
