@@ -827,7 +827,8 @@ public class EntityBuilder {
   public static GroupNodeEntity buildEntityFromGroup(Group group) {
     GroupNodeEntity groupNodeEntity = new GroupNodeEntity();
     groupNodeEntity.setId(group.getId());
-    groupNodeEntity.setGroupName(group.getGroupName());
+    String groupName = group.getLabel() != null ? group.getLabel() : group.getGroupName();
+    groupNodeEntity.setGroupName(groupName);
     String parentId = group.getParentId() == null ? "root" : group.getParentId();
     groupNodeEntity.setParentId(parentId);
     groupNodeEntity.setChildGroupNodesEntities(new ArrayList<>());
@@ -840,7 +841,7 @@ public class EntityBuilder {
    * @param group the group name
    * @return the groupNodeEntity rest object
    */
-  public static GroupNodeEntity buildEntityFromGroupName(String group) {
+  public static GroupNodeEntity buildEntityFromGroupId(String group) {
     GroupNodeEntity groupNodeEntity = new GroupNodeEntity();
     groupNodeEntity.setId(group);
     groupNodeEntity.setGroupName(group);
