@@ -339,7 +339,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
     return EntityBuilder.getResponse(collectionBindingReports, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
-  public List<DataEntity> buildGroupTree() throws Exception {
+  private List<DataEntity> buildGroupTree() throws Exception {
     OrganizationService organizationService = CommonsUtils.getOrganizationService();
     Collection<Group> allGroups = organizationService.getGroupHandler().getAllGroups();
     // get rid of space groups

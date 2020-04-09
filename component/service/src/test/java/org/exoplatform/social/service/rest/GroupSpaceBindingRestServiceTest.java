@@ -114,6 +114,40 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
 
     endSession();
   }
+  @Test
+  public void testGetBindingReportOperations() throws Exception {
+    
+    // Given
+    startSessionAs("root");
+    spaceId1 = createSpace("space1", "").getId();
+    // Given
+    List<GroupSpaceBinding> groupSpaceBindings = new LinkedList<>();
+    GroupSpaceBinding binding1 = new GroupSpaceBinding();
+    binding1.setGroup("/platform/administrators");
+    binding1.setSpaceId(spaceId1);
+    groupSpaceBindings.add(binding1);
+    tearDownbindingList.add(binding1);
+    
+    GroupSpaceBinding binding2 = new GroupSpaceBinding();
+    binding2.setGroup("/platform/web-contributors");
+    binding2.setSpaceId(spaceId1);
+    groupSpaceBindings.add(binding2);
+    tearDownbindingList.add(binding2);
+    
+    GroupSpaceBinding binding3 = new GroupSpaceBinding();
+    binding3.setGroup("/platform/web-contributors");
+    binding3.setSpaceId(spaceId1);
+    groupSpaceBindings.add(binding3);
+    tearDownbindingList.add(binding3);
+    groupSpaceBindings.stream().forEach(groupSpaceBinding -> groupSpaceBindingService.saveGroupSpaceBinding(groupSpaceBinding));
+    // when
+    ContainerResponse response = service("GET", getURLResource("spaceGroupBindings/getBindingReportOperations"), "", null, null);
+    // then
+    assertEquals(200, response.getStatus());
+    
+    endSession();
+  }
+  
 
   @Test
   public void testDeleteSpaceBinding() throws Exception {
