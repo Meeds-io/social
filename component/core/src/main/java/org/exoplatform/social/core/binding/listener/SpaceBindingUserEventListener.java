@@ -44,6 +44,7 @@ public class SpaceBindingUserEventListener extends UserEventListener {
     RequestLifeCycle.begin(PortalContainer.getInstance());
     try {
       groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+      spaceService = CommonsUtils.getService(SpaceService.class);
       // Get all user bindings.
       List<UserSpaceBinding> userSpaceBindings = groupSpaceBindingService.findUserBindingsByUser(user.getUserName());
       // Remove all user's bindings.
