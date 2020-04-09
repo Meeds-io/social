@@ -138,3 +138,37 @@ export function deny(spaceId) {
     }
   });
 }
+
+export function getSuggestionsSpace(){
+  return fetch('/portal/rest/homepage/intranet/spaces/suggestions', {
+    credentials: 'include'
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function ignoreSuggestion(item) {
+  const data = {'user': item.username,'space': item.displayName, 'status':'IGNORED'};
+  return fetch('/portal/rest/v1/social/spacesMemberships/', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
+}

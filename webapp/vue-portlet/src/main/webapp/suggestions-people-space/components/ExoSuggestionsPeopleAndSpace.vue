@@ -33,7 +33,7 @@
                         small
                         min-width="auto"
                         class="px-0 suggestions-btn-action connexion-refuse-btn ml-2"
-                        @click="ignoredConnection(currentUser, people)">
+                        @click="ignoredConnectionUser(currentUser, people)">
                         <i class="uiIconCloseCircled tertiary-color"></i>
                       </a>
                     </v-btn-toggle>
@@ -85,7 +85,8 @@
   </v-app>
 </template>
 <script>
-import * as suggestionsServices from '../suggestionsServices.js';
+import * as userService from '../../common/js/UserService.js';
+import * as spaceService from '../../common/js/SpaceService.js';
 export default {
   props: {
     suggestionsType: {
@@ -115,39 +116,39 @@ export default {
   },
   methods : {
     initPeopleSuggestionsList() {
-      suggestionsServices.getPeopleSuggestions().then(data => {
+      userService.getSuggestionsUsers().then(data => {
         this.peopleSuggestionsList = data.items;
         this.currentUser = data.username;
       });
     },
     initSpaceSuggestionsList() {
-      suggestionsServices.getSpaceSuggestions().then(data => {
+      spaceService.getSuggestionsSpace().then(data => {
         this.spacesSuggestionsList = data.items;
       });
     },
     connectionRequest(item) {
-      suggestionsServices.sendConnectionRequest(item.suggestionId).then(
+      userService.sendConnectionRequest(item.suggestionId).then(
         ()=> {
           this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
         }
       );
     },
-    ignoredConnection(sender, receiverItem) {
-      suggestionsServices.ignoredSuggestionConnection(sender, receiverItem.username).then(
+    ignoredConnectionUser(sender, receiverItem) {
+      userService.ignoreSuggestion(sender, receiverItem.username).then(
         () => {
           this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
         }
       );
     },
     joinSpace(item) {
-      suggestionsServices.joinSpace(item.spaceId).then(
+      spaceService.requestJoin(item.spaceId).then(
         () => {
           this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
         }
       );
     },
     ignoredSuggestionSpace(item) {
-      suggestionsServices.ignoredSuggestionSpace(item).then(
+      spaceService.ignoreSuggestion(item).then(
         () => {
           this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
         }
