@@ -106,13 +106,19 @@ export default {
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center', filterable: false },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.operation.type')}`,
           align: 'center',
-          filterable: false,
+          filterable: true,
           value: 'operationType',
           filter: value => {
+            console.log(this.action);
+            console.log(this.getOperationType(this.action));
+            console.log(value.toLowerCase());
+            console.log(this.getOperationType(this.action).toLowerCase());
+            console.log(`${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`);
+
             if (this.action === `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`) {
               return true;
             }
-            return value.toLowerCase() === this.action.toLowerCase();
+            return this.getOperationType(value).toLowerCase() === this.action.toLowerCase();
           },
         },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.added.users')}`, align: 'center', filterable: false },
@@ -124,7 +130,6 @@ export default {
   created() {
     spacesAdministrationServices.getBindingReportOperations().then(data => {
       this.operations = data.groupSpaceBindingReportOperations;
-      
     }).finally(() => this.loading = false);
   }, methods: {
     uploadCSVFile(spaceId, action, groupId, groupBindingId) {
