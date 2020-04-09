@@ -100,7 +100,7 @@ export default {
   computed: {
     headers() {
       return [
-        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center', value: 'spaceName' },
+        { text: `${this.$t('social.spaces.administration.manageSpaces.space')}`, align: 'center', value: 'space.displayName' },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.group')}`, align: 'center', filterable: false },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.start.date')}`, align: 'center', filterable: false },
         { text: `${this.$t('social.spaces.administration.binding.reports.table.title.end.date')}`, align: 'center', filterable: false },
