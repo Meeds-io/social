@@ -33,7 +33,7 @@
                         small
                         min-width="auto"
                         class="px-0 suggestions-btn-action connexion-refuse-btn ml-2"
-                        @click="ignoredConnectionUser(currentUser, people)">
+                        @click="ignoredConnectionUser(people)">
                         <i class="uiIconCloseCircled tertiary-color"></i>
                       </a>
                     </v-btn-toggle>
@@ -133,8 +133,8 @@ export default {
         }
       );
     },
-    ignoredConnectionUser(sender, receiverItem) {
-      userService.ignoreSuggestion(sender, receiverItem.username).then(
+    ignoredConnectionUser(receiverItem) {
+      userService.ignoreSuggestion(receiverItem.username).then(
         () => {
           this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
         }
