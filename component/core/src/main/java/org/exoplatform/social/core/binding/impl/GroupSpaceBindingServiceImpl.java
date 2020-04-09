@@ -192,8 +192,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
 
   /**
    * {@inheritDoc}
-   * 
-   * @return
+   *
    */
   @Override
   public void deleteUserBinding(UserSpaceBinding userSpaceBinding,

@@ -124,7 +124,6 @@ public interface GroupSpaceBindingService {
    * 
    * @param userSpaceBinding The user binding to be deleted.
    * @param bindingReportAction : the action which lead to the deletion (for the
-   * @return
    */
   void deleteUserBinding(UserSpaceBinding userSpaceBinding, GroupSpaceBindingReportAction bindingReportAction);
 
@@ -230,7 +229,6 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBinding
    * @param space
    * @param bindingReportAction
-   * @return
    */
   void saveUserBinding(String userId,
                        GroupSpaceBinding groupSpaceBinding,
