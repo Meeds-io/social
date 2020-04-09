@@ -290,11 +290,11 @@ export default {
       this.showConfirmMessageRemoveBindingModal = false;
     },
     confirmBinding() {
-      spacesAdministrationServices.saveGroupsSpaceBindings(this.spaceToBind.id, this.groupsToBind, this.goToBindingReports);
+      spacesAdministrationServices.saveGroupsSpaceBindings(this.spaceToBind.id, this.groupsToBind).finally(() => this.goToBindingReports());
       this.showConfirmMessageBindingModal = false;
     },
     confirmRemoveBinding() {
-      spacesAdministrationServices.removeBinding(this.binding.id,this.goToBindingReports);
+      spacesAdministrationServices.removeBinding(this.binding.id).finally(() => this.goToBindingReports());
       this.showConfirmMessageRemoveBindingModal = false;
     },
     goToBindingReports() {

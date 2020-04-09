@@ -109,12 +109,6 @@ export default {
           filterable: true,
           value: 'operationType',
           filter: value => {
-            console.log(this.action);
-            console.log(this.getOperationType(this.action));
-            console.log(value.toLowerCase());
-            console.log(this.getOperationType(this.action).toLowerCase());
-            console.log(`${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`);
-
             if (this.action === `${this.$t('social.spaces.administration.binding.reports.filter.all.bindings')}`) {
               return true;
             }
