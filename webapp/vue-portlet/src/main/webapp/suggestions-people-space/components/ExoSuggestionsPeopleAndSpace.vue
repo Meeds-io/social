@@ -12,7 +12,8 @@
                   :key="people"
                   :username="people.username"
                   :fullname="people.suggestionName"
-                  :avatarurl="people.avatar"
+                  :avatar-url="people.avatar"
+                  bold-title
                   class="mx-auto py-2">
                   <template slot="subTitle">
                     {{ people.number }} {{ $t('connection.label') }}
@@ -47,9 +48,10 @@
                   v-for="space in spacesToDisplay"
                   :key="space"
                   :fullname="space.displayName"
-                  :avatarurl="space.spaceAvatarUrl"
+                  :avatar-url="space.spaceAvatarUrl"
                   :tile="true"
                   :url="spaceBaseUrl+space.spaceUrl"
+                  bold-title
                   class="mx-auto py-2">
                   <template slot="subTitle">
                     {{ space.members }} {{ $t('spacemember.Label') }}
