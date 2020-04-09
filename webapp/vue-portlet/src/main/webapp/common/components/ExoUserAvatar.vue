@@ -1,15 +1,25 @@
 <template>
-  <a
-    :id="id"
-    :href="url"
-    class="flex-nowrap flex-shrink-0">
-    <v-avatar :size="size">
-      <img :src="avatarUrl" />
-    </v-avatar>
-    <span v-if="fullname" class="text-truncate subtitle-1 text-color ml-2">
-      {{ fullname }}
-    </span>
-  </a>
+  <div class="flex-nowrap d-flex flex-shrink-0 align-center">
+    <a
+      :id="id"
+      :href="url"
+      class="flex-nowrap d-flex flex-shrink-0 align-center">
+      <v-avatar :size="size" :tile="tile">
+        <img :src="avatarurl" />
+      </v-avatar>
+    </a>
+    <div v-if="fullname || subtitle" class="d-flex flex-wrap flex-grow-1 flex-shrink-1 ml-2 text-left">
+      <p v-if="fullname" class=" mb-0 exo-avatar-item-title">
+        <a :href="url" class="text-truncate body-2 font-weight-bold text-color">{{ fullname }}</a>
+      </p>
+      <p v-if="$slots.subTitle " class="caption text-sub-title mb-0 exo-avatar-item-subtitle">
+        <slot name="subTitle"></slot>
+      </p>
+    </div>
+    <template v-if="$slots.actions">
+      <slot name="actions"></slot>
+    </template>
+  </div>
 </template>
 
 <script>
@@ -34,10 +44,26 @@ export default {
       // eslint-disable-next-line no-magic-numbers
       default: () => 37,
     },
+    tile: {
+      type: Boolean,
+      default: () => false,
+    },
     tiptipPosition: {
       type: String,
       default: function() {
         return null;
+      },
+    },
+    avatarurl: {
+      type: String,
+      default: function() {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
+      },
+    },
+    url: {
+      type: String,
+      default: function() {
+        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       },
     },
   },
@@ -58,12 +84,6 @@ export default {
         RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
         StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
       };
-    },
-    avatarUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
-    },
-    url() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
     },
   },
   watch: {
