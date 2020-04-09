@@ -60,6 +60,12 @@ export default {
         return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
       },
     },
+    url: {
+      type: String,
+      default: function() {
+        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
+      },
+    },
   },
   data() {
     return {
@@ -78,9 +84,6 @@ export default {
         RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
         StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
       };
-    },
-    url() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
     },
   },
   watch: {

@@ -12,7 +12,6 @@
                   :key="people"
                   :username="people.username"
                   :fullname="people.suggestionName"
-                  :size="iconSize"
                   :avatarurl="people.avatar"
                   class="mx-auto py-2">
                   <template slot="subTitle">
@@ -48,9 +47,9 @@
                   v-for="space in spacesToDisplay"
                   :key="space"
                   :fullname="space.displayName"
-                  :size="iconSize"
                   :avatarurl="space.spaceAvatarUrl"
                   :tile="true"
+                  :url="spaceBaseUrl+space.spaceUrl"
                   class="mx-auto py-2">
                   <template slot="subTitle">
                     {{ space.members }} {{ $t('spacemember.Label') }}
@@ -98,7 +97,8 @@ export default {
     return {
       peopleSuggestionsList: [],
       spacesSuggestionsList: [],
-      currentUser: ''
+      currentUser: '',
+      spaceBaseUrl: `${eXo.env.portal.context}/g/:spaces:`
     };
   },
   computed : {
