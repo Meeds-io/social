@@ -4,14 +4,14 @@
       :id="id"
       :href="url"
       class="flex-nowrap flex-shrink-0 d-flex">
-       <v-avatar :size="size" class="pull-left my-auto">
+      <v-avatar :size="size" class="pull-left my-auto">
         <img :src="avatarUrl" :tile="tile" />
-       </v-avatar>
+      </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ml-2">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
           {{ fullname }}
         </p>
-        <p v-if="$slots.subTitle"  class="text-sub-title my-0">
+        <p v-if="$slots.subTitle" class="text-sub-title my-0">
           <slot name="subTitle"></slot>
         </p>
       </div>
