@@ -1,13 +1,44 @@
 export function getPeopleSuggestions() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/suggestions`,{credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/suggestions`,{
+    credentials: 'include'
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
 }
 
 export function getSpaceSuggestions(){
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/suggestions`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/suggestions`, {
+    credentials: 'include'
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
 }
 
 export function sendConnectionRequest(userID) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/connect/${userID}`, null);
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/connect/${userID}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
 }
 
 export function ignoredSuggestionConnection(sender, receiver) {
@@ -19,11 +50,30 @@ export function ignoredSuggestionConnection(sender, receiver) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
   });
 }
 
 export function joinSpace(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/request/${spaceId}`, null);
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/request/${spaceId}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
 }
 
 export function ignoredSuggestionSpace(item) {
@@ -35,5 +85,13 @@ export function ignoredSuggestionSpace(item) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
   });
 }
