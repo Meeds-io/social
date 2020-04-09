@@ -320,8 +320,8 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
       // Set group entity to the operation report entity
       OrganizationService organizationService = CommonsUtils.getOrganizationService();
       Group group = organizationService.getGroupHandler().findGroupById(bindingOperationReport.getGroup());
-      GroupNodeEntity groupNodeEntity = group!=null ? EntityBuilder.buildEntityFromGroup(group) :
-                                        EntityBuilder.buildEntityFromGroupName(bindingOperationReport.getGroup());
+      GroupNodeEntity groupNodeEntity = group != null ? EntityBuilder.buildEntityFromGroup(group)
+                                                      : EntityBuilder.buildEntityFromGroupId(bindingOperationReport.getGroup());
       operationReportEntity.setGroup(groupNodeEntity.getDataEntity());
 
       // Set the space entity to the operation report entity.
