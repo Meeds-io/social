@@ -11,7 +11,7 @@ export function getActivityComposerExtensions() {
 
 export function executeExtensionAction(extension, component) {
   if(extension.hasOwnProperty('onExecute') && isFunction(extension.onExecute)) {
-    extension.onExecute(component[0]);
+    extension.onExecute(component);
   }
 }
 

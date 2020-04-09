@@ -49,7 +49,7 @@
                 </div>
               </div>
               <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
-                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
+                         v-show="showMessageComposer" v-bind="action.component.props"
                          v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
@@ -68,13 +68,16 @@ export default {
   directives: {
     DynamicEvents: {
       bind: function (el, binding, vnode) {
+        const  compName = vnode.componentOptions.tag;
+        vnode.context.actionsComp[compName] = vnode.componentInstance;
         const allEvents = binding.value;
         if (allEvents) {
           allEvents.forEach((event) => {
             // register handler in the dynamic component
-            vnode.componentInstance.$on(event.event, () => {
+            vnode.componentInstance.$on(event.event, (eventData) => {
+              const param = eventData ? eventData : event.listenerParam;
               // when the event is fired, the eventListener function is going to be called
-              vnode.context[event.listener](event.listenerParam);
+              vnode.context[event.listener](param);
             });
           });
         }
@@ -96,7 +99,8 @@ export default {
       uploadingCount: 0,
       percent: 100,
       actionsData: [],
-      actionsEvents: []
+      actionsEvents: [],
+      actionsComp: []
     };
   },
   computed: {
@@ -129,9 +133,6 @@ export default {
         this.actionsEvents[action.key] = action.component.events;
       }
     });
-    this.$watch('actionsData.file.value', function () {
-      this.attachments = this.actionsData.file.value;
-    }, {deep:true});
   },
   methods: {
     openMessageComposer: function() {
@@ -186,7 +187,7 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      executeExtensionAction(action, this.$refs[action.key]);
+      executeExtensionAction(action, this.actionsComp[action.component.name]);
     },
     setUploadingCount: function(action) {
       if (action === 'add') {
@@ -198,6 +199,9 @@ export default {
         this.uploadingCount = this.attachments
           .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       }
+    },
+    updateAttachments(attachments) {
+      this.attachments = attachments;
     }
   }
 };
