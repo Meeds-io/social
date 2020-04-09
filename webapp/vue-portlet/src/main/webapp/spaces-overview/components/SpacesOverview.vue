@@ -28,7 +28,6 @@
           @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))" />
       </v-card>
     </v-card>
-
     <spaces-overview-drawer ref="spacesDrawer" />
   </v-app>    
 </template>

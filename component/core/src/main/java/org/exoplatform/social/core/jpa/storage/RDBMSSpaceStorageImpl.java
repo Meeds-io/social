@@ -18,6 +18,9 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.persistence.Tuple;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -40,7 +43,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
-import org.exoplatform.social.core.storage.exception.NodeNotFoundException;
 
 public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
@@ -522,6 +524,39 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       member.setLastAccess(new Date());
     }
     spaceMemberDAO.update(member);
+  }
+
+  @Override
+  public List<Space> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
+    List<Tuple> spaceRequestsToManage = spaceMemberDAO.getPendingSpaceRequestsToManage(username, offset, limit);
+    if (spaceRequestsToManage == null || spaceRequestsToManage.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Map<String, List<String>> pendingSpaceRequestsToManage = new HashMap<>();
+    for (Tuple tuple : spaceRequestsToManage) {
+      String spaceId = tuple.get(1).toString();
+      String pendingUserId = tuple.get(0).toString();
+
+      List<String> spacePendingUsers = null;
+      if (pendingSpaceRequestsToManage.containsKey(spaceId)) {
+        spacePendingUsers = pendingSpaceRequestsToManage.get(spaceId);
+      } else {
+        spacePendingUsers = new ArrayList<>();
+        pendingSpaceRequestsToManage.put(spaceId, spacePendingUsers);
+      }
+      spacePendingUsers.add(pendingUserId);
+    }
+    return pendingSpaceRequestsToManage.entrySet().stream().map(entry -> {
+      Space space = new Space();
+      space.setId(entry.getKey());
+      space.setPendingUsers(entry.getValue().toArray(new String[0]));
+      return space;
+    }).collect(Collectors.toList());
+  }
+
+  @Override
+  public int countPendingSpaceRequestsToManage(String username) {
+    return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {

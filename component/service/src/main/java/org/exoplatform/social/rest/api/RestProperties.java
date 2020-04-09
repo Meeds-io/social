@@ -33,6 +33,7 @@ public class RestProperties {
   public static final String IS_CURRENT    = "isCurrent";
   public static final String MANAGERS      = "managers";
   public static final String MEMBERS       = "members";
+  public static final String PENDING       = "pending";
   public static final String PHONE_NUMBER  = "phoneNumber";
   public static final String PHONE_TYPE    = "phoneType";
   public static final String POSITION      = "position";

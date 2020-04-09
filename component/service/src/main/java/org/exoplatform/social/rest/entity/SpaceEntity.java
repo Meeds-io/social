@@ -195,6 +195,15 @@ public class SpaceEntity extends BaseEntity {
     return getString("members");
   }
 
+  public SpaceEntity setPending(LinkEntity pending) {
+    setProperty("pending", pending.getData());
+    return this;
+  }
+
+  public String getPending() {
+    return getString("pending");
+  }
+
   public SpaceEntity setMembersCount(int membersCount) {
     setProperty("membersCount", membersCount);
     return this;

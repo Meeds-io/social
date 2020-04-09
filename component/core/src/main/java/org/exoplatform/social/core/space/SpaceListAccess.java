@@ -18,6 +18,7 @@ package org.exoplatform.social.core.space;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.common.ListAccessValidator;
@@ -81,6 +82,8 @@ public class SpaceListAccess implements ListAccess<Space> {
     UNIFIED_SEARCH,
     /** Provides SpaceNavigation to get the lastest spaces accessed */
     LASTEST_ACCESSED,
+    /** Provides Relationship of Users requesting to join a Space  */
+    PENDING_REQUESTS,
     /** Gets the spaces which are visited at least once */
     VISITED
   }
@@ -193,6 +196,7 @@ public class SpaceListAccess implements ListAccess<Space> {
       case VISIBLE: return spaceStorage.getVisibleSpacesCount(this.userId, this.spaceFilter);
       case UNIFIED_SEARCH: return spaceStorage.getUnifiedSearchSpacesCount(this.userId, this.spaceFilter);
       case LASTEST_ACCESSED: return spaceStorage.getLastAccessedSpaceCount(this.spaceFilter);
+      case PENDING_REQUESTS: return spaceStorage.countPendingSpaceRequestsToManage(userId);
       default: return 0;
     }
   }
@@ -246,6 +250,16 @@ public class SpaceListAccess implements ListAccess<Space> {
         break;
       case VISITED: listSpaces = spaceStorage.getVisitedSpaces(this.spaceFilter, offset, limit);
         break;
+      case PENDING_REQUESTS: {
+        // The computing of spaces content is done here to use cached spaceStorage to retrieve contents
+        List<Space> pendingSpaceRequestsToManage = spaceStorage.getPendingSpaceRequestsToManage(userId, offset, limit);
+        listSpaces = pendingSpaceRequestsToManage.stream().map(space -> {
+          Space storedSpace = spaceStorage.getSpaceById(space.getId());
+          storedSpace.setPendingUsers(space.getPendingUsers());
+          return storedSpace;
+        }).collect(Collectors.toList());
+      }
+      break;
     }
     return listSpaces.toArray(new Space[listSpaces.size()]);
   }

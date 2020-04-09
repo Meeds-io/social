@@ -70,8 +70,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   private static final String SPACE_FILTER_TYPE_MANAGER = "manager";
 
   private static final String SPACE_FILTER_TYPE_PENDING = "pending";
-  
+
   private static final String SPACE_FILTER_TYPE_INVITED = "invited";
+
+  private static final String SPACE_FILTER_TYPE_REQUESTS = "requests";
 
   private IdentityManager identityManager;
   private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
@@ -140,6 +142,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       listAccess = spaceService.getPendingSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_INVITED, filterType)) {
       listAccess = spaceService.getInvitedSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_REQUESTS, filterType)) {
+      listAccess = spaceService.getPendingSpaceRequestsToManage(authenticatedUser);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }

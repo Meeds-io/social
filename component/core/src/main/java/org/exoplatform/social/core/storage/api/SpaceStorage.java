@@ -17,11 +17,14 @@
 
 package org.exoplatform.social.core.storage.api;
 
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -682,4 +685,22 @@ public interface SpaceStorage {
    */
   public List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
 
+  /**
+   * @param username username used to retrieve user spaces
+   * @return the count of users requested to join spaces that user manages
+   */
+  default int countPendingSpaceRequestsToManage(String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param username username used to retrieve user spaces
+   * @param offset offset of the query
+   * @param limit limit of the query
+   * @return {@link List} of {@link Space} with pending users requesting to
+   *         join spaces that the designated user manages
+   */
+  default List<Space> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
 }

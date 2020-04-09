@@ -16,17 +16,13 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import java.util.List;
+
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
-import org.exoplatform.social.core.space.SpaceException;
-import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceListAccess;
-import org.exoplatform.social.core.space.SpaceListenerPlugin;
+import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
-
-import java.util.List;
 
 /**
  * Provides methods to work with Space.
@@ -1449,6 +1445,20 @@ public interface SpaceService {
    *          to invite
    */
   default void inviteIdentities(Space space, List<Identity> identitiesToInvite) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves the list of pending 'requests to join' a space that the user
+   * manages
+   * 
+   * @param remoteId
+   * @param offset
+   * @param limit
+   * @return {@link ListAccess} of {@link Space} with pending users requesting to
+   *         join spaces that the designated user manages
+   */
+  default ListAccess<Space> getPendingSpaceRequestsToManage(String remoteId) {
     throw new UnsupportedOperationException();
   }
 
