@@ -257,6 +257,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                          userSpaceBinding.getUser(),
                                                                          GroupSpaceBindingReportUser.ACTION_REMOVE_USER);
     report.setStillInSpace(isStillPresent);
+    report.setWasPresentBefore(userSpaceBinding.isMemberBefore());
     groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(report);
   }
 

@@ -46,6 +46,7 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
@@ -479,17 +480,25 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
     reports.stream().forEach(groupSpaceBindingReport -> {
       sbResult.append(groupSpaceBindingReport.getUsername() + ",");
-      if (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER)
-          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace())) {
+      
+      if (!groupSpaceBindingReport.getGroupSpaceBindingReportAction().getAction().equals(GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION)  &&
+          (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER)
+          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace()))) {
+        //if the current global action is not synchronize and
         // if the action is "remove", and the user present in the
         // space before, then, he was not removed
         // if the action is "remove", and the user is still present
         // in the space
         // so, display nothing for the action in the report
+        
+        
         sbResult.append(",");
       } else {
         // else, display the action
-
+  
+        //if the current global action is synchronize, we display the action in all cases, even if user was present before
+        //because in this case, he is removed
+        
         sbResult.append(groupSpaceBindingReport.getAction() + ",");
       }
       sbResult.append(groupSpaceBindingReport.getDate() + ",");
