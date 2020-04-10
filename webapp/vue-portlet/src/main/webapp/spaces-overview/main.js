@@ -24,7 +24,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.social.SpacesOverview-${lang}.json`;
 
-const appId = 'spacesOverview';
+const appId = 'SpacesOverview';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {

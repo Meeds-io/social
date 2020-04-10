@@ -18,7 +18,6 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
@@ -532,26 +531,14 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     if (spaceRequestsToManage == null || spaceRequestsToManage.isEmpty()) {
       return Collections.emptyList();
     }
-    Map<String, List<String>> pendingSpaceRequestsToManage = new HashMap<>();
+    List<Space> spaces = new ArrayList<>();
     for (Tuple tuple : spaceRequestsToManage) {
-      String spaceId = tuple.get(1).toString();
-      String pendingUserId = tuple.get(0).toString();
-
-      List<String> spacePendingUsers = null;
-      if (pendingSpaceRequestsToManage.containsKey(spaceId)) {
-        spacePendingUsers = pendingSpaceRequestsToManage.get(spaceId);
-      } else {
-        spacePendingUsers = new ArrayList<>();
-        pendingSpaceRequestsToManage.put(spaceId, spacePendingUsers);
-      }
-      spacePendingUsers.add(pendingUserId);
-    }
-    return pendingSpaceRequestsToManage.entrySet().stream().map(entry -> {
       Space space = new Space();
-      space.setId(entry.getKey());
-      space.setPendingUsers(entry.getValue().toArray(new String[0]));
-      return space;
-    }).collect(Collectors.toList());
+      space.setId(tuple.get(1).toString());
+      space.setPendingUsers(new String[]{tuple.get(0).toString()});
+      spaces.add(space);
+    }
+    return spaces;
   }
 
   @Override

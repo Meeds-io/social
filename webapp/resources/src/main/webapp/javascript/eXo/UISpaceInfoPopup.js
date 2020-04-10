@@ -246,8 +246,10 @@
                                             var rolesArray = {
                                               roles: []
                                             };
-                                            for (var i = 0; i < membership.spacesMemberships.length; i++) {
-                                              rolesArray.roles.push(membership.spacesMemberships[i].role);
+                                            if (membership) {
+                                              for (var i = 0; i < membership.spacesMemberships.length; i++) {
+                                                rolesArray.roles.push(membership.spacesMemberships[i].role);
+                                              }
                                             }
 
                                             if(!spaceData.avatarUrl){

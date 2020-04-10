@@ -72,8 +72,6 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
 
     /**
      * @param username username used to retrieve user spaces
-     * @param offset offset of the query
-     * @param limit limit of the query
      * @return the count of users requested to join spaces that user manages
      */
     int countPendingSpaceRequestsToManage(String username);

@@ -98,7 +98,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaces(@Context UriInfo uriInfo,
                             @Context Request request,
                             @ApiParam(value = "Space name search information", required = false) @QueryParam("q") String q,
-                            @ApiParam(value = "Type of spaces to retrieve: all, userSpaces, invited, pending", defaultValue = SPACE_FILTER_TYPE_ALL, required = false) @QueryParam("filterType") String filterType,
+                            @ApiParam(value = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests", defaultValue = SPACE_FILTER_TYPE_ALL, required = false) @QueryParam("filterType") String filterType,
                             @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                             @ApiParam(value = "Limit, if equals to 0, it will not retrieve spaces", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
