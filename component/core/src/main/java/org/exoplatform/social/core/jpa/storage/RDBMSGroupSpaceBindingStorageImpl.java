@@ -121,7 +121,12 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @ExoTransactional
   public UserSpaceBinding saveUserBinding(UserSpaceBinding userSpaceBinding) throws GroupSpaceBindingStorageException {
-    UserSpaceBindingEntity entity=userSpaceBindingDAO.create(buildEntityUserBindingFrom(userSpaceBinding));
+    UserSpaceBindingEntity entity=
+        userSpaceBindingDAO.findUserBindingByGroupBindingIdAndUsername(userSpaceBinding.getGroupBinding().getId(),
+                                                                    userSpaceBinding.getUser());
+    if (entity==null) {
+      entity = userSpaceBindingDAO.create(buildEntityUserBindingFrom(userSpaceBinding));
+    }
     return fillUserBindingFromEntity(entity);
   }
 

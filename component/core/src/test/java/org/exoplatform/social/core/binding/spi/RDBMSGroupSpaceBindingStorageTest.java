@@ -246,12 +246,12 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
     groupSpaceBinding=groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john"+i, groupSpaceBinding);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
-    assertEquals("groupSpaceBindingStorage.findUserSpaceBindingsBySpace(" + spaceId + ",'john') must return: " + totalBindings,
-                 totalBindings,
-                 groupSpaceBindingStorage.findUserSpaceBindingsBySpace(spaceId, "john").size());
+    assertEquals("groupSpaceBindingStorage.findUserSpaceBindingsBySpace(" + spaceId + ",'john') must return: 1",
+                 1,
+                 groupSpaceBindingStorage.findUserSpaceBindingsBySpace(spaceId, "john1").size());
   }
 
   /**
@@ -420,12 +420,12 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     groupSpaceBinding1=groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding1);
 
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john"+i, groupSpaceBinding);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
   
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding1);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john"+i, groupSpaceBinding1);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
   
@@ -450,16 +450,16 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     groupSpaceBinding1=groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding1);
 
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john"+i, groupSpaceBinding);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
     assertEquals("findUserAllBindingsbyGroupMembership('/platform/administrators','Any') must return: " + totalBindings,
-                 totalBindings,
-                 groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/administrators", "john").size());
+                 1,
+                 groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/administrators", "john1").size());
 
     assertEquals("findUserAllBindingsbyGroupMembership('/platform/administrators','Any') must return: " + 0,
                  0,
-                 groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/users", "john").size());
+                 groupSpaceBindingStorage.findUserSpaceBindingsByGroup("/platform/users", "john1").size());
   }
   
   /**
@@ -515,14 +515,14 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
     groupSpaceBinding = groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john"+i, groupSpaceBinding);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
     for (int i = 1; i <= totalBindings; i++) {
-      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("mary", groupSpaceBinding);
+      UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("mary"+i, groupSpaceBinding);
       groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     }
-    assertEquals(totalBindings,groupSpaceBindingStorage.findUserSpaceBindingsByUser("john").size());
+    assertEquals(1,groupSpaceBindingStorage.findUserSpaceBindingsByUser("john1").size());
   }
   /**
    * Test
@@ -578,6 +578,26 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                                                                 + "/administrators",
                                                             GroupSpaceBindingReportAction.ADD_ACTION).size());
 
+  }
+  
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#saveUserBinding(UserSpaceBinding)} ()}
+   *
+   *
+   * @throws Exception
+   **/
+  public void testSaveSameUserBinding() {
+  
+    GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
+    groupSpaceBinding=groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
+    UserSpaceBinding userSpaceBinding = this.getUserBindingInstance("john", groupSpaceBinding);
+    userSpaceBinding = groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
+    UserSpaceBinding userSpaceBinding2 = this.getUserBindingInstance("john", groupSpaceBinding);
+    userSpaceBinding2=groupSpaceBindingStorage.saveUserBinding(userSpaceBinding2);
+    assertEquals(1,groupSpaceBindingStorage.findUserSpaceBindingsBySpace(spaceId, "john").size());
+    assertTrue(userSpaceBinding.getId()==userSpaceBinding2.getId());
+    
   }
   
   /**
