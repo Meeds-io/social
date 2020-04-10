@@ -8,19 +8,14 @@
     <template slot="content">
       <v-layout column class="ma-3">
         <template v-if="spaces && spaces.length" class="ma-0 border-box-sizing">
-          <v-flex
-            v-for="space in spaces"
-            :key="space.id"
-            class="flex-grow-1 text-truncate ma-1">
-            <exo-space-avatar :space="space">
-              <template slot="subTitle">
-                {{ $t('subtitle.members', {0: space.membersCount}) }}
-              </template>
-            </exo-space-avatar>
-          </v-flex>
+          <spaces-overview-spaces-list
+            :spaces="spaces"
+            :filter="filter"
+            @refresh="searchSpaces()"
+            @edit="editSpace" />
         </template>
         <template v-else>
-          <span class="ma-auto">{{ $t('label.noSpaces') }}</span>
+          <span class="ma-auto">{{ $t('spacesOverview.label.noResults') }}</span>
         </template>
         <v-card-actions class="flex-grow-1 justify-center my-2">
           <v-spacer />
@@ -30,7 +25,7 @@
             :disabled="loadingSpaces"
             class="loadMoreButton ma-auto btn"
             @click="loadNextPage">
-            {{ $t('label.showMore') }}
+            {{ $t('spacesOverview.label.showMore') }}
           </v-btn>
           <v-spacer />
         </v-card-actions>
@@ -57,14 +52,16 @@ export default {
     },
   },
   methods: {
-    searchSpaces() {
-      if (!this.filter) {
-        return;
-      }
+    searchSpaces(filter) {
+      this.$emit('refresh');
+
       this.loadingSpaces = true;
-      return spaceService.getSpaces(null, this.offset, this.limit, this.filter)
+      return spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
+          if (filter) {
+            this.filter = filter;
+          }
           return this.$nextTick();
         })
         .finally(() => this.loadingSpaces = false);
@@ -73,11 +70,14 @@ export default {
       this.limit += this.pageSize;
       this.searchSpaces();
     },
+    editSpace(space) {
+      document.dispatchEvent(new CustomEvent('meeds.social.editSpace', {'detail': {'data' : space}}));
+      this.$refs.overviewDrawer.close();
+    },
     open(filter, title) {
       this.title = title;
-      this.filter = filter;
       this.limit = this.pageSize;
-      this.searchSpaces();
+      this.searchSpaces(filter);
       this.$refs.overviewDrawer.open();
     },
   }

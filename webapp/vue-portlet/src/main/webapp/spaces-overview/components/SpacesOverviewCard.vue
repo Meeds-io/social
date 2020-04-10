@@ -1,8 +1,9 @@
 <template>
   <div
     :id="id"
-    class="spacesOverviewCard clickable d-flex flex-column"
-    @click="$emit('click')">
+    :class="count && 'clickable'"
+    class="spacesOverviewCard d-flex flex-column"
+    @click="count && $emit('click')">
     <v-flex class="ma-auto" flat>
       <div class="spacesOverviewCount text-center pb-1">
         {{ count }}

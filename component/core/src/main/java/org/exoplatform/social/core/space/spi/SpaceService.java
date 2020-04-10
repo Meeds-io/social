@@ -1453,8 +1453,6 @@ public interface SpaceService {
    * manages
    * 
    * @param remoteId
-   * @param offset
-   * @param limit
    * @return {@link ListAccess} of {@link Space} with pending users requesting to
    *         join spaces that the designated user manages
    */

@@ -1306,7 +1306,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotNull(listAccess);
     assertEquals(2, listAccess.getSize());
 
-    assertEquals(1, listAccess.load(0, 10).length);
+    assertEquals(2, listAccess.load(0, 10).length);
     Space[] pendingSpaceRequestsToManage = listAccess.load(0, 1);
     assertEquals(1, pendingSpaceRequestsToManage.length);
     Space spaceToManage = pendingSpaceRequestsToManage[0];
@@ -1314,12 +1314,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(1, pendingUsers.length);
 
     pendingSpaceRequestsToManage = listAccess.load(0, 10);
-    assertEquals(1, pendingSpaceRequestsToManage.length);
-    spaceToManage = pendingSpaceRequestsToManage[0];
-    pendingUsers = spaceToManage.getPendingUsers();
-    assertEquals(2, pendingUsers.length);
-    List<String> pendingUsersList = Arrays.asList(pendingUsers);
-    assertTrue(pendingUsersList.contains("paul") && pendingUsersList.contains("james"));
+    assertEquals(2, pendingSpaceRequestsToManage.length);
+    boolean hasPaul = pendingSpaceRequestsToManage[0].getPendingUsers()[0].equals("paul") || pendingSpaceRequestsToManage[1].getPendingUsers()[0].equals("paul");
+    boolean hasJames = pendingSpaceRequestsToManage[0].getPendingUsers()[0].equals("james") || pendingSpaceRequestsToManage[1].getPendingUsers()[0].equals("james");
+    assertTrue(hasJames && hasPaul);
   }
 
   /**
