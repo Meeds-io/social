@@ -526,6 +526,23 @@
           <show-info-bar>false</show-info-bar>
           <show-application-state>true</show-application-state>
         </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>social-vue-portlet</application-ref>
+            <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
+            <preferences>
+              <preference>
+                <name>suggestionsType</name>
+                <value>space</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Suggestions peoples and spaces</title>
+          <access-permissions>*:/platform/users</access-permissions>
+          <show-info-bar>false</show-info-bar>
+          <show-application-state>false</show-application-state>
+          <show-application-mode>false</show-application-mode>
+        </portlet-application>
       </container>
     </container>
   </page>
@@ -567,6 +584,23 @@
           <access-permissions>*:/platform/users</access-permissions>
           <show-info-bar>false</show-info-bar>
           <show-application-state>true</show-application-state>
+        </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>social-vue-portlet</application-ref>
+            <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
+            <preferences>
+              <preference>
+                <name>suggestionsType</name>
+                <value>space</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Suggestions peoples and spaces</title>
+          <access-permissions>*:/platform/users</access-permissions>
+          <show-info-bar>false</show-info-bar>
+          <show-application-state>false</show-application-state>
+          <show-application-mode>false</show-application-mode>
         </portlet-application>
       </container>
     </container>
