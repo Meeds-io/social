@@ -1,9 +1,7 @@
 <template>
   <exo-drawer ref="managersDrawer" right>
     <template slot="title">
-      <span class="subtitle-2 font-weight-bold text-truncate">
-        {{ $t('spacesList.title.managers') }}
-      </span>
+      {{ $t('spacesList.title.managers') }}
     </template>
     <template v-if="space && space.managers" slot="content">
       <v-layout column class="ma-3">

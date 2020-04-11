@@ -6,9 +6,7 @@
     @opened="stepper = 1"
     @closed="stepper = 0">
     <template slot="title">
-      <span class="subtitle-2 font-weight-bold text-truncate">
-        {{ title }}
-      </span>
+      {{ title }}
     </template>
     <template slot="content">
       <div></div>

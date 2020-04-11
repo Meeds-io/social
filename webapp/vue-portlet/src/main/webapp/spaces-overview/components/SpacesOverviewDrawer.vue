@@ -1,9 +1,7 @@
 <template>
   <exo-drawer ref="overviewDrawer" right>
     <template slot="title">
-      <span class="subtitle-2 font-weight-bold text-truncate">
-        {{ title }}
-      </span>
+      {{ title }}
     </template>
     <template slot="content">
       <v-layout column class="ma-3">
@@ -55,6 +53,7 @@ export default {
     searchSpaces(filter) {
       this.$emit('refresh');
 
+      this.spaces = [];
       this.loadingSpaces = true;
       return spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
         .then(data => {
