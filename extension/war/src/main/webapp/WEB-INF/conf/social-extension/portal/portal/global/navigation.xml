@@ -28,7 +28,7 @@
     <node>
       <name>spaces</name>
       <label>#{portal.global.spaces}</label>
-      <page-reference>portal::global::spaces</page-reference>
+      <page-reference>portal::global::all-spaces</page-reference>
     </node>
 
     <node>
