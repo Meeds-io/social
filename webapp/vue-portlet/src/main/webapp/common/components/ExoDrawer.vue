@@ -17,7 +17,7 @@
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
             <v-list-item class="pr-0">
-              <v-list-item-content class="drawerTitle align-start text-truncate">
+              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end">
@@ -26,7 +26,7 @@
               </v-list-item-action>
             </v-list-item>
           </v-flex>
-          <v-divider class="my-1" />
+          <v-divider class="my-0" />
         </template>
         <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
