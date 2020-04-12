@@ -93,7 +93,7 @@ export default {
   props: {
     suggestionsType: {
       type: String,
-      default: null,
+      default: 'all',
     },
   },
   data () {
@@ -105,6 +105,12 @@ export default {
     };
   },
   computed : {
+    displayPeopleSuggestions() {
+      return !this.suggestionsType || this.suggestionsType === 'all' || this.suggestionsType === 'user';
+    },
+    displaySpacesSuggestions() {
+      return !this.suggestionsType || this.suggestionsType === 'all' || this.suggestionsType === 'space';
+    },
     peoplesToDisplay() {
       return this.peopleSuggestionsList.slice(0, 2);
     },
@@ -113,8 +119,12 @@ export default {
     }
   },
   created() {
-    this.initPeopleSuggestionsList();
-    this.initSpaceSuggestionsList();
+    if (this.displayPeopleSuggestions) {
+      this.initPeopleSuggestionsList();
+    }
+    if (this.displaySpacesSuggestions) {
+      this.initSpaceSuggestionsList();
+    }
   },
   methods : {
     initPeopleSuggestionsList() {
