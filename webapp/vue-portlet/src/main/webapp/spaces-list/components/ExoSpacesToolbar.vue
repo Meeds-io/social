@@ -42,7 +42,12 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-icon class="d-sm-none" @click="openBottomMenu">fa-filter</v-icon>
+    <v-icon
+      :class="skeleton && 'skeleton-text'"
+      class="d-sm-none"
+      @click="openBottomMenu">
+      fa-filter
+    </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
         <v-toolbar color="primary" dark class="border-box-sizing">

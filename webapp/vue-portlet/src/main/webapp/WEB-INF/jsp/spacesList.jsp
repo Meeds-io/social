@@ -40,7 +40,7 @@
                   <div
                     class="v-input__icon v-input__icon--prepend-inner">
                     <i aria-hidden="true"
-                      class="v-icon notranslate v-icon--disabled fa fa-filter theme--light"></i>
+                      class="v-icon notranslate fa fa-filter theme--light"></i>
                   </div>
                 </div>
                 <div class="v-text-field__slot">
@@ -60,7 +60,7 @@
               value="all">All spaces</option>
             <option value="member">My spaces</option></select>
           <button type="button"
-            class="v-icon notranslate d-sm-none v-icon--link fa fa-filter theme--light"></button>
+            class="v-icon notranslate d-sm-none v-icon--link fa fa-filter skeleton-text theme--light"></button>
           <div role="dialog" class="v-dialog__container pa-0">
             <!---->
           </div>
