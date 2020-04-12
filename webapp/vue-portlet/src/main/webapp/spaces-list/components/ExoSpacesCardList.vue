@@ -22,22 +22,29 @@
           </v-row>
           <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
             <div class="ma-auto noSpacesYet">
-              <p class="noSpacesYetIcons">
-                <v-icon>fa-chevron-left</v-icon>
-                <v-icon>fa-chevron-right</v-icon>
-              </p>
-              <p class="title font-weight-bold">
-                {{ $t('spacesOverview.label.noSpacesYet') }}
-              </p>
-              <div>
-                {{ $t('spacesOverview.label.noSpacesYetDescription1') }}
-              </div>
-              <span>
-                {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
-                <v-btn link text class="primary--text pl-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
-                  {{ $t('spacesOverview.label.noSpacesLink') }}
-                </v-btn>
-              </span>
+              <template v-if="hasSpaces">
+                <p class="title font-weight-bold">
+                  {{ $t('spacesOverview.label.noResults') }}
+                </p>
+              </template>
+              <template v-else>
+                <p class="noSpacesYetIcons">
+                  <v-icon>fa-chevron-left</v-icon>
+                  <v-icon>fa-chevron-right</v-icon>
+                </p>
+                <p class="title font-weight-bold">
+                  {{ $t('spacesOverview.label.noSpacesYet') }}
+                </p>
+                <div>
+                  {{ $t('spacesOverview.label.noSpacesYetDescription1') }}
+                </div>
+                <span>
+                  {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
+                  <v-btn link text class="primary--text pl-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
+                    {{ $t('spacesOverview.label.noSpacesLink') }}
+                  </v-btn>
+                </span>
+              </template>
             </div>
           </div>
         </v-container>
@@ -89,6 +96,7 @@ export default {
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
+    hasSpaces: false,
     offset: 0,
     pageSize: 20,
     limit: 20,
@@ -148,10 +156,12 @@ export default {
     },
     searchSpaces() {
       this.loadingSpaces = true;
+      this.loadingSpaces = true;
       return spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;
+          this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
           this.$emit('loaded', this.spacesSize);
           return this.$nextTick();
         })
