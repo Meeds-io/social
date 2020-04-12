@@ -6,6 +6,7 @@
           :id="spacesInvitationOverview"
           :title="$t('spacesOverview.label.invitations')"
           :count="invitations"
+          :class="invitations === '-' && 'text-sub-title'"
           @click="$refs.spacesDrawer.open('invited', $t('spacesOverview.label.invitations'))"
           @refresh="refresh()" />
         <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
@@ -13,6 +14,7 @@
           :id="spacesRequestsSentOverview"
           :title="$t('spacesOverview.label.sentRequests')"
           :count="sentRequests"
+          :class="sentRequests === '-' && 'text-sub-title'"
           @click="$refs.spacesDrawer.open('pending', $t('spacesOverview.label.sentPendingRequests'))"
           @refresh="refresh()" />
       </v-card>
@@ -22,6 +24,7 @@
           :id="spacesRequestsReceivedOverview"
           :title="$t('spacesOverview.label.receivedRequests')"
           :count="receivedRequests"
+          :class="receivedRequests === '-' && 'text-sub-title'"
           @click="$refs.spacesDrawer.open('requests', $t('spacesOverview.label.receivedRequests'))"
           @refresh="refresh()" />
         <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
@@ -29,6 +32,7 @@
           :id="spacesManagingOverview"
           :title="$t('spacesOverview.label.managing')"
           :count="managing"
+          :class="managing === '-' && 'text-sub-title'"
           @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))"
           @refresh="refresh()" />
       </v-card>
@@ -42,10 +46,10 @@ import * as spaceService from '../../common/js/SpaceService.js';
 
 export default {
   data: () => ({
-    invitations: 0,
-    sentRequests: 0,
-    receivedRequests: 0,
-    managing: 0,
+    invitations: '-',
+    sentRequests: '-',
+    receivedRequests: '-',
+    managing: '-',
   }),
   created() {
     this.refresh();

@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    :class="count && 'clickable'"
+    :class="clickable"
     class="spacesOverviewCard d-flex flex-column"
     @click="count && $emit('click')">
     <v-flex class="ma-auto" flat>
@@ -29,6 +29,11 @@ export default {
     count: {
       type: Number,
       default: () => 0,
+    },
+  },
+  computed: {
+    clickable() {
+      return this.count && this.count !== '-' && 'clickable';
     },
   },
 };
