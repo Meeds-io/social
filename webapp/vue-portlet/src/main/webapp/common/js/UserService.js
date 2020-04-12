@@ -32,6 +32,7 @@ export function ignoreSuggestion(receiver) {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify(data),
   }).then(resp => {
     if (!resp || !resp.ok) {
