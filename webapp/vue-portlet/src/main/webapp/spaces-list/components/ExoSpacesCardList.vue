@@ -3,7 +3,16 @@
     <v-card-text id="spacesListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
-          <v-row v-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
+          <v-row v-if="firstLoadingSpaces" class="ma-0 border-box-sizing">
+            <exo-space-card
+              v-for="i in pageSize"
+              :key="i"
+              :space="{}"
+              :skeleton="firstLoadingSpaces"
+              :profile-action-extensions="profileActionExtensions"
+              @refresh="searchSpaces" />
+          </v-row>
+          <v-row v-else-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
             <exo-space-card
               v-for="space in filteredSpaces"
               :key="space.id"
@@ -11,7 +20,7 @@
               :profile-action-extensions="profileActionExtensions"
               @refresh="searchSpaces" />
           </v-row>
-          <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
+          <div v-else-if="loadingSpaces" class="d-flex subtitle-1">
             <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
           </div>
         </v-container>
@@ -49,8 +58,12 @@ export default {
       default: null,
     },
     loadingSpaces: {
-      type: String,
-      default: null,
+      type: Boolean,
+      default: false,
+    },
+    firstLoadingSpaces: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -58,6 +71,7 @@ export default {
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
+    firstLoadingSpaces: true,
     offset: 0,
     pageSize: 20,
     limit: 20,
@@ -104,9 +118,6 @@ export default {
     filter() {
       this.searchSpaces();
     },
-    spacesSize() {
-      this.$emit('spaces-size-changed', this.spacesSize);
-    },
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
@@ -124,6 +135,7 @@ export default {
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;
+          this.$emit('loaded', this.spacesSize);
           return this.$nextTick();
         })
         .then(() => {
