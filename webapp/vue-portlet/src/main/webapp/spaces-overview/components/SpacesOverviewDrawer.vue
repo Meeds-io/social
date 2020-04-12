@@ -1,5 +1,8 @@
 <template>
-  <exo-drawer ref="overviewDrawer" right>
+  <exo-drawer
+    ref="overviewDrawer"
+    body-classes="hide-scroll decrease-z-index-more"
+    right>
     <template slot="title">
       {{ title }}
     </template>
