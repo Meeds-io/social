@@ -10,7 +10,7 @@
     <div class="spaceToolbarIcons px-2">
       <v-btn
         :disabled="skeleton"
-        :class="skeleton && 'grey lighten-3'"
+        :class="skeleton && 'skeleton-background skeleton-text'"
         icon
         small
         class="spaceInfoIcon d-none d-sm-flex"
@@ -22,7 +22,7 @@
         <v-btn
           v-if="space.canEdit"
           :disabled="skeleton"
-          :class="skeleton && 'grey lighten-3'"
+          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="spaceActionIcon d-block d-sm-none"
@@ -31,7 +31,7 @@
         </v-btn>
         <v-btn
           :disabled="skeleton"
-          :class="skeleton && 'grey lighten-3'"
+          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="spaceMenuIcon d-none d-sm-block"
@@ -79,7 +79,7 @@
       <a :href="url">
         <v-img
           :src="!skeleton && spaceAvatarUrl || ''"
-          :class="skeleton && 'grey lighten-3'"
+          :class="skeleton && 'skeleton-background'"
           class="mx-auto"
           height="75px"
           width="75px"
@@ -199,6 +199,7 @@
         :title="$t('spacesList.label.closedSpace')"
         class="joinSpaceDisabledLabel">
         <v-btn
+          :class="skeleton && 'skeleton-background skeleton-text'"
           disabled
           class="btn mx-auto joinSpaceButton"
           depressed
