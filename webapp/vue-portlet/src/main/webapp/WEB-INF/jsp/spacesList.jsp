@@ -1,9 +1,10 @@
-<% 
+
+<%
   Object filter = request.getAttribute("filter");
   if (filter == null) {
     filter = "";
   } else {
-    filter = ((String[])filter)[0];
+    filter = ((String[]) filter)[0];
   }
 %>
 <div class="VuetifyApp">
@@ -11,9 +12,9 @@
     class="v-application transparent v-application--is-ltr theme--light"
     id="spacesListApplication" flat="">
     <script type="text/javascript">
-        require(['PORTLET/social-vue-portlet/SpacesList'],
-            app => app.init('<%=filter%>')
-        );
+      require(['PORTLET/social-vue-portlet/SpacesList'],
+          app => app.init('<%=filter%>')
+      );
     </script>
     <div class="v-application--wrap">
       <header
@@ -22,18 +23,17 @@
         <div class="v-toolbar__content" style="height: 64px;">
           <div class="v-toolbar__title">
             <button type="button" disabled="disabled"
-              class="btn btn-primary px-8 addNewSpaceButton v-btn v-btn--contained v-btn--disabled theme--light v-size--default">
-              <span class="v-btn__content"><i aria-hidden="true"
-                class="v-icon notranslate mdi mdi-plus theme--dark"></i>
-              <span class="d-none d-sm-inline"></span></span>
+              class="btn pr-2 pl-0 addNewSpaceButton v-btn v-btn--contained v-btn--disabled theme--light v-size--default skeleton-text skeleton-background">
+              <span class="v-btn__content"><span class="mx-2"></span>
+                <span class="d-none d-sm-inline"> Add space </span></span>
             </button>
           </div>
-          <div class="text-sub-title ml-3 d-none d-sm-flex">
-            &nbsp;
-          </div>
+          <div
+            class="text-sub-title ml-3 d-none d-sm-flex skeleton-text skeleton-background skeleton-border-radius">
+            Showing X Spaces</div>
           <div class="spacer"></div>
           <div
-            class="v-input inputSpacesFilter pa-0 mr-3 my-auto v-input--is-disabled theme--light v-text-field v-text-field--is-booted v-text-field--placeholder">
+            class="v-input inputSpacesFilter pa-0 mr-3 my-auto v-input--is-disabled theme--light v-text-field v-text-field--is-booted v-text-field--placeholder skeleton-text">
             <div class="v-input__control">
               <div class="v-input__slot">
                 <div class="v-input__prepend-inner">
@@ -44,7 +44,8 @@
                   </div>
                 </div>
                 <div class="v-text-field__slot">
-                  <input disabled="disabled" id="input-85" type="text">
+                  <input disabled="disabled" id="input-117"
+                    placeholder="&amp;nbsp;" type="text">
                 </div>
               </div>
               <div class="v-text-field__details">
@@ -55,10 +56,11 @@
             </div>
           </div>
           <select disabled="disabled"
-            class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline px-10">
-            <option value="all">&nbsp;</option>
-            <option value="member">&nbsp;</option></select>
-          <button type="button" class="v-icon notranslate d-sm-none v-icon--link fa fa-filter theme--light"></button>
+            class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline skeleton-background skeleton-text"><option
+              value="all">All spaces</option>
+            <option value="member">My spaces</option></select>
+          <button type="button"
+            class="v-icon notranslate d-sm-none v-icon--link fa fa-filter theme--light"></button>
           <div role="dialog" class="v-dialog__container pa-0">
             <!---->
           </div>
@@ -81,7 +83,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -90,7 +92,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -100,7 +102,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -121,7 +123,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -131,6 +133,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -144,7 +147,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -153,7 +156,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -163,7 +166,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -184,7 +187,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -194,6 +197,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -207,7 +211,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -216,7 +220,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -226,7 +230,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -247,7 +251,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -257,6 +261,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -270,7 +275,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -279,7 +284,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -289,7 +294,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -310,7 +315,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -320,6 +325,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -333,7 +339,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -342,7 +348,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -352,7 +358,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -373,7 +379,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -383,6 +389,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -396,7 +403,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -405,7 +412,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -415,7 +422,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -436,7 +443,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -446,6 +453,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -459,7 +467,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -468,7 +476,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -478,7 +486,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -499,7 +507,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -509,6 +517,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -522,7 +531,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -531,7 +540,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -541,7 +550,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -562,7 +571,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -572,6 +581,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -585,7 +595,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -594,7 +604,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -604,7 +614,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -625,7 +635,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -635,6 +645,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -648,7 +659,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -657,7 +668,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -667,7 +678,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -688,7 +699,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -698,6 +709,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -711,7 +723,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -720,7 +732,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -730,7 +742,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -751,7 +763,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -761,6 +773,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -774,7 +787,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -783,7 +796,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -793,7 +806,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -814,7 +827,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -824,6 +837,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -837,7 +851,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -846,7 +860,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -856,7 +870,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -877,7 +891,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -887,6 +901,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -900,7 +915,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -909,7 +924,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -919,7 +934,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -940,7 +955,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -950,6 +965,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -963,7 +979,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -972,7 +988,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -982,7 +998,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1003,7 +1019,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1013,6 +1029,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -1026,7 +1043,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -1035,7 +1052,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -1045,7 +1062,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1066,7 +1083,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1076,6 +1093,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -1089,7 +1107,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -1098,7 +1116,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -1108,7 +1126,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1129,7 +1147,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1139,6 +1157,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -1152,7 +1171,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -1161,7 +1180,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -1171,7 +1190,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1192,7 +1211,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1202,6 +1221,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -1215,7 +1235,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -1224,7 +1244,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -1234,7 +1254,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1255,7 +1275,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1265,6 +1285,7 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
                 <div class="col-md-3 col-12 spaceCardFlip">
                   <div class="spaceCardFront">
@@ -1278,7 +1299,7 @@
                       </div>
                       <div class="spaceToolbarIcons px-2">
                         <button type="button" disabled="disabled"
-                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small grey lighten-3">
+                          class="spaceInfoIcon d-none d-sm-flex v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate fa fa-info theme--light"
@@ -1287,7 +1308,7 @@
                         <div class="spacer"></div>
                         <!---->
                         <button type="button" disabled="disabled"
-                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default grey lighten-3">
+                          class="spaceMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
                             class="v-icon notranslate mdi mdi-dots-vertical theme--light"
@@ -1297,7 +1318,7 @@
                       </div>
                       <div class="spaceAvatar">
                         <a href="#"><div
-                            class="v-responsive v-image mx-auto grey lighten-3"
+                            class="v-responsive v-image mx-auto skeleton-background"
                             style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
@@ -1318,7 +1339,7 @@
                         <div title="This space is closed"
                           class="joinSpaceDisabledLabel">
                           <button type="button" disabled="disabled"
-                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default">
+                            class="btn mx-auto joinSpaceButton v-btn v-btn--block v-btn--depressed v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
                             <span class="v-btn__content">
                               <!----> <span class="d-none d-sm-inline">
                                 &nbsp; </span>
@@ -1328,23 +1349,25 @@
                       </div>
                     </div>
                   </div>
+                  <!---->
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div id="spacesListFooter"
-          class="v-card__actions pt-0  px-10 border-box-sizing">
-          <button type="button"
-            class="loadMoreButton ma-auto btn v-btn v-btn--block v-btn--contained theme--light v-size--default">
+          class="v-card__actions pt-0 px-5 border-box-sizing">
+          <button type="button" disabled="disabled"
+            class="loadMoreButton ma-auto btn v-btn v-btn--block v-btn--contained v-btn--disabled theme--light v-size--default skeleton-background skeleton-text">
             <span class="v-btn__content"> Show more </span>
           </button>
         </div>
       </div>
       <aside
         class="drawerParent v-navigation-drawer v-navigation-drawer--absolute v-navigation-drawer--close v-navigation-drawer--right v-navigation-drawer--temporary theme--light d-none d-sm-flex"
-        max-height="100vh" max-width="100vw" data-booted="true"
-        style="height: 100vh; top: 0px; transform: translateX(100%); width: 420px;">
+        max-height="100vh" max-width="100vw"
+        style="height: 100vh; top: 0px; transform: translateX(100%); width: 420px;"
+        data-booted="true">
         <div class="v-navigation-drawer__content">
           <div class="container pa-0 fill-height">
             <div class="layout column">
@@ -1371,8 +1394,9 @@
       </aside>
       <aside
         class="drawerParent spaceFormDrawer v-navigation-drawer v-navigation-drawer--absolute v-navigation-drawer--close v-navigation-drawer--right v-navigation-drawer--temporary theme--light d-none d-sm-flex"
-        max-height="100vh" max-width="100vw" data-booted="true"
-        style="height: 100vh; top: 0px; transform: translateX(100%); width: 420px;">
+        max-height="100vh" max-width="100vw"
+        style="height: 100vh; top: 0px; transform: translateX(100%); width: 420px;"
+        data-booted="true">
         <div class="v-navigation-drawer__content">
           <div class="container pa-0 fill-height">
             <div class="layout column">
@@ -1466,7 +1490,7 @@
                                   <div
                                     class="v-input--selection-controls__input">
                                     <input aria-checked="false"
-                                      id="input-456" role="switch"
+                                      id="input-389" role="switch"
                                       type="checkbox"
                                       aria-disabled="false" value="">
                                     <div
@@ -1499,7 +1523,7 @@
                                 <div class="v-input__slot"
                                   style="height: auto;">
                                   <div role="radiogroup"
-                                    aria-labelledby="input-460"
+                                    aria-labelledby="input-393"
                                     class="v-input--radio-group__input">
                                     <div
                                       class="v-radio my-0 theme--light v-item--active">
@@ -1508,13 +1532,13 @@
                                         <i aria-hidden="true"
                                           class="v-icon notranslate mdi mdi-radiobox-marked theme--light primary--text"></i><input
                                           aria-checked="true"
-                                          id="input-461" role="radio"
-                                          type="radio" name="radio-460"
+                                          id="input-394" role="radio"
+                                          type="radio" name="radio-393"
                                           value="open">
                                         <div
                                           class="v-input--selection-controls__ripple primary--text"></div>
                                       </div>
-                                      <label for="input-461"
+                                      <label for="input-394"
                                         class="v-label theme--light"
                                         style="left: 0px; right: auto; position: relative;">Open</label>
                                     </div>
@@ -1525,13 +1549,13 @@
                                         <i aria-hidden="true"
                                           class="v-icon notranslate mdi mdi-radiobox-blank theme--light"></i><input
                                           aria-checked="false"
-                                          id="input-463" role="radio"
-                                          type="radio" name="radio-460"
+                                          id="input-396" role="radio"
+                                          type="radio" name="radio-393"
                                           value="validation">
                                         <div
                                           class="v-input--selection-controls__ripple primary--text"></div>
                                       </div>
-                                      <label for="input-463"
+                                      <label for="input-396"
                                         class="v-label theme--light"
                                         style="left: 0px; right: auto; position: relative;">Validation</label>
                                     </div>
@@ -1542,13 +1566,13 @@
                                         <i aria-hidden="true"
                                           class="v-icon notranslate mdi mdi-radiobox-blank theme--light"></i><input
                                           aria-checked="false"
-                                          id="input-465" role="radio"
-                                          type="radio" name="radio-460"
+                                          id="input-398" role="radio"
+                                          type="radio" name="radio-393"
                                           value="closed">
                                         <div
                                           class="v-input--selection-controls__ripple primary--text"></div>
                                       </div>
-                                      <label for="input-465"
+                                      <label for="input-398"
                                         class="v-label theme--light"
                                         style="left: 0px; right: auto; position: relative;">Closed</label>
                                     </div>
@@ -1598,7 +1622,7 @@
                             class="v-label theme--light"
                             style="left: 0px; right: auto; position: relative;">
                             Users </label>
-                          <div class="flex" id="AutoComplete2164"
+                          <div class="flex" id="AutoComplete8295"
                             name="inviteMembers">
                             <div
                               class="v-input identitySuggester v-input--dense theme--light v-text-field v-text-field--solo-flat v-text-field--is-booted v-text-field--placeholder v-select v-select--chips v-select--is-multi v-autocomplete">
@@ -1606,7 +1630,7 @@
                                 <div role="combobox"
                                   aria-haspopup="listbox"
                                   aria-expanded="false"
-                                  aria-owns="list-477"
+                                  aria-owns="list-410"
                                   class="v-input__slot"
                                   style="height: 100px;">
                                   <div class="v-select__slot">
@@ -1614,7 +1638,7 @@
                                       <input
                                         content-class="identitySuggesterContent"
                                         width="100%" max-width="100%"
-                                        id="input-477"
+                                        id="input-410"
                                         placeholder="Invite individual users or space members"
                                         type="text" autocomplete="off">
                                     </div>
@@ -1626,9 +1650,9 @@
                                       style="max-height: 304px; min-width: 0px; top: 12px; left: 0px; transform-origin: left top; z-index: 0; display: none;">
                                       <div role="listbox" tabindex="-1"
                                         class="v-list v-select-list v-sheet v-sheet--tile theme--light v-list--dense theme--light"
-                                        id="list-477">
+                                        id="list-410">
                                         <div tabindex="-1"
-                                          id="list-item-482"
+                                          id="list-item-415"
                                           class="pa-0 v-list-item theme--light">
                                           <div
                                             class="v-list-item__title px-2">

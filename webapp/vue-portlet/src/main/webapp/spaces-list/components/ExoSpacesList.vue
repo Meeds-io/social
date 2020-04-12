@@ -7,7 +7,7 @@
       :keyword="keyword"
       :filter="filter"
       :spaces-size="spacesSize"
-      :first-loading-spaces="firstLoadingSpaces"
+      :skeleton="firstLoadingSpaces"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
     <exo-spaces-card-list
@@ -15,7 +15,7 @@
       :keyword="keyword"
       :filter="filter"
       :loading-spaces="loadingSpaces"
-      :first-loading-spaces="firstLoadingSpaces"
+      :skeleton="firstLoadingSpaces"
       :spaces-size="spacesSize"
       @loaded="spacesLoaded" />
 
