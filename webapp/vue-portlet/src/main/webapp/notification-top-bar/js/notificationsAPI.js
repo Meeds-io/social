@@ -1,6 +1,7 @@
 export function getNotifications() {
-  return fetch('/rest/notifications/webNotifications', {
+  return fetch('/portal/rest/notifications/webNotifications', {
     method: 'GET',
+    credentials: 'include',
   }).then((resp) => {
     if(resp && resp.ok) {
       return resp.json();
@@ -13,7 +14,8 @@ export function getNotifications() {
 export function updateNotification(id, operation) {
   return fetch(`/portal/rest/notifications/webNotifications/${id}`, {
     headers: {
-      'Content-Type': 'text/plain'
+      'Content-Type': 'text/plain',
+      credentials: 'include',
     },
     method: 'PATCH',
     body: operation
