@@ -4,7 +4,8 @@
     :right="right"
     :left="!right"
     :class="!drawer && 'd-none d-sm-flex'"
-    absolute
+    :absolute="!fixed"
+    :fixed="fixed"
     temporary
     touchless
     height="100vh"
@@ -49,6 +50,14 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    fixed: {
+      type: Boolean,
+      default: () => false,
+    },
+    bodyClasses: {
+      type: String,
+      default: () => 'hide-scroll decrease-z-index',
+    },
   },
   data: () => ({
     drawer: false,
@@ -56,10 +65,12 @@ export default {
   watch: {
     drawer() {
       if (this.drawer) {
-        $('body').addClass('hide-scroll');
+        $('body').addClass(this.bodyClasses);
         this.$emit('opened');
       } else {
-        $('body').removeClass('hide-scroll');
+        window.setTimeout(() => {
+          $('body').removeClass(this.bodyClasses);
+        }, 200);
         this.$emit('closed');
       }
       this.$nextTick().then(() => {
