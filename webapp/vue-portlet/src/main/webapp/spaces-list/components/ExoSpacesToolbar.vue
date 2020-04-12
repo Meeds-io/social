@@ -1,7 +1,10 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title>
-      <v-btn class="btn btn-primary pr-2 pl-0 addNewSpaceButton" @click="$root.$emit('addNewSpace')">
+      <v-btn
+        :disabled="firstLoadingSpaces"
+        class="btn btn-primary pr-2 pl-0 addNewSpaceButton"
+        @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
           {{ $t('spacesList.label.addNewSpace') }}
@@ -15,6 +18,7 @@
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
+        :disabled="firstLoadingSpaces"
         :placeholder="$t('spacesList.label.filterSpaces')"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
@@ -22,6 +26,7 @@
     <v-scale-transition>
       <select
         v-model="filter"
+        :disabled="firstLoadingSpaces"
         class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="spaceFilter in spaceFilters"
@@ -85,6 +90,10 @@ export default {
     spacesSize: {
       type: String,
       default: null,
+    },
+    firstLoadingSpaces: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

@@ -2,13 +2,15 @@
   <v-card :id="spaceMenuParentId" class="spaceCardItem d-block d-sm-flex" flat>
 
     <v-img
-      :src="spaceBannerUrl"
+      :src="!skeleton && spaceBannerUrl || ''"
       height="80px"
       class="white--text align-start d-none d-sm-block spaceBannerImg">
     </v-img>
 
     <div class="spaceToolbarIcons px-2">
       <v-btn
+        :disabled="skeleton"
+        :class="skeleton && 'grey lighten-3'"
         icon
         small
         class="spaceInfoIcon d-none d-sm-flex"
@@ -16,14 +18,28 @@
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-spacer />
-      <template v-if="canUseActionsMenu">
-        <v-btn v-if="space.canEdit" icon text class="spaceActionIcon d-block d-sm-none" @click="editSpace">
+      <template v-if="skeleton || canUseActionsMenu">
+        <v-btn
+          v-if="space.canEdit"
+          :disabled="skeleton"
+          :class="skeleton && 'grey lighten-3'"
+          icon
+          text
+          class="spaceActionIcon d-block d-sm-none"
+          @click="editSpace">
           <i class="uiIcon uiIconEdit" />
         </v-btn>
-        <v-btn icon text class="spaceMenuIcon d-none d-sm-block" @click="displayActionMenu = true">
+        <v-btn
+          :disabled="skeleton"
+          :class="skeleton && 'grey lighten-3'"
+          icon
+          text
+          class="spaceMenuIcon d-none d-sm-block"
+          @click="displayActionMenu = true">
           <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu
+          v-if="!skeleton"
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${spaceMenuParentId}`"
@@ -62,7 +78,8 @@
     <div class="spaceAvatar">
       <a :href="url">
         <v-img
-          :src="spaceAvatarUrl"
+          :src="!skeleton && spaceAvatarUrl || ''"
+          :class="skeleton && 'grey lighten-3'"
           class="mx-auto"
           height="75px"
           width="75px"
@@ -73,8 +90,12 @@
     </div>
 
     <v-card-text class="spaceCardBody align-center pt-2 pb-1">
-      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate d-block">{{ space.displayName }}</a>
-      <v-card-subtitle class="spaceMembersLabel py-0">{{ $t('spacesList.label.members', {0: space.membersCount}) }}</v-card-subtitle>
+      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate d-block">
+        {{ skeleton && '&nbsp;' || space.displayName }}
+      </a>
+      <v-card-subtitle class="spaceMembersLabel py-0">
+        {{ skeleton && '&nbsp;' || $t('spacesList.label.members', {0: space.membersCount}) }}
+      </v-card-subtitle>
     </v-card-text>
 
     <v-card-actions class="spaceCardActions">
@@ -183,9 +204,9 @@
           depressed
           block
           @click="join">
-          <v-icon>mdi-plus</v-icon>
+          <v-icon v-if="!skeleton">mdi-plus</v-icon>
           <span class="d-none d-sm-inline">
-            {{ $t('spacesList.button.join') }}
+            {{ skeleton && '&nbsp;' || $t('spacesList.button.join') }}
           </span>
         </v-btn>
       </div>
@@ -201,6 +222,10 @@ export default {
     space: {
       type: Object,
       default: null,
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
     },
     profileActionExtensions: {
       type: Array,
