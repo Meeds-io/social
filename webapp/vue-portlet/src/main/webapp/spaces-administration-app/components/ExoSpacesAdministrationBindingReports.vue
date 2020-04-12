@@ -7,7 +7,7 @@
       </v-skeleton-loader>
     </div>
     <div v-else>
-      <v-card-title>
+      <div class="reportsFilterSearch">
         <v-layout justify-space-between>
           <v-flex xs7></v-flex>
           <v-flex xs2>
@@ -24,13 +24,15 @@
             <v-select
               v-model="action"
               :items="operationTypes"
-              label="All bindings"
+              append-icon="mdi-chevron-down"
               solo
+              dense
               flat
-            ></v-select>
-          </v-flex>          
+              single-line>
+            </v-select>
+          </v-flex>
         </v-layout>
-      </v-card-title>
+      </div>
       <v-data-table
         :headers="headers"
         :items="operations"
