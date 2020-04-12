@@ -90,10 +90,14 @@
     </div>
 
     <v-card-text class="spaceCardBody align-center pt-2 pb-1">
-      <a :href="url" :title="space.displayName" class="spaceDisplayName text-truncate d-block">
+      <a
+        :href="url"
+        :title="space.displayName"
+        class="spaceDisplayName text-truncate d-block">
         {{ skeleton && '&nbsp;' || space.displayName }}
       </a>
-      <v-card-subtitle class="spaceMembersLabel py-0">
+      <v-card-subtitle
+        class="spaceMembersLabel py-0">
         {{ skeleton && '&nbsp;' || $t('spacesList.label.members', {0: space.membersCount}) }}
       </v-card-subtitle>
     </v-card-text>

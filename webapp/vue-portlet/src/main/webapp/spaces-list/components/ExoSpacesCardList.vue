@@ -20,8 +20,25 @@
               :profile-action-extensions="profileActionExtensions"
               @refresh="searchSpaces" />
           </v-row>
-          <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
-            <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
+          <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
+            <div class="ma-auto noSpacesYet">
+              <p class="noSpacesYetIcons">
+                <v-icon>fa-chevron-left</v-icon>
+                <v-icon>fa-chevron-right</v-icon>
+              </p>
+              <p class="title font-weight-bold">
+                {{ $t('spacesOverview.label.noSpacesYet') }}
+              </p>
+              <div>
+                {{ $t('spacesOverview.label.noSpacesYetDescription1') }}
+              </div>
+              <span>
+                {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
+                <v-btn link text class="primary--text pl-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
+                  {{ $t('spacesOverview.label.noSpacesLink') }}
+                </v-btn>
+              </span>
+            </div>
           </div>
         </v-container>
       </v-item-group>
@@ -55,8 +72,8 @@ export default {
       default: null,
     },
     spacesSize: {
-      type: String,
-      default: null,
+      type: Number,
+      default: 0,
     },
     loadingSpaces: {
       type: Boolean,
