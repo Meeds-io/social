@@ -224,6 +224,13 @@ export default {
     }
   },
   watch: {
+    savingSpace() {
+      if (this.savingSpace) {
+        this.$refs.spaceFormDrawer.startLoading();
+      } else {
+        this.$refs.spaceFormDrawer.endLoading();
+      }
+    },
     stepper() {
       this.error = null;
       if (this.stepper) {
