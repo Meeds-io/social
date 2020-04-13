@@ -206,7 +206,7 @@ export default {
     acceptUserRequest() {
       this.sendingAction = true;
       spaceService.acceptUserRequest(this.space.displayName, this.space.pending[0].username)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -218,7 +218,7 @@ export default {
     refuseUserRequest() {
       this.sendingAction = true;
       spaceService.refuseUserRequest(this.space.displayName, this.space.pending[0].username)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -230,7 +230,7 @@ export default {
     acceptToJoin() {
       this.sendingAction = true;
       spaceService.accept(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$emit('refresh', 'invitations'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -242,7 +242,7 @@ export default {
     refuseToJoin() {
       this.sendingAction = true;
       spaceService.deny(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$emit('refresh', 'invitations'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -254,7 +254,7 @@ export default {
     cancelRequest() {
       this.sendingAction = true;
       spaceService.cancel(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$emit('refresh', 'sentRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);

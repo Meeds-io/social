@@ -7,16 +7,14 @@
           :title="$t('spacesOverview.label.invitations')"
           :count="invitations"
           :class="invitations === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('invited', $t('spacesOverview.label.invitations'))"
-          @refresh="refresh()" />
+          @click="$refs.spacesDrawer.open('invited', $t('spacesOverview.label.invitations'))" />
         <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
         <spaces-overview-card
           :id="spacesRequestsSentOverview"
           :title="$t('spacesOverview.label.sentRequests')"
           :count="sentRequests"
           :class="sentRequests === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('pending', $t('spacesOverview.label.sentPendingRequests'))"
-          @refresh="refresh()" />
+          @click="$refs.spacesDrawer.open('pending', $t('spacesOverview.label.sentPendingRequests'))" />
       </v-card>
       <v-divider class="spacesOverviewHorizontalSeparator ma-auto" />
       <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
@@ -25,19 +23,17 @@
           :title="$t('spacesOverview.label.receivedRequests')"
           :count="receivedRequests"
           :class="receivedRequests === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('requests', $t('spacesOverview.label.receivedRequests'))"
-          @refresh="refresh()" />
+          @click="$refs.spacesDrawer.open('requests', $t('spacesOverview.label.receivedRequests'))" />
         <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
         <spaces-overview-card
           :id="spacesManagingOverview"
           :title="$t('spacesOverview.label.managing')"
           :count="managing"
           :class="managing === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))"
-          @refresh="refresh()" />
+          @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))" />
       </v-card>
     </v-card>
-    <spaces-overview-drawer ref="spacesDrawer" />
+    <spaces-overview-drawer ref="spacesDrawer" @refresh="refresh($event)" />
   </v-app>    
 </template>
 
@@ -55,48 +51,64 @@ export default {
     this.refresh();
   },
   methods: {
-    refresh() {
-      let loading = 4;
-      spaceService.getSpaces(null, null, null, 'manager')
-        .then(data => {
-          this.managing = data && data.size || 0;
-        })
-        .finally(() => {
-          loading--;
-          if (loading === 0) {
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          }
-        });
-      spaceService.getSpaces(null, null, null, 'pending')
-        .then(data => {
-          this.sentRequests = data && data.size || 0;
-        })
-        .finally(() => {
-          loading--;
-          if (loading === 0) {
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          }
-        });
-      spaceService.getSpaces(null, null, null, 'invited')
-        .then(data => {
-          this.invitations = data && data.size || 0;
-        })
-        .finally(() => {
-          loading--;
-          if (loading === 0) {
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          }
-        });
-      spaceService.getSpaces(null, null, null, 'requests')
-        .then(data => {
-          this.receivedRequests = data && data.size || 0;
-        })
-        .finally(() => {
-          loading--;
-          if (loading === 0) {
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          }
-        });
+    refresh(itemType) {
+      let loading = 0;
+      if (!itemType || itemType === 'invitations') {
+        this.invitations = '-';
+        loading++;
+        spaceService.getSpaces(null, null, null, 'invited')
+          .then(data => {
+            this.invitations = data && data.size || 0;
+          })
+          .finally(() => {
+            loading--;
+            if (loading === 0) {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          });
+      }
+      if (!itemType || itemType === 'sentRequests') {
+        this.sentRequests = '-';
+        loading++;
+        spaceService.getSpaces(null, null, null, 'pending')
+          .then(data => {
+            this.sentRequests = data && data.size || 0;
+          })
+          .finally(() => {
+            loading--;
+            if (loading === 0) {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          });
+      }
+      if (!itemType || itemType === 'receivedRequests') {
+        this.receivedRequests = '-';
+        loading++;
+        spaceService.getSpaces(null, null, null, 'requests')
+          .then(data => {
+            this.receivedRequests = data && data.size || 0;
+          })
+          .finally(() => {
+            loading--;
+            if (loading === 0) {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          });
+      }
+      if (!itemType || itemType === 'managing') {
+        this.managing = '-';
+        loading++;
+        spaceService.getSpaces(null, null, null, 'manager')
+          .then(data => {
+            this.managing = data && data.size || 0;
+          })
+          .finally(() => {
+            loading--;
+            if (loading === 0) {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          });
+      }
     },
   },
 };
