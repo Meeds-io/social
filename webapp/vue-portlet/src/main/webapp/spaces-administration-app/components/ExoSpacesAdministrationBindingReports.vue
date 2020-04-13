@@ -12,9 +12,9 @@
           <v-flex xs2>
             <v-text-field
               v-model="search"
-              append-icon="search"
+              :placeholder="$t('social.spaces.administration.binding.reports.search')"
+              prepend-inner-icon="search"
               single-line
-              solo
               flat
               hide-details>
             </v-text-field>
@@ -23,6 +23,7 @@
             <v-select
               v-model="action"
               :items="operationTypes"
+              :menu-props="{ offsetY: true }"
               append-icon="mdi-chevron-down"
               flat
               single-line
@@ -35,6 +36,9 @@
         :headers="headers"
         :items="operations"
         :search="search"
+        :footer-props="{
+          itemsPerPageText: `${$t('social.spaces.administration.binding.reports.table.footer.rows.per.page')}:`,        
+        }"
         disable-sort>
         <template slot="item" slot-scope="props">
           <tr>
