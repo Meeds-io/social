@@ -8,8 +8,7 @@
     </div>
     <div v-else>
       <div class="reportsFilterSearch">
-        <v-layout justify-space-between>
-          <v-flex xs7></v-flex>
+        <v-layout justify-end>
           <v-flex xs2>
             <v-text-field
               v-model="search"
@@ -20,15 +19,14 @@
               hide-details>
             </v-text-field>
           </v-flex>
-          <v-flex xs2>
+          <v-flex class="select" xs2>
             <v-select
               v-model="action"
               :items="operationTypes"
               append-icon="mdi-chevron-down"
-              solo
-              dense
               flat
-              single-line>
+              single-line
+              outlined>
             </v-select>
           </v-flex>
         </v-layout>
@@ -37,8 +35,7 @@
         :headers="headers"
         :items="operations"
         :search="search"
-        disable-sort
-      >
+        disable-sort>
         <template slot="item" slot-scope="props">
           <tr>
             <td class="text-md-center">
