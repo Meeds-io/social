@@ -11,6 +11,8 @@ if (extensionRegistry) {
   }
 }
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
 const vuetify = new Vuetify({
