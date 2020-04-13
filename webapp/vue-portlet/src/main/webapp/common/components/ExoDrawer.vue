@@ -27,7 +27,8 @@
               </v-list-item-action>
             </v-list-item>
           </v-flex>
-          <v-divider class="my-0" />
+          <v-progress-linear v-if="loading" indeterminate color="primary" />
+          <v-divider v-else class="my-0" />
         </template>
         <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
@@ -61,6 +62,7 @@ export default {
   },
   data: () => ({
     drawer: false,
+    loading: false,
   }),
   watch: {
     drawer() {
@@ -93,6 +95,12 @@ export default {
     },
     close() {
       this.drawer = false;
+    },
+    startLoading() {
+      this.loading = true;
+    },
+    endLoading() {
+      this.loading = false;
     },
   },
 };
