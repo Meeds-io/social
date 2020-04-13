@@ -56,21 +56,46 @@ export default {
   },
   methods: {
     refresh() {
+      let loading = 4;
       spaceService.getSpaces(null, null, null, 'manager')
         .then(data => {
           this.managing = data && data.size || 0;
+        })
+        .finally(() => {
+          loading--;
+          if (loading === 0) {
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          }
         });
       spaceService.getSpaces(null, null, null, 'pending')
         .then(data => {
           this.sentRequests = data && data.size || 0;
+        })
+        .finally(() => {
+          loading--;
+          if (loading === 0) {
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          }
         });
       spaceService.getSpaces(null, null, null, 'invited')
         .then(data => {
           this.invitations = data && data.size || 0;
+        })
+        .finally(() => {
+          loading--;
+          if (loading === 0) {
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          }
         });
       spaceService.getSpaces(null, null, null, 'requests')
         .then(data => {
           this.receivedRequests = data && data.size || 0;
+        })
+        .finally(() => {
+          loading--;
+          if (loading === 0) {
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          }
         });
     },
   },
