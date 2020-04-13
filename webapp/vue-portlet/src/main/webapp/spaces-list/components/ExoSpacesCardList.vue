@@ -112,7 +112,8 @@ export default {
       if (!this.keyword || !this.loadingSpaces) {
         return this.spaces;
       } else {
-        return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
+        return this.spaces.slice().filter(space => (space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
+            || space.description && space.description.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0 ));
       }
     },
     selectedSpaceIndex() {
