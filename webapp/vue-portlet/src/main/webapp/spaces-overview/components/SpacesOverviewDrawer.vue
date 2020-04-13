@@ -12,7 +12,7 @@
           <spaces-overview-spaces-list
             :spaces="spaces"
             :filter="filter"
-            @refresh="searchSpaces()"
+            @refresh="refresh"
             @edit="editSpace" />
         </template>
         <template v-else>
@@ -53,9 +53,11 @@ export default {
     },
   },
   methods: {
+    refresh(itemType) {
+      this.$emit('refresh', itemType);
+      this.searchSpaces();
+    },
     searchSpaces(filter) {
-      this.$emit('refresh');
-
       this.spaces = [];
       this.loadingSpaces = true;
       return spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
