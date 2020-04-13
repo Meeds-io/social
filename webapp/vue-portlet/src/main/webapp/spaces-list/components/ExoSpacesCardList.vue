@@ -40,7 +40,7 @@
                 </div>
                 <span>
                   {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
-                  <v-btn link text class="primary--text pl-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
+                  <v-btn link text class="primary--text px-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
                     {{ $t('spacesOverview.label.noSpacesLink') }}
                   </v-btn>
                 </span>
@@ -112,8 +112,8 @@ export default {
       if (!this.keyword || !this.loadingSpaces) {
         return this.spaces;
       } else {
-        return this.spaces.slice().filter(space => (space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
-            || space.description && space.description.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0 ));
+        return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
+            || space.description && space.description.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0 );
       }
     },
     selectedSpaceIndex() {
