@@ -72,7 +72,7 @@ export default {
       if (!this.space || !this.space.spaceId) {
         return '#';
       }
-      return `${eXo.env.portal.context}/g/${this.space.spaceUrl}/`;
+      return `${eXo.env.portal.context}/g/:spaces:${this.space.spaceUrl}/`;
     },
   },
   methods: {
