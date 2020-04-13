@@ -7,36 +7,39 @@
       </v-skeleton-loader>
     </div>
     <div v-else>
-      <v-card-title>
-        <v-layout justify-space-between>
-          <v-flex xs7></v-flex>
+      <div class="reportsFilterSearch">
+        <v-layout justify-end>
           <v-flex xs2>
             <v-text-field
               v-model="search"
-              append-icon="search"
+              :placeholder="$t('social.spaces.administration.binding.reports.search')"
+              prepend-inner-icon="search"
               single-line
-              solo
               flat
               hide-details>
             </v-text-field>
           </v-flex>
-          <v-flex xs2>
+          <v-flex class="select" xs2>
             <v-select
               v-model="action"
               :items="operationTypes"
-              label="All bindings"
-              solo
+              :menu-props="{ offsetY: true }"
+              append-icon="mdi-chevron-down"
               flat
-            ></v-select>
-          </v-flex>          
+              single-line
+              outlined>
+            </v-select>
+          </v-flex>
         </v-layout>
-      </v-card-title>
+      </div>
       <v-data-table
         :headers="headers"
         :items="operations"
         :search="search"
-        disable-sort
-      >
+        :footer-props="{
+          itemsPerPageText: `${$t('social.spaces.administration.binding.reports.table.footer.rows.per.page')}:`,        
+        }"
+        disable-sort>
         <template slot="item" slot-scope="props">
           <tr>
             <td class="text-md-center">
