@@ -42,7 +42,7 @@ export default {
     return {
       peopleSuggestionsList: [],
       spacesSuggestionsList: [],
-      firstLoadingSpacesAndPeople: true,
+      firstLoadingSpaces: true,
       firstLoadingPeoples: true,
     };
   },
