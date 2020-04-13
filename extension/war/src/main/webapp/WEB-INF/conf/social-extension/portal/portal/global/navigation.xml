@@ -34,30 +34,30 @@
     <node>
       <name>connexions</name>
       <label>#{portal.global.people}</label>
-      <page-reference>portal::global::people</page-reference>
+      <page-reference>portal::global::all-people</page-reference>
 
       <node>
         <name>people</name>
         <label>#{portal.global.people}</label>
-        <page-reference>portal::global::people</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
 
       <node>
         <name>network</name>
         <label>#{portal.global.people}</label>
-        <page-reference>portal::global::connections</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
 
       <node>
         <name>receivedInvitations</name>
         <label>#{portal.global.people}</label>
-        <page-reference>portal::global::invitations</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
 
       <node>
         <name>pendingRequests</name>
         <label>#{portal.global.people}</label>
-        <page-reference>portal::global::requests</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
     </node>
 
@@ -116,34 +116,34 @@
       <node>
         <name>network</name>
         <label>#{portal.global.yours}</label>
-        <page-reference>portal::global::network</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
 
       <node>
         <name>receivedInvitations</name>
         <label>#{portal.global.invitations}</label>
-        <page-reference>portal::global::receivedInvitations</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
 
       <node>
         <name>pendingRequests</name>
         <label>#{portal.global.requests}</label>
-        <page-reference>portal::global::pendingRequests</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
       <node>
         <name>yours</name>
         <label>#{portal.global.yours}</label>
-        <page-reference>portal::global::connections</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
       <node>
         <name>invitations</name>
         <label>#{portal.global.invitations}</label>
-        <page-reference>portal::global::invitations</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
       <node>
         <name>requests</name>
         <label>#{portal.global.requests}</label>
-        <page-reference>portal::global::requests</page-reference>
+        <page-reference>portal::global::all-people</page-reference>
       </node>
     </node>
 
@@ -158,14 +158,14 @@
       <name>invitationSpace</name>
       <label>#{portal.global.invitationSpace}</label>
       <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::invitationSpace</page-reference>
+      <page-reference>portal::global::all-spaces</page-reference>
     </node>
 
     <node>
       <name>pendingSpace</name>
       <label>#{portal.global.pendingSpace}</label>
       <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::pendingSpace</page-reference>
+      <page-reference>portal::global::all-spaces</page-reference>
     </node>
 
     <node>
@@ -181,9 +181,8 @@
       <visibility>SYSTEM</visibility>
       <page-reference>portal::global::search</page-reference>
     </node>
-	
-	<node>
-      <uri>settings</uri>
+  
+    <node>
       <name>settings</name>
       <label>#{portal.global.settings}</label>
       <visibility>SYSTEM</visibility>
