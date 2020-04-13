@@ -1,0 +1,91 @@
+<template>
+  <v-list-item class="suggestions-list-item pa-0">
+    <v-list-item-avatar
+      :size="avatarSize">
+      <v-img :src="!skeleton && avatarUrl || ''"
+             :class="skeleton && 'skeleton-background'"></v-img>
+    </v-list-item-avatar>
+    <v-list-item-content class="pb-3">
+      <v-list-item-title class="body-2 font-weight-bold text-color suggestions-list-item-title">
+        <a
+          :href="url"
+          :class="skeleton && 'skeleton-background skeleton-text skeleton-list-item-title skeleton-border-radius'"
+          class="text-color">
+          {{ people.suggestionName }}
+        </a>
+      </v-list-item-title>
+      <v-list-item-subtitle
+        class="caption text-sub-title suggestions-list-item-subtitle">
+        <span :class="skeleton && 'skeleton-background skeleton-text skeleton-list-item-subtitle skeleton-border-radius'">{{ people.number }} {{ $t('connection.label') }}</span>
+      </v-list-item-subtitle>
+    </v-list-item-content>
+    <v-list-item-action class="suggestions-list-item-actions">
+      <v-btn-toggle class="transparent">
+        <a :class="skeleton && 'skeleton-background skeleton-text skeleton-border-radius'"
+           text
+           icon
+           small
+           min-width="auto"
+           class="px-0 suggestions-btn-action connexion-accept-btn"
+           @click="connectionRequest(people)">
+          <i class="uiIconInviteUser"></i>
+        </a>
+        <a :class="skeleton && 'skeleton-background skeleton-text skeleton-border-radius'"
+           text
+           small
+           min-width="auto"
+           class="px-0 suggestions-btn-action connexion-refuse-btn"
+           @click="ignoredConnectionUser(people)">
+          <i class="uiIconCloseCircled"></i>
+        </a>
+      </v-btn-toggle>
+    </v-list-item-action>
+  </v-list-item>
+</template>
+
+<script>
+import * as userService from '../../common/js/UserService.js';
+export default {
+  props: {
+    people: {
+      type: Object,
+      default: () => null,
+    },
+    avatarSize: {
+      type: Number,
+      default: () => 37,
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  computed: {
+    avatarUrl() {
+      return this.people && this.people.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.people.username}/avatar`;
+    },
+    url() {
+      if (!this.people || !this.people.suggestionId) {
+        return '#';
+      }
+      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.people.username}`;
+    },
+  },
+  methods: {
+    connectionRequest(item) {
+      userService.sendConnectionRequest(item.suggestionId).then(
+        ()=> {
+          this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
+        }
+      );
+    },
+    ignoredConnectionUser(receiverItem) {
+      userService.ignoreSuggestion(receiverItem.username).then(
+        () => {
+          this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
+        }
+      );
+    },
+  },
+};
+</script>
