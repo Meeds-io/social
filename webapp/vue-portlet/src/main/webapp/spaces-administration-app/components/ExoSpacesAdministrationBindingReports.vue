@@ -45,7 +45,7 @@
         disable-sort>
         <template slot="item" slot-scope="props">
           <tr>
-            <td class="text-md-center">
+            <td class="text-md-start">
               <img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" />
               <img v-else :src="avatar" class="avatar" />
               {{ props.item.space.displayName }}
