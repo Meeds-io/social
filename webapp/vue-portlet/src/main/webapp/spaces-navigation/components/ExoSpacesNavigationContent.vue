@@ -109,7 +109,10 @@ export default {
   },
   methods: {
     searchSpaces() {
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/${eXo.env.portal.containerName}/social/spaces/lastVisitedSpace/list.json?offset=${this.offset}&limit=${this.limitToFetch}`)
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/${eXo.env.portal.containerName}/social/spaces/lastVisitedSpace/list.json?offset=${this.offset}&limit=${this.limitToFetch}`, {
+        method: 'GET',
+        credentials: 'include',
+      })
         .then(resp => resp && resp.ok && resp.json())
         .then(data => {
           this.spaces = data && data.spaces || [];

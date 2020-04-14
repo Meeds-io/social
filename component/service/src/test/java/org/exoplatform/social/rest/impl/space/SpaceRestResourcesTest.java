@@ -109,9 +109,13 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testGetSpaces() throws Exception {
-    getSpaceInstance(1, "root");
-    getSpaceInstance(2, "john");
-    getSpaceInstance(3, "demo");
+    Space rootSpace = getSpaceInstance(1, "root");
+    Space johnSpace = getSpaceInstance(2, "john");
+    Space demoSpace = getSpaceInstance(3, "demo");
+
+    this.spaceService.addPendingUser(demoSpace, "john");
+    this.spaceService.addPendingUser(rootSpace, "demo");
+    this.spaceService.addPendingUser(johnSpace, "root");
 
     startSessionAs("demo");
     ContainerResponse response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
@@ -119,6 +123,18 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     // demo is member of only one space then he got just 1 result
     assertEquals(3, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=requests"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces?limit=5&offset=1&filterType=requests"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
 
     response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
     assertNotNull(response);
@@ -385,7 +401,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    this.spaceService.createSpace(space, creator);
+    space = this.spaceService.createSpace(space, creator);
     return space;
   }
 

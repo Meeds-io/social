@@ -1312,6 +1312,43 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
   /**
    * Test
+   * {@link org.exoplatform.social.core.storage.SpaceStorage#getManagerSpacesByFilter(String, org.exoplatform.social.core.space.SpaceFilter, long, long)}
+   *
+   * @throws Exception
+   */
+  @MaxQueryNumber(1029)
+  public void testGetManagerSpacesByFilter() throws Exception {
+    int countSpace = 10;
+    Space[] listSpace = new Space[10];
+    for (int i = 0; i < countSpace; i++) {
+      listSpace[i] = this.getSpaceInstance(i);
+      spaceStorage.saveSpace(listSpace[i], true);
+      persist();
+    }
+
+    List<Space> managerSpaces = spaceStorage.getManagerSpacesByFilter("raul", new SpaceFilter("my space test"), 0, 10);
+    assertNotNull("managerSpaces must not be  null", managerSpaces);
+    assertEquals("managerSpaces.size() must return: 0", 0, managerSpaces.size());
+
+    managerSpaces = spaceStorage.getManagerSpacesByFilter("ghost", new SpaceFilter("add new"), 0, 10);
+    assertNotNull("managerSpaces must not be  null", managerSpaces);
+    assertEquals("managerSpaces.size() must return: 0", 0, managerSpaces.size());
+
+    managerSpaces = spaceStorage.getManagerSpacesByFilter("dragon", new SpaceFilter("add"), 0, 10);
+    assertNotNull("managerSpaces must not be  null", managerSpaces);
+    assertEquals("managerSpaces.size() must return: 0", 0, managerSpaces.size());
+
+    managerSpaces = spaceStorage.getManagerSpacesByFilter("demo", new SpaceFilter("space"), 0, 10);
+    assertNotNull("managerSpaces must not be  null", managerSpaces);
+    assertEquals("managerSpaces.size() must return: " + countSpace, countSpace, managerSpaces.size());
+
+    managerSpaces = spaceStorage.getManagerSpacesByFilter("demo", new SpaceFilter("space2"), 0, 10);
+    assertNotNull("managerSpaces must not be  null", managerSpaces);
+    assertEquals("managerSpaces.size() must return: 0", 0, managerSpaces.size());
+  }
+
+  /**
+   * Test
    * {@link org.exoplatform.social.core.storage.SpaceStorage#getMemberSpacesByFilterCount(String, org.exoplatform.social.core.space.SpaceFilter)}
    *
    * @throws Exception
@@ -1353,6 +1390,37 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
     memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("demo", new SpaceFilter("space"));
     assertEquals("memberSpacesCount must be: 0", 0, memberSpacesCount);
+  }
+
+  /**
+   * Test
+   * {@link org.exoplatform.social.core.storage.SpaceStorage#getManagerSpacesByFilterCount(String, org.exoplatform.social.core.space.SpaceFilter)}
+   *
+   * @throws Exception
+   */
+  public void testGetManagerSpacesByFilterCount() throws Exception {
+    int countSpace = 10;
+    Space[] listSpace = new Space[10];
+    for (int i = 0; i < countSpace; i++) {
+      listSpace[i] = this.getSpaceInstance(i);
+      spaceStorage.saveSpace(listSpace[i], true);
+      persist();
+    }
+
+    int managerSpacesCount = spaceStorage.getManagerSpacesByFilterCount("raul", new SpaceFilter("my space test"));
+    assertEquals("managerSpacesCount must be: " + 0, 0, managerSpacesCount);
+
+    managerSpacesCount = spaceStorage.getManagerSpacesByFilterCount("ghost", new SpaceFilter("add new"));
+    assertEquals("managerSpacesCount must be: " + 0, 0, managerSpacesCount);
+
+    managerSpacesCount = spaceStorage.getManagerSpacesByFilterCount("dragon", new SpaceFilter("space"));
+    assertEquals("managerSpacesCount must be: " + 0, 0, managerSpacesCount);
+
+    managerSpacesCount = spaceStorage.getManagerSpacesByFilterCount("demo", new SpaceFilter("space"));
+    assertEquals("managerSpacesCount must be: " + countSpace, countSpace, managerSpacesCount);
+
+    managerSpacesCount = spaceStorage.getManagerSpacesByFilterCount("demo", new SpaceFilter("old"));
+    assertEquals("managerSpacesCount must be: 0", 0, managerSpacesCount);
   }
 
   /**

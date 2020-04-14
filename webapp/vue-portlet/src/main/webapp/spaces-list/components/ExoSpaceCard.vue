@@ -7,11 +7,12 @@
       <exo-space-card-front
         :space="space"
         :profile-action-extensions="profileActionExtensions"
+        :skeleton="skeleton"
         front
         @flip="flipCard = true"
         @refresh="$emit('refresh')" />
     </div>
-    <div class="spaceCardBack">
+    <div v-if="!skeleton" class="spaceCardBack">
       <exo-space-card-reverse
         :space="space"
         @flip="flipCard = false" />
@@ -29,6 +30,10 @@ export default {
     profileActionExtensions: {
       type: Array,
       default: () => [],
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

@@ -4,7 +4,8 @@
     :right="right"
     :left="!right"
     :class="!drawer && 'd-none d-sm-flex'"
-    absolute
+    :absolute="!fixed"
+    :fixed="fixed"
     temporary
     touchless
     height="100vh"
@@ -17,7 +18,7 @@
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
             <v-list-item class="pr-0">
-              <v-list-item-content class="drawerTitle align-start text-truncate">
+              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end">
@@ -26,7 +27,7 @@
               </v-list-item-action>
             </v-list-item>
           </v-flex>
-          <v-divider class="my-1" />
+          <v-divider class="my-0" />
         </template>
         <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
@@ -49,6 +50,14 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    fixed: {
+      type: Boolean,
+      default: () => false,
+    },
+    bodyClasses: {
+      type: String,
+      default: () => 'hide-scroll decrease-z-index',
+    },
   },
   data: () => ({
     drawer: false,
@@ -56,10 +65,12 @@ export default {
   watch: {
     drawer() {
       if (this.drawer) {
-        $('body').addClass('hide-scroll');
+        $('body').addClass(this.bodyClasses);
         this.$emit('opened');
       } else {
-        $('body').removeClass('hide-scroll');
+        window.setTimeout(() => {
+          $('body').removeClass(this.bodyClasses);
+        }, 200);
         this.$emit('closed');
       }
       this.$nextTick().then(() => {

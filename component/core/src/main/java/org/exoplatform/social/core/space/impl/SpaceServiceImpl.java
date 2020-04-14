@@ -18,13 +18,12 @@ package org.exoplatform.social.core.space.impl;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import org.exoplatform.commons.api.notification.model.NotificationInfo;
-import org.exoplatform.commons.api.notification.model.PluginKey;
-import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
+import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -34,9 +33,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
-import org.exoplatform.services.security.IdentityConstants;
-import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.services.security.*;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -47,10 +44,7 @@ import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.model.Space.UpdatedField;
-import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
-import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
-import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.space.spi.SpaceTemplateService;
+import org.exoplatform.social.core.space.spi.*;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 
@@ -1284,6 +1278,20 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  public ListAccess<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter) {
+    return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.MANAGER_FILTER);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ListAccess<Space> getManagerSpaces(String userId) {
+    return new SpaceListAccess(this.spaceStorage, userId, SpaceListAccess.Type.MANAGER);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public ListAccess<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter) {
     return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.MEMBER_FILTER);
   }
@@ -1564,6 +1572,11 @@ public class SpaceServiceImpl implements SpaceService {
 
   public ListAccess<Space> getVisitedSpaces(String remoteId, String appId) {
     return new SpaceListAccess(this.spaceStorage, remoteId, appId, SpaceListAccess.Type.VISITED);
+  }
+
+  @Override
+  public ListAccess<Space> getPendingSpaceRequestsToManage(String remoteId) {
+    return new SpaceListAccess(this.spaceStorage, remoteId, SpaceListAccess.Type.PENDING_REQUESTS);
   }
 
   /**

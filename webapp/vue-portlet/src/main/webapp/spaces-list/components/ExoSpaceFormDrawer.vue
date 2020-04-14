@@ -6,9 +6,7 @@
     @opened="stepper = 1"
     @closed="stepper = 0">
     <template slot="title">
-      <span class="subtitle-2 font-weight-bold text-truncate">
-        {{ $t('spacesList.label.addNewSpace') }}
-      </span>
+      {{ title }}
     </template>
     <template slot="content">
       <div></div>
@@ -84,20 +82,31 @@
                   false-value="private"
                   class="float-left my-0 ml-4" />
               </div>
-              <div class="caption font-italic font-weight-light pl-1 muted mb-2">{{ $t(`spacesList.description.${space.visibility || 'hidden'}`) }}</div>
-              <div class="d-flex flex-wrap py-2">
+              <div class="caption font-italic font-weight-light pl-1 muted mb-2 mt-1">
+                {{ $t(`spacesList.description.${space.visibility || 'hidden'}`) }}
+              </div>
+              <div class="d-flex flex-wrap pt-2">
                 <label for="hidden" class="v-label theme--light">
                   {{ $t('spacesList.label.registration') }}
                 </label>
                 <v-radio-group
                   v-model="space.subscription"
-                  class="mt-4 ml-2"
+                  class="mt-2 ml-2"
                   mandatory
                   row
                   inset>
-                  <v-radio :label="$t('spacesList.label.open')" value="open"></v-radio>
-                  <v-radio :label="$t('spacesList.label.validation')" value="validation"></v-radio>
-                  <v-radio :label="$t('spacesList.label.closed')" value="closed"></v-radio>
+                  <v-radio
+                    :label="$t('spacesList.label.open')"
+                    value="open"
+                    class="my-0" />
+                  <v-radio
+                    :label="$t('spacesList.label.validation')"
+                    value="validation"
+                    class="my-0" />
+                  <v-radio
+                    :label="$t('spacesList.label.closed')"
+                    value="closed"
+                    class="my-0" />
                 </v-radio-group>
               </div>
               <div class="caption font-italic font-weight-light pl-1 muted">{{ $t(`spacesList.description.${space.subscription || 'open'}`) }}</div>
@@ -130,7 +139,11 @@
                 v-model="space.invitedMembers"
                 :labels="suggesterLabels"
                 :disabled="savingSpace || spaceSaved"
+                :search-options="{
+                  spaceURL: space.prettyName,
+                }"
                 name="inviteMembers"
+                type-of-relations="user_to_invite"
                 height="100"
                 include-users
                 include-spaces
@@ -189,6 +202,7 @@ export default {
     spaceSaved: false,
     space: {},
     spaceToUpdate: {},
+    title: null,
     error: null,
     stepper: 0,
     template: null,
@@ -254,18 +268,11 @@ export default {
     this.$root.$on('addNewSpace', () => {
       this.spaceToUpdate = null;
       this.space = {};
+      this.title= this.$t('spacesList.label.addNewSpace');
       this.$refs.spaceFormDrawer.open();
     });
-    this.$root.$on('editSpace', (space) => {
-      if (!space || !space.id) {
-        // eslint-disable-next-line no-console
-        console.warn('space does not have an id ', space, ' ignore user action');
-        return;
-      }
-      this.spaceToUpdate = space;
-      this.space = Object.assign({}, space);
-      this.$refs.spaceFormDrawer.open();
-    });
+    document.addEventListener('meeds.social.editSpace', this.editSpace);
+    this.$root.$on('editSpace', this.editSpace);
     spaceService.getSpaceTemplates()
       .then(data => {
         this.templates = data || [];
@@ -275,6 +282,18 @@ export default {
       });
   },
   methods: {
+    editSpace(space) {
+      space = space.detail && space.detail.data || space;
+      if (!space || !space.id) {
+        // eslint-disable-next-line no-console
+        console.warn('space does not have an id ', space, ' ignore user action');
+        return;
+      }
+      this.spaceToUpdate = space;
+      this.space = Object.assign({}, space);
+      this.title= this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
+      this.$refs.spaceFormDrawer.open();
+    },
     previousStep() {
       this.stepper--;
     },

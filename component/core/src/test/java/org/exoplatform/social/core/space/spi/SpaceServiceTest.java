@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
@@ -1295,16 +1296,28 @@ public class SpaceServiceTest extends AbstractCoreTest {
 //    assertEquals("memberSpaceListAccess.size() must return: " + 0, 0, memberSpaceListAccess.getSize());
 //  }
 
-  /**
-   * Test {@link SpaceService#getPendingSpaces(String)}
-   *
-   * @throws Exception
-   */
-  public void testGetPendingSpaces() throws Exception {
+  public void testCountPendingSpaceRequestsToManage() throws Exception {
     populateData();
     Space space = spaceService.getSpaceByDisplayName("Space1");
     spaceService.requestJoin(space, "paul");
-    assertEquals(true, spaceService.isPending(space, "paul"));
+    spaceService.requestJoin(space, "james");
+
+    ListAccess<Space> listAccess = spaceService.getPendingSpaceRequestsToManage("root");
+    assertNotNull(listAccess);
+    assertEquals(2, listAccess.getSize());
+
+    assertEquals(2, listAccess.load(0, 10).length);
+    Space[] pendingSpaceRequestsToManage = listAccess.load(0, 1);
+    assertEquals(1, pendingSpaceRequestsToManage.length);
+    Space spaceToManage = pendingSpaceRequestsToManage[0];
+    String[] pendingUsers = spaceToManage.getPendingUsers();
+    assertEquals(1, pendingUsers.length);
+
+    pendingSpaceRequestsToManage = listAccess.load(0, 10);
+    assertEquals(2, pendingSpaceRequestsToManage.length);
+    boolean hasPaul = pendingSpaceRequestsToManage[0].getPendingUsers()[0].equals("paul") || pendingSpaceRequestsToManage[1].getPendingUsers()[0].equals("paul");
+    boolean hasJames = pendingSpaceRequestsToManage[0].getPendingUsers()[0].equals("james") || pendingSpaceRequestsToManage[1].getPendingUsers()[0].equals("james");
+    assertTrue(hasJames && hasPaul);
   }
 
   /**

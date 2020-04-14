@@ -1,15 +1,25 @@
 <template>
-  <a
-    :id="id"
-    :href="url"
-    class="flex-nowrap flex-shrink-0">
-    <v-avatar :size="size">
-      <img :src="avatarUrl" />
-    </v-avatar>
-    <span v-if="fullname" class="text-truncate subtitle-1 text-color ml-2">
-      {{ fullname }}
-    </span>
-  </a>
+  <div class="flex-nowrap d-flex flex-shrink-0 align-center">
+    <a
+      :id="id"
+      :href="url"
+      class="flex-nowrap flex-shrink-0 d-flex">
+      <v-avatar :size="size" class="pull-left my-auto">
+        <img :src="avatarUrl" :tile="tile" />
+      </v-avatar>
+      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2">
+        <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
+          {{ fullname }}
+        </p>
+        <p v-if="$slots.subTitle" class="text-sub-title my-0">
+          <slot name="subTitle"></slot>
+        </p>
+      </div>
+      <template v-if="$slots.actions">
+        <slot name="actions"></slot>
+      </template>
+    </a>
+  </div>
 </template>
 
 <script>
@@ -25,6 +35,10 @@ export default {
       type: String,
       default: () => null,
     },
+    boldTitle: {
+      type: Boolean,
+      default: () => false,
+    },
     tiptip: {
       type: Boolean,
       default: () => true,
@@ -36,14 +50,24 @@ export default {
     },
     tiptipPosition: {
       type: String,
+      default: () => null,
+    },
+    avatarUrl: {
+      type: String,
       default: function() {
-        return null;
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
+      },
+    },
+    url: {
+      type: String,
+      default: function() {
+        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       },
     },
   },
   data() {
     return {
-      id: `chip${parseInt(Math.random() * randomMax)
+      id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
     };
@@ -59,22 +83,8 @@ export default {
         StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
       };
     },
-    avatarUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
-    },
-    url() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
-    },
   },
-  watch: {
-    username() {
-      if (this.username && this.tiptip) {
-        // TODO disable tiptip because of high CPU usage using its code
-        this.initTiptip();
-      }
-    },
-  },
-  created() {
+  mounted() {
     if (this.username && this.tiptip) {
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();

@@ -17,11 +17,14 @@
 
 package org.exoplatform.social.core.storage.api;
 
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -97,6 +100,50 @@ public interface SpaceStorage {
   boolean isSpaceIgnored(String spaceId, String userId);
 
   /**
+   * Gets the count of the spaces that a user has the "manager" role.
+   *
+   * @param userId
+   * @return the count of the manager spaces
+   * @throws SpaceStorageException
+   * @since 1.2.0-GA
+   */
+  public int getManagerSpacesCount(String userId);
+
+  /**
+   * Gets the count of the spaces which user has "manager" role by filter.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @return
+   * @since 1.2.0-GA
+   */
+  public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
+
+  /**
+   * Gets the spaces that a user has the "manager" role with offset, limit.
+   *
+   * @param userId
+   * @param offset
+   * @param limit
+   * @return a list of the manager spaces with offset, limit
+   * @throws SpaceStorageException
+   * @since 1.2.0-GA
+   */
+  public List<Space> getManagerSpaces(String userId, long offset, long limit);
+
+  /**
+   * Gets the manager spaces of the user id by the filter with offset, limit.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @param offset
+   * @param limit
+   * @return
+   * @since 1.2.0-GA
+   */
+  public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
+
+  /**
    * Gets the count of the spaces that a user has the "member" role.
    *
    * @param userId
@@ -105,7 +152,7 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public int getMemberSpacesCount(String userId) throws SpaceStorageException;
-
+  
   /**
    * Gets the count of the spaces which user has "member" role by filter.
    *
@@ -115,17 +162,20 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public int getMemberSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
-
+  
   /**
    * Gets the spaces that a user has the "member" role.
    *
    * @param userId
    * @return a list of the member spaces
    * @throws SpaceStorageException
+   * @deprecated use {@link SpaceStorage#getMemberSpaces(String, long, long)}
+   *             instead with offset and limit
    * @since 1.2.0-GA
    */
+  @Deprecated
   public List<Space> getMemberSpaces(String userId) throws SpaceStorageException;
-
+  
   /**
    * Gets the spaces that a user has the "member" role with offset, limit.
    *
@@ -137,7 +187,7 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public List<Space> getMemberSpaces(String userId, long offset, long limit) throws SpaceStorageException;
-
+  
   /**
    * Gets the member spaces of the user id by the filter with offset, limit.
    *
@@ -634,4 +684,23 @@ public interface SpaceStorage {
    * @throws SpaceStorageException
    */
   public List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
+
+  /**
+   * @param username username used to retrieve user spaces
+   * @return the count of users requested to join spaces that user manages
+   */
+  default int countPendingSpaceRequestsToManage(String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param username username used to retrieve user spaces
+   * @param offset offset of the query
+   * @param limit limit of the query
+   * @return {@link List} of {@link Space} with pending users requesting to
+   *         join spaces that the designated user manages
+   */
+  default List<Space> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
 }

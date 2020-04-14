@@ -3,7 +3,16 @@
     <v-card-text id="spacesListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
-          <v-row v-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
+          <v-row v-if="skeleton" class="ma-0 border-box-sizing">
+            <exo-space-card
+              v-for="i in pageSize"
+              :key="i"
+              :space="{}"
+              :skeleton="skeleton"
+              :profile-action-extensions="profileActionExtensions"
+              @refresh="searchSpaces" />
+          </v-row>
+          <v-row v-else-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
             <exo-space-card
               v-for="space in filteredSpaces"
               :key="space.id"
@@ -11,17 +20,42 @@
               :profile-action-extensions="profileActionExtensions"
               @refresh="searchSpaces" />
           </v-row>
-          <div v-else-if="!loadingSpaces" class="d-flex subtitle-1">
-            <span class="ma-auto">{{ $t('spacesList.label.noResults') }}</span>
+          <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
+            <div class="ma-auto noSpacesYet">
+              <template v-if="hasSpaces">
+                <p class="title font-weight-bold">
+                  {{ $t('spacesOverview.label.noResults') }}
+                </p>
+              </template>
+              <template v-else>
+                <p class="noSpacesYetIcons">
+                  <v-icon>fa-chevron-left</v-icon>
+                  <v-icon>fa-chevron-right</v-icon>
+                </p>
+                <p class="title font-weight-bold">
+                  {{ $t('spacesOverview.label.noSpacesYet') }}
+                </p>
+                <div>
+                  {{ $t('spacesOverview.label.noSpacesYetDescription1') }}
+                </div>
+                <span>
+                  {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
+                  <v-btn link text class="primary--text pl-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
+                    {{ $t('spacesOverview.label.noSpacesLink') }}
+                  </v-btn>
+                </span>
+              </template>
+            </div>
           </div>
         </v-container>
       </v-item-group>
     </v-card-text>
     <v-card-actions id="spacesListFooter" class="pt-0 px-5 border-box-sizing">
       <v-btn
-        v-if="canShowMore"
+        v-if="skeleton || canShowMore"
         :loading="loadingSpaces"
-        :disabled="loadingSpaces"
+        :disabled="skeleton || loadingSpaces"
+        :class="skeleton && 'skeleton-background skeleton-text'"
         class="loadMoreButton ma-auto btn"
         block
         @click="loadNextPage">
@@ -45,12 +79,16 @@ export default {
       default: null,
     },
     spacesSize: {
-      type: String,
-      default: null,
+      type: Number,
+      default: 0,
     },
     loadingSpaces: {
-      type: String,
-      default: null,
+      type: Boolean,
+      default: false,
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -58,6 +96,7 @@ export default {
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
+    hasSpaces: false,
     offset: 0,
     pageSize: 20,
     limit: 20,
@@ -104,9 +143,6 @@ export default {
     filter() {
       this.searchSpaces();
     },
-    spacesSize() {
-      this.$emit('spaces-size-changed', this.spacesSize);
-    },
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
@@ -120,10 +156,13 @@ export default {
     },
     searchSpaces() {
       this.loadingSpaces = true;
+      this.loadingSpaces = true;
       return spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;
+          this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
+          this.$emit('loaded', this.spacesSize);
           return this.$nextTick();
         })
         .then(() => {

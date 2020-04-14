@@ -67,9 +67,13 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   
   private static final String SPACE_FILTER_TYPE_MEMBER = "member";
 
+  private static final String SPACE_FILTER_TYPE_MANAGER = "manager";
+
   private static final String SPACE_FILTER_TYPE_PENDING = "pending";
-  
+
   private static final String SPACE_FILTER_TYPE_INVITED = "invited";
+
+  private static final String SPACE_FILTER_TYPE_REQUESTS = "requests";
 
   private IdentityManager identityManager;
   private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
@@ -94,16 +98,16 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaces(@Context UriInfo uriInfo,
                             @Context Request request,
                             @ApiParam(value = "Space name search information", required = false) @QueryParam("q") String q,
-                            @ApiParam(value = "Type of spaces to retrieve: all, userSpaces, invited, pending", defaultValue = SPACE_FILTER_TYPE_ALL, required = false) @QueryParam("filterType") String filterType,
+                            @ApiParam(value = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests", defaultValue = SPACE_FILTER_TYPE_ALL, required = false) @QueryParam("filterType") String filterType,
                             @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
+                            @ApiParam(value = "Limit, if equals to 0, it will not retrieve spaces", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
                             @ApiParam(value = "Order", required = false) @QueryParam("order") String order,
                             @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                             @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+    limit = limit >= 0 ? limit : RestUtils.getLimit(uriInfo);
 
     if (StringUtils.isBlank(filterType)) {
       filterType = SPACE_FILTER_TYPE_ALL;
@@ -129,26 +133,31 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
-      if (spaceService.isSuperManager(authenticatedUser)) {
-        listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
-      } else {
-        listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
-      }
+      listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER, filterType)) {
       listAccess = spaceService.getMemberSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MANAGER, filterType)) {
+      listAccess = spaceService.getManagerSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_PENDING, filterType)) {
       listAccess = spaceService.getPendingSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_INVITED, filterType)) {
       listAccess = spaceService.getInvitedSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_REQUESTS, filterType)) {
+      listAccess = spaceService.getPendingSpaceRequestsToManage(authenticatedUser);
+    } else {
+      return Response.status(400).entity("Unrecognized space filter type").build();
     }
+
     List<DataEntity> spaceInfos = new ArrayList<>();
     GroupSpaceBindingService spaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-    for (Space space : listAccess.load(offset, limit)) {
-      space.setHasBindings(spaceBindingService.isBoundSpace(space.getId()));
-      
-      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-      //
-      spaceInfos.add(spaceInfo.getDataEntity()); 
+    if (limit > 0) {
+      for (Space space : listAccess.load(offset, limit)) {
+        space.setHasBindings(spaceBindingService.isBoundSpace(space.getId()));
+        
+        SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+        //
+        spaceInfos.add(spaceInfo.getDataEntity()); 
+      }
     }
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {

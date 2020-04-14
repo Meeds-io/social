@@ -19,6 +19,8 @@ package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
 
+import javax.persistence.Tuple;
+
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -40,7 +42,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
-import org.exoplatform.social.core.storage.exception.NodeNotFoundException;
 
 public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
@@ -195,6 +196,26 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public List<Space> getLastSpaces(int limit) {
     List<SpaceEntity> entities = spaceDAO.getLastSpaces(limit);
     return buildList(entities);
+  }
+
+  @Override
+  public List<Space> getManagerSpaces(String userId, long offset, long limit) {
+    return getManagerSpacesByFilter(userId, null, offset, limit);
+  }
+
+  @Override
+  public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
+  return getSpaces(userId, Arrays.asList(Status.MANAGER), spaceFilter, offset, limit);
+  }
+
+  @Override
+  public int getManagerSpacesCount(String userId) {
+    return getManagerSpacesByFilterCount(userId, null);
+  }
+
+  @Override
+  public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
+    return getSpacesCount(userId, Arrays.asList(Status.MANAGER), spaceFilter);
   }
 
   @Override
@@ -502,6 +523,27 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       member.setLastAccess(new Date());
     }
     spaceMemberDAO.update(member);
+  }
+
+  @Override
+  public List<Space> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
+    List<Tuple> spaceRequestsToManage = spaceMemberDAO.getPendingSpaceRequestsToManage(username, offset, limit);
+    if (spaceRequestsToManage == null || spaceRequestsToManage.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Space> spaces = new ArrayList<>();
+    for (Tuple tuple : spaceRequestsToManage) {
+      Space space = new Space();
+      space.setId(tuple.get(1).toString());
+      space.setPendingUsers(new String[]{tuple.get(0).toString()});
+      spaces.add(space);
+    }
+    return spaces;
+  }
+
+  @Override
+  public int countPendingSpaceRequestsToManage(String username) {
+    return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {

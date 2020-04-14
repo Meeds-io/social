@@ -12,7 +12,8 @@ export function getSpaceTemplates() {
 }
 
 export function getSpaces(query, offset, limit, filter) {
-  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=managers`, {
+  const expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
+  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -135,6 +136,79 @@ export function deny(spaceId) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function acceptUserRequest(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      role: 'MEMBER',
+      status: 'APPROVED',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function refuseUserRequest(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      status: 'IGNORED',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function getSuggestionsSpace(){
+  return fetch('/portal/rest/homepage/intranet/spaces/suggestions', {
+    credentials: 'include'
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function ignoreSuggestion(item) {
+  const data = {'user': item.username,'space': item.displayName, 'status':'IGNORED'};
+  return fetch('/portal/rest/v1/social/spacesMemberships/', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
     }
   });
 }

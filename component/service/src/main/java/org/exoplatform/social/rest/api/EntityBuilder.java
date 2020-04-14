@@ -217,6 +217,11 @@ public class EntityBuilder {
         members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
       }
       spaceEntity.setMembers(members);
+
+      if(RestProperties.PENDING.equals(expand)) {
+        LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
+        spaceEntity.setPending(pending);
+      }
     }
     boolean isManager = spaceService.isManager(space, userId);
 

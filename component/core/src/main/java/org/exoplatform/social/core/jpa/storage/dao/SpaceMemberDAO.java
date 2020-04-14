@@ -17,7 +17,8 @@
 package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
-import java.util.Set;
+
+import javax.persistence.Tuple;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
@@ -68,5 +69,21 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @return
      */
     int countSpaceMembers(Long spaceId, Status status);
+
+    /**
+     * @param username username used to retrieve user spaces
+     * @return the count of users requested to join spaces that user manages
+     */
+    int countPendingSpaceRequestsToManage(String username);
+
+    /**
+     * @param username username used to retrieve user spaces
+     * @param offset offset of the query
+     * @param limit limit of the query
+     * @return {@link List} {@link Tuple} of users requested to
+     *         join spaces that designated user (with userId parameter)
+     *         manages
+     */
+    List<Tuple> getPendingSpaceRequestsToManage(String username, int offset, int limit);
 
 }

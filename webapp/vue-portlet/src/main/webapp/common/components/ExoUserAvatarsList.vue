@@ -1,15 +1,17 @@
 <template>
-  <div class="flex-nowrap">
+  <div class="d-flex flex-nowrap">
     <exo-user-avatar
       v-for="user in usersToDisplay"
       :key="user"
       :username="user.username"
       :title="user.fullname"
       :size="iconSize"
+      :labels="labels"
       class="mx-auto" />
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
+      :tiptip="false"
       class="notDisplayedIdentitiesOverlay"
       @click="$emit('open-detail')">
       <div class="notDisplayedIdentities">

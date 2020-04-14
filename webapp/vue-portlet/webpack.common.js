@@ -14,6 +14,8 @@ let config = {
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
     spacesList: './src/main/webapp/spaces-list/main.js',
+    spacesOverview: './src/main/webapp/spaces-overview/main.js',
+    suggestions: './src/main/webapp/suggestions-people-space/main.js'
   },
   module: {
     rules: [

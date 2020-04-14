@@ -1,27 +1,38 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title>
-      <v-btn class="btn btn-primary pr-2 pl-0 addNewSpaceButton" @click="$root.$emit('addNewSpace')">
-        <v-icon dark>mdi-plus</v-icon>
+      <v-btn
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-text skeleton-background' || 'btn-primary'"
+        class="btn pr-2 pl-0 addNewSpaceButton"
+        @click="$root.$emit('addNewSpace')">
+        <span v-if="skeleton" class="mx-2"></span>
+        <v-icon v-else dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
-          {{ $t('spacesList.label.addNewSpace') }}
+          {{ skeleton && 'Add space' || $t('spacesList.label.addNewSpace') }}
         </span>
       </v-btn>
     </v-toolbar-title>
-    <div class="text-sub-title ml-3 d-none d-sm-flex">
-      {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
+    <div
+      :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
+      class="text-sub-title ml-3 d-none d-sm-flex">
+      {{ skeleton && 'Showing X Spaces' || $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
     <v-spacer></v-spacer>
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
-        :placeholder="$t('spacesList.label.filterSpaces')"
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-text'"
+        :placeholder="!skeleton && $t('spacesList.label.filterSpaces') || '&nbsp;'"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-background skeleton-text'"
         class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="spaceFilter in spaceFilters"
@@ -31,7 +42,12 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-icon class="d-sm-none" @click="openBottomMenu">fa-filter</v-icon>
+    <v-icon
+      :class="skeleton && 'skeleton-text'"
+      class="d-sm-none"
+      @click="openBottomMenu">
+      fa-filter
+    </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
         <v-toolbar color="primary" dark class="border-box-sizing">
@@ -85,6 +101,10 @@ export default {
     spacesSize: {
       type: String,
       default: null,
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

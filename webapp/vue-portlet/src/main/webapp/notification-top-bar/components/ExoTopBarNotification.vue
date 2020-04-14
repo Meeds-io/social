@@ -109,7 +109,9 @@ export default {
       if (this.drawerNotification) {
         $('body').addClass('hide-scroll');
       } else {
-        $('body').removeClass('hide-scroll');
+        window.setTimeout(() => {
+          $('body').removeClass('hide-scroll');
+        }, 200);
       }
       this.$nextTick().then(() => {
         $('#NotificationPopoverPortlet .v-overlay').click(() => {

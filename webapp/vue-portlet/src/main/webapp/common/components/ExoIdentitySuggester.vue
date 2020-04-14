@@ -13,6 +13,7 @@
       :items="items"
       :search-input.sync="searchTerm"
       :height="height"
+      :filter="filterIgnoredItems"
       append-icon=""
       menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
@@ -31,10 +32,10 @@
       @update:search-input="searchTerm = $event">
       <template slot="no-data">
         <v-list-item v-if="labels.noDataLabel || labels.searchPlaceholder" class="pa-0">
-          <v-list-item-title v-if="labels.noDataLabel">
+          <v-list-item-title v-if="labels.noDataLabel" class="px-2">
             {{ labels.noDataLabel }}
           </v-list-item-title>
-          <v-list-item-title v-else>
+          <v-list-item-title v-else class="px-2">
             {{ labels.searchPlaceholder }}
           </v-list-item-title>
         </v-list-item>
@@ -116,6 +117,12 @@ export default {
         return false;
       },
     },
+    ignoreItems: {
+      type: Array,
+      default: function() {
+        return [];
+      },
+    },
     rules: {
       type: Array,
       default: function() {
@@ -124,6 +131,18 @@ export default {
     },
     height: {
       type: Number,
+      default: function() {
+        return null;
+      },
+    },
+    typeOfRelations: {
+      type: String,
+      default: function() {
+        return 'mention_activity_stream';
+      },
+    },
+    searchOptions: {
+      type: Object,
       default: function() {
         return null;
       },
@@ -148,7 +167,12 @@ export default {
             this.loadingSuggestions = 0;
             this.items = [];
 
-            suggesterService.searchSpacesOrUsers(value, this.items, this.includeUsers, this.includeSpaces,
+            suggesterService.searchSpacesOrUsers(value,
+              this.items,
+              this.typeOfRelations,
+              this.searchOptions,
+              this.includeUsers,
+              this.includeSpaces,
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
@@ -175,6 +199,18 @@ export default {
     emitSelectedValue(value) {
       this.$emit('input', value);
       this.searchTerm = null;
+    },
+    canAddItem(item) {
+      return !item || !item.id || this.ignoreItems.indexOf(item.id) < 0;
+    },
+    filterIgnoredItems(item, queryText, itemText) {
+      if (queryText && itemText.toLowerCase().indexOf(queryText.toLowerCase()) < 0) {
+        return false;
+      }
+      if (this.ignoreItems && this.ignoreItems.length) {
+        return this.canAddItem(item);
+      }
+      return true;
     },
     focus() {
       this.$refs.selectAutoComplete.focus();

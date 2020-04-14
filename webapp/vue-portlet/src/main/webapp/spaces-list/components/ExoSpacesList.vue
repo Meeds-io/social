@@ -7,6 +7,7 @@
       :keyword="keyword"
       :filter="filter"
       :spaces-size="spacesSize"
+      :skeleton="firstLoadingSpaces"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
     <exo-spaces-card-list
@@ -14,8 +15,9 @@
       :keyword="keyword"
       :filter="filter"
       :loading-spaces="loadingSpaces"
+      :skeleton="firstLoadingSpaces"
       :spaces-size="spacesSize"
-      @spaces-size-changed="spacesSize = $event" />
+      @loaded="spacesLoaded" />
 
     <exo-space-managers-drawer />
     <exo-space-form-drawer />
@@ -39,7 +41,16 @@ export default {
     keyword: null,
     spacesSize: 0,
     loadingSpaces: false,
+    firstLoadingSpaces: true,
   }),
+  methods: {
+    spacesLoaded(spacesSize) {
+      this.spacesSize = spacesSize;
+      if (this.firstLoadingSpaces) {
+        this.firstLoadingSpaces = false;
+      }
+    }
+  },
 };
 </script>
 

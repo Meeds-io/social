@@ -149,4 +149,39 @@
       <title>Spaces List</title>
     </portlet-info>
   </portlet>
+
+  <portlet>
+    <portlet-name>SpacesOverview</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/spacesOverview.html</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.SpacesOverview</resource-bundle>
+    <portlet-info>
+      <title>Spaces Overview</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>SuggestionsPeopleAndSpace</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/suggestions.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.SuggestionsPortlet</resource-bundle>
+    <portlet-info>
+      <title>Suggestions peoples and spaces</title>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
