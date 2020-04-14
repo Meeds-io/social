@@ -36,7 +36,8 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
      + " AND groupSpaceBindingReportUser.groupSpaceBindingReportAction.action = :action"
      + " ORDER BY groupSpaceBindingReportUser.date ASC"),
     @NamedQuery(name = "SocGroupSpaceBindingReportUser.findBindingReportUsersByBindingReportAction", query = "SELECT userReport "
-        + " FROM SocGroupSpaceBindingReportUser userReport WHERE userReport.groupSpaceBindingReportAction.id = :bindingReportActionId") })
+        + " FROM SocGroupSpaceBindingReportUser userReport WHERE userReport.groupSpaceBindingReportAction.id = :bindingReportActionId"
+        + " AND userReport.stillInSpace = false") })
 public class GroupSpaceBindingReportUserEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID")
