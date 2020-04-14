@@ -8,7 +8,7 @@
     </div>
     <div v-else>
       <div class="reportsFilterSearch">
-        <v-layout justify-end>
+        <v-layout justify-end row>
           <v-flex xs2>
             <v-text-field
               v-model="search"
@@ -19,16 +19,19 @@
               hide-details>
             </v-text-field>
           </v-flex>
-          <v-flex class="select" xs2>
-            <v-select
-              v-model="action"
-              :items="operationTypes"
-              :menu-props="{ offsetY: true }"
-              append-icon="mdi-chevron-down"
-              flat
-              single-line
-              outlined>
-            </v-select>
+          <v-flex class="filter" ml-2 mr-4 xs2>
+            <div class="btn-group">
+              <button class="btn dropdown-toggle" data-toggle="dropdown">
+                {{ action }}
+                <i class="uiIconMiniArrowDown uiIconLightGray"></i><span/>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="#" @click="action = operationTypes[0]"> {{ operationTypes[0] }} </a></li>
+                <li><a href="#" @click="action = operationTypes[1]"> {{ operationTypes[1] }} </a></li>
+                <li><a href="#" @click="action = operationTypes[2]"> {{ operationTypes[2] }} </a></li>
+                <li><a href="#" @click="action = operationTypes[3]"> {{ operationTypes[3] }} </a></li>
+              </ul>
+            </div>
           </v-flex>
         </v-layout>
       </div>
