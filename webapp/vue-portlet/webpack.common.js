@@ -15,7 +15,9 @@ let config = {
     gettingStarted: './src/main/webapp/getting-started/main.js',
     spacesList: './src/main/webapp/spaces-list/main.js',
     spacesOverview: './src/main/webapp/spaces-overview/main.js',
-    suggestions: './src/main/webapp/suggestions-people-space/main.js'
+    suggestions: './src/main/webapp/suggestions-people-space/main.js',
+    peopleList: './src/main/webapp/people-list/main.js',
+    peopleOverview: './src/main/webapp/people-overview/main.js'
   },
   module: {
     rules: [

@@ -44,7 +44,7 @@ public class UsersRelationshipsRestResourcesTest extends AbstractResourceTest {
     identityManager.saveIdentity(maryIdentity);
     identityManager.saveIdentity(demoIdentity);
     
-    usersRelationshipsRestService = new UsersRelationshipsRestResourcesV1();
+    usersRelationshipsRestService = new UsersRelationshipsRestResourcesV1(identityManager, relationshipManager);
     registry(usersRelationshipsRestService);
   }
 
@@ -82,26 +82,36 @@ public class UsersRelationshipsRestResourcesTest extends AbstractResourceTest {
     String input = "{\"sender\":root, \"receiver\":demo, \"status\":CONFIRMED}";
     ContainerResponse response = getResponse("POST", getURLResource("usersRelationships/"), input);
     assertNotNull(response);
+    assertEquals("no user is authorized to created automatically a confirmed relationship", 401, response.getStatus());
+
+    input = "{\"sender\":root, \"receiver\":demo, \"status\":IGNORED}";
+    response = getResponse("POST", getURLResource("usersRelationships/"), input);
+    assertNotNull(response);
     assertEquals(200, response.getStatus());
     Relationship rootDemo = relationshipManager.get(rootIdentity, demoIdentity);
     assertNotNull(rootDemo);
     assertEquals("root", rootDemo.getSender().getRemoteId());
     assertEquals("demo", rootDemo.getReceiver().getRemoteId());
-    assertEquals("CONFIRMED", rootDemo.getStatus().name());
+    assertEquals("IGNORED", rootDemo.getStatus().name());
 
-    //
-    input = "{\"sender\":mary, \"receiver\":root, \"status\":PENDING}";
+    input = "{\"sender\":root, \"receiver\":demo, \"status\":PENDING}";
     response = getResponse("POST", getURLResource("usersRelationships/"), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    Relationship maryRoot = relationshipManager.get(maryIdentity, rootIdentity);
-    assertNotNull(maryRoot);
-    assertEquals("mary", maryRoot.getSender().getRemoteId());
-    assertEquals("root", maryRoot.getReceiver().getRemoteId());
-    assertEquals("PENDING", maryRoot.getStatus().name());
+    rootDemo = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(rootDemo);
+    assertEquals("root", rootDemo.getSender().getRemoteId());
+    assertEquals("demo", rootDemo.getReceiver().getRemoteId());
+    assertEquals("PENDING", rootDemo.getStatus().name());
+
+    rootDemo = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(rootDemo);
+    assertEquals("root", rootDemo.getSender().getRemoteId());
+    assertEquals("demo", rootDemo.getReceiver().getRemoteId());
+    assertEquals("PENDING", rootDemo.getStatus().name());
 
     //
-    input = "{\"sender\":root, \"receiver\":john, \"status\":IGNORED}";
+    input = "{\"sender\":root, \"receiver\":john, \"status\":PENDING}";
     response = getResponse("POST", getURLResource("usersRelationships/"), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -109,7 +119,7 @@ public class UsersRelationshipsRestResourcesTest extends AbstractResourceTest {
     assertNotNull(rootJohn);
     assertEquals("root", rootJohn.getSender().getRemoteId());
     assertEquals("john", rootJohn.getReceiver().getRemoteId());
-    assertEquals("IGNORED", rootJohn.getStatus().name());
+    assertEquals("PENDING", rootJohn.getStatus().name());
   }
 
   public void testGetUpdateDeleteUserRelationship() throws Exception {
@@ -120,16 +130,16 @@ public class UsersRelationshipsRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("GET", getURLResource("usersRelationships/" + relationship.getId()), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
+
     //update
-    String input = "{\"status\":CONFIRMED}";
+    String input = "{\"status\":PENDING}";
     response = getResponse("PUT", getURLResource("usersRelationships/" + relationship.getId()), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
+
     relationship = relationshipManager.get(rootIdentity, demoIdentity);
-    assertEquals("CONFIRMED", relationship.getStatus().name());
-    
+    assertEquals("When both users sent connection requests, automatically the relationship must be CONFIRMED", "CONFIRMED", relationship.getStatus().name());
+
     //delete
     response = service("DELETE", getURLResource("usersRelationships/" + relationship.getId()), "", null, null);
     assertNotNull(response);

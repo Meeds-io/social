@@ -109,6 +109,51 @@ public class ProfileEntity extends BaseEntity {
     return getString("avatar");
   }
 
+  public ProfileEntity setAboutMe(String aboutMe) {
+    setProperty("aboutMe", aboutMe);
+    return this;
+  }
+  
+  public String getAboutMe() {
+    return getString("aboutMe");
+  }
+
+  public ProfileEntity setConnectionsCount(String connectionsCount) {
+    setProperty("connectionsCount", connectionsCount);
+    return this;
+  }
+
+  public String getConnectionsCount() {
+    return getString("connectionsCount");
+  }
+
+  public ProfileEntity setSpacesCount(String spacesCount) {
+    setProperty("spacesCount", spacesCount);
+    return this;
+  }
+
+  public String getSpacesCount() {
+    return getString("spacesCount");
+  }
+
+  public ProfileEntity setRelationshipStatus(String relationshipStatus) {
+    setProperty("relationshipStatus", relationshipStatus);
+    return this;
+  }
+
+  public String getRelationshipStatus() {
+    return getString("relationshipStatus");
+  }
+
+  public ProfileEntity setConnectionsInCommonCount(String connectionsInCommonCount) {
+    setProperty("connectionsInCommonCount", connectionsInCommonCount);
+    return this;
+  }
+
+  public String getConnectionsInCommonCount() {
+    return getString("connectionsInCommonCount");
+  }
+
   public void setPhones(List<DataEntity> phones) {
     this.phones = phones;
   }

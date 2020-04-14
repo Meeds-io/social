@@ -2,7 +2,7 @@
   <v-list v-if="spaces && spaces.length" two-line subheader>
     <spaces-overview-spaces-list-item
       v-for="space in spaces"
-      :key="`${filter}${space.id}`"
+      :key="space.id"
       :space="space"
       :filter="filter"
       @refresh="$emit('refresh')"

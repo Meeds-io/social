@@ -617,7 +617,7 @@ public class PeopleRestService implements ResourceContainer{
    * @throws Exception
    * @LevelAPI Platform
    * @anchor PeopleRestService.searchConnection
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getConnectionOfUser(UriInfo, String, boolean, String)}
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getConnectionsOfUser(UriInfo, String, String, boolean, String)}
    */
   @GET
   @Path("{portalName}/getConnections.{format}")
@@ -682,7 +682,6 @@ public class PeopleRestService implements ResourceContainer{
    * @param securityContext The security context of the system.
    * @param userId The Id of a specific user.
    * @param format The format of the returned result, for example, JSON, or XML.
-   * @param currentUserName The current user name who sends request.
    * @param updatedType The type of connection action shown on the pop-up.
    * @return The detailed information of a user.
    * @throws Exception
@@ -696,7 +695,6 @@ public class PeopleRestService implements ResourceContainer{
                                 @Context SecurityContext securityContext,
                                 @PathParam("userId") String userId,
                                 @PathParam("format") String format,
-                                @QueryParam("currentUserName") String currentUserName,
                                 @QueryParam("updatedType") String updatedType) throws Exception {
     //
     
@@ -708,9 +706,7 @@ public class PeopleRestService implements ResourceContainer{
     String[] mediaTypes = new String[] { "json", "xml" };
     format = ArrayUtils.contains(mediaTypes, format) ? format : mediaTypes[0];
     
-    if(currentUserName == null || currentUserName.trim().isEmpty()) {
-      currentUserName = getUserId(securityContext, uriInfo);
-    }
+    String currentUserName = getUserId(securityContext, uriInfo);
     
     //
     MediaType mediaType = Util.getMediaType(format, mediaTypes);

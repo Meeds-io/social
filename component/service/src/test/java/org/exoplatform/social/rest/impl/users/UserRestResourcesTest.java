@@ -1,5 +1,7 @@
 package org.exoplatform.social.rest.impl.users;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.user.UserStateModel;
@@ -23,6 +25,7 @@ import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 import java.util.Date;
+import java.util.List;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
   
@@ -77,6 +80,63 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(4, collections.getEntities().size());
   }
 
+  public void testGetAllUsersWithExtraFields() throws Exception {
+    Space spaceTest = getSpaceInstance(700, "root");
+    spaceTest.getId();
+    spaceTest.setMembers(new String[] {"mary", "john", "demo"});
+    spaceService.updateSpace(spaceTest);
+
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+
+    relationshipManager.inviteToConnect(demoIdentity, rootIdentity);
+
+    relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, rootIdentity);
+
+    relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, maryIdentity);
+
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, demoIdentity);
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&expand=all,connectionsCount,spacesCount,connectionsInCommonCount,relationshipStatus"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(4, collections.getEntities().size());
+
+    List<? extends DataEntity> entities = collections.getEntities();
+    for (DataEntity dataEntity : entities) {
+      String username = dataEntity.get("username").toString();
+      if (StringUtils.equals(username, "root")) {
+        continue;
+      }
+      String connectionsCount = dataEntity.get("connectionsCount").toString();
+      String spacesCount = dataEntity.get("spacesCount").toString();
+      String connectionsInCommonCount = dataEntity.get("connectionsInCommonCount").toString();
+      String relationshipStatus = dataEntity.get("relationshipStatus").toString();
+      if (StringUtils.equals(username, "john")) {
+        assertEquals("3", connectionsCount);
+      } else {
+        assertEquals("1", connectionsCount);
+      }
+      assertEquals("1", spacesCount);
+      if (StringUtils.equals(username, "john")) {
+        assertEquals("CONFIRMED", relationshipStatus);
+      } else if (StringUtils.equals(username, "mary")) {
+        assertEquals("OUTGOING", relationshipStatus);
+      } else if (StringUtils.equals(username, "demo")) {
+        assertEquals("INCOMING", relationshipStatus);
+      }
+      if (StringUtils.equals(username, "john")) {
+        assertEquals("0", connectionsInCommonCount);
+      } else {
+        assertEquals("1", connectionsInCommonCount);
+      }
+    }
+  }
+
   public void testGetOnlineUsers() throws Exception {
     startSessionAs("root");
     long date = new Date().getTime();
@@ -124,12 +184,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size()); // only john
     // non existing space
-    response = service("GET", getURLResource("users?status=online&spaceId=2"), "", null, null);
+    response = service("GET", getURLResource("users?status=online&spaceId=600"), "", null, null);
     assertNotNull(response);
     assertEquals(404, response.getStatus());
     ErrorResource errorResource = (ErrorResource) response.getEntity();
     assertEquals("space not found", errorResource.getDeveloperMessage());
-    assertEquals("space 2 does not exist", errorResource.getMessage());
+    assertEquals("space 600 does not exist", errorResource.getMessage());
   }
 
   public void testGetUserById() throws Exception {
@@ -150,6 +210,34 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+    ProfileEntity userEntity = getBaseEntity(collections.getEntities().get(0), ProfileEntity.class);
+    assertEquals("demo", userEntity.getUsername());
+  }
+
+  public void testGetInvitationsOfUser() throws Exception {
+    relationshipManager.inviteToConnect(demoIdentity, rootIdentity);
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users/connections/invitations?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+    ProfileEntity userEntity = getBaseEntity(collections.getEntities().get(0), ProfileEntity.class);
+    assertEquals("demo", userEntity.getUsername());
+  }
+
+  public void testGetPendingOfUser() throws Exception {
+    relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users/connections/pending?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
     ProfileEntity userEntity = getBaseEntity(collections.getEntities().get(0), ProfileEntity.class);

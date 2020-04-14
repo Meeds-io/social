@@ -87,10 +87,23 @@ public interface UserRestResources extends SocialRest {
 
   @GET
   @Path("{id}/connections")
-  public abstract Response getConnectionOfUser(@Context UriInfo uriInfo,
+  public abstract Response getConnectionsOfUser(@Context UriInfo uriInfo,
                                                @PathParam("id") String id,
+                                               @PathParam("q") String q,
                                                @QueryParam("returnSize") boolean returnSize,
                                                @QueryParam("expand") String expand) throws Exception;
+
+  @GET
+  @Path("{id}/connections/invitations")
+  public abstract Response getInvitationsOfUser(@Context UriInfo uriInfo,
+                                                @QueryParam("returnSize") boolean returnSize,
+                                                @QueryParam("expand") String expand) throws Exception;
+
+  @GET
+  @Path("{id}/connections/pending")
+  public abstract Response getPendingOfUser(@Context UriInfo uriInfo,
+                                            @QueryParam("returnSize") boolean returnSize,
+                                            @QueryParam("expand") String expand) throws Exception;
 
   @GET
   @Path("{id}/spaces")

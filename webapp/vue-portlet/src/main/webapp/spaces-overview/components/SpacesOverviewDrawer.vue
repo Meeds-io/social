@@ -15,7 +15,7 @@
             @refresh="refresh"
             @edit="editSpace" />
         </template>
-        <template v-else>
+        <template v-else-if="!loadingSpaces">
           <span class="ma-auto">{{ $t('spacesOverview.label.noResults') }}</span>
         </template>
         <v-card-actions class="flex-grow-1 justify-center my-2">

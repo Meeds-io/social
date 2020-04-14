@@ -23,20 +23,20 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
@@ -46,10 +46,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -57,6 +56,12 @@ import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 public class EntityBuilder {
+
+  private static final Log LOG = ExoLogger.getLogger(EntityBuilder.class);
+
+  /** Group Space Binding */
+  public static final String  GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
+
   public static final String USERS_TYPE              = "users";
 
   public static final String USERS_RELATIONSHIP_TYPE = "usersRelationships";
@@ -94,11 +99,13 @@ public class EntityBuilder {
   public static final String  GROUP_SPACE_BINDING_TYPE = "groupSpaceBindings";
   /** Child Groups of group root */
   public static final String  ORGANIZATION_GROUP_TYPE             = "childGroups";
-  /** Group Space Binding */
-  public static final String  GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
-  
-  private static final Log LOG = ExoLogger.getLogger(EntityBuilder.class);
-  
+
+  private static SpaceService        spaceService;
+
+  private static RelationshipManager relationshipManager;
+
+  private static IdentityManager     identityManager;
+
   /**
    * Get a IdentityEntity from an identity in order to build a json object for the rest service
    * 
@@ -126,7 +133,7 @@ public class EntityBuilder {
    * @return
    */
   public static IdentityEntity buildEntityIdentity(String userName, String restPath, String expand) {
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    IdentityManager identityManager = getIdentityManager();
     Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName, true);
     return buildEntityIdentity(userIdentity, restPath, expand);
   }
@@ -136,15 +143,13 @@ public class EntityBuilder {
     userEntity.setHref(RestUtils.getRestUrl(USERS_TYPE, profile.getIdentity().getRemoteId(), restPath));
     userEntity.setIdentity(RestUtils.getRestUrl(IDENTITIES_TYPE, profile.getIdentity().getId(), restPath));
     userEntity.setUsername(profile.getIdentity().getRemoteId());
-    if (profile.getProperty(Profile.FIRST_NAME) != null)
-    userEntity.setFirstname(profile.getProperty(Profile.FIRST_NAME).toString());
-    if (profile.getProperty(Profile.LAST_NAME) != null)
-    userEntity.setLastname(profile.getProperty(Profile.LAST_NAME).toString());
+    userEntity.setFirstname((String) profile.getProperty(Profile.FIRST_NAME));
+    userEntity.setLastname((String) profile.getProperty(Profile.LAST_NAME));
     userEntity.setFullname(profile.getFullName());
     userEntity.setGender(profile.getGender());
     userEntity.setPosition(profile.getPosition());
     userEntity.setEmail(profile.getEmail());
-//    userEntity.setAboutMe(profile.getAboutMe());
+    userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setPhones(getSubListByProperties(profile.getPhones(), getPhoneProperties()));
     userEntity.setExperiences(getSubListByProperties((List)(List<Map<String, Object>>) profile.getProperty(Profile.EXPERIENCES), getExperiencesProperties()));
@@ -152,6 +157,62 @@ public class EntityBuilder {
     userEntity.setUrls(getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_URLS), getUrlProperties()));
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
+
+    String[] expandArray = StringUtils.split(expand, ",");
+    List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
+    if (expandAttributes.contains("connectionsCount")) {
+      ListAccess<Identity> connections = getRelationshipManager().getConnections(profile.getIdentity());
+      try {
+        userEntity.setConnectionsCount(String.valueOf(connections.getSize()));
+      } catch (Exception e) {
+        LOG.warn("Error while getting connections count of user", e);
+      }
+    }
+    if (expandAttributes.contains("spacesCount")) {
+      ListAccess<Space> spaces = getSpaceService().getMemberSpaces(profile.getIdentity().getRemoteId());
+      try {
+        userEntity.setSpacesCount(String.valueOf(spaces.getSize()));
+      } catch (Exception e) {
+        LOG.warn("Error while getting spaces count of user", e);
+      }
+    }
+    if (expandAttributes.contains("connectionsInCommonCount")) {
+      ConversationState conversationState = ConversationState.getCurrent();
+      if (conversationState != null) {
+        String currentUser = conversationState.getIdentity().getUserId();
+        if (!StringUtils.equals(profile.getIdentity().getRemoteId(), currentUser)) {
+          Identity currentUserIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+          try {
+            userEntity.setConnectionsInCommonCount(String.valueOf(getRelationshipManager().getConnectionsInCommonCount(currentUserIdentity,
+                                                                                                                       profile.getIdentity())));
+          } catch (Exception e) {
+            LOG.warn("Error while getting spaces count of user", e);
+          }
+        }
+      }
+    }
+    if (expandAttributes.contains("relationshipStatus")) {
+      ConversationState conversationState = ConversationState.getCurrent();
+      if (conversationState != null) {
+        String currentUser = conversationState.getIdentity().getUserId();
+        Identity currentUserIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+        try {
+          Relationship relationship = getRelationshipManager().get(currentUserIdentity, profile.getIdentity());
+          if (relationship != null) {
+            Type status = relationship.getStatus();
+            if (status == Type.PENDING) {
+              Type relationshipStatus = StringUtils.equals(relationship.getSender().getRemoteId(), currentUser) ? Type.OUTGOING
+                                                                                                                : Type.INCOMING;
+              userEntity.setRelationshipStatus(relationshipStatus.name());
+            } else {
+              userEntity.setRelationshipStatus(relationship.getStatus().name());
+            }
+          }
+        } catch (Exception e) {
+          LOG.warn("Error while getting spaces count of user", e);
+        }
+      }
+    }
     return userEntity;
   }
 
@@ -162,7 +223,7 @@ public class EntityBuilder {
    * @return
    */
   public static ProfileEntity buildEntityProfile(String userName, String restPath, String expand) {
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    IdentityManager identityManager = getIdentityManager();
     Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
     return buildEntityProfile(userIdentity.getProfile(), restPath, expand);
   }
@@ -193,8 +254,8 @@ public class EntityBuilder {
    */
   public static SpaceEntity buildEntityFromSpace(Space space, String userId, String restPath, String expand) {
     SpaceEntity spaceEntity = new SpaceEntity(space.getId());
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    IdentityManager identityManager = getIdentityManager();
+    SpaceService spaceService = getSpaceService();
     GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
     if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
       spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
@@ -307,7 +368,7 @@ public class EntityBuilder {
    * @return a hash map
    */
   public static ActivityEntity buildEntityFromActivity(ExoSocialActivity activity, String restPath, String expand) {
-    Identity poster = CommonsUtils.getService(IdentityManager.class).getIdentity(activity.getPosterId(), true);
+    Identity poster = getIdentityManager().getIdentity(activity.getPosterId(), true);
     ActivityEntity activityEntity = new ActivityEntity(activity);
     activityEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, activity.getId(), restPath));
     LinkEntity identityLink;
@@ -348,7 +409,7 @@ public class EntityBuilder {
   }
 
   public static CommentEntity buildEntityFromComment(ExoSocialActivity comment, String restPath, String expand, boolean isBuildList) {
-    Identity poster = CommonsUtils.getService(IdentityManager.class).getIdentity(comment.getPosterId(), true);
+    Identity poster = getIdentityManager().getIdentity(comment.getPosterId(), true);
     CommentEntity commentEntity = new CommentEntity(comment.getId());
     commentEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getId(), restPath));
 
@@ -400,7 +461,7 @@ public class EntityBuilder {
   public static List<DataEntity> buildEntityFromLike(ExoSocialActivity activity, String restPath, String expand, int offset, int limit) {
     List<DataEntity> likesEntity = new ArrayList<DataEntity>();
     List<String> likerIds = Arrays.asList(activity.getLikeIdentityIds());
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    IdentityManager identityManager = getIdentityManager();
     for (String likerId : likerIds) {
       ProfileEntity likerInfo = buildEntityProfile(identityManager.getIdentity(likerId, false).getRemoteId(), restPath, expand);
       likesEntity.add(likerInfo.getDataEntity());
@@ -415,6 +476,9 @@ public class EntityBuilder {
    * @return a RelationshipEntity
    */
   public static RelationshipEntity buildEntityRelationship(Relationship relationship, String restPath, String expand, boolean isSymetric) {
+    if (relationship == null) {
+      return new RelationshipEntity();
+    }
     RelationshipEntity relationshipEntity = new RelationshipEntity(relationship.getId());
     relationshipEntity.setHref(RestUtils.getRestUrl(USERS_RELATIONSHIP_TYPE, relationship.getId(), restPath));
 
@@ -503,7 +567,7 @@ public class EntityBuilder {
       return identity.getRemoteId();
     } else {
       String spacePrettyName = identity.getRemoteId();
-      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+      SpaceService spaceService = getSpaceService();
       Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
       return space.getId();
     }
@@ -511,7 +575,7 @@ public class EntityBuilder {
 
   private static List<DataEntity> getActivityMentions(ExoSocialActivity activity, String restPath) {
     List<DataEntity> mentions = new ArrayList<DataEntity>();
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    IdentityManager identityManager = getIdentityManager();
     for (String mentionner : activity.getMentionedIds()) {
       String mentionnerId = mentionner.split("@")[0];
       mentions.add(getActivityOwner(identityManager.getIdentity(mentionnerId, false), restPath));
@@ -528,11 +592,11 @@ public class EntityBuilder {
    */
   public static DataEntity getActivityStream(ExoSocialActivity activity, Identity authentiatedUsed) {
     DataEntity as = new DataEntity();
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    IdentityManager identityManager = getIdentityManager();
     Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner(), true);
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    SpaceService spaceService = getSpaceService();
     if (owner != null) { //case of user activity
-      Relationship relationship = CommonsUtils.getService(RelationshipManager.class).get(authentiatedUsed, owner);
+      Relationship relationship = getRelationshipManager().get(authentiatedUsed, owner);
       if (! authentiatedUsed.getId().equals(activity.getPosterId()) //the viewer is not the poster
           && ! authentiatedUsed.getRemoteId().equals(activity.getStreamOwner()) //the viewer is not the owner
           && (relationship == null || ! relationship.getStatus().equals(Relationship.Type.CONFIRMED)) //the viewer has no relationship with the given user
@@ -887,5 +951,26 @@ public class EntityBuilder {
     operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
     operationReportEntity.setEndDate(endDate != null ? dateFormat.format(endDate) : "null");
     return operationReportEntity;
+  }
+
+  public static IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = CommonsUtils.getService(IdentityManager.class);
+    }
+    return identityManager;
+  }
+
+  public static SpaceService getSpaceService() {
+    if (spaceService == null) {
+      spaceService = CommonsUtils.getService(SpaceService.class);
+    }
+    return spaceService;
+  }
+
+  public static RelationshipManager getRelationshipManager() {
+    if (relationshipManager == null) {
+      relationshipManager = CommonsUtils.getService(RelationshipManager.class);
+    }
+    return relationshipManager;
   }
 }

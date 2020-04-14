@@ -370,4 +370,13 @@ public interface RelationshipStorage {
    * @return The number of relationships.
    */
   public int getRelationshipsCountByStatus(Identity identity, Relationship.Type type);
+
+  /**
+   * @param identity1 user identity of Type {@link Identity}
+   * @param identity2 user identity of Type {@link Identity}
+   * @return connections in common count between two users
+   */
+  default int getConnectionsInCommonCount(Identity identity1, Identity identity2) {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache.selector;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.storage.cache.model.key.*;
 
@@ -67,6 +69,10 @@ public class RelationshipCacheSelector extends CacheSelector<CacheKey, Object> {
     if (key.getKey() instanceof IdentityKey) {
       String id = ((IdentityKey) key.getKey()).getId();
       return id.equals(target[0]) || id.equals(target[1]);
+    } else if (key.getKey() instanceof RelationshipIdentityKey) {
+      RelationshipIdentityKey idKey = ((RelationshipIdentityKey) key.getKey());
+      return StringUtils.equals(target[0], idKey.getIdentityId1()) || StringUtils.equals(target[1], idKey.getIdentityId1())
+          || StringUtils.equals(target[0], idKey.getIdentityId2()) || StringUtils.equals(target[1], idKey.getIdentityId2());
     }
 
     return true;

@@ -625,4 +625,9 @@ public class RelationshipManagerImpl implements RelationshipManager {
     }
     return profileFilter;
   }
+
+  @Override
+  public int getConnectionsInCommonCount(Identity currentUserIdentity, Identity identity) {
+    return storage.getConnectionsInCommonCount(currentUserIdentity, identity);
+  }
 }
