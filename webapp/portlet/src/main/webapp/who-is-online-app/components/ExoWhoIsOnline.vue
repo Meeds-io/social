@@ -1,14 +1,23 @@
 <template>
-  <div id="OnlinePortlet" class="onlinePortlet">
-    <div id="onlineContent" class="uiBox">
-      <h6 class="title center">{{ $t("header.label") }}</h6>
-      <ul id="onlineList" class="gallery uiContentBox">
-        <li v-for="user in users" :key="user" :id="user.id">
-          <a :href="user.href" class="avatarXSmall"><img :src="user.avatar" alt="image" /></a>
-        </li>
-      </ul>
+  <v-app v-if="users && users.length > 0" id="OnlinePortlet">
+    <div class="onlinePortlet">
+      <div id="onlineContent" class="uiBox">
+        <v-card-title class="title center">
+          <span :class="firstLoadingOnLineUsers && 'skeleton-background skeleton-text skeleton-header skeleton-border-radius'">{{ $t('header.label') }}</span>
+        </v-card-title>
+        <ul id="onlineList" class="gallery uiContentBox">
+          <li v-for="user in users" :key="user" :id="user.id">
+            <a :href="user.href" class="avatarXSmall">
+              <v-avatar size="37" class="mx-1">
+                <v-img :src="!firstLoadingOnLineUsers && user.avatar || ''"
+                       :class="firstLoadingOnLineUsers && 'skeleton-background'"></v-img>
+              </v-avatar>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -18,7 +27,8 @@ import { spacesConstants } from '../../js/spacesConstants.js';
 export default {
   data() {
     return {
-      users: []
+      users: [],
+      firstLoadingOnLineUsers: true
     };
   },
   created() {
@@ -50,6 +60,9 @@ export default {
             $('#OnlinePortlet').show();
           } else {
             $('#OnlinePortlet').hide();
+          }
+          if(this.firstLoadingOnLineUsers) {
+            this.firstLoadingOnLineUsers = false;
           }
         }
       });

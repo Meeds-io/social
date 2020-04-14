@@ -7,6 +7,12 @@ const lang = `${spacesConstants.LANG}`;
 // should expose the locale ressources as REST API
 const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.whoisonline.whoisonline-${lang}.json`;
 
+Vue.use(Vuetify);
+const vuetify = new Vuetify({
+  dark: true,
+  iconfont: '',
+});
+
 // get overrided components if exists
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('WhoIsOnLinePortlet');
@@ -24,7 +30,8 @@ export function init() {
     new Vue({
       el: '#whoIsOnline',
       template: '<exo-who-is-online></exo-who-is-online>',
-      i18n
+      i18n,
+      vuetify
     });
   });
 }
