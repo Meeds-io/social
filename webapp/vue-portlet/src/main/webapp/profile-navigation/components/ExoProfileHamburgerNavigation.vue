@@ -39,7 +39,10 @@ export default {
       credentials: 'include',
     })
       .then(data => data && data.ok && data.json())
-      .then(data => this.profile = data && data.profile);
+      .then(data => this.profile = data && data.profile)
+      .finally(() => {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      });
   },
   methods: {
     

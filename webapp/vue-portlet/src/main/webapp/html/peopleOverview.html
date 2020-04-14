@@ -5,88 +5,31 @@
     <script type="text/javascript">
       require(['PORTLET/social-vue-portlet/PeopleOverview'], app => app.init());
     </script>
-    <style type="text/css">
-    .v-skeleton-loader__bone {
-      height: 100%;
-      margin: 0;
-    }
-    </style>
     <div class="v-application--wrap">
       <div
         class="pa-4 text-center v-card v-card--flat v-sheet theme--light">
         <div
           class="border-box-sizing d-flex flex-row justify-center ma-0 v-card v-card--flat v-sheet theme--light">
-          <div
-            class="spacesOverviewCard d-flex flex-column text-sub-title">
-            <div class="flex ma-auto flat">
-              <div class="spacesOverviewCount text-center pb-1">-</div>
+          <div class="peopleOverviewCard d-flex flex-column">
+            <div class="ma-auto">
               <div
-                class="spacesOverviewTitle text-center text-truncate pt-1">
-                <div
-                  class="v-skeleton-loader v-skeleton-loader--boilerplate v-skeleton-loader--is-loading theme--light"
-                  style="height: 26px; width: 80px;">
-                  <div
-                    class="v-skeleton-loader__heading v-skeleton-loader__bone"
-                    style="width: 100%;"></div>
-                </div>
-              </div>
+                class="peopleOverviewCount text-center pb-1 skeleton-background skeleton-border-radius skeleton-text">
+                &nbsp;&nbsp;</div>
+              <div
+                class="peopleOverviewTitle text-center text-truncate pt-1 skeleton-background skeleton-border-radius skeleton-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
             </div>
           </div>
           <hr role="separator" aria-orientation="vertical"
-            class="spacesOverviewVertivalSeparator ma-auto v-divider v-divider--vertical theme--light">
-          <div
-            class="spacesOverviewCard d-flex flex-column text-sub-title">
-            <div class="flex ma-auto flat">
-              <div class="spacesOverviewCount text-center pb-1">-</div>
+            class="peopleOverviewVertivalSeparator ma-auto v-divider v-divider--vertical theme--light">
+          <div class="peopleOverviewCard d-flex flex-column">
+            <div class="ma-auto">
               <div
-                class="spacesOverviewTitle text-center text-truncate pt-1">
-                <div
-                  class="v-skeleton-loader v-skeleton-loader--boilerplate v-skeleton-loader--is-loading theme--light"
-                  style="height: 26px; width: 80px;">
-                  <div
-                    class="v-skeleton-loader__heading v-skeleton-loader__bone"
-                    style="width: 100%;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <hr role="separator" aria-orientation="horizontal"
-          class="spacesOverviewHorizontalSeparator ma-auto v-divider theme--light">
-        <div
-          class="border-box-sizing d-flex flex-row justify-center ma-0 v-card v-card--flat v-sheet theme--light">
-          <div
-            class="spacesOverviewCard d-flex flex-column text-sub-title">
-            <div class="flex ma-auto flat">
-              <div class="spacesOverviewCount text-center pb-1">-</div>
+                class="peopleOverviewCount text-center pb-1 skeleton-background skeleton-border-radius skeleton-text">
+                &nbsp;&nbsp;</div>
               <div
-                class="spacesOverviewTitle text-center text-truncate pt-1">
-                <div
-                  class="v-skeleton-loader v-skeleton-loader--boilerplate v-skeleton-loader--is-loading theme--light"
-                  style="height: 26px; width: 80px;">
-                  <div
-                    class="v-skeleton-loader__heading v-skeleton-loader__bone"
-                    style="width: 100%;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <hr role="separator" aria-orientation="vertical"
-            class="spacesOverviewVertivalSeparator ma-auto v-divider v-divider--vertical theme--light">
-          <div
-            class="spacesOverviewCard d-flex flex-column text-sub-title">
-            <div class="flex ma-auto flat">
-              <div class="spacesOverviewCount text-center pb-1">-</div>
-              <div
-                class="spacesOverviewTitle text-center text-truncate pt-1">
-                <div
-                  class="v-skeleton-loader v-skeleton-loader--boilerplate v-skeleton-loader--is-loading theme--light"
-                  style="height: 26px; width: 80px;">
-                  <div
-                    class="v-skeleton-loader__heading v-skeleton-loader__bone"
-                    style="width: 100%;"></div>
-                </div>
-              </div>
+                class="peopleOverviewTitle text-center text-truncate pt-1 skeleton-background skeleton-border-radius skeleton-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
             </div>
           </div>
         </div>
@@ -115,7 +58,7 @@
               <div
                 class="flex drawerContent flex-grow-1 overflow-auto border-box-sizing">
                 <div class="layout ma-3 column">
-                  <span class="ma-auto">No spaces</span>
+                  <span class="ma-auto">No people!</span>
                   <div
                     class="v-card__actions flex-grow-1 justify-center my-2">
                     <div class="spacer"></div>
