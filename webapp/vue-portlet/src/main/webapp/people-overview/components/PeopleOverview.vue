@@ -6,6 +6,7 @@
           id="peopleInvitationsOverview"
           :title="$t('peopleOverview.label.invitations')"
           :count="invitations"
+          :skeleton="skeleton"
           :class="invitations === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
         <v-divider class="peopleOverviewVertivalSeparator ma-auto" vertical />
@@ -13,6 +14,7 @@
           id="peoplePendingOverview"
           :title="$t('peopleOverview.label.pending')"
           :count="pending"
+          :skeleton="skeleton"
           :class="pending === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
       </v-card>
@@ -28,6 +30,7 @@ export default {
   data: () => ({
     invitations: '-',
     pending: '-',
+    skeleton: true,
   }),
   created() {
     this.refresh();
@@ -42,6 +45,7 @@ export default {
         .finally(() => {
           loading--;
           if (loading === 0) {
+            this.skeleton = false;
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
         });
@@ -52,6 +56,7 @@ export default {
         .finally(() => {
           loading--;
           if (loading === 0) {
+            this.skeleton = false;
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
         });
