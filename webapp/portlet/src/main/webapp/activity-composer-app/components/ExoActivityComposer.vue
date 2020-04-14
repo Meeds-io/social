@@ -49,7 +49,7 @@
                 </div>
               </div>
               <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
-                         v-show="showMessageComposer" v-bind="action.component.props"
+                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
                          v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
@@ -68,8 +68,6 @@ export default {
   directives: {
     DynamicEvents: {
       bind: function (el, binding, vnode) {
-        const  compName = vnode.componentOptions.tag;
-        vnode.context.actionsComp[compName] = vnode.componentInstance;
         const allEvents = binding.value;
         if (allEvents) {
           allEvents.forEach((event) => {
@@ -99,8 +97,7 @@ export default {
       uploadingCount: 0,
       percent: 100,
       actionsData: [],
-      actionsEvents: [],
-      actionsComp: []
+      actionsEvents: []
     };
   },
   computed: {
@@ -187,7 +184,7 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      executeExtensionAction(action, this.actionsComp[action.component.name]);
+      executeExtensionAction(action, this.$refs[action.key]);
     },
     setUploadingCount: function(action) {
       if (action === 'add') {
