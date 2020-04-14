@@ -20,8 +20,7 @@ import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
@@ -45,6 +44,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
@@ -60,9 +60,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -75,12 +73,24 @@ import java.util.stream.Collectors;
 @Api(tags = VersionResources.VERSION_ONE + "/social/users", value = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRestResourcesV1 implements UserRestResources {
 
-  private static final String DEFAULT_USER_AVATAR = "/skin/images/system/UserAvtDefault.png";
+  public static final String  PROFILE_DEFAULT_BANNER_URL = "/images/banner/DefaultUserBanner.png";
 
-  private static final String DEFAULT_USER_BANNER = "/skin/images/themes/default/social/skin/UserNavigationPortlet/profileMenuBg.png";
+  public static final String  PROFILE_DEFAULT_AVATAR_URL = "/images/avatar/DefaultUserAvatar.png";
+
+  private static final int    IMAGES_CACHE_IN_SECONDS       = 86400;
+
+  private static final int    IMAGES_CACHE_IN_MILLI_SECONDS = IMAGES_CACHE_IN_SECONDS * 1000;
+
+  private static final Date   DEFAULT_IMAGES_LAST_MODIFED  = new Date();
+
+  private static final int    DEFAULT_AVATAR_HASH = (int) (Math.random() * Integer.MAX_VALUE);
+
+  private static final int    DEFAULT_BANNER_HASH = (int) (Math.random() * Integer.MAX_VALUE);
 
   private static final String ONLINE              = "online";
 
+  private static final CacheControl CACHE_CONTROL = new CacheControl();
+  
   private UserACL userACL;
 
   private IdentityManager identityManager;
@@ -98,13 +108,19 @@ public class UserRestResourcesV1 implements UserRestResources {
   private static final String INVISIBLE = "invisible";
 
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
-  
+
+  private byte[]              defaultUserAvatar = null;
+
+  private byte[]              defaultUserBanner = null;
+
   public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, RelationshipManager relationshipManager, UserStateService userStateService, SpaceService spaceService) {
     this.userACL = userACL;
     this.identityManager = identityManager;
     this.relationshipManager = relationshipManager;
     this.userStateService = userStateService;
     this.spaceService = spaceService;
+
+    CACHE_CONTROL.setMaxAge(IMAGES_CACHE_IN_SECONDS);
   }
   
   @GET
@@ -290,31 +306,36 @@ public class UserRestResourcesV1 implements UserRestResources {
         lastUpdated = profile.getAvatarLastUpdated();
       }
       EntityTag eTag = null;
-      if (lastUpdated != null) {
-        eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
+      if (lastUpdated == null) {
+        eTag = new EntityTag(String.valueOf(DEFAULT_AVATAR_HASH));
+      } else {
+        eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
       }
       //
       if (identity.isEnable() && !identity.isDeleted()) {
-        builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
-        if (builder == null) {
+        builder = request.evaluatePreconditions(eTag);
+        if (builder == null && lastUpdated != null) {
           InputStream stream = identityManager.getAvatarInputStream(identity);
           if (stream != null) {
-          /* As recommended in the the RFC1341 (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html),
-          we set the avatar content-type to "image/png". So, its data  would be recognized as "image" by the user-agent */
+            /*
+             * As recommended in the the RFC1341
+             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+             * set the avatar content-type to "image/png". So, its data would be
+             * recognized as "image" by the user-agent
+             */
             builder = Response.ok(stream, "image/png");
-            builder.tag(eTag);
           }
         }
       }
 
-      if (builder == null) {
+      if (builder == null || lastUpdated == null) {
         builder = getDefaultAvatarBuilder(defaultAvatar);
       }
 
-      CacheControl cc = new CacheControl();
-      cc.setMaxAge(86400);
-      builder.cacheControl(cc);
-      return builder.cacheControl(cc).build();
+      builder.tag(eTag);
+      builder.cacheControl(CACHE_CONTROL);
+      builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+      return builder.build();
     }
   }
 
@@ -348,87 +369,43 @@ public class UserRestResourcesV1 implements UserRestResources {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     } else {
-      //
       Profile profile = identity.getProfile();
       Long lastUpdated = null;
       if (profile != null) {
         lastUpdated = profile.getBannerLastUpdated();
       }
       EntityTag eTag = null;
-      if (lastUpdated != null) {
-        eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
+      if (lastUpdated == null) {
+        eTag = new EntityTag(String.valueOf(DEFAULT_BANNER_HASH));
+      } else {
+        eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
       }
       //
-      builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
-      if (builder == null) {
-        InputStream stream = identityManager.getBannerInputStream(identity);
-        if (stream != null) {
-          /* As recommended in the the RFC1341 (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html),
-          we set the banner content-type to "image/png". So, its data  would be recognized as "image" by the user-agent */
-          builder = Response.ok(stream, "image/png");
-          builder.tag(eTag);
+      if (identity.isEnable() && !identity.isDeleted()) {
+        builder = request.evaluatePreconditions(eTag);
+        if (builder == null && lastUpdated != null) {
+          InputStream stream = identityManager.getBannerInputStream(identity);
+          if (stream != null) {
+            /*
+             * As recommended in the the RFC1341
+             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+             * set the Banner content-type to "image/png". So, its data would be
+             * recognized as "image" by the user-agent
+             */
+            builder = Response.ok(stream, "image/png");
+          }
         }
       }
 
-      if (builder == null) {
+      if (builder == null || lastUpdated == null) {
         builder = getDefaultBannerBuilder(defaultBanner);
       }
 
-      CacheControl cc = new CacheControl();
-      cc.setMaxAge(86400);
-      builder.cacheControl(cc);
-      return builder.cacheControl(cc).build();
+      builder.tag(eTag);
+      builder.cacheControl(CACHE_CONTROL);
+      builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+      return builder.build();
     }
-  }
-
-  private Response.ResponseBuilder getDefaultAvatarBuilder(String avatarUrl) {
-    if (avatarUrl != null) {
-      if (avatarUrl.equals("404")) {
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-      }
-
-      try {
-        URL url = new URL(avatarUrl);
-        String type = url.openConnection().getHeaderField("Content-Type");
-        if (type != null && type.startsWith("image/")) {
-          InputStream input = url.openStream();
-          return Response.ok(input, type);
-        }
-      } catch (IOException e) {
-        LOG.debug("Could NOT open the default url " + avatarUrl);
-      }
-    }
-
-    InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(DEFAULT_USER_AVATAR);
-    if (is == null) {
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-    }
-    return Response.ok(is, "image/png");
-  }
-  
-  private Response.ResponseBuilder getDefaultBannerBuilder(String bannerUrl) {
-    if (bannerUrl != null) {
-      if (bannerUrl.equals("404")) {
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-      }
-      
-      try {
-        URL url = new URL(bannerUrl);
-        String type = url.openConnection().getHeaderField("Content-Type");
-        if (type != null && type.startsWith("image/")) {
-          InputStream input = url.openStream();
-          return Response.ok(input, type);
-        }
-      } catch (IOException e) {
-        LOG.debug("Could NOT open the default url " + bannerUrl);
-      }
-    }
-
-    InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(DEFAULT_USER_BANNER);
-    if (is == null) {
-      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-    }
-    return Response.ok(is, "image/png");
   }
 
   @DELETE
@@ -884,4 +861,63 @@ public class UserRestResourcesV1 implements UserRestResources {
       return null;
     }
   }
+
+  private Response.ResponseBuilder getDefaultAvatarBuilder(String avatarUrl) throws IOException {
+    if (avatarUrl != null) {
+      if (avatarUrl.equals("404")) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+
+      try {
+        URL url = new URL(avatarUrl);
+        String type = url.openConnection().getHeaderField("Content-Type");
+        if (type != null && type.startsWith("image/")) {
+          InputStream input = url.openStream();
+          return Response.ok(input, type);
+        }
+      } catch (IOException e) {
+        LOG.debug("Could NOT open the default url " + avatarUrl);
+      }
+    }
+
+    if (defaultUserBanner == null) {
+      InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(PROFILE_DEFAULT_AVATAR_URL);
+      if (is == null) {
+        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      }
+      defaultUserBanner = IOUtil.getStreamContentAsBytes(is);
+    }
+
+    return Response.ok(new ByteArrayInputStream(defaultUserAvatar), "image/png");
+  }
+
+  private Response.ResponseBuilder getDefaultBannerBuilder(String bannerUrl) throws IOException {
+    if (bannerUrl != null) {
+      if (bannerUrl.equals("404")) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+      
+      try {
+        URL url = new URL(bannerUrl);
+        String type = url.openConnection().getHeaderField("Content-Type");
+        if (type != null && type.startsWith("image/")) {
+          InputStream input = url.openStream();
+          return Response.ok(input, type);
+        }
+      } catch (IOException e) {
+        LOG.debug("Could NOT open the default url " + bannerUrl);
+      }
+    }
+
+    if (defaultUserBanner == null) {
+      InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(PROFILE_DEFAULT_BANNER_URL);
+      if (is == null) {
+        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      }
+      defaultUserBanner = IOUtil.getStreamContentAsBytes(is);
+    }
+
+    return Response.ok(new ByteArrayInputStream(defaultUserBanner), "image/png");
+  }
+
 }
