@@ -161,8 +161,11 @@
             <field name="location">
               <string>war:/conf/portal</string>
             </field>
+            <field name="override">
+              <boolean>${exo.social.portalConfig.metadata.override:true}</boolean>
+            </field>
             <field name="importMode">
-              <string>insert</string>
+              <string>${exo.social.portalConfig.metadata.importmode:insert}</string>
             </field>
           </object>
         </object-param>
