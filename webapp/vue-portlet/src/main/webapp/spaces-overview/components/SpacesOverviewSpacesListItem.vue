@@ -39,7 +39,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="mr-2 spacesOverviewCheck"
           fab
           dark
@@ -52,7 +53,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="spacesOverviewClose"
           fab
           dark
@@ -67,7 +69,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="mr-2 spacesOverviewCheck"
           fab
           dark
@@ -80,7 +83,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="spacesOverviewClose"
           fab
           dark
@@ -95,7 +99,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="spacesOverviewCheck outlined"
           icon
           fab
@@ -109,7 +114,8 @@
         <v-btn
           :width="actionIconSize"
           :height="actionIconSize"
-          :loading="loadingSpaces"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="spacesOverviewClose"
           fab
           dark
@@ -147,6 +153,7 @@ export default {
   data() {
     return {
       actionIconSize: 27,
+      sendingAction: false,
       spaceItemClass: `spaceList${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,

@@ -1566,7 +1566,7 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     assertEquals(2, suggestions.size());
 
   }
-  
+
   public void testGetLastConnections() throws Exception {
     Relationship maryToGhostRelationship = relationshipManager.inviteToConnect(ghostIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, ghostIdentity);
@@ -1591,7 +1591,27 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     assertEquals(johnIdentity.getRemoteId(), identities.get(0).getRemoteId());
     
   }
-  
+
+  public void testGetConnectionsInCommonCount() throws Exception {
+    relationshipManager.inviteToConnect(ghostIdentity, maryIdentity);
+    relationshipManager.confirm(maryIdentity, ghostIdentity);
+
+    relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
+    relationshipManager.confirm(maryIdentity, demoIdentity);
+
+    relationshipManager.inviteToConnect(paulIdentity, maryIdentity);
+
+    relationshipManager.inviteToConnect(ghostIdentity, demoIdentity);
+    relationshipManager.confirm(demoIdentity, ghostIdentity);
+
+    relationshipManager.inviteToConnect(ghostIdentity, paulIdentity);
+    relationshipManager.confirm(paulIdentity, ghostIdentity);
+
+    assertEquals(1, relationshipManager.getConnectionsInCommonCount(maryIdentity, ghostIdentity));
+    assertEquals(1, relationshipManager.getConnectionsInCommonCount(maryIdentity, paulIdentity));
+    assertEquals(0, relationshipManager.getConnectionsInCommonCount(maryIdentity, rootIdentity));
+  }
+
   private Profile initProfile(String userName, String firstName, String lastName, String fullName,
                               String position, String gender, String company) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName, true);

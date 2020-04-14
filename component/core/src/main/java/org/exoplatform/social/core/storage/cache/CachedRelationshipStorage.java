@@ -834,4 +834,31 @@ public class CachedRelationshipStorage implements RelationshipStorage {
   public int getRelationshipsCountByStatus(Identity identity, Relationship.Type type) {
     return storage.getRelationshipsCountByStatus(identity, type);
   }
+
+  @Override
+  public int getConnectionsInCommonCount(Identity identity1, Identity identity2) {
+    // We make sure to check the Relationship in the same order to improve
+    // efficiency of the cache
+    final Identity idFirst;
+    final Identity idLast;
+    if (identity1 == null || identity2 == null || StringUtils.isBlank(identity1.getId()) || StringUtils.isBlank(identity2.getId())
+        || identity1.getId().trim().equals(identity2.getId().trim())) {
+      return 0;
+    } else if (identity1.getId().compareTo(identity2.getId()) > 0) {
+      idFirst = identity1;
+      idLast = identity2;
+    } else {
+      idFirst = identity2;
+      idLast = identity1;
+    }
+
+    RelationshipIdentityKey identitiesKey = new RelationshipIdentityKey(idFirst.getId(), idLast.getId());
+    RelationshipCountKey<RelationshipIdentityKey> key = new RelationshipCountKey<>(identitiesKey, RelationshipType.CONNECTION);
+
+    return relationshipsCount.get(new ServiceContext<IntegerData>() {
+      public IntegerData execute() {
+        return new IntegerData(storage.getConnectionsInCommonCount(idFirst, idLast));
+      }
+    }, key).build();
+  }
 }

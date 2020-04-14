@@ -168,6 +168,40 @@
   </portlet>
 
   <portlet>
+    <portlet-name>PeopleList</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/peopleList.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.PeopleListApplication</resource-bundle>
+    <portlet-info>
+      <title>People List</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>PeopleOverview</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/peopleOverview.html</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.PeopleOverview</resource-bundle>
+    <portlet-info>
+      <title>Spaces Overview</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>SuggestionsPeopleAndSpace</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>

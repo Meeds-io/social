@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.persistence.*;
@@ -25,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.query.RelationshipQueryBuilder;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
@@ -240,6 +240,66 @@ public class ConnectionDAOImpl extends GenericDAOJPAImpl<ConnectionEntity, Long>
       query.setMaxResults(limit);
     }
     return query.getResultList();
+  }
+
+  @Override
+  public int getConnectionsInCommonCount(String id1, String id2) {
+    int statusOrdinal = Type.CONFIRMED.ordinal();
+
+    // FIXME Can't use INTERSECT, because it's incompatible with MySQL
+    StringBuilder queryStringBuilder = new StringBuilder("SELECT count(DISTINCT COMMON_CONNECTIONS.ID) \n");
+    queryStringBuilder.append(" FROM \n");
+    queryStringBuilder.append(" ( \n");
+    queryStringBuilder.append(" SELECT conn1.ID \n");
+    queryStringBuilder.append(" FROM  \n");
+    queryStringBuilder.append(" ( \n");
+    queryStringBuilder.append("   SELECT conn1Rec.RECEIVER_ID AS ID \n");
+    queryStringBuilder.append("   FROM SOC_CONNECTIONS as conn1Rec \n");
+    queryStringBuilder.append("   WHERE \n");
+    queryStringBuilder.append("     conn1Rec.STATUS = ");
+    queryStringBuilder.append(statusOrdinal);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("     AND conn1Rec.SENDER_ID = ");
+    queryStringBuilder.append(id1);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("   UNION \n");
+    queryStringBuilder.append("   SELECT conn1Send.SENDER_ID AS ID \n");
+    queryStringBuilder.append("   FROM SOC_CONNECTIONS as conn1Send \n");
+    queryStringBuilder.append("   WHERE \n");
+    queryStringBuilder.append("     conn1Send.STATUS = ");
+    queryStringBuilder.append(statusOrdinal);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("     AND conn1Send.RECEIVER_ID = ");
+    queryStringBuilder.append(id1);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append(" ) AS conn1 \n");
+    queryStringBuilder.append(" WHERE conn1.ID in \n");
+    queryStringBuilder.append("   ( \n");
+    queryStringBuilder.append("     SELECT conn2Rec.RECEIVER_ID AS ID \n");
+    queryStringBuilder.append("     FROM SOC_CONNECTIONS as conn2Rec \n");
+    queryStringBuilder.append("     WHERE \n");
+    queryStringBuilder.append("       conn2Rec.STATUS = ");
+    queryStringBuilder.append(statusOrdinal);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("       AND conn2Rec.SENDER_ID = ");
+    queryStringBuilder.append(id2);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("     UNION \n");
+    queryStringBuilder.append("     SELECT conn2Send.SENDER_ID AS ID \n");
+    queryStringBuilder.append("     FROM SOC_CONNECTIONS as conn2Send \n");
+    queryStringBuilder.append("     WHERE \n");
+    queryStringBuilder.append("       conn2Send.STATUS = ");
+    queryStringBuilder.append(statusOrdinal);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("       AND conn2Send.RECEIVER_ID = ");
+    queryStringBuilder.append(id2);
+    queryStringBuilder.append(" \n");
+    queryStringBuilder.append("   ) \n");
+    queryStringBuilder.append(" ) AS COMMON_CONNECTIONS \n");
+
+    Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
+    BigInteger result = (BigInteger) query.getSingleResult();
+    return result == null ? 0 : result.intValue();
   }
 
   private Query getConnectionsQuery(String identityId, Type status, String firstCharacterField, char firstCharacter, String sortField, String sortDirection) {

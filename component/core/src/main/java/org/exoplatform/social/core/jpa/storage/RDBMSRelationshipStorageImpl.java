@@ -373,6 +373,11 @@ public class RDBMSRelationshipStorageImpl implements RelationshipStorage {
    return suggestions;
   }
 
+  @Override
+  public int getConnectionsInCommonCount(Identity identity1, Identity identity2) {
+    return connectionDAO.getConnectionsInCommonCount(identity1.getId(), identity2.getId());
+  }
+
   private List<Identity> searchConnectionByFilter(Identity owner, Relationship.Type status, ProfileFilter profileFilter, long offset, long limit) {
     ExtendProfileFilter xFilter = new ExtendProfileFilter(profileFilter);
     if(xFilter.isEmpty()) {

@@ -75,10 +75,17 @@ import java.util.stream.Collectors;
 @Api(tags = VersionResources.VERSION_ONE + "/social/users", value = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRestResourcesV1 implements UserRestResources {
 
-  private static final String ONLINE = "online";
+  private static final String DEFAULT_USER_AVATAR = "/skin/images/system/UserAvtDefault.png";
+
+  private static final String DEFAULT_USER_BANNER = "/skin/images/themes/default/social/skin/UserNavigationPortlet/profileMenuBg.png";
+
+  private static final String ONLINE              = "online";
+
   private UserACL userACL;
 
   private IdentityManager identityManager;
+  
+  private RelationshipManager relationshipManager;
 
   private UserStateService userStateService;
 
@@ -92,9 +99,10 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
   
-  public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, UserStateService userStateService, SpaceService spaceService) {
+  public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, RelationshipManager relationshipManager, UserStateService userStateService, SpaceService spaceService) {
     this.userACL = userACL;
     this.identityManager = identityManager;
+    this.relationshipManager = relationshipManager;
     this.userStateService = userStateService;
     this.spaceService = spaceService;
   }
@@ -152,7 +160,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     } else {
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
-      ListAccess<Identity> list = CommonsUtils.getService(IdentityManager.class).getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
+      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
       identities = list.load(offset, limit);
       if(returnSize) {
         totalSize = list.getSize();
@@ -201,7 +209,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     }
     
     //check if the user is already exist
-    Identity identity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, model.getUsername(), true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, model.getUsername());
     if (identity != null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -236,7 +244,7 @@ public class UserRestResourcesV1 implements UserRestResources {
   public Response getUserById(@Context UriInfo uriInfo,
                               @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-    Identity identity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     //
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -268,7 +276,7 @@ public class UserRestResourcesV1 implements UserRestResources {
                                     @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                                     @ApiParam(value = "URL to default avatar Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultAvatar) throws IOException {
   
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
 
     //
     Response.ResponseBuilder builder = null;
@@ -333,7 +341,7 @@ public class UserRestResourcesV1 implements UserRestResources {
                                     @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                                     @ApiParam(value = "URL to default banner Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultBanner) throws IOException {
 
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
 
     //
     Response.ResponseBuilder builder = null;
@@ -363,7 +371,7 @@ public class UserRestResourcesV1 implements UserRestResources {
       }
 
       if (builder == null) {
-        return Response.status(Response.Status.NOT_FOUND).build();
+        builder = getDefaultBannerBuilder(defaultBanner);
       }
 
       CacheControl cc = new CacheControl();
@@ -374,24 +382,49 @@ public class UserRestResourcesV1 implements UserRestResources {
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder(String avatarUrl) {
-      if (avatarUrl != null) {
-        if (avatarUrl.equals("404")) {
-          throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        try {
-          URL url = new URL(avatarUrl);
-          String type = url.openConnection().getHeaderField("Content-Type");
-          if (type != null && type.startsWith("image/")) {
-            InputStream input = url.openStream();
-            return Response.ok(input, type);
-          }
-        } catch (IOException e) {
-          LOG.debug("Could NOT open the default url " + avatarUrl);
-        }
+    if (avatarUrl != null) {
+      if (avatarUrl.equals("404")) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
 
-    InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream("/skin/images/system/UserAvtDefault.png");
+      try {
+        URL url = new URL(avatarUrl);
+        String type = url.openConnection().getHeaderField("Content-Type");
+        if (type != null && type.startsWith("image/")) {
+          InputStream input = url.openStream();
+          return Response.ok(input, type);
+        }
+      } catch (IOException e) {
+        LOG.debug("Could NOT open the default url " + avatarUrl);
+      }
+    }
+
+    InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(DEFAULT_USER_AVATAR);
+    if (is == null) {
+      throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    return Response.ok(is, "image/png");
+  }
+  
+  private Response.ResponseBuilder getDefaultBannerBuilder(String bannerUrl) {
+    if (bannerUrl != null) {
+      if (bannerUrl.equals("404")) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+      
+      try {
+        URL url = new URL(bannerUrl);
+        String type = url.openConnection().getHeaderField("Content-Type");
+        if (type != null && type.startsWith("image/")) {
+          InputStream input = url.openStream();
+          return Response.ok(input, type);
+        }
+      } catch (IOException e) {
+        LOG.debug("Could NOT open the default url " + bannerUrl);
+      }
+    }
+
+    InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(DEFAULT_USER_BANNER);
     if (is == null) {
       throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -413,8 +446,7 @@ public class UserRestResourcesV1 implements UserRestResources {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -463,7 +495,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
@@ -471,11 +503,12 @@ public class UserRestResourcesV1 implements UserRestResources {
                 httpMethod = "GET",
                 response = Response.class,
                 notes = "This can only be done by the logged in user.")
-  public Response getConnectionOfUser(@Context UriInfo uriInfo,
+  public Response getConnectionsOfUser(@Context UriInfo uriInfo,
                                       @ApiParam(value = "User name", required = true) @PathParam("id") String id,
+                                      @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                                       @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                                       @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-    Identity target = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -484,7 +517,9 @@ public class UserRestResourcesV1 implements UserRestResources {
     int offset = RestUtils.getOffset(uriInfo);
     
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
-    ListAccess<Identity> listAccess = CommonsUtils.getService(RelationshipManager.class).getConnectionsByFilter(target, new ProfileFilter());
+    ProfileFilter profileFilter = new ProfileFilter();
+    profileFilter.setName(q);
+    ListAccess<Identity> listAccess = relationshipManager.getConnectionsByFilter(target, profileFilter);
     Identity []identities = listAccess.load(offset, limit);
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
@@ -497,7 +532,68 @@ public class UserRestResourcesV1 implements UserRestResources {
     }
     return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  @GET
+  @Path("connections/invitations")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Gets received invitations of current user", httpMethod = "GET", response = Response.class, notes = "This can only be done by the logged in user.")
+  public Response getInvitationsOfUser(@Context UriInfo uriInfo,
+                                       @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                       @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+    String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+    if (target == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    int limit = RestUtils.getLimit(uriInfo);
+    int offset = RestUtils.getOffset(uriInfo);
+
+    List<DataEntity> profileInfos = new ArrayList<>();
+    ListAccess<Identity> listAccess = relationshipManager.getIncomingWithListAccess(target);
+    Identity[] identities = listAccess.load(offset, limit);
+    for (Identity identity : identities) {
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      //
+      profileInfos.add(profileInfo.getDataEntity());
+    }
+    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+    if (returnSize) {
+      collectionUser.setSize(listAccess.getSize());
+    }
+    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+  @GET
+  @Path("connections/pending")
+  @ApiOperation(value = "Gets received invitations of current user", httpMethod = "GET", response = Response.class, notes = "This can only be done by the logged in user.")
+  public Response getPendingOfUser(@Context UriInfo uriInfo,
+                                   @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+    String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+    if (target == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    int limit = RestUtils.getLimit(uriInfo);
+    int offset = RestUtils.getOffset(uriInfo);
+
+    List<DataEntity> profileInfos = new ArrayList<>();
+    ListAccess<Identity> listAccess = relationshipManager.getOutgoing(target);
+    Identity[] identities = listAccess.load(offset, limit);
+    for (Identity identity : identities) {
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      //
+      profileInfos.add(profileInfo.getDataEntity());
+    }
+    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+    if (returnSize) {
+      collectionUser.setSize(listAccess.getSize());
+    }
+    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
@@ -515,7 +611,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
-    Identity target = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     //Check if the given user exists
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -564,7 +660,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //Check if the given user doesn't exist
-    Identity target = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -606,7 +702,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     } else {
       activities = listAccess.loadAsList(offset, limit);
     }
-    Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     List<DataEntity> activityEntities = new ArrayList<DataEntity>();
     for (ExoSocialActivity activity : activities) {
       DataEntity as = EntityBuilder.getActivityStream(activity, currentUser);
@@ -642,7 +738,7 @@ public class UserRestResourcesV1 implements UserRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //Check if the given user doesn't exist
-    Identity target = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, id, true);
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (target == null || !ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }

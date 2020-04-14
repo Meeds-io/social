@@ -119,4 +119,12 @@ public interface ConnectionDAO extends GenericDAO<ConnectionEntity, Long> {
 
   List<Long> getSenderIds(long receiverId, Type status, int offset, int limit);
   List<Long> getReceiverIds(long receiverId, Type status, int offset, int limit);
+
+  /**
+   * 
+   * @param id
+   * @param id2
+   * @return connections in common count between two users
+   */
+  int getConnectionsInCommonCount(String id, String id2);
 }
