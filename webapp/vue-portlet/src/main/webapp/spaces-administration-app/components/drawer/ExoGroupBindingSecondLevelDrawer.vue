@@ -49,11 +49,20 @@
         align-baseline
         wrap
         row>
+        <v-flex
+          align-self-end
+          xs1>
+          <v-btn
+            icon
+            class="leftIcon"
+            @click="searchMode = false">
+            <v-icon small>arrow_back</v-icon>
+          </v-btn>
+        </v-flex>
         <v-flex pl-4>
           <v-text-field
             v-model="search"
             :placeholder="$t(`social.spaces.administration.manageSpaces.spaceBindingForm.selectGroups.search`)"
-            append-icon="search"
             class="treeGroupSearch"
             single-line
             clearable
@@ -61,18 +70,6 @@
             flat
             hide-details>
           </v-text-field>
-        </v-flex>
-        <v-flex xs1 mr-2>
-          <v-btn
-            icon
-            class="rightIcon"
-            @click="searchMode = false">
-            <v-icon
-              large
-              class="closeIcon">
-              close
-            </v-icon>
-          </v-btn>
         </v-flex>
       </v-layout>
     </v-card-title>
