@@ -32,8 +32,15 @@
     </node>
 
     <node>
+      <name>people</name>
+      <label>#{portal.global.people}</label>
+      <page-reference>portal::global::all-people</page-reference>
+    </node>
+
+    <node>
       <name>connexions</name>
       <label>#{portal.global.people}</label>
+      <visibility>SYSTEM</visibility>
       <page-reference>portal::global::all-people</page-reference>
 
       <node>
