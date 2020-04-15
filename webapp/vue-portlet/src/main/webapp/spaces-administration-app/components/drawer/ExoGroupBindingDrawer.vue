@@ -32,7 +32,7 @@
             <img v-else :src="avatar" class="avatar" />
           </v-flex>
           <v-flex pt-1 class="spaceName">
-            <span> {{ spaceDisplayName }} </span>
+            <span> {{ spaceToBind ? spaceToBind.displayName : '' }} </span>
           </v-flex>
         </v-layout>
         <v-layout
@@ -151,7 +151,7 @@ export default {
         createOnBlur: false,
         highlight: false,
         openOnFocus: false,
-        valueField: 'text',
+        valueField: 'value',
         labelField: 'text',
         searchField: ['text'],
         closeAfterSelect: false,
@@ -168,9 +168,6 @@ export default {
     isAllowToSave() {
       return this.groups && this.groups.length > 0;
     },
-    spaceDisplayName() {
-      return  this.spaceToBind ? this.spaceToBind.displayName : '';
-    }
   },
   methods : {
     findGroups (query, callback) {
@@ -184,7 +181,7 @@ export default {
           if (!group.id.startsWith('/spaces') && !boundGroups.includes(group.id)) {
             groups.push({
               avatarUrl: null,
-              text: group.id,
+              text: group.label,
               value: group.id,
               type: 'group'
             });
