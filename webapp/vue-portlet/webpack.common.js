@@ -10,7 +10,6 @@ let config = {
     spaceTemplates: './src/main/webapp/space-templates-app/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
-    topBarLogo: './src/main/webapp/logo-top-bar/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
     spacesList: './src/main/webapp/spaces-list/main.js',
