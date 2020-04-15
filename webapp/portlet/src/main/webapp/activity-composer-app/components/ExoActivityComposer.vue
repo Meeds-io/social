@@ -2,7 +2,7 @@
   <div class="activityComposer">
     <div class="openLink">
       <a @click="openMessageComposer()">
-        <i class="uiIconGoUp"></i>{{ $t('activity.composer.link') }}
+        <i class="uiIconGoUp"></i>{{ $t('activity.composer.link').replace('{0}', postTarget) }}
       </a>
     </div>
 
@@ -89,6 +89,7 @@ export default {
     return {
       MESSAGE_MAX_LENGTH: 2000,
       MESSAGE_TIMEOUT: 5000,
+      postTarget: '',
       showMessageComposer: false,
       message: '',
       showErrorMessage: false,
@@ -126,6 +127,12 @@ export default {
       }
     }
   },
+  mounted() {
+    this.postTarget = eXo.env.portal.spaceDisplayName;
+    if(!this.postTarget) {
+      this.postTarget = this.$t('activity.composer.link.network');
+    }
+  },
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
     this.activityComposerActions.forEach(action => {
@@ -139,6 +146,16 @@ export default {
     openMessageComposer: function() {
       this.$refs.richEditor.setFocus();
       this.showMessageComposer = true;
+
+      // Send metric
+      let url = '/portal/rest/v1/social/metrics/composer/click?composer=new';
+      if(eXo.env.portal.spaceId) {
+        url += `&spaceId=${eXo.env.portal.spaceId}`;
+      }
+      fetch(url, {
+        credentials: 'include',
+        method: 'POST'
+      });
     },
     getLabel: function(labelKey) {
       const label = this.$t(labelKey);
