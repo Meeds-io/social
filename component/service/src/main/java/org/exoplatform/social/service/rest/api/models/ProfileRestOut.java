@@ -36,7 +36,11 @@ public class ProfileRestOut extends HashMap<String, Object>{
     /**
      * The avatar URL of identity
      */
-    AVATAR_URL("avatarUrl");
+    AVATAR_URL("avatarUrl"),
+    /**
+     * The banner URL of identity
+     */
+    BANNER_URL("bannerUrl");
     
    /**
     * String type.
@@ -73,6 +77,7 @@ public class ProfileRestOut extends HashMap<String, Object>{
   public ProfileRestOut(Profile profile){
     this.setFullName(profile.getFullName());
     this.setAvatarUrl(profile.getAvatarUrl());    
+    this.setBannerUrl(profile.getBannerUrl());    
   }
   
   /**
@@ -116,6 +121,18 @@ public class ProfileRestOut extends HashMap<String, Object>{
    */
   public String getAvatarUrl(){
     return (String) this.get(Field.AVATAR_URL.toString());
+  }
+  
+  public void setBannerUrl(String bannerUrl){
+    if(bannerUrl != null){
+      this.put(Field.BANNER_URL.toString(), bannerUrl);
+    } else {
+      this.put(Field.BANNER_URL.toString(), "");
+    }
+  }
+  
+  public String getBannerUrl(){
+    return (String) this.get(Field.BANNER_URL.toString());
   }
   
   private void initialize(){

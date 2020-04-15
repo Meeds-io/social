@@ -687,22 +687,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     space.setUrl(entity.getUrl());
     space.setCreatedTime(entity.getCreatedDate().getTime());
 
-    if (entity.getAvatarLastUpdated() != null) {
-      try {
-        space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getPrettyName()));
-      } catch (Exception e) {
-        LOG.warn("Failed to build avatar url: " + e.getMessage());
-      }
+    Date lastUpdated = entity.getAvatarLastUpdated();
+    if (lastUpdated != null) {
       space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
     }
-    if (entity.getBannerLastUpdated() != null) {
-      try {
-        space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName()));
-      } catch (Exception e) {
-        LOG.warn("Failed to build Banner url: " + e.getMessage());
-      }
-      space.setBannerLastUpdated(entity.getBannerLastUpdated().getTime());
+    space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
+    lastUpdated = entity.getBannerLastUpdated();
+    if (lastUpdated != null) {
+      space.setBannerLastUpdated(lastUpdated.getTime());
     }
+    space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
     return space;
   }
 

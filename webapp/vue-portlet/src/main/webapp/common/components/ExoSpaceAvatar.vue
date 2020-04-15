@@ -88,10 +88,7 @@ export default {
       return this.space && this.space.groupId;
     },
     avatarUrl() {
-      if (!this.space) {
-        return;
-      }
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`;
+      return this.space && this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`;
     },
     url() {
       if (!this.groupId) {
@@ -117,7 +114,7 @@ export default {
           membersRestURL: '/portal/rest/v1/social/spaces/{0}/users?returnSize=true',
           managerRestUrl: '/portal/rest/v1/social/spaces/{0}/users?role=manager&returnSize=true',
           membershipRestUrl: '/portal/rest/v1/social/spacesMemberships?space={0}&returnSize=true',
-          defaultAvatarUrl: `/portal/rest/v1/social/spaces/${this.prettyName}/avatar`,
+          defaultAvatarUrl: this.avatarUrl,
           deleteMembershipRestUrl: '/portal/rest/v1/social/spacesMemberships/{0}:{1}:{2}',
           labels: this.labels,
           content: false,

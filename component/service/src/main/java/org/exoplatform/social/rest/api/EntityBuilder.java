@@ -151,6 +151,7 @@ public class EntityBuilder {
     userEntity.setEmail(profile.getEmail());
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
+    userEntity.setBanner(profile.getBannerUrl());
     userEntity.setPhones(getSubListByProperties(profile.getPhones(), getPhoneProperties()));
     userEntity.setExperiences(getSubListByProperties((List)(List<Map<String, Object>>) profile.getProperty(Profile.EXPERIENCES), getExperiencesProperties()));
     userEntity.setIms(getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS), getImsProperties()));
@@ -301,6 +302,7 @@ public class EntityBuilder {
     spaceEntity.setDescription(space.getDescription());
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
+    spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));

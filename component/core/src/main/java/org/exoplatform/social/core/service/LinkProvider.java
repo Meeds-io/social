@@ -47,7 +47,8 @@ import org.exoplatform.web.url.navigation.NodeURL;
 public class LinkProvider {
   public static final String RESOURCE_URL = "/social-resources";
   public static final String JAVASCRIPT_RESOURCE_URL = RESOURCE_URL + "/javascript/";
-  public static final String PROFILE_DEFAULT_AVATAR_URL = "/eXoSkin/skin/images/system/UserAvtDefault.png";
+
+  public static final String PROFILE_DEFAULT_AVATAR_URL = "/eXoSkin/skin/images/avatar/DefaultUserAvatar.png";
   public static final String SPACE_DEFAULT_AVATAR_URL = "/eXoSkin/skin/images/system/SpaceAvtDefault.png";
   public static final String HAS_CONNECTION_ICON =
           RESOURCE_URL + "/eXoSkin/skin/images/themes/default/social/skin/UIManageUsers/StatusIcon.png";
@@ -63,10 +64,16 @@ public class LinkProvider {
   public static final String STARTER_ACTIVITY_IMAGE = "/eXoSkin/skin/images/themes/default/social/skin/Activity/starterActImg.png";
 
   public static final String ROUTE_DELIMITER = "/";
-  
+
+  private static final long   DEFAULT_IMAGES_LAST_MODIFED = System.currentTimeMillis();
+
   private static Log             LOG = ExoLogger.getLogger(LinkProvider.class);
 
   private static final  String BASE_URL_SOCIAL_REST_API = "/v1/social";
+
+  private static String        baseURLSocialUserRest;
+
+  private static String        baseURLSocialSpaceRest;
 
   public LinkProvider() {
   }
@@ -319,12 +326,30 @@ public class LinkProvider {
   
   /**
    * Builds the avatar URL for a given profile
+   * 
    * @param providerId
    * @param remoteId
    * @return
+   * @deprecated user {@link LinkProvider#buildAvatarURL(String, String, Long)}
+   *             to use browser cache
    */
+  @Deprecated
   public static String buildAvatarURL(String providerId, String remoteId) {
-    return buildAttachmentUrl(providerId, remoteId, AvatarAttachment.TYPE);
+    return buildAttachmentUrl(providerId, remoteId, null, AvatarAttachment.TYPE);
+  }
+
+  /**
+   * Builds the avatar URL for a given profile
+   * @param providerId
+   * @param remoteId
+   * @param lastModifiedDate last modified date of avatar
+   * @return
+   */
+  public static String buildAvatarURL(String providerId, String remoteId, Long lastModifiedDate) {
+    if (lastModifiedDate == null) {
+      lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
+    }
+    return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, AvatarAttachment.TYPE);
   }
 
   /**
@@ -332,46 +357,57 @@ public class LinkProvider {
    * @param providerId
    * @param remoteId
    * @return
+   * @deprecated user {@link LinkProvider#buildBannerURL(String, String, Long)}
+   *             to use browser cache
    */
+  @Deprecated
   public static String buildBannerURL(String providerId, String remoteId) {
-    return buildAttachmentUrl(providerId, remoteId, BannerAttachment.TYPE);
+    return buildAttachmentUrl(providerId, remoteId, null, BannerAttachment.TYPE);
+  }
+  
+  /**
+   * Builds the banner URL for a given profile
+   * @param providerId
+   * @param remoteId
+   * @param lastModifiedDate last modified date of avatar
+   * @return
+   */
+  public static String buildBannerURL(String providerId, String remoteId, Long lastModifiedDate) {
+    if (lastModifiedDate == null) {
+      lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
+    }
+    return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, BannerAttachment.TYPE);
   }
 
-  private static String buildAttachmentUrl(String providerId, String remoteId, String type) {
+  private static String buildAttachmentUrl(String providerId, String remoteId, Long lastModifiedDate, String type) {
     if (providerId == null || remoteId == null) {
       return null;
     }
 
-    String username = remoteId;
-
     try {
-      username = URLEncoder.encode(username, "UTF-8");
+      remoteId = URLEncoder.encode(remoteId, "UTF-8");
     } catch (UnsupportedEncodingException ex) {
       LOG.warn("Failure to encode username for build URL", ex);
     }
 
-    if(providerId.equals(OrganizationIdentityProvider.NAME)) {
-      return new StringBuilder("/").append(PortalContainer.getCurrentPortalContainerName())
-                                   .append("/")
-                                   .append(CommonsUtils.getRestContextName())
-                                   .append(BASE_URL_SOCIAL_REST_API)
-                                   .append("/users")
-                                   .append("/")
-                                   .append(username)
-                                   .append("/")
-                                   .append(type)
-                                   .toString();
+    String lastModifiedParam = lastModifiedDate == null || lastModifiedDate <= 0 ? "" : String.valueOf(lastModifiedDate);
+
+    if (providerId.equals(OrganizationIdentityProvider.NAME)) {
+      return new StringBuilder(getBaseURLSocialUserRest()).append("/")
+                                                          .append(remoteId)
+                                                          .append("/")
+                                                          .append(type)
+                                                          .append("?lastModified=")
+                                                          .append(lastModifiedParam)
+                                                          .toString();
     } else if (providerId.equals(SpaceIdentityProvider.NAME)) {
-      return new StringBuilder("/").append(PortalContainer.getCurrentPortalContainerName())
-                                   .append("/")
-                                   .append(CommonsUtils.getRestContextName())
-                                   .append(BASE_URL_SOCIAL_REST_API)
-                                   .append("/spaces")
-                                   .append("/")
-                                   .append(username)
-                                   .append("/")
-                                   .append(type)
-                                   .toString();
+      return new StringBuilder(getBaseURLSocialSpaceRest()).append("/")
+                                                           .append(remoteId)
+                                                           .append("/")
+                                                           .append(type)
+                                                           .append("?lastModified=")
+                                                           .append(lastModifiedParam)
+                                                           .toString();
     }
     return null;
   }
@@ -400,5 +436,21 @@ public class LinkProvider {
       return PortalContainer.getCurrentPortalContainerName();
     }
     return portalName;
+  }
+
+  public static String getBaseURLSocialSpaceRest() {
+    if (baseURLSocialSpaceRest == null) {
+      baseURLSocialSpaceRest = "/" + PortalContainer.getCurrentPortalContainerName() + "/"
+          + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API + "/spaces";
+    }
+    return baseURLSocialSpaceRest;
+  }
+
+  public static String getBaseURLSocialUserRest() {
+    if (baseURLSocialUserRest == null) {
+      baseURLSocialUserRest = "/" + PortalContainer.getCurrentPortalContainerName() + "/"
+          + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API + "/users";
+    }
+    return baseURLSocialUserRest;
   }
 }

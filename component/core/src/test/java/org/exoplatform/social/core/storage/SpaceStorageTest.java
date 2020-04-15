@@ -1596,7 +1596,7 @@ public class SpaceStorageTest extends AbstractCoreTest {
     assertEquals(newName, space.getName());
 
     Space got = spaceStorage.getSpaceById(space.getId());
-    assertEquals(null, got.getAvatarUrl());
+    assertNotNull(got.getAvatarUrl());
   }
 
   /**
@@ -1622,7 +1622,7 @@ public class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("space.getName() must return: " + newName, newName, space.getPrettyName());
 
     Space got = spaceStorage.getSpaceById(space.getId());
-    assertEquals(null, got.getAvatarUrl());
+    assertNotNull(got.getAvatarUrl());
     
     Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, got.getPrettyName());
     identityStorage.saveIdentity(spaceIdentity);

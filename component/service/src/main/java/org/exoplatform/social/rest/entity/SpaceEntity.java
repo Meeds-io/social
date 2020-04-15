@@ -109,6 +109,15 @@ public class SpaceEntity extends BaseEntity {
     return getString("avatarUrl");
   }
 
+  public SpaceEntity setBannerUrl(String bannerUrl) {
+    setProperty("bannerUrl", bannerUrl);
+    return this;
+  }
+
+  public String getBannerUrl() {
+    return getString("bannerUrl");
+  }
+
   public SpaceEntity setApplications(List<DataEntity> applications) {
     setProperty("applications", applications);
     return this;
