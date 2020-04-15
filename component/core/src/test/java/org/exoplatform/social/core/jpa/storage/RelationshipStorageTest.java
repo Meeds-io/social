@@ -180,10 +180,10 @@ public class RelationshipStorageTest extends AbstractCoreTest {
     assertNotNull(getInList(listIdentities, "john").getProfile().getAvatarUrl());
     assertNotNull(getInList(listIdentities, "john").getProfile().getBannerUrl());
 
-    // Check mary hasn't avatar but empty profile
+    // Check mary has avatar URL even with default one
     assertNotNull(getInList(listIdentities, "mary").getProfile());
-    assertNull(getInList(listIdentities, "mary").getProfile().getAvatarUrl());
-    assertNull(getInList(listIdentities, "mary").getProfile().getBannerUrl());
+    assertNotNull(getInList(listIdentities, "mary").getProfile().getAvatarUrl());
+    assertNotNull(getInList(listIdentities, "mary").getProfile().getBannerUrl());
 
     for (Identity identity : listIdentities) {
       assertNotNull("identity.getProfile() must not be null", identity.getProfile());
@@ -577,10 +577,10 @@ public class RelationshipStorageTest extends AbstractCoreTest {
     assertNotNull("listIdentities must not be null", listIdentities);
     assertEquals("listIdentities.size() must return: 2", 2, listIdentities.size());
 
-    // Check root hasn't avatar but empty profile
+    // Check root has avatar URL even with default one
     assertNotNull(getInList(listIdentities, "root").getProfile());
-    assertNull(getInList(listIdentities, "root").getProfile().getAvatarUrl());
-    assertNull(getInList(listIdentities, "root").getProfile().getBannerUrl());
+    assertNotNull(getInList(listIdentities, "root").getProfile().getAvatarUrl());
+    assertNotNull(getInList(listIdentities, "root").getProfile().getBannerUrl());
 
     // Check mary has avatar
     assertNotNull(getInList(listIdentities, "mary").getProfile());
@@ -670,10 +670,10 @@ public class RelationshipStorageTest extends AbstractCoreTest {
     assertNotNull(getInList(listIdentities, "john").getProfile().getAvatarUrl());
     assertNotNull(getInList(listIdentities, "john").getProfile().getBannerUrl());
 
-    // Check mary hasn't avatar but empty profile
+    // Check mary has avatar URL even with default one
     assertNotNull(getInList(listIdentities, "mary").getProfile());
-    assertNull(getInList(listIdentities, "mary").getProfile().getAvatarUrl());
-    assertNull(getInList(listIdentities, "mary").getProfile().getBannerUrl());
+    assertNotNull(getInList(listIdentities, "mary").getProfile().getAvatarUrl());
+    assertNotNull(getInList(listIdentities, "mary").getProfile().getBannerUrl());
 
     for (Identity identity : listIdentities) {
       Identity identityLoadProfile = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, identity.getRemoteId());

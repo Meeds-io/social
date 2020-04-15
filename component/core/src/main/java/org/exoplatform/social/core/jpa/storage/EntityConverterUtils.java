@@ -97,19 +97,21 @@ public class EntityConverterUtils {
       } else if (SpaceIdentityProvider.NAME.equals(providerId)) {
           p.setUrl(LinkProvider.getSpaceUri(remoteId));
       }
+      Long lastUpdated = null;
       if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
-        p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(), identity.getRemoteId()));
-        Long lastUpdated = getFileLastUpdated(entity.getAvatarFileId());
-        if (lastUpdated != null) {
-          p.setAvatarLastUpdated(lastUpdated);
-        }
+        lastUpdated = getFileLastUpdated(entity.getAvatarFileId());
       }
+      p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(), identity.getRemoteId(), lastUpdated));
+      if (lastUpdated != null) {
+        p.setAvatarLastUpdated(lastUpdated);
+      }
+      lastUpdated = null;
       if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {
-        p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(), identity.getRemoteId()));
-        Long lastUpdated = getFileLastUpdated(entity.getBannerFileId());
-        if (lastUpdated != null) {
-          p.setBannerLastUpdated(lastUpdated);
-        }
+        lastUpdated = getFileLastUpdated(entity.getBannerFileId());
+      }
+      p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(), identity.getRemoteId(), lastUpdated));
+      if (lastUpdated != null) {
+        p.setBannerLastUpdated(lastUpdated);
       }
     }
     StringBuilder skills = new StringBuilder();

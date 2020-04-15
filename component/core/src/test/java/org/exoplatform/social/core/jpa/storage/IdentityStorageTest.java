@@ -325,11 +325,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     String gotAvatarURL = profile.getAvatarUrl();
     assertNotNull(gotAvatarURL);
-    assertEquals(LinkProvider.buildAvatarURL(OrganizationIdentityProvider.NAME, userDotName), gotAvatarURL);
+    assertEquals(LinkProvider.buildAvatarURL(OrganizationIdentityProvider.NAME, userDotName, profile.getAvatarLastUpdated()), gotAvatarURL);
 
     String gotBannerURL = profile.getBannerUrl();
     assertNotNull(gotBannerURL);
-    assertEquals(LinkProvider.buildBannerURL(OrganizationIdentityProvider.NAME, userDotName), gotBannerURL);
+    assertEquals(LinkProvider.buildBannerURL(OrganizationIdentityProvider.NAME, userDotName, profile.getBannerLastUpdated()), gotBannerURL);
 
     tearDownIdentityList.add(identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userDotName));
 

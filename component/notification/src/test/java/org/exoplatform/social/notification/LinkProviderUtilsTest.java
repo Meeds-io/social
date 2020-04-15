@@ -20,6 +20,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
 import java.util.HashMap;
@@ -91,13 +92,12 @@ public class LinkProviderUtilsTest extends AbstractCoreTest {
   }
 
   public void testGetUserAvatarUrl() {
-    String expected = "http://exoplatform.com/eXoSkin/skin/images/system/UserAvtDefault.png";
-    assertEquals(expected, LinkProviderUtils.getUserAvatarUrl(null));
+    assertEquals("http://exoplatform.com" + LinkProvider.PROFILE_DEFAULT_AVATAR_URL, LinkProviderUtils.getUserAvatarUrl(null));
+
     Profile profile = new Profile(new Identity("demo"));
-    assertEquals(expected, LinkProviderUtils.getUserAvatarUrl(profile));
-    //
     profile.setAvatarUrl("/rest/social/user/avatar/demo");
-    expected = "http://exoplatform.com/rest/social/user/avatar/demo";
+
+    String expected = "http://exoplatform.com/rest/social/user/avatar/demo";
     assertEquals(expected, LinkProviderUtils.getUserAvatarUrl(profile));
   }
 

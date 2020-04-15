@@ -109,6 +109,15 @@ public class ProfileEntity extends BaseEntity {
     return getString("avatar");
   }
 
+  public ProfileEntity setBanner(String banner) {
+    setProperty("banner", banner);
+    return this;
+  }
+
+  public String getBanner() {
+    return getString("banner");
+  }
+
   public ProfileEntity setAboutMe(String aboutMe) {
     setProperty("aboutMe", aboutMe);
     return this;

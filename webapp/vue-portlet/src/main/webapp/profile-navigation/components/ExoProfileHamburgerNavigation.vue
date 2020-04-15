@@ -21,11 +21,14 @@ export default {
     return {
       PROFILE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile`,
       IDENTITY_REST_API_URI: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${eXo.env.portal.userIdentityId}`,
-      avatar: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/avatar`,
+      DEFAULT_AVATAR: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/avatar`,
       profile: null,
     };
   },
   computed: {
+    avatar() {
+      return this.profile && this.profile.avatar || this.DEFAULT_AVATAR;
+    },
     fullName() {
       return this.profile && this.profile.fullname;
     },
@@ -44,8 +47,5 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       });
   },
-  methods: {
-    
-  }
 };
 </script>

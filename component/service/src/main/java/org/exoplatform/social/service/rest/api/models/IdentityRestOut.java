@@ -77,7 +77,8 @@ public class IdentityRestOut extends HashMap<String, Object> {
     this.setRemoteId(identity.getRemoteId());
     this.setProviderId(identity.getProviderId());
     this.setProfile(new ProfileRestOut(identity.getProfile()));
-    Util.buildAbsoluteAvatarURL(this);
+    getProfile().setAvatarUrl(Util.getBaseUrl() + identity.getProfile().getAvatarUrl());
+    getProfile().setBannerUrl(Util.getBaseUrl() + identity.getProfile().getBannerUrl());
   }
   
   /**
@@ -90,8 +91,9 @@ public class IdentityRestOut extends HashMap<String, Object> {
     this.setRemoteId(identity.getRemoteId());
     this.setProviderId(identity.getProviderId());
     this.setProfile(new ProfileRestOut(identity.getProfile()));
-    Util.buildAbsoluteAvatarURL(this);
-  }  
+    getProfile().setAvatarUrl(Util.getBaseUrl() + identity.getProfile().getAvatarUrl());
+    getProfile().setBannerUrl(Util.getBaseUrl() + identity.getProfile().getBannerUrl());
+  }
   
   /**
    * Gets Id of Identity
@@ -169,7 +171,6 @@ public class IdentityRestOut extends HashMap<String, Object> {
       this.put(Field.PROFILE.toString(), profile);
     } else {
       this.put(Field.PROFILE.toString(), new HashMap<String, Object>());
-      Util.buildAbsoluteAvatarURL(this);
     }
   }
   

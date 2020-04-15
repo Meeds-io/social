@@ -16,8 +16,7 @@
  */
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,8 +28,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
@@ -75,12 +73,24 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final String SPACE_FILTER_TYPE_REQUESTS = "requests";
 
+  private static final CacheControl CACHE_CONTROL               = new CacheControl();
+
+  private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
+
+  // 3 days
+  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
+
+  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+
   private IdentityManager identityManager;
   private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
 
+  private byte[]              defaultSpaceAvatar = null;
 
   public SpaceRestResourcesV1(IdentityManager identityManager) {
     this.identityManager = identityManager;
+
+    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
 
   /**
@@ -258,13 +268,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/avatar")
   @RolesAllowed("users")
@@ -279,6 +282,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse (code = 404, message = "Resource not found")})
   public Response getSpaceAvatarById(@Context UriInfo uriInfo,
                                      @Context Request request,
+                                     @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @ApiParam(value = "Space pretty name", required = true) @PathParam("id") String id) throws IOException {
   
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
@@ -304,26 +308,24 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (builder == null) {
       InputStream stream = identityManager.getAvatarInputStream(identity);
       if (stream == null) {
-        stream = getDefaultAvatarBuilder();
-        builder = Response.ok(stream, "image/png");
+        builder = getDefaultAvatarBuilder();
       } else {
         builder = Response.ok(stream, "image/png");
         builder.tag(eTag);
       }
     }
-    CacheControl cc = new CacheControl();
-    cc.setMaxAge(86400);
-    builder.cacheControl(cc);
-    return builder.cacheControl(cc).build();
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    // If the query has a lastModified parameter, it means that the client
+    // will change the lastModified entry when it really changes
+    // Which means that we can cache the image in browser side
+    // for a long time
+    if (StringUtils.isNotBlank(lastModified)) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/banner")
   @RolesAllowed("users")
@@ -338,6 +340,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse (code = 404, message = "Resource not found")})
   public Response getSpaceBannerById(@Context UriInfo uriInfo,
                                      @Context Request request,
+                                     @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @ApiParam(value = "Space id", required = true) @PathParam("id") String id) throws IOException {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
@@ -371,10 +374,16 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       builder = Response.ok(stream, "image/png");
       builder.tag(eTag);
     }
-    CacheControl cc = new CacheControl();
-    cc.setMaxAge(86400);
-    builder.cacheControl(cc);
-    return builder.cacheControl(cc).build();
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    // If the query has a lastModified parameter, it means that the client
+    // will change the lastModified entry when it really changes
+    // Which means that we can cache the image in browser side
+    // for a long time
+    if (StringUtils.isNotBlank(lastModified)) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   /**
@@ -780,8 +789,17 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return builder.cacheControl(cc).build();
   }
 
-  private InputStream getDefaultAvatarBuilder() {
-    return PortalContainer.getInstance().getPortalContext().getResourceAsStream("/skin/images/system/SpaceAvtDefault.png");
+  private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {
+    if (defaultSpaceAvatar == null) {
+      InputStream is = PortalContainer.getInstance()
+                                      .getPortalContext()
+                                      .getResourceAsStream("/skin/images/avatar/DefaultSpaceAvatar.png");
+      if (is == null) {
+        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+      }
+      defaultSpaceAvatar = IOUtil.getStreamContentAsBytes(is);
+    }
+    return Response.ok(new ByteArrayInputStream(defaultSpaceAvatar), "image/png");
   }
 
 }

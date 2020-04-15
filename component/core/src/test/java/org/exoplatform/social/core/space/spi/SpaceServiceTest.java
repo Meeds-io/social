@@ -1610,7 +1610,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("savedSpace.getDisplayName() must return: " + spaceDisplayName, spaceDisplayName, savedSpace.getDisplayName());
     assertEquals("savedSpace.getDescription() must return: " + spaceDescription, spaceDescription, savedSpace.getDescription());
     assertEquals("savedSpace.getGroupId() must return: " + groupId, groupId, savedSpace.getGroupId());
-    assertEquals(null, savedSpace.getAvatarUrl());
+    assertNotNull(savedSpace.getAvatarUrl());
   }
 
   /**

@@ -73,15 +73,9 @@ import java.util.stream.Collectors;
 @Api(tags = VersionResources.VERSION_ONE + "/social/users", value = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRestResourcesV1 implements UserRestResources {
 
-  public static final String  PROFILE_DEFAULT_BANNER_URL = "/images/banner/DefaultUserBanner.png";
+  public static final String  PROFILE_DEFAULT_BANNER_URL = "/skin/images/banner/DefaultUserBanner.png";
 
-  public static final String  PROFILE_DEFAULT_AVATAR_URL = "/images/avatar/DefaultUserAvatar.png";
-
-  private static final int    IMAGES_CACHE_IN_SECONDS       = 86400;
-
-  private static final int    IMAGES_CACHE_IN_MILLI_SECONDS = IMAGES_CACHE_IN_SECONDS * 1000;
-
-  private static final Date   DEFAULT_IMAGES_LAST_MODIFED  = new Date();
+  public static final String  PROFILE_DEFAULT_AVATAR_URL = "/skin/images/avatar/DefaultUserAvatar.png";
 
   private static final int    DEFAULT_AVATAR_HASH = (int) (Math.random() * Integer.MAX_VALUE);
 
@@ -89,8 +83,15 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   private static final String ONLINE              = "online";
 
-  private static final CacheControl CACHE_CONTROL = new CacheControl();
-  
+  private static final CacheControl CACHE_CONTROL               = new CacheControl();
+
+  private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
+
+  // 3 days
+  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
+
+  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+
   private UserACL userACL;
 
   private IdentityManager identityManager;
@@ -120,7 +121,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     this.userStateService = userStateService;
     this.spaceService = spaceService;
 
-    CACHE_CONTROL.setMaxAge(IMAGES_CACHE_IN_SECONDS);
+    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
   
   @GET
@@ -269,13 +270,6 @@ public class UserRestResourcesV1 implements UserRestResources {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/avatar")
   @ApiOperation(value = "Gets a specific user avatar by username",
@@ -290,6 +284,7 @@ public class UserRestResourcesV1 implements UserRestResources {
   public Response getUserAvatarById(@Context UriInfo uriInfo,
                                     @Context Request request,
                                     @ApiParam(value = "User name", required = true) @PathParam("id") String id,
+                                    @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                     @ApiParam(value = "URL to default avatar Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultAvatar) throws IOException {
   
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
@@ -311,6 +306,7 @@ public class UserRestResourcesV1 implements UserRestResources {
       } else {
         eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
       }
+
       //
       if (identity.isEnable() && !identity.isDeleted()) {
         builder = request.evaluatePreconditions(eTag);
@@ -335,17 +331,17 @@ public class UserRestResourcesV1 implements UserRestResources {
       builder.tag(eTag);
       builder.cacheControl(CACHE_CONTROL);
       builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+      // If the query has a lastModified parameter, it means that the client
+      // will change the lastModified entry when it really changes
+      // Which means that we can cache the image in browser side
+      // for a long time
+      if (StringUtils.isNotBlank(lastModified)) {
+        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      }
       return builder.build();
     }
   }
 
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/banner")
   @ApiOperation(value = "Gets a specific user banner by username",
@@ -360,6 +356,7 @@ public class UserRestResourcesV1 implements UserRestResources {
   public Response getUserBannerById(@Context UriInfo uriInfo,
                                     @Context Request request,
                                     @ApiParam(value = "User name", required = true) @PathParam("id") String id,
+                                    @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                     @ApiParam(value = "URL to default banner Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultBanner) throws IOException {
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
@@ -404,6 +401,13 @@ public class UserRestResourcesV1 implements UserRestResources {
       builder.tag(eTag);
       builder.cacheControl(CACHE_CONTROL);
       builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+      // If the query has a lastModified parameter, it means that the client
+      // will change the lastModified entry when it really changes
+      // Which means that we can cache the image in browser side
+      // for a long time
+      if (StringUtils.isNotBlank(lastModified)) {
+        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      }
       return builder.build();
     }
   }
@@ -880,12 +884,12 @@ public class UserRestResourcesV1 implements UserRestResources {
       }
     }
 
-    if (defaultUserBanner == null) {
+    if (defaultUserAvatar == null) {
       InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(PROFILE_DEFAULT_AVATAR_URL);
       if (is == null) {
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
       }
-      defaultUserBanner = IOUtil.getStreamContentAsBytes(is);
+      defaultUserAvatar = IOUtil.getStreamContentAsBytes(is);
     }
 
     return Response.ok(new ByteArrayInputStream(defaultUserAvatar), "image/png");

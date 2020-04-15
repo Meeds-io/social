@@ -200,10 +200,10 @@ export default {
   }),
   computed: {
     userAvatarUrl() {
-      return `/portal/rest/v1/social/users/${this.user.username}/avatar`;
+      return this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
     },
     userBannerUrl() {
-      return `/portal/rest/v1/social/users/${this.user.username}/banner`;
+      return this.user && this.user.banner || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/banner`;
     },
     userMenuParentId() {
       return this.user && this.user.id && `userMenuParent-${this.user.id}` || 'userMenuParent';

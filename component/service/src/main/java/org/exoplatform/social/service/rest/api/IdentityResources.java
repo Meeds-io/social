@@ -31,6 +31,7 @@ import javax.ws.rs.core.UriInfo;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.rest.impl.identity.IdentityRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
@@ -93,8 +94,7 @@ public class IdentityResources implements ResourceContainer {
     IdentityManager identityManager = Util.getIdentityManager(portalContainerName);
     try{
       Identity identity = identityManager.getIdentity(identityId, true);
-      IdentityRestOut resultIdentity = new IdentityRestOut(identity);      
-      Util.buildAbsoluteAvatarURL(resultIdentity);
+      IdentityRestOut resultIdentity = new IdentityRestOut(identity);
       return Util.getResponse(resultIdentity, uriInfo, mediaType, Response.Status.OK);
     } catch (UndeclaredThrowableException undeclaredThrowableException) {
       if(undeclaredThrowableException.getCause() instanceof IdentityStorageException){
@@ -159,8 +159,6 @@ public class IdentityResources implements ResourceContainer {
     try{
       Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId, true);
       IdentityRestOut resultIdentity = new IdentityRestOut(identity);
-      Util.buildAbsoluteAvatarURL(resultIdentity);
-      
       return Util.getResponse(resultIdentity, uriInfo, mediaType, Response.Status.OK);
     } catch (UndeclaredThrowableException undeclaredThrowableException) {
       if(undeclaredThrowableException.getCause() instanceof IdentityStorageException){

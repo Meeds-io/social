@@ -53,10 +53,10 @@ public class IdentityResourcesTest extends AbstractResourceTest {
 
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
 
-    rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
-    johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", false);
-    maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary", false);
-    demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo", false);
+    rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
+    demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo");
 
     addResource(IdentityResources.class, null);
   }
@@ -89,7 +89,10 @@ public class IdentityResourcesTest extends AbstractResourceTest {
     assertEquals(demoIdentity.getRemoteId(), entityHashMap.get("remoteId"));
     
     assertEquals(demoIdentity.getProfile().getFullName(), profileHashMap.get("fullName"));
-    assertEquals(Util.getBaseUrl() + LinkProvider.PROFILE_DEFAULT_AVATAR_URL, profileHashMap.get("avatarUrl"));
+    assertNotNull(profileHashMap.get("avatarUrl"));
+    assertTrue(profileHashMap.get("avatarUrl").toString().endsWith(demoIdentity.getProfile().getAvatarUrl()));
+    assertNotNull(profileHashMap.get("bannerUrl"));
+    assertTrue(profileHashMap.get("bannerUrl").toString().endsWith(demoIdentity.getProfile().getBannerUrl()));
   }
   
   /**
@@ -177,7 +180,10 @@ public class IdentityResourcesTest extends AbstractResourceTest {
     assertEquals(demoIdentity.getRemoteId(), entityHashMap.get("remoteId"));
     
     assertEquals(demoIdentity.getProfile().getFullName(), profileHashMap.get("fullName"));
-    assertEquals(Util.getBaseUrl() + LinkProvider.PROFILE_DEFAULT_AVATAR_URL, profileHashMap.get("avatarUrl"));
+    assertNotNull(profileHashMap.get("avatarUrl"));
+    assertTrue(profileHashMap.get("avatarUrl").toString().endsWith(demoIdentity.getProfile().getAvatarUrl()));
+    assertNotNull(profileHashMap.get("bannerUrl"));
+    assertTrue(profileHashMap.get("bannerUrl").toString().endsWith(demoIdentity.getProfile().getBannerUrl()));
   }
   
   /**
