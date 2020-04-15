@@ -265,50 +265,18 @@ export default {
       });
     },
     getAllGroups() {
-      //TODO optimize.
-      // Get all groups by level, max set to 5.
-      const firstChildren = [];
-      const secondChildren = [];
-      const thirdChildren = [];
-      const fourthChildren = [];
-      const fifthChildren = [];
-
+      let parentNodes = [];
+      let childNodes = [];
       this.allItems.push(...this.items);
-
-      // level 1:
-      this.items.forEach(child => {
-        const children = child.children;
-        firstChildren.push(...children);
-        this.allItems.push(...children);
-      });
-
-      // level 2:
-      firstChildren.forEach(child => {
-        const children = child.children;
-        secondChildren.push(...children);
-        this.allItems.push(...children);
-      });
-
-      // level 3:
-      secondChildren.forEach(child => {
-        const children = child.children;
-        thirdChildren.push(...children);
-        this.allItems.push(...children);
-      });
-
-      // level 4:
-      thirdChildren.forEach(child => {
-        const children = child.children;
-        fourthChildren.push(...children);
-        this.allItems.push(...children);
-      });
-
-      // level 5:
-      fourthChildren.forEach(child => {
-        const children = child.children;
-        fifthChildren.push(...children);
-        this.allItems.push(...children);
-      });
+      // init parent nodes
+      parentNodes.push(...this.items);
+      
+      do {
+        childNodes.push(...this.getChildNodes(parentNodes));
+        parentNodes = [];
+        parentNodes.push(...childNodes);
+        childNodes = [];
+      } while (parentNodes.length > 0);
     },
     getItemsToOpen() {
       // count parents of each active element
@@ -484,6 +452,16 @@ export default {
       this.searchMode = false;      
       this.$emit('selectionSaved', saved.map(group => group.id));
     },
+    getChildNodes(parentNodes) {
+      // add child nodes to allItems.
+      const childNodes = [];
+      parentNodes.forEach(child => {
+        const children = child.children;
+        childNodes.push(...children);
+        this.allItems.push(...children);
+      });
+      return childNodes;
+    }
   },
 };
 </script>
