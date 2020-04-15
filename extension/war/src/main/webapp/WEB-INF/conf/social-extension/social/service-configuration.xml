@@ -94,6 +94,10 @@
   </component>
 <!-- REST service -->
 
+  <component>
+    <type>org.exoplatform.social.rest.impl.metric.ActivityMetricResources</type>
+  </component>
+
   <!-- SUGGESTED PEOPLE -->
   <component>
     <type>org.exoplatform.social.rest.suggest.PeopleRestServices</type>
