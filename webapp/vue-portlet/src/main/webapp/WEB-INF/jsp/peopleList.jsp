@@ -1,4 +1,3 @@
-
 <%
   Object filter = request.getAttribute("filter");
 			if (filter == null) {
@@ -10,7 +9,7 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application transparent v-application--is-ltr theme--light"
-    id="peopleListApplication" flat="">
+    id="peopleListApplication" flat="" app-id="peopleListApplication">
     <script type="text/javascript">
       require(['PORTLET/social-vue-portlet/PeopleList'],
           app => app.init('<%=filter%>')
@@ -22,7 +21,7 @@
         id="peopleListToolbar" style="height: 64px;">
         <div class="v-toolbar__content" style="height: 64px;">
           <div
-            class="text-sub-title ml-3 d-none d-sm-flex skeleton-text skeleton-background skeleton-border-radius">
+            class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex skeleton-text skeleton-background skeleton-border-radius">
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
           <div class="spacer d-none d-sm-flex"></div>
           <div
@@ -37,7 +36,7 @@
                   </div>
                 </div>
                 <div class="v-text-field__slot">
-                  <input disabled="disabled" id="input-87"
+                  <input disabled="disabled" id="input-65"
                     placeholder="&amp;nbsp;" type="text">
                 </div>
               </div>
@@ -51,7 +50,7 @@
           <select disabled="disabled"
             class="selectPeopleFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline skeleton-background skeleton-text"><option
               value="all">Everyone</option>
-            <option value="connections">Connections</option></select>
+            <option value="connections">My Connections</option></select>
           <button type="button"
             class="v-icon notranslate d-sm-none v-icon--link fa fa-filter theme--light skeleton-text"></button>
           <div role="dialog" class="v-dialog__container pa-0">
@@ -64,8 +63,7 @@
           <div class="v-item-group theme--light">
             <div class="container pa-0">
               <div class="row ma-0 border-box-sizing">
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -96,14 +94,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -126,8 +124,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -158,14 +155,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -188,8 +185,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -220,14 +216,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -250,8 +246,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -282,14 +277,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -312,8 +307,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -344,14 +338,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -374,8 +368,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -406,14 +399,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -436,8 +429,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -468,14 +460,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -498,8 +490,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -530,14 +521,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -560,8 +551,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -592,14 +582,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -622,8 +612,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -654,14 +643,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -684,8 +673,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -716,14 +704,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -746,8 +734,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -778,14 +765,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -808,8 +795,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -840,14 +826,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -870,8 +856,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -902,14 +887,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -932,8 +917,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -964,14 +948,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -994,8 +978,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -1026,14 +1009,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -1056,8 +1039,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -1088,14 +1070,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -1118,8 +1100,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -1150,14 +1131,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -1180,8 +1161,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -1212,14 +1192,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">
@@ -1242,8 +1222,7 @@
                   </div>
                   <!---->
                 </div>
-                <div class="col-md-3 col-12 peopleCardFlip"
-                  profile-action-extensions="">
+                <div class="col-md-3 col-12 peopleCardFlip">
                   <div class="peopleCardFront">
                     <div
                       class="peopleCardItem d-block d-sm-flex v-card v-card--flat v-sheet theme--light"
@@ -1274,14 +1253,14 @@
                       <div class="peopleAvatar">
                         <a href="#"><div
                             class="v-responsive v-image mx-auto skeleton-background"
-                            style="height: 75px; max-height: 75px; max-width: 75px; width: 75px;">
+                            style="height: 65px; max-height: 65px; max-width: 65px; width: 65px;">
                             <div class="v-responsive__content"></div>
                           </div></a>
                       </div>
                       <div
                         class="v-card__text peopleCardBody align-center pt-2 pb-1">
                         <a href="#"
-                          class="userFullname text-truncate d-block">
+                          class="userFullname text-truncate text-color font-weight-bold d-block">
                           &nbsp; </a>
                         <div
                           class="v-card__subtitle userPositionLabel py-0">

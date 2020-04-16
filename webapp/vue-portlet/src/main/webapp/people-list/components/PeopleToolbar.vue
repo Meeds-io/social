@@ -2,7 +2,7 @@
   <v-toolbar id="peopleListToolbar" flat>
     <div
       :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
-      class="text-sub-title ml-3 d-none d-sm-flex">
+      class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
       {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />

@@ -7,7 +7,7 @@
       :keyword="keyword"
       :filter="filter"
       :spaces-size="spacesSize"
-      :skeleton="firstLoadingSpaces"
+      :skeleton="skeleton"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
     <exo-spaces-card-list
@@ -15,7 +15,7 @@
       :keyword="keyword"
       :filter="filter"
       :loading-spaces="loadingSpaces"
-      :skeleton="firstLoadingSpaces"
+      :skeleton="skeleton"
       :spaces-size="spacesSize"
       @loaded="spacesLoaded" />
 
@@ -41,14 +41,14 @@ export default {
     keyword: null,
     spacesSize: 0,
     loadingSpaces: false,
-    firstLoadingSpaces: true,
+    skeleton: true,
   }),
   methods: {
     spacesLoaded(spacesSize) {
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.spacesSize = spacesSize;
-      if (this.firstLoadingSpaces) {
-        this.firstLoadingSpaces = false;
+      if (this.skeleton) {
+        this.skeleton = false;
       }
     }
   },

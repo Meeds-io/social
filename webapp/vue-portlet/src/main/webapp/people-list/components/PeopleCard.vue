@@ -27,6 +27,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    profileActionExtensions: {
+      type: Array,
+      default: () => [],
+    },
     skeleton: {
       type: Boolean,
       default: false,

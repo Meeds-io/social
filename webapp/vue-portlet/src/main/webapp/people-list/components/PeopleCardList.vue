@@ -106,7 +106,10 @@ export default {
       if (!this.keyword || !this.loadingPeople) {
         return this.users;
       } else {
-        return this.users.slice().filter(user => user.fullname && user.fullname.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
+        return this.users.slice().filter(user => {
+          return user.fullname && user.fullname.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
+                 || user.position && user.position.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0;
+        });
       }
     },
   },
@@ -133,7 +136,12 @@ export default {
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
+    // To refresh menu when a new extension is ready to be used
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
+
+    // To broadcast event about current page supporting profile extensions
+    document.dispatchEvent(new CustomEvent('profile-extension-init'));
+
     this.refreshExtensions();
   },
   methods: {
@@ -150,7 +158,7 @@ export default {
           let users = data && data.users || [];
           users = users.filter(user => user && user.username !== eXo.env.portal.userName).slice(0, this.limitToFetch);
           this.users = users;
-          this.peopleCount = data && data.size || 0;
+          this.peopleCount = data && data.size && data.size - 1 || 0;
           this.hasPeople = this.hasPeople || this.peopleCount > 0;
           this.$emit('loaded', this.peopleCount);
           return this.$nextTick();

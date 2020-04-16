@@ -40,7 +40,7 @@
               v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
               @click="extension.click(user)">
-              <v-list-item-title>
+              <v-list-item-title class="peopleActionItem">
                 <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
                 {{ extension.title }}
               </v-list-item-title>
@@ -56,10 +56,10 @@
           :src="!skeleton && userAvatarUrl || ''"
           :class="skeleton && 'skeleton-background'"
           class="mx-auto"
-          height="75px"
-          width="75px"
-          max-height="75px"
-          max-width="75px">
+          height="65px"
+          width="65px"
+          max-height="65px"
+          max-width="65px">
         </v-img>
       </a>
     </div>
@@ -68,7 +68,7 @@
       <a
         :href="url"
         :title="user.fullname"
-        class="userFullname text-truncate d-block">
+        class="userFullname text-truncate text-color font-weight-bold d-block">
         {{ skeleton && '&nbsp;' || user.fullname }}
       </a>
       <v-card-subtitle
