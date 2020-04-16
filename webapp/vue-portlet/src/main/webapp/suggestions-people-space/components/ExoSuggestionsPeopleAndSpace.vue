@@ -66,12 +66,16 @@ export default {
       if (this.firstLoadingSpaces) {
         this.firstLoadingSpaces = false;
       }
+    } else {
+      this.firstLoadingSpaces = false;
     }
     if (this.displaySpacesSuggestions) {
       this.initSpaceSuggestionsList();
       if (this.firstLoadingPeoples) {
         this.firstLoadingPeoples = false;
       }
+    } else {
+      this.firstLoadingPeoples = false;
     }
   },
   methods : {
