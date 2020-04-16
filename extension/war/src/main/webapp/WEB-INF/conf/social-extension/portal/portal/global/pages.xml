@@ -59,7 +59,7 @@
               <preferences>
                 <preference>
                   <name>suggestionsType</name>
-                  <value>people</value>
+                  <value>user</value>
                 </preference>
               </preferences>
             </portlet>
