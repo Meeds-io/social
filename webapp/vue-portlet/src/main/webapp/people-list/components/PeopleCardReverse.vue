@@ -13,7 +13,7 @@
         {{ $t('peopleList.label.aboutMe') }}
       </p>
     </div>
-    <div class="aboutMeText align-center pa-0 flex-grow-1">
+    <div class="aboutMeText align-center py-0 px-1 flex-grow-1">
       <ellipsis
         :title="user.aboutMe"
         :data="user.aboutMe"
@@ -27,7 +27,7 @@
         <p class="font-weight-bold ma-auto mb-1">
           {{ user.connectionsCount }}
         </p>
-        <p class="font-weight-bold ma-auto text-sub-title">
+        <p class="ma-auto text-sub-title">
           {{ $t('peopleList.title.connectionsCount') }}
         </p>
       </div>
@@ -36,7 +36,7 @@
         <p class="font-weight-bold ma-auto mb-1">
           {{ user.spacesCount }}
         </p>
-        <p class="font-weight-bold ma-auto text-sub-title">
+        <p class="ma-auto text-sub-title">
           {{ $t('peopleList.title.spacesCount') }}
         </p>
       </div>
