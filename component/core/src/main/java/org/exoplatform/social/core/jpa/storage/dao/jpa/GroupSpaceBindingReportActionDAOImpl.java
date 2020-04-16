@@ -23,6 +23,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
@@ -46,10 +47,10 @@ public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<Grou
   }
 
   @Override
-  public List<GroupSpaceBindingReportActionEntity> getGroupSpaceBindingReportActionsOrderedByEndDate() {
-    TypedQuery<GroupSpaceBindingReportActionEntity> query =
-                                                          getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportActions",
-                                                                                              GroupSpaceBindingReportActionEntity.class);
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportActionsOrderedByEndDate() {
+    TypedQuery<GroupSpaceBindingOperationReport> query =
+                                                          getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperations",
+                                                                                              GroupSpaceBindingOperationReport.class);
     return query.getResultList();
   }
 }
