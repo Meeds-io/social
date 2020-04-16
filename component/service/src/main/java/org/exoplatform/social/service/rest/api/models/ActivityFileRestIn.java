@@ -24,6 +24,17 @@ public class ActivityFileRestIn {
 
   private String storage;
 
+  private String destinationFolder;
+
+
+  public String getDestinationFolder() {
+    return destinationFolder;
+  }
+
+  public void setDestinationFolder(String destinationFolder) {
+    this.destinationFolder = destinationFolder;
+  }
+
   public String getUploadId() {
     return uploadId;
   }

@@ -18,6 +18,8 @@ public class ActivityFile {
 
   private long        lastModified;
 
+  private String destinationFolder;
+
   public ActivityFile() {
   }
 
@@ -30,6 +32,21 @@ public class ActivityFile {
   public ActivityFile(String uploadId, String storage) {
     this.uploadId = uploadId;
     this.storage = storage;
+  }
+
+  /**
+   * Constructor
+   *
+   * @param id
+   * @param uploadId
+   * @param storage
+   * @param destinationFolder
+   */
+  public ActivityFile(String id, String uploadId, String storage, String destinationFolder){
+    this.id = id;
+    this.uploadId = uploadId;
+    this.storage = storage;
+    this.destinationFolder = destinationFolder;
   }
 
   /**
@@ -180,5 +197,13 @@ public class ActivityFile {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getDestinationFolder() {
+    return destinationFolder;
+  }
+
+  public void setDestinationFolder(String destinationFolder) {
+    this.destinationFolder = destinationFolder;
   }
 }
