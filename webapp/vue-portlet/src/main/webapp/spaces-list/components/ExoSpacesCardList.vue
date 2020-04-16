@@ -33,15 +33,15 @@
                   <v-icon>fa-chevron-right</v-icon>
                 </p>
                 <p class="title font-weight-bold">
-                  {{ $t('spacesOverview.label.noSpacesYet') }}
+                  {{ $t('spacesList.label.noSpacesYet') }}
                 </p>
                 <div>
-                  {{ $t('spacesOverview.label.noSpacesYetDescription1') }}
+                  {{ $t('spacesList.label.noSpacesYetDescription1') }}
                 </div>
                 <span>
-                  {{ $t('spacesOverview.label.noSpacesYetDescription2') }}
+                  {{ $t('spacesList.label.noSpacesYetDescription2') }}
                   <v-btn link text class="primary--text px-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
-                    {{ $t('spacesOverview.label.noSpacesLink') }}
+                    {{ $t('spacesList.label.noSpacesLink') }}
                   </v-btn>
                 </span>
               </template>
