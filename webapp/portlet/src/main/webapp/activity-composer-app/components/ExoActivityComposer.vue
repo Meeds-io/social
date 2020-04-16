@@ -149,10 +149,7 @@ export default {
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
-            this.message = '';
-            this.attachments = [];
-            this.uploadingCount = 0;
-            this.showErrorMessage = false;
+            this.resetComposer();
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
@@ -163,16 +160,24 @@ export default {
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
-            this.message = '';
-            this.attachments = [];
-            this.uploadingCount = 0;
-            this.showErrorMessage = false;
+            this.resetComposer();
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
           });
       }
+    },
+    resetComposer() {
+      this.message = '';
+      this.activityComposerActions.forEach(action => {
+        if (action.component) {
+          this.actionsData[action.key].value = action.component.model.default;
+        }
+      });
+      this.attachments = [];
+      this.uploadingCount = 0;
+      this.showErrorMessage = false;
     },
     refreshActivityStream() {
       const refreshButton = document.querySelector('.uiActivitiesDisplay #RefreshButton');
@@ -193,8 +198,7 @@ export default {
         this.uploadingCount = this.attachments
           .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
       } else if (action === 'remove' && this.uploadingCount !== 0) {
-        this.uploadingCount = this.attachments
-          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
+        this.uploadingCount--;
       }
     },
     updateAttachments(attachments) {
