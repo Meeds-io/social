@@ -141,6 +141,7 @@ export default {
           userId: this.user.username,
           labels: this.labels,
           keepAlive: true,
+          maxWidth: '420px',
         });
       });
     },
