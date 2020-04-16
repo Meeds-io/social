@@ -78,7 +78,7 @@
               {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.boundGroups') }}
             </span>
           </v-flex>
-          <v-flex class="boundGroups">
+          <v-flex class="boundGroups" mt-2>
             <v-list flat subheader dense>
               <v-list-item-group>
                 <div v-for="(binding, index) in groupSpaceBindings" :key="index">
