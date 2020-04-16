@@ -51,7 +51,9 @@
           <v-avatar left>
             <v-img :src="item.profile.avatarUrl"></v-img>
           </v-avatar>
-          {{ item.profile.fullName }}
+          <span class="text-truncate">
+            {{ item.profile.fullName }}
+          </span>
         </v-chip>
       </template>
 
@@ -61,7 +63,7 @@
           size="20">
           <v-img :src="data.item.profile.avatarUrl"></v-img>
         </v-list-item-avatar>
-        <v-list-item-title v-text="data.item.profile.fullName" />
+        <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="data.item.profile.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
