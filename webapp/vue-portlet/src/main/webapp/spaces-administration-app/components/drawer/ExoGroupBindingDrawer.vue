@@ -44,6 +44,7 @@
               :options="suggesterOptions"
               :source-providers="[findGroups]"
               :bound-groups="groupSpaceBindings"
+              :second-drawer-selected-groups="secondDrawerSelectedGroups"
               :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')"/>
           </v-flex>
           <v-flex xs1/>
@@ -144,6 +145,7 @@ export default {
       groups: [],
       showSelectGroupsTree: false,
       avatar: spacesConstants.DEFAULT_SPACE_AVATAR,
+      secondDrawerSelectedGroups : [],
       suggesterOptions: {
         type: 'tag',
         plugins: ['remove_button', 'restore_on_backspace'],
@@ -215,7 +217,9 @@ export default {
       groupPrettyName = groupPrettyName.charAt(0).toUpperCase() + groupPrettyName.slice(1);
       return `${groupPrettyName} (${groupName})`;
     },
-    selectionSaved(groupsIds) {
+    selectionSaved(saved) {
+      this.secondDrawerSelectedGroups = saved;
+      const groupsIds = saved.map(group => group.id);
       this.showSelectGroupsTree = false;
       this.groups = [];
       this.groups.push(...groupsIds);
