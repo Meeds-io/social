@@ -283,6 +283,35 @@
                     </div>
                 </div>
             </div>
+            <div class="actionsDetailsWrapper">
+            	<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
+			<div class="listLikedBox $listPeopleBGClass">
+				  <div class="listPeopleContent">
+
+					<% if (identityLikesNum > 0) {%>
+					<div class="listLiked">
+					<%
+					displayedIdentityLikes.each({
+					  def id = Utils.getIdentityManager().getIdentity(it);
+					  personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
+					  personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
+					  personLikeAvatarImageSource = id.profile.avatarUrl;
+					  if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
+					  %>
+						<a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
+						  <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
+						</a>
+					 <% })%>
+
+						<button onclick="$loadLikesAction" class="btn">...</button>
+
+					</div>
+					<% }%>
+          <% if (!labelLikes) { labelLikes = ""; } %>
+							<p>$labelLikes</p>
+				 </div>
+			</div><!--end list like people-->
+			<%}%>
 						<div class="actionBar clearfix ">
 					 <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
 								 def commentLink = "";
@@ -310,53 +339,8 @@
 					</ul>
 					 <% }%>
 			</div><!--end actionBar-->
-			<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
-			<div class="listLikedBox $listPeopleBGClass">
-				  <div class="listPeopleContent">
-				  <% if (!labelLikes) { labelLikes = ""; } %>
-							<p>$labelLikes</p>
-
-					<% if (identityLikesNum > 0) {%>
-					<div class="listLiked">
-					<%
-					displayedIdentityLikes.each({
-					  def id = Utils.getIdentityManager().getIdentity(it);
-					  personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
-					  personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
-					  personLikeAvatarImageSource = id.profile.avatarUrl;
-					  if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
-					  %>
-						<a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
-						  <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
-						</a>
-					 <% })%>
-
-						<button onclick="$loadLikesAction" class="btn">...</button>
-
-					</div>
-					<% }%>
-				 </div>
-			</div><!--end list like people-->
-			<%}%>
+		</div>
 			<div id="CommentBlockBound${activity.id}" class="commentBox ">
-			  <% if (uicomponent.commentListToggleable()) {
-			  def showAllCommentsAction = uicomponent.event("SetCommentListStatus", "all");
-			  def hideAllCommentsAction = uicomponent.event("SetCommentListStatus", "none");
-			  def loadPreviousCommentsAction = uicomponent.event("SetCommentListStatus", "all");
-			  %>
-			  <div class="commentListInfo clearfix">
-				<div class="pull-right numberComment">$commentsHidden/$allCommentSize</div>
-				<% if (commentListStatus.getStatus().equals("latest") || commentListStatus.getStatus().equals("none")) { %>
-				  <a onclick="$showAllCommentsAction" href="javascript:void(0);">$labelShowAllComments</a>
-				<% } else if (commentListStatus.getStatus().equals("all")) { %>
-				      <% if (commentsHidden > 0) { %>
-                <a onclick="$loadPreviousCommentsAction" href="javascript:void(0);">$labelShowPreviousComments</a>
-              <% } else { %>
-                <a onclick="$hideAllCommentsAction" href="javascript:void(0);">$labelHideAllComments</a>
-              <% } %>
-			  <% } %>
-			  </div>
-			<% } %>
 			<div class="commentList">
 			<%
 			def commenterFullName, commenterProfileUri, commentMessage, commentPostedTime, commenterAvatarImgSrc, commentAbsolutePostedTime;
@@ -434,12 +418,14 @@
 					</a>
 				</div><!--end commentLeft-->        
 				<div class="commentRight">
-					<div class="author">
-						<a href="$commenterProfileUri">$commenterFullName</a>
-					</div>
-					<div class="contentComment" id="${activity.id}-${commentCounter}">
-						$commentMessage
-					</div>
+        <div class="authorCommentContainer clearfix">
+            <div class="author">
+              <a href="$commenterProfileUri">$commenterFullName</a>
+            </div>
+            <div class="contentComment" id="${activity.id}-${commentCounter}">
+              $commentMessage
+            </div>
+          </div>
 					<div class="desktop-input clearfix">
                         <div class="blastInputPeople hideEffect">
                             <div>
@@ -522,6 +508,23 @@
                     <div class="clearfix"></div>
 				</div> <!--end commentItem-->				
 			  </div><!--end commentlist-->
+        <% if (uicomponent.commentListToggleable()) {
+			  def showAllCommentsAction = uicomponent.event("SetCommentListStatus", "all");
+			  def hideAllCommentsAction = uicomponent.event("SetCommentListStatus", "none");
+			  def loadPreviousCommentsAction = uicomponent.event("SetCommentListStatus", "all");
+			  %>
+			  <div class="commentListInfo clearfix">
+				<% if (commentListStatus.getStatus().equals("latest") || commentListStatus.getStatus().equals("none")) { %>
+				  <a onclick="$showAllCommentsAction" href="javascript:void(0);">$labelShowAllComments</a>
+				<% } else if (commentListStatus.getStatus().equals("all")) { %>
+				      <% if (commentsHidden > 0) { %>
+                <a onclick="$loadPreviousCommentsAction" href="javascript:void(0);">$labelShowPreviousComments</a>
+              <% } else { %>
+                <a onclick="$hideAllCommentsAction" href="javascript:void(0);">$labelHideAllComments</a>
+              <% } %>
+			  <% } %>
+			  </div>
+			<% } %>
 			</div><!--end commentBox-->	
 		</div><!--end #ActivityContextBox${activity.id}-->
 	</div> <!--end ContextBox${activity.id}-->	

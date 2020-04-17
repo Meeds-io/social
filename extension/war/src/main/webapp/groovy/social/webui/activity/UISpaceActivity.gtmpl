@@ -343,6 +343,33 @@
 	            </div>
             </div>
         </div>
+<div class="actionsDetailsWrapper">
+         <% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
+	    <div class="listLikedBox $listPeopleBGClass">
+	      <div class="listPeopleContent">
+
+	        <% if (identityLikesNum > 0) {%>
+	        <div class="listLiked">
+	        <%
+	        displayedIdentityLikes.each({
+	          def id = Utils.getIdentityManager().getIdentity(it);
+	          personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
+	          personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
+	          personLikeAvatarImageSource = id.profile.avatarUrl;
+	          if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
+	          %>
+	            <a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
+	              <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
+	            </a>
+	         <% })%>
+	            <button onclick="$loadLikesAction" class="btn">...</button>
+	        </div> <!-- end listLiked -->
+	        <% }%>
+          <% if (!labelLikes) { labelLikes = ""; } %>
+							<p>$labelLikes</p>
+				 </div>
+         	</div><!--end list like people-->
+           <%}%>
 		<div class="actionBar clearfix ">
 	     <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
 	                     def commentLink = "";
@@ -368,29 +395,7 @@
 	          <% }%>
 	        </ul>
 	    </div><!--end actionBar-->
-	    <% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
-	    <div class="listLikedBox $listPeopleBGClass">
-	      <div class="listPeopleContent">
-	      <% if (!labelLikes) { labelLikes = ""; } %>
-	                <p>$labelLikes</p>
-
-	        <% if (identityLikesNum > 0) {%>
-	        <div class="listLiked">
-	        <%
-	        displayedIdentityLikes.each({
-	          def id = Utils.getIdentityManager().getIdentity(it);
-	          personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
-	          personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
-	          personLikeAvatarImageSource = id.profile.avatarUrl;
-	          if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
-	          %>
-	            <a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
-	              <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
-	            </a>
-	         <% })%>
-	            <button onclick="$loadLikesAction" class="btn">...</button>
-	        </div> <!-- end listLiked -->
-	        <% }%>
+	  </div>
 	      </div> <!-- end listPeopleContent -->
 	    </div><!--end listLikedBox-->
 	    <%}%>
@@ -490,12 +495,14 @@
 	            </a>
 	        </div><!--end commentLeft-->        
 	        <div class="commentRight">
+           <div class="authorCommentContainer clearfix">
 	            <div class="author">
 	                <a href="$commenterProfileUri">$commenterFullName</a>
 	            </div>
 	            <div class="contentComment" id="${activity.id}-${commentCounter}">
 	                $commentMessage
 	            </div>
+           </div>
 				<div class="desktop-input clearfix">
 					<div class="blastInputPeople hideEffect">
 						<div>
