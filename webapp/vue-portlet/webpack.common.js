@@ -16,7 +16,8 @@ let config = {
     spacesOverview: './src/main/webapp/spaces-overview/main.js',
     suggestions: './src/main/webapp/suggestions-people-space/main.js',
     peopleList: './src/main/webapp/people-list/main.js',
-    peopleOverview: './src/main/webapp/people-overview/main.js'
+    peopleOverview: './src/main/webapp/people-overview/main.js',
+    profileHeader: './src/main/webapp/profile-header/main.js'
   },
   module: {
     rules: [
