@@ -108,11 +108,16 @@ export default {
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
     },
-    attachmentsProgress: function() {
-      return this.uploadingCount * this.percent / this.attachments.length;
+    attachmentsProgress: function () {
+      return this.attachments.length !== 0 ? this.uploadingProgress / this.attachments.length : 0;
     },
     uploading: function() {
-      return this.uploadingCount < this.attachments.length;
+      return this.attachments.length * this.percent !== this.uploadingProgress;
+    },
+    uploadingProgress: function() {
+      return this.attachments.map(attachment => {
+        return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
+      }).reduce((a, b) => a + b, 0);
     }
   },
   watch: {
@@ -120,6 +125,9 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
+    },
+    uploadingProgress() {
+      console.log(this.uploadingProgress);
     }
   },
   created() {
