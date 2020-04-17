@@ -446,8 +446,8 @@ export default {
       this.openItems = [];
       this.active = [];
       this.search = '';
-      this.searchMode = false;      
-      this.$emit('selectionSaved', saved.map(group => group.id));
+      this.searchMode = false;
+      this.$emit('selectionSaved', saved);
     },
     getChildNodes(parentNodes) {
       // add child nodes to allItems.
