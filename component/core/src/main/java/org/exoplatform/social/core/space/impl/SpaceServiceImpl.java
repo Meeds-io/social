@@ -407,7 +407,7 @@ public class SpaceServiceImpl implements SpaceService {
         try {
           InputStream bannerStream = configurationManager.getInputStream(bannerPath);
           if (bannerStream != null) {
-            BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", bannerStream, null, System.currentTimeMillis());
+            BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", bannerStream, System.currentTimeMillis());
             space.setBannerAttachment(bannerAttachment);
           }
         } catch (Exception e) {

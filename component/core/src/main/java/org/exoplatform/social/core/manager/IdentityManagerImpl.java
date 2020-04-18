@@ -67,7 +67,7 @@ public class IdentityManagerImpl implements IdentityManager {
   
   /** The limit for list access loading. */
   private static final int                   LIMIT = 200;
-  
+
   /** The identity providers */
   protected Map<String, IdentityProvider<?>> identityProviders = new HashMap<String, IdentityProvider<?>>();
 
@@ -86,6 +86,8 @@ public class IdentityManagerImpl implements IdentityManager {
   private Sorting                            defaultSorting          = DEFAULT_SORTING;
 
   private String                             firstCharacterFiltering = DEFAULT_FIRST_CHAR_FILTERING;
+
+  private int                                imageUploadLimit        = IdentityStorage.DEFAULT_UPLOAD_IMAGE_LIMIT;
 
   /**
    * Instantiates a new identity manager.
@@ -108,6 +110,13 @@ public class IdentityManagerImpl implements IdentityManager {
       if (initParams.containsKey("sort.order.direction")) {
         sortDirection = initParams.getValueParam("sort.order.direction").getValue();
       }
+      if (initParams.containsKey("upload.limit.size")) {
+        String uploadLimit = initParams.getValueParam("upload.limit.size").getValue();
+        if (StringUtils.isNotBlank(uploadLimit)) {
+          this.imageUploadLimit = Integer.parseInt(uploadLimit.trim());
+          this.identityStorage.setImageUploadLimit(this.imageUploadLimit);
+        }
+      }
       Sorting configuredSorting = Sorting.valueOf(sortFieldName, sortDirection);
       if (configuredSorting != null) {
         this.defaultSorting = configuredSorting;
@@ -122,6 +131,14 @@ public class IdentityManagerImpl implements IdentityManager {
         this.firstCharacterFiltering = configuredSorting.sortBy.getFieldName();
       }
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getImageUploadLimit() {
+    return imageUploadLimit;
   }
 
   /**

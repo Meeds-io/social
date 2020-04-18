@@ -99,6 +99,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   private static final int     BATCH_SIZE = 100;
 
+  private static final long    MEGABYTE   = 1024L * 1024L;
+
   private static final String socialNameSpace = "social";
 
   private final IdentityDAO identityDAO;
@@ -115,6 +117,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   private ActivityStorage activityStorage;
 
   private Map<String, IdentityProvider<?>> identityProviders = null;
+
+  private int                              imageUploadLimit  = DEFAULT_UPLOAD_IMAGE_LIMIT;
 
   public RDBMSIdentityStorageImpl(IdentityDAO identityDAO,
                                   SpaceMemberDAO spaceMemberDAO,
@@ -162,6 +166,12 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         hasAvatar = true;
         AvatarAttachment attachment = (AvatarAttachment) profileProperty.getValue();
         byte[] bytes = attachment.getImageBytes();
+        if (bytes == null || bytes.length == 0) {
+          continue;
+        }
+        if (bytes.length / MEGABYTE > imageUploadLimit) {
+          throw new IdentityStorageException(IdentityStorageException.Type.AVATAR_EXCEEDS_LIMIT);
+        }
         String fileName = attachment.getFileName();
         if (fileName == null) {
           fileName = identityEntity.getRemoteId() + "_avatar";
@@ -203,6 +213,12 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         hasBanner = true;
         BannerAttachment attachment = (BannerAttachment) profileProperty.getValue();
         byte[] bytes = attachment.getImageBytes();
+        if (bytes == null || bytes.length == 0) {
+          continue;
+        }
+        if (bytes.length / MEGABYTE > imageUploadLimit) {
+          throw new IdentityStorageException(IdentityStorageException.Type.BANNER_EXCEEDS_LIMIT);
+        }
         String fileName = attachment.getFileName();
         if (fileName == null) {
           fileName = identityEntity.getRemoteId() + "_banner";
@@ -1098,5 +1114,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                            sortField,
                                            sortDirection,
                                            filterDisabled);
+  }
+
+  @Override
+  public void setImageUploadLimit(int imageUploadLimit) {
+    this.imageUploadLimit = imageUploadLimit;
   }
 }

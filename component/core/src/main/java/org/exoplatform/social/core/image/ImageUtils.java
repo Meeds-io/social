@@ -138,7 +138,6 @@ public class ImageUtils {
                                                                   avatarFileName,
                                                                   avatarMimeType,
                                                                   new FileInputStream(tmp),
-                                                                  avatarWorkspace,
                                                                   System.currentTimeMillis());
 
       // Delete temp file

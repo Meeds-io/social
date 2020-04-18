@@ -187,7 +187,7 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
             if (is != null) {
               AvatarAttachment avatarAttachment = ImageUtils.createResizedAvatarAttachment(is, WIDTH, HEIGHT, null, fileName, mimeType, null);
               if (avatarAttachment == null) {
-                avatarAttachment = new AvatarAttachment(null, fileName, mimeType, is, null, System.currentTimeMillis());
+                avatarAttachment = new AvatarAttachment(null, fileName, mimeType, is, System.currentTimeMillis());
               }
               is.close();
 

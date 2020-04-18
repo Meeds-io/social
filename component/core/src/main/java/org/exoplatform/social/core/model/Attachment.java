@@ -36,11 +36,6 @@ public abstract  class Attachment {
   private String mimeType;
 
   /**
-   * The workspace.
-   */
-  private String workspace;
-
-  /**
    * The image bytes.
    */
   private byte[] imageBytes;
@@ -68,13 +63,11 @@ public abstract  class Attachment {
                     String fileName,
                     String mimeType,
                     InputStream inputStream,
-                    String workspace,
                     long lastModified) throws Exception {
     this.id = id;
     this.fileName = fileName;
     setInputStream(inputStream);
     this.mimeType = mimeType;
-    this.workspace = workspace;
     this.lastModified = lastModified;
   }
 
@@ -96,24 +89,6 @@ public abstract  class Attachment {
    */
   public void setId(String s) {
     id = s;
-  }
-
-  /**
-   * Gets the workspace.
-   *
-   * @return the workspace
-   */
-  public String getWorkspace() {
-    return workspace;
-  }
-
-  /**
-   * Sets the workspace.
-   *
-   * @param ws the new workspace
-   */
-  public void setWorkspace(String ws) {
-    workspace = ws;
   }
 
   /**
