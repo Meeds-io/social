@@ -12,7 +12,7 @@
         eager>
         <v-flex fill-height>
           <v-layout>
-            <v-flex class="d-flex my-7">
+            <v-flex class="d-flex profileHeaderTitle">
               <exo-confirm-dialog
                 ref="errorDialog"
                 :message="errorMessage"
@@ -29,7 +29,7 @@
                   @refresh="refresh"
                   @error="handleError" />
               </v-hover>
-              <div class="align-start d-flex flex-grow-0">
+              <div class="profileHeaderText align-start d-flex flex-grow-0">
                 <v-flex class="ma-auto pb-10">
                   <v-card-title
                     :class="skeleton && 'skeleton-background skeleton-text skeleton-text-width skeleton-text-height pa-0 my-3' || ''"
@@ -38,7 +38,7 @@
                   </v-card-title>
                   <v-card-subtitle
                     :class="skeleton && 'skeleton-background skeleton-text skeleton-text-width skeleton-text-height pa-0 my-3' || ''"
-                    class="white--text"
+                    class="subtitle white--text"
                     dark>
                     {{ !skeleton && user && user.position || '&nbsp;' }}
                   </v-card-subtitle>

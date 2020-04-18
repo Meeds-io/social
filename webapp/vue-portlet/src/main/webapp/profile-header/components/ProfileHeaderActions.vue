@@ -10,27 +10,54 @@
         class="btn mx-2"
         @click="extension.click(user)">
         <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
-        <span class="d-none d-sm-flex">
+        <span class="buttonText">
           {{ extension.title }}
         </span>
       </v-btn>
       <div v-if="invited" class="invitationButtons d-inline">
+        <v-dialog
+          v-model="mobileAcceptRefuseConnectionDialog"
+          width="200"
+          max-width="100vw">
+          <v-card class="pa-0">
+            <v-btn
+              :disabled="loading"
+              :loading="loading"
+              block
+              class="white no-border-radius"
+              @click="acceptToConnect">
+              {{ $t('profileHeader.button.acceptToConnect') }}
+            </v-btn>
+            <v-btn
+              :disabled="loading"
+              :loading="loading"
+              block
+              class="white no-border-radius"
+              @click="refuseToConnect">
+              {{ $t('profileHeader.button.refuseToConnect') }}
+            </v-btn>
+          </v-card>
+        </v-dialog>
         <div class="acceptToConnectButtonParent">
           <v-btn
             :loading="sendingAction"
             :disabled="sendingAction"
             class="btn btn-primary mx-auto acceptToConnectButton"
             @click="acceptToConnect">
-            <i class="uiIconSocConnectUser d-none d-sm-inline"/>
-            <span class="d-none d-sm-flex">
+            <i class="uiIconSocConnectUser"/>
+            <span class="buttonText">
               {{ $t('profileHeader.button.acceptToConnect') }}
             </span>
-            <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
           </v-btn>
           <v-btn
-            class="btn btn-primary peopleButtonMenu d-none d-sm-inline"
+            class="btn btn-primary peopleButtonMenu dropdownButton"
             @click="openSecondButton">
             <v-icon>mdi-menu-down</v-icon>
+          </v-btn>
+          <v-btn
+            class="btn btn-primary peopleButtonMenu dialogButton"
+            @click="openSecondButton(true)">
+            <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
         <v-btn
@@ -39,11 +66,10 @@
           :disabled="sendingSecondAction"
           class="btn mx-auto refuseToConnectButton"
           @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
-          <span class="d-none d-sm-flex">
+          <i class="uiIconSocCancelConnectUser"/>
+          <span class="buttonText">
             {{ $t('profileHeader.button.refuseToConnect') }}
           </span>
-          <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
         </v-btn>
       </div>
       <v-btn
@@ -52,11 +78,10 @@
         :disabled="sendingAction"
         class="btn btn-primary mx-auto cancelRequestButton"
         @click="cancelRequest">
-        <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
-        <span class="d-none d-sm-inline">
+        <i class="uiIconSocCancelConnectUser"/>
+        <span class="buttonText">
           {{ $t('profileHeader.button.cancelRequest') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
       </v-btn>
       <v-btn
         v-else-if="disconnected"
@@ -65,11 +90,10 @@
         :disabled="sendingAction || skeleton"
         class="btn btn-primary mx-auto connectUserButton"
         @click="connect">
-        <i class="uiIconSocConnectUser d-none d-sm-inline"/>
-        <span class="d-none d-sm-inline">
+        <i class="uiIconSocConnectUser"/>
+        <span class="buttonText">
           {{ skeleton && '&nbsp;' || $t('profileHeader.button.connect') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-plus</v-icon>
       </v-btn>
     </template>
   </div>
@@ -99,6 +123,7 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
+    mobileAcceptRefuseConnectionDialog: false,
     sendingAction: false,
     sendingSecondAction: false,
     displaySecondButton: false,
@@ -148,8 +173,12 @@ export default {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
-    openSecondButton() {
-      this.displaySecondButton = !this.displaySecondButton;
+    openSecondButton(openDialog) {
+      if (openDialog) {
+        this.mobileAcceptRefuseConnectionDialog = true;
+      } else {
+        this.displaySecondButton = !this.displaySecondButton;
+      }
     },
     connect() {
       this.sendingAction = true;
