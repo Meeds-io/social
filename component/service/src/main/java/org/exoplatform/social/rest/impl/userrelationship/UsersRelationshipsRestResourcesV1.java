@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.rest.impl.userrelationship;
 
+import static org.exoplatform.social.rest.api.RestUtils.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,10 +27,7 @@ import javax.ws.rs.core.*;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
@@ -43,13 +42,10 @@ import io.swagger.annotations.*;
     + "/social/usersRelationships", description = "Managing relationships of users") // NOSONAR
 public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRestResources {
 
-  private IdentityManager     identityManager;
-
   private RelationshipManager relationshipManager;
 
-  public UsersRelationshipsRestResourcesV1(IdentityManager identityManager, RelationshipManager relationshipManager) {
+  public UsersRelationshipsRestResourcesV1(RelationshipManager relationshipManager) {
     this.relationshipManager = relationshipManager;
-    this.identityManager = identityManager;
   }
 
   @RolesAllowed("users")
@@ -368,18 +364,6 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
       }
     }
     return relationshipManager.get(currentUserIdentity, otherUserIdentity);
-  }
-
-  private Identity getCurrentUserIdentity() {
-    return getUserIdentity(getCurrentUser());
-  }
-
-  private Identity getUserIdentity(String user) {
-    return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
-  }
-
-  private String getCurrentUser() {
-    return ConversationState.getCurrent().getIdentity().getUserId();
   }
 
   private void checkCurrentUserIsPartOfRelationship(String sender, String receiver) {

@@ -166,3 +166,26 @@ export function deleteRelationship(userId) {
     }
   });
 }
+
+export function updateProfileField(name, value) {
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('value', value);
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `name=${name}&value=${value}`
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    }
+  }).then(error => {
+    if (error) {
+      throw new Error(error);
+    }
+  });
+}
+

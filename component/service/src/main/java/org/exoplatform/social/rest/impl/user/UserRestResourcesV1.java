@@ -16,7 +16,11 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
+import static org.exoplatform.social.rest.api.RestUtils.*;
+
 import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
+
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
@@ -43,10 +47,12 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
@@ -54,10 +60,15 @@ import org.exoplatform.social.rest.api.UserRestResources;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
+import org.exoplatform.upload.UploadResource;
+import org.exoplatform.upload.UploadService;
+import org.exoplatform.web.handler.UploadHandler;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -114,12 +125,15 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   private byte[]              defaultUserBanner = null;
 
-  public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, RelationshipManager relationshipManager, UserStateService userStateService, SpaceService spaceService) {
+  private UploadService       uploadService;
+
+  public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, RelationshipManager relationshipManager, UserStateService userStateService, SpaceService spaceService, UploadService uploadService) {
     this.userACL = userACL;
     this.identityManager = identityManager;
     this.relationshipManager = relationshipManager;
     this.userStateService = userStateService;
     this.spaceService = spaceService;
+    this.uploadService = uploadService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
@@ -410,6 +424,77 @@ public class UserRestResourcesV1 implements UserRestResources {
       }
       return builder.build();
     }
+  }
+
+  @PATCH
+  @Path("{id}")
+  @ApiOperation(value = "Update user property",
+                httpMethod = "PATCH",
+                response = Response.class,
+                notes = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled but not content returned"),
+      @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
+      @ApiResponse (code = 403, message = "Unothorized to modify user profile"),
+      @ApiResponse (code = 400, message = "Invalid query input") })
+  public Response updateUserProfileAttribute(@ApiParam(value = "User name", required = true) @PathParam("id") String username,
+                                             @ApiParam(value = "User profile attribute name", required = true) @FormParam("name") String name,
+                                             @ApiParam(value = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
+    if (StringUtils.isBlank(name)) {
+      return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
+    }
+    if (StringUtils.isBlank(value)) {
+      return Response.status(Status.BAD_REQUEST).entity("'value' parameter is mandatory").build();
+    }
+    if (StringUtils.isBlank(username)) {
+      return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
+    }
+    String currentUser = getCurrentUser();
+    if (!StringUtils.equals(currentUser, username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    Identity userIdentity = getUserIdentity(username);
+    Profile profile = userIdentity.getProfile();
+    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+      UploadResource uploadResource = uploadService.getUploadResource(value);
+      if (uploadResource == null) {
+        return Response.status(Status.BAD_REQUEST).entity("No uploaded resource found with uploadId = " + value).build();
+      }
+      String storeLocation = uploadResource.getStoreLocation();
+      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
+        Attachment attachment = null;
+        if (Profile.AVATAR.equals(name)) {
+          attachment = new AvatarAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+        } else {
+          attachment = new BannerAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+        }
+        profile.setProperty(name, attachment);
+        identityManager.updateProfile(profile);
+      } catch (IdentityStorageException e) {
+        return Response.serverError().entity(e.getMessageKey()).build();
+      } catch (Exception e) {
+        return Response.serverError().entity("Can't update avatar, error = " + e.getMessage()).build();
+      } finally {
+        uploadService.removeUploadResource(value);
+      }
+    } else {
+      try {
+        profile.setProperty(name, value);
+        identityManager.updateProfile(profile);
+      } catch (Exception e) {
+        return Response.serverError().entity("Can't update '" + name + "', error = " + e.getMessage()).build();
+      }
+    }
+    return Response.noContent().build();
   }
 
   @DELETE

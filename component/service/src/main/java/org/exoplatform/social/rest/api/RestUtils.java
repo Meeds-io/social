@@ -32,10 +32,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ISO8601;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.rest.entity.DataEntity;
 
 public class RestUtils {
@@ -49,7 +53,9 @@ public class RestUtils {
   public static final String SUPPORT_TYPE   = "json";
 
   public static final String ADMIN_GROUP    = "/platform/administrators";
-  
+
+  private static IdentityManager identityManager;
+
   public static String formatISO8601(Date date) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
@@ -227,5 +233,24 @@ public class RestUtils {
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     Date date = sdf.parse(baseDateTime);
     return date.getTime(); 
+  }
+
+  public static final Identity getUserIdentity(String user) {
+    return getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+  }
+
+  public static final Identity getCurrentUserIdentity() {
+    return getUserIdentity(getCurrentUser());
+  }
+
+  public static final String getCurrentUser() {
+    return ConversationState.getCurrent().getIdentity().getUserId();
+  }
+
+  public static IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = ExoContainerContext.getService(IdentityManager.class);
+    }
+    return identityManager;
   }
 }

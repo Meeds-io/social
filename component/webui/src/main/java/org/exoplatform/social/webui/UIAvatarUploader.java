@@ -159,7 +159,7 @@ public class UIAvatarUploader extends UIForm {
             AvatarAttachment avatarAttachment = ImageUtils.createResizedAvatarAttachment(uploadedStream, WIDTH, HEIGHT, null,
                                                                                          fileName, mimeType, null);
             if (avatarAttachment == null) {
-              avatarAttachment = new AvatarAttachment(null, fileName, mimeType, uploadedStream, null, System.currentTimeMillis());
+              avatarAttachment = new AvatarAttachment(null, fileName, mimeType, uploadedStream, System.currentTimeMillis());
             }
             //
             UIAvatarUploadContent uiAvatarUploadContent = uiAvatarUploader.createUIComponent(UIAvatarUploadContent.class, null, null);
