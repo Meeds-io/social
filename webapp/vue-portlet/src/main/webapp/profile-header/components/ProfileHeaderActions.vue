@@ -1,0 +1,204 @@
+<template>
+  <div
+    id="profileHeaderActions"
+    :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
+    class="mt-auto mr-3">
+    <template v-if="!owner">
+      <v-btn
+        v-for="(extension, i) in enabledProfileActionExtensions"
+        :key="i"
+        class="btn mx-2"
+        @click="extension.click(user)">
+        <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
+        <span class="d-none d-sm-flex">
+          {{ extension.title }}
+        </span>
+      </v-btn>
+      <div v-if="invited" class="invitationButtons d-inline">
+        <div class="acceptToConnectButtonParent">
+          <v-btn
+            :loading="sendingAction"
+            :disabled="sendingAction"
+            class="btn btn-primary mx-auto acceptToConnectButton"
+            @click="acceptToConnect">
+            <i class="uiIconSocConnectUser d-none d-sm-inline"/>
+            <span class="d-none d-sm-flex">
+              {{ $t('profileHeader.button.acceptToConnect') }}
+            </span>
+            <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
+          </v-btn>
+          <v-btn
+            class="btn btn-primary peopleButtonMenu d-none d-sm-inline"
+            @click="openSecondButton">
+            <v-icon>mdi-menu-down</v-icon>
+          </v-btn>
+        </div>
+        <v-btn
+          v-show="displaySecondButton"
+          :loading="sendingSecondAction"
+          :disabled="sendingSecondAction"
+          class="btn mx-auto refuseToConnectButton"
+          @click="refuseToConnect">
+          <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
+          <span class="d-none d-sm-flex">
+            {{ $t('profileHeader.button.refuseToConnect') }}
+          </span>
+          <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
+        </v-btn>
+      </div>
+      <v-btn
+        v-else-if="requested"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn btn-primary mx-auto cancelRequestButton"
+        @click="cancelRequest">
+        <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
+        <span class="d-none d-sm-inline">
+          {{ $t('profileHeader.button.cancelRequest') }}
+        </span>
+        <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
+      </v-btn>
+      <v-btn
+        v-else-if="disconnected"
+        :class="skeleton && 'skeleton-background skeleton-text'"
+        :loading="sendingAction"
+        :disabled="sendingAction || skeleton"
+        class="btn btn-primary mx-auto connectUserButton"
+        @click="connect">
+        <i class="uiIconSocConnectUser d-none d-sm-inline"/>
+        <span class="d-none d-sm-inline">
+          {{ skeleton && '&nbsp;' || $t('profileHeader.button.connect') }}
+        </span>
+        <v-icon class="d-inline d-sm-none">mdi-plus</v-icon>
+      </v-btn>
+    </template>
+  </div>
+</template>
+
+<script>
+import * as userService from '../../common/js/UserService.js'; 
+
+export default {
+  props: {
+    user: {
+      type: Object,
+      default: () => null,
+    },
+    skeleton: {
+      type: Boolean,
+      default: () => true,
+    },
+    owner: {
+      type: Boolean,
+      default: () => true,
+    },
+    hover: {
+      type: Boolean,
+      default: () => false,
+    },
+  },
+  data: () => ({
+    profileActionExtensions: [],
+    sendingAction: false,
+    sendingSecondAction: false,
+    displaySecondButton: false,
+    waitTimeUntilCloseMenu: 200,
+  }),
+  computed: {
+    relationshipStatus() {
+      return this.user && this.user.relationshipStatus;
+    },
+    connected() {
+      return this.relationshipStatus === 'CONFIRMED';
+    },
+    disconnected() {
+      return !this.relationshipStatus || this.relationshipStatus === 'IGNORED';
+    },
+    invited() {
+      return this.relationshipStatus === 'INCOMING';
+    },
+    requested() {
+      return this.relationshipStatus === 'OUTGOING';
+    },
+    enabledProfileActionExtensions() {
+      if (!this.profileActionExtensions || !this.user) {
+        return [];
+      }
+      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
+    },
+  },
+  created() {
+    // To refresh menu when a new extension is ready to be used
+    document.addEventListener('profile-extension-updated', this.refreshExtensions);
+
+    // To broadcast event about current page supporting profile extensions
+    document.dispatchEvent(new CustomEvent('profile-extension-init'));
+
+    this.refreshExtensions();
+
+    $(document).on('mousedown', () => {
+      if (this.displaySecondButton) {
+        window.setTimeout(() => {
+          this.displaySecondButton = false;
+        }, this.waitTimeUntilCloseMenu);
+      }
+    });
+  },
+  methods: {
+    refreshExtensions() {
+      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    },
+    openSecondButton() {
+      this.displaySecondButton = !this.displaySecondButton;
+    },
+    connect() {
+      this.sendingAction = true;
+      userService.connect(this.user.username)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    acceptToConnect() {
+      this.sendingAction = true;
+      userService.confirm(this.user.username)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    refuseToConnect() {
+      this.sendingSecondAction = true;
+      userService.deleteRelationship(this.user.username)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingSecondAction = false;
+        });
+    },
+    cancelRequest() {
+      this.sendingAction = true;
+      userService.deleteRelationship(this.user.username)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+  },
+};
+</script>
