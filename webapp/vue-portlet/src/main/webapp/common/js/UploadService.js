@@ -1,4 +1,6 @@
-const MAX_RANDOM_NUMBER = 100000;
+export const avatarExcceedsLimitError = 'AVATAR_EXCEEDS_LIMIT';
+export const bannerExcceedsLimitError = 'BANNER_EXCEEDS_LIMIT';
+export const MAX_RANDOM_NUMBER = 100000;
 
 export function upload(file) {
   const random = Math.round(Math.random() * MAX_RANDOM_NUMBER);
