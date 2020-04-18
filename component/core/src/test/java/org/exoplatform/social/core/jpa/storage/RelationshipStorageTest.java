@@ -158,12 +158,12 @@ public class RelationshipStorageTest extends AbstractCoreTest {
 
     //Test change avatar
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
     assertNotNull(avatarAttachment);
 
     //Test change banner
     InputStream inputStreamBanner = getClass().getResourceAsStream("/eXo-Social.png");
-    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, null, System.currentTimeMillis());
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, System.currentTimeMillis());
     assertNotNull(bannerAttachment);
 
     Profile profile = johnIdentity.getProfile();
@@ -560,12 +560,12 @@ public class RelationshipStorageTest extends AbstractCoreTest {
 
     //Test change banner
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
     assertNotNull(avatarAttachment);
 
     //Test change avatar
     InputStream inputStreamBanner = getClass().getResourceAsStream("/eXo-Social.png");
-    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, null, System.currentTimeMillis());
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, System.currentTimeMillis());
     assertNotNull(bannerAttachment);
 
     Profile profile = maryIdentity.getProfile();
@@ -645,12 +645,12 @@ public class RelationshipStorageTest extends AbstractCoreTest {
 
     //Test change avatar
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
     assertNotNull(avatarAttachment);
 
     //Test change banner
     InputStream inputStreamBanner = getClass().getResourceAsStream("/eXo-Social.png");
-    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, null, System.currentTimeMillis());
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStreamBanner, System.currentTimeMillis());
     assertNotNull(bannerAttachment);
 
     Profile profile = johnIdentity.getProfile();

@@ -41,9 +41,8 @@ public class BannerAttachment extends Attachment {
                           String fileName,
                           String mimeType,
                           InputStream inputStream,
-                          String workspace,
                           long lastModified) throws Exception {
-    super(id, fileName, mimeType, inputStream, workspace, lastModified);
+    super(id, fileName, mimeType, inputStream, lastModified);
   }
 
   @Override

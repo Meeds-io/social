@@ -43,6 +43,9 @@ public interface IdentityStorage {
 
   public static final char    EMPTY_CHARACTER = '\u0000';
 
+  /** Default avatar and banner upload limits. */
+  public static final int     DEFAULT_UPLOAD_IMAGE_LIMIT = 2;
+
   /**
    * Saves identity.
    *
@@ -465,6 +468,16 @@ public interface IdentityStorage {
                                       boolean filterDisabled) {
     // No default sorting to apply
     return identityRemoteIds;
+  }
+
+  /**
+   * Change upload limit that will be used to check on uploaded avatar and
+   * banner
+   * 
+   * @param imageUploadLimit upload limit in MB, default is 2 MB
+   */
+  default void setImageUploadLimit(int imageUploadLimit) {
+    throw new UnsupportedOperationException();
   }
 
 }

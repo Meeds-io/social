@@ -309,8 +309,8 @@ public class IdentityStorageTest extends AbstractCoreTest {
     
     // Test in case loading an user has dot characters in name.
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
-    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, System.currentTimeMillis());
     String userDotName = "user.name";
     Identity identity = new Identity(OrganizationIdentityProvider.NAME, userDotName);
     Profile profile = new Profile(identity);
@@ -748,7 +748,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
   @MaxQueryNumber(126)
   public void testGetAvatarInputStreamById() throws Exception {
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
     
     /*
       test on identity with @OrganizationIdentityProvider.NAME as providerId.
@@ -843,7 +843,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
   @MaxQueryNumber(141)
   public void testGetBannerInputStreamById() throws Exception {
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, null, System.currentTimeMillis());
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, System.currentTimeMillis());
 
     /*
       test on identity with @OrganizationIdentityProvider.NAME as providerId.

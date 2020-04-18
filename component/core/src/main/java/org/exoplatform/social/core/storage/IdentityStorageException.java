@@ -47,7 +47,9 @@ public class IdentityStorageException extends ExoSocialException {
     FAIL_TO_GET_IDENTITY_SERVICE_HOME("Failed_To_Get_Identity_Service_Home"),
     FAIL_TO_GET_PROFILE_SERVICE_HOME("Failed_To_Get_Profile_Service_Home"),
     FAIL_TO_GET_OR_CREAT_PROFILE_HOME_NODE("Failed_To_Get_Or_Creat_Pofile_Home_Node"),
-    FAIL_TO_SET_PROPERTIES("Failed_To_Set_Properties");
+    FAIL_TO_SET_PROPERTIES("Failed_To_Set_Properties"),
+    AVATAR_EXCEEDS_LIMIT("AVATAR_EXCEEDS_LIMIT"),
+    BANNER_EXCEEDS_LIMIT("BANNER_EXCEEDS_LIMIT");
     
     private final String msgKey;
 

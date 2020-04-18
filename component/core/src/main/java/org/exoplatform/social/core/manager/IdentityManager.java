@@ -648,4 +648,11 @@ public interface IdentityManager {
     return DEFAULT_FIRST_CHAR_FILTERING;
   }
 
+  /**
+   * @return banner and avatar of identities Max upload size in MB
+   */
+  default int getImageUploadLimit() {
+    return IdentityStorage.DEFAULT_UPLOAD_IMAGE_LIMIT;
+  }
+
 }

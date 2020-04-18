@@ -1676,7 +1676,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
                                                              "avatar",
                                                              "png",
                                                              inputStream,
-                                                             null,
                                                              System.currentTimeMillis());
     assertNotNull("avatar attachment should not be null", avatarAttachment);
     space.setAvatarAttachment(avatarAttachment);

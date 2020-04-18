@@ -1645,7 +1645,7 @@ public class SpaceStorageTest extends AbstractCoreTest {
     int number = 1;
     Space space = this.getSpaceInstance(number);
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, null, System.currentTimeMillis());
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
     assertNotNull("avatar attachment should not be null", avatarAttachment);
     space.setAvatarAttachment(avatarAttachment);
     spaceStorage.saveSpace(space, true);

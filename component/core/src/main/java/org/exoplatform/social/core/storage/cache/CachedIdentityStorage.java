@@ -747,6 +747,11 @@ public class CachedIdentityStorage implements IdentityStorage {
     return storage.sortIdentities(identityRemoteIds, firstCharacterFieldName, firstCharacter, sortField, sortDirection);
   }
 
+  @Override
+  public void setImageUploadLimit(int imageUploadLimit) {
+    storage.setImageUploadLimit(imageUploadLimit);
+  }
+
   public IdentityStorage getStorage() {
     return storage;
   }
