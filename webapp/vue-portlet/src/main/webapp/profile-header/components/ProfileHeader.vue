@@ -14,7 +14,7 @@
           <v-layout>
             <v-flex class="d-flex profileHeaderTitle">
               <exo-confirm-dialog
-                ref="errorDialog"
+                ref="errorUploadDialog"
                 :message="errorMessage"
                 :title="$t('profileHeader.title.errorUploadingImage')"
                 :ok-label="$t('profileHeader.label.ok')" />
@@ -30,19 +30,10 @@
                   @error="handleError" />
               </v-hover>
               <div class="profileHeaderText align-start d-flex flex-grow-0">
-                <v-flex class="ma-auto pb-10">
-                  <v-card-title
-                    :class="skeleton && 'skeleton-background skeleton-text skeleton-text-width skeleton-text-height pa-0 my-3' || ''"
-                    class="headline white--text">
-                    {{ !skeleton && user && user.fullname || '&nbsp;' }}
-                  </v-card-title>
-                  <v-card-subtitle
-                    :class="skeleton && 'skeleton-background skeleton-text skeleton-text-width skeleton-text-height pa-0 my-3' || ''"
-                    class="subtitle white--text"
-                    dark>
-                    {{ !skeleton && user && user.position || '&nbsp;' }}
-                  </v-card-subtitle>
-                </v-flex>
+                <profile-header-text
+                  :user="user"
+                  :skeleton="skeleton"
+                  class="ma-auto pb-10" />
               </div>
               <div class="flex-grow-1"></div>
               <div class="d-flex flex-grow-0 justify-end pr-4">
@@ -125,7 +116,7 @@ export default {
         } else {
           this.errorMessage = String(error);
         }
-        this.$refs.errorDialog.open();
+        this.$refs.errorUploadDialog.open();
       }
     },
   },
