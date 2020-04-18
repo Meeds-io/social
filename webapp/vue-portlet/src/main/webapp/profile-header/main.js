@@ -27,11 +27,11 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'ProfileHeader';
 
-export function init() {
+export function init(maxUploadSize) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      template: `<profile-header id="${appId}" />`,
+      template: `<profile-header id="${appId}" max-upload-size="${maxUploadSize}" />`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);

@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover :disabled="skeleton">
       <v-img
         slot-scope="{ hover }"
@@ -13,6 +13,11 @@
         <v-flex fill-height>
           <v-layout>
             <v-flex class="d-flex my-7">
+              <exo-confirm-dialog
+                ref="errorDialog"
+                :message="errorMessage"
+                :title="$t('profileHeader.title.errorUploadingImage')"
+                :ok-label="$t('profileHeader.label.ok')" />
               <v-hover :disabled="skeleton">
                 <v-avatar
                   slot-scope="{ hover }"
@@ -20,15 +25,15 @@
                   class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar"
                   size="165">
                   <v-img :src="!skeleton && user && user.avatar || ''" />
-                  <v-btn
-                    v-if="owner"
+                  <v-file-input
+                    v-if="owner && !sendingImage"
                     v-show="hover"
-                    icon
-                    absolute
-                    bottom
-                    outlined>
-                    <i class="uiIconCamera uiIcon32x32 uiIconSocWhite" />
-                  </v-btn>
+                    ref="avatarInput"
+                    prepend-icon="mdi-camera"
+                    class="changeAvatarButton"
+                    accept="image/*"
+                    clearable
+                    @change="uploadAvatar" />
                 </v-avatar>
               </v-hover>
               <div class="align-start d-flex flex-grow-0">
@@ -48,31 +53,30 @@
               </div>
               <div class="flex-grow-1"></div>
               <div class="d-flex flex-grow-0 justify-end pr-4">
-                <v-btn
-                  v-if="owner"
+                <v-file-input
+                  v-if="owner && !sendingImage"
                   v-show="hover"
-                  :depressed="false"
+                  ref="bannerInput"
+                  prepend-icon="fa-file-image"
                   class="changeBannerButton mr-4"
-                  icon
-                  absolute
-                  top>
-                  <v-icon color="white" size="18">fa-file-image</v-icon>
-                </v-btn>
+                  accept="image/*"
+                  clearable
+                  @change="uploadBanner" />
                 <div
                   id="profileHeaderActions"
                   :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
                   class="mt-auto mr-3">
-                  <v-btn
-                    v-for="(extension, i) in enabledProfileActionExtensions"
-                    :key="i"
-                    class="btn mx-2"
-                    @click="extension.click(user)">
-                    <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
-                    <span class="d-none d-sm-flex">
-                      {{ extension.title }}
-                    </span>
-                  </v-btn>
                   <template v-if="!owner">
+                    <v-btn
+                      v-for="(extension, i) in enabledProfileActionExtensions"
+                      :key="i"
+                      class="btn mx-2"
+                      @click="extension.click(user)">
+                      <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
+                      <span class="d-none d-sm-flex">
+                        {{ extension.title }}
+                      </span>
+                    </v-btn>
                     <div v-if="invited" class="invitationButtons d-inline">
                       <div class="acceptToConnectButtonParent">
                         <v-btn
@@ -84,7 +88,7 @@
                           <span class="d-none d-sm-flex">
                             {{ $t('profileHeader.button.acceptToConnect') }}
                           </span>
-                          <v-icon class="d-inline d-sm-none">mdi-check</v-icon>
+                          <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
                         </v-btn>
                         <v-btn
                           class="btn btn-primary peopleButtonMenu d-none d-sm-inline"
@@ -140,21 +144,37 @@
     </v-hover>
   </v-app>    
 </template>
+
 <script>
-import {getUser} from '../../common/js/UserService.js';
+import * as userService from '../../common/js/UserService.js'; 
+import {upload} from '../../common/js/UploadService.js'; 
 
 export default {
+  props: {
+    maxUploadSize: {
+      type: Number,
+      default: () => 2,
+    },
+  },
   data: () => ({
     skeleton: true,
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    file: null,
     user: null,
+    avatarExcceedsLimitError: 'AVATAR_EXCEEDS_LIMIT',
+    bannerExcceedsLimitError: 'BANNER_EXCEEDS_LIMIT',
     profileActionExtensions: [],
     sendingAction: false,
     sendingSecondAction: false,
+    sendingImage: false,
     displaySecondButton: false,
+    errorMessage: null,
     waitTimeUntilCloseMenu: 200,
   }),
   computed: {
+    maxUploadSizeInBytes() {
+      return this.maxUploadSize * 1024 * 1024;
+    },
     relationshipStatus() {
       return this.user && this.user.relationshipStatus;
     },
@@ -177,6 +197,15 @@ export default {
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
   },
+  watch: {
+    sendingImage() {
+      if (this.sendingImage) {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      } else {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      }
+    },
+  },
   created() {
     // To refresh menu when a new extension is ready to be used
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
@@ -195,27 +224,122 @@ export default {
     });
   },
   mounted() {
-    getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
-      .then(user => {
-        this.user = user;
-        return this.$nextTick();
-      })
-      .then(() => {
-        this.skeleton = false;
-      })
-      .catch((e) => {
-        console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
-      })
-      .finally(() => {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      });
+    this.refresh();
   },
   methods: {
+    refresh() {
+      return userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
+        .then(user => {
+          this.user = user;
+          return this.$nextTick();
+        })
+        .then(() => {
+          this.skeleton = false;
+        })
+        .catch((e) => {
+          console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
+        })
+        .finally(() => {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        });
+    },
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
+    uploadAvatar(file) {
+      if (file && file.size) {
+        if (file.size > this.maxUploadSizeInBytes) {
+          this.handleError(this.avatarExcceedsLimitError);
+          return;
+        }
+        this.sendingImage = true;
+        return upload(file)
+          .then(uploadId => userService.updateProfileField('avatar', uploadId))
+          .then(this.refresh)
+          .catch(this.handleError)
+          .finally(() => {
+            this.sendingImage = false;
+          });
+      }
+    },
+    uploadBanner(file) {
+      if (file && file.size) {
+        if (file.size > this.maxUploadSizeInBytes) {
+          this.handleError(this.bannerExcceedsLimitError);
+          return;
+        }
+        this.sendingImage = true;
+        return upload(file)
+          .then(uploadId => userService.updateProfileField('banner', uploadId))
+          .then(this.refresh)
+          .catch(this.handleError)
+          .finally(() => {
+            this.sendingImage = false;
+          });
+      }
+    },
+    handleError(error) {
+      if (error) {
+        if (String(error).indexOf(this.avatarExcceedsLimitError) >= 0) {
+          this.errorMessage = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.maxUploadSize});
+        } else if (String(error).indexOf(this.bannerExcceedsLimitError) >= 0) {
+          this.errorMessage = this.$t('profileHeader.label.bannerExcceededAllowedSize', {0: this.maxUploadSize});
+        } else {
+          this.errorMessage = String(error);
+        }
+        this.$refs.errorDialog.open();
+      }
+    },
     openSecondButton() {
       this.displaySecondButton = !this.displaySecondButton;
+    },
+    connect() {
+      this.sendingAction = true;
+      userService.connect(this.user.username)
+        .then(() => this.refresh())
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    acceptToConnect() {
+      this.sendingAction = true;
+      userService.confirm(this.user.username)
+        .then(() => this.refresh())
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    refuseToConnect() {
+      this.sendingSecondAction = true;
+      userService.deleteRelationship(this.user.username)
+        .then(() => this.refresh())
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingSecondAction = false;
+        });
+    },
+    cancelRequest() {
+      this.sendingAction = true;
+      userService.deleteRelationship(this.user.username)
+        .then(() => this.refresh())
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
     },
   },
 };

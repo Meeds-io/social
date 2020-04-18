@@ -157,7 +157,7 @@ public class UIBannerUploader extends UIForm {
           } else {
             InputStream uploadedStream = new FileInputStream(new File(uploadResource.getStoreLocation()));
             BannerAttachment avatarAttachment = new BannerAttachment(null, fileName, mimeType,
-                    uploadedStream, null, System.currentTimeMillis());
+                    uploadedStream, System.currentTimeMillis());
 
             if (uiBannerUploader.getAncestorOfType(UISpaceMenu.class) != null) {
               uiBannerUploader.saveSpaceBanner(avatarAttachment);

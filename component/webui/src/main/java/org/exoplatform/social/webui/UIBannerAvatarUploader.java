@@ -120,7 +120,7 @@ public class UIBannerAvatarUploader extends UIBannerUploader {
           AvatarAttachment avatarAttachment = ImageUtils.createResizedAvatarAttachment(uploadedStream, UIAvatarUploader.WIDTH, UIAvatarUploader.HEIGHT, null,
                                                                                        fileName, mimeType, null);
           if (avatarAttachment == null) {
-            avatarAttachment = new AvatarAttachment(null, fileName, mimeType, uploadedStream, null, System.currentTimeMillis());
+            avatarAttachment = new AvatarAttachment(null, fileName, mimeType, uploadedStream, System.currentTimeMillis());
           }
 
           if (!uiBannerAvatarUploader.isAcceptedMimeType(mimeType)) {

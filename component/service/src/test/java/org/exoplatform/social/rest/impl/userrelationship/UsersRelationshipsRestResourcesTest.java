@@ -44,7 +44,7 @@ public class UsersRelationshipsRestResourcesTest extends AbstractResourceTest {
     identityManager.saveIdentity(maryIdentity);
     identityManager.saveIdentity(demoIdentity);
     
-    usersRelationshipsRestService = new UsersRelationshipsRestResourcesV1(identityManager, relationshipManager);
+    usersRelationshipsRestService = new UsersRelationshipsRestResourcesV1(relationshipManager);
     registry(usersRelationshipsRestService);
   }
 

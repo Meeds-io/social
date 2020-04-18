@@ -63,13 +63,13 @@ export default {
     okLabel: {
       type: String,
       default: function() {
-        return 'ok';
+        return null;
       },
     },
     cancelLabel: {
       type: String,
       default: function() {
-        return 'Cancel';
+        return null;
       },
     },
     hideActions: {
