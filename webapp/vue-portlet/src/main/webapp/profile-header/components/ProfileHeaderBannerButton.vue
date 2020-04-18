@@ -1,8 +1,9 @@
 <template>
   <v-file-input
     v-if="!sendingImage"
-    v-show="hover"
+    v-show="skeleton || hover"
     ref="bannerInput"
+    :class="skeleton && 'skeleton-background skeleton-text' || ''"
     prepend-icon="fa-file-image"
     class="changeBannerButton mr-4"
     accept="image/*"

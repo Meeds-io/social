@@ -3,8 +3,8 @@
     <v-hover :disabled="skeleton">
       <v-img
         slot-scope="{ hover }"
-        :src="!skeleton && user && user.banner || ''"
-        :class="skeleton && 'skeleton-background' || ''"
+        :src="user && user.banner || ''"
+        :class="skeleton && 'white' || ''"
         class="profileBannerImg d-flex"
         min-height="240px"
         height="240px"
@@ -33,12 +33,13 @@
                 <profile-header-text
                   :user="user"
                   :skeleton="skeleton"
+                  :class="skeleton && 'skeleton-text' || ''"
                   class="ma-auto pb-10" />
               </div>
               <div class="flex-grow-1"></div>
               <div class="d-flex flex-grow-0 justify-end pr-4">
                 <profile-header-banner-button
-                  v-if="owner"
+                  v-if="owner || skeleton"
                   :user="user"
                   :max-upload-size="maxUploadSizeInBytes"
                   :skeleton="skeleton"
@@ -97,9 +98,7 @@ export default {
           this.user = user;
           return this.$nextTick();
         })
-        .then(() => {
-          this.skeleton = false;
-        })
+        .then(() => this.skeleton = false)
         .catch((e) => {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })

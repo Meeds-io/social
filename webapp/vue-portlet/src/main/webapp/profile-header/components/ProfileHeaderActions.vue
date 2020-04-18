@@ -3,18 +3,20 @@
     id="profileHeaderActions"
     :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
     class="mt-auto mr-3">
-    <template v-if="!owner">
-      <v-btn
-        v-for="(extension, i) in enabledProfileActionExtensions"
-        :key="i"
-        class="btn mx-2"
-        @click="extension.click(user)">
-        <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
-        <span class="buttonText">
-          {{ extension.title }}
-        </span>
-      </v-btn>
-      <div v-if="invited" class="invitationButtons d-inline">
+    <template v-if="!owner || skeleton">
+      <template v-if="!skeleton">
+        <v-btn
+          v-for="(extension, i) in enabledProfileActionExtensions"
+          :key="i"
+          class="btn mx-2"
+          @click="extension.click(user)">
+          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
+          <span class="buttonText">
+            {{ extension.title }}
+          </span>
+        </v-btn>
+      </template>
+      <div v-if="!skeleton && invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"
           width="200"
@@ -73,7 +75,7 @@
         </v-btn>
       </div>
       <v-btn
-        v-else-if="requested"
+        v-else-if="!skeleton && requested"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn btn-primary mx-auto cancelRequestButton"
@@ -84,15 +86,15 @@
         </span>
       </v-btn>
       <v-btn
-        v-else-if="disconnected"
-        :class="skeleton && 'skeleton-background skeleton-text'"
+        v-else-if="skeleton || disconnected"
         :loading="sendingAction"
         :disabled="sendingAction || skeleton"
-        class="btn btn-primary mx-auto connectUserButton"
+        :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
+        class="btn mx-auto connectUserButton"
         @click="connect">
-        <i class="uiIconSocConnectUser"/>
+        <i v-if="!skeleton" class="uiIconSocConnectUser"/>
         <span class="buttonText">
-          {{ skeleton && '&nbsp;' || $t('profileHeader.button.connect') }}
+          {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;' || $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
     </template>
