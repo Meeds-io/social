@@ -167,11 +167,11 @@ export function deleteRelationship(userId) {
   });
 }
 
-export function updateProfileField(name, value) {
+export function updateProfileField(username, name, value) {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('value', value);
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
@@ -189,3 +189,27 @@ export function updateProfileField(name, value) {
   });
 }
 
+export function updateProfileFields(username, obj, fields) {
+  const objectToSend = {};
+  for (const i in fields) {
+    objectToSend[fields[i]] = obj[fields[i]];
+  }
+
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}/profile`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(objectToSend),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    }
+  }).then(error => {
+    if (error) {
+      throw new Error(error);
+    }
+  });
+}

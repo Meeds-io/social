@@ -17,7 +17,10 @@ let config = {
     suggestions: './src/main/webapp/suggestions-people-space/main.js',
     peopleList: './src/main/webapp/people-list/main.js',
     peopleOverview: './src/main/webapp/people-overview/main.js',
-    profileHeader: './src/main/webapp/profile-header/main.js'
+    profileHeader: './src/main/webapp/profile-header/main.js',
+    profileAboutMe: './src/main/webapp/profile-about-me/main.js',
+    profileContactInformation: './src/main/webapp/profile-contact-information/main.js',
+    profileWorkExperience: './src/main/webapp/profile-work-experience/main.js'
   },
   module: {
     rules: [

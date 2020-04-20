@@ -51,7 +51,7 @@ export default {
         }
         this.sendingImage = true;
         return uploadService.upload(file)
-          .then(uploadId => userService.updateProfileField('banner', uploadId))
+          .then(uploadId => userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId))
           .then(() => this.$emit('refresh'))
           .catch(error => this.$emit('error', error))
           .finally(() => {

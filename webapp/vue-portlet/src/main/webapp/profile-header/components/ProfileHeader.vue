@@ -26,6 +26,7 @@
                   :skeleton="skeleton"
                   :owner="owner"
                   :hover="hover"
+                  save
                   @refresh="refresh"
                   @error="handleError" />
               </v-hover>
@@ -90,8 +91,18 @@ export default {
   },
   mounted() {
     this.refresh();
+    document.addEventListener('userModified', event => {
+      if (event && event.detail && event.detail !== this.user) {
+        Object.assign(this.user, event.detail);
+      }
+    });
   },
   methods: {
+    avatarUpdated() {
+      this.refresh().then(() => {
+        document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
+      });
+    },
     refresh() {
       return userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
         .then(user => {
