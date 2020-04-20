@@ -94,7 +94,6 @@ export default {
       showErrorMessage: false,
       activityComposerActions: [],
       attachments: [],
-      uploadingCount: 0,
       percent: 100,
       actionsData: [],
       actionsEvents: []
@@ -182,7 +181,6 @@ export default {
         }
       });
       this.attachments = [];
-      this.uploadingCount = 0;
       this.showErrorMessage = false;
     },
     refreshActivityStream() {
@@ -196,16 +194,6 @@ export default {
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);
-    },
-    setUploadingCount: function(action) {
-      if (action === 'add') {
-        this.uploadingCount++;
-      } else if (action === 'addExisting') {
-        this.uploadingCount = this.attachments
-          .filter(attachment => attachment.uploadProgress == null || attachment.uploadProgress === this.percent).length;
-      } else if (action === 'remove' && this.uploadingCount !== 0) {
-        this.uploadingCount--;
-      }
     },
     updateAttachments(attachments) {
       this.attachments = attachments;
