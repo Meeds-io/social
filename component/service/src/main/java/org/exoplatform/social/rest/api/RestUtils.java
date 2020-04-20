@@ -30,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.container.ExoContainerContext;
@@ -161,6 +163,9 @@ public class RestUtils {
    * @return base rest url like : https://localhost:8080
    */
   public static String getBaseUrl() {
+    if (ApplicationContextImpl.getCurrent() == null) {
+      return StringUtils.EMPTY;
+    }
     String fullUrl = ApplicationContextImpl.getCurrent().getBaseUri().toString();
     return (fullUrl != null && !fullUrl.isEmpty()) ? fullUrl.substring(0, fullUrl.indexOf("/", 9)) : "";
   }

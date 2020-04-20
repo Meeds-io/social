@@ -1,14 +1,19 @@
 package org.exoplatform.social.rest.impl.users;
 
 import org.apache.commons.lang3.StringUtils;
+import org.gatein.common.io.IOTools;
 
+import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -16,6 +21,7 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
@@ -23,9 +29,15 @@ import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+import org.exoplatform.upload.UploadService;
 
-import java.util.Date;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.MultivaluedMap;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
   
@@ -35,6 +47,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private RelationshipManager relationshipManager;
   private SpaceService spaceService;
   private UserStateService userStateService;
+
+  private MockUploadService   uploadService;
 
   private Identity rootIdentity;
   private Identity johnIdentity;
@@ -52,6 +66,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
+    uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
 
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
@@ -324,7 +339,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testAddActivityByUser() throws Exception {
-    //root posts another activity
     String input = "{\"title\":titleOfActivity,\"templateParams\":{\"param1\": value1,\"param2\":value2}}";
     startSessionAs("john");
     ContainerResponse response = getResponse("POST", getURLResource("users/john/activities"), input);
@@ -337,6 +351,167 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     DataEntity templateParams = (DataEntity) responseEntity.get("templateParams");
     assertNotNull(templateParams);
     assertEquals(2, templateParams.size());
+  }
+
+  public void testUpdateProfileAtribute() throws Exception {
+    startSessionAs("root");
+    String email = "root@test.com";
+    byte[] formData = ("name=email&value=" + email).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()) ,204, response.getStatus());
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    assertNotNull(identity);
+    assertEquals(email, identity.getProfile().getEmail());
+
+    response = service("PATCH", getURLResource("users/john/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals("User root shouldn't be able to modify john attributes" ,401, response.getStatus());
+  }
+
+  public void testUpdateProfileAvatar() throws Exception {
+    startSessionAs("root");
+
+    String uploadId = "testtest";
+    byte[] formData = ("name=avatar&value=" + uploadId).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 500, response.getStatus());
+
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "avatar.png", "image/png");
+    response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    assertNotNull(identity);
+    assertNotNull(identity.getProfile().getAvatarLastUpdated());
+
+    InputStream avatarInputStream = identityManager.getAvatarInputStream(identity);
+    String storedContent = IOUtil.getStreamContentAsString(avatarInputStream);
+    String content = IOUtil.getStreamContentAsString(getClass().getClassLoader().getResourceAsStream("blank.gif"));
+    assertEquals(content, storedContent);
+  }
+
+  public void testUpdateProfileBanner() throws Exception {
+    startSessionAs("root");
+
+    String uploadId = "testtest";
+    byte[] formData = ("name=banner&value=" + uploadId).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 500, response.getStatus());
+
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "banner.png", "image/png");
+    response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    assertNotNull(identity);
+    assertNotNull(identity.getProfile().getBannerLastUpdated());
+
+    InputStream bannerInputStream = identityManager.getBannerInputStream(identity);
+    String storedContent = IOUtil.getStreamContentAsString(bannerInputStream);
+    String content = IOUtil.getStreamContentAsString(getClass().getClassLoader().getResourceAsStream("blank.gif"));
+    assertEquals(content, storedContent);
+  }
+
+  public void testUpdateProfileAtributes() throws Exception {
+    String firstName = "Johnny";
+    String lastName = "B";
+    String fullName = "Johnny B";
+    String aboutMe = "AboutMe";
+    String imType = "Skype";
+    String imId = "johnnyB";
+    String phoneType = "work";
+    String phoneNumber = "123456";
+    String url = "fakeURL";
+
+    StringBuilder input = new StringBuilder("{");
+    input.append("\"");
+    input.append(ProfileEntity.FIRSTNAME);
+    input.append("\":\"");
+    input.append(firstName);
+    input.append("\",");
+
+    input.append("\"");
+    input.append(ProfileEntity.LASTNAME);
+    input.append("\":\"");
+    input.append(lastName);
+    input.append("\",");
+
+    input.append("\"");
+    input.append(ProfileEntity.FULLNAME);
+    input.append("\":\"");
+    input.append(fullName);
+    input.append("\",");
+
+    input.append("\"");
+    input.append(ProfileEntity.ABOUT_ME);
+    input.append("\":\"");
+    input.append(aboutMe);
+    input.append("\",");
+
+    input.append("\"");
+    input.append(ProfileEntity.PHONES);
+    input.append("\": [{\"phoneType\":\"");
+    input.append(phoneType);
+    input.append("\",\"phoneNumber\":\"");
+    input.append(phoneNumber);
+    input.append("\"}],");
+
+    input.append("\"");
+    input.append(ProfileEntity.IMS);
+    input.append("\": [{\"imType\":\"");
+    input.append(imType);
+    input.append("\", \"imId\":\"");
+    input.append(imId);
+    input.append("\"}],");
+
+    input.append("\"");
+    input.append(ProfileEntity.URLS);
+    input.append("\":[{\"url\":\"");
+    input.append(url);
+    input.append("\"}]");
+    input.append("}");
+
+    startSessionAs("john");
+    ContainerResponse response = getResponse("PATCH", getURLResource("users/john/profile"), input.toString());
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()) ,204, response.getStatus());
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    assertNotNull(identity);
+    assertEquals(firstName, identity.getProfile().getProperty(Profile.FIRST_NAME));
+    assertEquals(lastName, identity.getProfile().getProperty(Profile.LAST_NAME));
+    assertEquals(fullName, identity.getProfile().getProperty(Profile.FULL_NAME));
+
+    List<Map<String, String>> phones = identity.getProfile().getPhones();
+    assertNotNull(phones);
+    assertEquals(1, phones.size());
+    assertNotNull(phoneType, phones.get(0).get("key"));
+    assertNotNull(phoneNumber, phones.get(0).get("value"));
+
+    List<Map<String, String>> ims = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_IMS);
+    assertNotNull(ims);
+    assertEquals(1, ims.size());
+    assertNotNull(imType, ims.get(0).get("key"));
+    assertNotNull(imId, ims.get(0).get("value"));
+
+    List<Map<String, String>> urls = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_URLS);
+    assertNotNull(urls);
+    assertEquals(1, urls.size());
+    assertNotNull(url, urls.get(0).get("value"));
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {

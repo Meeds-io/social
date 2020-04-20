@@ -16,12 +16,22 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.*;
+import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
+import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
 
-import io.swagger.annotations.*;
-import io.swagger.jaxrs.PATCH;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.*;
@@ -30,49 +40,30 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
-import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
-import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.ErrorResource;
-import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.UserRestResources;
+import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
-import org.exoplatform.web.handler.UploadHandler;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
+import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 
 /**
  * 
@@ -428,15 +419,12 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   @PATCH
   @Path("{id}")
-  @ApiOperation(value = "Update user property",
-                httpMethod = "PATCH",
-                response = Response.class,
-                notes = "This can only be done by the logged in user.")
+  @ApiOperation(value = "Update user property", httpMethod = "PATCH", response = Response.class, notes = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse (code = 204, message = "Request fulfilled but not content returned"),
-      @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-      @ApiResponse (code = 403, message = "Unothorized to modify user profile"),
-      @ApiResponse (code = 400, message = "Invalid query input") })
+      @ApiResponse(code = 204, message = "Request fulfilled but not content returned"),
+      @ApiResponse(code = 500, message = "Internal server error due to data encoding"),
+      @ApiResponse(code = 403, message = "Unothorized to modify user profile"),
+      @ApiResponse(code = 400, message = "Invalid query input") })
   public Response updateUserProfileAttribute(@ApiParam(value = "User name", required = true) @PathParam("id") String username,
                                              @ApiParam(value = "User profile attribute name", required = true) @FormParam("name") String name,
                                              @ApiParam(value = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
@@ -456,43 +444,57 @@ public class UserRestResourcesV1 implements UserRestResources {
 
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
-    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
-      UploadResource uploadResource = uploadService.getUploadResource(value);
-      if (uploadResource == null) {
-        return Response.status(Status.BAD_REQUEST).entity("No uploaded resource found with uploadId = " + value).build();
+    try {
+      String fieldName = ProfileEntity.getFieldName(name);
+      updateProfileField(profile, fieldName, value, true);
+    } catch (IdentityStorageException e) {
+      return Response.serverError().entity(e.getMessageKey()).build();
+    } catch (Exception e) {
+      return Response.serverError().entity("Can't update avatar, error = " + e.getMessage()).build();
+    }
+    return Response.noContent().build();
+  }
+
+  @PATCH
+  @Path("{id}/profile")
+  @ApiOperation(value = "Update set of properties in user profile",
+                httpMethod = "PATCH",
+                response = Response.class,
+                notes = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled but not content returned"),
+      @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
+      @ApiResponse (code = 403, message = "Unothorized to modify user profile"),
+      @ApiResponse (code = 400, message = "Invalid query input") })
+  public Response updateUserProfileAttributes(@ApiParam(value = "User name", required = true) @PathParam("id") String username,
+                                              @ApiParam(value = "User profile attributes map", required = true) ProfileEntity profileEntity) throws IOException {
+    if (StringUtils.isBlank(username)) {
+      return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
+    }
+    if (profileEntity == null) {
+      return Response.status(Status.BAD_REQUEST).entity("Use profile entity is mandatory").build();
+    }
+    String currentUser = getCurrentUser();
+    if (!StringUtils.equals(currentUser, username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    Identity userIdentity = getUserIdentity(username);
+    Profile profile = userIdentity.getProfile();
+
+    try {
+      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+      for (Entry<String, Object> entry : profileEntries) {
+        String name = entry.getKey();
+        Object value = entry.getValue();
+        String fieldName = ProfileEntity.getFieldName(name);
+        updateProfileField(profile, fieldName, value, false);
       }
-      String storeLocation = uploadResource.getStoreLocation();
-      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
-        Attachment attachment = null;
-        if (Profile.AVATAR.equals(name)) {
-          attachment = new AvatarAttachment(null,
-                                            uploadResource.getFileName(),
-                                            uploadResource.getMimeType(),
-                                            inputStream,
-                                            System.currentTimeMillis());
-        } else {
-          attachment = new BannerAttachment(null,
-                                            uploadResource.getFileName(),
-                                            uploadResource.getMimeType(),
-                                            inputStream,
-                                            System.currentTimeMillis());
-        }
-        profile.setProperty(name, attachment);
-        identityManager.updateProfile(profile);
-      } catch (IdentityStorageException e) {
-        return Response.serverError().entity(e.getMessageKey()).build();
-      } catch (Exception e) {
-        return Response.serverError().entity("Can't update avatar, error = " + e.getMessage()).build();
-      } finally {
-        uploadService.removeUploadResource(value);
-      }
-    } else {
-      try {
-        profile.setProperty(name, value);
-        identityManager.updateProfile(profile);
-      } catch (Exception e) {
-        return Response.serverError().entity("Can't update '" + name + "', error = " + e.getMessage()).build();
-      }
+      identityManager.updateProfile(profile);
+    } catch (IdentityStorageException e) {
+      return Response.serverError().entity(e.getMessageKey()).build();
+    } catch (Exception e) {
+      return Response.serverError().entity("Can't update profile entities, error = " + e.getMessage()).build();
     }
     return Response.noContent().build();
   }
@@ -1007,6 +1009,140 @@ public class UserRestResourcesV1 implements UserRestResources {
     }
 
     return Response.ok(new ByteArrayInputStream(defaultUserBanner), "image/png");
+  }
+
+  private void updateProfileField(Profile profile,
+                                  String name,
+                                  Object value,
+                                  boolean save) throws Exception {
+    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+      UploadResource uploadResource = uploadService.getUploadResource(value.toString());
+      if (uploadResource == null) {
+        throw new IllegalStateException("No uploaded resource found with uploadId = " + value);
+      }
+      String storeLocation = uploadResource.getStoreLocation();
+      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
+        Attachment attachment = null;
+        if (Profile.AVATAR.equals(name)) {
+          attachment = new AvatarAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+        } else {
+          attachment = new BannerAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+        }
+        profile.setProperty(name, attachment);
+        if (save) {
+          identityManager.updateProfile(profile);
+        }
+      } finally {
+        uploadService.removeUploadResource(value.toString());
+      }
+    } else if (Profile.CONTACT_IMS.equals(name)) {
+      @SuppressWarnings("unchecked")
+      List<IMEntity> imEntities = (List<IMEntity>) value;
+      if (imEntities == null || imEntities.isEmpty()) {
+        profile.setProperty(Profile.CONTACT_IMS, Collections.emptyList());
+      } else {
+        List<Map<String, String>> imMaps = new ArrayList<>();
+        for (IMEntity imEntity : imEntities) {
+          String imType = imEntity.getImType();
+          String imId = imEntity.getImId();
+          if (StringUtils.isBlank(imId) || StringUtils.isBlank(imType)) {
+            continue;
+          }
+          Map<String, String> imMap = new HashMap<>();
+          imMap.put("key", imType);
+          imMap.put("value", imId);
+          imMaps.add(imMap);
+        }
+        profile.setProperty(Profile.CONTACT_IMS, imMaps);
+      }
+
+      if (save) {
+        identityManager.updateProfile(profile);
+      }
+    } else if (Profile.CONTACT_PHONES.equals(name)) {
+      @SuppressWarnings("unchecked")
+      List<PhoneEntity> phoneEntities = (List<PhoneEntity>) value;
+      if (phoneEntities == null || phoneEntities.isEmpty()) {
+        profile.setProperty(Profile.CONTACT_PHONES, Collections.emptyList());
+      } else {
+        List<Map<String, String>> phoneMaps = new ArrayList<>();
+        for (PhoneEntity phoneEntity : phoneEntities) {
+          String phoneType = phoneEntity.getPhoneType();
+          String phoneNumber = phoneEntity.getPhoneNumber();
+          if (StringUtils.isBlank(phoneType) || StringUtils.isBlank(phoneNumber)) {
+            continue;
+          }
+          Map<String, String> phoneMap = new HashMap<>();
+          phoneMap.put("key", phoneType);
+          phoneMap.put("value", phoneNumber);
+          phoneMaps.add(phoneMap);
+        }
+        profile.setProperty(Profile.CONTACT_PHONES, phoneMaps);
+      }
+
+      if (save) {
+        identityManager.updateProfile(profile);
+      }
+    } else if (Profile.CONTACT_URLS.equals(name)) {
+      @SuppressWarnings("unchecked")
+      List<URLEntity> urlEntities = (List<URLEntity>) value;
+      if (urlEntities == null || urlEntities.isEmpty()) {
+        profile.setProperty(Profile.CONTACT_URLS, Collections.emptyList());
+      } else {
+        List<Map<String, String>> urlMaps = new ArrayList<>();
+        for (URLEntity urlEntity : urlEntities) {
+          String url = urlEntity.getUrl();
+          if (StringUtils.isBlank(url)) {
+            continue;
+          }
+          Map<String, String> urlMap = new HashMap<>();
+          urlMap.put("value", url);
+          urlMaps.add(urlMap);
+        }
+        profile.setProperty(Profile.CONTACT_URLS, urlMaps);
+      }
+
+      if (save) {
+        identityManager.updateProfile(profile);
+      }
+    } else if (Profile.EXPERIENCES.equals(name)) {
+      @SuppressWarnings("unchecked")
+      List<ExperienceEntity> experienceEntities = (List<ExperienceEntity>) value;
+      if (experienceEntities == null || experienceEntities.isEmpty()) {
+        profile.setProperty(Profile.EXPERIENCES, Collections.emptyList());
+      } else {
+        List<Map<String, Object>> experienceMaps = new ArrayList<>();
+        for (ExperienceEntity experienceEntity : experienceEntities) {
+          Map<String, Object> experienceMap = new HashMap<>();
+          experienceMap.put(Profile.EXPERIENCES_ID, experienceEntity.getId());
+          experienceMap.put(Profile.EXPERIENCES_COMPANY, experienceEntity.getCompany());
+          experienceMap.put(Profile.EXPERIENCES_DESCRIPTION, experienceEntity.getDescription());
+          experienceMap.put(Profile.EXPERIENCES_POSITION, experienceEntity.getPosition());
+          experienceMap.put(Profile.EXPERIENCES_SKILLS, experienceEntity.getSkills());
+          experienceMap.put(Profile.EXPERIENCES_IS_CURRENT, experienceEntity.getIsCurrent());
+          experienceMap.put(Profile.EXPERIENCES_START_DATE, experienceEntity.getStartDate());
+          experienceMap.put(Profile.EXPERIENCES_END_DATE, experienceEntity.getEndDate());
+          experienceMaps.add(experienceMap);
+        }
+        profile.setProperty(Profile.EXPERIENCES, experienceMaps);
+      }
+      if (save) {
+        identityManager.updateProfile(profile);
+      }
+    } else {
+      profile.setProperty(name, value);
+      if (save) {
+        identityManager.updateProfile(profile);
+      }
+    }
   }
 
 }

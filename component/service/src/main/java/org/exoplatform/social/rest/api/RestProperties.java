@@ -20,31 +20,19 @@ package org.exoplatform.social.rest.api;
 public class RestProperties {
 
   public static final String ATTACHMENTS   = "attachments";
-  public static final String COMPANY       = "company";
   public static final String CREATE_DATE   = "createDate";
-  public static final String DESCRIPTION   = "description";
   public static final String DISPLAY_NAME  = "displayName";
-  public static final String END_DATE      = "endDate";
   public static final String ETAG          = "ETag";
   public static final String ID            = "id";
   public static final String IDENTITY      = "identity";
-  public static final String IM_ID         = "imId";
-  public static final String IM_TYPE       = "imType";
-  public static final String IS_CURRENT    = "isCurrent";
   public static final String MANAGERS      = "managers";
   public static final String MEMBERS       = "members";
   public static final String PENDING       = "pending";
-  public static final String PHONE_NUMBER  = "phoneNumber";
-  public static final String PHONE_TYPE    = "phoneType";
-  public static final String POSITION      = "position";
   public static final String RECEIVER      = "receiver";
   public static final String RELATIONSHIPS = "relationships";
   public static final String SENDER        = "sender";
-  public static final String SKILLS        = "skills";
-  public static final String START_DATE    = "startDate";
   public static final String TYPE          = "type";
   public static final String UPDATE_DATE   = "updateDate";
-  public static final String URL           = "url";
   public static final String LIKES         = "likes";
   public static final String SUB_COMMENTS      = "subComments";
 }

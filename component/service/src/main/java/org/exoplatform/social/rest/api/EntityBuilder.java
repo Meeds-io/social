@@ -17,10 +17,12 @@
 
 package org.exoplatform.social.rest.api;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.core.*;
@@ -36,6 +38,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
+import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -100,6 +103,8 @@ public class EntityBuilder {
   /** Child Groups of group root */
   public static final String  ORGANIZATION_GROUP_TYPE             = "childGroups";
 
+  private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
+
   private static SpaceService        spaceService;
 
   private static RelationshipManager relationshipManager;
@@ -152,10 +157,10 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
-    userEntity.setPhones(getSubListByProperties(profile.getPhones(), getPhoneProperties()));
-    userEntity.setExperiences(getSubListByProperties((List)(List<Map<String, Object>>) profile.getProperty(Profile.EXPERIENCES), getExperiencesProperties()));
-    userEntity.setIms(getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS), getImsProperties()));
-    userEntity.setUrls(getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_URLS), getUrlProperties()));
+    buildPhoneEntities(profile, userEntity);
+    buildImEntities(profile, userEntity);
+    buildUrlEntities(profile, userEntity);
+    buildExperienceEntities(profile, userEntity);
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
 
@@ -215,6 +220,58 @@ public class EntityBuilder {
       }
     }
     return userEntity;
+  }
+
+  public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity) {
+    List<Map<String, String>> phones = profile.getPhones();
+    if (phones != null && !phones.isEmpty()) {
+      List<PhoneEntity> phoneEntities = new ArrayList<>();
+      for (Map<String, String> phone : phones) {
+        phoneEntities.add(new PhoneEntity(phone.get("key"), phone.get("value")));
+      }
+      userEntity.setPhones(phoneEntities);
+    }
+  }
+
+  public static void buildImEntities(Profile profile, ProfileEntity userEntity) {
+    List<Map<String, String>> ims = (List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS);
+    if (ims != null && !ims.isEmpty()) {
+      List<IMEntity> imEntities = new ArrayList<>();
+      for (Map<String, String> im : ims) {
+        imEntities.add(new IMEntity(im.get("key"), im.get("value")));
+      }
+      userEntity.setIms(imEntities);
+    }
+  }
+
+  public static void buildUrlEntities(Profile profile, ProfileEntity userEntity) {
+    List<Map<String, String>> urls = (List<Map<String, String>>) profile.getProperty(Profile.CONTACT_URLS);
+    if (urls != null && !urls.isEmpty()) {
+      List<URLEntity> urlEntities = new ArrayList<>();
+      for (Map<String, String> url : urls) {
+        urlEntities.add(new URLEntity(url.get("value")));
+      }
+      userEntity.setUrls(urlEntities);
+    }
+  }
+
+  public static void buildExperienceEntities(Profile profile, ProfileEntity userEntity) {
+    List<Map<String, Object>> experiences = (List<Map<String, Object>>) profile.getProperty(Profile.EXPERIENCES);
+    if (experiences != null && !experiences.isEmpty()) {
+      List<ExperienceEntity> experienceEntities = new ArrayList<>();
+      for (Map<String, Object> experience : experiences) {
+        String id = (String) experience.get(Profile.EXPERIENCES_ID);
+        String company = (String) experience.get(Profile.EXPERIENCES_COMPANY);
+        String description = (String) experience.get(Profile.EXPERIENCES_DESCRIPTION);
+        String position = (String) experience.get(Profile.EXPERIENCES_POSITION);
+        String skills = (String) experience.get(Profile.EXPERIENCES_SKILLS);
+        Boolean isCurrent = (Boolean) experience.get(Profile.EXPERIENCES_IS_CURRENT);
+        String startDate = (String) experience.get(Profile.EXPERIENCES_START_DATE);
+        String endDate = (String) experience.get(Profile.EXPERIENCES_END_DATE);
+        experienceEntities.add(new ExperienceEntity(id, company, description, position, skills, isCurrent, startDate, endDate));
+      }
+      userEntity.setExperiences(experienceEntities);
+    }
   }
 
   /**
@@ -634,55 +691,6 @@ public class EntityBuilder {
     return spaceApplications;
   }
 
-  private static List<DataEntity> getSubListByProperties(List<Map<String, String>> sources, Map<String, String> properties) {
-    List<DataEntity> results = new ArrayList<DataEntity>();
-    if (sources == null || sources.size() == 0) {
-      return results;
-    }
-    for (Map<String, String> map : sources) {
-      if (map.isEmpty()) continue;
-      BaseEntity result = new BaseEntity();
-      for (Entry<String, String> property : properties.entrySet()) {
-        result.setProperty(property.getKey(), map.get(property.getValue()));
-      }
-      results.add(result.getDataEntity());
-    }
-
-    return results;
-  }
-
-  private static Map<String, String> getPhoneProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.PHONE_TYPE, KEY);
-    properties.put(RestProperties.PHONE_NUMBER, VALUE);
-    return properties;
-  }
-
-  private static Map<String, String> getImsProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.IM_TYPE, KEY);
-    properties.put(RestProperties.IM_ID, VALUE);
-    return properties;
-  }
-
-  private static Map<String, String> getUrlProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.URL, VALUE);
-    return properties;
-  }
-
-  private static Map<String, String> getExperiencesProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.COMPANY, Profile.EXPERIENCES_COMPANY);
-    properties.put(RestProperties.DESCRIPTION, Profile.EXPERIENCES_DESCRIPTION);
-    properties.put(RestProperties.POSITION, Profile.EXPERIENCES_POSITION);
-    properties.put(RestProperties.SKILLS, Profile.EXPERIENCES_SKILLS);
-    properties.put(RestProperties.IS_CURRENT, Profile.EXPERIENCES_IS_CURRENT);
-    properties.put(RestProperties.START_DATE, Profile.EXPERIENCES_START_DATE);
-    properties.put(RestProperties.END_DATE, Profile.EXPERIENCES_END_DATE);
-    return properties;
-  }
-
   private static void updateCachedEtagValue(int etagValue) {
     ApplicationContext ac = ApplicationContextImpl.getCurrent();
     Map<String, String> properties = ac.getProperties();
@@ -953,6 +961,25 @@ public class EntityBuilder {
     operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
     operationReportEntity.setEndDate(endDate != null ? dateFormat.format(endDate) : "null");
     return operationReportEntity;
+  }
+
+  public static String toJsonString(Object object) {
+    if (object == null) {
+      return "{}";
+    }
+    try {
+      ByteArrayOutputStream entityStream = new ByteArrayOutputStream();
+      JSON_ENTITY_PROVIDER.writeTo(object,
+                                   object.getClass(),
+                                   object.getClass(),
+                                   null,
+                                   MediaType.APPLICATION_JSON_TYPE,
+                                   null,
+                                   entityStream);
+      return entityStream.toString(Charset.defaultCharset().name());
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to transform object " + object, e);
+    }
   }
 
   public static IdentityManager getIdentityManager() {
