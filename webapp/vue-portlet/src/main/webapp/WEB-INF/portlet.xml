@@ -92,8 +92,6 @@
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.social.SpaceTemplatesPortlet</resource-bundle>
     <portlet-info>
       <title>Top Bar Logo</title>
     </portlet-info>
@@ -113,6 +111,57 @@
     <resource-bundle>locale.portlet.social.ProfileHeader</resource-bundle>
     <portlet-info>
       <title>Profile Header</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>ProfileContactInformation</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/profileContactInformation.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.ProfileContactInformation</resource-bundle>
+    <portlet-info>
+      <title>Profile Contact Information</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>ProfileWorkExperience</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/profileWorkExperience.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.ProfileWorkExperience</resource-bundle>
+    <portlet-info>
+      <title>Profile Work Experience</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>ProfileAboutMe</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/profileAboutMe.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.ProfileAboutMe</resource-bundle>
+    <portlet-info>
+      <title>Profile About Me</title>
     </portlet-info>
   </portlet>
 

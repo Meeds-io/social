@@ -3,7 +3,7 @@
     :class="skeleton && 'skeleton-background' || owner && hover && 'profileHeaderAvatarHoverEdit'"
     class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar"
     size="165">
-    <v-img :src="user && user.avatar || ''" />
+    <v-img :src="avatarData || user && user.avatar || ''" />
     <v-file-input
       v-if="owner && !sendingImage"
       v-show="hover"
@@ -30,6 +30,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    save: {
+      type: Boolean,
+      default: () => false,
+    },
     skeleton: {
       type: Boolean,
       default: () => true,
@@ -42,9 +46,14 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    value: {
+      type: String,
+      default: () => null,
+    },
   },
   data: () => ({
     sendingImage: false,
+    avatarData: null,
   }),
   watch: {
     sendingImage() {
@@ -56,6 +65,10 @@ export default {
     },
   },
   methods: {
+    reset() {
+      this.avatarData = null;
+      this.sendingImage = false;
+    },
     uploadAvatar(file) {
       if (file && file.size) {
         if (file.size > this.maxUploadSize) {
@@ -63,8 +76,21 @@ export default {
           return;
         }
         this.sendingImage = true;
+        const thiss = this;
         return uploadService.upload(file)
-          .then(uploadId => userService.updateProfileField('avatar', uploadId))
+          .then(uploadId => {
+            if (this.save) {
+              return userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId);
+            } else {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                thiss.avatarData = e.target.result;
+                thiss.$forceUpdate();
+              };
+              reader.readAsDataURL(file);
+              this.$emit('input', uploadId);
+            }
+          })
           .then(() => this.$emit('refresh'))
           .catch(error => this.$emit('error', error))
           .finally(() => {
