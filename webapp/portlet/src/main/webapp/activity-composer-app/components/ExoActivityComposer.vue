@@ -23,10 +23,20 @@
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div v-if="attachments.length" class="attachmentsList">
-            <i class="uiIconAttach"></i>
-            <p class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</p>
+          <div class="VuetifyApp">
+            <v-app>
+              <div v-if="attachments.length" class="attachmentsList">
+                <v-progress-circular
+                  :class="uploading ? 'uploading' : ''"
+                  :indeterminate="false"
+                  :value="attachmentsProgress">
+                  <i class="uiIconAttach"></i>
+                </v-progress-circular>
+                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
+              </div>
+            </v-app>
           </div>
+
           <div class="composerActions">
             <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
               <div class="actionItem" @click="executeAction(action)">
@@ -38,7 +48,9 @@
                   </div>
                 </div>
               </div>
-              <component v-show="showMessageComposer" v-model="attachments" :is="action.component"></component>
+              <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
+                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
+                         v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
@@ -53,6 +65,26 @@ import * as composerServices from '../composerServices';
 import {getActivityComposerExtensions, executeExtensionAction} from '../extension';
 
 export default {
+  directives: {
+    DynamicEvents: {
+      bind: function (el, binding, vnode) {
+        const allEvents = binding.value;
+        if (allEvents) {
+          allEvents.forEach((event) => {
+            // register handler in the dynamic component
+            vnode.componentInstance.$on(event.event, (eventData) => {
+              const param = eventData ? eventData : event.listenerParam;
+              // when the event is fired, the eventListener function is going to be called
+              vnode.context[event.listener](param);
+            });
+          });
+        }
+      },
+      unbind: function (el, binding, vnode) {
+        vnode.componentInstance.$off();
+      },
+    }
+  },
   data() {
     return {
       MESSAGE_MAX_LENGTH: 2000,
@@ -61,16 +93,30 @@ export default {
       message: '',
       showErrorMessage: false,
       activityComposerActions: [],
-      attachments: []
+      attachments: [],
+      percent: 100,
+      actionsData: [],
+      actionsEvents: []
     };
   },
   computed: {
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
+    },
+    attachmentsProgress: function () {
+      return this.attachments.length !== 0 ? this.uploadingProgress / this.attachments.length : 0;
+    },
+    uploading: function() {
+      return this.attachments.length * this.percent !== this.uploadingProgress;
+    },
+    uploadingProgress: function() {
+      return this.attachments.map(attachment => {
+        return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
+      }).reduce((a, b) => a + b, 0);
     }
   },
   watch: {
@@ -82,6 +128,12 @@ export default {
   },
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
+    this.activityComposerActions.forEach(action => {
+      if (action.component) {
+        this.actionsData[action.key] = action.component.model.value;
+        this.actionsEvents[action.key] = action.component.events;
+      }
+    });
   },
   methods: {
     openMessageComposer: function() {
@@ -101,9 +153,7 @@ export default {
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
-            this.message = '';
-            this.attachments = [];
-            this.showErrorMessage = false;
+            this.resetComposer();
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
@@ -114,9 +164,7 @@ export default {
           .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
           .then(() => {
-            this.message = '';
-            this.attachments = [];
-            this.showErrorMessage = false;
+            this.resetComposer();
           })
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
@@ -124,8 +172,19 @@ export default {
           });
       }
     },
+    resetComposer() {
+      this.message = '';
+      this.activityComposerActions.forEach(action => {
+        if (action.component) {
+          action.component.model.value = action.component.model.default.slice();
+          this.actionsData[action.key].value = action.component.model.value;
+        }
+      });
+      this.attachments = [];
+      this.showErrorMessage = false;
+    },
     refreshActivityStream() {
-      const refreshButton = document.querySelector('.uiActivitiesDisplay #RefreshButton');
+      const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
       if(refreshButton) {
         refreshButton.click();
       }
@@ -134,7 +193,10 @@ export default {
       this.showMessageComposer = false;
     },
     executeAction(action) {
-      executeExtensionAction(action);
+      executeExtensionAction(action, this.$refs[action.key]);
+    },
+    updateAttachments(attachments) {
+      this.attachments = attachments;
     }
   }
 };

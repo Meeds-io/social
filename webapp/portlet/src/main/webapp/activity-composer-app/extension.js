@@ -9,9 +9,9 @@ export function getActivityComposerExtensions() {
   return activityComposerActions;
 }
 
-export function executeExtensionAction(extension) {
+export function executeExtensionAction(extension, component) {
   if(extension.hasOwnProperty('onExecute') && isFunction(extension.onExecute)) {
-    extension.onExecute.call();
+    extension.onExecute(component[0]);
   }
 }
 
