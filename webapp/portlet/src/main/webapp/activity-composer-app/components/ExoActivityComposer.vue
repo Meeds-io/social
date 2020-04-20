@@ -125,16 +125,13 @@ export default {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
-    },
-    uploadingProgress() {
-      console.log(this.uploadingProgress);
     }
   },
   created() {
     this.activityComposerActions = getActivityComposerExtensions();
     this.activityComposerActions.forEach(action => {
       if (action.component) {
-        this.actionsData[action.key] = action.component.model;
+        this.actionsData[action.key] = action.component.model.value;
         this.actionsEvents[action.key] = action.component.events;
       }
     });
@@ -180,7 +177,8 @@ export default {
       this.message = '';
       this.activityComposerActions.forEach(action => {
         if (action.component) {
-          this.actionsData[action.key].value = action.component.model.default;
+          action.component.model.value = action.component.model.default.slice();
+          this.actionsData[action.key].value = action.component.model.value;
         }
       });
       this.attachments = [];
@@ -188,7 +186,7 @@ export default {
       this.showErrorMessage = false;
     },
     refreshActivityStream() {
-      const refreshButton = document.querySelector('.uiActivitiesDisplay #RefreshButton');
+      const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
       if(refreshButton) {
         refreshButton.click();
       }
