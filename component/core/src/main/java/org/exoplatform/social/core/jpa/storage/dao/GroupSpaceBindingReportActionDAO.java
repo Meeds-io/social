@@ -20,6 +20,7 @@ package org.exoplatform.social.core.jpa.storage.dao;
 import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 
 public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceBindingReportActionEntity, Long> {
@@ -40,5 +41,5 @@ public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceB
    * 
    * @return
    */
-  List<GroupSpaceBindingReportActionEntity> getGroupSpaceBindingReportActionsOrderedByEndDate();
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportActionsOrderedByEndDate();
 }

@@ -25,6 +25,10 @@ export default {
     boundGroups: {
       type: Array,
       default: () => []
+    },
+    secondDrawerSelectedGroups: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -98,10 +102,11 @@ export default {
           const selectize = $(this.$el)[0].selectize;
           // if selectize options doesn't contain the option of this item add it
           if (!selectize.options[`${item}`]) {
+            const group = this.getGroup(item);
             selectize.options[`${item}`] = {
               avatarUrl: null,
-              text: item,
-              value: item,
+              text: group.name,
+              value: group.id,
               type: 'group'
             };
           }
@@ -109,6 +114,9 @@ export default {
           selectize.addItem(item);
         }
       }
+    },
+    getGroup(groupId) {
+      return this.secondDrawerSelectedGroups.filter(group => group.id === groupId)[0];
     },
   }
 };
