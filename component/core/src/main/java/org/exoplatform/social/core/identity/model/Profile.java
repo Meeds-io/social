@@ -544,6 +544,14 @@ public class Profile {
     return (String) getProperty(Profile.POSITION);
   }
 
+  public String getAboutMe() {
+    return (String) getProperty(Profile.ABOUT_ME);
+  }
+
+  public void setAboutMe(String aboutMe) {
+    setProperty(Profile.ABOUT_ME, aboutMe);
+  }
+
   /**
    * Gets gender
    * 

@@ -19,112 +19,151 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.exoplatform.social.core.identity.model.Profile;
+
 public class ProfileEntity extends BaseEntity {
-  private static final long serialVersionUID = -3241490307391015454L;
-  private List<DataEntity> phones;
+  public static final String IMS              = "ims";
+
+  public static final String EXPERIENCES      = "experiences";
+
+  public static final String PHONES           = "phones";
+
+  public static final String ABOUT_ME         = "aboutMe";
+
+  public static final String BANNER           = "banner";
+
+  public static final String AVATAR           = "avatar";
+
+  public static final String POSITION         = "position";
+
+  public static final String EMAIL            = "email";
+
+  public static final String GENDER           = "gender";
+
+  public static final String FULLNAME         = "fullname";
+
+  public static final String LASTNAME         = "lastname";
+
+  public static final String FIRSTNAME        = "firstname";
+
+  public static final String USERNAME         = "username";
+
+  public static final long   serialVersionUID = -3241490307391015454L;
+
+  public static final String IDENTITY         = "identity";
+
+  public static final String URLS             = "urls";
+
+  public static final String DELETED          = "deleted";
+
+  public static final String ENABLED          = "enabled";
+
   public ProfileEntity() {
   }
 
   public ProfileEntity(String id) {
     super(id);
   }
+
   public ProfileEntity setIdentity(String identity) {
-    setProperty("identity", identity);
+    setProperty(IDENTITY, identity);
     return this;
   }
 
   public String getIdentity() {
-    return getString("identity");
+    return getString(IDENTITY);
   }
 
   public ProfileEntity setUsername(String username) {
-    setProperty("username", username);
+    setProperty(USERNAME, username);
     return this;
   }
 
   public String getUsername() {
-    return getString("username");
+    return getString(USERNAME);
   }
 
   public ProfileEntity setFirstname(String firstname) {
-    setProperty("firstname", firstname);
+    setProperty(FIRSTNAME, firstname);
     return this;
   }
 
   public String getFirstname() {
-    return getString("firstname");
+    return getString(FIRSTNAME);
   }
 
   public ProfileEntity setLastname(String lastname) {
-    setProperty("lastname", lastname);
+    setProperty(LASTNAME, lastname);
     return this;
   }
 
   public String getLastname() {
-    return getString("lastname");
+    return getString(LASTNAME);
   }
 
   public ProfileEntity setFullname(String fullname) {
-    setProperty("fullname", fullname);
+    setProperty(FULLNAME, fullname);
     return this;
   }
 
   public String getFullname() {
-    return getString("fullname");
+    return getString(FULLNAME);
   }
 
   public ProfileEntity setGender(String gender) {
-    setProperty("gender", gender);
+    setProperty(GENDER, gender);
     return this;
   }
 
   public String getGender() {
-    return getString("gender");
+    return getString(GENDER);
   }
 
   public ProfileEntity setEmail(String email) {
-    setProperty("email", email);
+    setProperty(EMAIL, email);
     return this;
   }
 
   public String getEmail() {
-    return getString("email");
+    return getString(EMAIL);
   }
 
   public ProfileEntity setPosition(String position) {
-    setProperty("position", position);
+    setProperty(POSITION, position);
     return this;
   }
 
   public String getPosition() {
-    return getString("position");
+    return getString(POSITION);
   }
 
   public ProfileEntity setAvatar(String avatar) {
-    setProperty("avatar", avatar);
+    setProperty(AVATAR, avatar);
     return this;
   }
 
   public String getAvatar() {
-    return getString("avatar");
+    return getString(AVATAR);
   }
 
   public ProfileEntity setBanner(String banner) {
-    setProperty("banner", banner);
+    setProperty(BANNER, banner);
     return this;
   }
 
   public String getBanner() {
-    return getString("banner");
+    return getString(BANNER);
   }
 
   public ProfileEntity setAboutMe(String aboutMe) {
-    setProperty("aboutMe", aboutMe);
+    setProperty(ABOUT_ME, aboutMe);
     return this;
   }
-  
+
   public String getAboutMe() {
-    return getString("aboutMe");
+    return getString(ABOUT_ME);
   }
 
   public ProfileEntity setConnectionsCount(String connectionsCount) {
@@ -163,65 +202,101 @@ public class ProfileEntity extends BaseEntity {
     return getString("connectionsInCommonCount");
   }
 
-  public void setPhones(List<DataEntity> phones) {
-    this.phones = phones;
+  public void setPhones(List<PhoneEntity> phones) {
+    setProperty(PHONES, phones);
   }
 
-  public List<DataEntity> getPhones() {
-    return phones;
+  @SuppressWarnings("unchecked")
+  public List<PhoneEntity> getPhones() {
+    return (List<PhoneEntity>) getProperty(PHONES);
   }
-  
-  public ProfileEntity setExperiences(List<DataEntity> experiences) {
-    setProperty("experiences", experiences);
-    return this;
-  }
-  
-  public List<DataEntity> getExperiences() {
-    return (List<DataEntity>)getProperty("experiences");
-  }
-  
-  public ProfileEntity setIms(List<DataEntity> ims) {
-    setProperty("ims", ims);
+
+  public ProfileEntity setExperiences(List<ExperienceEntity> experiences) {
+    setProperty(EXPERIENCES, experiences);
     return this;
   }
 
-  public List<DataEntity> getIMs() {
-    return (List<DataEntity>)getProperty("ims");
+  @SuppressWarnings("unchecked")
+  public List<ExperienceEntity> getExperiences() {
+    return (List<ExperienceEntity>) getProperty(EXPERIENCES);
   }
-  
-  public ProfileEntity setUrls(List<DataEntity> urls) {
-    setProperty("url", urls);
+
+  public ProfileEntity setIms(List<IMEntity> ims) {
+    setProperty(IMS, ims);
     return this;
   }
 
-  public List<DataEntity> getUrls() {
-    return (List<DataEntity>)getProperty("url");
+  @SuppressWarnings("unchecked")
+  public List<IMEntity> getIms() {
+    return (List<IMEntity>) getProperty(IMS);
   }
-  
+
+  public ProfileEntity setUrls(List<URLEntity> urls) {
+    setProperty(URLS, urls);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<URLEntity> getUrls() {
+    return (List<URLEntity>) getProperty(URLS);
+  }
+
   public ProfileEntity setDeleted(Boolean deleted) {
-    setProperty("deleted", deleted);
+    setProperty(DELETED, deleted);
     return this;
   }
 
   public String getDeleted() {
-    return getString("deleted");
+    return getString(DELETED);
   }
 
   public boolean isNotValid() {
-    return isEmpty(getUsername()) || isEmpty(getEmail()) 
-         || isEmpty(getFirstname()) || isEmpty(getLastname()); 
+    return isEmpty(getUsername()) || isEmpty(getEmail())
+        || isEmpty(getFirstname()) || isEmpty(getLastname());
   }
-  
+
   private boolean isEmpty(String input) {
     return input == null || input.length() == 0;
   }
 
   public ProfileEntity setEnabled(boolean enable) {
-    setProperty("enabled", enable);
+    setProperty(ENABLED, enable);
     return this;
   }
 
   public String isEnabled() {
-    return getString("enabled");
+    return getString(ENABLED);
   }
+
+  public static String getFieldName(String name) {
+    if (StringUtils.equals(FIRSTNAME, name)) {
+      return Profile.FIRST_NAME;
+    } else if (StringUtils.equals(LASTNAME, name)) {
+      return Profile.LAST_NAME;
+    } else if (StringUtils.equals(FULLNAME, name)) {
+      return Profile.FULL_NAME;
+    } else if (StringUtils.equals(EMAIL, name)) {
+      return Profile.EMAIL;
+    } else if (StringUtils.equals(GENDER, name)) {
+      return Profile.GENDER;
+    } else if (StringUtils.equals(POSITION, name)) {
+      return Profile.POSITION;
+    } else if (StringUtils.equals(AVATAR, name)) {
+      return Profile.AVATAR;
+    } else if (StringUtils.equals(BANNER, name)) {
+      return Profile.BANNER;
+    } else if (StringUtils.equals(ABOUT_ME, name)) {
+      return Profile.ABOUT_ME;
+    } else if (StringUtils.equals(PHONES, name)) {
+      return Profile.CONTACT_PHONES;
+    } else if (StringUtils.equals(IMS, name)) {
+      return Profile.CONTACT_IMS;
+    } else if (StringUtils.equals(URLS, name)) {
+      return Profile.CONTACT_URLS;
+    } else if (StringUtils.equals(EXPERIENCES, name)) {
+      return Profile.EXPERIENCES;
+    }
+    return name;
+  }
+
 }

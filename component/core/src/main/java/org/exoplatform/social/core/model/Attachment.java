@@ -55,7 +55,6 @@ public abstract  class Attachment {
    * @param fileName
    * @param mimeType
    * @param inputStream
-   * @param workspace
    * @param lastModified
    * @throws Exception
    */
