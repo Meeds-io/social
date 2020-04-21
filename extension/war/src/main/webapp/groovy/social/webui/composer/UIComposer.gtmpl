@@ -30,10 +30,55 @@
 %>
 <div id="activityComposer"></div>
 <script>
-  require(['SHARED/ActivityComposer'], function(activityComposerApp) {
+  require(['SHARED/jquery', 'SHARED/ActivityComposer'], function(jq, activityComposerApp) {
     activityComposerApp.init();
+
+    // Manage old composer switch (to be deleted if we delete the old composer)
+    let uiActivitiesDisplay = jq('.uiActivitiesDisplay');
+    uiActivitiesDisplay.addClass('shifted');
+
+    jq('.oldComposer').click(function() {
+      let oldComposer = jq('.uiComposer');
+      oldComposer.slideToggle();
+      uiActivitiesDisplay.toggleClass('shifted');
+      
+      if(!uiActivitiesDisplay.hasClass('shifted')) {
+        let url = '/portal/rest/v1/social/metrics/composer/click?composer=legacy';
+        if(eXo.env.portal.spaceId) {
+          url += '&spaceId=' + eXo.env.portal.spaceId;
+        }
+        jq.ajax({
+          type: "POST",
+          url: url
+        });
+      }
+    });
   });
 </script>
+<style>
+  .oldComposer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  .uiIconOldComposer::before {
+    content: "\\e763";
+  }
+  .oldComposerButton {
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .uiComposer.hidden-phone {
+    display: none;
+  }
+  .uiUserActivitiesDisplay .activityTop, .uiDisplaySpaceActivities.uiActivitiesDisplay .activityTop {
+    transition: margin 0.4s;
+  }
+  .uiUserActivitiesDisplay.shifted .activityTop, .uiDisplaySpaceActivities.uiActivitiesDisplay.shifted .activityTop {
+    margin: 0;
+  }
+</style>
 <%
   }
 %>
@@ -96,6 +141,10 @@
            .addScripts("UIComposer.onLoadI18n({ defaultMessage: \"$defaultMessage\", helpSearch: \"$helpSearch\", searching: \"searching\", foundNoMatch: \"$foundNoMatch\"});")
            .addScripts("UIComposer.onLoad($params);");
 %>
+<div class="oldComposer hidden-phone">
+  <a class="oldComposerButton"><%=_ctx.appRes("activity.composer.old")%></a>
+  <i class="uiIconOldComposer"></i>
+</div>
 <div class="uiComposer hidden-phone">
   <% uiform.begin() %>
   <div class="share-buttons-top button-group clearfix hide">

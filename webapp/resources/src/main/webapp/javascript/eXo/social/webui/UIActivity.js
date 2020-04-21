@@ -757,6 +757,16 @@
           parent.find('.uiActivitiesDisplay:first').addClass('hidden-phone');
           if(parent.find('div.uiComposer.hidden-phone').length > 0) {
             parent.find('div.uiComposer.hidden-phone').removeClass('hidden-phone');
+
+            // send metric
+            let url = '/portal/rest/v1/social/metrics/composer/click?composer=legacy';
+            if(eXo.env.portal.spaceId) {
+              url += '&spaceId=' + eXo.env.portal.spaceId;
+            }
+            $.ajax({
+              type: "POST",
+              url: url
+            });
           }
 
           var composer = parent.find('.uiComposer:first');
