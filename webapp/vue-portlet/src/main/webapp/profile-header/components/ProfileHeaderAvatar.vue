@@ -1,8 +1,8 @@
 <template>
   <v-avatar
     :class="skeleton && 'skeleton-background' || owner && hover && 'profileHeaderAvatarHoverEdit'"
-    class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar"
-    size="165">
+    :size="size"
+    class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar">
     <v-img :src="avatarData || user && user.avatar || ''" />
     <v-file-input
       v-if="owner && !sendingImage"
@@ -45,6 +45,10 @@ export default {
     hover: {
       type: Boolean,
       default: () => false,
+    },
+    size: {
+      type: Number,
+      default: () => 165,
     },
     value: {
       type: String,
