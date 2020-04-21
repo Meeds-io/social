@@ -31,10 +31,10 @@ export function init(user) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      data: {
-        user: user,
-      },
-      template: `<profile-work-experience id="${appId}" />`,
+      data: () => ({
+        experiences: user && user.experiences || [],
+      }),
+      template: `<profile-work-experiences id="${appId}" :experiences="experiences" />`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);

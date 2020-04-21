@@ -10,11 +10,19 @@
   Identity identity = identityManager.getIdentity(profileOwnerId);
   ProfileEntity profileEntity = EntityBuilder.buildEntityProfile(identity.getProfile(), "/rest/v1/social/users/" + profileOwnerId, "all");
   String jsonProfileEntity = EntityBuilder.toJsonString(profileEntity);
+  int maxUploadSize = identityManager.getImageUploadLimit();
 %>
 <div class="VuetifyApp">
   <div id="ProfileWorkExperience">
+    <textarea
+      id="profileWorkExperienceDefaultValue"
+      class="hidden"><%=jsonProfileEntity == null ? "{}" : jsonProfileEntity%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/ProfileWorkExperience'], app => app.init(<%=jsonProfileEntity%>));
+      require(['PORTLET/social-vue-portlet/ProfileWorkExperience'], 
+          app => app.init(
+              JSON.parse(document.getElementById('profileWorkExperienceDefaultValue').value), 
+              <%=maxUploadSize%>)
+      );
     </script>
   </div>
 </div>
