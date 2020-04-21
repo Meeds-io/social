@@ -21,9 +21,9 @@
               <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
-              <v-list-item-action class="drawerIcons align-end">
+              <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
-                <v-icon @click="drawer = false">mdi-close</v-icon>
+                <v-icon class="my-auto" @click="drawer = false">mdi-close</v-icon>
               </v-list-item-action>
             </v-list-item>
           </v-flex>
