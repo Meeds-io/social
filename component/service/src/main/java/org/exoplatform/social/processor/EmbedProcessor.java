@@ -60,7 +60,9 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
            } else {
                Map<String, String> templateParams = new HashMap<>();
                templateParams.put(LINK, url);
-               templateParams.put(IMAGE, linkShare.getImages().get(0));
+               if (linkShare.getImages().size() != 0) {
+                   templateParams.put(IMAGE, linkShare.getImages().get(0));
+               }
                templateParams.put(DESCRIPTION, linkShare.getDescription());
                templateParams.put(TITLE, linkShare.getTitle());
                templateParams.put(COMMENT, firstMessage);
