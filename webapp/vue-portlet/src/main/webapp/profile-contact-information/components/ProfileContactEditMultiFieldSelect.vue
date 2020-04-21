@@ -18,7 +18,7 @@
       type="text"
       class="ignore-vuetify-classes align-end flex-grow-1"
       maxlength="2000" />
-    <v-icon small class="removeMultiFieldValue" @click="$emit('remove')">fa-minus</v-icon>
+    <v-icon small class="removeMultiFieldValue error--text" @click="$emit('remove')">fa-minus</v-icon>
   </div>
 </template>
 

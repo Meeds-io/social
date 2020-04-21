@@ -46,6 +46,11 @@ export default {
       .finally(() => {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       });
+    document.addEventListener('userModified', event => {
+      if (event && event.detail) {
+        Object.assign(this.profile, event.detail);
+      }
+    });
   },
 };
 </script>

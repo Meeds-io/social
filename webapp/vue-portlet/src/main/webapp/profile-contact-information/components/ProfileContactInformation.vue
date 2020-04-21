@@ -2,7 +2,7 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
     class="white">
-    <v-toolbar color="white" flat>
+    <v-toolbar color="white" flat class="border-box-sizing">
       <div class="text-header-title text-sub-title">
         {{ $t('profileContactInformation.contactInformation') }}
       </div>
@@ -13,7 +13,7 @@
         outlined
         small
         @click="editContactInformation">
-        <i class="uiIconEdit uiIconLightBlue" />
+        <i class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
     <div v-if="user" class="px-4 pb-6 white">

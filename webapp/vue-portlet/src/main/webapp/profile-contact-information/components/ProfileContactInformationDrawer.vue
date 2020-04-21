@@ -18,6 +18,7 @@
             v-model="userToSave.avatarUploadId"
             :user="userToSave"
             :max-upload-size="maxUploadSizeInBytes"
+            :size="150"
             owner
             hover
             @error="handleImageUploadError" />

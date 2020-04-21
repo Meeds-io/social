@@ -2,7 +2,7 @@
   <v-app
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
-    <v-toolbar color="white" flat>
+    <v-toolbar color="white" flat class="border-box-sizing">
       <div class="text-header-title text-sub-title">
         {{ $t('profileAboutMe.title') }}
       </div>
@@ -13,7 +13,7 @@
         outlined
         small
         @click="editAboutMe">
-        <i class="uiIconEdit uiIconLightBlue" />
+        <i class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
     <v-card flat>
