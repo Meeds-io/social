@@ -18,6 +18,7 @@
     </v-toolbar>
     <div v-if="experiences && experiences.length" class="px-4 pb-6 white">
       <v-timeline
+        :dense="mobile"
         class="workExperienceTimeLine"
         align-top>
         <profile-work-experience-item
@@ -48,6 +49,11 @@ export default {
     error: null,
     saving: null,
   }),
+  computed: {
+    mobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
+  },
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.setExperiences(this.experiences);
