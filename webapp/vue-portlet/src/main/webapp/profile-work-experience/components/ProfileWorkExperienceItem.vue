@@ -1,13 +1,20 @@
 <template>
   <v-timeline-item
+    :class="mobile && 'caption' || ''"
+    :small="mobile"
     class="workExperienceTimeLineItem"
     color="tertiary"
     right>
-    <div slot="opposite" class="workExperienceTimeLineItemTime">
+    <div v-if="!mobile" slot="opposite" class="workExperienceTimeLineItemTime">
       {{ displayedDate }}
     </div>
     <v-card class="elevation-2">
       <v-card-text class="pb-3">
+        <div
+          v-if="mobile"
+          class="text-color font-weight-bold mb-2"
+          v-text="displayedDate">
+        </div>
         <div
           class="text-color"
           v-text="experience.position">
@@ -48,6 +55,9 @@ export default {
     },
   }),
   computed: {
+    mobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
     displayedDate() {
       if (this.experience.isCurrent && this.experience.startDate) {
         const startDate = formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
