@@ -6,6 +6,7 @@ import ExoSpaceAvatar from './components/ExoSpaceAvatar.vue';
 import ExoIdentitySuggester from './components/ExoIdentitySuggester.vue';
 import ExoActivityRichEditor from './components/ExoActivityRichEditor.vue';
 import DatePicker from './components/DatePicker.vue';
+import ExoModal from './components/ExoModal.vue';
 
 const components = {
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -16,6 +17,7 @@ const components = {
   'exo-identity-suggester': ExoIdentitySuggester,
   'exo-activity-rich-editor': ExoActivityRichEditor,
   'date-picker': DatePicker,
+  'exo-modal': ExoModal,
 };
 
 for (const key in components) {
