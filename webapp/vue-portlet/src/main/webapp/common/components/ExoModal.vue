@@ -1,58 +1,93 @@
 <template>
-  <div v-show="show" ref="modal" class="modal-mask uiPopupWrapper">
-    <div class="uiPopup modal-content">
-      <div class="popupHeader">
-        <a class="uiIconClose pull-right" @click="$emit('close')"></a>
-        <span class="popupTitle">{{ title }}</span>
+  <v-dialog
+    v-model="dialog"
+    :width="width"
+    content-class="uiPopup"
+    max-width="100vw">
+    <v-card class="elevation-12">
+      <div class="ignore-vuetify-classes popupHeader ClearFix">
+        <a
+          class="uiIconClose pull-right"
+          aria-hidden="true"
+          @click="close"></a>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
       </div>
-      <div class="PopupContent popupContent">
-        <slot></slot>
-      </div>
-    </div>
-  </div>
+      <slot></slot>
+      <v-card-actions v-if="!hideActions">
+        <v-spacer/>
+        <button
+          v-if="okLabel"
+          :disabled="loading"
+          :loading="loading"
+          class="ignore-vuetify-classes btn btn-primary mr-2"
+          @click="close">
+          {{ okLabel }}
+        </button>
+        <v-spacer/>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
-const EVEN = 2;
 export default {
   props: {
     title: {
       type: String,
       default: ''
     },
-    show: {
+    loading: {
       type: Boolean,
-      default: false
-    }
+      default: function() {
+        return false;
+      },
+    },
+    okLabel: {
+      type: String,
+      default: function() {
+        return 'ok';
+      },
+    },
+    hideActions: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
+    width: {
+      type: String,
+      default: function() {
+        return '500px';
+      },
+    },
   },
+  data: () => ({
+    dialog: false,
+  }),
   watch: {
-    show() {
-      if (this.show) {
-        const escapeKeyCode = 27;
-        document.onkeyup = evt => {
-          evt = evt || window.event;
-          if (evt.keyCode === escapeKeyCode) {
-            this.$emit('close');
-          }
-        };
-
-        //this is workaround to fix chrome bug
-        //popup is blurring when using translate() and the size is odd
-        Vue.nextTick(function() {
-          const width = this.$el.offsetWidth;
-          if (width % EVEN !== 0)
-          {
-            this.$el.style.width = `${width + 1}px`;
-          }
-
-          const height = this.$el.offsetHeight;
-          if (height % EVEN !== 0)
-          {
-            this.$el.style.height = `${height + 1}px`;
-          }
-        }, this);
+    dialog() {
+      if (this.dialog) {
+        this.$emit('dialog-opened');
+      } else {
+        this.$emit('dialog-closed');
       }
     }
+  },
+  created() {
+    $(document).on('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.dialog = false;
+      }
+    });
+  },
+  methods: {
+    open() {
+      this.dialog = true;
+    },
+    close() {
+      this.dialog = false;
+    },
   }
 };
 </script>
