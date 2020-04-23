@@ -30,7 +30,8 @@
         <v-expansion-panels
           v-if="experiences && experiences.length"
           v-model="openedExperience"
-          class="d-block border-box-sizing">
+          class="d-block border-box-sizing"
+          flat>
           <profile-work-experience-edit-item
             v-for="(experience,i) in experiences"
             :key="i"

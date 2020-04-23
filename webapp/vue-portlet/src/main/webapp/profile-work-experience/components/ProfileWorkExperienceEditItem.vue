@@ -1,7 +1,7 @@
 <template>
   <v-expansion-panel
     v-if="experience"
-    class="profileWorkExperiencesEditItem my-3 mx-2">
+    class="profileWorkExperiencesEditItem border-color border-radius my-3 mx-2">
     <v-expansion-panel-header>
       <div v-if="experience.id" class="truncate-text">
         <div>{{ position }}</div>
