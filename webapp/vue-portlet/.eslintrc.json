@@ -19,7 +19,8 @@
         "$": true,
         "global": true,
         "exoi18n": true,
-        "extensionRegistry": true
+        "extensionRegistry": true,
+        "CKEDITOR": true
     },
     "parserOptions": {
         "sourceType": "module",

@@ -486,5 +486,9 @@
     <depends>
       <module>userPopupPlugin</module>
     </depends>
+    <depends>
+      <module>commons-editor</module>
+      <as>editor</as>
+    </depends>
   </module>
 </gatein-resources>
