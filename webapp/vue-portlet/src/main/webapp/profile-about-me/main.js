@@ -31,7 +31,10 @@ export function init(aboutMe) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      template: `<profile-about-me id="${appId}" about-me="${aboutMe || ''}" />`,
+      data: () => ({
+        aboutMe: aboutMe,
+      }),
+      template: `<profile-about-me id="${appId}" :about-me="aboutMe" />`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);
