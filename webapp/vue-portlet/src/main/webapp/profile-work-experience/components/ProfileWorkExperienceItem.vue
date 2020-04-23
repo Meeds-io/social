@@ -8,7 +8,7 @@
     <div v-if="!mobile" slot="opposite" class="workExperienceTimeLineItemTime">
       {{ displayedDate }}
     </div>
-    <v-card class="elevation-2">
+    <v-card>
       <v-card-text class="pb-3">
         <div
           v-if="mobile"
