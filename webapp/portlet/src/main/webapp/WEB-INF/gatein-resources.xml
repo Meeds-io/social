@@ -398,11 +398,10 @@
       <as>$</as>
     </depends>
     <depends>
-      <module>commons-editor</module>
-      <as>editor</as>
+      <module>extensionRegistry</module>
     </depends>
     <depends>
-      <module>extensionRegistry</module>
+      <module>commonVueComponents</module>
     </depends>
     <depends>
       <module>ExoAttachmentsApp</module>

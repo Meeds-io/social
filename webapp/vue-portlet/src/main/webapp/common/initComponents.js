@@ -4,6 +4,7 @@ import ExoUserAvatarsList from './components/ExoUserAvatarsList.vue';
 import ExoUserAvatar from './components/ExoUserAvatar.vue';
 import ExoSpaceAvatar from './components/ExoSpaceAvatar.vue';
 import ExoIdentitySuggester from './components/ExoIdentitySuggester.vue';
+import ExoActivityRichEditor from './components/ExoActivityRichEditor.vue';
 import DatePicker from './components/DatePicker.vue';
 
 const components = {
@@ -13,6 +14,7 @@ const components = {
   'exo-drawer': ExoDrawer,
   'exo-confirm-dialog': ExoConfirmDialog,
   'exo-identity-suggester': ExoIdentitySuggester,
+  'exo-activity-rich-editor': ExoActivityRichEditor,
   'date-picker': DatePicker,
 };
 
