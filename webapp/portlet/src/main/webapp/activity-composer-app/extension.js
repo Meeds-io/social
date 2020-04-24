@@ -1,12 +1,26 @@
 let activityComposerActions = null;
+let activityComposerHintAction = null;
 
-export function getActivityComposerExtensions() {
+export function getActivityComposerActionExtensions() {
   if(activityComposerActions == null) {
     const allExtensions = getExtensionsByType('activity-composer-action');
     activityComposerActions = allExtensions.filter(extension => isExtensionEnabled(extension));
   }
 
   return activityComposerActions;
+}
+
+export function getActivityComposerHintActionExtensions(messageLength) {
+  const MESSAGE_MAX_LENGTH = 1300;
+  if (messageLength > MESSAGE_MAX_LENGTH) {
+    activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
+    if (activityComposerHintAction.length === 0) {
+      activityComposerHintAction = null;
+    }
+  } else {
+    activityComposerHintAction = null;
+  }
+  return activityComposerHintAction;
 }
 
 export function executeExtensionAction(extension, component) {
