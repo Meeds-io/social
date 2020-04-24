@@ -16,7 +16,13 @@
         <div class="content">
           <exo-activity-rich-editor ref="richEditor" v-model="message" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
           <div class="composerButtons">
-            <button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes" @click="postMessage()">{{ $t('activity.composer.post') }}</button>
+            <div v-if="activityComposerHintAction" class="action">
+              <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute()"></i>
+              <a class="message" href="javascript:void(0)" @click="activityComposerHintAction.onExecute()" >{{ getLabel(activityComposerHintAction.labelKey) }} </a>
+            </div>
+            <div v-if="activityComposerHintAction === null || typeof activityComposerHintAction === 'undefined' || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
+            </div>
+            <div><button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes btnStyle" @click="postMessage()">{{ $t('activity.composer.post') }}</button></div>
           </div>
           <transition name="fade">
             <div v-show="showErrorMessage" class="alert alert-error">
@@ -62,7 +68,7 @@
 
 <script>
 import * as composerServices from '../composerServices';
-import {getActivityComposerExtensions, executeExtensionAction} from '../extension';
+import {getActivityComposerActionExtensions, getActivityComposerHintActionExtensions, executeExtensionAction} from '../extension';
 
 export default {
   directives: {
@@ -87,13 +93,14 @@ export default {
   },
   data() {
     return {
-      MESSAGE_MAX_LENGTH: 2000,
+      MESSAGE_MAX_LENGTH: 1300,
       MESSAGE_TIMEOUT: 5000,
       postTarget: '',
       showMessageComposer: false,
       message: '',
       showErrorMessage: false,
       activityComposerActions: [],
+      activityComposerHintAction: null,
       attachments: [],
       percent: 100,
       actionsData: [],
@@ -101,6 +108,10 @@ export default {
     };
   },
   computed: {
+    messageLength(){
+      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+      return pureText.length;
+    },
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
       return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
@@ -121,6 +132,17 @@ export default {
     }
   },
   watch: {
+    message() {
+      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+      if (pureText.length > this.MESSAGE_MAX_LENGTH) {
+        if (this.activityComposerHintAction === null) {
+          this.activityComposerHintAction = getActivityComposerHintActionExtensions();
+        }
+      } else {
+        this.activityComposerHintAction = null;
+      }
+      console.log(this.activityComposerHintAction);
+    },
     showErrorMessage: function(newVal) {
       if(newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
@@ -134,7 +156,7 @@ export default {
     }
   },
   created() {
-    this.activityComposerActions = getActivityComposerExtensions();
+    this.activityComposerActions = getActivityComposerActionExtensions();
     this.activityComposerActions.forEach(action => {
       if (action.component) {
         this.actionsData[action.key] = action.component.model.value;
