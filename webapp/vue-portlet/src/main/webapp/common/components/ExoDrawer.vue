@@ -35,7 +35,7 @@
         </v-flex>
         <template v-if="$slots.footer">
           <v-divider class="my-0" />
-          <v-flex v-if="$slots.footer" class="drawerFooter flex-grow-0 px-4 py-3">
+          <v-flex v-if="$slots.footer" class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
             <slot name="footer"></slot>
           </v-flex>
         </template>
