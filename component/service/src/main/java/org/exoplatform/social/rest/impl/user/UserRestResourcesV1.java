@@ -431,7 +431,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
-    if (StringUtils.isBlank(value)) {
+    if (value == null) {
       return Response.status(Status.BAD_REQUEST).entity("'value' parameter is mandatory").build();
     }
     if (StringUtils.isBlank(username)) {
