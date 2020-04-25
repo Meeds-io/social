@@ -7,10 +7,10 @@
       v-model="menu"
       :close-on-content-click="false"
       :disabled="disabled"
+      class="datePickerMenu"
       transition="scale-transition"
       offset-y
-      eager
-      class="datePickerMenu">
+      eager>
       <input
         v-slot:activator="{ on }"
         slot="activator"
@@ -18,11 +18,10 @@
         v-model="dateFormatted"
         :disabled="disabled"
         :placeholder="placeholder"
-        :prepend-icon="prependIcon"
         :required="required"
+        class="ignore-vuetify-classes datePickerText flex-grow-0"
         readonly
         type="text"
-        class="ignore-vuetify-classes datePickerText flex-grow-0"
         v-on="on" />
       <v-date-picker
         v-model="date"
@@ -50,7 +49,7 @@ export default {
     prependIcon: {
       type: String,
       default: function() {
-        return 'event';
+        return 'uiIconDatePicker';
       },
     },
     periodType: {
