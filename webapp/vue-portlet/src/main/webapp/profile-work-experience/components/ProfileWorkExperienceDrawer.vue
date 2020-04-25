@@ -8,14 +8,7 @@
       {{ $t('profileWorkExperiences.title') }}
     </template>
     <template slot="titleIcons">
-      <v-btn
-        color="primary"
-        class="pa-0  mr-5"
-        outlined
-        @click="addNew">
-        <i class="uiIconSocSimplePlus uiIconLightBlue mr-2"></i>
-        {{ $t('profileWorkExperiences.addNew') }}
-      </v-btn>
+      <v-icon class="my-auto" @click="addNew">mdi-plus</v-icon>
     </template>
     <template slot="content">
       <v-form
