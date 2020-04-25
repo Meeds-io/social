@@ -27,7 +27,7 @@
                   :owner="owner"
                   :hover="hover"
                   save
-                  @refresh="refresh"
+                  @refresh="avatarUpdated"
                   @error="handleError" />
               </v-hover>
               <div class="profileHeaderText align-start d-flex flex-grow-0">
