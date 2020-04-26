@@ -5,7 +5,7 @@
     </div>
     <div v-if="user.urls && user.urls.length" class="align-end flex-grow-1 text-truncate text-end">
       <div v-for="(url, i) in user.urls" :key="i" class="text-no-wrap text-truncate">
-        <a :href="url.url" :title="url.url">
+        <a :href="url.url" :title="url.url" target="_blank" rel="noopener noreferrer">
           {{ url.url }}
         </a>
       </div>
