@@ -1,9 +1,16 @@
 <template>
   <v-flex class="d-flex">
-    <div class="align-start text-no-wrap font-weight-bold mr-3">
+    <div
+      :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+      class="align-start text-no-wrap font-weight-bold mr-3">
       {{ $t('profileContactInformation.ims') }}
     </div>
-    <div v-if="user && user.ims && user.ims.length" class="align-end flex-grow-1 text-truncate text-end">
+    <div
+      v-if="skeleton"
+      class="align-end flex-grow-1 text-truncate text-end skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius">
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+    <div v-else-if="user && user.ims && user.ims.length" class="align-end flex-grow-1 text-truncate text-end">
       <div
         v-for="(iM, i) in user.ims"
         :key="i"
@@ -24,6 +31,10 @@ export default {
     user: {
       type: Object,
       default: () => null,
+    },
+    skeleton: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
