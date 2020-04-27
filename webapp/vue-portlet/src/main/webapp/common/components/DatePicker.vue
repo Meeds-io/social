@@ -5,6 +5,7 @@
     <v-menu
       ref="selectDateMenu"
       v-model="menu"
+      :content-class="menuId"
       :close-on-content-click="false"
       :disabled="disabled"
       class="datePickerMenu"
@@ -115,6 +116,9 @@ export default {
     id: `DatePicker${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
+    menuId: `DatePickerMenu${parseInt(Math.random() * 10000)
+      .toString()
+      .toString()}`,
     date: null,
     minDate: null,
     dateFormatted: null,
@@ -145,8 +149,16 @@ export default {
     },
   },
   mounted() {
+    // Force to close other DatePicker menus when opening a new one 
+    $('.datePickerComponent input').on('click', (e) => {
+      if (e.target && !$(e.target).parents(`#${this.id}`).length) {
+        this.menu = false;
+      }
+    });
+
+    // Force to close DatePickers when clicking outside
     $(document).on('click', (e) => {
-      if (e.target && !$(e.target).parents('.v-menu__content').length) {
+      if (e.target && !$(e.target).parents(`.${this.menuId}`).length) {
         this.menu = false;
       }
     });
