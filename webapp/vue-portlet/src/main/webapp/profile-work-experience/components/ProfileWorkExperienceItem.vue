@@ -1,37 +1,59 @@
 <template>
   <v-timeline-item
     :class="mobile && 'caption' || ''"
+    :color="skeleton && 'skeleton-background' || 'tertiary'"
     :small="mobile"
     class="workExperienceTimeLineItem"
-    color="tertiary"
     right>
-    <div v-if="!mobile" slot="opposite" class="workExperienceTimeLineItemTime">
-      {{ displayedDate }}
+    <div
+      v-if="!mobile"
+      slot="opposite"
+      :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+      class="workExperienceTimeLineItemTime">
+      {{ skeleton && '&nbsp;' || displayedDate }}
     </div>
-    <v-card>
+    <v-card :class="skeleton && 'elevation-0 skeleton-border'">
       <v-card-text class="pb-3">
         <div
           v-if="mobile"
+          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-color font-weight-bold mb-2"
           v-text="displayedDate">
         </div>
         <div
+          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-color"
           v-text="experience.position">
         </div>
         <div
+          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-sub-title"
           v-text="experience.company">
         </div>
       </v-card-text>
       <v-card-text class="pt-0">
-        <h6
-          class="paragraph text-color font-weight-light pb-1 mt-0"
-          v-text="experience.description">
-        </h6>
-        <div class="text-color font-weight-bold">
-          {{ $t('profileWorkExperiences.appliedSkills') }} : {{ experience.skills }}
-        </div>
+        <template v-if="skeleton">
+          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'">
+            &nbsp;
+          </div>
+          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-5'">
+            &nbsp;
+          </div>
+          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'">
+            &nbsp;
+          </div>
+        </template>
+        <template v-else>
+          <h6
+            class="paragraph text-color font-weight-light pb-1 mt-0"
+            v-text="experience.description">
+          </h6>
+          <div
+            :class="skeleton && 'skeleton-text skeleton-text-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'"
+            class="text-color font-weight-bold">
+            {{ $t('profileWorkExperiences.appliedSkills') }} : {{ experience.skills }}
+          </div>
+        </template>
       </v-card-text>
     </v-card>
   </v-timeline-item>
@@ -45,6 +67,10 @@ export default {
     experience: {
       type: Object,
       default: () => null,
+    },
+    skeleton: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => ({
