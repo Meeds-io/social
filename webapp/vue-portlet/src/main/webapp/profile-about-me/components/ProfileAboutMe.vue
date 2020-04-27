@@ -6,7 +6,7 @@
       <div
         :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-thick skeleton-border-radius'"
         class="text-header-title text-sub-title">
-        {{ $t('profileAboutMe.title') }}
+        {{ skeleton && '&nbsp;' || $t('profileAboutMe.title') }}
       </div>
       <v-spacer />
       <v-btn
