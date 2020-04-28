@@ -20,7 +20,8 @@ let config = {
     profileHeader: './src/main/webapp/profile-header/main.js',
     profileAboutMe: './src/main/webapp/profile-about-me/main.js',
     profileContactInformation: './src/main/webapp/profile-contact-information/main.js',
-    profileWorkExperience: './src/main/webapp/profile-work-experience/main.js'
+    profileWorkExperience: './src/main/webapp/profile-work-experience/main.js',
+    userSettings: './src/main/webapp/user-settings/main.js'
   },
   module: {
     rules: [
