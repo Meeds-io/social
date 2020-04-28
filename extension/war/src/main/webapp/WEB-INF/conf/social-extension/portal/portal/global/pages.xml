@@ -456,10 +456,10 @@
       <access-permissions>*:/platform/users</access-permissions>
       <portlet-application>
         <portlet>
-          <application-ref>social-juzu</application-ref>
-          <portlet-ref>NotificationSettingsPortlet</portlet-ref>
+          <application-ref>social-vue-portlet</application-ref>
+          <portlet-ref>UserSettings</portlet-ref>
         </portlet>
-        <title>Notifications Settings</title>
+        <title>User Settings</title>
         <access-permissions>*:/platform/users</access-permissions>
         <show-info-bar>false</show-info-bar>
         <show-application-state>true</show-application-state>
