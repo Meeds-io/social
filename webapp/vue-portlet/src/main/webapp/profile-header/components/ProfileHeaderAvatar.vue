@@ -36,7 +36,7 @@ export default {
     },
     skeleton: {
       type: Boolean,
-      default: () => true,
+      default: () => false,
     },
     owner: {
       type: Boolean,

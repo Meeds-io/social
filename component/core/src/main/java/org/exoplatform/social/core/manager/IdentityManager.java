@@ -158,6 +158,17 @@ public interface IdentityManager {
   void updateProfile(Profile specificProfile) throws MessageException;
 
   /**
+   * Updates a specific profile and broadcast detected changes on profile if
+   * 'broadcastChanges' is turned on
+   *
+   * @param specificProfile The specific profile.
+   * @param broadcastChanges whether detect and broadcast changed fields or not
+   */
+  default void updateProfile(Profile specificProfile, boolean broadcastChanges) throws MessageException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access which contains all identities from a given provider.
    * These identities are filtered by the profile filter.
    * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
