@@ -16,8 +16,8 @@
  */
 package org.exoplatform.social.core.identity.provider;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -34,20 +34,19 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.webui.exception.MessageException;
 
-
 /**
  * The Class OrganizationIdentityProvider.
  */
 public class OrganizationIdentityProvider extends IdentityProvider<User> {
 
   /** Logger */
-  private static final Log LOG = ExoLogger.getLogger(OrganizationIdentityProvider.NAME);
+  private static final Log    LOG  = ExoLogger.getLogger(OrganizationIdentityProvider.NAME);
 
   /** The organization service. */
   private OrganizationService organizationService;
 
   /** The Constant NAME. */
-  public final static String NAME = "organization";
+  public final static String  NAME = "organization";
 
   /**
    * Instantiates a new organization identity provider.
@@ -65,9 +64,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * Return only 500 maximum users for this duplicated method.
+   * {@inheritDoc} Return only 500 maximum users for this duplicated method.
    *
    * @return list of string containing user names.
    */
@@ -75,7 +72,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
     try {
 
       ListAccess<User> allUsers = organizationService.getUserHandler().findAllUsers();
-      //Get 500 as maxium
+      // Get 500 as maxium
       final int MAX_USERS = 500;
       User[] users = allUsers.load(0, allUsers.getSize() >= MAX_USERS ? MAX_USERS : allUsers.getSize());
       List<String> userIds = new ArrayList<String>();
@@ -96,7 +93,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
   public User findByRemoteId(String remoteId) {
     User user;
     try {
-      RequestLifeCycle.begin((ComponentRequestLifecycle)organizationService);
+      RequestLifeCycle.begin((ComponentRequestLifecycle) organizationService);
       user = CommonsUtils.getUser(remoteId);
     } catch (Exception e) {
       LOG.warn("An error occured while getting identity from store", e);
@@ -127,6 +124,23 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
     profile.setProperty(Profile.FULL_NAME, user.getDisplayName());
     profile.setProperty(Profile.USERNAME, user.getUserName());
     profile.setProperty(Profile.EMAIL, user.getEmail());
+    try {
+      UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(user.getUserName());
+      if (userProfile != null) {
+        Map<String, String> attributes = userProfile.getUserInfoMap();
+        if (attributes != null && !attributes.isEmpty()) {
+          Set<Entry<String, String>> entries = attributes.entrySet();
+          for (Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            if (key != null && profile.getProperty(key) == null) {
+              profile.setProperty(key, entry.getValue());
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      LOG.warn("Failed to retrieve additional user profile attributes");
+    }
   }
 
   /**
@@ -141,19 +155,20 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
 
   /**
    * synchronous changed profile what is happened in Social to Portal side.
+   * 
    * @author thanh_vucong
-   *
    */
   private class UpdateProfileProcess {
-    
+
     private Profile updatedProfile = null;
-    private String userName = null;
-    
+
+    private String  userName       = null;
+
     public UpdateProfileProcess(Profile updatedProfile) {
       this.updatedProfile = updatedProfile;
       this.userName = (String) updatedProfile.getProperty(Profile.USERNAME);
     }
-    
+
     /**
      * update profile information
      */
@@ -164,15 +179,15 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
           updateContact();
         }
       } catch (Exception e) {
-        if ( e instanceof MessageException) {
+        if (e instanceof MessageException) {
           throw (MessageException) e;
         } else {
           LOG.warn("Failed to update user by profile", e);
         }
-        
+
       }
     }
-    
+
     /**
      * Updates profile in Basic Information section
      * 
@@ -184,15 +199,15 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
       String lastName = (String) updatedProfile.getProperty(Profile.LAST_NAME);
       String email = (String) updatedProfile.getProperty(Profile.EMAIL);
       String fullName = firstName + " " + lastName;
-      
+
       boolean hasUpdate = false;
 
       //
       User foundUser = organizationService.getUserHandler().findUserByName(this.userName);
-      if(foundUser == null) {
+      if (foundUser == null) {
         return;
       }
-     
+
       //
       if (!StringUtils.equals(foundUser.getFirstName(), firstName)) {
         foundUser.setFirstName(firstName);
@@ -206,7 +221,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
         foundUser.setEmail(email);
         hasUpdate = true;
       }
-      
+
       if (!StringUtils.equals(foundUser.getDisplayName(), fullName)) {
         foundUser.setDisplayName(fullName);
         hasUpdate = true;
@@ -214,12 +229,13 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
 
       //
       if (hasUpdate) {
-        organizationService.getUserHandler().saveUser(foundUser, true);        
+        organizationService.getUserHandler().saveUser(foundUser, true);
       }
     }
-    
+
     /**
      * Updates profile in Contact section
+     * 
      * @throws Exception
      */
     private void updateContact() throws Exception {
@@ -227,18 +243,17 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
       String position = (String) updatedProfile.getProperty(Profile.POSITION);
       String gender = (String) updatedProfile.getProperty(Profile.GENDER);
 
-
       UserProfile foundUserProfile = organizationService.getUserProfileHandler()
                                                         .findUserProfileByName(userName);
       //
-      if(foundUserProfile == null) {
+      if (foundUserProfile == null) {
         foundUserProfile = organizationService.getUserProfileHandler().createUserProfileInstance(userName);
       }
 
       boolean hasUpdated = false;
-      String uPosition = foundUserProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]);//user.jobtitle
+      String uPosition = foundUserProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]);// user.jobtitle
       if (!StringUtils.equals(position, uPosition)) {
-        foundUserProfile.setAttribute(UserProfile.PERSONAL_INFO_KEYS[7], position);//user.jobtitle
+        foundUserProfile.setAttribute(UserProfile.PERSONAL_INFO_KEYS[7], position);// user.jobtitle
         hasUpdated = true;
       }
       String uGender = foundUserProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[4]);// "user.gender"
