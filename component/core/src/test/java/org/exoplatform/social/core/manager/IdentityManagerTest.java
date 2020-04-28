@@ -16,10 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.exoplatform.commons.utils.ListAccess;
@@ -35,7 +32,7 @@ import org.exoplatform.social.core.identity.provider.Application;
 import org.exoplatform.social.core.identity.provider.FakeIdentityProvider;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.profile.*;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
@@ -493,7 +490,67 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
     tearDownIdentityList.add(rootIdentity);
   }
-  
+
+  /**
+   * Test {@link IdentityManager#updateProfile(Profile, boolean)}
+   */
+  public void testUpdateProfileAndDetectChanges() throws Exception {
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Profile profile = rootIdentity.getProfile();
+    profile.setProperty(Profile.POSITION, "Changed POSITION");
+    List<Integer> changes = new ArrayList<>();
+    identityManager.registerProfileListener(new ProfileListenerPlugin() {
+      @Override
+      public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
+        changes.add(1);
+      }
+
+      @Override
+      public void createProfile(ProfileLifeCycleEvent event) {
+        // noop
+      }
+
+      @Override
+      public void contactSectionUpdated(ProfileLifeCycleEvent event) {
+        changes.add(2);
+      }
+
+      @Override
+      public void bannerUpdated(ProfileLifeCycleEvent event) {
+        changes.add(3);
+      }
+
+      @Override
+      public void avatarUpdated(ProfileLifeCycleEvent event) {
+        changes.add(4);
+      }
+
+      @Override
+      public void aboutMeUpdated(ProfileLifeCycleEvent event) {
+        changes.add(5);
+      }
+    });
+
+    identityManager.updateProfile(profile, true);
+    assertEquals(1, changes.size());
+    assertTrue(changes.contains(2));
+
+    profile.setProperty(Profile.POSITION, "Changed POSITION");
+    profile.setProperty(Profile.ABOUT_ME, "Changed ABOUT_ME");
+    identityManager.updateProfile(profile, true);
+    assertEquals(2, changes.size());
+    assertTrue(changes.contains(5));
+
+    List<Map<String, String>> experiences = new ArrayList<>();
+    Map<String, String> company = new HashMap<>();
+    experiences.add(company);
+    company.put(Profile.EXPERIENCES_COMPANY, "oldValue");
+    profile.setProperty(Profile.EXPERIENCES, experiences);
+    identityManager.updateProfile(profile, true);
+    assertEquals(3, changes.size());
+    assertTrue(changes.contains(1));
+  }
+
   public void testUpdateProfileActivity() throws Exception {
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
     Profile profile = rootIdentity.getProfile();
