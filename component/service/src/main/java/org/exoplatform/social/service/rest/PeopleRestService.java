@@ -55,7 +55,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import java.util.*;
-import org.exoplatform.social.webui.Utils;
 
 /**
  * 
@@ -500,7 +499,8 @@ public class PeopleRestService implements ResourceContainer{
   private LinkedHashSet<UserInfo> addSpaceMembers (String spaceURL, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser) {
     String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
     for (String spaceMember : spaceMembers) {
-      if (Utils.isEnableUser(spaceMember)) {
+      Identity identity = LinkProvider.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
+      if (identity.isEnable() && !identity.isDeleted()) {
         userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true);
       }
     }

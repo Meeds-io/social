@@ -295,10 +295,6 @@
         <artifactId>jersey-client</artifactId>
         <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.exoplatform.social</groupId>
-          <artifactId>social-component-webui</artifactId>
-      </dependency>
   </dependencies>
   <build>
     <plugins>
