@@ -9,9 +9,8 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/userSettings.html</value>
+      <value>/WEB-INF/jsp/userSettings.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -25,7 +24,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/hamburgerMenuItem.jsp</value>
+      <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
@@ -47,7 +46,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/hamburgerMenuItem.jsp</value>
+      <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>

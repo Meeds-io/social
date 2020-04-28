@@ -1,27 +1,35 @@
 <template>
   <v-app>
-    <user-setting-language v-model="language" />
-    <user-setting-timezone v-model="timezone" />
+    <user-setting-language :languages="languages" />
+    <user-setting-timezone :timezones="timezones" />
     <user-setting-notifications v-model="notificationSettings" />
     <user-setting-security />
-    <user-setting-social-network />
   </v-app>
 </template>
 
 <script>
 export default {
+  props: {
+    languages: {
+      type: Array,
+      default: null,
+    },
+    timezones: {
+      type: Array,
+      default: null,
+    },
+  },
   data: () => ({
     skeleton: true,
-    language: eXo.env.portal.language,
-    timezone: eXo.env.portal.timezone,
     notificationSettings: null,
   }),
   created() {
     this.refresh();
+    this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
   },
   methods: {
     refresh() {
-      // TODO
+      // TODO notification settings
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     },
   },

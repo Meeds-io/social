@@ -172,6 +172,25 @@ public class Utils {
     return getUserIdentity(getViewerRemoteId(), false);
   }
 
+  public static TimeZone getViewerTimezone() {
+    Identity userIdentity = getUserIdentity(getViewerRemoteId(), false);
+    if (userIdentity == null || userIdentity.getProfile().getTimeZone() == null) {
+      return TimeZone.getDefault();
+    } else {
+      String timeZoneId = userIdentity.getProfile().getTimeZone();
+      return TimeZone.getTimeZone(timeZoneId);
+    }
+  }
+
+  public static int getViewerTimezoneDSTSavings() {
+    Identity userIdentity = getUserIdentity(getViewerRemoteId(), false);
+    if (userIdentity == null || userIdentity.getProfile().getTimeZoneDSTSavings() == null) {
+      return TimeZone.getDefault().getDSTSavings();
+    } else {
+      return userIdentity.getProfile().getTimeZoneDSTSavings();
+    }
+  }
+
   public static String getViewerIdentityId() {
     Identity identity = getViewerIdentity();
     return identity == null ? null : identity.getId();
