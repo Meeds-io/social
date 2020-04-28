@@ -27,11 +27,14 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'UserSettings';
 
-export function init() {
+export function init(settings) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      template: `<user-settings id="${appId}" />`,
+      data: () => ({
+        settings: settings,
+      }),
+      template: `<user-settings id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);

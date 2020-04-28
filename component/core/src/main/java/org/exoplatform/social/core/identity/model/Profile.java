@@ -50,8 +50,14 @@ public class Profile {
   /** email key. */
   public static final String  EMAIL                   = "email";
 
-  /** email key. */
+  /** About me key. */
   public static final String  ABOUT_ME                = "aboutMe";
+
+  /** TimeZone key. */
+  public static final String  TIME_ZONE               = "timeZone";
+
+  /** TimeZone DayLight savings key. */
+  public static final String  TIME_ZONE_DST_SAVINGS   = "timeZoneDSTSavings";
 
   /** profile of a deleted user */
   public static final String  DELETED                 = "deleted";
@@ -550,6 +556,23 @@ public class Profile {
 
   public void setAboutMe(String aboutMe) {
     setProperty(Profile.ABOUT_ME, aboutMe);
+  }
+
+  public String getTimeZone() {
+    return (String) getProperty(Profile.TIME_ZONE);
+  }
+
+  public void setTimeZone(String timeZone) {
+    setProperty(Profile.TIME_ZONE, timeZone);
+  }
+
+  public Integer getTimeZoneDSTSavings() {
+    String value = (String) getProperty(Profile.TIME_ZONE_DST_SAVINGS);
+    return value == null ? null : Integer.parseInt(value);
+  }
+
+  public void setTimeZoneDSTSavings(Object timeZoneDayLightSaving) {
+    setProperty(Profile.TIME_ZONE_DST_SAVINGS, String.valueOf(timeZoneDayLightSaving == null ? 0 : timeZoneDayLightSaving));
   }
 
   /**

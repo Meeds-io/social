@@ -11,34 +11,43 @@
           </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
-          <v-btn icon>
+          <v-btn icon @click="openDrawer">
             <i class="uiIconEdit uiIconLightBlue pb-2"></i>
           </v-btn>
         </v-list-item-action>
       </v-list-item>
     </v-list>
+    <user-timezone-drawer
+      ref="timezonesDrawer"
+      v-model="timezoneOffset"
+      :timezones="timezones" />
   </v-card>
 </template>
 
 <script>
 export default {
   props: {
-    value: {
-      type: String,
+    timezones: {
+      type: Array,
       default: null,
     },
   },
+  data: () => ({
+    timezoneOffset: eXo.env.portal.timezoneOffset,
+    selectedTimezone: null,
+  }),
   computed: {
     timezoneLabel() {
-      const langTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-      return langTimezone;
+      return this.selectedTimezone && this.selectedTimezone.text;
     },
   },
-  watch: {
-    value() {
-      this.$emit('input', this.value);
+  created() {
+    this.selectedTimezone = this.timezones.find(tmp => tmp.offset === this.timezoneOffset);
+  },
+  methods: {
+    openDrawer() {
+      this.$refs.timezonesDrawer.open();
     },
   },
 };
 </script>
-
