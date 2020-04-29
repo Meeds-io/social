@@ -20,7 +20,7 @@
               <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction[0].onExecute()"></i>
               <a class="message" href="javascript:void(0)" @click="activityComposerHintAction[0].onExecute()" >{{ getLabel(action.labelKey) }} </a>
             </div>
-            <div v-if="activityComposerHintAction === null || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
+            <div v-if="activityComposerHintAction === null || activityComposerHintAction.length ===0 || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
             </div>
             <div><button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes btnStyle" @click="postMessage()">{{ $t('activity.composer.post') }}</button></div>
           </div>
@@ -132,9 +132,15 @@ export default {
     }
   },
   watch: {
-    message(){
+    message() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      this.activityComposerHintAction = pureText.length > this.MESSAGE_MAX_LENGTH ? getActivityComposerHintActionExtensions(pureText.length) : null;
+      if (pureText.length > this.MESSAGE_MAX_LENGTH) {
+        if (this.activityComposerHintAction === null) {
+          this.activityComposerHintAction = getActivityComposerHintActionExtensions();
+        }
+      } else {
+        this.activityComposerHintAction = null;
+      }
     },
     showErrorMessage: function(newVal) {
       if(newVal) {

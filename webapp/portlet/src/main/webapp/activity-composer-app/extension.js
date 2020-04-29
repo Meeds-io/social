@@ -1,5 +1,5 @@
 let activityComposerActions = null;
-let activityComposerHintAction = null;
+let activityComposerHintAction = [];
 let activityComposerHintListActions = null;
 export function getActivityComposerActionExtensions() {
   if(activityComposerActions == null) {
@@ -12,9 +12,11 @@ export function getActivityComposerActionExtensions() {
 
 export function getActivityComposerHintActionExtensions() {
   activityComposerHintListActions = getExtensionsByType('activity-composer-hint-action');
-  activityComposerHintAction = activityComposerHintListActions[0];
-  for (let i=1;i< activityComposerHintListActions.length;i++ ){
-    if (activityComposerHintAction.rank > activityComposerHintListActions[i].rank){
+  if (activityComposerHintListActions.length > 0 && activityComposerHintAction.length === 0) {
+    activityComposerHintAction.push(activityComposerHintListActions[0]);
+  }
+  for (let i = 1; i < activityComposerHintListActions.length; i++) {
+    if (activityComposerHintAction.rank > activityComposerHintListActions[i].rank) {
       activityComposerHintAction = activityComposerHintListActions[i];
     }
   }
