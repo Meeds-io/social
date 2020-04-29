@@ -21,7 +21,10 @@ let config = {
     profileAboutMe: './src/main/webapp/profile-about-me/main.js',
     profileContactInformation: './src/main/webapp/profile-contact-information/main.js',
     profileWorkExperience: './src/main/webapp/profile-work-experience/main.js',
-    userSettings: './src/main/webapp/user-settings/main.js'
+    userSettingLanguage: './src/main/webapp/user-setting-language/main.js',
+    userSettingNotifications: './src/main/webapp/user-setting-notifications/main.js',
+    userSettingSecurity: './src/main/webapp/user-setting-security/main.js',
+    userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js'
   },
   module: {
     rules: [
