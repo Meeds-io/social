@@ -499,7 +499,7 @@ public class PeopleRestService implements ResourceContainer{
   private LinkedHashSet<UserInfo> addSpaceMembers (String spaceURL, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser) {
     String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
     for (String spaceMember : spaceMembers) {
-      Identity identity = LinkProvider.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
+      Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
       if (identity.isEnable() && !identity.isDeleted()) {
         userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true);
       }
