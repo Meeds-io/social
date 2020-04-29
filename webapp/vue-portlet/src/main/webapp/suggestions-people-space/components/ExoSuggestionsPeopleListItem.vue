@@ -42,7 +42,6 @@
     </v-list-item-action>
   </v-list-item>
 </template>
-
 <script>
 import * as userService from '../../common/js/UserService.js';
 export default {
@@ -59,6 +58,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    peopleSuggestionsList: {
+      type: Array,
+      default: () => []
+    }
   },
   computed: {
     avatarUrl() {
