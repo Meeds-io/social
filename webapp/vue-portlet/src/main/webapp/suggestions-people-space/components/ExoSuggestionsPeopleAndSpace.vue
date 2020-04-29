@@ -13,6 +13,7 @@
                 v-for="people in peoplesToDisplay"
                 :key="people.suggestionId"
                 :people="people"
+                :people-suggestions-list="peopleSuggestionsList"
                 :skeleton="firstLoadingPeoples"/>
             </v-list>
             <v-list v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'" dense class="suggestions-list space-list py-4 mx-4">
@@ -20,6 +21,7 @@
                 v-for="space in spacesToDisplay"
                 :key="space.spaceId"
                 :space="space"
+                :spaces-suggestions-list="spacesSuggestionsList"
                 :skeleton="firstLoadingSpaces"/>
             </v-list>
           </v-card>

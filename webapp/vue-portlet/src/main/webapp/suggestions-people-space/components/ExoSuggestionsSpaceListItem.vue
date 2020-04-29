@@ -63,6 +63,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    spacesSuggestionsList: {
+      type: Array,
+      default: () => []
+    }
   },
   computed: {
     avatarUrl() {
