@@ -1,6 +1,6 @@
 let activityComposerActions = null;
 let activityComposerHintAction = null;
-
+let activityComposerHintListActions = null;
 export function getActivityComposerActionExtensions() {
   if(activityComposerActions == null) {
     const allExtensions = getExtensionsByType('activity-composer-action');
@@ -11,9 +11,12 @@ export function getActivityComposerActionExtensions() {
 }
 
 export function getActivityComposerHintActionExtensions() {
-    activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
-    if (activityComposerHintAction.length === 0) {
-      activityComposerHintAction = null;
+  activityComposerHintListActions = getExtensionsByType('activity-composer-hint-action');
+  activityComposerHintAction = activityComposerHintListActions[0];
+  for (let i=1;i< activityComposerHintListActions.length;i++ ){
+    if (activityComposerHintAction.rank > activityComposerHintListActions[i].rank){
+      activityComposerHintAction = activityComposerHintListActions[i];
+    }
   }
   return activityComposerHintAction;
 }
