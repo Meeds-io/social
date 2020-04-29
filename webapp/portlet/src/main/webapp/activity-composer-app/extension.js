@@ -10,15 +10,10 @@ export function getActivityComposerActionExtensions() {
   return activityComposerActions;
 }
 
-export function getActivityComposerHintActionExtensions(messageLength) {
-  const MESSAGE_MAX_LENGTH = 1300;
-  if (messageLength > MESSAGE_MAX_LENGTH) {
+export function getActivityComposerHintActionExtensions() {
     activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
     if (activityComposerHintAction.length === 0) {
       activityComposerHintAction = null;
-    }
-  } else {
-    activityComposerHintAction = null;
   }
   return activityComposerHintAction;
 }
