@@ -3,7 +3,7 @@
     <v-hover :disabled="skeleton">
       <v-img
         slot-scope="{ hover }"
-        :src="user && user.banner || ''"
+        :src="!skeleton && user && user.banner || ''"
         :class="skeleton && 'white' || ''"
         class="profileBannerImg d-flex"
         min-height="240px"
@@ -27,7 +27,7 @@
                   :owner="owner"
                   :hover="hover"
                   save
-                  @refresh="refresh"
+                  @refresh="avatarUpdated"
                   @error="handleError" />
               </v-hover>
               <div class="profileHeaderText align-start d-flex flex-grow-0">
@@ -38,9 +38,9 @@
                   class="ma-auto pb-10" />
               </div>
               <div class="flex-grow-1"></div>
-              <div class="d-flex flex-grow-0 justify-end pr-4">
+              <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-4">
                 <profile-header-banner-button
-                  v-if="owner || skeleton"
+                  v-if="owner"
                   :user="user"
                   :max-upload-size="maxUploadSizeInBytes"
                   :skeleton="skeleton"
@@ -49,7 +49,7 @@
                   @refresh="refresh"
                   @error="handleError" />
                 <profile-header-actions
-                  v-if="!owner"
+                  v-else
                   :user="user"
                   :skeleton="skeleton"
                   :owner="owner"

@@ -3,7 +3,7 @@
     :class="skeleton && 'skeleton-background' || owner && hover && 'profileHeaderAvatarHoverEdit'"
     :size="size"
     class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar">
-    <v-img :src="avatarData || user && user.avatar || ''" />
+    <v-img :src="!skeleton && (avatarData || user && user.avatar) || ''" />
     <v-file-input
       v-if="owner && !sendingImage"
       v-show="hover"
@@ -36,7 +36,7 @@ export default {
     },
     skeleton: {
       type: Boolean,
-      default: () => true,
+      default: () => false,
     },
     owner: {
       type: Boolean,

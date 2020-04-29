@@ -3,22 +3,39 @@
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
     <v-toolbar color="white" flat class="border-box-sizing">
-      <div class="text-header-title text-sub-title">
-        {{ $t('profileAboutMe.title') }}
+      <div
+        :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-thick skeleton-border-radius'"
+        class="text-header-title text-sub-title">
+        {{ skeleton && '&nbsp;' || $t('profileAboutMe.title') }}
       </div>
       <v-spacer />
       <v-btn
-        v-if="owner"
+        v-if="owner || skeleton"
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-background'"
         icon
         outlined
         small
         @click="editAboutMe">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i
+          v-if="!skeleton"
+          class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
-    <v-card flat>
-      <p class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe">
-      </p>
+    <v-card
+      :class="skeleton && 'pr-7'"
+      class="border-box-sizing"
+      flat>
+      <template v-if="skeleton">
+        <div
+          v-for="i in 8"
+          :key="i"
+          :class="(i % 2) === 0 && 'skeleton-text-full-width' || 'skeleton-text-half-width'"
+          class="my-3 mx-4 border-box-sizing skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius">
+          &nbsp;
+        </div>
+      </template>
+      <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
     </v-card>
     <exo-drawer
       v-if="owner"
@@ -75,6 +92,7 @@ export default {
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     rules: [v => !v || v.length <= MAX_TEXT || ' '],
+    skeleton: true,
     error: null,
     saving: null,
     modifyingAboutMe: null,
@@ -86,6 +104,7 @@ export default {
   },
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    this.skeleton = false;
   },
   methods: {
     refresh(aboutMe) {

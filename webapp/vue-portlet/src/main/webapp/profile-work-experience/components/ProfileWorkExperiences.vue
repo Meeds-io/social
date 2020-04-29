@@ -3,17 +3,23 @@
     :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
     class="white">
     <v-toolbar color="white" flat class="border-box-sizing">
-      <div class="text-header-title text-sub-title">
-        {{ $t('profileWorkExperiences.title') }}
+      <div
+        :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-thick skeleton-border-radius'"
+        class="text-header-title text-sub-title">
+        {{ skeleton && '&nbsp;' || $t('profileWorkExperiences.title') }}
       </div>
       <v-spacer />
       <v-btn
-        v-if="owner"
+        v-if="owner || skeleton"
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-background'"
         icon
         outlined
         small
         @click="editWorkExperiences">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i
+          v-if="!skeleton"
+          class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
     <div v-if="experiences && experiences.length" class="px-4 pb-6 white">
@@ -24,7 +30,8 @@
         <profile-work-experience-item
           v-for="experience in experiences"
           :key="experience.id"
-          :experience="experience" />
+          :experience="experience"
+          :skeleton="skeleton" />
       </v-timeline>
     </div>
     <profile-work-experience-drawer
@@ -46,6 +53,7 @@ export default {
   },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    skeleton: true,
     error: null,
     saving: null,
   }),
@@ -57,6 +65,7 @@ export default {
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.setExperiences(this.experiences);
+    this.skeleton = false;
   },
   methods: {
     refresh() {
