@@ -206,7 +206,7 @@
   def viewerId = Utils.getViewerIdentity().getId();
 %>
 
-<div class="activityStream uiActivityRelationShip" id="activityContainer${activity.id}">
+<div class="activityStream uiActivityStreamWrapper uiActivityRelationShip" id="activityContainer${activity.id}">
   <% uiform.begin() %>
   <!--<div class="activityTimeLine pull-left">
 	<div class="activityAvatar avatarCircle">

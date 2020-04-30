@@ -241,7 +241,7 @@ def streamOwner = activity.getStreamOwner();
   def viewerId = Utils.getViewerIdentity().getId();
   %>
 
-  <div class="activityStream uiSpaceActivity" id="activityContainer${activity.id}">
+  <div class="activityStream uiActivityStreamWrapper uiSpaceActivity" id="activityContainer${activity.id}">
   <% uiform.begin() %>
 	<div id="boxContainer" class="boxContainer">
 		<div id="ContextBox${activity.id}" class="uiBox contentBox uiComposer">
