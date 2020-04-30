@@ -8,12 +8,18 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              {{ $t('UserSettings.security') }}
+              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
+                {{ skeleton && '&nbsp;' || $t('UserSettings.security') }}
+              </div>
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn icon @click="openSecurityDetail">
-              <v-icon size="24" class="text-sub-title">
+            <v-btn
+              :class="skeleton && 'skeleton-background'"
+              small
+              icon
+              @click="openSecurityDetail">
+              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -42,6 +48,7 @@ export default {
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
+    this.skeleton = false;
   },
   methods: {
     openSecurityDetail() {

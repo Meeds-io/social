@@ -49,7 +49,7 @@
             </div>
             <div class="v-list-item__action">
               <button type="button"
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default skeleton-background">
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small skeleton-background">
                 <span class="v-btn__content"></span>
               </button>
             </div>

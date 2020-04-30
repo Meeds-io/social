@@ -18,6 +18,7 @@
           <v-list-item-action>
             <v-btn
               :class="skeleton && 'skeleton-background'"
+              small
               icon
               @click="openDrawer">
               <i v-if="!skeleton" class="uiIconEdit uiIconLightBlue pb-2"></i>

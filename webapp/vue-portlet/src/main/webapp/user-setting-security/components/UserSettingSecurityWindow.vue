@@ -6,11 +6,14 @@
       class="border-box-sizing"
       flat>
       <v-btn
+        class="mx-1"
         icon
+        height="36"
+        width="36"
         @click="$emit('back')">
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon size="24">mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title>
+      <v-toolbar-title class="pl-0">
         {{ $t('UserSettings.security') }}
       </v-toolbar-title>
       <v-spacer />
