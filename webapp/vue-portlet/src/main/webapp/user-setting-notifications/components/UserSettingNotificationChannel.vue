@@ -3,15 +3,21 @@
     <v-list-item two-line>
       <v-list-item-content>
         <v-list-item-title class="text-color">
-          {{ label }}
+          <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
+            {{ skeleton && '&nbsp;' || label }}
+          </div>
         </v-list-item-title>
-        <v-list-item-subtitle v-if="description" class="text-sub-title">
-          {{ description }}
+        <v-list-item-subtitle v-if="skeleton || description" class="text-sub-title">
+          <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
+            {{ skeleton && '&nbsp;' || description }}
+          </div>
         </v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-action>
         <v-switch
           v-model="active"
+          :class="skeleton && 'skeleton-background skeleton-child-hidden skeleton-border-radius-rounded'"
+          :inset="skeleton"
           :loading="saving"
           @change="save"/>
       </v-list-item-action>

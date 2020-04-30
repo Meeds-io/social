@@ -11,7 +11,7 @@
         height="36"
         width="36"
         @click="$emit('back')">
-        <v-icon size="24">mdi-arrow-left</v-icon>
+        <v-icon size="20">mdi-arrow-left</v-icon>
       </v-btn>
       <v-toolbar-title class="pl-0">
         {{ $t('UserSettings.security') }}
