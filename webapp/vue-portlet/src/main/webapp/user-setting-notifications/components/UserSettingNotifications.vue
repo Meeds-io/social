@@ -1,6 +1,10 @@
 <template>
   <v-app v-if="displayed">
-    <v-card class="ma-4 border-radius" flat>
+    <user-setting-notifications-window
+      v-if="displayDetails"
+      :settings="notificationSettings"
+      @back="closeDetail" />
+    <v-card v-else class="ma-4 border-radius" flat>
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
           <v-list-item-content>
@@ -9,61 +13,26 @@
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item two-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-color">
-              {{ $t('UserSettings.notifyByEmail') }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="text-sub-title">
-              {{ $t('UserSettings.notifyByEmailDescription') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch v-model="isEmailNotificationEnabled" />
-          </v-list-item-action>
-        </v-list-item>
-        <v-divider class="mx-4" />
-        <v-list-item two-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-color">
-              {{ $t('UserSettings.notifyOnMobile') }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="text-sub-title">
-              {{ $t('UserSettings.notifyOnMobileDescription') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon>
-              <v-switch v-model="isPushNotificationEnabled" />
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-        <v-divider class="mx-4" />
-        <v-list-item two-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-color">
-              {{ $t('UserSettings.notifyOnSite') }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="text-sub-title">
-              {{ $t('UserSettings.notifyOnSiteDescription') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon>
-              <v-switch v-model="isOnSiteNotificationEnabled" />
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-        <v-divider class="mx-4" />
+
+        <template v-if="notificationSettings && notificationSettings.channels">
+          <user-setting-notification-channel
+            v-for="channel in notificationSettings.channels"
+            :key="channel"
+            :channel="channel"
+            :active="notificationSettings.channelStatus[channel]"
+            :settings="notificationSettings"
+            :skeleton="skeleton" />
+        </template>
+
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="subtitle-1 text-color">
+            <v-list-item-title class="title text-color">
               {{ $t('UserSettings.manageNotifications') }}
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn icon>
-              <v-icon size="24" class="text-sub-title">
+              <v-icon size="24" class="text-sub-title" @click="openDetail">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -77,24 +46,40 @@
 <script>
 export default {
   data: () => ({
-    isEmailNotificationEnabled: false,
-    isPushNotificationEnabled: false,
-    isOnSiteNotificationEnabled: false,
+    id: `Notifications${parseInt(Math.random() * 10000)
+      .toString()
+      .toString()}`,
+    notificationSettings: null,
+    displayDetails: false,
     displayed: true,
     skeleton: true,
   }),
   created() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
+    this.$root.$on('refresh', this.refresh);
+    this.refresh();
   },
   methods: {
-    openNotificationSettingDetail() {
-      // TODO
+    refresh() {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`)
+        .then(resp => resp && resp.ok && resp.json())
+        .then(settings => this.notificationSettings = settings)
+        .finally(() => {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        });
+    },
+    openDetail() {
+      document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
+      this.displayDetails = true;
+    },
+    closeDetail() {
+      document.dispatchEvent(new CustomEvent('showSettingsApps'));
+      this.displayDetails = false;
     },
   },
 };
