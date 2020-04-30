@@ -9,7 +9,9 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              {{ $t('UserSettings.notifications') }}
+              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
+                {{ skeleton && '&nbsp;' || $t('UserSettings.notifications') }}
+              </div>
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -27,12 +29,18 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              {{ $t('UserSettings.manageNotifications') }}
+              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
+                {{ skeleton && '&nbsp;' || $t('UserSettings.manageNotifications') }}
+              </div>
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn icon>
-              <v-icon size="24" class="text-sub-title" @click="openDetail">
+            <v-btn
+              :class="skeleton && 'skeleton-background'"
+              small
+              icon
+              @click="openDetail">
+              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -68,9 +76,13 @@ export default {
     refresh() {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`)
         .then(resp => resp && resp.ok && resp.json())
-        .then(settings => this.notificationSettings = settings)
+        .then(settings => {
+          this.notificationSettings = settings;
+          return this.$nextTick();
+        })
         .finally(() => {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          this.skeleton = false;
         });
     },
     openDetail() {
