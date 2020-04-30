@@ -196,5 +196,11 @@
       <page-reference>portal::global::settings</page-reference>
     </node>
 
+		<node>
+      <name>stream</name>
+      <label>#{portal.dw.stream}</label>
+      <page-reference>portal::global::stream</page-reference>
+    </node>
+
   </page-nodes>
 </node-navigation>
