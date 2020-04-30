@@ -23,7 +23,7 @@ const vuetify = new Vuetify({
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.UserSettings-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.notification.UserNotificationPortlet-${lang}.json`;
 
 const appId = 'UserSettingNotifications';
 

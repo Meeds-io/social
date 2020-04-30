@@ -27,7 +27,9 @@
 <script>
 export default {
   data: () => ({
-    id: true,
+    id: `Security${parseInt(Math.random() * 10000)
+      .toString()
+      .toString()}`,
     displayed: true,
     displayDetails: false,
     skeleton: true,
