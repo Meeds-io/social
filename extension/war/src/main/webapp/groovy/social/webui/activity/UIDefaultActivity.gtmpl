@@ -225,7 +225,7 @@
   def viewerId = Utils.getViewerIdentity().getId();
 %>
 
-<div class="activityStream uiDefaultActivity" id="activityContainer${activity.id}">
+<div class="activityStream uiActivityStreamWrapper uiDefaultActivity" id="activityContainer${activity.id}">
   <% uiform.begin() %>
   <div class="boxContainer" id="boxContainer">
 	<div id="ContextBox${activity.id}" class="uiBox contentBox">
