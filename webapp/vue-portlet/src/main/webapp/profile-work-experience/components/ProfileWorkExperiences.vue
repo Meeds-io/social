@@ -22,16 +22,21 @@
           class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
-    <div v-if="experiences && experiences.length" class="px-4 pb-6 white">
+    <div v-if="owner || (experiences && experiences.length)" class="px-4 pb-6 white">
       <v-timeline
         :dense="mobile"
         class="workExperienceTimeLine"
         align-top>
-        <profile-work-experience-item
-          v-for="experience in experiences"
-          :key="experience.id"
-          :experience="experience"
-          :skeleton="skeleton" />
+        <template v-if="experiences && experiences.length">
+          <profile-work-experience-item
+            v-for="experience in experiences"
+            :key="experience.id"
+            :experience="experience"
+            :skeleton="skeleton" />
+        </template>
+        <template v-else-if="owner">
+          <profile-work-experience-item empty />
+        </template>
       </v-timeline>
     </div>
     <profile-work-experience-drawer
