@@ -13,7 +13,7 @@
       {{ skeleton && '&nbsp;' || displayedDate }}
     </div>
     <v-card :class="skeleton && 'elevation-0 skeleton-border'">
-      <v-card-text class="pb-3">
+      <v-card-text v-if="experience" class="pb-3">
         <div
           v-if="mobile"
           :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
@@ -43,14 +43,17 @@
             &nbsp;
           </div>
         </template>
+        <template v-else-if="empty">
+          <div class="text-color pt-2">
+            {{ $t('profileWorkExperiences.emptyExperienceDescription') }}
+          </div>
+        </template>
         <template v-else>
           <h6
             class="paragraph text-color font-weight-light pb-1 mt-0"
             v-text="experience.description">
           </h6>
-          <div
-            :class="skeleton && 'skeleton-text skeleton-text-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'"
-            class="text-color font-weight-bold">
+          <div class="text-color font-weight-bold">
             {{ $t('profileWorkExperiences.appliedSkills') }} : {{ experience.skills }}
           </div>
         </template>
@@ -70,6 +73,10 @@ export default {
     },
     skeleton: {
       type: Boolean,
+      default: false,
+    },
+    empty: {
+      type: Boolean,
       default: true,
     },
   },
@@ -85,7 +92,9 @@ export default {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
     displayedDate() {
-      if (this.experience.isCurrent && this.experience.startDate) {
+      if (this.empty) {
+        return this.$t('profileWorkExperiences.date');
+      } else if (this.experience.isCurrent && this.experience.startDate) {
         const startDate = formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
         return this.$t('profileWorkExperiences.since', {
           0: startDate,
