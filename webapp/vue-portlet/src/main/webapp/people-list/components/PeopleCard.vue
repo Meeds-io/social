@@ -2,7 +2,9 @@
   <v-col
     :class="flipCard && 'peopleCardFlip peopleCardFlipped' || 'peopleCardFlip'"
     cols="12"
-    md="3">
+    md="6"
+    lg="4"
+    xl="3">
     <div class="peopleCardFront">
       <people-card-front
         :user="user"
