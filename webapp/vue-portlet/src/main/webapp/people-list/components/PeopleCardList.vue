@@ -22,15 +22,15 @@
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
             <div class="ma-auto noPeopleYet">
+              <p class="noPeopleYetIcons">
+                <v-icon>fa-users</v-icon>
+              </p>
               <template v-if="hasPeople">
                 <p class="title font-weight-bold">
                   {{ $t('peopleList.label.noResults') }}
                 </p>
               </template>
               <template v-else>
-                <p class="noPeopleYetIcons">
-                  <v-icon>fa-users</v-icon>
-                </p>
                 <p class="title font-weight-bold">
                   {{ $t('peopleList.label.noPeopleYet') }}
                 </p>
