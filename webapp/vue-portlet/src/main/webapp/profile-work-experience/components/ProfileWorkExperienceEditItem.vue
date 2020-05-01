@@ -61,6 +61,7 @@
           <date-picker
             v-model="experience.startDate"
             class="ignore-vuetify-classes"
+            top
             return-iso
             required />
         </div>
@@ -70,6 +71,8 @@
             :disabled="isCurrent"
             :min-value="experience.startDate"
             class="ignore-vuetify-classes"
+            top
+            left
             return-iso
             required />
         </div>
