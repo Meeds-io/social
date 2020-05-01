@@ -1,6 +1,6 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
-    <v-toolbar-title>
+    <v-toolbar-title v-if="skeleton || canCreateSpace">
       <v-btn
         :disabled="skeleton"
         :class="skeleton && 'skeleton-text skeleton-background' || 'btn-primary'"
@@ -90,6 +90,10 @@
 
 export default {
   props: {
+    canCreateSpace: {
+      type: Boolean,
+      default: false,
+    },
     keyword: {
       type: String,
       default: null,

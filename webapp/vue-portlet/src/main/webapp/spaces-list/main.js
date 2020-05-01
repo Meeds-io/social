@@ -28,11 +28,11 @@ const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundl
 
 const appId = 'spacesListApplication';
 
-export function init(filter) {
+export function init(filter, canCreateSpace) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      template: `<exo-spaces-list id="${appId}" filter="${filter || 'all'}"></exo-spaces-list>`,
+      template: `<exo-spaces-list id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);
