@@ -19,7 +19,7 @@
             :active="nav.selected"
             :selected="nav.selected"
             :href="nav.fullUri"
-            :class="homeLink === nav.fullUri && 'SitePageLinkHome' || 'SitePageLink'"
+            :class="homeLink === nav.fullUri && 'UserPageLinkHome' || 'UserPageLink'"
             link>
             <v-list-item-icon class="mr-6 my-2">
               <i :class="nav.iconClass"></i>
@@ -30,8 +30,8 @@
                 v-text="nav.label">
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-icon>
-              <span class="SitePageHome" @click="selectHome($event, nav)">
+            <v-list-item-icon @click="selectHome($event, nav)">
+              <span class="UserPageHome">
               </span>
             </v-list-item-icon>
           </v-list-item>
@@ -97,13 +97,17 @@ export default {
       .finally(() => {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       });
+    document.addEventListener('homeLinkUpdated', () => {
+      this.homeLink = eXo.env.portal.homeLink;
+    });
   },
   methods: {
     changeHome() {
       setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
         .then(() => {
-          this.homeLink = eXo.env.portal.homeLink = `${this.BASE_SITE_URI}${this.selectedNavigation.uri}`;
+          this.homeLink = eXo.env.portal.homeLink = this.selectedNavigation.fullUri;
           $('#UserHomePortalLink').attr('href', this.homeLink);
+          document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
         });
     },
     selectHome(event, nav) {

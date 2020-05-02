@@ -13,21 +13,66 @@
         </v-list-item-action>
       </v-list-item>
     </v-row>
-    <exo-spaces-navigation-content :limit="spacesLimit" shaped />
+    <exo-spaces-navigation-content
+      :limit="spacesLimit"
+      :home-link="homeLink"
+      home-icon
+      shaped
+      @selectHome="selectHome" />
+    <exo-confirm-dialog
+      ref="confirmDialog"
+      :title="$t('menu.confirmation.title.changeHome')"
+      :message="confirmMessage"
+      :ok-label="$t('menu.confirmation.ok')"
+      :cancel-label="$t('menu.confirmation.cancel')"
+      @ok="changeHome" />
   </v-container>
 </template>
 <script>
 import RecentSpacesHamburgerNavigation from './ExoRecentSpacesHamburgerNavigation.vue';
 
+import {setSettingValue} from '../../common/js/SettingService.js';
+
 export default {
   data() {
     return {
-      spaces : [],
+      homeLink: eXo.env.portal.homeLink,
+      selectedSpace: null,
       spacesLimit: 7,
       secondLevelVueInstance: null,
     };
   },
+  computed:{
+    confirmMessage() {
+      return this.$t('menu.confirmation.message.changeHome', {
+        0: `<b>${this.selectedSpace && this.selectedSpace.displayName}</b>`,
+      });
+    },
+  },
+  created() {
+    document.addEventListener('homeLinkUpdated', () => {
+      this.homeLink = eXo.env.portal.homeLink;
+    });
+  },
   methods: {
+    changeHome() {
+      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedSpace.spaceUrl)
+        .then(() => {
+          this.homeLink = eXo.env.portal.homeLink = this.selectedSpace.spaceUrl;
+          $('#UserHomePortalLink').attr('href', this.homeLink);
+          document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
+        });
+    },
+    selectHome(event, space) {
+      if (this.homeLink === space.spaceUrl) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.selectedSpace = space;
+      this.$refs.confirmDialog.open();
+    },
     mountSecondLevel(parentId) {
       if (!this.secondLevelVueInstance) {
         const VueHamburgerMenuItem = Vue.extend(RecentSpacesHamburgerNavigation);
