@@ -105,16 +105,22 @@ export default {
     });
   },
   methods: {
-    ok() {
+    ok(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.$emit('ok');
+      this.dialog = false;
+    },
+    close(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.$emit('closed');
       this.dialog = false;
     },
     open() {
       this.dialog = true;
-    },
-    close() {
-      this.$emit('closed');
-      this.dialog = false;
     },
   },
 };
