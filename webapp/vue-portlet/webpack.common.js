@@ -8,6 +8,7 @@ let config = {
     commonVueComponents: './src/main/webapp/common/main.js',
     spacesAdministration: './src/main/webapp/spaces-administration-app/main.js',
     spaceTemplates: './src/main/webapp/space-templates-app/main.js',
+    siteHamburgerMenu: './src/main/webapp/site-navigation/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',

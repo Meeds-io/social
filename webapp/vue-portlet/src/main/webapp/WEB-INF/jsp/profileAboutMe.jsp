@@ -4,14 +4,14 @@
 <%@ page import="org.exoplatform.social.webui.Utils"%>
 <%
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-			String profileOwnerId = Utils.getOwnerIdentityId();
-			String aboutMe = null;
-			if (profileOwnerId != null) {
-				Identity identity = identityManager.getIdentity(profileOwnerId);
-				if (identity != null) {
-					aboutMe = identity.getProfile().getAboutMe();
-				}
-			}
+	String profileOwnerId = Utils.getOwnerIdentityId();
+	String aboutMe = null;
+	if (profileOwnerId != null) {
+		Identity identity = identityManager.getIdentity(profileOwnerId);
+		if (identity != null) {
+			aboutMe = identity.getProfile().getAboutMe();
+		}
+	}
 %>
 <div class="VuetifyApp">
   <div data-app="true"
