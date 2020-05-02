@@ -7,7 +7,7 @@
             {{ skeleton && '&nbsp;' || label }}
           </div>
         </v-list-item-title>
-        <v-list-item-subtitle v-if="skeleton || description" class="text-sub-title">
+        <v-list-item-subtitle v-if="skeleton || description" class="text-sub-title font-italic">
           <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
             {{ skeleton && '&nbsp;' || description }}
           </div>
