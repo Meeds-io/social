@@ -65,6 +65,27 @@
   </portlet>
 
   <portlet>
+    <portlet-name>SiteHamburgerMenu</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Site Hamburger Menu</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>jsModule</name>
+        <value>PORTLET/social-vue-portlet/SiteHamburgerMenu</value>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
+  <portlet>
     <portlet-name>ProfileHamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
