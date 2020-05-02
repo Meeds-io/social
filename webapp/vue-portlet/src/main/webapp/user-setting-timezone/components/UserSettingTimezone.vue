@@ -9,7 +9,7 @@
                 {{ skeleton && '&nbsp;' || $t('UserSettings.timezone') }}
               </div>
             </v-list-item-title>
-            <v-list-item-subtitle class="text-sub-title text-capitalize">
+            <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
               <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
                 {{ skeleton && '&nbsp;' || timezoneLabel }}
               </div>
