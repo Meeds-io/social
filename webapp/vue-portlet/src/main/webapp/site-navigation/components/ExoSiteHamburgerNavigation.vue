@@ -38,8 +38,16 @@
         </v-list-item-group>
       </v-list>
     </v-row>
+    <exo-confirm-dialog
+      ref="confirmDialog"
+      :title="$t('menu.confirmation.title.changeHome')"
+      :message="confirmMessage"
+      :ok-label="$t('menu.confirmation.ok')"
+      :cancel-label="$t('menu.confirmation.cancel')"
+      @ok="changeHome" />
   </v-container>
 </template>
+
 <script>
 import {updateProfileField} from '../../common/js/UserService.js';
 
@@ -47,11 +55,17 @@ export default {
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
+    selectedNavigation: null,
     navigationScope: 'children',
     navigationVisibilities: ['displayed'],
     navigations: [],
   }),
   computed:{
+    confirmMessage() {
+      return this.$t('menu.confirmation.message.changeHome', {
+        0: `<b>${this.selectedNavigation && this.selectedNavigation.label}</b>`,
+      });
+    },
     visibilityQueryParams() {
       return this.navigationVisibilities.map(visibilityName => `visibility=${visibilityName}`).join('&');
     },
@@ -84,17 +98,20 @@ export default {
       });
   },
   methods: {
+    changeHome() {
+      updateProfileField(eXo.env.portal.userName, 'homePage', this.selectedNavigation.uri)
+        .then(() => {
+          this.homeLink = eXo.env.portal.homeLink = this.selectedNavigation.uri;
+          $('#UserHomePortalLink').attr('href', `${this.BASE_SITE_URI}${this.selectedNavigation.uri}`);
+        });
+    },
     selectHome(event, nav) {
       event.preventDefault();
       event.stopPropagation();
 
-      updateProfileField(eXo.env.portal.userName, 'homePage', nav.uri)
-        .then(() => {
-          this.homeLink = eXo.env.portal.homeLink = nav.uri;
-          $('#UserHomePortalLink').attr('href', `${this.BASE_SITE_URI}${nav.uri}`);
-        });
+      this.selectedNavigation = nav;
+      this.$refs.confirmDialog.open();
     },
   }
 };
 </script>
-
