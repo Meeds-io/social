@@ -18,8 +18,8 @@
             :input-value="nav.selected"
             :active="nav.selected"
             :selected="nav.selected"
-            :href="`${BASE_SITE_URI}${nav.uri}`"
-            :class="homeLink === nav.uri && 'SitePageLinkHome' || 'SitePageLink'"
+            :href="nav.fullUri"
+            :class="homeLink === nav.fullUri && 'SitePageLinkHome' || 'SitePageLink'"
             link>
             <v-list-item-icon class="mr-6 my-2">
               <i :class="nav.iconClass"></i>
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import {updateProfileField} from '../../common/js/UserService.js';
+import {setSettingValue} from '../../common/js/SettingService.js';
 
 export default {
   data: () => ({
@@ -78,6 +78,7 @@ export default {
       this.navigations.forEach(nav => {
         const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
         nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
+        nav.fullUri = `${this.BASE_SITE_URI}${nav.uri}`;
       });
     },
   },
@@ -90,7 +91,7 @@ export default {
       .then(data => {
         this.navigations = data;
         if (this.navigations && this.navigations.length && !this.homeLink) {
-          this.homeLink = this.navigations[0].uri;
+          this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
         }
       })
       .finally(() => {
@@ -99,10 +100,10 @@ export default {
   },
   methods: {
     changeHome() {
-      updateProfileField(eXo.env.portal.userName, 'homePage', this.selectedNavigation.uri)
+      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
         .then(() => {
-          this.homeLink = eXo.env.portal.homeLink = this.selectedNavigation.uri;
-          $('#UserHomePortalLink').attr('href', `${this.BASE_SITE_URI}${this.selectedNavigation.uri}`);
+          this.homeLink = eXo.env.portal.homeLink = `${this.BASE_SITE_URI}${this.selectedNavigation.uri}`;
+          $('#UserHomePortalLink').attr('href', this.homeLink);
         });
     },
     selectHome(event, nav) {
