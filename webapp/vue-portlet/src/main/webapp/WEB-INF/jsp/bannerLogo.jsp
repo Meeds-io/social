@@ -1,9 +1,7 @@
+<%@page import="org.exoplatform.portal.config.UserPortalConfigService"%>
 <%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
-<%@ page import="org.exoplatform.social.core.manager.IdentityManager"%>
-<%@ page import="org.exoplatform.social.core.identity.model.Identity"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
-<%@ page import="org.exoplatform.social.webui.Utils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
 <%@ page import="org.exoplatform.portal.branding.Branding"%>
 <%@ page import="org.exoplatform.portal.branding.Logo"%>
@@ -13,12 +11,10 @@
   Logo logo = branding.getLogo();
   String logoPath = "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
 
-  String portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
-
-  IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-  Identity identity = Utils.getViewerIdentity();
-  if (identity != null && identity.getProfile().getHomePage() != null) {
-    portalPath += "/" + identity.getProfile().getHomePage();
+  UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
+  String portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+  if (portalPath == null) {
+    portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
   }
 %>
 <div class="VuetifyApp">

@@ -1,14 +1,8 @@
-<%@ page import="org.exoplatform.social.core.manager.IdentityManager"%>
-<%@ page import="org.exoplatform.social.core.identity.model.Identity"%>
+<%@page import="org.exoplatform.portal.config.UserPortalConfigService"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
-<%@ page import="org.exoplatform.social.webui.Utils"%>
 <%
-  IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-  Identity identity = Utils.getViewerIdentity();
-  String homeLink = "";
-  if (identity != null && identity.getProfile().getHomePage() != null) {
-    homeLink = identity.getProfile().getHomePage();
-  }
+  UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
+  String homeLink = portalConfigService.getUserHomePage(request.getRemoteUser());
   String jsModule = ((String[])request.getAttribute("jsModule"))[0];
 %>
 <script type="text/javascript">

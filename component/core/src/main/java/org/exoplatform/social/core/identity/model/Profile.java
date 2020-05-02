@@ -53,9 +53,6 @@ public class Profile {
   /** About me key. */
   public static final String  ABOUT_ME                = "aboutMe";
 
-  /** Home page key. */
-  public static final String  HOME_PAGE                = "homePage";
-
   /** TimeZone key. */
   public static final String  TIME_ZONE               = "timeZone";
 
@@ -559,14 +556,6 @@ public class Profile {
 
   public void setAboutMe(String aboutMe) {
     setProperty(Profile.ABOUT_ME, aboutMe);
-  }
-
-  public String getHomePage() {
-    return (String) getProperty(Profile.HOME_PAGE);
-  }
-
-  public void setHomePage(String homePage) {
-    setProperty(Profile.HOME_PAGE, homePage);
   }
 
   public String getTimeZone() {
