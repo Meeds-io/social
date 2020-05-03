@@ -83,7 +83,7 @@ export default {
     },
   },
   created(){
-    fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/${eXo.env.portal.portalName}?scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
+    fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
       method: 'GET',
       credentials: 'include',
     })
