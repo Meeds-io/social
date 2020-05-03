@@ -566,10 +566,11 @@
         if(allMumber > 0) {
           var maxItemDisplay = Math.floor(mWith/(items.eq(0).outerWidth() + 12))*1;
           for(var i = maxItemDisplay; i < allMumber; ++i) {
-            items.eq(i).hide();
-            if (i === (allMumber - 1)) {
-              moreBtn.show();
-              items.eq(maxItemDisplay-1).hide();
+            if(allMumber>5) {
+              if (i === (allMumber - 1)) {
+                moreBtn.show();
+                items.eq(maxItemDisplay-1).hide();
+              }
             }
           }
         }
