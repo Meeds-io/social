@@ -35,7 +35,8 @@
           &nbsp;
         </div>
       </template>
-      <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
+      <p v-else-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
+      <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
     <exo-drawer
       v-if="owner"

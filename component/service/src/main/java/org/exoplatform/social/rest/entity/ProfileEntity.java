@@ -32,6 +32,10 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String ABOUT_ME         = "aboutMe";
 
+  public static final String TIME_ZONE        = "timeZone";
+
+  public static final String TIME_ZONE_DST    = "timeZoneDSTSavings";
+
   public static final String BANNER           = "banner";
 
   public static final String AVATAR           = "avatar";
@@ -164,6 +168,22 @@ public class ProfileEntity extends BaseEntity {
 
   public String getAboutMe() {
     return getString(ABOUT_ME);
+  }
+
+  public String getTimeZone() {
+    return (String) getProperty(TIME_ZONE);
+  }
+
+  public void setTimeZone(String timeZone) {
+    setProperty(TIME_ZONE, timeZone);
+  }
+
+  public String getTimeZoneDSTSavings() {
+    return (String) getProperty(TIME_ZONE_DST);
+  }
+
+  public void setTimeZoneDSTSavings(String timeZoneDayLightSaving) {
+    setProperty(TIME_ZONE_DST, timeZoneDayLightSaving);
   }
 
   public ProfileEntity setConnectionsCount(String connectionsCount) {

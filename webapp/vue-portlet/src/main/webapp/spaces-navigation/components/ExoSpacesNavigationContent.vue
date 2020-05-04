@@ -6,6 +6,7 @@
           v-for="space in filteredSpaces"
           :key="space.id"
           :href="space.spaceUrl"
+          :class="homeIcon && (homeLink === space.spaceUrl && 'UserPageLinkHome' || 'UserPageLink')"
           link
           class="px-2 spaceItem">
           <v-list-item-avatar 
@@ -17,6 +18,9 @@
           <v-list-item-content>
             <v-list-item-title class="body-2" v-text="space.displayName" />
           </v-list-item-content>
+          <v-list-item-icon @click="$emit('selectHome', $event, space)">
+            <span class="UserPageHome"></span>
+          </v-list-item-icon>
         </v-list-item>
       </v-list-item-group>
     </v-list>
@@ -33,6 +37,14 @@
 <script>
 export default {
   props: {
+    homeLink: {
+      type: String,
+      default: null,
+    },
+    homeIcon: {
+      type: Boolean,
+      default: false,
+    },
     offset: {
       type: Number,
       default: 0,

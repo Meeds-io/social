@@ -1,5 +1,5 @@
 import './components/initComponents.js';
-import { getActivityComposerExtensions } from './extension.js';
+import { getActivityComposerActionExtensions } from './extension.js';
 
 Vue.use(Vuetify);
 
@@ -26,7 +26,7 @@ if (extensionRegistry) {
 
 // getting locale resources
 export function init() {
-  getActivityComposerExtensions().forEach(extension => {
+  getActivityComposerActionExtensions().forEach(extension => {
     if(extension.resourceBundle) {
       urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
     }

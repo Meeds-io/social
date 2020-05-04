@@ -52,6 +52,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
@@ -291,60 +292,61 @@ public class UserRestResourcesV1 implements UserRestResources {
                                     @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                                     @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                     @ApiParam(value = "URL to default avatar Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultAvatar) throws IOException {
-  
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
 
-    //
+    boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
+    Identity identity = isDefault ? null : identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+    Long lastUpdated = null;
+
     Response.ResponseBuilder builder = null;
-    if (identity == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    } else {
-      //
-      Profile profile = identity.getProfile();
-      Long lastUpdated = null;
-      if (profile != null) {
-        lastUpdated = profile.getAvatarLastUpdated();
-      }
-      EntityTag eTag = null;
-      if (lastUpdated == null) {
-        eTag = new EntityTag(String.valueOf(DEFAULT_AVATAR_HASH));
+    if (!isDefault) {
+      if (identity == null) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
       } else {
-        eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
-      }
-
-      //
-      if (identity.isEnable() && !identity.isDeleted()) {
-        builder = request.evaluatePreconditions(eTag);
-        if (builder == null && lastUpdated != null) {
-          InputStream stream = identityManager.getAvatarInputStream(identity);
-          if (stream != null) {
-            /*
-             * As recommended in the the RFC1341
-             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
-             * set the avatar content-type to "image/png". So, its data would be
-             * recognized as "image" by the user-agent
-             */
-            builder = Response.ok(stream, "image/png");
-          }
+        Profile profile = identity.getProfile();
+        if (profile != null) {
+          lastUpdated = profile.getAvatarLastUpdated();
         }
       }
-
-      if (builder == null || lastUpdated == null) {
-        builder = getDefaultAvatarBuilder(defaultAvatar);
-      }
-
-      builder.tag(eTag);
-      builder.cacheControl(CACHE_CONTROL);
-      builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
-      // If the query has a lastModified parameter, it means that the client
-      // will change the lastModified entry when it really changes
-      // Which means that we can cache the image in browser side
-      // for a long time
-      if (StringUtils.isNotBlank(lastModified)) {
-        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-      }
-      return builder.build();
     }
+
+    EntityTag eTag = null;
+    if (lastUpdated == null) {
+      eTag = new EntityTag(String.valueOf(DEFAULT_AVATAR_HASH));
+    } else {
+      eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
+    }
+
+    if (identity != null && identity.isEnable() && !identity.isDeleted()) {
+      builder = request.evaluatePreconditions(eTag);
+      if (builder == null && lastUpdated != null) {
+        InputStream stream = identityManager.getAvatarInputStream(identity);
+        if (stream != null) {
+          /*
+           * As recommended in the the RFC1341
+           * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+           * set the avatar content-type to "image/png". So, its data would be
+           * recognized as "image" by the user-agent
+           */
+          builder = Response.ok(stream, "image/png");
+        }
+      }
+    }
+
+    if (builder == null || lastUpdated == null) {
+      builder = getDefaultAvatarBuilder(defaultAvatar);
+    }
+
+    builder.tag(eTag);
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    // If the query has a lastModified parameter, it means that the client
+    // will change the lastModified entry when it really changes
+    // Which means that we can cache the image in browser side
+    // for a long time
+    if (StringUtils.isNotBlank(lastModified)) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   @GET
@@ -364,57 +366,60 @@ public class UserRestResourcesV1 implements UserRestResources {
                                     @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                     @ApiParam(value = "URL to default banner Or '404' to return a 404 http code", required = false) @QueryParam("default") String defaultBanner) throws IOException {
 
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+    boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
+    Identity identity = isDefault ? null : identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+    Long lastUpdated = null;
 
-    //
     Response.ResponseBuilder builder = null;
-    if (identity == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    } else {
-      Profile profile = identity.getProfile();
-      Long lastUpdated = null;
-      if (profile != null) {
-        lastUpdated = profile.getBannerLastUpdated();
-      }
-      EntityTag eTag = null;
-      if (lastUpdated == null) {
-        eTag = new EntityTag(String.valueOf(DEFAULT_BANNER_HASH));
+    if (!isDefault) {
+      if (identity == null) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
       } else {
-        eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
-      }
-      //
-      if (identity.isEnable() && !identity.isDeleted()) {
-        builder = request.evaluatePreconditions(eTag);
-        if (builder == null && lastUpdated != null) {
-          InputStream stream = identityManager.getBannerInputStream(identity);
-          if (stream != null) {
-            /*
-             * As recommended in the the RFC1341
-             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
-             * set the Banner content-type to "image/png". So, its data would be
-             * recognized as "image" by the user-agent
-             */
-            builder = Response.ok(stream, "image/png");
-          }
+        Profile profile = identity.getProfile();
+        if (profile != null) {
+          lastUpdated = profile.getBannerLastUpdated();
         }
       }
-
-      if (builder == null || lastUpdated == null) {
-        builder = getDefaultBannerBuilder(defaultBanner);
-      }
-
-      builder.tag(eTag);
-      builder.cacheControl(CACHE_CONTROL);
-      builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
-      // If the query has a lastModified parameter, it means that the client
-      // will change the lastModified entry when it really changes
-      // Which means that we can cache the image in browser side
-      // for a long time
-      if (StringUtils.isNotBlank(lastModified)) {
-        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-      }
-      return builder.build();
     }
+
+    EntityTag eTag = null;
+    if (lastUpdated == null) {
+      eTag = new EntityTag(String.valueOf(DEFAULT_BANNER_HASH));
+    } else {
+      eTag = new EntityTag(String.valueOf(lastUpdated.hashCode()));
+    }
+
+    if (identity != null && identity.isEnable() && !identity.isDeleted()) {
+      builder = request.evaluatePreconditions(eTag);
+      if (builder == null && lastUpdated != null) {
+        InputStream stream = identityManager.getBannerInputStream(identity);
+        if (stream != null) {
+          /*
+           * As recommended in the the RFC1341
+           * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+           * set the Banner content-type to "image/png". So, its data would be
+           * recognized as "image" by the user-agent
+           */
+          builder = Response.ok(stream, "image/png");
+        }
+      }
+    }
+
+    if (builder == null || lastUpdated == null) {
+      builder = getDefaultBannerBuilder(defaultBanner);
+    }
+
+    builder.tag(eTag);
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    // If the query has a lastModified parameter, it means that the client
+    // will change the lastModified entry when it really changes
+    // Which means that we can cache the image in browser side
+    // for a long time
+    if (StringUtils.isNotBlank(lastModified)) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   @PATCH

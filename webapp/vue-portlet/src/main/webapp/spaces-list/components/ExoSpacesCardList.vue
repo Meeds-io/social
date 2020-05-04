@@ -22,16 +22,16 @@
           </v-row>
           <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
             <div class="ma-auto noSpacesYet">
+              <p class="noSpacesYetIcons">
+                <v-icon>fa-chevron-left</v-icon>
+                <v-icon>fa-chevron-right</v-icon>
+              </p>
               <template v-if="hasSpaces">
                 <p class="title font-weight-bold">
                   {{ $t('spacesOverview.label.noResults') }}
                 </p>
               </template>
               <template v-else>
-                <p class="noSpacesYetIcons">
-                  <v-icon>fa-chevron-left</v-icon>
-                  <v-icon>fa-chevron-right</v-icon>
-                </p>
                 <p class="title font-weight-bold">
                   {{ $t('spacesList.label.noSpacesYet') }}
                 </p>
