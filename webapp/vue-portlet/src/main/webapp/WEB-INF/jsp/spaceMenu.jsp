@@ -24,6 +24,9 @@
           out.print("\"label\": \"");
           out.print(userNode.getResolvedLabel());
           out.print("\",");
+          out.print("\"icon\": \"");
+          out.print(userNode.getIcon());
+          out.print("\",");
           out.print("\"uri\": \"");
           out.print(navigationsUri.get(userNode.getId()));
           out.print("\"");
