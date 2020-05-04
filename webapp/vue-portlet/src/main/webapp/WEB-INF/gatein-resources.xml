@@ -506,6 +506,29 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>SpaceMenu</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/spaceMenu.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
     <portlet>
         <name>SpacesAdministration</name>
         <module>
