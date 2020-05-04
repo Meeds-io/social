@@ -101,7 +101,7 @@ public class GettingStartedServiceTest {
     Profile profile = new Profile(identity);
     Mockito.when(identityManager.getOrCreateIdentity(Mockito.eq(OrganizationIdentityProvider.NAME), Mockito.eq(USERNAME_TEST)))
            .thenReturn(identity);
-    profile.setAvatarUrl("avatar");
+    profile.setAvatarLastUpdated(1234567L);
     Mockito.when(identity.getProfile()).thenReturn(profile);
     List<GettingStartedStep> gettingStartedUserSteps = gettingStartedService.getUserSteps(USERNAME_TEST);
     assertNotNull(gettingStartedUserSteps);
@@ -224,7 +224,7 @@ public class GettingStartedServiceTest {
            .thenReturn(identity);
     /*----------Avatar Step is True---------*/
     Profile profile = new Profile(identity);
-    profile.setAvatarUrl("avatar");
+    profile.setAvatarLastUpdated(1234567L);
     Mockito.when(identity.getProfile()).thenReturn(profile);
 
     /*----------Connexion Step is true ---------*/
