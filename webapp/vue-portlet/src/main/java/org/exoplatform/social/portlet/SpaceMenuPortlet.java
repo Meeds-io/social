@@ -110,6 +110,7 @@ public class SpaceMenuPortlet extends GenericPortlet {
       navigations.addAll(parentNavigation.getChildren());
       filterUnreachablePages(navigations);
       computeNavigationLabels(navigations, locale);
+      computeNavigationIcons(navigations);
     } catch (Exception e) {
       LOG.warn("Get UserNode of Space failed.");
     }
@@ -135,8 +136,30 @@ public class SpaceMenuPortlet extends GenericPortlet {
     }
   }
 
+  private void computeNavigationIcons(List<UserNode> navigations) {
+    for (UserNode node : navigations) {
+      if (node == null) {
+        continue;
+      }
+      String nodeIcon = getIconClass(node);
+      node.setIcon(nodeIcon);
+    }
+  }
+
   private boolean hasSettingPermission(Space space, String username) {
     return getSpaceService().hasSettingPermission(space, username);
+  }
+
+  private String getIconClass(UserNode node) {
+    if (node == null) {
+      return null;
+    }
+    if (node.getParent() == null || StringUtils.equals(node.getParent().getName(), "default")
+        || node.getParent().getParent() == null) {
+      return "uiIconAppSpaceHomePage uiIconDefaultApp";
+    }
+    String appName = node.getPageRef().getName();
+    return "uiIconApp" + node.getName() + " uiIconApp" + appName + " uiIconDefaultApp";
   }
 
   private String getResolvedAppLabel(UserNode userNode, ResourceBundle resourceBundle, Locale locale) {
