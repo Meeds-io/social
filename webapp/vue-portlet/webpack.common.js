@@ -25,7 +25,8 @@ let config = {
     userSettingLanguage: './src/main/webapp/user-setting-language/main.js',
     userSettingNotifications: './src/main/webapp/user-setting-notifications/main.js',
     userSettingSecurity: './src/main/webapp/user-setting-security/main.js',
-    userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js'
+    userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js',
+    spaceMenu: './src/main/webapp/space-menu/main.js'
   },
   module: {
     rules: [
