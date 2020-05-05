@@ -649,4 +649,8 @@ public class Profile {
   public void setBannerLastUpdated(Long bannerLastUpdated) {
     this.bannerLastUpdated = bannerLastUpdated;
   }
+
+  public Boolean hasAvatar() {
+    return this.getAvatarLastUpdated() != null;
+  }
 }
