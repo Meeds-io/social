@@ -72,7 +72,7 @@
         {{ skeleton && '&nbsp;' || user.fullname }}
       </a>
       <v-card-subtitle
-        class="userPositionLabel py-0">
+        class="userPositionLabel text-truncate py-0">
         {{ skeleton && '&nbsp;' || user.position || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>
