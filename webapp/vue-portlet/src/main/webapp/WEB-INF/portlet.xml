@@ -164,17 +164,6 @@
   </portlet>
 
   <portlet>
-    <portlet-name>SpaceMenu</portlet-name>
-    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Space Menu</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
     <portlet-name>TopBarLogo</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>

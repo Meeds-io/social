@@ -16,7 +16,7 @@ const vuetify = new Vuetify({
   iconfont: '',
 });
 
-const appId = 'SpaceMenuApplication';
+const appId = 'SpaceMenu';
 
 export function init(settings) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));

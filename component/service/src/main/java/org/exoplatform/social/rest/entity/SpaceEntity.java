@@ -72,6 +72,24 @@ public class SpaceEntity extends BaseEntity {
     return getString("groupId");
   }
 
+  public SpaceEntity setBannerId(String bannerId) {
+    setProperty("bannerId", bannerId);
+    return this;
+  }
+
+  public String getBannerId() {
+    return getString("bannerId");
+  }
+
+  public SpaceEntity setAvatarId(String avatarId) {
+    setProperty("avatarId", avatarId);
+    return this;
+  }
+
+  public String getAvatarId() {
+    return getString("avatarId");
+  }
+
   public SpaceEntity setPrettyName(String prettyName) {
     setProperty("prettyName", prettyName);
     return this;

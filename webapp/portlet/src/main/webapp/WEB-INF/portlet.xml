@@ -251,25 +251,33 @@
   </portlet>
 
   <portlet>
-    <description xml:lang="EN">Space Menu Portlet</description>
-    <portlet-name>SpaceMenuPortlet</portlet-name>
-    <display-name xml:lang="EN">Space Menu</display-name>
-    <portlet-class>org.exoplatform.webui.application.portlet.PortletApplicationController</portlet-class>
+    <portlet-name>SpaceTopbarMenu</portlet-name>
+    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
     <init-param>
-      <name>webui.configuration</name>
-      <value>/WEB-INF/conf/portlet/SpaceMenuPortlet/webui/configuration.xml</value>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/space-menu/index.jsp</value>
     </init-param>
-    <expiration-cache>0</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Space Topbar and mobile menus</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>SpaceMenuPortlet</portlet-name>
+    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/space-header/index.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
     <portlet-info>
       <title>Space Menu</title>
-      <short-title>Space Menu</short-title>
-      <keywords>social</keywords>
-    </portlet-info>    
+    </portlet-info>
   </portlet>
 
   <portlet>
