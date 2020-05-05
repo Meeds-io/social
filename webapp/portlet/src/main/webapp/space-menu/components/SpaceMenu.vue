@@ -1,5 +1,5 @@
 <template>
-  <v-app class="spaceMenuParent white">
+  <v-app v-if="navigations && navigations.length" class="spaceMenuParent white">
     <v-dialog
       v-if="isMobile"
       :value="true"
@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     isMobile() {
-      return this.$vuetify.breakpoint.xs;
+      return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
     },
   },
   created() {

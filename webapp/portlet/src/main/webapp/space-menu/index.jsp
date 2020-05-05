@@ -3,14 +3,15 @@
 <%@page import="org.exoplatform.portal.mop.user.UserNode"%>
 <%@page import="java.util.List"%>
 <%
-  List<UserNode> navigations = (List<UserNode>) request.getAttribute("navigations");
+List<UserNode> navigations = (List<UserNode>) request.getAttribute("navigations");
+
+if (navigations != null) {
+  Iterator<UserNode> navIterator = navigations.iterator();
   Map<String, String> navigationsUri = (Map<String, String>) request.getAttribute("navigationsUri");
   String selectedUri = (String) request.getAttribute("selectedUri");
-
-  Iterator<UserNode> navIterator = navigations.iterator();
 %>
 <div class="VuetifyApp">
-  <div id="SpaceMenuApplication">
+  <div id="SpaceMenu">
     <textarea id="SpaceMenuNavigationsValue" class="hidden">{
       "navigations": [
         <%
@@ -39,10 +40,12 @@
       "selectedNavigationUri": "<%=selectedUri%>"
     }</textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/SpaceMenu'], app => app.init(
+      require(['PORTLET/social-portlet/SpaceTopbarMenu'],
+        app => app.init(
           JSON.parse(document.getElementById('SpaceMenuNavigationsValue').value)
         )
       );
     </script>
   </div>
 </div>
+<% } %>

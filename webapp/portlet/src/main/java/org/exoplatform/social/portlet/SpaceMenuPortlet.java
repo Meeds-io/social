@@ -5,8 +5,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.container.ExoContainerContext;
@@ -32,8 +33,6 @@ public class SpaceMenuPortlet extends GenericPortlet {
 
   private static final Log        LOG               = ExoLogger.getLogger(SpaceMenuPortlet.class);
 
-  private static final String     VIEW_JSP          = "/WEB-INF/jsp/spaceMenu.jsp";
-
   private static final String     PORTAL_PAGE_TITLE = "portal:requestTitle";
 
   private static final String     SPACE_SETTINGS    = "settings";
@@ -48,6 +47,17 @@ public class SpaceMenuPortlet extends GenericPortlet {
 
   private String[]                sharedResources;
 
+  private String                  viewDispatchedPath;
+
+  @Override
+  public void init(PortletConfig config) throws PortletException {
+    super.init(config);
+    viewDispatchedPath = config.getInitParameter("portlet-view-dispatched-file-path");
+    if (StringUtils.isBlank(viewDispatchedPath)) {
+      throw new IllegalStateException("Portlet init parameter 'portlet-view-dispatched-file-path' is mandatory");
+    }
+  }
+
   @Override
   public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
     Space space = SpaceUtils.getSpaceByContext();
@@ -55,27 +65,37 @@ public class SpaceMenuPortlet extends GenericPortlet {
       return;
     }
 
-    Locale locale = request.getLocale();
-    String currentUser = request.getRemoteUser();
-    try {
-      List<UserNode> navigations = getSpaceNavigations(space,
-                                                       locale,
-                                                       currentUser);
-      request.setAttribute("navigations", navigations);
+    HttpServletRequest httpRequest = Util.getPortalRequestContext().getRequest();
+    // Avoid displaying space header and menu twice in the same page
+    if (httpRequest.getAttribute("SPACE_MENU_DISPLAYED") == null) {
+      httpRequest.setAttribute("SPACE_MENU_DISPLAYED", true);
 
-      Map<String, String> navigationMap = navigations.stream()
-                                                     .collect(Collectors.toMap(UserNode::getId,
-                                                                               userNode -> getUri(userNode)));
-      request.setAttribute("navigationsUri", navigationMap);
+      Locale locale = request.getLocale();
+      String currentUser = request.getRemoteUser();
+      try {
+        List<UserNode> navigations = getSpaceNavigations(space,
+                                                         locale,
+                                                         currentUser);
+        request.setAttribute("navigations", navigations);
 
-      UserNode selectedUserNode = setPageTitle(navigations, request, space, locale);
-      request.setAttribute("selectedUri", navigationMap.get(selectedUserNode.getId()));
+        Map<String, String> navigationMap = navigations.stream()
+                                                       .collect(Collectors.toMap(UserNode::getId,
+                                                                                 userNode -> getUri(userNode)));
+        request.setAttribute("navigationsUri", navigationMap);
 
-      PortletRequestDispatcher requestDispatcher = getPortletContext().getRequestDispatcher(VIEW_JSP);
-      requestDispatcher.include(request, response);
-    } catch (Exception e) {
-      LOG.warn("Error displaying space menu", e);
+        UserNode selectedUserNode = setPageTitle(navigations, request, space, locale);
+        request.setAttribute("selectedUri", navigationMap.get(selectedUserNode.getId()));
+      } catch (Exception e) {
+        LOG.warn("Error displaying space menu", e);
+      }
     }
+
+    dispatchRequest(request, response);
+  }
+
+  private void dispatchRequest(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+    PortletRequestDispatcher requestDispatcher = getPortletContext().getRequestDispatcher(viewDispatchedPath);
+    requestDispatcher.include(request, response);
   }
 
   private UserNode setPageTitle(List<UserNode> navigations, RenderRequest request, Space space, Locale locale) throws Exception {
