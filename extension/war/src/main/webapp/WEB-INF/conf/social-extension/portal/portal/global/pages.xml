@@ -543,19 +543,6 @@
             <show-application-state>true</show-application-state>
           </portlet-application>
         </container>
-        <container id="PerkstoreWalletContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-          <access-permissions>*:/platform/users</access-permissions>
-          <container id="PerkstoreWidgetContainer" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
-            <name>PerkstoreWidgetContainer</name>
-            <access-permissions>*:/platform/users</access-permissions>
-            <factory-id>addonContainer</factory-id>
-          </container>
-          <container id="WalletWidgetContainer" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
-            <name>WalletWidgetContainer</name>
-            <access-permissions>*:/platform/users</access-permissions>
-            <factory-id>addonContainer</factory-id>
-          </container>
-        </container>
         <container id="WhoIsOnLineContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>*:/platform/users</access-permissions>
           <portlet-application>
@@ -572,6 +559,19 @@
         </container>
         <container id="stickyBlockDesktop" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>*:/platform/users</access-permissions>
+            <container id="PerkstoreWalletContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+            <access-permissions>*:/platform/users</access-permissions>
+            <container id="PerkstoreWidgetContainer" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
+              <name>PerkstoreWidgetContainer</name>
+              <access-permissions>*:/platform/users</access-permissions>
+              <factory-id>addonContainer</factory-id>
+            </container>
+            <container id="WalletWidgetContainer" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
+              <name>WalletWidgetContainer</name>
+              <access-permissions>*:/platform/users</access-permissions>
+              <factory-id>addonContainer</factory-id>
+            </container>
+          </container>
             <portlet-application>
               <portlet>
                 <application-ref>social-vue-portlet</application-ref>
