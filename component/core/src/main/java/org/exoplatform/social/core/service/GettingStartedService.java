@@ -72,15 +72,15 @@ public class GettingStartedService {
     stepAvatar.setStatus(hasAvatar(userId));
     gettingStartedSteps.add(stepAvatar);
 
-    GettingStartedStep stepSpaces = new GettingStartedStep();
-    stepSpaces.setName(SPACES_STEP_KEY);
-    stepSpaces.setStatus(hasSpaces(userId));
-    gettingStartedSteps.add(stepSpaces);
-
     GettingStartedStep stepContact = new GettingStartedStep();
     stepContact.setName(CONTACTS_STEP_KEY);
     stepContact.setStatus(hasContacts(userId));
     gettingStartedSteps.add(stepContact);
+
+    GettingStartedStep stepSpaces = new GettingStartedStep();
+    stepSpaces.setName(SPACES_STEP_KEY);
+    stepSpaces.setStatus(hasSpaces(userId));
+    gettingStartedSteps.add(stepSpaces);
 
     GettingStartedStep stepActivities = new GettingStartedStep();
     stepActivities.setName(ACTIVITIES_STEP_KEY);
@@ -94,7 +94,7 @@ public class GettingStartedService {
     try {
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       Profile profile = identity.getProfile();
-      return profile.getAvatarUrl() != null;
+      return profile.hasAvatar();
     } catch (Exception e) {
       LOG.debug("Error in gettingStarted REST service: " + e.getMessage(), e);
       return false;
