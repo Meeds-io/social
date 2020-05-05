@@ -25,7 +25,12 @@
               <p class="noPeopleYetIcons">
                 <v-icon>fa-users</v-icon>
               </p>
-              <template v-if="hasPeople">
+              <template v-if="filter === 'connections'">
+                <p class="title font-weight-bold">
+                  {{ $t('peopleList.label.noConnection') }}
+                </p>
+              </template>
+              <template v-else-if="hasPeople">
                 <p class="title font-weight-bold">
                   {{ $t('peopleList.label.noResults') }}
                 </p>
