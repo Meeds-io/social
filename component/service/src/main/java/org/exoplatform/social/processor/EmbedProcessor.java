@@ -49,6 +49,8 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
            firstMessage = defaultValue.substring(0, firstIndex);
            String urlCoder = defaultValue.substring(firstIndex + openingOembed.length(), lastIndex);
            url = URLDecoder.decode(urlCoder, StandardCharsets.UTF_8.toString());
+           String linkSource = "<a href=\""+url+"\" rel=\"nofollow\" target=\"_blank\">"+url+"</a>";
+           firstMessage = firstMessage.replace(linkSource,"");
        }
        if (StringUtils.isNotBlank(url)) {
            LinkShare linkShare = LinkShare.getInstance(url);
