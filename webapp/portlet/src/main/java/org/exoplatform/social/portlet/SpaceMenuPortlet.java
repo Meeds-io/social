@@ -197,7 +197,7 @@ public class SpaceMenuPortlet extends GenericPortlet {
     } else if (id != null) {
       DescriptionService descriptionService = getUserPortalConfigService().getDescriptionService();
       State description = descriptionService.resolveDescription(id, locale);
-      if (description != null) {
+      if (description != null && !StringUtils.equals(description.getName(), userNode.getName())) {
         return description.getName();
       }
     }
