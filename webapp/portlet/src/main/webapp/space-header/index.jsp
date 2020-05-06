@@ -11,18 +11,20 @@
 <%@page import="org.exoplatform.portal.mop.user.UserNode"%>
 <%@page import="java.util.List"%>
 <%
+  request.setAttribute("SPACE_HEADER_DISPLAYED", true);
+
   Space space = SpaceUtils.getSpaceByContext();
-			IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-			Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-			String bannerUrl = identity.getProfile().getBannerUrl();
+	IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+	Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+	String bannerUrl = identity.getProfile().getBannerUrl();
 
-			int maxUploadSize = identityManager.getImageUploadLimit();
+	int maxUploadSize = identityManager.getImageUploadLimit();
 
-			SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-			boolean isAdmin = spaceService.isSuperManager(request.getRemoteUser())
-					|| spaceService.isManager(space, request.getRemoteUser());
+	SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+	boolean isAdmin = spaceService.isSuperManager(request.getRemoteUser())
+			|| spaceService.isManager(space, request.getRemoteUser());
 
-			List<UserNode> navigations = (List<UserNode>) request.getAttribute("navigations");
+	List<UserNode> navigations = (List<UserNode>) request.getAttribute("navigations");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
