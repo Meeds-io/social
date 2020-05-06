@@ -92,7 +92,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -114,7 +113,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
