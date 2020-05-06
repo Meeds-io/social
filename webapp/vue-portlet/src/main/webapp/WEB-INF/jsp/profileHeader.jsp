@@ -2,7 +2,7 @@
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-			int maxUploadSize = identityManager.getImageUploadLimit();
+	int maxUploadSize = identityManager.getImageUploadLimit();
 %>
 <div class="VuetifyApp">
   <div data-app="true"

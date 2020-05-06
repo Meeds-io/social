@@ -467,19 +467,10 @@ public class SpaceUtils {
         !pcontext.getSiteName().startsWith(SpaceUtils.SPACE_GROUP)) {
       return null;
     }
-    String requestPath = pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_PATH);
-    Route route = ExoRouter.route(requestPath);
-    if (route == null) {
-      pcontext.setAttribute(CURRENT_SPACE, StringUtils.EMPTY);
-      return null;
-    }
 
     //
-    String spacePrettyName = route.localArgs.get("spacePrettyName");
-    SpaceService spaceService = (SpaceService) ExoContainerContext.getCurrentContainer()
-                                                                  .getComponentInstanceOfType(SpaceService.class);
-
-    Space currentSpace = spaceService.getSpaceByPrettyName(spacePrettyName);
+    SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+    Space currentSpace = spaceService.getSpaceByGroupId(pcontext.getSiteName());
     pcontext.setAttribute(CURRENT_SPACE, currentSpace);
     return currentSpace;
   }
