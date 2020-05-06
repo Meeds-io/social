@@ -21,11 +21,19 @@
 */
 %>
 <%
-  import org.exoplatform.social.webui.activity.UIActivitiesLoader;
+
+import org.apache.commons.lang.StringEscapeUtils
+import org.exoplatform.services.security.ConversationState
+import org.exoplatform.social.webui.activity.UIActivitiesLoader;
   import org.exoplatform.webui.core.UIDropDownControl;
   import org.exoplatform.social.core.service.LinkProvider;
   import org.exoplatform.social.webui.Utils;
   import java.util.Calendar;
+  import org.exoplatform.social.core.identity.model.Identity;
+  import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+
+import org.apache.commons.lang.StringEscapeUtils;
+
 
   def rcontext = _ctx.getRequestContext() ;
   def jsManager = rcontext.getJavascriptManager().require("SHARED/uiForm");
@@ -45,38 +53,40 @@
   jsManager.require("SHARED/jquery", "jq").addScripts(script);
 
   //
+  def ownerName, ownerUri = "#";
+  String userId = ConversationState.getCurrent().getIdentity().getUserId();
+  String profileFullName = "";
+  Identity identity = org.exoplatform.social.webui.Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
+  if(identity != null && identity.getProfile() != null) {
+      profileFullName = identity.getProfile().getFullName();
+  }
+  ownerName = StringEscapeUtils.escapeHtml(profileFullName);
+
+  ownerUri = LinkProvider.getUserProfileUri(userId);
+
+  //
   def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
   def composer_Hint_Text = _ctx.appRes("UIActivity.label.Composer_Hint_Text");
   def sitePath = uicomponent.getSitePath();
-  
-  def connections_link = "<a href='${sitePath}connexions'>Connections</a>";
-  def wikis_link = "<a href='${sitePath}wiki'>Wikis</a>";
-  def forums_link = "<a href='${sitePath}forum'>Forums</a>";
-  def calendars_link = "<a href='${sitePath}calendar'>Calendars</a>";
-  def documents_link = "<a href='${sitePath}documents'>Documents</a>";
-  def spaces_link = "<a href='${sitePath}all-spaces'>Spaces</a>";
-  def iOS_App_Store_link = "<a href='https://itunes.apple.com/fr/app/exo-platform-3.5/id410476273?mt=8'>iOS App Store </a>";
-  def google_play = "<a href='https://play.google.com/store/apps/details?id=org.exoplatform'>Google Play</a>";
-  
-  def head_line = _ctx.appRes("UIActivity.label.Head_line");
-  
-  def connect_and_discuss_with_others = _ctx.appRes("UIActivity.label.Connect_and_discuss_with_others");
-  def connect_and_discuss_with_others_details = _ctx.appRes("UIActivity.label.Connect_and_discuss_with_others_details")
-                                       .replace("{connections_link}", connections_link)
-                                       
-  def discover_the_power_of_social_collaboration = _ctx.appRes("UIActivity.label.Discover_the_power_of_social_collaboration");
-  def discover_the_power_of_social_collaboration_details = _ctx.appRes("UIActivity.label.Discover_the_power_of_social_collaboration_details")
-                                       .replace("{wikis_link}", wikis_link)
-                                       .replace("{forums_link}", forums_link)
-                                       .replace("{calendars_link}", calendars_link)
-                                       .replace("{documents_link}", documents_link);
-  def use_spaces_for_team_or_project_matters = _ctx.appRes("UIActivity.label.Use_spaces_for_team_or_project_matters");
-  def use_spaces_for_team_or_project_matters_details = _ctx.appRes("UIActivity.label.Use_spaces_for_team_or_project_matters_details")
-                                                 .replace("{spaces_link}", spaces_link);
-  def anywhere_at_anytime = _ctx.appRes("UIActivity.label.Anywhere_at_anytime");
-  def anywhere_at_anytime_details = _ctx.appRes("UIActivity.label.Anywhere_at_anytime_details")
-                                                     .replace("{iOS_App_Store_Link}", iOS_App_Store_link)
-                                                     .replace("{Google_Play}", google_play);  
+
+  //
+  def owner_name = "<a href='${ownerUri}'><strong class='text-color'>$ownerName</strong></a>";
+  def meeds_link = "<a href='https://www.meeds.io/'><strong class='text-color'>Meeds</strong></a>";
+  def meeds_association_link = "<a href='https://www.meeds.io/'><strong class='text-color'>Meeds Association</strong></a>";
+  def apis_link = "<a href='https://github.com/Meeds-io/meeds/wiki'><strong class='text-color'>APIs</strong></a>";
+  def lgpl_license_link = "<a href='https://github.com/Meeds-io/meeds/blob/develop/LICENSE'><strong  class='text-color'>the LGPL license</strong></a>";
+  def docker_link = "<a href='https://github.com/Meeds-io/meeds-docker'><strong class='text-color'>Docker</strong></a>";
+  def github_link = "<a href='https://github.com/Meeds-io/meeds'><strong>Github</strong></a>";
+
+  def welcome_title =  _ctx.appRes("UIActivity.label.Welcome_Activity_Welcome_Onboard").replace("{user full name}", owner_name);
+  def thanx_for_joing_meeds =  _ctx.appRes("UIActivity.label.Thanx_for_joing_meeds").replace("{meeds Link}",meeds_link);
+  def welcome_paragraphe_one = _ctx.appRes("UIActivity.label.paragraph_one").replace("{meeds association link}",meeds_association_link);
+  def welcome_paragraphe_two = _ctx.appRes("UIActivity.label.paragraph_two");
+  def welcome_paragraphe_three = _ctx.appRes("UIActivity.label.paragraph_three");
+  def welcome_paragraphe_four = _ctx.appRes("UIActivity.label.paragraph_four").replace("{APIs link}",apis_link);
+  def welcome_paragraphe_five = _ctx.appRes("UIActivity.label.paragraph_five").replace("{the LGPL license link}", lgpl_license_link)
+                                                                              .replace("{GitHub link}", github_link)
+                                                                              .replace("{Docker link}",docker_link);
 
 	//
 	def numberOfUpdatedActivities = uicomponent.getNumberOfUpdatedActivities();
@@ -138,41 +148,24 @@
   <div id="UIActivitiesLoader" class="uiActivityStream clearfix">
     <div id="UIActivitiesContainer_welcomeActivity" class="UIActivitiesContainer_welcomeActivity">
       <div class="activityStream uiDefaultActivity" id="welcomeActivity">
-			  <div class="activityTimeLine pull-left">
-			    <div class="activityAvatar avatarCircle">
-			        <a title="$welcomeActivityName" href="javascript:void(0);">
-			          <img alt="$welcomeActivityName" src="$welcomeActivityAvatar"/>
-			        </a>
-			    </div>
-			  </div><!--end activityTimeLine-->
-			  
 			  <div class="boxContainer" id="boxContainer">
 			    <div id="ContextBoxWelcomeActivity" class="uiBox contentBox">
 			        <div id="ActivityContextBoxWelcomeActivity">
-			            <div class="heading">
-			                <span class="arrowLeft"></span>
-			                <div class="author">
-			                    <a title="$welcomeActivityName" href="javascript:void(0);">$welcomeActivityName</a>                
-			                </div>
-			                <div class="dataInfor">
-			                    <span class="dateTime"><i class="uiIconClock  uiIconLightGray"></i>&nbsp;$welcomeActivityPostedTime</span> 
-			                </div>
-			            </div><!--end heading-->
-			            
 			            <!-- Welcome content -->
 			            <div class="description clearfix">
-			            	<div class="img pull-left">
+			            	<div class="img welcomeImgContainer">
 								      <img src="$welcomeActivityImage" />			            	
 			            	</div>
-			              	<p>$head_line</p>
-			              	<p><strong>$connect_and_discuss_with_others</strong><br />
-                    		$connect_and_discuss_with_others_details</p>
-				            <p><strong>$discover_the_power_of_social_collaboration</strong><br />
-				            $discover_the_power_of_social_collaboration_details</p>
-				            <p><strong>$use_spaces_for_team_or_project_matters</strong><br />
-				            $use_spaces_for_team_or_project_matters_details</p>
-		               		<p><strong>$anywhere_at_anytime</strong><br />
-		               		$anywhere_at_anytime_details</p>
+			            	<div class="welcomeTextContainer">
+			              	<p>$welcome_title</p>
+			              	<p>$thanx_for_joing_meeds<br />
+                    		$welcome_paragraphe_one<br />
+                        $welcome_paragraphe_two<br />
+                        $welcome_paragraphe_three<br />
+                        $welcome_paragraphe_four<br />
+                        $welcome_paragraphe_five<br />
+                      </p>
+                    </div>
 			            </div>
 			            <!-- End Welcome content-->
 			        </div><!--end #ActivityContextBoxWelcomeActivity-->
