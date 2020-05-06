@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
+import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,7 @@ import com.ibm.icu.text.Transliterator;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.*;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -44,19 +46,20 @@ import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.portal.config.*;
 import org.exoplatform.portal.config.UserACL.Permission;
 import org.exoplatform.portal.config.model.*;
-import org.exoplatform.portal.mop.SiteKey;
-import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.*;
+import org.exoplatform.portal.mop.description.DescriptionService;
 import org.exoplatform.portal.mop.navigation.*;
-import org.exoplatform.portal.mop.page.PageContext;
-import org.exoplatform.portal.mop.page.PageService;
+import org.exoplatform.portal.mop.page.*;
 import org.exoplatform.portal.mop.user.*;
 import org.exoplatform.portal.webui.portal.UIPortal;
+import org.exoplatform.portal.webui.util.NavigationURLUtils;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.portal.webui.workspace.UIPortalApplication;
 import org.exoplatform.portal.webui.workspace.UIWorkingWorkspace;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
@@ -93,6 +96,8 @@ public class SpaceUtils {
 
   public static final String                                  SPACE_URL             = "SPACE_URL";
 
+  public static final String                                  SPACE_SETTINGS_PAGE   = "settings";
+
   /**
    * The id of the container in plf.
    * 
@@ -114,6 +119,8 @@ public class SpaceUtils {
 
   private static final Pattern                                SPACE_NAME_PATTERN    =
                                                                                  Pattern.compile("^([\\p{L}\\s\\d\'_&]+[\\s]?)+$");
+
+  private static final String                                 PORTAL_PAGE_TITLE     = "portal:requestTitle";
 
   // A {@link Transliterator} instance is stateless which has for consequences
   // that it is Thread Safe
@@ -1807,6 +1814,163 @@ public class SpaceUtils {
     } else {
       return navigationService.loadNode(NodeModel.SELF_MODEL, navigation, Scope.ALL, null);
     }
+  }
+
+  public static List<UserNode> getSpaceNavigations(Space space, Locale locale, String currentuser) {
+    List<UserNode> navigations = new ArrayList<>();
+    try {
+      UserNodeFilterConfig.Builder filterConfigBuilder = UserNodeFilterConfig.builder();
+      filterConfigBuilder.withVisibility(Visibility.DISPLAYED, Visibility.TEMPORAL);
+      filterConfigBuilder.withTemporalCheck();
+      UserNodeFilterConfig filter = filterConfigBuilder.build();
+      UserNode parentNavigation = SpaceUtils.getSpaceUserNode(space, filter);
+      UserNode settingNavigation = parentNavigation.getChild(SPACE_SETTINGS_PAGE);
+      if (!hasSettingPermission(space, currentuser) && (settingNavigation != null)) {
+        parentNavigation.removeChild(settingNavigation.getName());
+      }
+      navigations.add(parentNavigation);
+      navigations.addAll(parentNavigation.getChildren());
+      filterUnreachablePages(navigations);
+      computeNavigationLabels(navigations, locale);
+      computeNavigationIcons(navigations);
+    } catch (Exception e) {
+      LOG.warn("Get UserNode of Space failed.");
+    }
+    return navigations;
+  }
+
+  public static String getUri(UserNode userNode) {
+    String uri = userNode.getURI();
+    if (!uri.startsWith("/" + PortalContainer.getCurrentPortalContainerName())) {
+      uri = NavigationURLUtils.getURL(userNode);
+    }
+    return uri;
+  }
+
+  public static void computeNavigationLabels(List<UserNode> navigations, Locale locale) {
+    ResourceBundle resourceBundle = getSharedResourceBundle(locale);
+    for (UserNode node : navigations) {
+      if (node == null) {
+        continue;
+      }
+      String nodeTitle = getResolvedAppLabel(node, resourceBundle, locale);
+      node.setResolvedLabel(nodeTitle);
+    }
+  }
+
+  public static void computeNavigationIcons(List<UserNode> navigations) {
+    for (UserNode node : navigations) {
+      if (node == null) {
+        continue;
+      }
+      String nodeIcon = getIconClass(node);
+      node.setIcon(nodeIcon);
+    }
+  }
+
+  public static boolean hasSettingPermission(Space space, String username) {
+    return getSpaceService().hasSettingPermission(space, username);
+  }
+
+  public static String getIconClass(UserNode node) {
+    if (node == null) {
+      return null;
+    }
+    if (isHomeNavigation(node)) {
+      return "uiIconAppSpaceHomePage uiIconDefaultApp";
+    }
+    String appName = node.getPageRef().getName();
+    return "uiIconApp" + node.getName() + " uiIconApp" + appName + " uiIconDefaultApp";
+  }
+
+  public static boolean isHomeNavigation(UserNode node) {
+    return node.getParent() == null || StringUtils.equals(node.getParent().getName(), "default")
+        || node.getParent().getParent() == null;
+  }
+
+  public static String getResolvedAppLabel(UserNode userNode, ResourceBundle resourceBundle, Locale locale) {
+    if (userNode == null) {
+      return null;
+    }
+    if (isHomeNavigation(userNode)) {
+      return resourceBundle.getString("UISpaceMenu.label.SpaceHomePage");
+    }
+    String id = userNode.getId();
+    String nodeLabel = userNode.getLabel();
+    if (nodeLabel != null) {
+      return ExpressionUtil.getExpressionValue(resourceBundle, nodeLabel);
+    } else if (id != null) {
+      DescriptionService descriptionService = getUserPortalConfigService().getDescriptionService();
+      State description = descriptionService.resolveDescription(id, locale);
+      if (description != null && !StringUtils.equals(description.getName(), userNode.getName())) {
+        return description.getName();
+      }
+    }
+    String labelKey = userNode.getPageRef().getName() + ".label.name";
+    if (resourceBundle.containsKey(labelKey)) {
+      return resourceBundle.getString(labelKey);
+    }
+    return userNode.getName();
+  }
+
+  public static void filterUnreachablePages(List<UserNode> nodes) {
+    List<UserNode> nonePageNodes = new ArrayList<>();
+    UserACL userACL = SpaceUtils.getUserACL();
+    for (UserNode node : nodes) {
+      PageKey currentPage = node.getPageRef();
+      if (currentPage == null) {
+        nonePageNodes.add(node);
+      } else {
+        PageContext currentPageContext = getPageService().loadPage(currentPage);
+        if (currentPageContext == null || !userACL.hasPermission(currentPageContext)) {
+          nonePageNodes.add(node);
+        }
+      }
+    }
+
+    nodes.removeAll(nonePageNodes);
+  }
+
+  public static void setPageTitle(List<UserNode> navigations,
+                                  RenderRequest request,
+                                  Space space,
+                                  Locale locale) throws Exception {
+    UserNode selectedUserNode = Util.getUIPortal().getSelectedUserNode();
+    String selectedUserNodeId = selectedUserNode.getId();
+    String selectedUserNodeLabel = navigations.stream()
+                                              .filter(node -> StringUtils.equals(node.getId(), selectedUserNodeId))
+                                              .map(UserNode::getResolvedLabel)
+                                              .findFirst()
+                                              .orElse(null);
+    if (selectedUserNodeLabel == null) {
+      ResourceBundle resourceBundle = SpaceUtils.getSharedResourceBundle(locale);
+      selectedUserNodeLabel = SpaceUtils.getResolvedAppLabel(selectedUserNode, resourceBundle, locale);
+    }
+    request.setAttribute(PORTAL_PAGE_TITLE, space.getDisplayName() + " - " + selectedUserNodeLabel);
+  }
+
+  public static UserPortalConfigService getUserPortalConfigService() {
+    return ExoContainerContext.getService(UserPortalConfigService.class);
+  }
+
+  public static PageService getPageService() {
+    return ExoContainerContext.getService(PageService.class);
+  }
+
+  public static SpaceService getSpaceService() {
+    return ExoContainerContext.getService(SpaceService.class);
+  }
+
+  public static ResourceBundle getSharedResourceBundle(Locale locale) {
+    return getResourceBundleService().getResourceBundle(getSharedResources(), locale);
+  }
+
+  public static ResourceBundleService getResourceBundleService() {
+    return ExoContainerContext.getService(ResourceBundleService.class);
+  }
+
+  public static String[] getSharedResources() {
+    return getResourceBundleService().getSharedResourceBundleNames();
   }
 
   private static String[] trim(String[] array) {

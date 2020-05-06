@@ -267,7 +267,7 @@
 
   <portlet>
     <portlet-name>SpaceMenuPortlet</portlet-name>
-    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
+    <portlet-class>org.exoplatform.social.portlet.SpaceHeaderPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/space-header/index.jsp</value>
