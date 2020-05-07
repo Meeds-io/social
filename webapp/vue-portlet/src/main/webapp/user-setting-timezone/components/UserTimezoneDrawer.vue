@@ -43,8 +43,6 @@
 </template>
 
 <script>
-import {updateProfileFields} from '../../common/js/UserService.js';
-
 const ONE_HOUSR_DST = 3600000;
 
 export default {
@@ -79,7 +77,7 @@ export default {
       this.saving = true;
       this.$refs.userTimezoneDrawer.startLoading();
       this.timezoneDSTSavings = this.enableTimezoneDSTSavings && ONE_HOUSR_DST || 0;
-      updateProfileFields(eXo.env.portal.userName, {
+      this.$userService.updateProfileFields(eXo.env.portal.userName, {
         timeZone: this.selectedTimezone.id,
         timeZoneDSTSavings: String(this.timezoneDSTSavings),
       }, ['timeZone', 'timeZoneDSTSavings'])

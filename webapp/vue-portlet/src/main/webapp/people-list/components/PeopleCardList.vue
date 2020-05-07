@@ -61,8 +61,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     keyword: {
@@ -102,7 +100,7 @@ export default {
   }),
   computed:{
     searchUsersFunction() {
-      return this.filter === 'connections' ? userService.getConnections : userService.getUsers;
+      return this.filter === 'connections' ? this.$userService.getConnections : this.$userService.getUsers;
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;

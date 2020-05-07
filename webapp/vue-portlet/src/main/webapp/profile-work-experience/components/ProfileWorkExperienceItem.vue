@@ -63,8 +63,6 @@
 </template>
 
 <script>
-import {formatDateObjectToDisplay} from '../../common/js/DateUtil.js';
-
 export default {
   props: {
     experience: {
@@ -95,13 +93,13 @@ export default {
       if (this.empty) {
         return this.$t('profileWorkExperiences.date');
       } else if (this.experience.isCurrent && this.experience.startDate) {
-        const startDate = formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
+        const startDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
         return this.$t('profileWorkExperiences.since', {
           0: startDate,
         });
       } else {
-        const startDate = formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
-        const endDate = formatDateObjectToDisplay(new Date(this.experience.endDate), this.dateFormat);
+        const startDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
+        const endDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.endDate), this.dateFormat);
         return this.$t('profileWorkExperiences.fromTo', {
           0: startDate,
           1: endDate,

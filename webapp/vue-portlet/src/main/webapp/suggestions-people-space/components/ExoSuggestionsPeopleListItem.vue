@@ -43,7 +43,6 @@
   </v-list-item>
 </template>
 <script>
-import * as userService from '../../common/js/UserService.js';
 export default {
   props: {
     people: {
@@ -76,14 +75,14 @@ export default {
   },
   methods: {
     connectionRequest(item) {
-      userService.sendConnectionRequest(item.suggestionId).then(
+      this.$userService.sendConnectionRequest(item.suggestionId).then(
         ()=> {
           this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
         }
       );
     },
     ignoredConnectionUser(receiverItem) {
-      userService.ignoreSuggestion(receiverItem.username).then(
+      this.$userService.ignoreSuggestion(receiverItem.username).then(
         () => {
           this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
         }

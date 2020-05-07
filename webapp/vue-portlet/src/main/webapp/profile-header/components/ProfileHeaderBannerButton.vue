@@ -12,9 +12,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-import * as uploadService from '../../common/js/UploadService.js'; 
-
 export default {
   props: {
     maxUploadSize: {
@@ -46,12 +43,12 @@ export default {
     uploadBanner(file) {
       if (file && file.size) {
         if (file.size > this.maxUploadSize) {
-          this.$emit('error', uploadService.bannerExcceedsLimitError);
+          this.$emit('error', this.$uploadService.bannerExcceedsLimitError);
           return;
         }
         this.sendingImage = true;
-        return uploadService.upload(file)
-          .then(uploadId => userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId))
+        return this.$uploadService.upload(file)
+          .then(uploadId => this.$userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId))
           .then(() => this.$emit('refresh'))
           .catch(error => this.$emit('error', error))
           .finally(() => {

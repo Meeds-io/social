@@ -35,8 +35,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   data: () => ({
     title: null,
@@ -52,7 +50,7 @@ export default {
       return this.loadingUsers || this.users.length >= this.limit;
     },
     searchUsersMethod() {
-      return this.filter === 'invitations' ? userService.getInvitations : userService.getPending;
+      return this.filter === 'invitations' ? this.$userService.getInvitations : this.$userService.getPending;
     },
   },
   methods: {

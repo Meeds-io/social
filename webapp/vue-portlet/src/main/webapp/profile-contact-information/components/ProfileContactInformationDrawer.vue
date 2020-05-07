@@ -107,9 +107,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-import * as uploadService from '../../common/js/UploadService.js';
-
 export default {
   props: {
     user: {
@@ -150,7 +147,7 @@ export default {
       if (this.userToSave.firstname !== this.user.firstname || this.userToSave.lastname !== this.user.lastname) {
         this.userToSave.fullname = `${this.userToSave.firstname} ${this.userToSave.lastname}`;
       }
-      userService.updateProfileFields(eXo.env.portal.userName, this.userToSave, [
+      this.$userService.updateProfileFields(eXo.env.portal.userName, this.userToSave, [
         'avatar',
         'firstname',
         'lastname',
@@ -173,7 +170,7 @@ export default {
     },
     handleImageUploadError(error) {
       if (error) {
-        if (String(error).indexOf(uploadService.avatarExcceedsLimitError) >= 0) {
+        if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
           this.error = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit});
         } else {
           this.error = String(error);
@@ -185,7 +182,7 @@ export default {
       }
     },
     refresh() {
-      return userService.getUser(eXo.env.portal.profileOwner, 'all')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
         .then(user => {
           this.user = user;
 

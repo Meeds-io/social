@@ -194,8 +194,6 @@
   </exo-drawer>
 </template>
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   data: () => ({
     savingSpace: false,
@@ -280,7 +278,7 @@ export default {
     });
     document.addEventListener('meeds.social.editSpace', this.editSpace);
     this.$root.$on('editSpace', this.editSpace);
-    spaceService.getSpaceTemplates()
+    this.$spaceService.getSpaceTemplates()
       .then(data => {
         this.templates = data || [];
         this.spaceTemplate = this.templates.length && this.templates[0] || null;
@@ -329,7 +327,7 @@ export default {
       this.error = null;
       this.savingSpace = true;
       if (this.space.id) {
-        spaceService.updateSpace({
+        this.$spaceService.updateSpace({
           id: this.space.id,
           displayName: this.space.displayName,
           description: this.space.description,
@@ -357,7 +355,7 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       } else {
-        spaceService.createSpace(this.space)
+        this.$spaceService.createSpace(this.space)
           .then(space => {
             this.spaceSaved = true;
             window.location.href = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}`;

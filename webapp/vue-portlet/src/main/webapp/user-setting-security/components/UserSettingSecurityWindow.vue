@@ -107,8 +107,6 @@
 </template>
 
 <script>
-import {changePassword} from '../../common/js/UserService.js';
-
 const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
 const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
 const PASSWORD_REGEX_ERROR_CODE = 'PASSWORD_REGEX_ERROR';
@@ -165,7 +163,7 @@ export default {
         this.success = null;
         this.error = null;
         this.saving = true;
-        changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
+        this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
           .then(() => {
             this.success = this.$t('UserSettings.label.changePasswordSuccess');
             this.$refs.form.$el.reset();
