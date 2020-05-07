@@ -1,6 +1,6 @@
-<%@page import="org.exoplatform.social.core.space.model.Space"%>
-<%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
-<%@page import="org.exoplatform.portal.config.UserPortalConfigService"%>
+<%@ page import="org.exoplatform.social.core.space.model.Space"%>
+<%@ page import="org.exoplatform.social.core.space.SpaceUtils"%>
+<%@ page import="org.exoplatform.portal.config.UserPortalConfigService"%>
 <%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
@@ -10,6 +10,7 @@
 <%
   String logoPath = null;
   String logoTitle = null;
+  String portalPath = null;
   String imageClass = "";
 
   Space space = SpaceUtils.getSpaceByContext();
@@ -20,17 +21,19 @@
     Logo logo = branding.getLogo();
     logoPath = "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
     logoTitle = branding.getCompanyName();
+
+    UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
+    portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+    if (portalPath == null) {
+      portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
+    }
   } else {
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
+    portalPath = space.getUrl();
     imageClass="spaceAvatar";
   }
 
-  UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
-  String portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
-  if (portalPath == null) {
-    portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
-  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
