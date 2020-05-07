@@ -1,12 +1,25 @@
 let activityComposerActions = null;
-
-export function getActivityComposerExtensions() {
+let activityComposerHintAction = null;
+export function getActivityComposerActionExtensions() {
   if(activityComposerActions == null) {
     const allExtensions = getExtensionsByType('activity-composer-action');
     activityComposerActions = allExtensions.filter(extension => isExtensionEnabled(extension));
   }
 
   return activityComposerActions;
+}
+
+export function getActivityComposerHintActionExtensions() {
+  if(activityComposerHintAction === null){
+    activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
+    if (activityComposerHintAction) {
+      activityComposerHintAction = activityComposerHintAction.sort(compare);
+      activityComposerHintAction = activityComposerHintAction[0];
+    }else {
+      activityComposerHintAction = null;
+    }
+  }
+  return activityComposerHintAction;
 }
 
 export function executeExtensionAction(extension, component) {
@@ -37,4 +50,14 @@ function isExtensionEnabled(extension) {
 
 function isFunction(object) {
   return object && {}.toString.call(object) === '[object Function]';
+}
+
+function compare(a, b) {
+  if (a.rank < b.rank) {
+    return -1;
+  }
+  if (a.rank > b.rank) {
+    return 1;
+  }
+  return 0;
 }

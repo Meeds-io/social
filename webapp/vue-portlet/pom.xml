@@ -37,9 +37,34 @@
     <com.github.eirslett.frontend.version>1.6</com.github.eirslett.frontend.version>
     <node.version>v10.4.1</node.version>
     <npm.version>6.1.0</npm.version>
-    <portlet.version>2.0</portlet.version>
   </properties>
-
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-service</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.portlet</groupId>
+      <artifactId>portlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   <build>
     <finalName>social-vue-portlet</finalName>
     <plugins>
@@ -53,6 +78,7 @@
         <executions>
           <execution>
             <id>install node and npm</id>
+            <phase>compile</phase>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
@@ -63,6 +89,7 @@
           </execution>
           <execution>
             <id>npm install</id>
+            <phase>compile</phase>
             <goals>
               <goal>npm</goal>
             </goals>
@@ -72,6 +99,7 @@
           </execution>
           <execution>
             <id>npm run test</id>
+            <phase>test</phase>
             <goals>
               <goal>npm</goal>
             </goals>
@@ -81,6 +109,7 @@
           </execution>
           <execution>
             <id>npm run build</id>
+            <phase>compile</phase>
             <goals>
               <goal>npm</goal>
             </goals>
@@ -93,12 +122,4 @@
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <groupId>javax.portlet</groupId>
-      <artifactId>portlet-api</artifactId>
-      <version>${portlet.version}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
 </project>

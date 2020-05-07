@@ -27,6 +27,7 @@
   import org.exoplatform.social.webui.Utils;
   import java.util.Calendar;
 
+
   def rcontext = _ctx.getRequestContext() ;
   def jsManager = rcontext.getJavascriptManager().require("SHARED/uiForm");
   
@@ -48,35 +49,6 @@
   def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
   def composer_Hint_Text = _ctx.appRes("UIActivity.label.Composer_Hint_Text");
   def sitePath = uicomponent.getSitePath();
-  
-  def connections_link = "<a href='${sitePath}connexions'>Connections</a>";
-  def wikis_link = "<a href='${sitePath}wiki'>Wikis</a>";
-  def forums_link = "<a href='${sitePath}forum'>Forums</a>";
-  def calendars_link = "<a href='${sitePath}calendar'>Calendars</a>";
-  def documents_link = "<a href='${sitePath}documents'>Documents</a>";
-  def spaces_link = "<a href='${sitePath}all-spaces'>Spaces</a>";
-  def iOS_App_Store_link = "<a href='https://itunes.apple.com/fr/app/exo-platform-3.5/id410476273?mt=8'>iOS App Store </a>";
-  def google_play = "<a href='https://play.google.com/store/apps/details?id=org.exoplatform'>Google Play</a>";
-  
-  def head_line = _ctx.appRes("UIActivity.label.Head_line");
-  
-  def connect_and_discuss_with_others = _ctx.appRes("UIActivity.label.Connect_and_discuss_with_others");
-  def connect_and_discuss_with_others_details = _ctx.appRes("UIActivity.label.Connect_and_discuss_with_others_details")
-                                       .replace("{connections_link}", connections_link)
-                                       
-  def discover_the_power_of_social_collaboration = _ctx.appRes("UIActivity.label.Discover_the_power_of_social_collaboration");
-  def discover_the_power_of_social_collaboration_details = _ctx.appRes("UIActivity.label.Discover_the_power_of_social_collaboration_details")
-                                       .replace("{wikis_link}", wikis_link)
-                                       .replace("{forums_link}", forums_link)
-                                       .replace("{calendars_link}", calendars_link)
-                                       .replace("{documents_link}", documents_link);
-  def use_spaces_for_team_or_project_matters = _ctx.appRes("UIActivity.label.Use_spaces_for_team_or_project_matters");
-  def use_spaces_for_team_or_project_matters_details = _ctx.appRes("UIActivity.label.Use_spaces_for_team_or_project_matters_details")
-                                                 .replace("{spaces_link}", spaces_link);
-  def anywhere_at_anytime = _ctx.appRes("UIActivity.label.Anywhere_at_anytime");
-  def anywhere_at_anytime_details = _ctx.appRes("UIActivity.label.Anywhere_at_anytime_details")
-                                                     .replace("{iOS_App_Store_Link}", iOS_App_Store_link)
-                                                     .replace("{Google_Play}", google_play);  
 
 	//
 	def numberOfUpdatedActivities = uicomponent.getNumberOfUpdatedActivities();
@@ -108,7 +80,6 @@
   
   //
   def welcomeActivityAvatar = LinkProvider.STARTER_ACTIVITY_AVATAR;
-  def welcomeActivityImage = LinkProvider.STARTER_ACTIVITY_IMAGE;
     
   def welcomeActivityName = _ctx.appRes("UIActivity.label.Welcome_Activity_Author");
   def welcomeActivityPostedTime = _ctx.appRes("UIActivity.label.Welcome_Activity_Posted_Time");
@@ -138,41 +109,12 @@
   <div id="UIActivitiesLoader" class="uiActivityStream clearfix">
     <div id="UIActivitiesContainer_welcomeActivity" class="UIActivitiesContainer_welcomeActivity">
       <div class="activityStream uiDefaultActivity" id="welcomeActivity">
-			  <div class="activityTimeLine pull-left">
-			    <div class="activityAvatar avatarCircle">
-			        <a title="$welcomeActivityName" href="javascript:void(0);">
-			          <img alt="$welcomeActivityName" src="$welcomeActivityAvatar"/>
-			        </a>
-			    </div>
-			  </div><!--end activityTimeLine-->
-			  
 			  <div class="boxContainer" id="boxContainer">
 			    <div id="ContextBoxWelcomeActivity" class="uiBox contentBox">
 			        <div id="ActivityContextBoxWelcomeActivity">
-			            <div class="heading">
-			                <span class="arrowLeft"></span>
-			                <div class="author">
-			                    <a title="$welcomeActivityName" href="javascript:void(0);">$welcomeActivityName</a>                
-			                </div>
-			                <div class="dataInfor">
-			                    <span class="dateTime"><i class="uiIconClock  uiIconLightGray"></i>&nbsp;$welcomeActivityPostedTime</span> 
-			                </div>
-			            </div><!--end heading-->
-			            
 			            <!-- Welcome content -->
 			            <div class="description clearfix">
-			            	<div class="img pull-left">
-								      <img src="$welcomeActivityImage" />			            	
-			            	</div>
-			              	<p>$head_line</p>
-			              	<p><strong>$connect_and_discuss_with_others</strong><br />
-                    		$connect_and_discuss_with_others_details</p>
-				            <p><strong>$discover_the_power_of_social_collaboration</strong><br />
-				            $discover_the_power_of_social_collaboration_details</p>
-				            <p><strong>$use_spaces_for_team_or_project_matters</strong><br />
-				            $use_spaces_for_team_or_project_matters_details</p>
-		               		<p><strong>$anywhere_at_anytime</strong><br />
-		               		$anywhere_at_anytime_details</p>
+                      <% _ctx.include("war:/groovy/social/webui/profile/UIWelcomeActivityContent.gtmpl"); %>
 			            </div>
 			            <!-- End Welcome content-->
 			        </div><!--end #ActivityContextBoxWelcomeActivity-->

@@ -2,7 +2,9 @@
   <v-col
     :class="flipCard && 'spaceCardFlip spaceCardFlipped' || 'spaceCardFlip'"
     cols="12"
-    md="3">
+    md="6"
+    lg="4"
+    xl="3">
     <div class="spaceCardFront">
       <exo-space-card-front
         :space="space"

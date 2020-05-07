@@ -8,6 +8,7 @@ let config = {
     commonVueComponents: './src/main/webapp/common/main.js',
     spacesAdministration: './src/main/webapp/spaces-administration-app/main.js',
     spaceTemplates: './src/main/webapp/space-templates-app/main.js',
+    siteHamburgerMenu: './src/main/webapp/site-navigation/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
@@ -20,7 +21,11 @@ let config = {
     profileHeader: './src/main/webapp/profile-header/main.js',
     profileAboutMe: './src/main/webapp/profile-about-me/main.js',
     profileContactInformation: './src/main/webapp/profile-contact-information/main.js',
-    profileWorkExperience: './src/main/webapp/profile-work-experience/main.js'
+    profileWorkExperience: './src/main/webapp/profile-work-experience/main.js',
+    userSettingLanguage: './src/main/webapp/user-setting-language/main.js',
+    userSettingNotifications: './src/main/webapp/user-setting-notifications/main.js',
+    userSettingSecurity: './src/main/webapp/user-setting-security/main.js',
+    userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js'
   },
   module: {
     rules: [

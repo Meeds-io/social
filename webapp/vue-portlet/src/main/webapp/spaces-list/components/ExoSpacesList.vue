@@ -7,6 +7,7 @@
       :keyword="keyword"
       :filter="filter"
       :spaces-size="spacesSize"
+      :can-create-space="canCreateSpace"
       :skeleton="skeleton"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
@@ -28,9 +29,9 @@
 
 export default {
   props: {
-    appId: {
-      type: String,
-      default: null,
+    canCreateSpace: {
+      type: Boolean,
+      default: false,
     },
     filter: {
       type: String,

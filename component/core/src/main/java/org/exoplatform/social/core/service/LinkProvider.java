@@ -61,11 +61,13 @@ public class LinkProvider {
   public static final String SPACE_WAITING_CONFIRM_ICON =
           RESOURCE_URL + "/eXoSkin/skin/images/themes/default/social/skin/UIManageSpaces/WaitingConfirm.png";
   public static final String STARTER_ACTIVITY_AVATAR = "/eXoSkin/skin/images/themes/default/social/skin/Activity/starterAvt.png";
-  public static final String STARTER_ACTIVITY_IMAGE = "/eXoSkin/skin/images/themes/default/social/skin/Activity/starterActImg.png";
+  public static final String STARTER_ACTIVITY_IMAGE = "/eXoSkin/skin/images/themes/default/social/skin/Activity/welcome-img.png";
 
   public static final String ROUTE_DELIMITER = "/";
 
-  private static final long   DEFAULT_IMAGES_LAST_MODIFED = System.currentTimeMillis();
+  public static final long    DEFAULT_IMAGES_LAST_MODIFED = System.currentTimeMillis();
+
+  public static final String  DEFAULT_IMAGE_REMOTE_ID     = "default-image";
 
   private static Log             LOG = ExoLogger.getLogger(LinkProvider.class);
 
@@ -346,9 +348,6 @@ public class LinkProvider {
    * @return
    */
   public static String buildAvatarURL(String providerId, String remoteId, Long lastModifiedDate) {
-    if (lastModifiedDate == null) {
-      lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
-    }
     return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, AvatarAttachment.TYPE);
   }
 
@@ -373,9 +372,6 @@ public class LinkProvider {
    * @return
    */
   public static String buildBannerURL(String providerId, String remoteId, Long lastModifiedDate) {
-    if (lastModifiedDate == null) {
-      lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
-    }
     return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, BannerAttachment.TYPE);
   }
 
@@ -390,7 +386,10 @@ public class LinkProvider {
       LOG.warn("Failure to encode username for build URL", ex);
     }
 
-    String lastModifiedParam = lastModifiedDate == null || lastModifiedDate <= 0 ? "" : String.valueOf(lastModifiedDate);
+    if (lastModifiedDate == null || lastModifiedDate <= 0 || lastModifiedDate == DEFAULT_IMAGES_LAST_MODIFED) {
+      remoteId = DEFAULT_IMAGE_REMOTE_ID;
+      lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
+    }
 
     if (providerId.equals(OrganizationIdentityProvider.NAME)) {
       return new StringBuilder(getBaseURLSocialUserRest()).append("/")
@@ -398,7 +397,7 @@ public class LinkProvider {
                                                           .append("/")
                                                           .append(type)
                                                           .append("?lastModified=")
-                                                          .append(lastModifiedParam)
+                                                          .append(String.valueOf(lastModifiedDate))
                                                           .toString();
     } else if (providerId.equals(SpaceIdentityProvider.NAME)) {
       return new StringBuilder(getBaseURLSocialSpaceRest()).append("/")
@@ -406,7 +405,7 @@ public class LinkProvider {
                                                            .append("/")
                                                            .append(type)
                                                            .append("?lastModified=")
-                                                           .append(lastModifiedParam)
+                                                           .append(String.valueOf(lastModifiedDate))
                                                            .toString();
     }
     return null;

@@ -30,7 +30,7 @@
   <name>eXo PLF:: Social Portlet Web App</name>
   <description>eXo Social Portlet Web App</description>
   <properties>
-    <exo.test.coverage.ratio>0.009</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.008</exo.test.coverage.ratio>
     <!-- Maven Plugin for JS and CSS bundling and Unit Test execution -->
     <com.github.eirslett.frontend.version>1.6</com.github.eirslett.frontend.version>
     <node.version>v10.4.1</node.version>

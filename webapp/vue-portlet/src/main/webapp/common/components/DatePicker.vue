@@ -8,8 +8,12 @@
       :content-class="menuId"
       :close-on-content-click="false"
       :disabled="disabled"
+      :top="top"
+      :left="left"
       class="datePickerMenu"
       transition="scale-transition"
+      attach
+      allow-overflow
       offset-y
       eager>
       <input
@@ -96,6 +100,18 @@ export default {
       },
     },
     returnIso: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
+    top: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
+    left: {
       type: Boolean,
       default: function() {
         return false;

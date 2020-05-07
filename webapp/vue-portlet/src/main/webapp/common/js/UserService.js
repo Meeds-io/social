@@ -168,9 +168,6 @@ export function deleteRelationship(userId) {
 }
 
 export function updateProfileField(username, name, value) {
-  const formData = new FormData();
-  formData.append('name', name);
-  formData.append('value', value);
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}`, {
     method: 'PATCH',
     credentials: 'include',
@@ -203,6 +200,25 @@ export function updateProfileFields(username, obj, fields) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(objectToSend),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    }
+  }).then(error => {
+    if (error) {
+      throw new Error(error);
+    }
+  });
+}
+
+export function changePassword(username, currentPassword, newPassword) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${username}/changePassword`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `currentPassword=${currentPassword}&newPassword=${newPassword}`
   }).then(resp => {
     if (!resp || !resp.ok) {
       return resp.text();

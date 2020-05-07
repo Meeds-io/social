@@ -43,9 +43,11 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -54,12 +56,16 @@ import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
+import org.exoplatform.upload.UploadResource;
+import org.exoplatform.upload.UploadService;
 
 import io.swagger.annotations.*;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Api(tags = VersionResources.VERSION_ONE + "/social/spaces", value = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRestResourcesV1 implements SpaceRestResources {
+
+  private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
 
   private static final String SPACE_FILTER_TYPE_ALL = "all";
   
@@ -82,13 +88,18 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
-  private IdentityManager identityManager;
-  private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
+  private IdentityManager           identityManager;
+
+  private UploadService             uploadService;
+
+  private SpaceService              spaceService;
 
   private byte[]              defaultSpaceAvatar = null;
 
-  public SpaceRestResourcesV1(IdentityManager identityManager) {
+  public SpaceRestResourcesV1(SpaceService spaceService, IdentityManager identityManager, UploadService uploadService) {
+    this.spaceService = spaceService;
     this.identityManager = identityManager;
+    this.uploadService = uploadService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
@@ -122,8 +133,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (StringUtils.isBlank(filterType)) {
       filterType = SPACE_FILTER_TYPE_ALL;
     }
-
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
 
     ListAccess<Space> listAccess = null;
     SpaceFilter spaceFilter = new SpaceFilter();
@@ -218,7 +227,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     // validate the display name
     if (spaceService.getSpaceByDisplayName(model.getDisplayName()) != null) {
       throw new SpaceException(SpaceException.Code.SPACE_ALREADY_EXIST);
@@ -260,7 +268,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -284,36 +291,42 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @Context Request request,
                                      @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @ApiParam(value = "Space pretty name", required = true) @PathParam("id") String id) throws IOException {
-  
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-    
-    Space space = spaceService.getSpaceByPrettyName(id);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
-    //
-    Profile profile = identity.getProfile();
+
+    boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
+    Response.ResponseBuilder builder = null;
     Long lastUpdated = null;
-    if (profile != null) {
-      lastUpdated = profile.getAvatarLastUpdated();
-    }
-    EntityTag eTag = null;
-    if (lastUpdated != null) {
-      eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
-    }
-    //
-    Response.ResponseBuilder builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
-    if (builder == null) {
-      InputStream stream = identityManager.getAvatarInputStream(identity);
-      if (stream == null) {
-        builder = getDefaultAvatarBuilder();
-      } else {
-        builder = Response.ok(stream, "image/png");
-        builder.tag(eTag);
+    if (!isDefault) {
+      String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+      
+      Space space = spaceService.getSpaceByPrettyName(id);
+      if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+      Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+      //
+      Profile profile = identity.getProfile();
+      if (profile != null) {
+        lastUpdated = profile.getAvatarLastUpdated();
+      }
+      EntityTag eTag = null;
+      if (lastUpdated != null) {
+        eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
+      }
+      //
+      builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
+      if (builder == null) {
+        InputStream stream = identityManager.getAvatarInputStream(identity);
+        if (stream != null) {
+          builder = Response.ok(stream, "image/png");
+          builder.tag(eTag);
+        }
       }
     }
+
+    if (builder == null) {
+      builder = getDefaultAvatarBuilder();
+    }
+
     builder.cacheControl(CACHE_CONTROL);
     builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
     // If the query has a lastModified parameter, it means that the client
@@ -329,10 +342,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @GET
   @Path("{id}/banner")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets a space banner by id",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This can only be done by the logged in user.")
+  @ApiOperation(
+      value = "Gets a space banner by id",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This can only be done by the logged in user.")
   @ApiResponses(value = {
           @ApiResponse (code = 200, message = "Request fulfilled"),
           @ApiResponse (code = 500, message = "Internal server error"),
@@ -342,15 +356,18 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @Context Request request,
                                      @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @ApiParam(value = "Space id", required = true) @PathParam("id") String id) throws IOException {
+    boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
+    if (isDefault) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
 
     Space space = spaceService.getSpaceByPrettyName(id);
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
+    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
     //
     Profile profile = identity.getProfile();
     Long lastUpdated = null;
@@ -412,7 +429,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -453,7 +469,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -491,7 +506,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -551,7 +565,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -614,7 +627,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     //
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
-    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -681,7 +693,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
             activity.getPosterId());
   }
 
-  private void fillSpaceFromModel(Space space, SpaceEntity model) {
+  private void fillSpaceFromModel(Space space, SpaceEntity model) throws Exception {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
 
     if (StringUtils.isNotBlank(model.getDisplayName())) {
@@ -702,8 +714,12 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
     }
 
-    if (StringUtils.isNotBlank(model.getTemplate())) {
-      space.setTemplate(model.getTemplate());
+    if (StringUtils.isNotBlank(model.getBannerId())) {
+      updateProfileField(space, Profile.BANNER, model.getBannerId());
+    }
+
+    if (StringUtils.isNotBlank(model.getAvatarId())) {
+      updateProfileField(space, Profile.AVATAR, model.getAvatarId());
     }
 
     if (StringUtils.equalsIgnoreCase(Space.HIDDEN, model.getVisibility())) {
@@ -718,6 +734,39 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setRegistration(Space.CLOSE);
     } else {
       space.setRegistration(Space.VALIDATION);
+    }
+  }
+
+  private void updateProfileField(Space space,
+                                  String name,
+                                  String value) throws Exception {
+    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+      UploadResource uploadResource = uploadService.getUploadResource(value);
+      if (uploadResource == null) {
+        throw new IllegalStateException("No uploaded resource found with uploadId = " + value);
+      }
+      String storeLocation = uploadResource.getStoreLocation();
+      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
+        if (Profile.AVATAR.equals(name)) {
+          AvatarAttachment attachment = new AvatarAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+          space.setAvatarAttachment(attachment);
+          spaceService.updateSpaceBanner(space);
+        } else {
+          BannerAttachment attachment = new BannerAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+          space.setBannerAttachment(attachment);
+          spaceService.updateSpaceBanner(space);
+        }
+      } finally {
+        uploadService.removeUploadResource(value);
+      }
     }
   }
 
@@ -748,7 +797,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     Identity currentUser = CommonsUtils.getService(IdentityManager.class)
-                                       .getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
+                                       .getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     if (EntityBuilder.getActivityStream(activity, currentUser) == null
         && !Util.hasMentioned(activity, currentUser.getRemoteId())) { // current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);

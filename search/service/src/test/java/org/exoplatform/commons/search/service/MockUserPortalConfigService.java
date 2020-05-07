@@ -37,7 +37,7 @@ import org.exoplatform.services.organization.OrganizationService;
 public class MockUserPortalConfigService  extends UserPortalConfigService{
   
   public MockUserPortalConfigService() throws Exception {
-    super(null, null, null, null, null, null, new InitParams());
+    super(null, null, null, null, null, null, null, new InitParams());
   }
 
   @Override
