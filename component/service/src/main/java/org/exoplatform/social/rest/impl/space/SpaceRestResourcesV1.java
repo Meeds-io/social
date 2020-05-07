@@ -37,6 +37,7 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -44,6 +45,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.*;
+import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
@@ -495,7 +497,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceMembers(@Context UriInfo uriInfo,
                                   @Context Request request,
                                   @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
-                                  @ApiParam(value = "Role of the target user in this space, ex: manager", required = false, defaultValue = "0") @QueryParam("role") String role,
+                                  @ApiParam(value = "Role of the target user in this space: manager, member, invited and pending", required = false, defaultValue = "member") @QueryParam("role") String role,
                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                                   @ApiParam(value = "Returning the number of users or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -503,38 +505,40 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    String[] users = (role != null && role.equals("manager")) ? space.getManagers() : space.getMembers();
-    int size = users.length;
-    //
-    if (limit > 0) {
-      users = Arrays.copyOfRange(users, offset > size - 1 ? size - 1 : offset, (offset + limit > size) ? size : (offset + limit));
+    if (StringUtils.isBlank(role)) {
+      role = Type.MEMBER.name();
     }
-    List<DataEntity> profileInfos = EntityBuilder.buildEntityProfiles(users, uriInfo.getPath(), expand);
+    Type type = Type.valueOf(role.toUpperCase());
+
+    ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
+                                                                                                     new ProfileFilter(),
+                                                                                                     type,
+                                                                                                     true);
+    Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
+
+    List<DataEntity> profileInfos = null;
+    if (spaceIdentities == null || spaceIdentities.length == 0) {
+      profileInfos = Collections.emptyList();
+    } else {
+      profileInfos = Arrays.stream(spaceIdentities)
+                           .map(identity -> EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand)
+                                                         .getDataEntity())
+                           .collect(Collectors.toList());
+    }
+
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
     if (returnSize) {
-      collectionUser.setSize(size);
+      collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
-    EntityTag eTag = null;
-    eTag = new EntityTag(Integer.toString(collectionUser.hashCode()));
-    //
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
-    }
-
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
-
-    return builder.build();
+    return EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
   
   /**
@@ -570,7 +574,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
-    Identity spaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
     RealtimeListAccess<ExoSocialActivity> listAccess = CommonsUtils.getService(ActivityManager.class).getActivitiesOfSpaceWithListAccess(spaceIdentity);
     List<ExoSocialActivity> activities = null;
     if (after != null && RestUtils.getBaseTime(after) > 0) {
@@ -632,8 +636,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
-    Identity spaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    Identity poster = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, false);
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(model.getTitle());
@@ -796,8 +800,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    Identity currentUser = CommonsUtils.getService(IdentityManager.class)
-                                       .getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     if (EntityBuilder.getActivityStream(activity, currentUser) == null
         && !Util.hasMentioned(activity, currentUser.getRemoteId())) { // current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
