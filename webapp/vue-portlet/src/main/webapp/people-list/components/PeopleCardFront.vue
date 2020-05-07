@@ -171,8 +171,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     user: {
@@ -238,7 +236,7 @@ export default {
   methods: {
     connect() {
       this.sendingAction = true;
-      userService.connect(this.user.username)
+      this.$userService.connect(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -250,7 +248,7 @@ export default {
     },
     disconnect() {
       this.sendingAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -268,7 +266,7 @@ export default {
     },
     acceptToConnect() {
       this.sendingAction = true;
-      userService.confirm(this.user.username)
+      this.$userService.confirm(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -280,7 +278,7 @@ export default {
     },
     refuseToConnect() {
       this.sendingSecondAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -292,7 +290,7 @@ export default {
     },
     cancelRequest() {
       this.sendingAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console

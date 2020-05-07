@@ -24,8 +24,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   data: () => ({
     invitations: '-',
@@ -38,7 +36,7 @@ export default {
   methods: {
     refresh() {
       let loading = 2;
-      userService.getInvitations()
+      this.$userService.getInvitations()
         .then(data => {
           this.invitations = data && data.size || 0;
         })
@@ -49,7 +47,7 @@ export default {
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
         });
-      userService.getPending()
+      this.$userService.getPending()
         .then(data => {
           this.pending = data && data.size || 0;
         })

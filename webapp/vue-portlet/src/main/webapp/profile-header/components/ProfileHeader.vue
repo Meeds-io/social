@@ -65,9 +65,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-import * as uploadService from '../../common/js/UploadService.js'; 
-
 export default {
   props: {
     maxUploadSize: {
@@ -104,7 +101,7 @@ export default {
       });
     },
     refresh() {
-      return userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
         .then(user => {
           this.user = user;
           return this.$nextTick();
@@ -119,9 +116,9 @@ export default {
     },
     handleError(error) {
       if (error) {
-        if (String(error).indexOf(uploadService.avatarExcceedsLimitError) >= 0) {
+        if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
           this.errorMessage = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.maxUploadSize});
-        } else if (String(error).indexOf(uploadService.bannerExcceedsLimitError) >= 0) {
+        } else if (String(error).indexOf(this.$uploadService.bannerExcceedsLimitError) >= 0) {
           this.errorMessage = this.$t('profileHeader.label.bannerExcceededAllowedSize', {0: this.maxUploadSize});
         } else {
           this.errorMessage = String(error);

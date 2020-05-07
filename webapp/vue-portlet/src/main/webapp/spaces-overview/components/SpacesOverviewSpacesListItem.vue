@@ -131,8 +131,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 const randomMax = 10000;
 
 export default {
@@ -212,7 +210,7 @@ export default {
     },
     acceptUserRequest() {
       this.sendingAction = true;
-      spaceService.acceptUserRequest(this.space.displayName, this.space.pending[0].username)
+      this.$spaceService.acceptUserRequest(this.space.displayName, this.space.pending[0].username)
         .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -224,7 +222,7 @@ export default {
     },
     refuseUserRequest() {
       this.sendingAction = true;
-      spaceService.refuseUserRequest(this.space.displayName, this.space.pending[0].username)
+      this.$spaceService.refuseUserRequest(this.space.displayName, this.space.pending[0].username)
         .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -236,7 +234,7 @@ export default {
     },
     acceptToJoin() {
       this.sendingAction = true;
-      spaceService.accept(this.space.id)
+      this.$spaceService.accept(this.space.id)
         .then(() => this.$emit('refresh', 'invitations'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -248,7 +246,7 @@ export default {
     },
     refuseToJoin() {
       this.sendingAction = true;
-      spaceService.deny(this.space.id)
+      this.$spaceService.deny(this.space.id)
         .then(() => this.$emit('refresh', 'invitations'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -260,7 +258,7 @@ export default {
     },
     cancelRequest() {
       this.sendingAction = true;
-      spaceService.cancel(this.space.id)
+      this.$spaceService.cancel(this.space.id)
         .then(() => this.$emit('refresh', 'sentRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console

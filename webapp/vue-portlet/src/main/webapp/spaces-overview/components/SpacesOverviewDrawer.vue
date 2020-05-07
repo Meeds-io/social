@@ -36,8 +36,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   data: () => ({
     title: null,
@@ -60,7 +58,7 @@ export default {
     searchSpaces(filter) {
       this.spaces = [];
       this.loadingSpaces = true;
-      return spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
+      return this.$spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
           if (filter) {

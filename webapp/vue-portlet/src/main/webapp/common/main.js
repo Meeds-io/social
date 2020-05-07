@@ -1,5 +1,10 @@
 import './initComponents.js';
 
+import * as userService from './js/UserService.js';
+import * as spaceService from './js/SpaceService.js';
+import * as uploadService from './js/UploadService.js';
+import * as dateUtil from '../js/DateUtil.js';
+
 // get overrided components if exists
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('CommonComponents');
@@ -12,3 +17,16 @@ if (extensionRegistry) {
 
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
+
+window.Object.defineProperty(Vue.prototype, '$userService', {
+  value: userService,
+});
+window.Object.defineProperty(Vue.prototype, '$spaceService', {
+  value: spaceService,
+});
+window.Object.defineProperty(Vue.prototype, '$uploadService', {
+  value: uploadService,
+});
+window.Object.defineProperty(Vue.prototype, '$dateUtil', {
+  value: dateUtil,
+});

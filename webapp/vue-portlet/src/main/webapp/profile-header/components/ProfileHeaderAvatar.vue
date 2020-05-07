@@ -17,9 +17,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-import * as uploadService from '../../common/js/UploadService.js';
-
 export default {
   props: {
     user: {
@@ -76,15 +73,15 @@ export default {
     uploadAvatar(file) {
       if (file && file.size) {
         if (file.size > this.maxUploadSize) {
-          this.$emit('error', uploadService.avatarExcceedsLimitError);
+          this.$emit('error', this.$uploadService.avatarExcceedsLimitError);
           return;
         }
         this.sendingImage = true;
         const thiss = this;
-        return uploadService.upload(file)
+        return this.$uploadService.upload(file)
           .then(uploadId => {
             if (this.save) {
-              return userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId);
+              return this.$userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId);
             } else {
               const reader = new FileReader();
               reader.onload = (e) => {

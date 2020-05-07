@@ -79,8 +79,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 const MAX_TEXT = 2000;
 
 export default {
@@ -123,7 +121,7 @@ export default {
       this.error = null;
       this.saving = true;
       this.$refs.aboutMeDrawer.startLoading();
-      return userService.updateProfileField(eXo.env.portal.userName, 'aboutMe', this.modifyingAboutMe)
+      return this.$userService.updateProfileField(eXo.env.portal.userName, 'aboutMe', this.modifyingAboutMe)
         .then(() => this.refresh(this.modifyingAboutMe))
         .catch(error => {
           console.warn('Error saving about me section', error); // eslint-disable-line no-console

@@ -55,8 +55,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     experiences: {
@@ -89,7 +87,7 @@ export default {
 
       this.$refs.profileWorkExperiencesDrawer.startLoading();
       this.saving = true;
-      userService.updateProfileFields(eXo.env.portal.userName, {
+      this.$userService.updateProfileFields(eXo.env.portal.userName, {
         experiences: experiences
       }, [
         'experiences',
@@ -113,7 +111,7 @@ export default {
       }
     },
     refresh() {
-      return userService.getUser(eXo.env.portal.profileOwner, 'all')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
         .then(user => {
           this.user = user;
           this.$emit('refresh', user && user.experiences || []);
