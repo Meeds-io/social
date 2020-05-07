@@ -21,18 +21,11 @@
 */
 %>
 <%
-
-import org.apache.commons.lang.StringEscapeUtils
-import org.exoplatform.services.security.ConversationState
-import org.exoplatform.social.webui.activity.UIActivitiesLoader;
+  import org.exoplatform.social.webui.activity.UIActivitiesLoader;
   import org.exoplatform.webui.core.UIDropDownControl;
   import org.exoplatform.social.core.service.LinkProvider;
   import org.exoplatform.social.webui.Utils;
   import java.util.Calendar;
-  import org.exoplatform.social.core.identity.model.Identity;
-  import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 
   def rcontext = _ctx.getRequestContext() ;
@@ -53,40 +46,9 @@ import org.apache.commons.lang.StringEscapeUtils;
   jsManager.require("SHARED/jquery", "jq").addScripts(script);
 
   //
-  def ownerName, ownerUri = "#";
-  String userId = ConversationState.getCurrent().getIdentity().getUserId();
-  String profileFullName = "";
-  Identity identity = org.exoplatform.social.webui.Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
-  if(identity != null && identity.getProfile() != null) {
-      profileFullName = identity.getProfile().getFullName();
-  }
-  ownerName = StringEscapeUtils.escapeHtml(profileFullName);
-
-  ownerUri = LinkProvider.getUserProfileUri(userId);
-
-  //
   def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
   def composer_Hint_Text = _ctx.appRes("UIActivity.label.Composer_Hint_Text");
   def sitePath = uicomponent.getSitePath();
-
-  //
-  def owner_name = "<a href='${ownerUri}'><strong class='text-color'>$ownerName</strong></a>";
-  def meeds_link = "<a href='https://www.meeds.io/'><strong class='text-color'>Meeds</strong></a>";
-  def meeds_association_link = "<a href='https://www.meeds.io/'><strong class='text-color'>Meeds Association</strong></a>";
-  def apis_link = "<a href='https://github.com/Meeds-io/meeds/wiki'><strong class='text-color'>APIs</strong></a>";
-  def lgpl_license_link = "<a href='https://github.com/Meeds-io/meeds/blob/develop/LICENSE'><strong  class='text-color'>the LGPL license</strong></a>";
-  def docker_link = "<a href='https://github.com/Meeds-io/meeds-docker'><strong class='text-color'>Docker</strong></a>";
-  def github_link = "<a href='https://github.com/Meeds-io/meeds'><strong>Github</strong></a>";
-
-  def welcome_title =  _ctx.appRes("UIActivity.label.Welcome_Activity_Welcome_Onboard").replace("{user full name}", owner_name);
-  def thanx_for_joing_meeds =  _ctx.appRes("UIActivity.label.Thanx_for_joing_meeds").replace("{meeds Link}",meeds_link);
-  def welcome_paragraphe_one = _ctx.appRes("UIActivity.label.paragraph_one").replace("{meeds association link}",meeds_association_link);
-  def welcome_paragraphe_two = _ctx.appRes("UIActivity.label.paragraph_two");
-  def welcome_paragraphe_three = _ctx.appRes("UIActivity.label.paragraph_three");
-  def welcome_paragraphe_four = _ctx.appRes("UIActivity.label.paragraph_four").replace("{APIs link}",apis_link);
-  def welcome_paragraphe_five = _ctx.appRes("UIActivity.label.paragraph_five").replace("{the LGPL license link}", lgpl_license_link)
-                                                                              .replace("{GitHub link}", github_link)
-                                                                              .replace("{Docker link}",docker_link);
 
 	//
 	def numberOfUpdatedActivities = uicomponent.getNumberOfUpdatedActivities();
@@ -118,7 +80,6 @@ import org.apache.commons.lang.StringEscapeUtils;
   
   //
   def welcomeActivityAvatar = LinkProvider.STARTER_ACTIVITY_AVATAR;
-  def welcomeActivityImage = LinkProvider.STARTER_ACTIVITY_IMAGE;
     
   def welcomeActivityName = _ctx.appRes("UIActivity.label.Welcome_Activity_Author");
   def welcomeActivityPostedTime = _ctx.appRes("UIActivity.label.Welcome_Activity_Posted_Time");
@@ -153,19 +114,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 			        <div id="ActivityContextBoxWelcomeActivity">
 			            <!-- Welcome content -->
 			            <div class="description clearfix">
-			            	<div class="img welcomeImgContainer">
-								      <img src="$welcomeActivityImage" />			            	
-			            	</div>
-			            	<div class="welcomeTextContainer">
-			              	<p>$welcome_title</p>
-			              	<p>$thanx_for_joing_meeds<br />
-                    		$welcome_paragraphe_one<br />
-                        $welcome_paragraphe_two<br />
-                        $welcome_paragraphe_three<br />
-                        $welcome_paragraphe_four<br />
-                        $welcome_paragraphe_five<br />
-                      </p>
-                    </div>
+                      <% _ctx.include("war:/groovy/social/webui/profile/UIWelcomeActivityContent.gtmpl"); %>
 			            </div>
 			            <!-- End Welcome content-->
 			        </div><!--end #ActivityContextBoxWelcomeActivity-->
