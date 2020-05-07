@@ -274,8 +274,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testGetUsersSpaceById() throws Exception {
     //root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
-    space.setMembers(new String[] {"root", "john", "mary", "demo"});
-    space.setManagers(new String[] {"root", "john"});
+    space.setMembers(new String[] {"root", "john"});
+    space.setManagers(new String[] {"root"});
+    space.setInvitedUsers(new String[] {"mary"});
+    space.setPendingUsers(new String[] {"demo"});
     spaceService.updateSpace(space);
 
     startSessionAs("root");
@@ -283,13 +285,25 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
+    assertEquals(2, collections.getEntities().size());
 
     response = service("GET", getURLResource("spaces/" + space.getId() + "/users?role=manager"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/users?role=invited"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/users?role=pending"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
   }
 
   public void testGetSpaceByIdWithDeletedDisableUsers() throws Exception {

@@ -550,7 +550,7 @@ public class CachedIdentityStorage implements IdentityStorage {
 
     SpaceKey spaceKey = new SpaceKey(space.getId());
     IdentityFilterKey identityKey = new IdentityFilterKey(SpaceIdentityProvider.NAME, profileFilter);
-    ListSpaceMembersKey listKey = new ListSpaceMembersKey(spaceKey, identityKey, offset, limit);
+    ListSpaceMembersKey listKey = new ListSpaceMembersKey(spaceKey, identityKey, type, offset, limit);
 
     ListIdentitiesData keys = identitiesCache.get(
         new ServiceContext<ListIdentitiesData>() {

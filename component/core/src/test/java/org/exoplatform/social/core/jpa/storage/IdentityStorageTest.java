@@ -660,6 +660,8 @@ public class IdentityStorageTest extends AbstractCoreTest {
     populateSpaceData();
     populateUser("username4");
     populateUser("username1");
+    populateUser("username5");
+    populateUser("username6");
 
     Space space = new Space();
     space.setApp("app");
@@ -674,8 +676,8 @@ public class IdentityStorageTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] {};
     String[] members = new String[] {"username1", "username2", "username3", "abc", "acb", "bac", "bca", "cab", "cba"};
-    String[] invitedUsers = new String[] {};
-    String[] pendingUsers = new String[] {};
+    String[] invitedUsers = new String[] {"username5"};
+    String[] pendingUsers = new String[] {"username6"};
     space.setInvitedUsers(invitedUsers);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);
@@ -742,6 +744,14 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     addUserToGroupWithMembership("username4", space.getGroupId(), MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
     identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.MANAGER, 0, 10);
+    assertEquals(1, identities.size());
+
+    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.INVITED));
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.INVITED, 0, 10);
+    assertEquals(1, identities.size());
+
+    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.PENDING));
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.PENDING, 0, 10);
     assertEquals(1, identities.size());
   }
 
@@ -1045,6 +1055,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     
     try {
       os.getUserHandler().createUser(user, false);
+      identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, name);
     } catch (Exception e) {
       return null;
     }
