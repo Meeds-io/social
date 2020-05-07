@@ -64,8 +64,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
                templateParams.put(HTML_PARAM, html);
                templateParams.put(DESCRIPTION, exoMedia.getDescription());
                templateParams.put(TITLE, exoMedia.getTitle());
-               templateParams.put(COMMENT, "");
-               activity.setTitle(firstMessage);
+               templateParams.put(COMMENT, firstMessage);
            } else {
                if (linkShare.getImages().size() != 0) {
                    templateParams.put(IMAGE, linkShare.getImages().get(0));
@@ -75,8 +74,8 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
                templateParams.put(HTML_PARAM, null);
                templateParams.put(TITLE, linkShare.getTitle());
                templateParams.put(COMMENT, firstMessage);
-               activity.setTitle(linkShare.getTitle());
            }
+           activity.setTitle(linkShare.getTitle());
            templateParams.put(TEMPLATE_PARAM_TO_PROCESS, "comment");
            templateParams.put(LINK, url);
            activity.setType(LINK_ACTIVITY);
