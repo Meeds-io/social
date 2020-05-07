@@ -61,7 +61,7 @@ public class LinkProvider {
   public static final String SPACE_WAITING_CONFIRM_ICON =
           RESOURCE_URL + "/eXoSkin/skin/images/themes/default/social/skin/UIManageSpaces/WaitingConfirm.png";
   public static final String STARTER_ACTIVITY_AVATAR = "/eXoSkin/skin/images/themes/default/social/skin/Activity/starterAvt.png";
-  public static final String STARTER_ACTIVITY_IMAGE = "/eXoSkin/skin/images/themes/default/social/skin/Activity/starterActImg.png";
+  public static final String STARTER_ACTIVITY_IMAGE = "/eXoSkin/skin/images/themes/default/social/skin/Activity/welcome-img.png";
 
   public static final String ROUTE_DELIMITER = "/";
 
