@@ -11,6 +11,7 @@
     ],
     "globals": {
         "Vue": true,
+        "VueEllipsis": true,
         "Vuetify": true,
         "eXo": true,
         "$": true,

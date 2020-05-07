@@ -10,7 +10,8 @@ let config = {
     whoIsOnline: './src/main/webapp/who-is-online-app/main.js',
     activityComposer: './src/main/webapp/activity-composer-app/main.js',
     spaceMenu: './src/main/webapp/space-menu/main.js',
-    spaceHeader: './src/main/webapp/space-header/main.js'
+    spaceHeader: './src/main/webapp/space-header/main.js',
+    spaceMembers: './src/main/webapp/space-members/main.js'
   },
   module: {
     rules: [

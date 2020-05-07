@@ -232,12 +232,11 @@
     <description xml:lang="EN">Members Portlet</description>
     <portlet-name>MembersPortlet</portlet-name>
     <display-name xml:lang="EN">Members</display-name>
-    <portlet-class>org.exoplatform.webui.application.portlet.PortletApplicationController</portlet-class>
+    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
     <init-param>
-      <name>webui.configuration</name>
-      <value>/WEB-INF/conf/portlet/MembersPortlet/webui/configuration.xml</value>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/space-members/index.jsp</value>
     </init-param>
-    <expiration-cache>0</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
