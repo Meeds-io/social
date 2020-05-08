@@ -213,7 +213,7 @@ export default {
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
     canUseActionsMenu() {
-      return this.user && this.enabledProfileActionExtensions.length;
+      return this.user && this.user.username !== eXo.env.portal.userName && this.enabledProfileActionExtensions.length;
     },
     url() {
       if (this.user && this.user.username) {
