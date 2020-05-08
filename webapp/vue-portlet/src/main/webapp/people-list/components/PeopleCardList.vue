@@ -176,13 +176,13 @@ export default {
       return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId)
         .then(data => {
           let users = data && data.users || [];
-          users = users.filter(user => user && user.username !== eXo.env.portal.userName).slice(0, this.limitToFetch);
+          if (this.filter === 'all') {
+            users = users.filter(user => user && user.username !== eXo.env.portal.userName);
+          }
+          users = users.slice(0, this.limitToFetch);
           this.users = users;
           this.peopleCount = data && data.size && data.size || 0;
-          if (this.peopleCount > 0
-              && (this.filter === 'all'
-                  || this.filter === 'member'
-                  || this.filter === 'manager' && this.isManager)) {
+          if (this.peopleCount > 0 && this.filter === 'all') {
             this.peopleCount = this.peopleCount - 1;
           }
           this.hasPeople = this.hasPeople || this.peopleCount > 0;
