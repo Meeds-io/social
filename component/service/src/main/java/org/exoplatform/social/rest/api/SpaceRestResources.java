@@ -32,6 +32,8 @@ import javax.ws.rs.core.UriInfo;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 
+import io.swagger.annotations.ApiParam;
+
 public interface SpaceRestResources extends SocialRest {
 
 /**
@@ -126,6 +128,7 @@ public interface SpaceRestResources extends SocialRest {
   public abstract Response getSpaceMembers(@Context UriInfo uriInfo,
                                            @Context Request request,
                                            @PathParam("id") String id,
+                                           @QueryParam("q") String q,
                                            @QueryParam("role") String role,
                                            @QueryParam("offset") int offset,
                                            @QueryParam("limit") int limit,

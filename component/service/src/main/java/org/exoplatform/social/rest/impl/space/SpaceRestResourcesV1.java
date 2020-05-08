@@ -44,7 +44,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.*;
+import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
@@ -180,6 +181,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
     }
+
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
       collectionSpace.setSize(listAccess.getSize());
@@ -497,6 +499,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceMembers(@Context UriInfo uriInfo,
                                   @Context Request request,
                                   @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
+                                  @ApiParam(value = "User name search information", required = false) @QueryParam("q") String q,
                                   @ApiParam(value = "Role of the target user in this space: manager, member, invited and pending", required = false, defaultValue = "member") @QueryParam("role") String role,
                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
@@ -518,8 +521,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     Type type = Type.valueOf(role.toUpperCase());
 
+    ProfileFilter profileFilter = new ProfileFilter();
+    profileFilter.setName(q);
+
     ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
-                                                                                                     new ProfileFilter(),
+                                                                                                     profileFilter,
                                                                                                      type,
                                                                                                      true);
     Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
@@ -529,7 +535,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       profileInfos = Collections.emptyList();
     } else {
       profileInfos = Arrays.stream(spaceIdentities)
-                           .map(identity -> EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand)
+                           .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
                                                          .getDataEntity())
                            .collect(Collectors.toList());
     }

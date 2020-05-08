@@ -1,10 +1,22 @@
+<%@page import="org.exoplatform.social.core.space.model.Space"%>
+<%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%
   Object filter = request.getAttribute("filter");
-      if (filter == null) {
-        filter = "";
-      } else {
-        filter = ((String[]) filter)[0];
-      }
+  if (filter == null) {
+    filter = "";
+  } else {
+    filter = ((String[]) filter)[0];
+  }
+
+  boolean isManager = false;
+
+  Space space = SpaceUtils.getSpaceByContext();
+  if (space != null) {
+    SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+    isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -12,7 +24,7 @@
     id="peopleListApplication" flat="">
     <script type="text/javascript">
       require(['PORTLET/social-portlet/MembersPortlet'],
-          app => app.init('<%=filter%>')
+          app => app.init('<%=filter%>', <%=isManager%>)
       );
     </script>
     <div class="v-application--wrap">
@@ -86,7 +98,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -147,7 +159,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -208,7 +220,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -269,7 +281,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -330,7 +342,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -391,7 +403,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -452,7 +464,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -513,7 +525,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -574,7 +586,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -635,7 +647,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -696,7 +708,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -757,7 +769,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -818,7 +830,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -879,7 +891,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -940,7 +952,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -1001,7 +1013,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -1062,7 +1074,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -1123,7 +1135,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -1184,7 +1196,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->
@@ -1245,7 +1257,7 @@
                           class="peopleMenuIcon d-none d-sm-block v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default skeleton-background skeleton-text">
                           <span class="v-btn__content"><i
                             aria-hidden="true"
-                            class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                            class="v-icon notranslate theme--light"
                             style="font-size: 21px;"></i></span>
                         </button>
                         <!---->

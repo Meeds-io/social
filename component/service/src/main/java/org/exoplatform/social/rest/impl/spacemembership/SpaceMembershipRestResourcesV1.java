@@ -177,10 +177,11 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
                 httpMethod = "POST",
                 response = Response.class,
                 notes = "This creates the space membership in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user and the space subscription is open</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
-  @ApiResponses(value = { 
+  @ApiResponses(value = {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (code = 400, message = "Invalid query input"),
+  })
   public Response addSpacesMemberships(@Context UriInfo uriInfo,
                                        @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
                                        @ApiParam(value = "Space membership object to be created, ex:<br />{" +
@@ -210,7 +211,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
       if (spaceService.isSuperManager(authenticatedUser) || spaceService.isManager(givenSpace, authenticatedUser)
           || (authenticatedUser.equals(user) && givenSpace.getRegistration().equals(Space.OPEN))) {
         spaceService.addMember(givenSpace, user);
-        if ("manager".equals(model.getRole())) {
+        if ("manager".equalsIgnoreCase(model.getRole())) {
           spaceService.setManager(givenSpace, user, true);
         }
       } else {
@@ -301,10 +302,10 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       space.setEditor(authenticatedUser);
-      if (model.getRole().equals("manager") && ! spaceService.isManager(space, targetUser)) {
+      if (model.getRole().equalsIgnoreCase("manager") && ! spaceService.isManager(space, targetUser)) {
         spaceService.setManager(space, targetUser, true);
       }
-      if (model.getRole().equals("member") && spaceService.isManager(space, targetUser)) {
+      if (model.getRole().equalsIgnoreCase("member") && spaceService.isManager(space, targetUser)) {
         spaceService.setManager(space, targetUser, false);
       }
     }
@@ -361,8 +362,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     }
     //
     String spacePrettyName = idParams[0];
-    String spaceGroupId = SPACE_PREFIX + spacePrettyName;
-    Space space = spaceService.getSpaceByGroupId(spaceGroupId);
+    Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
     if (space == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
