@@ -197,7 +197,6 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
-      subQueryEmpty = false;
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {
         if (remoteIds.length() > 0) {
@@ -209,39 +208,39 @@ public class ProfileSearchConnector {
       esSubQuery.append("        \"terms\" :{\n");
       esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
       esSubQuery.append("        } \n");
-      esSubQuery.append("      },\n");
+      esSubQuery.append("      },");
+      subQueryEmpty = false;
     }
     if (identity != null && type != null) {
-      subQueryEmpty = false;
       esSubQuery.append("      \"must\" : {\n");
       esSubQuery.append("        \"query_string\" : {\n");
       esSubQuery.append("          \"query\" : \""+ identity.getId() +"\",\n");
       esSubQuery.append("          \"fields\" : [\"" + buildTypeEx(type) + "\"]\n");
       esSubQuery.append("        }\n");
-      esSubQuery.append("      }\n");
-    } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
+      esSubQuery.append("      }");
       subQueryEmpty = false;
+    } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
       esSubQuery.append("      \"must_not\": [\n");
       esSubQuery.append("        {\n");
       esSubQuery.append("          \"ids\" : {\n");
       esSubQuery.append("             \"values\" : [" + buildExcludedIdentities(filter) + "]\n");
       esSubQuery.append("          }\n");
       esSubQuery.append("        }\n");
-      esSubQuery.append("      ]\n");
+      esSubQuery.append("      ]");
+      subQueryEmpty = false;
     }
     //if the search fields are existing.
     if (expEs != null && expEs.length() > 0) {
-      if(!subQueryEmpty) {
+      if(!esSubQuery.toString().endsWith(",")) {
         esSubQuery.append("      ,\n");
       }
-      subQueryEmpty = false;
       esSubQuery.append("    \"filter\": [\n");
       esSubQuery.append("      {");
       esSubQuery.append("          \"query_string\": {\n");
       esSubQuery.append("            \"query\": \"" + expEs + "\"\n");
       esSubQuery.append("          }\n");
       esSubQuery.append("      }\n");
-      esSubQuery.append("    ]\n");
+      esSubQuery.append("    ]");
     } //end if
     esSubQuery.append("     } \n");
     esSubQuery.append("   } \n");
