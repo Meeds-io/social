@@ -247,6 +247,7 @@
     </module>
   </portlet>
 
+
   <portlet>
     <name>MembersPortlet</name>
     <module>
@@ -254,6 +255,9 @@
         <minify>false</minify>
         <path>/js/spaceMembers.bundle.js</path>
       </script>
+      <depends>
+        <module>peopleListComponents</module>
+      </depends>
       <depends>
         <module>commonVueComponents</module>
       </depends>

@@ -8,8 +8,8 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application transparent v-application--is-ltr theme--light"
-    id="peopleListApplication" flat="" app-id="peopleListApplication">
+    class="v-application transparent v-application--is-ltr theme--light peopleList"
+    id="peopleListApplication" flat="">
     <script type="text/javascript">
       require(['PORTLET/social-vue-portlet/PeopleList'],
           app => app.init('<%=filter%>')

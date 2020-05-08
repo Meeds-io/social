@@ -16,6 +16,7 @@ let config = {
     spacesList: './src/main/webapp/spaces-list/main.js',
     spacesOverview: './src/main/webapp/spaces-overview/main.js',
     suggestions: './src/main/webapp/suggestions-people-space/main.js',
+    peopleListComponents: './src/main/webapp/people-list/initComponents.js',
     peopleList: './src/main/webapp/people-list/main.js',
     peopleOverview: './src/main/webapp/people-overview/main.js',
     profileHeader: './src/main/webapp/profile-header/main.js',

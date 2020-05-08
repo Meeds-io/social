@@ -1,9 +1,9 @@
 <template>
-  <v-toolbar id="spaceMemberToolbar" flat>
+  <v-toolbar id="peopleListToolbar" flat>
     <div
       :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
       class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
-      {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('spaceMember.label.peopleCount', {0: peopleCount}) }}
+      {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />
     <v-scale-transition>
@@ -11,7 +11,7 @@
         v-model="keyword"
         :disabled="skeleton"
         :class="skeleton && 'skeleton-text'"
-        :placeholder="!skeleton && $t('spaceMember.label.filterPeople') || '&nbsp;'"
+        :placeholder="!skeleton && $t('peopleList.label.filterPeople') || '&nbsp;'"
         prepend-inner-icon="fa-filter"
         class="inputPeopleFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>
@@ -39,16 +39,16 @@
       <v-sheet class="text-center" height="169px">
         <v-toolbar color="primary" dark class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
-            {{ $t('spaceMember.label.cancel') }}
+            {{ $t('peopleList.label.cancel') }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-toolbar-title>
             <v-icon>fa-filter</v-icon>
-            {{ $t('spaceMember.label.filter') }}
+            {{ $t('peopleList.label.filter') }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn text @click="changeFilterSelection">
-            {{ $t('spaceMember.label.confirm') }}
+            {{ $t('peopleList.label.confirm') }}
           </v-btn>
         </v-toolbar>
         <v-list>
@@ -101,11 +101,17 @@ export default {
   computed: {
     peopleFilters() {
       return [{
-        text: this.$t('spaceMember.label.filter.all'),
-        value: 'all',
+        text: this.$t('peopleList.label.filter.member'),
+        value: 'member',
       },{
-        text: this.$t('spaceMember.label.filter.connections'),
-        value: 'connections',
+        text: this.$t('peopleList.label.filter.manager'),
+        value: 'manager',
+      },{
+        text: this.$t('peopleList.label.filter.invited'),
+        value: 'invited',
+      },{
+        text: this.$t('peopleList.label.filter.pending'),
+        value: 'pending',
       }];
     },
   },

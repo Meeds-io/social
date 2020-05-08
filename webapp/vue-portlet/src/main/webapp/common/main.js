@@ -3,7 +3,7 @@ import './initComponents.js';
 import * as userService from './js/UserService.js';
 import * as spaceService from './js/SpaceService.js';
 import * as uploadService from './js/UploadService.js';
-import * as dateUtil from '../js/DateUtil.js';
+import * as dateUtil from './js/DateUtil.js';
 
 // get overrided components if exists
 if (extensionRegistry) {

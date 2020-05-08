@@ -71,6 +71,10 @@ export default {
       type: String,
       default: null,
     },
+    spaceId: {
+      type: Number,
+      default: 0,
+    },
     peopleCount: {
       type: Number,
       default: 0,
@@ -100,7 +104,16 @@ export default {
   }),
   computed:{
     searchUsersFunction() {
-      return this.filter === 'connections' ? this.$userService.getConnections : this.$userService.getUsers;
+      if (this.filter === 'all') {
+        return this.$userService.getUsers;
+      } else if (this.filter === 'connections') {
+        return this.$userService.getConnections;
+      } else if (this.filter === 'member'
+          || this.filter === 'manager'
+          || this.filter === 'invited'
+          || this.filter === 'pending') {
+        return this.$spaceService.getSpaceMembers;
+      }
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
@@ -153,10 +166,9 @@ export default {
     },
     searchPeople() {
       this.loadingPeople = true;
-      this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users 
-      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve)
+      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId)
         .then(data => {
           let users = data && data.users || [];
           users = users.filter(user => user && user.username !== eXo.env.portal.userName).slice(0, this.limitToFetch);

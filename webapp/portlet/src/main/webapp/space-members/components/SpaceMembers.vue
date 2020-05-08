@@ -2,30 +2,34 @@
   <v-app 
     class="transparent"
     flat>
-    <space-member-toolbar
+    <space-members-toolbar
       :keyword="keyword"
       :filter="filter"
       :people-count="peopleCount"
       :skeleton="skeleton"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
-    <space-member-card-list
+
+    <people-card-list
       ref="spaceMember"
       :keyword="keyword"
       :filter="filter"
       :loading-people="loadingPeople"
       :skeleton="skeleton"
+      :space-id="spaceId"
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
-
-    <space-member-list-drawer />
-  </v-app>    
+  </v-app>
 </template>
 
 <script>
 
 export default {
   props: {
+    spaceId: {
+      type: Number,
+      default: 0,
+    },
     filter: {
       type: String,
       default: null,
