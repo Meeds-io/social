@@ -1,8 +1,8 @@
 <template>
   <exo-drawer
-    ref="spaceFormDrawer"
+    ref="spaceInvitationDrawer"
     right
-    class="spaceFormDrawer">
+    class="spaceInvitationDrawer">
     <template slot="title">
       {{ $t('peopleList.title.usersToInvite') }}
     </template>
@@ -21,7 +21,6 @@
           }"
           name="inviteMembers"
           type-of-relations="user_to_invite"
-          height="100"
           class="ma-4"
           include-users
           include-spaces
@@ -76,9 +75,9 @@ export default {
   watch: {
     savingSpace() {
       if (this.savingSpace) {
-        this.$refs.spaceFormDrawer.startLoading();
+        this.$refs.spaceInvitationDrawer.startLoading();
       } else {
-        this.$refs.spaceFormDrawer.endLoading();
+        this.$refs.spaceInvitationDrawer.endLoading();
       }
     },
   },
@@ -89,10 +88,10 @@ export default {
       this.error = null;
       this.spacePrettyName = eXo.env.portal.spaceName;
       this.invitedMembers = [];
-      this.$refs.spaceFormDrawer.open();
+      this.$refs.spaceInvitationDrawer.open();
     },
     cancel() {
-      this.$refs.spaceFormDrawer.close();
+      this.$refs.spaceInvitationDrawer.close();
     },
     inviteUsers(event) {
       if (event) {
@@ -114,7 +113,7 @@ export default {
           this.$emit('refresh');
 
           window.setTimeout(() => {
-            this.$refs.spaceFormDrawer.close();
+            this.$refs.spaceInvitationDrawer.close();
           }, IDLE_TIME);
         })
         .catch(e => {
