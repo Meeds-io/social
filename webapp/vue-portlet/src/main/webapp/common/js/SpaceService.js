@@ -192,6 +192,68 @@ export function refuseUserRequest(spaceDisplayName, userId) {
   });
 }
 
+export function cancelInvitation(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      status: 'IGNORED',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function promoteManager(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      role: 'manager',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function removeManager(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:manager`;
+  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function removeMember(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:member`;
+  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function getSuggestionsSpace(){
   return fetch('/portal/rest/homepage/intranet/spaces/suggestions', {
     credentials: 'include'

@@ -79,6 +79,10 @@ export default {
       type: Number,
       default: 0,
     },
+    isManager: {
+      type: Boolean,
+      default: false,
+    },
     loadingPeople: {
       type: Boolean,
       default: false,
@@ -163,6 +167,7 @@ export default {
   methods: {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
     },
     searchPeople() {
       this.loadingPeople = true;
@@ -173,7 +178,13 @@ export default {
           let users = data && data.users || [];
           users = users.filter(user => user && user.username !== eXo.env.portal.userName).slice(0, this.limitToFetch);
           this.users = users;
-          this.peopleCount = data && data.size && data.size - 1 || 0;
+          this.peopleCount = data && data.size && data.size || 0;
+          if (this.peopleCount > 0
+              && (this.filter === 'all'
+                  || this.filter === 'member'
+                  || this.filter === 'manager' && this.isManager)) {
+            this.peopleCount = this.peopleCount - 1;
+          }
           this.hasPeople = this.hasPeople || this.peopleCount > 0;
           this.$emit('loaded', this.peopleCount);
           return this.$nextTick();

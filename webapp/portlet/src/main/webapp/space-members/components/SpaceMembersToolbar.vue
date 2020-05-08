@@ -36,7 +36,7 @@
       fa-filter
     </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-      <v-sheet class="text-center" height="169px">
+      <v-sheet :height="bottomNavigationHeight" class="text-center">
         <v-toolbar color="primary" dark class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('peopleList.label.cancel') }}
@@ -89,6 +89,10 @@ export default {
       type: String,
       default: null,
     },
+    isManager: {
+      type: Boolean,
+      default: false,
+    },
     skeleton: {
       type: Boolean,
       default: false,
@@ -99,20 +103,33 @@ export default {
     bottomMenu: false,
   }),
   computed: {
+    bottomNavigationHeight() {
+      return this.isManager && '255px' || '169px';
+    },
     peopleFilters() {
-      return [{
-        text: this.$t('peopleList.label.filter.member'),
-        value: 'member',
-      },{
-        text: this.$t('peopleList.label.filter.manager'),
-        value: 'manager',
-      },{
-        text: this.$t('peopleList.label.filter.invited'),
-        value: 'invited',
-      },{
-        text: this.$t('peopleList.label.filter.pending'),
-        value: 'pending',
-      }];
+      if (this.isManager) {
+        return [{
+          text: this.$t('peopleList.label.filter.member'),
+          value: 'member',
+        },{
+          text: this.$t('peopleList.label.filter.manager'),
+          value: 'manager',
+        },{
+          text: this.$t('peopleList.label.filter.invited'),
+          value: 'invited',
+        },{
+          text: this.$t('peopleList.label.filter.pending'),
+          value: 'pending',
+        }];
+      } else {
+        return [{
+          text: this.$t('peopleList.label.filter.member'),
+          value: 'member',
+        },{
+          text: this.$t('peopleList.label.filter.manager'),
+          value: 'manager',
+        }];
+      }
     },
   },
   watch: {

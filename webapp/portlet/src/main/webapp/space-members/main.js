@@ -27,11 +27,16 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'peopleListApplication';
 
-export function init(filter) {
+export function init(filter, isManager) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
-      template: `<space-members id="${appId}" filter="${filter || 'member'}" space-id="${eXo.env.portal.spaceId}" class="spaceMembers"></space-members>`,
+      template: `<space-members
+                  id="${appId}"
+                  :is-manager="${isManager}"
+                  filter="${filter || 'member'}"
+                  space-id="${eXo.env.portal.spaceId}"
+                  class="spaceMembers" />`,
       i18n,
       vuetify,
     }).$mount(`#${appId}`);
