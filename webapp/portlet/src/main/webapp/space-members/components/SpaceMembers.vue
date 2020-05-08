@@ -9,7 +9,9 @@
       :skeleton="skeleton"
       :is-manager="isManager"
       @keyword-changed="keyword = $event"
-      @filter-changed="filter = $event" />
+      @filter-changed="filter = $event"
+      @invite-users="$refs.spaceInvitationDrawer.open()"
+      @refresh="refreshInvited" />
 
     <people-card-list
       ref="spaceMembers"
@@ -22,6 +24,10 @@
       :is-manager="isManager"
       ignore-profile-extensions
       @loaded="peopleLoaded" />
+
+    <space-invitation-drawer
+      ref="spaceInvitationDrawer"
+      @refresh="refreshInvited" />
   </v-app>
 </template>
 
@@ -48,6 +54,11 @@ export default {
     loadingPeople: false,
     skeleton: true,
   }),
+  watch: {
+    filter() {
+      console.warn(this.filter);
+    },
+  },
   created() {
     if (this.isManager) {
       extensionRegistry.registerExtension('profile-extension', 'action', {
@@ -126,6 +137,11 @@ export default {
     }
   },
   methods: {
+    refreshInvited() {
+      if (this.filter === 'invited') {
+        this.$refs.spaceMembers.searchPeople();
+      }
+    },
     peopleLoaded(peopleCount) {
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.peopleCount = peopleCount;

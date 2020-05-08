@@ -1,5 +1,18 @@
 <template>
   <v-toolbar id="peopleListToolbar" flat>
+    <v-toolbar-title v-if="skeleton || isManager">
+      <v-btn
+        :disabled="skeleton"
+        :class="skeleton && 'skeleton-text skeleton-background'"
+        class="btn pr-2 pl-0 inviteUserToSpaceButton"
+        @click="$emit('invite-users')">
+        <span v-if="skeleton" class="mx-2">&nbsp;</span>
+        <i v-else class="uiIconInviteUser ml-2 mr-1" />
+        <span class="d-none d-sm-inline">
+          {{ skeleton && '&nbsp;' || $t('peopleList.button.inviteUsers') }}
+        </span>
+      </v-btn>
+    </v-toolbar-title>
     <div
       :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
       class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
