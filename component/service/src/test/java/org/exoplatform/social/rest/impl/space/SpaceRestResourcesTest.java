@@ -25,10 +25,8 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.mock.MockUploadService;
-import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.upload.UploadService;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
@@ -56,10 +54,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
 
-    rootIdentity = identityManager.getOrCreateIdentity("organization", "root", true);
-    johnIdentity = identityManager.getOrCreateIdentity("organization", "john", true);
-    maryIdentity = identityManager.getOrCreateIdentity("organization", "mary", true);
-    demoIdentity = identityManager.getOrCreateIdentity("organization", "demo", true);
+    rootIdentity = identityManager.getOrCreateIdentity("organization", "root");
+    johnIdentity = identityManager.getOrCreateIdentity("organization", "john");
+    maryIdentity = identityManager.getOrCreateIdentity("organization", "mary");
+    demoIdentity = identityManager.getOrCreateIdentity("organization", "demo");
 
     spaceRestResources = new SpaceRestResourcesV1(spaceService, identityManager, uploadService);
     registry(spaceRestResources);
@@ -321,11 +319,16 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     List<DataEntity> dataEntities = (List<DataEntity>) collections.getEntities();
     assertEquals(4, dataEntities.size());
     // Make sure properties 'deleted' and 'enabled' are added to the dataEntity.
-    assertTrue(dataEntities.get(0).size() >= 12);
-    assertEquals(true, dataEntities.get(0).containsKey("deleted"));
-    assertEquals(true, dataEntities.get(0).containsKey("enabled"));
-    assertEquals(rootIdentity.isDeleted(), dataEntities.get(0).get("deleted"));
-    assertEquals(rootIdentity.isEnable(), dataEntities.get(0).get("enabled"));
+    DataEntity rootDataEntity = dataEntities.stream()
+                                            .filter(data -> data.get(ProfileEntity.USERNAME).equals("root"))
+                                            .findFirst()
+                                            .orElse(null);
+    assertNotNull(rootDataEntity);
+    assertTrue(rootDataEntity.size() >= 12);
+    assertEquals(true, rootDataEntity.containsKey("deleted"));
+    assertEquals(true, rootDataEntity.containsKey("enabled"));
+    assertEquals(rootIdentity.isDeleted(), rootDataEntity.get("deleted"));
+    assertEquals(rootIdentity.isEnable(), rootDataEntity.get("enabled"));
 
     response = service("GET", getURLResource("spaces/" + space.getId() + "/users?role=manager"), "", null, null);
     assertNotNull(response);
@@ -334,11 +337,11 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     dataEntities = (List<DataEntity>) collections.getEntities();
     // Make sure properties 'deleted' and 'enabled' are added to the dataEntity.
     assertEquals(2, dataEntities.size());
-    assertTrue(dataEntities.get(0).size() >= 12);
-    assertEquals(true, dataEntities.get(0).containsKey("deleted"));
-    assertEquals(true, dataEntities.get(0).containsKey("enabled"));
-    assertEquals(johnIdentity.isDeleted(), dataEntities.get(0).get("deleted"));
-    assertEquals(johnIdentity.isEnable(), dataEntities.get(0).get("enabled"));
+    assertTrue(rootDataEntity.size() >= 12);
+    assertEquals(true, rootDataEntity.containsKey("deleted"));
+    assertEquals(true, rootDataEntity.containsKey("enabled"));
+    assertEquals(johnIdentity.isDeleted(), rootDataEntity.get("deleted"));
+    assertEquals(johnIdentity.isEnable(), rootDataEntity.get("enabled"));
   }
 
   public void testGetActivitiesSpaceById() throws Exception {

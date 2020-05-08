@@ -371,7 +371,7 @@
         <path>/js/peopleList.bundle.js</path>
       </script>
       <depends>
-        <module>commonVueComponents</module>
+        <module>peopleListComponents</module>
       </depends>
       <depends>
         <module>vue</module>
@@ -648,4 +648,38 @@
       <as>editor</as>
     </depends>
   </module>
+
+  <module>
+    <name>peopleListComponents</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/peopleListComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>vueEllipsis</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>userPopupPlugin</module>
+    </depends>
+  </module>
+
 </gatein-resources>

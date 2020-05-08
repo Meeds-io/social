@@ -1,6 +1,6 @@
 <template>
   <v-app 
-    class="transparent"
+    class="transparent peopleList"
     flat>
     <people-toolbar
       :keyword="keyword"
@@ -17,8 +17,6 @@
       :skeleton="skeleton"
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
-
-    <people-list-drawer />
   </v-app>    
 </template>
 
@@ -48,4 +46,3 @@ export default {
   },
 };
 </script>
-
