@@ -54,11 +54,6 @@ export default {
     loadingPeople: false,
     skeleton: true,
   }),
-  watch: {
-    filter() {
-      console.warn(this.filter);
-    },
-  },
   created() {
     if (this.isManager) {
       extensionRegistry.registerExtension('profile-extension', 'action', {
