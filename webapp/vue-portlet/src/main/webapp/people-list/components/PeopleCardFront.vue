@@ -16,6 +16,15 @@
         @click="$emit('flip')">
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
+      <v-btn
+        v-if="user.isManager"
+        color="primary"
+        class="white primary-border-color ml-1 mt-2"
+        disabled
+        icon
+        x-small>
+        <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
+      </v-btn>
       <v-spacer />
       <template v-if="skeleton || canUseActionsMenu">
         <v-btn
