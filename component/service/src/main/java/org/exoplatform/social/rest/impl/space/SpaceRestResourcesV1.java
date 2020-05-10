@@ -448,6 +448,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     spaceService.updateSpace(space, model.getInvitedMembers());
+    space = spaceService.getSpaceById(space.getId());
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -724,6 +725,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
     }
 
+    if (StringUtils.isNotBlank(model.getTemplate())) {
+      space.setTemplate(model.getTemplate());
+    }
+
     if (StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
@@ -764,7 +769,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setAvatarAttachment(attachment);
-          spaceService.updateSpaceBanner(space);
+          spaceService.updateSpaceAvatar(space);
         } else {
           BannerAttachment attachment = new BannerAttachment(null,
                                             uploadResource.getFileName(),

@@ -18,9 +18,10 @@
       </v-btn>
       <v-btn
         v-if="user.isManager"
+        :title="$t('peopleList.label.spaceManager')"
+        :ripple="false"
         color="primary"
-        class="white primary-border-color ml-1 mt-2"
-        disabled
+        class="white primary-border-color ml-1 mt-2 not-clickable"
         icon
         x-small>
         <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
@@ -185,6 +186,10 @@ export default {
     user: {
       type: Object,
       default: null,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
     skeleton: {
       type: Boolean,

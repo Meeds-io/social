@@ -20,7 +20,7 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application transparent v-application--is-ltr theme--light spaceMembers"
+    class="v-application transparent v-application--is-ltr theme--light singlePageApplication"
     id="peopleListApplication" flat="">
     <script type="text/javascript">
       require(['PORTLET/social-portlet/MembersPortlet'],
