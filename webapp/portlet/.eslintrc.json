@@ -48,7 +48,6 @@
         "no-label-var": ["error"],
         "no-lone-blocks": ["error"],
         "no-loop-func": ["error"],
-        "no-magic-numbers": ["error", { "ignore": [-1,0,1], "enforceConst": true }],
         "no-new-require": ["error"],
         "no-path-concat": ["error"],
         "no-process-env": ["error"],
