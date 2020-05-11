@@ -33,8 +33,6 @@ export default {
   },
   data: () => ({
     savingSpace: false,
-    spaceSaved: false,
-    error: null,
     applications: [],
   }),
   watch: {
@@ -59,14 +57,12 @@ export default {
       this.$refs.spaceApplicationInstallerDrawer.close();
     },
     addApplication(application) {
-      if (this.spaceSaved || this.savingSpace) {
+      if (this.savingSpace) {
         return;
       }
-      this.error = null;
       this.savingSpace = true;
       this.$spaceService.addApplication(this.spaceId, application.id)
         .then(() => {
-          this.spaceSaved = true;
           this.$emit('refresh');
 
           window.setTimeout(() => {
