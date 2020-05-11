@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="displayed">
+  <div v-if="displayed">
     <v-card class="border-radius" flat>
       <v-list two-line>
         <v-list-item>
@@ -22,11 +22,11 @@
         </v-list-item>
       </v-list>
 
-      <space-settings-form-drawer
+      <space-setting-form-drawer
         ref="spaceFormDrawer"
         :max-upload-size="maxUploadSize" />
     </v-card>
-  </v-app>
+  </div>
 </template>
 
 <script>

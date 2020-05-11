@@ -13,7 +13,7 @@
         class="ma-4 d-flex row"
         @submit="saveSpace">
         <div class="width-full d-flex">
-          <space-settings-avatar
+          <space-setting-avatar
             ref="spaceAvatar"
             v-model="space.avatarId"
             :avatar-url="space.avatarUrl"
