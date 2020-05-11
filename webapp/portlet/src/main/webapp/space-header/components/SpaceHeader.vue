@@ -107,6 +107,8 @@ export default {
               const oldNav = this.navigations.find(oldNav => oldNav.id === nav.id);
               if (oldNav) {
                 nav.uri = oldNav.uri;
+              } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
+                nav.uri = nav.uri.split('/')[1];
               }
             });
             this.navigations = data;
