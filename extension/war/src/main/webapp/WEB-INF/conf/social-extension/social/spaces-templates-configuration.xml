@@ -110,7 +110,7 @@
                       <string>Members</string>
                     </field>
                     <field name="removable">
-                      <boolean>true</boolean>
+                      <boolean>false</boolean>
                     </field>
                     <field name="order">
                       <int>100</int>
@@ -182,7 +182,7 @@
                       <string>Members</string>
                     </field>
                     <field name="removable">
-                      <boolean>true</boolean>
+                      <boolean>false</boolean>
                     </field>
                     <field name="order">
                       <int>700</int>
@@ -277,7 +277,7 @@
                       <string>Members</string>
                     </field>
                     <field name="removable">
-                      <boolean>true</boolean>
+                      <boolean>false</boolean>
                     </field>
                     <field name="order">
                       <int>700</int>
@@ -372,7 +372,7 @@
                       <string>Members</string>
                     </field>
                     <field name="removable">
-                      <boolean>true</boolean>
+                      <boolean>false</boolean>
                     </field>
                     <field name="order">
                       <int>600</int>
