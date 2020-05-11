@@ -2,8 +2,10 @@
   <div v-if="displayed">
     <space-setting-applications-window
       v-if="displayDetails"
-      :space="space"
-      @back="closeDetail" />
+      :space-id="spaceId"
+      :applications="applications"
+      @back="closeDetail"
+      @refresh="refresh" />
     <v-card v-else class="border-radius" flat>
       <v-list>
         <v-list-item>
@@ -47,7 +49,7 @@ export default {
     id: `SpaceApplications${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
-    space: null,
+    applications: null,
     displayed: true,
     displayDetails: false,
   }),
@@ -60,10 +62,18 @@ export default {
     document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   methods: {
+    refresh() {
+      document.dispatchEvent(new CustomEvent('refreshSpaceNavigations'));
+
+      this.$spaceService.getSpaceApplications(this.spaceId)
+        .then(applications => {
+          this.applications = applications;
+        });
+    },
     openDetail() {
-      this.$spaceService.getSpaceById(this.spaceId)
-        .then(space => {
-          this.space = space;
+      this.$spaceService.getSpaceApplications(this.spaceId)
+        .then(applications => {
+          this.applications = applications;
 
           document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
           this.displayDetails = true;

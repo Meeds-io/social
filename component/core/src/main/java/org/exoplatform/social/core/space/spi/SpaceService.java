@@ -1460,4 +1460,14 @@ public interface SpaceService {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param spaceId technical id of the space
+   * @param appId application identifier
+   * @param transition how much levels to move up or down an application
+   * @throws SpaceException
+   */
+  default void moveApplication(String spaceId, String appId, int transition) throws SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
 }

@@ -23,40 +23,67 @@
       <v-row dense>
         <v-col
           v-for="(app, index) in applications"
-          :key="app"
-          class="SpaceApplicationCard ma-3">
+          :key="app.id"
+          class="SpaceApplicationCard ma-1">
           <space-setting-application-card
             :application="app"
-            :space="space"
+            :space-id="spaceId"
             :index="index"
             :length="applications.length"
             @moveAfter="moveAfter(app)"
             @moveBefore="moveBefore(app)"
             @remove="remove(app)" />
         </v-col>
+        <v-col class="SpaceApplicationCard dashed-border mx-1">
+          <v-btn
+            class="primary--text"
+            width="100%"
+            height="100%"
+            text
+            @click="openDrawer">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+        </v-col>
       </v-row>
     </v-container>
+    <space-setting-add-application-drawer
+      ref="spaceSettingAddApplicationDrawer"
+      :space-id="spaceId"
+      @refresh="$emit('refresh')" />
   </v-card>
 </template>
 
 <script>
 export default {
   props: {
-    space: {
-      type: Object,
+    spaceId: {
+      type: String,
       default: null,
+    },
+    applications: {
+      type: Array,
+      default: () => [],
     },
   },
   data: () => ({
     saving: false,
   }),
-  computed: {
-    applications() {
-      return this.space && this.space.applications || [];
-    },
-  },
   methods: {
-    
+    moveAfter(application) {
+      this.$spaceService.moveApplicationDown(this.spaceId, application.id)
+        .then(() => this.$emit('refresh'));
+    },
+    moveBefore(application) {
+      this.$spaceService.moveApplicationUp(this.spaceId, application.id)
+        .then(() => this.$emit('refresh'));
+    },
+    remove(application) {
+      this.$spaceService.removeApplication(this.spaceId, application.id)
+        .then(() => this.$emit('refresh'));
+    },
+    openDrawer() {
+      this.$refs.spaceSettingAddApplicationDrawer.open();
+    },
   },
 };
 </script>

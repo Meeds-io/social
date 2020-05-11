@@ -113,4 +113,15 @@ public interface SpaceApplicationHandler extends ComponentPlugin {
    */
   public String getName();
 
+  /**
+   * @param space Space to change its location
+   * @param appId application identifier
+   * @param transition positive number to move up and negative number to move
+   *          down
+   * @throws Exception when error saving moved node
+   */
+  default void moveApplication(Space space, String appId, int transition) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
 }
