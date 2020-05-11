@@ -545,10 +545,14 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       
     }
     NodeContext<NodeContext<?>> childNodeCtx = nodeCtx.add(null, pageName);
-    Builder nodeStateBuilder = new NodeState.Builder().icon(spaceApplication.getIcon()).pageRef(PageKey.parse(page.getPageId()));
+    Builder nodeStateBuilder = new NodeState.Builder()
+        .icon(spaceApplication.getIcon())
+        .pageRef(PageKey.parse(page.getPageId()));
     WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
     if (context != null && !context.getApplicationResourceBundle().containsKey(appId + ".label.name")) {
       nodeStateBuilder.label(app.getDisplayName());
+    } else {
+      nodeStateBuilder.label("#{" + appId + ".label.name}");
     }
     childNodeCtx.setState(nodeStateBuilder.build());
     return childNodeCtx;
