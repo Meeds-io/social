@@ -42,6 +42,9 @@ public class SpaceException extends Exception{
     /** The UNABL e_ t o_ remov e_ application. */
     UNABLE_TO_REMOVE_APPLICATION,
 
+    /** The UNABL e_ t o_ remov e_ application. */
+    UNABLE_TO_MOVE_APPLICATION,
+
     /** The UNABL e_ t o_ remov e_ applications. */
     UNABLE_TO_REMOVE_APPLICATIONS,
 

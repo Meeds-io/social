@@ -1,7 +1,6 @@
 <template>
   <v-card
     :id="applicationId"
-    class="border-radius border-color"
     flat>
     <div class="d-flex flex-no-wrap">
       <v-avatar
@@ -10,7 +9,7 @@
         tile>
         <i :class="applicationIcon"></i>
       </v-avatar>
-      <div>
+      <div class="flex-grow-1">
         <v-card-title
           :title="applicationName"
           class="text-truncate subtitle-1 px-1 text-color SpaceApplicationCardTitle">
@@ -24,13 +23,23 @@
       </div>
       <div class="SpaceApplicationCardAction">
         <v-btn
+          v-if="spaceId"
           :disabled="skeleton"
           :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
-          class="primary--text d-none d-sm-block"
+          class="primary--text"
           @click="displayActionMenu = true">
           <v-icon size="12">mdi-dots-vertical</v-icon>
+        </v-btn>
+        <v-btn
+          v-else
+          text
+          height="100%"
+          width="100%px"
+          class="primary--text"
+          @click="$emit('add')">
+          <v-icon size="36">mdi-plus</v-icon>
         </v-btn>
         <v-menu
           v-if="!skeleton"
@@ -74,7 +83,7 @@
 <script>
 export default {
   props: {
-    space: {
+    spaceId: {
       type: Object,
       default: null,
     },
@@ -99,7 +108,7 @@ export default {
       return this.index === 0;
     },
     lastApplication() {
-      return this.index === (this.length - 1);
+      return this.index === this.length - 1;
     },
     applicationRemovable() {
       return this.application && this.application.id && this.application.removable && String(this.application.removable) === 'true';
@@ -122,12 +131,14 @@ export default {
     },
   },
   mounted() {
-    // Force to close DatePickers when clicking outside
-    $(document).on('click', (e) => {
-      if (e.target && !$(e.target).parents(`#${this.applicationId}`).length) {
-        this.displayActionMenu = false;
-      }
-    });
+    if (this.spaceId) {
+      // Force to close DatePickers when clicking outside
+      $(document).on('click', (e) => {
+        if (e.target && !$(e.target).parents(`#${this.applicationId}`).length) {
+          this.displayActionMenu = false;
+        }
+      });
+    }
   },
 };
 </script>

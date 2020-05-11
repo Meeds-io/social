@@ -16,13 +16,8 @@
  */
 package org.exoplatform.social.core.space.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -54,7 +49,7 @@ import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.page.PageState;
-import org.exoplatform.portal.mop.user.UserNode;
+import org.exoplatform.portal.mop.user.*;
 import org.exoplatform.portal.pom.config.Utils;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.portal.pom.spi.portlet.PortletBuilder;
@@ -225,8 +220,8 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
 
     try {
       navContext = SpaceUtils.getGroupNavigationContext(space.getGroupId());
-      homeNodeCtx = SpaceUtils.getHomeNodeWithChildren(navContext, space.getUrl());
-
+      homeNodeCtx = SpaceUtils.getHomeNodeWithChildren(navContext, null);
+      homeNodeCtx = homeNodeCtx.get(0);
     } catch (Exception e) {
       LOG.warn("space navigation not found.", e);
       return;
@@ -286,6 +281,58 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
     } catch (Exception e) {
       throw new SpaceException(SpaceException.Code.UNABLE_TO_REMOVE_APPLICATIONS, e);
     }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public void moveApplication(Space space, String appId, int transition) throws Exception {
+    String apps = space.getApp();
+    if (transition == 0 || apps == null || !StringUtils.contains(apps, appId)) {
+      return;
+    }
+    List<String> appPartsList = new ArrayList<>(Arrays.asList(apps.split(",")));
+    String appPartToChange = appPartsList.stream()
+                                         .filter(appPart -> appPart != null && StringUtils.startsWith(appPart, appId + ":"))
+                                         .findFirst()
+                                         .orElse(null);
+    if (StringUtils.isBlank(appPartToChange)) {
+      return;
+    }
+    String[] appParts = appPartToChange.split(":");
+    NodeContext<NodeContext<?>> spaceUserNode = getSpaceUserNode(space).get(0);
+    NodeContext<NodeContext<?>> toMoveNode = null;
+    Iterator<NodeContext<?>> nodes = spaceUserNode.getNodes().iterator();
+    int nodeIndex = 0;
+    while (toMoveNode == null && nodes.hasNext()) {
+      NodeContext<NodeContext<?>> userNode = (NodeContext<NodeContext<?>>) nodes.next();
+      String appName = appParts[1];
+      if (StringUtils.equals(userNode.getName(), appId)
+          || StringUtils.equals(userNode.getName(), appName)
+          || (userNode.getState().getPageRef() != null
+              && (StringUtils.equals(userNode.getState().getPageRef().getName(), appId)
+                  || StringUtils.equals(userNode.getState().getPageRef().getName(), appName)))) {
+        toMoveNode = userNode;
+        break;
+      }
+      nodeIndex++;
+    }
+    if (toMoveNode != null) {
+      if (transition < 0) {
+        if (nodeIndex > 0) {
+          NodeContext<NodeContext<?>> previousNode = spaceUserNode.get(nodeIndex - 1);
+          spaceUserNode.removeNode(previousNode.getName());
+          spaceUserNode.add(nodeIndex, previousNode);
+        }
+      } else if (transition > 0) {
+        int newIndex = nodeIndex + 1;
+        if (newIndex < spaceUserNode.getNodeCount()) {
+          spaceUserNode.removeNode(toMoveNode.getName());
+          spaceUserNode.add(newIndex, toMoveNode);
+        }
+      }
+    }
+
+    ExoContainerContext.getService(NavigationService.class).saveNode(spaceUserNode, null);
   }
 
   /**
@@ -735,5 +782,11 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       moduleRegistry = CommonsUtils.getService(ModuleRegistry.class);
     }
     return moduleRegistry;
+  }
+
+  private NodeContext<NodeContext<?>> getSpaceUserNode(Space space) throws Exception {
+    NavigationContext spaceNavCtx = SpaceUtils.getGroupNavigationContext(space.getGroupId());
+    NavigationService navigationService = ExoContainerContext.getService(NavigationService.class);
+    return navigationService.loadNode(NodeModel.SELF_MODEL, spaceNavCtx, Scope.ALL, null);
   }
 }

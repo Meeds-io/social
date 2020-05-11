@@ -42,6 +42,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceException.Code;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.model.Space.UpdatedField;
 import org.exoplatform.social.core.space.spi.*;
@@ -842,6 +843,17 @@ public class SpaceServiceImpl implements SpaceService {
    */
   public void installApplication(String spaceId, String appId) throws SpaceException {
     installApplication(getSpaceById(spaceId), appId);
+  }
+
+  @Override
+  public void moveApplication(String spaceId, String appId, int transition) throws SpaceException {
+    Space space = getSpaceById(spaceId);
+    SpaceApplicationHandler appHandler = getSpaceApplicationHandler(space);
+    try {
+      appHandler.moveApplication(space, appId, transition);
+    } catch (Exception e) {
+      throw new SpaceException(Code.UNABLE_TO_MOVE_APPLICATION, e);
+    }
   }
 
   /**
