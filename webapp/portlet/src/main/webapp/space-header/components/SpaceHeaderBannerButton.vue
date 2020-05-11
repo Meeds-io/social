@@ -45,8 +45,9 @@ export default {
         }
         this.sendingImage = true;
         return this.$uploadService.upload(file)
-          .then(uploadId => this.$spaceService.updateSpace(eXo.env.portal.spaceId, {
-            'bannerId': uploadId,
+          .then(uploadId => this.$spaceService.updateSpace({
+            id: eXo.env.portal.spaceId,
+            bannerId: uploadId,
           }))
           .then(() => this.$emit('refresh'))
           .catch(error => this.$emit('error', error))
