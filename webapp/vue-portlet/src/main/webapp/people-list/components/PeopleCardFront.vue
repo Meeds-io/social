@@ -78,7 +78,8 @@
       <a
         :href="url"
         :title="user.fullname"
-        class="userFullname text-truncate text-color font-weight-bold d-block">
+        :class="(!user.enabled || user.deleted) && 'text-sub-title' || 'text-color'"
+        class="userFullname text-truncate font-weight-bold d-block">
         {{ skeleton && '&nbsp;' || user.fullname }}
       </a>
       <v-card-subtitle
@@ -97,7 +98,21 @@
         @ok="okConfirmDialog"
         @dialog-closed="closeConfirmDialog" />
       <v-btn
-        v-if="user.relationshipStatus === 'CONFIRMED'"
+        v-if="!skeleton && (!user.enabled || user.deleted)"
+        class="btn mx-auto cancelRequestButton"
+        depressed
+        disabled
+        block>
+        <span v-if="user.deleted" class="d-none d-sm-inline">
+          {{ $t('peopleList.label.deletedUser') }}
+        </span>
+        <span v-else class="d-none d-sm-inline">
+          {{ $t('peopleList.label.disabledUser') }}
+        </span>
+        <v-icon class="d-inline d-sm-none">mdi-minus</v-icon>
+      </v-btn>
+      <v-btn
+        v-else-if="user.relationshipStatus === 'CONFIRMED'"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto disconnectUserButton"

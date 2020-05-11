@@ -85,7 +85,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager') && !user.isManager;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.isManager;
         },
         click: (user) => {
           this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
@@ -109,7 +109,7 @@ export default {
         icon: 'uiIconUserCheck',
         order: 1,
         enabled: (user) => {
-          return this.filter === 'pending' && user.isPending;
+          return user.enabled && !user.deleted && this.filter === 'pending' && user.isPending;
         },
         click: (user) => {
           this.$spaceService.acceptUserRequest(eXo.env.portal.spaceDisplayName, user.username)
