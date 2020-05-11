@@ -1,6 +1,5 @@
 <template>
   <v-card
-    class="ma-4"
     flat>
     <v-toolbar
       class="border-box-sizing"
@@ -34,7 +33,7 @@
             @moveBefore="moveBefore(app)"
             @remove="remove(app)" />
         </v-col>
-        <v-col class="SpaceApplicationCard dashed-border mx-1">
+        <v-col class="SpaceApplicationCard dashed-border ma-1">
           <v-btn
             class="primary--text"
             width="100%"

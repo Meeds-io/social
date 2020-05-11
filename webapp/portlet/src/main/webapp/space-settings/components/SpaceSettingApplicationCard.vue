@@ -10,14 +10,14 @@
         <i :class="applicationIcon"></i>
       </v-avatar>
       <div class="flex-grow-1">
-        <v-card-title
+        <div
           :title="applicationName"
-          class="text-truncate subtitle-1 px-1 text-color SpaceApplicationCardTitle">
+          class="text-truncate subtitle-1 px-1 pt-4 text-color SpaceApplicationCardTitle">
           {{ applicationName }}
-        </v-card-title>
+        </div>
         <v-card-subtitle
           :title="applicationDescription"
-          class="text-truncate subtitle-2 px-1 text-sub-title SpaceApplicationCardDescription">
+          class="text-truncate subtitle-2 px-1 pt-0 text-sub-title SpaceApplicationCardDescription">
           {{ applicationDescription || applicationName }}
         </v-card-subtitle>
       </div>
@@ -30,7 +30,7 @@
           text
           class="primary--text"
           @click="displayActionMenu = true">
-          <v-icon size="12">mdi-dots-vertical</v-icon>
+          <v-icon size="16">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-btn
           v-else
