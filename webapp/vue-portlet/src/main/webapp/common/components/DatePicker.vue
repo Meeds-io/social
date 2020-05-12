@@ -41,7 +41,6 @@
 </template>
 
 <script>
-import * as DateUtil from '../js/DateUtil.js';
 
 export default {
   props: {
@@ -144,8 +143,8 @@ export default {
   computed: {
     minDate() {
       if (this.minValue) {
-        const dateObj = DateUtil.getDateObjectFromString(this.minValue, true);
-        return DateUtil.getISODate(dateObj);
+        const dateObj = this.$dateUtil.getDateObjectFromString(this.minValue, true);
+        return this.$dateUtil.getISODate(dateObj);
       } else {
         return null;
       }
@@ -194,7 +193,7 @@ export default {
         }
       }
       if (this.dateValue) {
-        this.dateFormatted = DateUtil.formatDateObjectToDisplay(dateObj, this.format, this.lang);
+        this.dateFormatted = this.$dateUtil.formatDateObjectToDisplay(dateObj, this.format, this.lang);
       } else {
         this.dateFormatted = null;
       }
@@ -202,10 +201,10 @@ export default {
     },
     computeDate() {
       if (this.value && String(this.value).trim()) {
-        const dateObj = DateUtil.getDateObjectFromString(String(this.value).trim(), true);
-        this.date = DateUtil.getISODate(dateObj);
+        const dateObj = this.$dateUtil.getDateObjectFromString(String(this.value).trim(), true);
+        this.date = this.$dateUtil.getISODate(dateObj);
       } else {
-        this.date = DateUtil.getISODate(new Date());
+        this.date = this.$dateUtil.getISODate(new Date());
       }
     },
   },

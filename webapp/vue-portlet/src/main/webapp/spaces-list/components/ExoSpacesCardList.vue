@@ -66,8 +66,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   props: {
     keyword: {
@@ -158,7 +156,7 @@ export default {
     searchSpaces() {
       this.loadingSpaces = true;
       this.loadingSpaces = true;
-      return spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
+      return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;

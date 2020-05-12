@@ -61,8 +61,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     keyword: {
@@ -73,9 +71,17 @@ export default {
       type: String,
       default: null,
     },
+    spaceId: {
+      type: Number,
+      default: 0,
+    },
     peopleCount: {
       type: Number,
       default: 0,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
     loadingPeople: {
       type: Boolean,
@@ -102,7 +108,16 @@ export default {
   }),
   computed:{
     searchUsersFunction() {
-      return this.filter === 'connections' ? userService.getConnections : userService.getUsers;
+      if (this.filter === 'all') {
+        return this.$userService.getUsers;
+      } else if (this.filter === 'connections') {
+        return this.$userService.getConnections;
+      } else if (this.filter === 'member'
+          || this.filter === 'manager'
+          || this.filter === 'invited'
+          || this.filter === 'pending') {
+        return this.$spaceService.getSpaceMembers;
+      }
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
@@ -152,18 +167,24 @@ export default {
   methods: {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
     },
     searchPeople() {
       this.loadingPeople = true;
-      this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users 
-      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve)
+      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId)
         .then(data => {
           let users = data && data.users || [];
-          users = users.filter(user => user && user.username !== eXo.env.portal.userName).slice(0, this.limitToFetch);
+          if (this.filter === 'all') {
+            users = users.filter(user => user && user.username !== eXo.env.portal.userName);
+          }
+          users = users.slice(0, this.limitToFetch);
           this.users = users;
-          this.peopleCount = data && data.size && data.size - 1 || 0;
+          this.peopleCount = data && data.size && data.size || 0;
+          if (this.peopleCount > 0 && this.filter === 'all') {
+            this.peopleCount = this.peopleCount - 1;
+          }
           this.hasPeople = this.hasPeople || this.peopleCount > 0;
           this.$emit('loaded', this.peopleCount);
           return this.$nextTick();

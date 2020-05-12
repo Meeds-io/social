@@ -16,6 +16,16 @@
         @click="$emit('flip')">
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
+      <v-btn
+        v-if="user.isManager"
+        :title="$t('peopleList.label.spaceManager')"
+        :ripple="false"
+        color="primary"
+        class="white primary-border-color ml-1 mt-2 not-clickable"
+        icon
+        x-small>
+        <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
+      </v-btn>
       <v-spacer />
       <template v-if="skeleton || canUseActionsMenu">
         <v-btn
@@ -68,7 +78,8 @@
       <a
         :href="url"
         :title="user.fullname"
-        class="userFullname text-truncate text-color font-weight-bold d-block">
+        :class="(!user.enabled || user.deleted) && 'text-sub-title' || 'text-color'"
+        class="userFullname text-truncate font-weight-bold d-block">
         {{ skeleton && '&nbsp;' || user.fullname }}
       </a>
       <v-card-subtitle
@@ -87,7 +98,21 @@
         @ok="okConfirmDialog"
         @dialog-closed="closeConfirmDialog" />
       <v-btn
-        v-if="user.relationshipStatus === 'CONFIRMED'"
+        v-if="!skeleton && (!user.enabled || user.deleted)"
+        class="btn mx-auto cancelRequestButton"
+        depressed
+        disabled
+        block>
+        <span v-if="user.deleted" class="d-none d-sm-inline">
+          {{ $t('peopleList.label.deletedUser') }}
+        </span>
+        <span v-else class="d-none d-sm-inline">
+          {{ $t('peopleList.label.disabledUser') }}
+        </span>
+        <v-icon class="d-inline d-sm-none">mdi-minus</v-icon>
+      </v-btn>
+      <v-btn
+        v-else-if="user.relationshipStatus === 'CONFIRMED'"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto disconnectUserButton"
@@ -171,13 +196,15 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     user: {
       type: Object,
       default: null,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
     skeleton: {
       type: Boolean,
@@ -215,7 +242,7 @@ export default {
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
     canUseActionsMenu() {
-      return this.user && this.enabledProfileActionExtensions.length;
+      return this.user && this.user.username !== eXo.env.portal.userName && this.enabledProfileActionExtensions.length;
     },
     url() {
       if (this.user && this.user.username) {
@@ -238,7 +265,7 @@ export default {
   methods: {
     connect() {
       this.sendingAction = true;
-      userService.connect(this.user.username)
+      this.$userService.connect(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -250,7 +277,7 @@ export default {
     },
     disconnect() {
       this.sendingAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -268,7 +295,7 @@ export default {
     },
     acceptToConnect() {
       this.sendingAction = true;
-      userService.confirm(this.user.username)
+      this.$userService.confirm(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -280,7 +307,7 @@ export default {
     },
     refuseToConnect() {
       this.sendingSecondAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -292,7 +319,7 @@ export default {
     },
     cancelRequest() {
       this.sendingAction = true;
-      userService.deleteRelationship(this.user.username)
+      this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console

@@ -292,14 +292,15 @@ public class CachedIdentityStorage implements IdentityStorage {
    */
   public Profile loadProfile(final Profile profile) throws IdentityStorageException {
     
-    IdentityKey key = new IdentityKey(new Identity(profile.getIdentity().getId()));
+    Identity identity = profile.getIdentity();
+    IdentityKey key = new IdentityKey(new Identity(identity.getId()));
     ProfileData profileData = profileCache.get(
         new ServiceContext<ProfileData>() {
 
           public ProfileData execute() {
             Profile loadedProfile = storage.loadProfile(profile);
             if(loadedProfile == null) {
-              LOG.warn("Null profile for identity: " + profile.getIdentity().getRemoteId());
+              LOG.warn("Null profile for identity: " + identity.getRemoteId());
               return ProfileData.NULL_OBJECT;
             } else {
               return new ProfileData(loadedProfile);
@@ -307,11 +308,13 @@ public class CachedIdentityStorage implements IdentityStorage {
           }
         },
         key);
+
     if(profileData == null || profileData.getProfileId() == null) {
       return profile;
     } else {
-      return profileData
-          .build();
+      Profile loadedProfile = profileData.build();
+      loadedProfile.setIdentity(identity);
+      return loadedProfile;
     }
   }
 
@@ -550,7 +553,7 @@ public class CachedIdentityStorage implements IdentityStorage {
 
     SpaceKey spaceKey = new SpaceKey(space.getId());
     IdentityFilterKey identityKey = new IdentityFilterKey(SpaceIdentityProvider.NAME, profileFilter);
-    ListSpaceMembersKey listKey = new ListSpaceMembersKey(spaceKey, identityKey, offset, limit);
+    ListSpaceMembersKey listKey = new ListSpaceMembersKey(spaceKey, identityKey, type, offset, limit);
 
     ListIdentitiesData keys = identitiesCache.get(
         new ServiceContext<ListIdentitiesData>() {

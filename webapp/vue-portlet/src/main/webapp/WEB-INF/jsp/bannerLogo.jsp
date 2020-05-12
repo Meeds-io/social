@@ -35,6 +35,15 @@
   }
 
 %>
+<script type="text/javascript">
+  document.addEventListener('spaceDetailUpdated', event => {
+    const space = event && event.detail;
+    if (space && space.displayName) {
+      document.querySelector('.logoTitle').innerText = space.displayName;
+      document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
+    }
+  });
+</script>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application border-box-sizing v-application--is-ltr theme--light"

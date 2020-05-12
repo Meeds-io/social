@@ -107,6 +107,42 @@ public class ProfileEntity extends BaseEntity {
     return getString(LASTNAME);
   }
 
+  public ProfileEntity setIsInvited(boolean isInvited) {
+    setProperty("isInvited", isInvited);
+    return this;
+  }
+
+  public Boolean getIsInvited() {
+    return (Boolean) getProperty("isInvited");
+  }
+
+  public ProfileEntity setIsPending(boolean isPending) {
+    setProperty("isPending", isPending);
+    return this;
+  }
+
+  public Boolean getIsPending() {
+    return (Boolean) getProperty("isPending");
+  }
+
+  public ProfileEntity setIsMember(boolean isMember) {
+    setProperty("isMember", isMember);
+    return this;
+  }
+
+  public Boolean getIsMember() {
+    return (Boolean) getProperty("isMember");
+  }
+
+  public ProfileEntity setIsManager(boolean isManager) {
+    setProperty("isManager", isManager);
+    return this;
+  }
+
+  public Boolean getIsManager() {
+    return (Boolean) getProperty("isManager");
+  }
+
   public ProfileEntity setFullname(String fullname) {
     setProperty(FULLNAME, fullname);
     return this;

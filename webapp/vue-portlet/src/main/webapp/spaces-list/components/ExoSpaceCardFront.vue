@@ -220,8 +220,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   props: {
     space: {
@@ -297,7 +295,7 @@ export default {
     },
     removeSpace() {
       this.sendingAction = true;
-      spaceService.removeSpace(this.space.id)
+      this.$spaceService.removeSpace(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -322,7 +320,7 @@ export default {
     },
     leave() {
       this.sendingAction = true;
-      spaceService.leave(this.space.id)
+      this.$spaceService.leave(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -334,7 +332,7 @@ export default {
     },
     acceptToJoin() {
       this.sendingAction = true;
-      spaceService.accept(this.space.id)
+      this.$spaceService.accept(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -346,7 +344,7 @@ export default {
     },
     refuseToJoin() {
       this.sendingSecondAction = true;
-      spaceService.deny(this.space.id)
+      this.$spaceService.deny(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -358,7 +356,7 @@ export default {
     },
     join() {
       this.sendingAction = true;
-      spaceService.join(this.space.id)
+      this.$spaceService.join(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -370,7 +368,7 @@ export default {
     },
     requestJoin() {
       this.sendingAction = true;
-      spaceService.requestJoin(this.space.id)
+      this.$spaceService.requestJoin(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -382,7 +380,7 @@ export default {
     },
     cancelRequest() {
       this.sendingAction = true;
-      spaceService.cancel(this.space.id)
+      this.$spaceService.cancel(this.space.id)
         .then(() => this.$emit('refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console

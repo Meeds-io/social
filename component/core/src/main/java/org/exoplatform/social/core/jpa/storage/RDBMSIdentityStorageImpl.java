@@ -754,32 +754,35 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         excludedMembers.add(identity.getRemoteId());
       }
     }
-    List<String> spaceMembers = null;
+    Status status = null;
     switch (type) {
-      case MEMBER:
-        spaceMembers = getSpaceMembers(space.getId(), Status.MEMBER);
-        if(spaceMembers == null || spaceMembers.isEmpty()) {
-          return Collections.emptyList();
-        }
-        spaceMembers = spaceMembers.stream()
-            .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
-        break;
-      case MANAGER:
-        spaceMembers = getSpaceMembers(space.getId(), Status.MANAGER);
-        if(spaceMembers == null || spaceMembers.isEmpty()) {
-          return Collections.emptyList();
-        }
-        spaceMembers = spaceMembers.stream()
-            .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
-        break;
+    case MANAGER:
+      status = Status.MANAGER;
+      break;
+    case INVITED:
+      status = Status.INVITED;
+      break;
+    case PENDING:
+      status = Status.PENDING;
+      break;
+    default:
+      status = Status.MEMBER;
     }
+
+    List<String> spaceMembers = getSpaceMembers(space.getId(), status);
+    if(spaceMembers == null || spaceMembers.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    spaceMembers = spaceMembers.stream()
+        .filter(username -> !excludedMembers.contains(username))
+        .collect(Collectors.toList());
     if (profileFilter != null && profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         spaceMembers.remove(identity.getRemoteId());
       }
     }
+
     if (profileFilter == null || profileFilter.isEmpty()) {
       // Retrive space members from DB
 
@@ -824,13 +827,21 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     }
     List<String> spaceMembers = null;
     switch (type) {
-      case MEMBER:
-        if(space.getMembers() == null || space.getMembers().length == 0) {
+      case INVITED:
+        if(space.getInvitedUsers() == null || space.getInvitedUsers().length == 0) {
           return 0;
         }
-        spaceMembers = Arrays.stream(space.getMembers())
-                             .filter(username -> !excludedMembers.contains(username))
-                             .collect(Collectors.toList());
+        spaceMembers = Arrays.stream(space.getInvitedUsers())
+            .filter(username -> !excludedMembers.contains(username))
+            .collect(Collectors.toList());
+        break;
+      case PENDING:
+        if(space.getPendingUsers() == null || space.getPendingUsers().length == 0) {
+          return 0;
+        }
+        spaceMembers = Arrays.stream(space.getPendingUsers())
+            .filter(username -> !excludedMembers.contains(username))
+            .collect(Collectors.toList());
         break;
       case MANAGER:
         if(space.getManagers() == null || space.getManagers().length == 0) {
@@ -839,6 +850,14 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         spaceMembers = Arrays.stream(space.getManagers())
             .filter(username -> !excludedMembers.contains(username))
             .collect(Collectors.toList());
+        break;
+      default:
+        if(space.getMembers() == null || space.getMembers().length == 0) {
+          return 0;
+        }
+        spaceMembers = Arrays.stream(space.getMembers())
+                             .filter(username -> !excludedMembers.contains(username))
+                             .collect(Collectors.toList());
         break;
     }
     if (profileFilter == null || profileFilter.isEmpty()) {

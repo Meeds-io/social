@@ -47,8 +47,6 @@
 </template>
 
 <script>
-import * as userService from '../../common/js/UserService.js'; 
-
 export default {
   props: {
     experiences: {
@@ -74,7 +72,7 @@ export default {
   },
   methods: {
     refresh() {
-      return userService.getUser(eXo.env.portal.profileOwner, 'all')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
         .then(user => {
           this.setExperiences(user && user.experiences);
           return this.$nextTick();

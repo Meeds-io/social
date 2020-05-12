@@ -38,8 +38,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   data: () => ({
     invitations: '-',
@@ -56,7 +54,7 @@ export default {
       if (!itemType || itemType === 'invitations') {
         this.invitations = '-';
         loading++;
-        spaceService.getSpaces(null, null, null, 'invited')
+        this.$spaceService.getSpaces(null, null, null, 'invited')
           .then(data => {
             this.invitations = data && data.size || 0;
           })
@@ -70,7 +68,7 @@ export default {
       if (!itemType || itemType === 'sentRequests') {
         this.sentRequests = '-';
         loading++;
-        spaceService.getSpaces(null, null, null, 'pending')
+        this.$spaceService.getSpaces(null, null, null, 'pending')
           .then(data => {
             this.sentRequests = data && data.size || 0;
           })
@@ -84,7 +82,7 @@ export default {
       if (!itemType || itemType === 'receivedRequests') {
         this.receivedRequests = '-';
         loading++;
-        spaceService.getSpaces(null, null, null, 'requests')
+        this.$spaceService.getSpaces(null, null, null, 'requests')
           .then(data => {
             this.receivedRequests = data && data.size || 0;
           })
@@ -98,7 +96,7 @@ export default {
       if (!itemType || itemType === 'managing') {
         this.managing = '-';
         loading++;
-        spaceService.getSpaces(null, null, null, 'manager')
+        this.$spaceService.getSpaces(null, null, null, 'manager')
           .then(data => {
             this.managing = data && data.size || 0;
           })

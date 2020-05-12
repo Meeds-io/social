@@ -11,9 +11,6 @@
 </template>
 
 <script>
-import {updateSpace} from '../js/SpaceService.js'; 
-import * as uploadService from '../js/UploadService.js'; 
-
 const DEFAULT_MAX_UPLOAD_SIZE_IN_MB = 2;
 
 export default {
@@ -43,13 +40,14 @@ export default {
     uploadBanner(file) {
       if (file && file.size) {
         if (file.size > this.maxUploadSize) {
-          this.$emit('error', uploadService.bannerExcceedsLimitError);
+          this.$emit('error', this.$uploadService.bannerExcceedsLimitError);
           return;
         }
         this.sendingImage = true;
-        return uploadService.upload(file)
-          .then(uploadId => updateSpace(eXo.env.portal.spaceId, {
-            'bannerId': uploadId,
+        return this.$uploadService.upload(file)
+          .then(uploadId => this.$spaceService.updateSpace({
+            id: eXo.env.portal.spaceId,
+            bannerId: uploadId,
           }))
           .then(() => this.$emit('refresh'))
           .catch(error => this.$emit('error', error))

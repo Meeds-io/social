@@ -21,29 +21,37 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.*;
+import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.model.BannerAttachment;
+import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
@@ -178,6 +186,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
     }
+
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
       collectionSpace.setSize(listAccess.getSize());
@@ -444,6 +453,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     spaceService.updateSpace(space, model.getInvitedMembers());
+    space = spaceService.getSpaceById(space.getId());
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -495,7 +505,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceMembers(@Context UriInfo uriInfo,
                                   @Context Request request,
                                   @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
-                                  @ApiParam(value = "Role of the target user in this space, ex: manager", required = false, defaultValue = "0") @QueryParam("role") String role,
+                                  @ApiParam(value = "User name search information", required = false) @QueryParam("q") String q,
+                                  @ApiParam(value = "Role of the target user in this space: manager, member, invited and pending", required = false, defaultValue = "member") @QueryParam("role") String role,
                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                                   @ApiParam(value = "Returning the number of users or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -503,40 +514,274 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    String[] users = (role != null && role.equals("manager")) ? space.getManagers() : space.getMembers();
-    int size = users.length;
-    //
-    if (limit > 0) {
-      users = Arrays.copyOfRange(users, offset > size - 1 ? size - 1 : offset, (offset + limit > size) ? size : (offset + limit));
+    if (StringUtils.isBlank(role)) {
+      role = Type.MEMBER.name();
     }
-    List<DataEntity> profileInfos = EntityBuilder.buildEntityProfiles(users, uriInfo.getPath(), expand);
+    Type type = Type.valueOf(role.toUpperCase());
+
+    ProfileFilter profileFilter = new ProfileFilter();
+    profileFilter.setName(q);
+
+    ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
+                                                                                                     profileFilter,
+                                                                                                     type,
+                                                                                                     true);
+    Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
+
+    List<DataEntity> profileInfos = null;
+    if (spaceIdentities == null || spaceIdentities.length == 0) {
+      profileInfos = Collections.emptyList();
+    } else {
+      profileInfos = Arrays.stream(spaceIdentities)
+                           .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
+                                                         .getDataEntity())
+                           .collect(Collectors.toList());
+    }
+
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
     if (returnSize) {
-      collectionUser.setSize(size);
+      collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
-    EntityTag eTag = null;
-    eTag = new EntityTag(Integer.toString(collectionUser.hashCode()));
-    //
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
-    }
-
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
-
-    return builder.build();
+    return EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
-  
+
+  @GET
+  @Path("{id}/navigations")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+    value = "Return list of navigations of a space",
+    httpMethod = "GET",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+    @ApiResponse (code = 204, message = "Request fulfilled"),
+    @ApiResponse (code = 500, message = "Internal server error"),
+    @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response getSpaceNavigations(@Context HttpServletRequest request,
+                                      @ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space,
+                                                                request.getLocale(),
+                                                                authenticatedUser);
+
+    if (navigations == null) {
+      return Response.ok(Collections.emptyList()).build();
+    }
+    List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
+      BaseEntity app = new BaseEntity(node.getId());
+      app.setProperty("label", node.getResolvedLabel());
+      app.setProperty("icon", node.getIcon());
+      app.setProperty("uri", node.getURI());
+      return app.getDataEntity();
+    }).collect(Collectors.toList());
+    return Response.ok(spaceNavigations).build();
+  }
+
+  @GET
+  @Path("applications")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+    value = "Return list of applications that a use is allowed to add to a space",
+    httpMethod = "GET",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled"),
+      @ApiResponse (code = 500, message = "Internal server error"),
+      @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response getSpaceApplicationsChoices() {
+    try {
+      List<Application> applications = SpaceUtils.getApplications("/platform/users");
+      List<DataEntity> spaceApplications = applications.stream().map(application -> {
+        String displayName = application.getDisplayName();
+        String description = application.getDescription();
+        String iconURL = application.getIconURL();
+
+        BaseEntity app = new BaseEntity(application.getApplicationName());
+        app.setProperty(RestProperties.DISPLAY_NAME, displayName);
+        app.setProperty("description", description);
+        app.setProperty("iconUrl", iconURL);
+        app.setProperty("removable", true);
+        return app.getDataEntity();
+      }).collect(Collectors.toList());
+      return Response.ok(spaceApplications).build();
+    } catch (Exception e) {
+      return Response.serverError().entity(e.getMessage()).build();
+    }
+  }
+
+  @GET
+  @Path("{id}/applications")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+    value = "Return list of applications of a space",
+    httpMethod = "GET",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled"),
+      @ApiResponse (code = 500, message = "Internal server error"),
+      @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response getSpaceApplications(@ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    
+    List<String> appList = SpaceUtils.getAppIdList(space);
+    List<String> sortedAppList = new ArrayList<>();
+    try {
+      UserNode spaceUserNode = SpaceUtils.getSpaceUserNode(space);
+      Collection<UserNode> children = spaceUserNode.getChildren();
+      for (UserNode userNode : children) {
+        if (userNode.getPageRef() != null) {
+          String appId = userNode.getPageRef().getName();
+          if (appList.contains(appId)) {
+            sortedAppList.add(appId);
+          }
+        }
+      }
+    } catch (Exception e) {
+      return Response.serverError().entity(e.getMessage()).build();
+    }
+    
+    List<DataEntity> applications = sortedAppList.stream().map(appId -> {
+      Application application = null;
+      try {
+        application = SpaceUtils.getAppFromPortalContainer(appId);
+      } catch (Exception e) {
+        return null;
+      }
+      
+      String displayName = application == null ? SpaceUtils.getAppNodeName(space, appId) : application.getDisplayName();
+      String description = application == null ? displayName : application.getDescription();
+      String iconURL = application == null ? null : application.getIconURL();
+      
+      BaseEntity app = new BaseEntity(appId);
+      app.setProperty(RestProperties.DISPLAY_NAME, displayName);
+      app.setProperty("description", description);
+      app.setProperty("iconUrl", iconURL);
+      app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
+      app.setProperty("order", sortedAppList.indexOf(appId));
+      return app.getDataEntity();
+    }).collect(Collectors.toList());
+    return Response.ok(applications).build();
+  }
+
+  @DELETE
+  @Path("{id}/applications/{appId}")
+  @RolesAllowed("users")
+  @ApiOperation(
+    value = "Deletes a selected application of a space",
+    httpMethod = "DELETE",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+    @ApiResponse (code = 204, message = "Request fulfilled"),
+    @ApiResponse (code = 500, message = "Internal server error"),
+    @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response deleteSpaceApplication(@ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId,
+                                         @ApiParam(value = "Application id", required = true) @PathParam("appId") String appId) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    List<String> appPartsList = Arrays.asList(space.getApp().split(","));
+    String appPartToChange = appPartsList.stream()
+                                         .filter(appPart -> StringUtils.startsWith(appPart, appId + ":"))
+                                         .findFirst()
+                                         .orElse(null);
+    if (StringUtils.isBlank(appPartToChange)) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+    String[] appParts = appPartToChange.split(":");
+    try {
+      spaceService.removeApplication(space, appId, appParts[1]);
+    } catch (SpaceException e) {
+      return Response.serverError().entity(e.getLocalizedMessage()).build();
+    }
+    return Response.noContent().build();
+  }
+
+  @POST
+  @Path("{id}/applications")
+  @RolesAllowed("users")
+  @ApiOperation(
+    value = "Add a new application into space",
+    httpMethod = "POST",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+    @ApiResponse (code = 204, message = "Request fulfilled"),
+    @ApiResponse (code = 500, message = "Internal server error"),
+    @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response addSpaceApplication(@ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId,
+                                      @ApiParam(value = "Application id", required = true) @FormParam("appId") String appId) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    try {
+      spaceService.installApplication(space, appId);
+      spaceService.activateApplication(space, appId);
+    } catch (SpaceException e) {
+      return Response.serverError().entity(e.getLocalizedMessage()).build();
+    }
+    return Response.noContent().build();
+  }
+
+  @PUT
+  @Path("{id}/applications/{appId}")
+  @RolesAllowed("users")
+  @ApiOperation(
+    value = "Deletes a selected application of a space",
+    httpMethod = "PUT",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+    @ApiResponse(code = 204, message = "Request fulfilled"),
+    @ApiResponse(code = 500, message = "Internal server error"),
+    @ApiResponse(code = 401, message = "Unauthorized")
+  })
+  public Response moveSpaceApplicationOrder(@ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId,
+                                            @ApiParam(value = "Application id", required = true) @PathParam("appId") String appId,
+                                            @ApiParam(value = "Move transition: 1 to move up, -1 to move down", required = true) @FormParam("transition") int transition) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    try {
+      spaceService.moveApplication(spaceId, appId, transition);
+    } catch (SpaceException e) {
+      return Response.serverError().entity(e.getLocalizedMessage()).build();
+    }
+    return Response.noContent().build();
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -570,7 +815,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
-    Identity spaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
     RealtimeListAccess<ExoSocialActivity> listAccess = CommonsUtils.getService(ActivityManager.class).getActivitiesOfSpaceWithListAccess(spaceIdentity);
     List<ExoSocialActivity> activities = null;
     if (after != null && RestUtils.getBaseTime(after) > 0) {
@@ -632,8 +877,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
-    Identity spaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    Identity poster = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, false);
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(model.getTitle());
@@ -714,6 +959,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
     }
 
+    if (StringUtils.isNotBlank(model.getTemplate())) {
+      space.setTemplate(model.getTemplate());
+    }
+
     if (StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
@@ -754,7 +1003,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setAvatarAttachment(attachment);
-          spaceService.updateSpaceBanner(space);
+          spaceService.updateSpaceAvatar(space);
         } else {
           BannerAttachment attachment = new BannerAttachment(null,
                                             uploadResource.getFileName(),
@@ -796,8 +1045,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    Identity currentUser = CommonsUtils.getService(IdentityManager.class)
-                                       .getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     if (EntityBuilder.getActivityStream(activity, currentUser) == null
         && !Util.hasMentioned(activity, currentUser.getRemoteId())) { // current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);

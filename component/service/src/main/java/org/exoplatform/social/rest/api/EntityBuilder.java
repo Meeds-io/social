@@ -139,8 +139,18 @@ public class EntityBuilder {
    */
   public static IdentityEntity buildEntityIdentity(String userName, String restPath, String expand) {
     IdentityManager identityManager = getIdentityManager();
-    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName, true);
+    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
     return buildEntityIdentity(userIdentity, restPath, expand);
+  }
+
+  public static ProfileEntity buildEntityProfile(Space space, Profile profile, String path, String expand) {
+    ProfileEntity entity = buildEntityProfile(profile, path, expand);
+    String userId = profile.getIdentity().getRemoteId();
+    entity.setIsManager(spaceService.isSuperManager(userId) || spaceService.isManager(space, userId));
+    entity.setIsMember(spaceService.isMember(space, userId));
+    entity.setIsInvited(spaceService.isInvitedUser(space, userId));
+    entity.setIsPending(spaceService.isPendingUser(space, userId));
+    return entity;
   }
 
   public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) {

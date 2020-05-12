@@ -1854,6 +1854,7 @@ public class SpaceUtils {
         continue;
       }
       String nodeTitle = getResolvedAppLabel(node, resourceBundle, locale);
+      node.setLabel(null);
       node.setResolvedLabel(nodeTitle);
     }
   }

@@ -48,7 +48,6 @@
 </template>
 
 <script>
-import * as spaceService from '../../common/js/SpaceService.js';
 export default {
   props: {
     space: {
@@ -81,14 +80,14 @@ export default {
   },
   methods: {
     joinSpace(item) {
-      spaceService.requestJoin(item.spaceId).then(
+      this.$spaceService.requestJoin(item.spaceId).then(
         () => {
           this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
         }
       );
     },
     ignoredSuggestionSpace(item) {
-      spaceService.ignoreSuggestion(item).then(
+      this.$spaceService.ignoreSuggestion(item).then(
         () => {
           this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
         }

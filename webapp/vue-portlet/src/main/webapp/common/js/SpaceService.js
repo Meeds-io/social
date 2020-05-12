@@ -11,6 +11,79 @@ export function getSpaceTemplates() {
   });
 }
 
+export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users?role=${role}&q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceById(spaceId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceApplications(spaceId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceApplicationsChoices() {
+  return fetch('/portal/rest/v1/social/spaces/applications', {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceNavigations(spaceId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/navigations`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+    .then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Response code indicates a server error', resp);
+      } else {
+        return resp.json();
+      }
+    })
+    .then(data => {
+      data = data || [];
+      if (data.length && data[0].children && data[0].children.length) {
+        data = [data[0], ...data[0].children];
+      }
+      return data;
+    });
+}
+
 export function getSpaces(query, offset, limit, filter) {
   const expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
   return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
@@ -172,6 +245,124 @@ export function refuseUserRequest(spaceDisplayName, userId) {
       user: userId,
       status: 'IGNORED',
     }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function cancelInvitation(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      status: 'IGNORED',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function promoteManager(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      role: 'manager',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function removeManager(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:manager`;
+  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function addApplication(spaceId, appId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `appId=${appId}`,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function removeApplication(spaceId, appId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function moveApplicationUp(spaceId, appId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'transition=-1',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function moveApplicationDown(spaceId, appId) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'transition=1',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function removeMember(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:member`;
+  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);

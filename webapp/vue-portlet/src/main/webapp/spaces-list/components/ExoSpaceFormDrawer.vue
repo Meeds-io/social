@@ -46,6 +46,7 @@
               </v-label>
               <select
                 v-model="template"
+                :disabled="space && space.id"
                 name="spaceTemplate"
                 class="input-block-level ignore-vuetify-classes my-3"
                 required>
@@ -105,7 +106,7 @@
                     class="my-0" />
                   <v-radio
                     :label="$t('spacesList.label.closed')"
-                    value="closed"
+                    value="close"
                     class="my-0" />
                 </v-radio-group>
               </div>
@@ -194,8 +195,6 @@
   </exo-drawer>
 </template>
 <script>
-import * as spaceService from '../../common/js/SpaceService.js'; 
-
 export default {
   data: () => ({
     savingSpace: false,
@@ -280,7 +279,7 @@ export default {
     });
     document.addEventListener('meeds.social.editSpace', this.editSpace);
     this.$root.$on('editSpace', this.editSpace);
-    spaceService.getSpaceTemplates()
+    this.$spaceService.getSpaceTemplates()
       .then(data => {
         this.templates = data || [];
         this.spaceTemplate = this.templates.length && this.templates[0] || null;
@@ -298,6 +297,7 @@ export default {
       }
       this.spaceToUpdate = space;
       this.space = Object.assign({}, space);
+      this.template = this.space.template || this.template;
       this.title= this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
       this.$refs.spaceFormDrawer.open();
     },
@@ -329,11 +329,11 @@ export default {
       this.error = null;
       this.savingSpace = true;
       if (this.space.id) {
-        spaceService.updateSpace({
+        this.$spaceService.updateSpace({
           id: this.space.id,
           displayName: this.space.displayName,
           description: this.space.description,
-          template: this.space.template,
+          template: this.template,
           visibility: this.space.visibility,
           subscription: this.space.subscription,
           invitedMembers: this.space.invitedMembers,
@@ -357,7 +357,8 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       } else {
-        spaceService.createSpace(this.space)
+        this.space.template = this.template;
+        this.$spaceService.createSpace(this.space)
           .then(space => {
             this.spaceSaved = true;
             window.location.href = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}`;

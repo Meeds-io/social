@@ -59,7 +59,11 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
     /** Gets a list of identities who invited to connect to the provided identity and profile filter */
     MEMBER,
     /** Gets a list of identities who are the leader of  */
-    MANAGER
+    MANAGER,
+    /** Gets a list of identities who are invited to join the space  */
+    INVITED,
+    /** Gets a list of identities who are pending of membership approval  */
+    PENDING
   }
   
   /**

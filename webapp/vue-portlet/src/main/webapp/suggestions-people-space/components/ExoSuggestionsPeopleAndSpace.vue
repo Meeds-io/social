@@ -31,8 +31,6 @@
   </v-app>
 </template>
 <script>
-import * as userService from '../../common/js/UserService.js';
-import * as spaceService from '../../common/js/SpaceService.js';
 export default {
   props: {
     suggestionsType: {
@@ -82,12 +80,12 @@ export default {
   },
   methods : {
     initPeopleSuggestionsList() {
-      userService.getSuggestionsUsers().then(data => {
+      this.$userService.getSuggestionsUsers().then(data => {
         this.peopleSuggestionsList = data.items;
       });
     },
     initSpaceSuggestionsList() {
-      spaceService.getSuggestionsSpace().then(data => {
+      this.$spaceService.getSuggestionsSpace().then(data => {
         this.spacesSuggestionsList = data.items;
       });
     },

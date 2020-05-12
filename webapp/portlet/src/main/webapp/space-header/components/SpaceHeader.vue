@@ -54,8 +54,6 @@
 </template>
 
 <script>
-import * as uploadService from '../js/UploadService.js'; 
-
 const DEFAULT_MAX_UPLOAD_SIZE_IN_MB = 2;
 const ONE_KB = 1024;
 
@@ -100,6 +98,23 @@ export default {
     },
   },
   created() {
+    document.addEventListener('refreshSpaceNavigations', () => {
+      this.$spaceService.getSpaceNavigations(eXo.env.portal.spaceId)
+        .then(data => {
+          // Compute URI of nodes of old navigation
+          if (data && data.length) {
+            data.forEach(nav => {
+              const oldNav = this.navigations.find(oldNav => oldNav.id === nav.id);
+              if (oldNav) {
+                nav.uri = oldNav.uri;
+              } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
+                nav.uri = nav.uri.split('/')[1];
+              }
+            });
+            this.navigations = data;
+          }
+        });
+    });
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   },
   methods: {
@@ -109,7 +124,7 @@ export default {
     },
     handleError(error) {
       if (error) {
-        if (String(error).indexOf(uploadService.bannerExcceedsLimitError) >= 0) {
+        if (String(error).indexOf(this.$uploadService.bannerExcceedsLimitError) >= 0) {
           this.errorMessage = this.$t('spaceHeader.label.bannerExcceededAllowedSize', {0: this.maxUploadSize});
         } else {
           this.errorMessage = String(error);
