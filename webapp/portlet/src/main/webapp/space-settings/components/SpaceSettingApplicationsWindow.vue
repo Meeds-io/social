@@ -48,6 +48,7 @@
     <space-setting-add-application-drawer
       ref="spaceSettingAddApplicationDrawer"
       :space-id="spaceId"
+      :installed-applications="applications"
       @refresh="$emit('refresh')" />
   </v-card>
 </template>
