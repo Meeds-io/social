@@ -4,7 +4,7 @@
       <v-btn
         :disabled="skeleton"
         :class="skeleton && 'skeleton-text skeleton-background'"
-        class="btn pr-2 pl-0 inviteUserToSpaceButton"
+        class="btn pr-2 pl-0 mr-4 inviteUserToSpaceButton"
         @click="$emit('invite-users')">
         <span v-if="skeleton" class="mx-2">&nbsp;</span>
         <i v-else class="uiIconInviteUser ml-2 mr-1" />
@@ -15,7 +15,7 @@
     </v-toolbar-title>
     <div
       :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
-      class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
+      class="showingPeopleText text-sub-title d-none d-sm-flex">
       {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />

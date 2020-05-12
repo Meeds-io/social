@@ -23,7 +23,7 @@
         <v-col
           v-for="(app, index) in applications"
           :key="app.id"
-          class="SpaceApplicationCard ma-1">
+          class="SpaceApplicationCard my-1 mx-auto mx-sm-1">
           <space-setting-application-card
             :application="app"
             :space-id="spaceId"
@@ -33,7 +33,7 @@
             @moveBefore="moveBefore(app)"
             @remove="remove(app)" />
         </v-col>
-        <v-col class="SpaceApplicationCard dashed-border ma-1">
+        <v-col class="SpaceApplicationCard dashed-border my-1 mx-auto mx-sm-1">
           <v-btn
             class="primary--text"
             width="100%"
