@@ -2,7 +2,7 @@
   <div class="activityComposer">
     <div class="openLink">
       <a @click="openMessageComposer()">
-        <i class="uiIconGoUp"></i>{{ $t('activity.composer.link').replace('{0}', postTarget) }}
+        <i class="uiIconEdit"></i>{{ link.replace('{0}', postTarget) }}
       </a>
     </div>
 
@@ -104,7 +104,8 @@ export default {
       attachments: [],
       percent: 100,
       actionsData: [],
-      actionsEvents: []
+      actionsEvents: [],
+      link : `${this.$t('activity.composer.link')}`,
     };
   },
   computed: {
@@ -141,7 +142,6 @@ export default {
       } else {
         this.activityComposerHintAction = null;
       }
-      console.log(this.activityComposerHintAction);
     },
     showErrorMessage: function(newVal) {
       if(newVal) {
@@ -152,7 +152,7 @@ export default {
   mounted() {
     this.postTarget = eXo.env.portal.spaceDisplayName;
     if(!this.postTarget) {
-      this.postTarget = this.$t('activity.composer.link.network');
+      this.link = this.$t('activity.composer.post');
     }
   },
   created() {
