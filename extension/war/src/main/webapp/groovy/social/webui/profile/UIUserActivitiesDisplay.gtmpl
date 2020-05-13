@@ -99,7 +99,6 @@
 	</div>
   </div>
   <div class="clearfix activityTop">
-    <button class="btn btn-primary visible-phone changeStatus pull-left pull-right"><%=_ctx.appRes("activity.composer.old")%></button>
     <div class="activityStreamStatus pull-left">
       <div class="arrowBottom"></div>
       <!--<span id="noUpdates"><%=noUpdates%></span>-->
@@ -127,9 +126,6 @@
 <% } else { %>
   <div class="clearfix activityTop">
     <!--hide Share button when show activity detail in responsive device -->
-    <%if (!uicomponent.isSingleContext() && (uicomponent.isActivityStreamOwner() || uicomponent.isRelationConfirmed())) { %>   
-      <button class="btn btn-primary visible-phone changeStatus pull-left"><%=_ctx.appRes("activity.composer.old")%></button>
-    <% } %>
  <% if (Utils.isHomePage()) { %>
     <div class="pull-right">
       <% uicomponent.renderChild(UIDropDownControl.class);%>
@@ -161,7 +157,6 @@
 
   <!-- add more for devices -->
   <div class="clearfix activityTop">
-    <button class="btn btn-primary visible-phone changeStatus pull-left"><%=_ctx.appRes("activity.composer.old")%></button>
 	<div class="pull-right">
 	  <% uicomponent.renderChild(UIDropDownControl.class);%>
 	</div>
