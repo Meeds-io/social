@@ -75,7 +75,7 @@ export default {
     },
     empty: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   data: () => ({
