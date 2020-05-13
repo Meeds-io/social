@@ -27,8 +27,16 @@
       <tr v-if="templates.length === 0">
         <td class="empty center" colspan="12"> {{ $t('social.spaces.templates.noTemplates') }} </td>
       </tr>
-      <exo-space-template v-for="template in templates" v-else :key="template.name" :template="template"/>
+      <exo-space-template
+        v-for="template in templates"
+        v-else
+        :key="template.name"
+        :template="template"
+        @display-banner="displayBanner" />
     </table>
+    <v-dialog v-model="preview">
+      <v-img :src="bannerImage"></v-img>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -41,7 +49,9 @@ export default {
   },
   data() {
     return {
-      templates: []
+      templates: [],
+      bannerImage: '',
+      preview: false,
     };
   },
   created() {
@@ -52,7 +62,11 @@ export default {
       spaceTemplatesServices.getTemplates().then(data => {
         this.templates = data;
       });
-    }
+    },
+    displayBanner(bannerImage) {
+      this.bannerImage = bannerImage;
+      this.preview = true;
+    },
   }
 };
 </script>

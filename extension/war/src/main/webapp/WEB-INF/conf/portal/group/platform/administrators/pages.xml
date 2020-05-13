@@ -52,21 +52,6 @@
     </portlet-application>
   </page>
   <page>
-    <name>spacesTemplates</name>
-    <title>Space Templates Management</title>
-    <access-permissions>*:/platform/administrators</access-permissions>
-    <edit-permission>*:/platform/administrators</edit-permission>
-    <show-max-window>false</show-max-window>
-    <portlet-application>
-      <portlet>
-        <application-ref>social-vue-portlet</application-ref>
-        <portlet-ref>SpaceTemplates</portlet-ref>
-      </portlet>
-      <access-permissions>*:/platform/administrators</access-permissions>
-      <show-info-bar>false</show-info-bar>
-    </portlet-application>
-  </page>
-  <page>
     <name>search</name>
     <title>search</title>
     <access-permissions>manager:/platform/administrators</access-permissions>

@@ -6,6 +6,8 @@ import ExoGroupBindingDrawer from './drawer/ExoGroupBindingDrawer.vue';
 import ExoGroupBindingSecondLevelDrawer from './drawer/ExoGroupBindingSecondLevelDrawer.vue';
 import ExoSpacesAdministrationBindingReports from './ExoSpacesAdministrationBindingReports.vue';
 import ExoSuggester from './suggester/ExoSuggester.vue';
+import ExoSpacesTemplatesSpaces  from './ExoSpacesTemplatesSpaces.vue';
+import ExoSpaceTemplate  from './ExoSpaceTemplate.vue';
 
 const components = {
   'exo-spaces-administration-manage-spaces': ExoSpacesAdministrationManageSpaces,
@@ -16,6 +18,8 @@ const components = {
   'exo-group-binding-second-level-drawer' : ExoGroupBindingSecondLevelDrawer,
   'exo-spaces-administration-binding-reports' : ExoSpacesAdministrationBindingReports,
   'exo-suggester' : ExoSuggester,
+  'exo-space-template' : ExoSpaceTemplate,
+  'exo-space-templates-spaces' : ExoSpacesTemplatesSpaces,
 };
 
 for(const key in components) {
