@@ -1,6 +1,8 @@
 package org.exoplatform.social.processor;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.embedder.ExoMedia;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -27,6 +29,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
   private static final String TITLE = "title";
   private static final String COMMENT = "comment";
   private static final String LINK_ACTIVITY = "LINK_ACTIVITY";
+  private static final String HTML_PARAM = "html";
 
 
   public EmbedProcessor(InitParams params) {
@@ -34,6 +37,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
   }
    public void processActivity(ExoSocialActivity activity) {
      try {
+       Map<String, String> templateParams = new HashMap();
        int firstIndex = 0;
        int lastIndex = 0;
        String defaultValue = activity.getTitle();
@@ -47,6 +51,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
        }
        if (firstIndex >= 0 && lastIndex > firstIndex) {
            firstMessage = defaultValue.substring(0, firstIndex);
+           firstMessage = StringEscapeUtils.unescapeHtml4(firstMessage);
            String urlCoder = defaultValue.substring(firstIndex + openingOembed.length(), lastIndex);
            url = URLDecoder.decode(urlCoder, StandardCharsets.UTF_8.toString());
            String linkSource = "<a href=\""+url+"\" rel=\"nofollow\" target=\"_blank\">"+url+"</a>";
@@ -55,24 +60,30 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
        if (StringUtils.isNotBlank(url)) {
            LinkShare linkShare = LinkShare.getInstance(url);
            if (linkShare.getMediaObject() != null) {
-               String html = linkShare.getMediaObject().getHtml();
-               StringBuilder newTitleActivity = new StringBuilder();
-               newTitleActivity.append(firstMessage).append(html);
-               activity.setTitle(newTitleActivity.toString());
+               ExoMedia exoMedia = linkShare.getMediaObject();
+               templateParams.put(IMAGE, "");
+               String html = exoMedia.getHtml();
+               templateParams.put(HTML_PARAM, html);
+               templateParams.put(DESCRIPTION, exoMedia.getDescription());
+               templateParams.put(TITLE, exoMedia.getTitle());
+               templateParams.put(COMMENT, firstMessage);
+               activity.setTitle(firstMessage);
            } else {
-               Map<String, String> templateParams = new HashMap<>();
-               templateParams.put(LINK, url);
                if (linkShare.getImages().size() != 0) {
                    templateParams.put(IMAGE, linkShare.getImages().get(0));
                }
+
                templateParams.put(DESCRIPTION, linkShare.getDescription());
+               templateParams.put(HTML_PARAM, null);
                templateParams.put(TITLE, linkShare.getTitle());
                templateParams.put(COMMENT, firstMessage);
-               templateParams.put(TEMPLATE_PARAM_TO_PROCESS, COMMENT);
-               activity.setType(LINK_ACTIVITY);
                activity.setTitle(linkShare.getTitle());
-               activity.setTemplateParams(templateParams);
            }
+
+           templateParams.put(TEMPLATE_PARAM_TO_PROCESS, COMMENT);
+           templateParams.put(LINK, url);
+           activity.setType(LINK_ACTIVITY);
+           activity.setTemplateParams(templateParams);
        }
      } catch (Exception e) {
          LOG.error("EmbedProcessor error : ", e);
