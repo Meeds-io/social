@@ -10,7 +10,10 @@
         <li v-show="canChangePermissions" :class="{active: activeTab === 2}" @click="activeTab=2" >
           <a href="#permissions" data-toggle="tab">{{ $t('social.spaces.administration.permissions') }}</a>
         </li>
-        <li v-show="canChangePermissions" :class="{active: activeTab === 3}" @click="activeTab=3" >
+        <li :class="{active: activeTab === 3}" @click="activeTab=3">
+          <a href="#spaceTemplates" data-toggle="tab">{{ $t('social.spaces.templates') }}</a>
+        </li>
+        <li v-show="canChangePermissions" :class="{active: activeTab === 4}" @click="activeTab=4" >
           <a href="#bindingReports" data-toggle="tab">{{ $t('social.spaces.administration.bindingReports') }}</a>
         </li>
       </ul>
@@ -18,10 +21,13 @@
         <div v-if="showManageSpaces" id="manage" class="tab-pane fade in active">
           <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 3"></exo-spaces-administration-manage-spaces>
         </div>
-        <div v-if="showPermissions" id="permissions" class="tab-pane fade in active">
+        <div v-else-if="showPermissions" id="permissions" class="tab-pane fade in active">
           <exo-spaces-administration-manage-permissions></exo-spaces-administration-manage-permissions>
         </div>
-        <div v-if="showBindingReports" id="bindingReports" class="tab-pane fade in active">
+        <div v-else-if="showSpaceTemplates" id="spaceTemplates" class="tab-pane fade in active">
+          <exo-space-templates-spaces></exo-space-templates-spaces>
+        </div>
+        <div v-else-if="showBindingReports" id="bindingReports" class="tab-pane fade in active">
           <exo-spaces-administration-binding-reports></exo-spaces-administration-binding-reports>
         </div>
       </div>
@@ -47,8 +53,11 @@ export default {
       const permissionTabNumber = 2;
       return this.canChangePermissions && this.activeTab && this.activeTab === permissionTabNumber;
     },
+    showSpaceTemplates() {
+      return this.activeTab === 3;
+    },
     showBindingReports() {
-      const bindingReportsTabNumber = 3;
+      const bindingReportsTabNumber = 4;
       return this.canChangePermissions && this.activeTab && this.activeTab === bindingReportsTabNumber && this.canChangePermissions;
     }
   },
