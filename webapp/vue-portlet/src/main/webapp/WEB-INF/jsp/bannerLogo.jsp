@@ -11,6 +11,7 @@
   String logoPath = null;
   String logoTitle = null;
   String portalPath = null;
+  String titleClass = "";
   String imageClass = "";
 
   Space space = SpaceUtils.getSpaceByContext();
@@ -27,11 +28,13 @@
     if (portalPath == null) {
       portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
     }
+    titleClass = "company";
   } else {
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
     portalPath = space.getUrl();
     imageClass="spaceAvatar";
+    titleClass = "space";
   }
 
 %>
@@ -54,8 +57,8 @@
           <a id="UserHomePortalLink" href="<%=portalPath%>" class="pr-3 logoContainer">
             <img src="<%=logoPath%>" class="<%=imageClass%>" alt="Logo">
           </a>
-          <a href="<%=portalPath%>" class="pl-2 align-self-center brandingContainer">
-            <div title="<%=logoTitle%>" class="logoTitle subtitle-2 font-weight-bold text-truncate">
+          <a href="<%=portalPath%>" title="<%=logoTitle%>" class="pl-2 align-self-center brandingContainer <%=titleClass%>">
+            <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
               <%= logoTitle%>
             </div>
           </a>

@@ -47,11 +47,6 @@
       <page-reference>group::/platform/administrators::branding</page-reference>
     </node>
     <node>
-      <name>spacesTemplates</name>
-      <label>#{administration.spacesTemplates}</label>
-      <page-reference>group::/platform/administrators::spacesTemplates</page-reference>
-    </node>
-    <node>
       <name>search</name>
       <label>#{administration.search}</label>
       <page-reference>group::/platform/administrators::search</page-reference>

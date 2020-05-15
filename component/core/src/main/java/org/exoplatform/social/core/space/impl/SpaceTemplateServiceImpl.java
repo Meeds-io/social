@@ -109,7 +109,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
       StringBuilder templatePermission = new StringBuilder("");
       if (identity.isMemberOf("/platform/administrators")) {
         if (perms != null) {
-          ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.social.SpaceTemplatesPortlet", new Locale(lang));
+          ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.social.SpacesAdministrationPortlet", new Locale(lang));
           Pattern pattern = Pattern.compile(";");
           List<String> permissions = pattern.splitAsStream(perms).collect(Collectors.toList());
           for (String perm : permissions) {
@@ -140,7 +140,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
       }
       ResourceBundle resourceBundle = resourceBundleService.getResourceBundle(
                                                                               new String[] { "locale.portal.webui",
-                                                                                  "locale.portlet.social.SpaceTemplatesPortlet" },
+                                                                                  "locale.portlet.social.SpacesAdministrationPortlet" },
                                                                               new Locale("en"));
       if (resourceBundle != null) {
         try {

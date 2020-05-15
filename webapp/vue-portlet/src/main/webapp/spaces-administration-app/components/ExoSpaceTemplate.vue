@@ -12,7 +12,9 @@
     </td>
     <td>{{ template.permissionsLabels }}</td>
     <td class="center">
-      <a @click="showBannerImage"><i class="uiIconWatch"></i></a>
+      <a @click="$emit('display-banner', bannerImage)">
+        <i class="uiIconWatch"></i>
+      </a>
     </td>
   </tr>
 </template>

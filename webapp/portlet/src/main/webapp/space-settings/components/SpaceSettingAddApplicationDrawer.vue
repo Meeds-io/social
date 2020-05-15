@@ -8,13 +8,11 @@
     </template>
     <template slot="content">
       <div
-        v-for="(app, index) in applications"
+        v-for="app in filteredApplications"
         :key="app.id"
         class="d-flex flex-no-wrap justify-space-between border-radius border-color ma-3">
         <space-setting-application-card
           :application="app"
-          :index="index"
-          :length="applications.length"
           class="flex-grow-1"
           @add="addApplication(app)" />
       </div>
@@ -30,11 +28,23 @@ export default {
       type: String,
       default: null,
     },
+    installedApplications: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: () => ({
     savingSpace: false,
     applications: [],
   }),
+  computed: {
+    filteredApplications() {
+      if (!this.applications || !this.applications.length) {
+        return [];
+      }
+      return this.applications.filter(app => !this.installedApplications.find(installedApp => installedApp.id === app.id));
+    },
+  },
   watch: {
     savingSpace() {
       if (this.savingSpace) {

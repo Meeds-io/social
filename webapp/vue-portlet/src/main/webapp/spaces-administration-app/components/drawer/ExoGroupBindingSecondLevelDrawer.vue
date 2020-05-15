@@ -1,7 +1,6 @@
 <template>
   <div class="secondDrawer">
-    <v-card-title
-      class="title">
+    <v-card-title class="title">
       <v-layout
         v-show="!searchMode"
         pa-2
