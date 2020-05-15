@@ -578,7 +578,7 @@
                 <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
               </portlet>
               <title>Suggestions peoples and spaces</title>
-              <access-permissions>*:/platform/administrators</access-permissions>
+              <access-permissions>*:/platform/users</access-permissions>
               <show-info-bar>false</show-info-bar>
               <show-application-state>false</show-application-state>
               <show-application-mode>false</show-application-mode>
