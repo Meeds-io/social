@@ -232,7 +232,7 @@
     <description xml:lang="EN">Members Portlet</description>
     <portlet-name>MembersPortlet</portlet-name>
     <display-name xml:lang="EN">Members</display-name>
-    <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/space-members/index.jsp</value>
