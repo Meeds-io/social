@@ -332,10 +332,9 @@
       </div><!--end actionBarMobile-->
 
     <div class="actionsDetailsWrapper">
-      <div class="actionsDetailsWrapper">
       <div class="likersAndKudosContainer">
         <div class="VuetifyApp">
-          <div id="likersAndKudosActivity${activity.id}"></div>
+          <div id="likersAndKudosActivity-${activity.id}"></div>
         </div>
       </div>
 			<div class="actionBar clearfix ">

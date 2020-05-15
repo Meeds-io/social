@@ -24,11 +24,9 @@ const vuetify = new Vuetify({
   iconfont: '',
 });
 
-const appId ='likersAndKudosActivity-';
-
 export function init(params) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const kudosNumber = document.querySelector(`#SendKudosButtonACTIVITY${params.activityId} .kudosActivityNumber`).innerHTML;
+    //const kudosNumber = document.querySelector(`#SendKudosButtonACTIVITY${params.activityId} .kudosActivityNumber`).innerHTML;
     // init Vue app when locale ressources are ready
     new Vue({
       data: () => ({
@@ -36,9 +34,9 @@ export function init(params) {
         likersNumber: params.likersNum,
         likersLabel: params.likersLabel,
       }),
-      template: `<exo-likers-kudos :likers="likers" :likers-number="likersNumber" :kudos-number="${kudosNumber}" :likers-label="likersLabel" app-id="${appId}${params.activityId}"/>`,
+      template: `<exo-likers-kudos :likers="likers" :likers-number="likersNumber" :likers-label="likersLabel" app-id="likersAndKudosActivity-${params.activityId}"/>`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}${params.activityId}`);
+    }).$mount(`#likersAndKudosActivity-${params.activityId}`);
   });
 }
