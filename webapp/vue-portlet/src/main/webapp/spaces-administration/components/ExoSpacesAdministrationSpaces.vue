@@ -11,6 +11,9 @@
           <a href="#permissions" data-toggle="tab">{{ $t('social.spaces.administration.permissions') }}</a>
         </li>
         <li :class="{active: activeTab === 3}" @click="activeTab=3">
+          <a href="#spaceApplications" data-toggle="tab">{{ $t('social.spaces.applications') }}</a>
+        </li>
+        <li :class="{active: activeTab === 4}" @click="activeTab=4">
           <a href="#spaceTemplates" data-toggle="tab">{{ $t('social.spaces.templates') }}</a>
         </li>
         <li v-show="canChangePermissions" :class="{active: activeTab === 4}" @click="activeTab=4" >
@@ -23,6 +26,9 @@
         </div>
         <div v-else-if="showPermissions" id="permissions" class="tab-pane fade in active">
           <exo-spaces-administration-manage-permissions></exo-spaces-administration-manage-permissions>
+        </div>
+        <div v-else-if="showSpaceApplications" id="spaceApplications" class="tab-pane fade in active">
+          <exo-space-applications :application-items="applicationItems" />
         </div>
         <div v-else-if="showSpaceTemplates" id="spaceTemplates" class="tab-pane fade in active">
           <exo-space-templates-spaces></exo-space-templates-spaces>
@@ -39,6 +45,12 @@
 import * as spacesAdministrationServices from '../spacesAdministrationServices';
 
 export default {
+  props: {
+    applicationItems: {
+      type: Array,
+      default: () => [],
+    }
+  },
   data() { 
     return {
       activeTab: 1,
@@ -53,8 +65,11 @@ export default {
       const permissionTabNumber = 2;
       return this.canChangePermissions && this.activeTab && this.activeTab === permissionTabNumber;
     },
-    showSpaceTemplates() {
+    showSpaceApplications() {
       return this.activeTab === 3;
+    },
+    showSpaceTemplates() {
+      return this.activeTab === 4;
     },
     showBindingReports() {
       const bindingReportsTabNumber = 4;
