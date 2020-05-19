@@ -162,16 +162,6 @@ export default {
         this.$refs.spaceFormDrawer.endLoading();
       }
     },
-    template() {
-      if (this.template) {
-        this.spaceTemplate = this.templates.find(temp => temp.name === this.template);
-        if (this.spaceTemplate) {
-          this.$set(this.space, 'template', this.template);
-          this.$set(this.space, 'subscription', this.spaceTemplate.registration);
-          this.$set(this.space, 'visibility', this.spaceTemplate.visibility);
-        }
-      }
-    },
   },
   mounted() {
     this.$spaceService.getSpaceTemplates()
