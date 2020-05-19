@@ -6,7 +6,7 @@ let config = {
   // can use multiple entry
   entry: {
     commonVueComponents: './src/main/webapp/common/main.js',
-    spacesAdministration: './src/main/webapp/spaces-administration-app/main.js',
+    spacesAdministration: './src/main/webapp/spaces-administration/main.js',
     siteHamburgerMenu: './src/main/webapp/site-navigation/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',

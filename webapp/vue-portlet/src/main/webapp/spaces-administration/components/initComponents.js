@@ -8,6 +8,7 @@ import ExoSpacesAdministrationBindingReports from './ExoSpacesAdministrationBind
 import ExoSuggester from './suggester/ExoSuggester.vue';
 import ExoSpacesTemplatesSpaces  from './ExoSpacesTemplatesSpaces.vue';
 import ExoSpaceTemplate  from './ExoSpaceTemplate.vue';
+import ExoSpaceApplications from './ExoSpaceApplications.vue';
 
 const components = {
   'exo-spaces-administration-manage-spaces': ExoSpacesAdministrationManageSpaces,
@@ -20,6 +21,7 @@ const components = {
   'exo-suggester' : ExoSuggester,
   'exo-space-template' : ExoSpaceTemplate,
   'exo-space-templates-spaces' : ExoSpacesTemplatesSpaces,
+  'exo-space-applications' : ExoSpaceApplications,
 };
 
 for(const key in components) {
