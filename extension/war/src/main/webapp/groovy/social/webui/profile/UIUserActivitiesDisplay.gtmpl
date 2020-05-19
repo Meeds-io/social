@@ -82,11 +82,6 @@
     
   def welcomeActivityName = _ctx.appRes("UIActivity.label.Welcome_Activity_Author");
   def welcomeActivityPostedTime = _ctx.appRes("UIActivity.label.Welcome_Activity_Posted_Time");
-  String hint_text_script = "jq('#ComposerHintCloseBtn').on('click', function() {" +
-                            "  jq(this).parent().fadeOut('slow');" +
-                            "});";
-        
-  jsManager.require("SHARED/jquery", "jq").addScripts(hint_text_script);
 %>
 <div id="$uicomponent.id" class="uiUserActivitiesDisplay uiActivitiesDisplay clearfix"> <!-- use js to add beside one class that named "notSeen" if having some new updates  -->
 <% if (uicomponent.isWelcomeActivity()) { %>
