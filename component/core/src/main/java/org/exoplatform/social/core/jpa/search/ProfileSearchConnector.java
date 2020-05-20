@@ -196,6 +196,7 @@ public class ProfileSearchConnector {
     esSubQuery.append("        \"filter\" : {\n");
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
+    boolean appendCommar = false;
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {
@@ -208,7 +209,7 @@ public class ProfileSearchConnector {
       esSubQuery.append("        \"terms\" :{\n");
       esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
       esSubQuery.append("        } \n");
-      esSubQuery.append("      },");
+      esSubQuery.append("      },\n");
       subQueryEmpty = false;
     }
     if (identity != null && type != null) {
@@ -217,8 +218,9 @@ public class ProfileSearchConnector {
       esSubQuery.append("          \"query\" : \""+ identity.getId() +"\",\n");
       esSubQuery.append("          \"fields\" : [\"" + buildTypeEx(type) + "\"]\n");
       esSubQuery.append("        }\n");
-      esSubQuery.append("      }");
+      esSubQuery.append("      }\n");
       subQueryEmpty = false;
+      appendCommar = true;
     } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
       esSubQuery.append("      \"must_not\": [\n");
       esSubQuery.append("        {\n");
@@ -226,12 +228,13 @@ public class ProfileSearchConnector {
       esSubQuery.append("             \"values\" : [" + buildExcludedIdentities(filter) + "]\n");
       esSubQuery.append("          }\n");
       esSubQuery.append("        }\n");
-      esSubQuery.append("      ]");
+      esSubQuery.append("      ]\n");
       subQueryEmpty = false;
+      appendCommar = true;
     }
     //if the search fields are existing.
     if (expEs != null && expEs.length() > 0) {
-      if(!esSubQuery.toString().endsWith(",")) {
+      if(appendCommar) {
         esSubQuery.append("      ,\n");
       }
       esSubQuery.append("    \"filter\": [\n");
@@ -240,7 +243,8 @@ public class ProfileSearchConnector {
       esSubQuery.append("            \"query\": \"" + expEs + "\"\n");
       esSubQuery.append("          }\n");
       esSubQuery.append("      }\n");
-      esSubQuery.append("    ]");
+      esSubQuery.append("    ]\n");
+      subQueryEmpty = false;
     } //end if
     esSubQuery.append("     } \n");
     esSubQuery.append("   } \n");
