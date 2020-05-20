@@ -24,6 +24,7 @@
 <%
   import org.exoplatform.container.ExoContainerContext;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
+  import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
 
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
   if(featureService.isActiveFeature("new-composer")) {
@@ -37,3 +38,9 @@
 <%
   }
 %>
+
+<div id="ComposerContainer" class="clearfix">
+  <%
+    uicomponent.renderChild(UIActivityComposerContainer.class);
+  %>
+</div>
