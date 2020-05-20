@@ -9,6 +9,9 @@ import ExoSuggester from './suggester/ExoSuggester.vue';
 import ExoSpacesTemplatesSpaces  from './ExoSpacesTemplatesSpaces.vue';
 import ExoSpaceTemplate  from './ExoSpaceTemplate.vue';
 import ExoSpaceApplications from './ExoSpaceApplications.vue';
+import ExoSpaceApplicationCard from './ExoSpaceApplicationCard.vue';
+import ExoSpaceApplicationCategoryCard from './ExoSpaceApplicationCategoryCard.vue';
+import ExoSpaceAddApplicationDrawer from './drawer/ExoSpaceAddApplicationDrawer.vue';
 
 const components = {
   'exo-spaces-administration-manage-spaces': ExoSpacesAdministrationManageSpaces,
@@ -22,6 +25,9 @@ const components = {
   'exo-space-template' : ExoSpaceTemplate,
   'exo-space-templates-spaces' : ExoSpacesTemplatesSpaces,
   'exo-space-applications' : ExoSpaceApplications,
+  'exo-space-application-card' : ExoSpaceApplicationCard,
+  'exo-space-application-category-card' : ExoSpaceApplicationCategoryCard,
+  'exo-space-add-application-drawer' : ExoSpaceAddApplicationDrawer,
 };
 
 for(const key in components) {

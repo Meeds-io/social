@@ -1,21 +1,26 @@
 <template>
   <exo-drawer
     ref="spaceApplicationInstallerDrawer"
-    right
-    class="spaceApplicationInstallerDrawer">
+    class="spaceApplicationInstallerDrawer"
+    right>
     <template slot="title">
-      {{ $t('SpaceSettings.title.addApplication') }}
+      {{ $t('social.spaces.administration.manageSpaces.applications') }}
     </template>
     <template slot="content">
-      <div
-        v-for="app in filteredApplications"
-        :key="app.id"
-        class="d-flex flex-no-wrap justify-space-between border-radius border-color ma-3">
-        <space-setting-application-card
-          :application="app"
-          class="flex-grow-1"
-          @add="addApplication(app)" />
-      </div>
+      <v-expansion-panels
+        v-model="expanded"
+        accordion
+        flat
+        focusable
+        class="px-4">
+        <exo-space-application-category-card
+          v-for="(category, index) in applicationsByCategory"
+          :key="category.id"
+          :category="category"
+          :expanded="expanded === index"
+          :installed-applications="installedApplications"
+          @addApplication="addApplication" />
+      </v-expansion-panels>
     </template>
   </exo-drawer>
 </template>
@@ -24,9 +29,9 @@ const IDLE_TIME = 200;
 
 export default {
   props: {
-    spaceId: {
-      type: String,
-      default: null,
+    applicationsByCategory: {
+      type: Array,
+      default: () => [],
     },
     installedApplications: {
       type: Array,
@@ -34,17 +39,9 @@ export default {
     },
   },
   data: () => ({
+    expanded: 0,
     savingSpace: false,
-    applications: [],
   }),
-  computed: {
-    filteredApplications() {
-      if (!this.applications || !this.applications.length) {
-        return [];
-      }
-      return this.applications.filter(app => !this.installedApplications.find(installedApp => installedApp.contentId === app.contentId));
-    },
-  },
   watch: {
     savingSpace() {
       if (this.savingSpace) {
@@ -53,10 +50,6 @@ export default {
         this.$refs.spaceApplicationInstallerDrawer.endLoading();
       }
     },
-  },
-  created() {
-    this.$spaceService.getSpaceApplicationsChoices()
-      .then(data => this.applications = data);
   },
   methods: {
     open() {
@@ -71,7 +64,7 @@ export default {
         return;
       }
       this.savingSpace = true;
-      this.$spaceService.addApplication(this.spaceId, application.contentId.split('/')[1])
+      this.$spaceService.addSpacesApplication(application)
         .then(() => {
           this.$emit('refresh');
 
@@ -81,7 +74,7 @@ export default {
         })
         .catch(e => {
           // eslint-disable-next-line no-console
-          console.warn('Error adding application to space ', e);
+          console.warn('Error adding spaces application ', e);
         })
         .finally(() => this.savingSpace = false);
     }

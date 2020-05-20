@@ -601,22 +601,21 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     response = Response.class
   )
   @ApiResponses(value = {
-      @ApiResponse (code = 204, message = "Request fulfilled"),
+      @ApiResponse (code = 200, message = "Request fulfilled"),
       @ApiResponse (code = 500, message = "Internal server error"),
       @ApiResponse (code = 401, message = "Unauthorized")
   })
   public Response getSpaceApplicationsChoices() {
     try {
-      List<Application> applications = SpaceUtils.getApplications("/platform/users");
+      List<Application> applications = spaceService.getSpacesApplications();
       List<DataEntity> spaceApplications = applications.stream().map(application -> {
-        String displayName = application.getDisplayName();
-        String description = application.getDescription();
-        String iconURL = application.getIconURL();
-
+        application = computeApplicationAttributes(application);
         BaseEntity app = new BaseEntity(application.getApplicationName());
-        app.setProperty(RestProperties.DISPLAY_NAME, displayName);
-        app.setProperty("description", description);
-        app.setProperty("iconUrl", iconURL);
+        app.setProperty(RestProperties.DISPLAY_NAME, application.getDisplayName());
+        app.setProperty("contentId", application.getContentId());
+        app.setProperty("applicationName", application.getApplicationName());
+        app.setProperty("description", application.getDescription());
+        app.setProperty("iconUrl", application.getIconURL());
         app.setProperty("removable", true);
         return app.getDataEntity();
       }).collect(Collectors.toList());
@@ -624,6 +623,55 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     } catch (Exception e) {
       return Response.serverError().entity(e.getMessage()).build();
     }
+  }
+
+  @POST
+  @Path("applications")
+  @RolesAllowed("administrators")
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+    value = "Add an application into list of allowed application to instantiate in spaces",
+    httpMethod = "POST",
+    response = Response.class
+  )
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled"),
+      @ApiResponse (code = 500, message = "Internal server error"),
+      @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response addSpaceApplication(Application application) {
+    if (application == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("application is mandatory").build();
+    }
+    if (application.getContentId() == null || application.getApplicationName() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("application name and contentId are mandatory").build();
+    }
+
+    spaceService.addSpacesApplication(application);
+    return Response.noContent().build();
+  }
+
+  @DELETE
+  @Path("applications/{applicationName}")
+  @RolesAllowed("administrators")
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+      value = "Deletes an application from list of allowed application to instantiate in spaces",
+      httpMethod = "DELETE",
+      response = Response.class
+  )
+  @ApiResponses(value = {
+      @ApiResponse (code = 204, message = "Request fulfilled"),
+      @ApiResponse (code = 500, message = "Internal server error"),
+      @ApiResponse (code = 401, message = "Unauthorized")
+  })
+  public Response deleteSpaceApplication(@ApiParam(value = "Application name", required = true) @PathParam("applicationName") String applicationName) {
+    if (applicationName == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("application name is mandatory").build();
+    }
+
+    spaceService.deleteSpacesApplication(applicationName);
+    return Response.noContent().build();
   }
 
   @GET
@@ -671,18 +719,28 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       } catch (Exception e) {
         return null;
       }
-      
-      String displayName = application == null ? SpaceUtils.getAppNodeName(space, appId) : application.getDisplayName();
-      String description = application == null ? displayName : application.getDescription();
-      String iconURL = application == null ? null : application.getIconURL();
-      
-      BaseEntity app = new BaseEntity(appId);
-      app.setProperty(RestProperties.DISPLAY_NAME, displayName);
-      app.setProperty("description", description);
-      app.setProperty("iconUrl", iconURL);
-      app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
-      app.setProperty("order", sortedAppList.indexOf(appId));
-      return app.getDataEntity();
+
+      if (application == null) {
+        String displayName = SpaceUtils.getAppNodeName(space, appId);
+
+        BaseEntity app = new BaseEntity(appId);
+        app.setProperty(RestProperties.DISPLAY_NAME, displayName);
+        app.setProperty("description", displayName);
+        app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
+        app.setProperty("order", sortedAppList.indexOf(appId));
+        return app.getDataEntity();
+      } else {
+        BaseEntity app = new BaseEntity(appId);
+        app.setProperty(RestProperties.DISPLAY_NAME, application.getDisplayName());
+        app.setProperty("contentId", application.getContentId());
+        app.setProperty("applicationName", application.getApplicationName());
+        app.setProperty("description", application.getDescription());
+        app.setProperty("iconUrl", application.getIconURL());
+
+        app.setProperty("order", sortedAppList.indexOf(appId));
+        app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
+        return app.getDataEntity();
+      }
     }).collect(Collectors.toList());
     return Response.ok(applications).build();
   }
@@ -1097,6 +1155,19 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       defaultSpaceAvatar = IOUtil.getStreamContentAsBytes(is);
     }
     return Response.ok(new ByteArrayInputStream(defaultSpaceAvatar), "image/png");
+  }
+
+  private Application computeApplicationAttributes(Application application) {
+    Application applicationFromContainer = null;
+    try {
+      applicationFromContainer = SpaceUtils.getAppFromPortalContainer(application.getApplicationName());
+    } catch (Exception e) {
+      LOG.debug("Error retrieving");
+    }
+    if (applicationFromContainer != null) {
+      application = applicationFromContainer;
+    }
+    return application;
   }
 
 }

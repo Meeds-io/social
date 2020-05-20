@@ -330,8 +330,6 @@ public class SpaceUtils {
                                                  .getMeta()
                                                  .getMetaValue(MetaInfo.DISPLAY_NAME);
 
-          getLocalizedStringValue(descriptionLS, portletName);
-
           app = new Application();
 
           if (portlet.isRemote()) {
