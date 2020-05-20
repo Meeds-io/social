@@ -23,13 +23,16 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.application.registry.*;
 import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.configuration.ConfigurationManager;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -62,6 +65,8 @@ public class SpaceServiceImpl implements SpaceService {
 
   public static final String                   MANAGER                  = "manager";
 
+  public static final String                   DEFAULT_APP_CATEGORY     = "spacesApplications";
+
   private IdentityRegistry                     identityRegistry;
 
   private SpaceStorage                         spaceStorage;
@@ -92,6 +97,10 @@ public class SpaceServiceImpl implements SpaceService {
 
   private ConfigurationManager configurationManager;
 
+  private ApplicationRegistryService applicationRegistryService;
+
+  private String spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
+
   public SpaceServiceImpl(SpaceStorage spaceStorage,
                           IdentityStorage identityStorage,
                           IdentityManager identityManager,
@@ -100,7 +109,9 @@ public class SpaceServiceImpl implements SpaceService {
                           IdentityRegistry identityRegistry,
                           WebNotificationService webNotificationService,
                           SpacesAdministrationService spacesAdministrationService,
-                          SpaceTemplateService spaceTemplateService) {
+                          SpaceTemplateService spaceTemplateService,
+                          ApplicationRegistryService applicationRegistryService,
+                          InitParams params) {
     this.spaceStorage = spaceStorage;
     this.identityManager = identityManager;
     this.identityStorage = identityStorage;
@@ -110,6 +121,10 @@ public class SpaceServiceImpl implements SpaceService {
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
     this.configurationManager = configurationManager;
+    this.applicationRegistryService = applicationRegistryService;
+    if (params != null && params.containsKey("spacesApplicationsCategory")) {
+      this.spacesApplicationsCategory = params.getValueParam("spacesApplicationsCategory").getValue();
+    }
   }
 
   /**
@@ -836,6 +851,36 @@ public class SpaceServiceImpl implements SpaceService {
    */
   public void setIgnored(String spaceId, String userId) {
     spaceStorage.ignoreSpace(spaceId, userId);
+  }
+
+  @Override
+  public List<Application> getSpacesApplications() {
+    ApplicationCategory category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
+    return category == null || category.getApplications() == null ? Collections.emptyList() : category.getApplications();
+  }
+
+  @Override
+  public void addSpacesApplication(Application application) {
+    ApplicationCategory category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
+    if (category == null) {
+      category = new ApplicationCategory();
+      category.setName(spacesApplicationsCategory);
+      category.setDisplayName("Spaces applications");
+      applicationRegistryService.save(category);
+      category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
+    }
+    application.setCategoryName(spacesApplicationsCategory);
+    application.setCreatedDate(new Date());
+    application.setType(ApplicationType.PORTLET);
+    applicationRegistryService.save(category, application);
+  }
+
+  @Override
+  public void deleteSpacesApplication(String applicationName) {
+    Application application = applicationRegistryService.getApplication(spacesApplicationsCategory, applicationName);
+    if (application != null) {
+      applicationRegistryService.remove(application);
+    }
   }
 
   /**

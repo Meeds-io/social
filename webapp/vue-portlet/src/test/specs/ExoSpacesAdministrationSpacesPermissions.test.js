@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { spacesConstants } from '../../main/webapp/js/spacesConstants.js';
-import ExoSpacesAdministrationSpacesPermissions from '../../main/webapp/spaces-administration-app/components/ExoSpacesAdministrationSpacesPermissions';
+import ExoSpacesAdministrationSpacesPermissions from '../../main/webapp/spaces-administration/components/ExoSpacesAdministrationSpacesPermissions';
 
 const localVue = createLocalVue();
 
