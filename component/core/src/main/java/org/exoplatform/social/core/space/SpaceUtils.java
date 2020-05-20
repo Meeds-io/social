@@ -68,6 +68,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.web.application.RequestContext;
 import org.exoplatform.webui.application.WebuiRequestContext;
 
 /**
@@ -1945,7 +1946,10 @@ public class SpaceUtils {
       ResourceBundle resourceBundle = SpaceUtils.getSharedResourceBundle(locale);
       selectedUserNodeLabel = SpaceUtils.getResolvedAppLabel(selectedUserNode, resourceBundle, locale);
     }
-    request.setAttribute(PORTAL_PAGE_TITLE, space.getDisplayName() + " - " + selectedUserNodeLabel);
+    ((PortalRequestContext) RequestContext.getCurrentInstance()).getRequest()
+                                                                .setAttribute(PORTAL_PAGE_TITLE,
+                                                                              space.getDisplayName() + " - "
+                                                                                  + selectedUserNodeLabel);
   }
 
   public static UserPortalConfigService getUserPortalConfigService() {
