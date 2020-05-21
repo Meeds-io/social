@@ -20,10 +20,11 @@
         v-if="user.isManager"
         :title="$t('peopleList.label.spaceManager')"
         :ripple="false"
+        class="peopleInfoIcon d-none d-sm-flex not-clickable primary-border-color ml-1"
         color="primary"
-        class="white primary-border-color ml-1 mt-2 not-clickable"
+        disabled
         icon
-        x-small>
+        small>
         <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
       </v-btn>
       <v-spacer />
