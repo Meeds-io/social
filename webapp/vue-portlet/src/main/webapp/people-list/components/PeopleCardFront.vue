@@ -20,9 +20,8 @@
         v-if="user.isManager"
         :title="$t('peopleList.label.spaceManager')"
         :ripple="false"
-        class="peopleInfoIcon d-none d-sm-flex not-clickable primary-border-color ml-1"
         color="primary"
-        disabled
+        class="peopleInfoIcon d-none d-sm-flex not-clickable primary-border-color ml-1"
         icon
         small>
         <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
@@ -89,7 +88,7 @@
       </v-card-subtitle>
     </v-card-text>
 
-    <v-card-actions class="peopleCardActions">
+    <v-card-actions v-if="!isSameUser" class="peopleCardActions">
       <exo-confirm-dialog
         ref="confirmDialog"
         :title="confirmTitle"
@@ -227,6 +226,9 @@ export default {
     displaySecondButton: false,
   }),
   computed: {
+    isSameUser() {
+      return this.user && this.user.username === eXo.env.portal.userName;
+    },
     userAvatarUrl() {
       return this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
     },
