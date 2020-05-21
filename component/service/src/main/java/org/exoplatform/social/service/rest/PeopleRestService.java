@@ -724,6 +724,7 @@ public class PeopleRestService implements ResourceContainer{
       peopleInfo.setFullName(identity.getProfile().getFullName());
       peopleInfo.setPosition(StringEscapeUtils.unescapeHtml(identity.getProfile().getPosition()));
       peopleInfo.setDeleted(identity.isDeleted());
+      peopleInfo.setEnable(identity.isEnable());
       Profile userProfile = identity.getProfile();
       String avatarURL = userProfile.getAvatarUrl();
       if (avatarURL == null) {
