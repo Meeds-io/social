@@ -144,7 +144,7 @@
     <title>Activity</title>
     <access-permissions>*:/platform/users</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="sociallayout" template="system:/groovy/portal/webui/container/UITableColumnContainer.gtmpl">
+    <container id="singlePageApplicationContainer" template="system:/groovy/portal/webui/container/UITableColumnContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
       <container id="ProfileActivity" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>*:/platform/users</access-permissions>

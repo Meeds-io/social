@@ -340,6 +340,7 @@
 			<div class="actionBar clearfix ">
 				 <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
 								 def commentLink = "";
+								 def commentLink = "";
 							  %>
 					<ul class="pull-right statusAction">
 					  <% if (uicomponent.isLiked()) { %>
