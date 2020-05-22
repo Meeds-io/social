@@ -70,9 +70,12 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
                activity.setTitle(firstMessage);
            } else {
                if (linkShare.getImages().size() != 0) {
-                   templateParams.put(IMAGE, linkShare.getImages().get(0));
+                   if(linkShare.getImages().size() == 1){
+                       templateParams.put(IMAGE, linkShare.getImages().get(0));
+                   }else if(linkShare.getImages().size() > 1){
+                       templateParams.put(IMAGE, linkShare.getImages().get(1));
+                   }
                }
-
                templateParams.put(DESCRIPTION, linkShare.getDescription());
                templateParams.put(HTML_PARAM, null);
                templateParams.put(TITLE, linkShare.getTitle());
