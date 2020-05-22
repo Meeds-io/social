@@ -11,7 +11,10 @@ let config = {
     spaceMenu: './src/main/webapp/space-menu/main.js',
     spaceHeader: './src/main/webapp/space-header/main.js',
     spaceMembers: './src/main/webapp/space-members/main.js',
-    spaceSettings: './src/main/webapp/space-settings/main.js'
+    spaceSettings: './src/main/webapp/space-settings/main.js',
+    usersManagement: './src/main/webapp/users-management/main.js',
+    groupsManagement: './src/main/webapp/groups-management/main.js',
+    membershipsManagement: './src/main/webapp/memberships-management/main.js'
   },
   module: {
     rules: [

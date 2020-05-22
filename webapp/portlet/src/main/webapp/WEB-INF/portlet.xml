@@ -23,6 +23,84 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" version="1.0">
 
   <portlet>
+    <description xml:lang="EN">Users Management Portlet</description>
+    <portlet-name>UsersManagement</portlet-name>
+    <display-name xml:lang="EN">Users Management</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/users-management/index.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Users Management</title>
+      <short-title>Users Management</short-title>
+      <keywords>System</keywords>
+    </portlet-info>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+  <portlet>
+    <description xml:lang="EN">Groups Management Portlet</description>
+    <portlet-name>GroupsManagement</portlet-name>
+    <display-name xml:lang="EN">Groups Management</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/groups-management/index.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Groups Management</title>
+      <short-title>Groups Management</short-title>
+      <keywords>System</keywords>
+    </portlet-info>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+  <portlet>
+    <description xml:lang="EN">Memberships Management Portlet</description>
+    <portlet-name>MembershipsManagement</portlet-name>
+    <display-name xml:lang="EN">Memberships Management</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/memberships-management/index.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Memberships Management</title>
+      <short-title>Memberships Management</short-title>
+      <keywords>System</keywords>
+    </portlet-info>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+  <portlet>
     <portlet-name>WhoIsOnLinePortlet</portlet-name>
     <display-name xml:lang="EN">Who is on Line</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
