@@ -106,14 +106,8 @@ export default {
       CKEDITOR.instances['activityContent'].focus();
     },
     getMessage: function() {
-      let  pureText = '';
       const newData = CKEDITOR.instances['activityContent'].getData();
-      if (newData.includes('<oembed>')){
-        pureText = newData ? newData.replace(/&nbsp;/g, '').trim() : '';
-      }else {
-        pureText = newData ? newData.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      }
-      return pureText;
+      return newData ? newData.replace(/&nbsp;/g, '').trim() : '';
     }
   }
 };

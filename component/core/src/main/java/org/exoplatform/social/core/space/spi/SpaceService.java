@@ -18,6 +18,7 @@ package org.exoplatform.social.core.space.spi;
 
 import java.util.List;
 
+import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -1467,6 +1468,32 @@ public interface SpaceService {
    * @throws SpaceException
    */
   default void moveApplication(String spaceId, String appId, int transition) throws SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return {@link List} of {@link Application} that can be instantiated in spaces
+   */
+  default List<Application> getSpacesApplications() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Add an application to applications list that can be instantiated in space
+   * context
+   * 
+   * @param application of type {@link Application}
+   */
+  default void addSpacesApplication(Application application) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Delete application from list of spaces applications
+   * 
+   * @param applicationName application name to delete
+   */
+  default void deleteSpacesApplication(String applicationName) {
     throw new UnsupportedOperationException();
   }
 

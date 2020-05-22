@@ -7,6 +7,7 @@ import java.util.*;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.exoplatform.application.registry.Application;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
@@ -406,6 +407,47 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
         spaceService.deleteSpace(space);
       }
     }
+  }
+
+  public void testSpacesApplications() throws Exception {
+    startSessionAs("root");
+    List<Application> spacesApplications = spaceService.getSpacesApplications();
+    assertNotNull(spacesApplications);
+    assertEquals(0, spacesApplications.size());
+
+    String input = "{\"applicationName\":\"app\",\"contentId\":\"social/app\"}";
+    //root try to update demo activity
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/applications"), input);
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    spacesApplications = spaceService.getSpacesApplications();
+    assertNotNull(spacesApplications);
+    assertEquals(1, spacesApplications.size());
+
+    response = service("GET",
+                       getURLResource("spaces/applications"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    List<Application> applications = (List<Application>) response.getEntity();
+    assertNotNull(applications);
+    assertEquals(1, applications.size());
+
+    restartTransaction();
+
+    response = service("DELETE",
+                       getURLResource("spaces/applications/app"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+    spacesApplications = spaceService.getSpacesApplications();
+    assertNotNull(spacesApplications);
+    assertEquals(0, spacesApplications.size());
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {

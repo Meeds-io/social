@@ -132,7 +132,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/spaces-administration-app/index.html</value>
+      <value>/WEB-INF/jsp/spacesAdministration.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>

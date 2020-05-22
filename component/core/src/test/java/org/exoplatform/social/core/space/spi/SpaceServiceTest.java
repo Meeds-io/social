@@ -24,7 +24,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.services.log.ExoLogger;
@@ -3081,6 +3083,23 @@ public class SpaceServiceTest extends AbstractCoreTest {
     lastSpaces = spaceService.getLastSpaces(5);
     assertEquals(2, lastSpaces.size());
     assertEquals(sp1, lastSpaces.get(0));
+  }
+
+  public void testSpaceApplications() {
+    List<Application> spacesApplications = spaceService.getSpacesApplications();
+    assertNotNull(spacesApplications);
+    assertEquals(0, spacesApplications.size());
+
+    Application application = new Application();
+    application.setApplicationName("applicationName");
+    application.setType(ApplicationType.PORTLET);
+    application.setDisplayName("displayName");
+    application.setContentId("appName/portletName");
+    spaceService.addSpacesApplication(application);
+
+    spacesApplications = spaceService.getSpacesApplications();
+    assertNotNull(spacesApplications);
+    assertEquals(1, spacesApplications.size());
   }
 
 //FIXME regression JCR to RDBMS migration

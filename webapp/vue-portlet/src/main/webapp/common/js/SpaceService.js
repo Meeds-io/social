@@ -63,6 +63,38 @@ export function getSpaceApplicationsChoices() {
   });
 }
 
+export function removeSpacesApplication(appName) {
+  return fetch(`/portal/rest/v1/social/spaces/applications/${appName}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function addSpacesApplication(application) {
+  return fetch('/portal/rest/v1/social/spaces/applications', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      applicationName: application.applicationName,
+      contentId: application.contentId,
+      description: application.description,
+      displayName: application.displayName || application.applicationName,
+      id: application.id,
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function getSpaceNavigations(spaceId) {
   return fetch(`/portal/rest/v1/social/spaces/${spaceId}/navigations`, {
     method: 'GET',

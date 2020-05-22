@@ -28,12 +28,15 @@ if (extensionRegistry) {
 }
 
 // getting locale ressources
-export function init() {
+export function init(applicationsByCategory) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
   // init Vue app when locale ressources are ready
     new Vue({
       el: '#spacesAdministration',
-      template: '<exo-spaces-administration-spaces></exo-spaces-administration-spaces>',
+      data: () => ({
+        applicationsByCategory: applicationsByCategory,
+      }),
+      template: '<exo-spaces-administration-spaces :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>',
       i18n,
       vuetify,
     });

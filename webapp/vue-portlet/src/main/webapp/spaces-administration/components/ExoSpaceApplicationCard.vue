@@ -1,7 +1,5 @@
 <template>
-  <v-card
-    :id="applicationId"
-    flat>
+  <v-card :id="applicationId" flat>
     <div class="d-flex flex-no-wrap">
       <v-avatar
         class="SpaceApplicationCardImage mx-1 my-auto"
@@ -23,7 +21,7 @@
       </div>
       <div class="SpaceApplicationCardAction">
         <v-btn
-          v-if="spaceId"
+          v-if="useMenu"
           :disabled="skeleton"
           :class="skeleton && 'skeleton-background skeleton-text'"
           icon
@@ -52,25 +50,9 @@
           close-on-click
           close-on-content-click>
           <v-list class="pa-0" dense>
-            <v-list-item
-              v-if="applicationRemovable"
-              @click="$emit('remove')">
+            <v-list-item @click="$emit('remove')">
               <v-list-item-title>
-                {{ $t('SpaceSettings.button.remove') }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-if="!firstApplication"
-              @click="$emit('moveBefore')">
-              <v-list-item-title>
-                {{ $t('SpaceSettings.button.moveBefore') }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-if="!lastApplication"
-              @click="$emit('moveAfter')">
-              <v-list-item-title>
-                {{ $t('SpaceSettings.button.moveAfter') }}
+                {{ $t('social.spaces.administration.manageSpaces.applications.remove') }}
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -83,55 +65,38 @@
 <script>
 export default {
   props: {
-    spaceId: {
-      type: Object,
-      default: null,
+    useMenu: {
+      type: Boolean,
+      default: false,
     },
     application: {
       type: String,
       default: null,
-    },
-    index: {
-      type: Number,
-      default: 0,
-    },
-    length: {
-      type: Number,
-      default: 0,
     },
   },
   data: () => ({
     displayActionMenu: false,
   }),
   computed: {
-    firstApplication() {
-      return this.index === 0;
-    },
-    lastApplication() {
-      return this.index === this.length - 1;
-    },
-    applicationRemovable() {
-      return this.application && this.application.id && this.application.removable && String(this.application.removable) === 'true';
-    },
     applicationId() {
-      return this.application && this.application.id;
+      return this.application && this.application.contentId && this.application.contentId.split('/')[1];
     },
     applicationName() {
-      return this.application && this.application.displayName;
+      return this.application && (this.application.displayName || this.application.applicationName);
     },
     applicationDescription() {
       return this.application && this.application.description;
     },
     applicationIcon() {
-      if (!this.application || !this.application.id) {
+      if (!this.applicationId) {
         return '';
       }
-      const iconSuffix = `${this.application.id.charAt(0).toUpperCase()}${this.application.id.substring(1)}`;
+      const iconSuffix = `${this.applicationId.charAt(0).toUpperCase()}${this.applicationId.substring(1)}`;
       return `uiIconApp${iconSuffix} uiIconDefaultApp`;
     },
   },
   mounted() {
-    if (this.spaceId) {
+    if (this.useMenu) {
       // Force to close DatePickers when clicking outside
       $(document).on('click', (e) => {
         if (e.target && !$(e.target).parents(`#${this.applicationId}`).length) {

@@ -252,7 +252,7 @@ export default {
       }
     },
     template() {
-      if (this.template) {
+      if (this.template && !this.space.id) {
         this.spaceTemplate = this.templates.find(temp => temp.name === this.template);
         if (this.spaceTemplate) {
           this.$set(this.space, 'template', this.template);
@@ -284,7 +284,6 @@ export default {
         this.templates = data || [];
         this.spaceTemplate = this.templates.length && this.templates[0] || null;
         this.template = this.spaceTemplate && this.spaceTemplate.name;
-        return this.$nextTick();
       });
   },
   methods: {
@@ -333,7 +332,6 @@ export default {
           id: this.space.id,
           displayName: this.space.displayName,
           description: this.space.description,
-          template: this.template,
           visibility: this.space.visibility,
           subscription: this.space.subscription,
           invitedMembers: this.space.invitedMembers,
