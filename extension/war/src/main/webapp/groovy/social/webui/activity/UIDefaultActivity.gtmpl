@@ -48,7 +48,6 @@
   def labelComment = _ctx.appRes("UIActivity.label.Comment");
   def labelComments= _ctx.appRes("UIActivity.comment.commentsLabel");
   def labelCancel = _ctx.appRes("UIActivity.label.Cancel");
-  def labelLike = _ctx.appRes("UIActivity.label.Like");
   def labelLikesActivity = _ctx.appRes("UIActivity.label.likesLabel");
   def labelUpdate = _ctx.appRes("UIActivity.label.Update");
   def labelEdit = _ctx.appRes("UIActivity.label.Edit");
@@ -73,9 +72,6 @@
   def labelConfirmbutton=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Confirm_Delete_Activity-Button"));
   def labelClosebutton=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Cancel_Delete_Activity-Button"));
   def labelToDeleteThisComment=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.msg.Are_You_Sure_To_Delete_This_Comment"));
-
-  def likeActivityAction = uicomponent.event("LikeActivity", "true");
-  def unlikeActivityAction = uicomponent.event("LikeActivity", "false");
 
 
   def commentList = uicomponent.getComments();
@@ -340,37 +336,7 @@
 				 </div>
 			</div><!--end list like people-->
 			<%}%>
-			<div class="actionBar clearfix ">
-				 <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
-								 def commentLink = "";
-							  %>
-					<ul class="pull-right statusAction">
-					  <% if (uicomponent.isLiked()) { %>
-						<li>
-							<a onclick="$unlikeActivityAction" rel="tooltip" data-placement="bottom" title="<%=_ctx.appRes("UIActivity.msg.UnlikeActivity"); %>" id="UnLikeLink${activity.id}" href="javascript:void(0);">
-							   <i class="uiIconThumbUp uiIconBlue"></i>
-                 <span class="LikeLabel">$labelLike</span>
-                 <span class="LikesActionNumber">$totalLikesNum</span>
-							</a>
-						</li>
-					  <% } else { %>
-						<li>
-							<a onclick="$likeActivityAction" rel="tooltip" data-placement="bottom" title="<%=_ctx.appRes("UIActivity.msg.LikeActivity"); %>" id="LikeLink${activity.id}" href="javascript:void(0);">
-							  <i class="uiIconThumbUp uiIconLightGray"></i>
-                <span class="LikeLabel">$labelLike</span>
-                <span class="LikesActionNumber">$totalLikesNum</span>
-							</a>
-						</li>
-					  <% }%>
-            <li>
-							<a class="$commentLink" id="CommentLink${activity.id}" data-activity="${activity.id}" href="javascript:void(0);">
-								<i class="uiIconComment uiIconLightGray"></i>
-                 <span class="CommentLabel">$labelComment</span>
-                  <span class="commentsActionNumber">$allCommentSize</span>
-							</a>
-						</li>
-					</ul>
-			</div><!--end actionBar-->      
+	   <% _ctx.includeTemplates("UIActivityActionBar-head") %>
 		</div><!--end actionBar and list like people wrapper-->
 			<div id="CommentBlockBound${activity.id}" class="commentBox ">
 			<div class="commentList">
