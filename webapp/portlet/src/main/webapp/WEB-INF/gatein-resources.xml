@@ -231,11 +231,11 @@
   </portlet>
 
   <portlet>
-    <name>UsersManagement</name>
+    <name>IDMUsersManagement</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/usersManagement.bundle.js</path>
+        <path>/js/idmUsersManagement.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>
@@ -260,11 +260,11 @@
   </portlet>
 
   <portlet>
-    <name>GroupsManagement</name>
+    <name>IDMGroupsManagement</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/groupsManagement.bundle.js</path>
+        <path>/js/idmGroupsManagement.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>
@@ -289,11 +289,11 @@
   </portlet>
 
   <portlet>
-    <name>MembershipsManagement</name>
+    <name>IDMMembershipsManagement</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/membershipsManagement.bundle.js</path>
+        <path>/js/idmMembershipsManagement.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>

@@ -24,7 +24,7 @@
     
     <component>
         <key>org.exoplatform.services.organization.search.UserSearchService</key>
-        <type>org.exoplatform.social.core.identity.UserSearchServiceImpl</type>
+        <type>org.exoplatform.social.core.identity.SocialUserSearchServiceImpl</type>
     </component>
     
     <component>
