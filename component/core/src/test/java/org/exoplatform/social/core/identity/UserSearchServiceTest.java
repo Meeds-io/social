@@ -68,7 +68,7 @@ public class UserSearchServiceTest extends TestCase {
     }
 
     try {
-      UserSearchService userSearchService = new UserSearchServiceImpl(orgSrvMock, identityStorageMock);
+      UserSearchService userSearchService = new SocialUserSearchServiceImpl(orgSrvMock, identityStorageMock);
       ListAccess<User> searchUsers = userSearchService.searchUsers(null);
       int size = searchUsers.getSize();
       assertEquals(1, size);
@@ -92,7 +92,7 @@ public class UserSearchServiceTest extends TestCase {
     verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilter(anyString(), any(), anyLong(), anyLong(), anyBoolean());
 
     try {
-      UserSearchService userSearchService = new UserSearchServiceImpl(orgSrvMock, identityStorageMock);
+      UserSearchService userSearchService = new SocialUserSearchServiceImpl(orgSrvMock, identityStorageMock);
       ListAccess<User> searchUsers = userSearchService.searchUsers("test");
       int size = searchUsers.getSize();
       assertEquals(1, size);

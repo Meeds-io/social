@@ -13,7 +13,7 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
-          <portlet-ref>UsersManagement</portlet-ref>
+          <portlet-ref>IDMUsersManagement</portlet-ref>
         </portlet>
         <title>Users Management</title>
         <access-permissions>manager:/platform/administrators</access-permissions>
@@ -32,7 +32,7 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
-          <portlet-ref>GroupsManagement</portlet-ref>
+          <portlet-ref>IDMGroupsManagement</portlet-ref>
         </portlet>
         <title>Groups Management</title>
         <access-permissions>manager:/platform/administrators</access-permissions>
@@ -51,7 +51,7 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
-          <portlet-ref>MembershipsManagement</portlet-ref>
+          <portlet-ref>IDMMembershipsManagement</portlet-ref>
         </portlet>
         <title>Memberships Management</title>
         <access-permissions>manager:/platform/administrators</access-permissions>

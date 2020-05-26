@@ -24,12 +24,12 @@
 
   <portlet>
     <description xml:lang="EN">Users Management Portlet</description>
-    <portlet-name>UsersManagement</portlet-name>
+    <portlet-name>IDMUsersManagement</portlet-name>
     <display-name xml:lang="EN">Users Management</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/users-management/index.html</value>
+        <value>/idm-users-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
@@ -50,12 +50,12 @@
 
   <portlet>
     <description xml:lang="EN">Groups Management Portlet</description>
-    <portlet-name>GroupsManagement</portlet-name>
+    <portlet-name>IDMGroupsManagement</portlet-name>
     <display-name xml:lang="EN">Groups Management</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/groups-management/index.html</value>
+        <value>/idm-groups-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
@@ -76,12 +76,12 @@
 
   <portlet>
     <description xml:lang="EN">Memberships Management Portlet</description>
-    <portlet-name>MembershipsManagement</portlet-name>
+    <portlet-name>IDMMembershipsManagement</portlet-name>
     <display-name xml:lang="EN">Memberships Management</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/memberships-management/index.html</value>
+        <value>/idm-memberships-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>

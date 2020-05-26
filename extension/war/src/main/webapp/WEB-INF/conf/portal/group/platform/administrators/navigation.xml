@@ -28,23 +28,19 @@
 
   <page-nodes>
     <node>
-      <name>administration</name>
-      <label>#{administration.title}</label>
-      <node>
-        <name>usersManagement</name>
-        <label>#{administration.usersManagement}</label>
-        <page-reference>group::/platform/administrators::usersManagement</page-reference>
-      </node>
-      <node>
-        <name>groupsManagement</name>
-        <label>#{administration.groupsManagement}</label>
-        <page-reference>group::/platform/administrators::groupsManagement</page-reference>
-      </node>
-      <node>
-        <name>membershipsManagement</name>
-        <label>#{administration.membershipsManagement}</label>
-        <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
-      </node>
+      <name>usersManagement</name>
+      <label>#{administration.usersManagement}</label>
+      <page-reference>group::/platform/administrators::usersManagement</page-reference>
+    </node>
+    <node>
+      <name>groupsManagement</name>
+      <label>#{administration.groupsManagement}</label>
+      <page-reference>group::/platform/administrators::groupsManagement</page-reference>
+    </node>
+    <node>
+      <name>membershipsManagement</name>
+      <label>#{administration.membershipsManagement}</label>
+      <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
     </node>
     <node>
       <name>branding</name>

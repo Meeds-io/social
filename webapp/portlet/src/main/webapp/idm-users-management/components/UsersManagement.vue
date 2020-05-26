@@ -1,8 +1,10 @@
 <template>
   <v-app class="white">
-    <users-management-toolbar />
-    <users-management-list />
-    <users-management-user-form-drawer />
+    <v-card flat>
+      <users-management-toolbar />
+      <users-management-list />
+      <users-management-user-form-drawer />
+    </v-card>
   </v-app>
 </template>
 

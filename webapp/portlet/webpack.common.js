@@ -12,9 +12,9 @@ let config = {
     spaceHeader: './src/main/webapp/space-header/main.js',
     spaceMembers: './src/main/webapp/space-members/main.js',
     spaceSettings: './src/main/webapp/space-settings/main.js',
-    usersManagement: './src/main/webapp/users-management/main.js',
-    groupsManagement: './src/main/webapp/groups-management/main.js',
-    membershipsManagement: './src/main/webapp/memberships-management/main.js'
+    idmUsersManagement: './src/main/webapp/idm-users-management/main.js',
+    idmGroupsManagement: './src/main/webapp/idm-groups-management/main.js',
+    idmMembershipsManagement: './src/main/webapp/idm-memberships-management/main.js'
   },
   module: {
     rules: [
