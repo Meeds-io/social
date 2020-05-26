@@ -29,6 +29,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
   private static final String TITLE = "title";
   private static final String COMMENT = "comment";
   private static final String LINK_ACTIVITY = "LINK_ACTIVITY";
+  private static final String FILE_ACTIVITY = "files:spaces";
   private static final String HTML_PARAM = "html";
 
 
@@ -82,7 +83,12 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
 
            templateParams.put(TEMPLATE_PARAM_TO_PROCESS, COMMENT);
            templateParams.put(LINK, url);
-           activity.setType(LINK_ACTIVITY);
+           //if activity contains files params then add link template params to the existing ones
+           if (activity.getType().equals(FILE_ACTIVITY)) {
+             templateParams.putAll(activity.getTemplateParams());
+           } else {
+             activity.setType(LINK_ACTIVITY);
+           }
            activity.setTemplateParams(templateParams);
        }
      } catch (Exception e) {
