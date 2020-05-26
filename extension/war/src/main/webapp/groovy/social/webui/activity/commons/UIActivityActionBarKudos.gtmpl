@@ -1,0 +1,32 @@
+<%
+  import org.exoplatform.kudos.service.KudosService;
+
+  def activity = uicomponent.getActivity();
+  KudosService kudosService = uicomponent.getApplicationComponent(KudosService.class);
+  def kudosCount = kudosService.countKudosByEntity("ACTIVITY", activity.getId());
+%>
+<li
+  class="SendKudosButtonTemplate VuetifyApp"
+  id="SendKudosButtonACTIVITY${activity.id}">
+  <button
+    title="<%=_ctx.appRes('exoplatform.kudos.button.sendKudos') %>"
+    type="button" class="v-btn v-btn--icon small mt-0 mb-0 mr-0 ml-0"
+    onclick="document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {'detail' : {'id' : '${activity.id}', 'type': 'ACTIVITY', 'parentId': ''}}));event.preventDefault();event.stopPropagation();">
+    <div class="v-btn__content">
+      <i
+        aria-hidden="true"
+        class="fa fa-award uiKudosAction uiIconKudos uiIconLightGrey"></i>
+      <span class="kudosLabelMobile">
+        <%=_ctx.appRes("exoplatform.kudos.button.displayKudosList") %>
+      </span>
+    </div>
+  </button>
+  <a
+    rel="tooltip"
+    data-placement="top"
+    title="Display kudos list"
+    href="javascript:void(0);" class="kudosActivityNumber grey--text"
+    onclick="document.dispatchEvent(new CustomEvent('exo-kudos-open-kudos-list', {'detail' : {'id' : '${activity.id}', 'type': 'ACTIVITY'}}));event.preventDefault();event.stopPropagation();">
+    $kudosCount
+  </a>
+</li>
