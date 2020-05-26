@@ -17,8 +17,8 @@
           <exo-activity-rich-editor ref="richEditor" v-model="message" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
           <div class="composerButtons">
             <div v-if="activityComposerHintAction" class="action">
-              <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute()"></i>
-              <a class="message" href="javascript:void(0)" @click="activityComposerHintAction.onExecute()" >{{ getLabel(activityComposerHintAction.labelKey) }} </a>
+              <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
+              <a class="message" href="javascript:void(0)" @click="activityComposerHintAction.onExecute(attachments)" >{{ getLabel(activityComposerHintAction.labelKey) }} </a>
             </div>
             <div v-if="activityComposerHintAction === null || typeof activityComposerHintAction === 'undefined' || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
             </div>
