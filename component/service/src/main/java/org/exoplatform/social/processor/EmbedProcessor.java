@@ -82,7 +82,12 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
 
            templateParams.put(TEMPLATE_PARAM_TO_PROCESS, COMMENT);
            templateParams.put(LINK, url);
-           activity.setType(LINK_ACTIVITY);
+           //if activity contains files params then add link template params to the existing ones
+           if (activity.getType().equals("files:spaces")) {
+             templateParams.putAll(activity.getTemplateParams());
+           } else {
+             activity.setType(LINK_ACTIVITY);
+           }
            activity.setTemplateParams(templateParams);
        }
      } catch (Exception e) {
