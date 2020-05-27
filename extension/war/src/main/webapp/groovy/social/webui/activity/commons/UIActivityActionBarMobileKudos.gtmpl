@@ -1,0 +1,15 @@
+<%
+import org.exoplatform.kudos.service.KudosService;
+
+def activity = uicomponent.getActivity();
+KudosService kudosService = uicomponent.getApplicationComponent(KudosService.class);
+def kudosCount = kudosService.countKudosByEntity("ACTIVITY", activity.getId());
+%>
+<a rel="tooltip"
+   data-placement="top"
+   tilte="<%=_ctx.appRes('exoplatform.kudos.button.displayKudosList') %>"
+   href="javascript:void(0);"
+   class="KudosNumber"
+   onclick="document.dispatchEvent(new CustomEvent('exo-kudos-open-kudos-list', {'detail' : {'id' : '${activity.id}', 'type': 'ACTIVITY'}}));event.preventDefault();event.stopPropagation();">
+    $kudosCount Kudos
+</a>
