@@ -17,7 +17,7 @@
         aria-hidden="true"
         class="fa fa-award uiKudosAction uiIconKudos uiIconLightGrey"></i>
       <span class="kudosLabelMobile">
-        <%=_ctx.appRes("exoplatform.kudos.button.displayKudosList") %>
+        Kudos
       </span>
     </div>
   </button>
