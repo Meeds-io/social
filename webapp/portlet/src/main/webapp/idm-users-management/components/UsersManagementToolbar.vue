@@ -2,15 +2,15 @@
   <v-toolbar id="usersManagementToolbar" flat>
     <v-toolbar-title class="nav-collapse">
       <div class="btn-group">
-        <v-btn class="btn btn-primary addNewUserButton"
-               @click="$root.$emit('addNewUser')">
+        <v-btn
+          class="btn btn-primary addNewUserButton"
+          @click="$root.$emit('addNewUser')">
           <i class="uiIconAddUser uiIconWhite mr-1"></i>
           {{ $t('UsersManagement.addUser') }}
         </v-btn>
         <v-btn
           class="btn btn-primary dropdown-toggle width-auto pa-0"
-          data-toggle="dropdown"
-          @click="$root.$emit('addNewUser')">
+          data-toggle="dropdown">
           <span class="caret my-0 mx-3"></span>
         </v-btn>
         <ul class="dropdown-menu">

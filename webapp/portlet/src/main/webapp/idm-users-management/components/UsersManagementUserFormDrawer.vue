@@ -1,5 +1,265 @@
 <template>
-  <exo-drawer>
+  <exo-drawer
+    id="userFormDrawer"
+    ref="userFormDrawer"
+    right
+    @closed="drawer = false">
+    <template slot="title">
+      {{ title }}
+    </template>
+    <template slot="content">
+      <v-form
+        ref="userForm"
+        class="form-horizontal pt-0 pb-4"
+        flat
+        @submit="saveUser">
+        <v-card-text v-if="error" class="errorMessage">
+          <v-alert type="error">
+            {{ error }}
+          </v-alert>
+        </v-card-text>
+
+        <v-card-text class="d-flex userNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.userName') }}<template v-if="newUser">*</template>
+        </v-card-text>
+        <v-card-text class="d-flex userNameField py-0">
+          <input
+            ref="userNameInput"
+            v-model="user.userName"
+            :disabled="saving || !newUser"
+            :autofocus="drawer"
+            type="text"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000"
+            required />
+        </v-card-text>
+
+        <v-card-text class="d-flex firstNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.firstName') }}*
+        </v-card-text>
+        <v-card-text class="d-flex firstNameField py-0">
+          <input
+            ref="firstNameInput"
+            v-model="user.firstName"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000"
+            required />
+        </v-card-text>
+
+        <v-card-text class="d-flex lastNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.lastName') }}*
+        </v-card-text>
+        <v-card-text class="d-flex lastNameField py-0">
+          <input
+            v-model="user.lastName"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000"
+            required />
+        </v-card-text>
+
+        <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.email') }}*
+        </v-card-text>
+        <v-card-text class="d-flex emailField py-0">
+          <input
+            v-model="user.email"
+            :disabled="saving"
+            type="email"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000"
+            required />
+        </v-card-text>
+
+        <v-card-text class="d-flex newPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.password') }}<template v-if="newUser">*</template>
+        </v-card-text>
+        <v-card-text class="d-flex newPasswordField py-0">
+          <input
+            ref="newPassword"
+            v-model="user.password"
+            :disabled="saving"
+            :required="newUser"
+            :minlength="newUser && 8 || 0"
+            type="password"
+            autocomplete="new-password"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000" />
+        </v-card-text>
+
+        <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.confirmPassword') }}<template v-if="newUser">*</template>
+        </v-card-text>
+        <v-card-text class="d-flex confirmPasswordField py-0">
+          <input
+            ref="confirmNewPassword"
+            v-model="confirmNewPassword"
+            :disabled="saving"
+            :required="newUser"
+            :minlength="newUser && 8 || 0"
+            type="password"
+            autocomplete="new-password"
+            class="ignore-vuetify-classes flex-grow-1"
+            maxlength="2000" />
+        </v-card-text>
+
+        <v-card-text class="d-flex flex-column statusLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          <div class="d-flex statusField">
+            <span class="mt-1">{{ $t('UsersManagement.status') }}</span>
+            <v-switch v-model="user.enabled" class="mt-0 ml-4" />
+          </div>
+          <div class="d-flex text-sub-title caption">
+            <template v-if="user.enabled">
+              {{ $t('UsersManagement.status.enabledDescription') }}
+            </template>
+            <template v-else>
+              {{ $t('UsersManagement.status.disabledDescription') }}
+            </template>
+          </div>
+        </v-card-text>
+
+      </v-form>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          :disabled="saving"
+          class="btn mr-2"
+          @click="cancel">
+          {{ $t('UsersManagement.button.cancel') }}
+        </v-btn>
+        <v-btn
+          :disabled="saving"
+          :loading="saving"
+          class="btn btn-primary"
+          @click="saveUser">
+          {{ $t('UsersManagement.button.save') }}
+        </v-btn>
+      </div>
+    </template>
   </exo-drawer>
 </template>
 
+<script>
+export default {
+  data: () => ({
+    drawer: false,
+    newUser: false,
+    saving: false,
+    confirmNewPassword: null,
+    user: {
+      enabled: true,
+    },
+  }),
+  computed: {
+    title() {
+      if (this.newUser) {
+        return this.$t('UsersManagement.addUser');
+      } else {
+        return this.$t('UsersManagement.editUser');
+      }
+    },
+  },
+  watch: {
+    confirmNewPassword() {
+      this.resetCustomValidity();
+    },
+    saving() {
+      if (this.saving) {
+        this.$refs.userFormDrawer.startLoading();
+      } else {
+        this.$refs.userFormDrawer.endLoading();
+      }
+    },
+    drawer() {
+      if (this.drawer) {
+        this.$refs.userFormDrawer.open();
+        window.setTimeout(() => {
+          if (this.newUser) {
+            this.$refs.userNameInput.focus();
+          } else {
+            this.$refs.firstNameInput.focus();
+          }
+        }, 200);
+      } else {
+        this.$refs.userFormDrawer.close();
+      }
+    },
+  },
+  created() {
+    this.$root.$on('addNewUser', this.addNewUser);
+    this.$root.$on('editUser', this.editUser);
+  },
+  methods: {
+    resetCustomValidity() {
+      this.$refs.confirmNewPassword.setCustomValidity('');
+    },
+    addNewUser() {
+      this.user = {
+        enabled: true,
+      };
+      this.newUser = true;
+      this.drawer = true;
+    },
+    editUser(user) {
+      this.user = user;
+      this.newUser = false;
+      this.drawer = true;
+    },
+    saveUser(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      this.error = null;
+      this.resetCustomValidity();
+
+      if (!this.$refs.userForm.validate() // Vuetify rules
+          || !this.$refs.userForm.$el.reportValidity()) { // Standard HTML rules
+        return;
+      }
+
+      if (this.confirmNewPassword !== this.user.password) {
+        this.$refs.confirmNewPassword.setCustomValidity(this.$t('UsersManagement.newPasswordsDoesNotMatch'));
+        if (!this.$refs.userForm.$el.reportValidity()) {
+          return;
+        }
+      }
+
+      this.saving = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
+        method: this.newUser && 'POST' || 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.user),
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          throw new Error('Response code indicates a server error', resp);
+        }
+      }).then(() => this.$root.$emit('refreshUsers'))
+        .then(() => this.$refs.userFormDrawer.close())
+        .catch(this.handleImageUploadError)
+        .finally(() => this.saving = false);
+    },
+    cancel() {
+      this.drawer = false;
+    },
+    handleImageUploadError(error) {
+      if (error) {
+        this.error = String(error);
+
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
+      }
+    },
+  },
+};
+</script>
