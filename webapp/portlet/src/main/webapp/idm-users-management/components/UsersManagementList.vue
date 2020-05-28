@@ -110,8 +110,7 @@ export default {
         itemsPerPage = this.totalSize || 10;
       }
       const offset = (page - 1) * itemsPerPage;
-      const limit = offset + itemsPerPage;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ANY'}&offset=${offset || 0}&limit=${limit|| 0}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ANY'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
