@@ -274,8 +274,6 @@ def streamOwner = activity.getStreamOwner();
 			<span class="dateTime"><i class="uiIconClock  uiIconLightGray"></i>&nbsp;<a id="EditActivityTime${activity.id}" rel="tooltip" data-placement="bottom" title="$absolutePostedTime" href="<%=uicomponent.getActivityPermalink(activity.id)%>" <% if(activity.postedTime != activity.updated.getTime() ){%>> $activityUpdatedTime <%} else {%> >$activityPostedTime <%}%></a></span>
     </div>
   </div><!--end activityAuthorAndDate-->
-  </div><!--end activityHeader-->
-
   <div id="dropDownEditActivity${activity.id}" class="btn-group uiDropdownWithIcon actLink">
   <div class="dropdown-toggle" data-toggle="dropdown">
   <i class="uiIconActivityAction uiIconLightGray">
@@ -283,7 +281,7 @@ def streamOwner = activity.getStreamOwner();
                         </div>
   <ul class="dropdown-menu pull-right" role="menu">
   <li>
-    <a id="Permalink${activity.id}" rel="tooltip" data-placement="bottom" title="$viewActivityTip" href="<%=uicomponent.getActivityPermalink(activity.id)%>">$viewActivityTip</a>
+  <a id="Permalink${activity.id}" rel="tooltip" data-placement="bottom" title="$viewActivityTip" href="<%=uicomponent.getActivityPermalink(activity.id)%>">$viewActivityTip</a>
   </li>
   <%
   if (activityDeletable) {
@@ -295,6 +293,9 @@ def streamOwner = activity.getStreamOwner();
   <%}%>
   </ul>
                     </div>
+  </div><!--end activityHeader-->
+
+
 
 
         </div><!--end heading-->
