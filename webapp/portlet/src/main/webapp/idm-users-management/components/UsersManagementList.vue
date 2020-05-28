@@ -2,10 +2,10 @@
   <v-data-table
     :headers="headers"
     :items="filteredUsers"
-    :items-per-page="10"
     :loading="loading"
     :options.sync="options"
     :server-items-length="totalSize"
+    :footer-props="{ itemsPerPageOptions }"
     class="elevation-1">
   </v-data-table>
 </template>
@@ -16,12 +16,13 @@ export default {
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
+    itemsPerPageOptions: [20, 50, 100],
     users: [],
     keyword: null,
     filter: 'ENABLED',
     options: {
       page: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 20,
     },
     totalSize: 0,
     loading: true,
@@ -109,7 +110,7 @@ export default {
       const page = this.options && this.options.page;
       let itemsPerPage = this.options && this.options.itemsPerPage;
       if (itemsPerPage <= 0) {
-        itemsPerPage = this.totalSize || 10;
+        itemsPerPage = this.totalSize || 20;
       }
       const offset = (page - 1) * itemsPerPage;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
