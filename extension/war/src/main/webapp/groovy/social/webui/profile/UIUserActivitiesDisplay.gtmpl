@@ -47,7 +47,6 @@
 
   //
   def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
-  def composer_Hint_Text = _ctx.appRes("UIActivity.label.Composer_Hint_Text");
   def sitePath = uicomponent.getSitePath();
 
 	//
@@ -83,21 +82,9 @@
     
   def welcomeActivityName = _ctx.appRes("UIActivity.label.Welcome_Activity_Author");
   def welcomeActivityPostedTime = _ctx.appRes("UIActivity.label.Welcome_Activity_Posted_Time");
-  String hint_text_script = "jq('#ComposerHintCloseBtn').on('click', function() {" +
-                            "  jq(this).parent().fadeOut('slow');" +
-                            "});";
-        
-  jsManager.require("SHARED/jquery", "jq").addScripts(hint_text_script);
 %>
 <div id="$uicomponent.id" class="uiUserActivitiesDisplay uiActivitiesDisplay clearfix"> <!-- use js to add beside one class that named "notSeen" if having some new updates  -->
 <% if (uicomponent.isWelcomeActivity()) { %>
-  <div class="composerHintCont">
-	<span class="arrowLeft"></span>
-	<a id="ComposerHintCloseBtn" href="javascript:void(0);" class="iconBorder"><i class="uiIconClose uiIconLightGray"></i></a>								
-	<div class="hint">
-		 $composer_Hint_Text	
-	</div>
-  </div>
   <div class="clearfix activityTop">
     <div class="activityStreamStatus pull-left">
       <div class="arrowBottom"></div>
