@@ -18,7 +18,7 @@ export default {
     startTypingKeywordTimeout: 0,
     users: [],
     keyword: null,
-    filter: 'ANY',
+    filter: 'ENABLED',
     options: {
       page: 1,
       itemsPerPage: 10,
@@ -78,9 +78,11 @@ export default {
       this.searchUsers();
     },
     filter() {
+      this.options.page = 1;
       this.searchUsers();
     },
     keyword() {
+      this.options.page = 1;
       if (!this.keyword) {
         this.searchUsers();
         return;
@@ -110,7 +112,7 @@ export default {
         itemsPerPage = this.totalSize || 10;
       }
       const offset = (page - 1) * itemsPerPage;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ANY'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {

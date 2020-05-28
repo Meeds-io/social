@@ -35,9 +35,6 @@
       <select
         v-model="filter"
         class="selectUsersFilter width-auto my-auto mr-2 pr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
-        <option value="ANY">
-          {{ $t('UsersManagement.status.all') }}
-        </option>
         <option value="ENABLED">
           {{ $t('UsersManagement.status.enabled') }}
         </option>
@@ -52,7 +49,7 @@
 <script>
 export default {
   data: () => ({
-    filter: 'ANY',
+    filter: 'ENABLED',
     keyword: null,
   }),
   watch: {
