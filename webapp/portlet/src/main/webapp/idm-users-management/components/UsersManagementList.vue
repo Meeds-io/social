@@ -1,13 +1,48 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="filteredUsers"
-    :loading="loading"
-    :options.sync="options"
-    :server-items-length="totalSize"
-    :footer-props="{ itemsPerPageOptions }"
-    class="elevation-1">
-  </v-data-table>
+  <div>
+    <exo-confirm-dialog
+      ref="deleteConfirmDialog"
+      :message="deleteConfirmMessage"
+      :title="$t('UsersManagement.title.confirmDelete')"
+      :ok-label="$t('UsersManagement.button.ok')"
+      :cancel-label="$t('UsersManagement.button.cancel')"
+      @ok="deleteUserConfirm()" />
+    <v-data-table
+      :headers="headers"
+      :items="filteredUsers"
+      :loading="loading"
+      :options.sync="options"
+      :server-items-length="totalSize"
+      :footer-props="{ itemsPerPageOptions }"
+      class="elevation-1">
+      <template slot="item.actions" slot-scope="{ item }">
+        <v-btn
+          :title="$t('UsersManagement.button.membership')"
+          primary
+          icon
+          text>
+          <i class="uiIconUserCheck"></i>
+        </v-btn>
+        <v-btn
+          :title="$t('UsersManagement.button.editUser')"
+          primary
+          icon
+          text
+          @click="$root.$emit('editUser', item)">
+          <i class="uiIconEdit"></i>
+        </v-btn>
+        <v-btn
+          v-if="currentUser !== item.userName"
+          :title="$t('UsersManagement.button.deleteUser')"
+          primary
+          icon
+          text
+          @click="deleteUser(item)">
+          <i class="uiIconTrash"></i>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </div>
 </template>
 
 <script>
@@ -18,6 +53,9 @@ export default {
     startTypingKeywordTimeout: 0,
     itemsPerPageOptions: [20, 50, 100],
     users: [],
+    currentUser: eXo.env.portal.userName,
+    selectedUser: null,
+    deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
     options: {
@@ -68,7 +106,7 @@ export default {
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.actions'),
-        value: '',
+        value: 'actions',
         align: 'center',
         sortable: false,
       }];
@@ -97,6 +135,7 @@ export default {
   },
   created() {
     this.$root.$on('searchUser', this.updateSearchTerms);
+    this.$root.$on('refreshUsers', this.searchUsers);
 
     this.searchUsers();
   },
@@ -105,14 +144,32 @@ export default {
       this.keyword = keyword;
       this.filter = filter;
     },
-    searchUsers() {
+    deleteUser(user) {
+      this.selectedUser = user;
+      this.deleteConfirmMessage = this.$t('UsersManagement.message.confirmDelete', {0: this.selectedUser.fullName});
+      this.$refs.deleteConfirmDialog.open();
+    },
+    deleteUserConfirm() {
       this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.selectedUser.userName}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          throw new Error('Response code indicates a server error', resp);
+        }
+        return this.searchUsers();
+      })
+        .finally(() => this.loading = false);
+    },
+    searchUsers() {
       const page = this.options && this.options.page;
       let itemsPerPage = this.options && this.options.itemsPerPage;
       if (itemsPerPage <= 0) {
         itemsPerPage = this.totalSize || 20;
       }
       const offset = (page - 1) * itemsPerPage;
+      this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
