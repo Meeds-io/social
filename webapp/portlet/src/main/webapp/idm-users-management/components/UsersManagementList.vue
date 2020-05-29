@@ -7,6 +7,11 @@
       :ok-label="$t('UsersManagement.button.ok')"
       :cancel-label="$t('UsersManagement.button.cancel')"
       @ok="deleteUserConfirm()" />
+    <exo-confirm-dialog
+      ref="currentUserWarningDialog"
+      :message="$t('UsersManagement.message.deleteCurrentUserWarning')"
+      :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
+      :ok-label="$t('UsersManagement.button.ok')" />
     <v-data-table
       :headers="headers"
       :items="filteredUsers"
@@ -32,7 +37,6 @@
           <i class="uiIconEdit"></i>
         </v-btn>
         <v-btn
-          v-if="currentUser !== item.userName"
           :title="$t('UsersManagement.button.deleteUser')"
           primary
           icon
@@ -145,6 +149,10 @@ export default {
       this.filter = filter;
     },
     deleteUser(user) {
+      if (this.currentUser === user.userName) {
+        this.$refs.currentUserWarningDialog.open();
+        return;
+      }
       this.selectedUser = user;
       this.deleteConfirmMessage = this.$t('UsersManagement.message.confirmDelete', {0: this.selectedUser.fullName});
       this.$refs.deleteConfirmDialog.open();
