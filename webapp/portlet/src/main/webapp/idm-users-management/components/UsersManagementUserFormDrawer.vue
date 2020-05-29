@@ -53,6 +53,7 @@
         </v-card-text>
         <v-card-text class="d-flex lastNameField py-0">
           <input
+            ref="lastNameInput"
             v-model="user.lastName"
             :disabled="saving"
             type="text"
@@ -66,6 +67,7 @@
         </v-card-text>
         <v-card-text class="d-flex emailField py-0">
           <input
+            ref="emailInput"
             v-model="user.email"
             :disabled="saving"
             type="email"
@@ -79,7 +81,7 @@
         </v-card-text>
         <v-card-text class="d-flex newPasswordField py-0">
           <input
-            ref="newPassword"
+            ref="newPasswordInput"
             v-model="user.password"
             :disabled="saving"
             :required="newUser"
@@ -147,6 +149,8 @@
 <script>
 export default {
   data: () => ({
+    error: null,
+    fieldError: false,
     drawer: false,
     newUser: false,
     saving: false,
@@ -196,6 +200,11 @@ export default {
   },
   methods: {
     resetCustomValidity() {
+      this.$refs.userNameInput.setCustomValidity('');
+      this.$refs.firstNameInput.setCustomValidity('');
+      this.$refs.lastNameInput.setCustomValidity('');
+      this.$refs.emailInput.setCustomValidity('');
+      this.$refs.newPasswordInput.setCustomValidity('');
       this.$refs.confirmNewPassword.setCustomValidity('');
     },
     addNewUser() {
@@ -206,7 +215,7 @@ export default {
       this.drawer = true;
     },
     editUser(user) {
-      this.user = user;
+      this.user = Object.assign({}, user);
       this.newUser = false;
       this.drawer = true;
     },
@@ -217,6 +226,7 @@ export default {
       }
 
       this.error = null;
+      this.fieldError = false;
       this.resetCustomValidity();
 
       if (!this.$refs.userForm.validate() // Vuetify rules
@@ -241,7 +251,14 @@ export default {
         body: JSON.stringify(this.user),
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          if (resp.status === 400) {
+            return resp.text().then(error => {
+              this.fieldError = error;
+              throw new Error(error);
+            });
+          } else {
+            throw new Error('Response code indicates a server error');
+          }
         }
       }).then(() => this.$root.$emit('refreshUsers'))
         .then(() => this.$refs.userFormDrawer.close())
@@ -252,12 +269,48 @@ export default {
       this.drawer = false;
     },
     handleImageUploadError(error) {
+      this.resetCustomValidity();
+
       if (error) {
-        this.error = String(error);
+        if (this.fieldError && this.fieldError.indexOf('USERNAME:') === 0) {
+          if (this.fieldError === 'USERNAME:ALREADY_EXISTS') {
+            this.$refs.userNameInput.setCustomValidity(this.$t('UsersManagement.message.userWithSameNameAlreadyExists'));
+          } else {
+            const usernameError = this.fieldError.replace('USERNAME:', '');
+            this.$refs.userNameInput.setCustomValidity(usernameError);
+          }
+        } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
+          const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
+          this.$refs.firstNameInput.setCustomValidity(firstNameError);
+        } else if (this.fieldError && this.fieldError.indexOf('LASTNAME:') === 0) {
+          const lastNameError = this.fieldError.replace('LASTNAME:', '');
+          this.$refs.lastNameInput.setCustomValidity(lastNameError);
+        } else if (this.fieldError && this.fieldError.indexOf('EMAIL:') === 0) {
+          if (this.fieldError === 'EMAIL:ALREADY_EXISTS') {
+            this.$refs.emailInput.setCustomValidity(this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'));
+          } else {
+            const emailError = this.fieldError.replace('EMAIL:', '');
+            this.$refs.emailInput.setCustomValidity(emailError);
+          }
+        } else if (this.fieldError && this.fieldError.indexOf('PASSWORD:') === 0) {
+          const newPasswordError = this.fieldError.replace('PASSWORD:', '');
+          this.$refs.newPasswordInput.setCustomValidity(newPasswordError);
+        } else {
+          this.error = String(error);
+
+          window.setTimeout(() => {
+            this.error = null;
+          }, 5000);
+        }
 
         window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
+          if (!this.$refs.userForm.validate() // Vuetify rules
+              || !this.$refs.userForm.$el.reportValidity()) { // Standard HTML rules
+            return;
+          }
+        }, 200);
+      } else {
+        this.error = null;
       }
     },
   },
