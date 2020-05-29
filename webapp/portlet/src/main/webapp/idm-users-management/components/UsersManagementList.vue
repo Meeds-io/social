@@ -19,13 +19,14 @@
       :options.sync="options"
       :server-items-length="totalSize"
       :footer-props="{ itemsPerPageOptions }"
-      class="elevation-1">
+      class="data-table-light-border">
       <template slot="item.actions" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
           primary
           icon
-          text>
+          text
+          @click="$root.$emit('openUserMemberships', item)">
           <i class="uiIconUserCheck"></i>
         </v-btn>
         <v-btn
