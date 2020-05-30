@@ -14,7 +14,7 @@ let config = {
     spaceSettings: './src/main/webapp/space-settings/main.js',
     idmUsersManagement: './src/main/webapp/idm-users-management/main.js',
     idmGroupsManagement: './src/main/webapp/idm-groups-management/main.js',
-    idmMembershipsManagement: './src/main/webapp/idm-memberships-management/main.js'
+    idmMembershipTypesManagement: './src/main/webapp/idm-membership-types-management/main.js'
   },
   module: {
     rules: [
