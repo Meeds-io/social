@@ -5,8 +5,10 @@
         <v-btn
           class="btn btn-primary addNewUserButton"
           @click="$root.$emit('addNewUser')">
-          <i class="uiIconAddUser uiIconWhite mr-1"></i>
-          {{ $t('UsersManagement.addUser') }}
+          <i class="uiIconAddUser uiIconWhite mr-md-3"></i>
+          <span class="d-none d-sm-inline">
+            {{ $t('UsersManagement.addUser') }}
+          </span>
         </v-btn>
         <v-btn
           class="btn btn-primary dropdown-toggle width-auto pa-0"

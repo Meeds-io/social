@@ -289,11 +289,11 @@
   </portlet>
 
   <portlet>
-    <name>IDMMembershipsManagement</name>
+    <name>IDMMembershipTypesManagement</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/idmMembershipsManagement.bundle.js</path>
+        <path>/js/idmMembershipTypesManagement.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>

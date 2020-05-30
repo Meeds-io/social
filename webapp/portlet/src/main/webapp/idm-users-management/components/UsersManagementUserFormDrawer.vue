@@ -262,13 +262,13 @@ export default {
         }
       }).then(() => this.$root.$emit('refreshUsers'))
         .then(() => this.$refs.userFormDrawer.close())
-        .catch(this.handleImageUploadError)
+        .catch(this.handleError)
         .finally(() => this.saving = false);
     },
     cancel() {
       this.drawer = false;
     },
-    handleImageUploadError(error) {
+    handleError(error) {
       this.resetCustomValidity();
 
       if (error) {

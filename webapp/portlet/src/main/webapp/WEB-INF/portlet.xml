@@ -75,13 +75,13 @@
   </portlet>
 
   <portlet>
-    <description xml:lang="EN">Memberships Management Portlet</description>
-    <portlet-name>IDMMembershipsManagement</portlet-name>
-    <display-name xml:lang="EN">Memberships Management</display-name>
+    <description xml:lang="EN">Membership Types Management Portlet</description>
+    <portlet-name>IDMMembershipTypesManagement</portlet-name>
+    <display-name xml:lang="EN">Membership Types Management</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/idm-memberships-management/index.html</value>
+        <value>/idm-membership-types-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
