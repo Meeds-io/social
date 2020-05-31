@@ -70,8 +70,6 @@
 </template>
 
 <script>
-import * as suggesterService from '../js/SuggesterService.js';
-
 export default {
   props: {
     value: {
@@ -169,7 +167,7 @@ export default {
             this.loadingSuggestions = 0;
             this.items = [];
 
-            suggesterService.searchSpacesOrUsers(value,
+            this.$suggesterService.searchSpacesOrUsers(value,
               this.items,
               this.typeOfRelations,
               this.searchOptions,

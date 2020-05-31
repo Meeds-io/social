@@ -2,6 +2,7 @@ import './initComponents.js';
 
 import * as userService from './js/UserService.js';
 import * as spaceService from './js/SpaceService.js';
+import * as suggesterService from './js/SuggesterService.js';
 import * as uploadService from './js/UploadService.js';
 import * as dateUtil from './js/DateUtil.js';
 
@@ -23,6 +24,9 @@ window.Object.defineProperty(Vue.prototype, '$userService', {
 });
 window.Object.defineProperty(Vue.prototype, '$spaceService', {
   value: spaceService,
+});
+window.Object.defineProperty(Vue.prototype, '$suggesterService', {
+  value: suggesterService,
 });
 window.Object.defineProperty(Vue.prototype, '$uploadService', {
   value: uploadService,

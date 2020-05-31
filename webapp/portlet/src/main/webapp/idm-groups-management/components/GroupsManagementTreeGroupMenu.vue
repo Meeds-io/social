@@ -1,0 +1,122 @@
+<template>
+  <div :id="groupMenuParentId">
+    <exo-confirm-dialog
+      ref="deleteConfirmDialog"
+      :message="deleteConfirmMessage"
+      :title="$t('GroupsManagement.title.confirmDelete')"
+      :ok-label="$t('GroupsManagement.button.ok')"
+      :cancel-label="$t('GroupsManagement.button.cancel')"
+      @ok="deleteConfirm()" />
+    <v-btn
+      icon
+      text
+      class="groupMenuIcon"
+      @click="openMenu">
+      <v-icon size="21">mdi-dots-vertical</v-icon>
+    </v-btn>
+    <v-menu
+      ref="actionMenu"
+      v-model="displayActionMenu"
+      :attach="`#${groupMenuParentId}`"
+      transition="slide-x-reverse-transition"
+      content-class="groupActionMenu"
+      right
+      offset-x
+      offset-y>
+      <v-list class="pa-0" dense>
+        <v-list-item @click="emitEvent($event, 'editGroup')">
+          <v-list-item-title class="subtitle-2">
+            <i class="uiIcon uiIconEdit" />
+            {{ $t('GroupsManagement.edit') }}
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="emitEvent($event, 'addNewGroup')">
+          <v-list-item-title class="subtitle-2">
+            <i class="uiIcon uiIconGroup"></i>
+            {{ $t('GroupsManagement.addSubGroup') }}
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="emitEvent($event, 'addNewMembership')">
+          <v-list-item-title class="subtitle-2">
+            <i class="uiIcon uiIconSocConnectUser"></i>
+            {{ $t('GroupsManagement.addMember') }}
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="deleteGroup">
+          <v-list-item-title class="subtitle-2">
+            <i class="uiIcon uiIconTrash" />
+            {{ $t('GroupsManagement.delete') }}
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    group: {
+      type: Object,
+      default: null,
+    },
+  },
+  data: () => ({
+    displayActionMenu: false,
+  }),
+  computed: {
+    deleteConfirmMessage() {
+      return this.$t('GroupsManagement.message.confirmDelete', {0: this.group.label});
+    },
+    groupMenuParentId() {
+      return `groupMenuParent-${this.group.id.replace(/\//g, '_')}`;
+    },
+  },
+  created() {
+    $(document).on('mousedown', () => {
+      if (this.displayActionMenu) {
+        window.setTimeout(() => {
+          this.displayActionMenu = false;
+          this.displaySecondButton = false;
+        }, this.waitTimeUntilCloseMenu);
+      }
+    });
+  },
+  methods: {
+    openMenu(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.displayActionMenu = true;
+    },
+    emitEvent(event, eventName) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.$root.$emit(eventName, this.group);
+    },
+    deleteGroup(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.$refs.deleteConfirmDialog.open();
+    },
+    deleteConfirm() {
+      this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?groupId=${this.group.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          throw new Error('Response code indicates a server error', resp);
+        }
+        return this.$root.$emit('removeGroup', this.group);
+      })
+        .finally(() => this.loading = false);
+    },
+  },
+};
+</script>

@@ -14,6 +14,9 @@
       :options.sync="options"
       :footer-props="{ itemsPerPageOptions }"
       :hide-default-footer="!hasPages"
+      :loading-text="$t('UsersManagement.loadingResults')"
+      :no-results-text="$t('UsersManagement.noResultsFound')"
+      :no-data-text="$t('UsersManagement.noData')"
       class="data-table-light-border">
       <template slot="item.createdDate" slot-scope="{ item }">
         <date-format :value="item.createdDate && item.createdDate.time" :format="dateTimeFormat" />
