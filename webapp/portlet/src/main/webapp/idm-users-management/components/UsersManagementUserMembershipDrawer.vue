@@ -5,13 +5,20 @@
     right
     @closed="drawer = false">
     <template slot="title">
-      {{ $t('UsersManagement.button.membershipsOfUser', {0: user.fullName}) }}
+      <div
+        :title="title"
+        class="text-truncate">
+        {{ title }}
+      </div>
     </template>
     <template slot="content">
       <v-data-table
         :headers="headers"
         :items="membershipsArray"
         :loading="loading"
+        :loading-text="$t('UsersManagement.loadingResults')"
+        :no-results-text="$t('UsersManagement.noResultsFound')"
+        :no-data-text="$t('UsersManagement.noData')"
         hide-default-header
         hide-default-footer
         class="data-table-light-border">
@@ -54,6 +61,9 @@ export default {
     user: {},
   }),
   computed: {
+    title() {
+      return this.$t('UsersManagement.button.membershipsOfUser', {0: this.user.fullName});
+    },
     userName() {
       return this.user && this.user.userName;
     },

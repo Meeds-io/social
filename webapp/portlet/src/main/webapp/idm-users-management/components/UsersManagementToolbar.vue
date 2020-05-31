@@ -1,6 +1,6 @@
 <template>
   <v-toolbar id="usersManagementToolbar" flat>
-    <v-toolbar-title class="nav-collapse">
+    <v-toolbar-title class="nav-collapse overflow-visible">
       <div class="btn-group">
         <v-btn
           class="btn btn-primary addNewUserButton"
@@ -15,14 +15,12 @@
           data-toggle="dropdown">
           <span class="caret my-0 mx-3"></span>
         </v-btn>
-        <ul class="dropdown-menu">
-          <li>
-            <a href="#">
-              <i class="uiIconEditMini"></i>
-              {{ $t('UsersManagement.importCSV') }}
-            </a>
-          </li>
-        </ul>
+        <div class="dropdown-menu">
+          <v-btn class="btn">
+            <i class="uiIconImport mr-md-3"></i>
+            {{ $t('UsersManagement.importCSV') }}
+          </v-btn>
+        </div>
       </div>
     </v-toolbar-title>
     <v-spacer></v-spacer>

@@ -10,6 +10,9 @@ if (extensionRegistry) {
   }
 }
 
+//getting language of the PLF
+const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+
 Vue.use(Vuetify);
 const vuetify = new Vuetify({
   dark: true,
@@ -19,9 +22,6 @@ const vuetify = new Vuetify({
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'GroupsManagement';
-
-//getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;

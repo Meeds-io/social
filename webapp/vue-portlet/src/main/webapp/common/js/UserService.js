@@ -24,6 +24,19 @@ export function getUsers(query, offset, limit, expand) {
   });
 }
 
+export function getUsersByStatus(query, offset, limit, status) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&status=${status || 'ENABLED'}&returnSize=true`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getConnections(query, offset, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/connections?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',

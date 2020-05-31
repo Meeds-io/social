@@ -19,6 +19,9 @@
       :options.sync="options"
       :server-items-length="totalSize"
       :footer-props="{ itemsPerPageOptions }"
+      :loading-text="$t('UsersManagement.loadingResults')"
+      :no-results-text="$t('UsersManagement.noResultsFound')"
+      :no-data-text="$t('UsersManagement.noData')"
       class="data-table-light-border">
       <template slot="item.actions" slot-scope="{ item }">
         <v-btn

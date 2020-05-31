@@ -27,7 +27,7 @@
     <title>Groups Management</title>
     <access-permissions>manager:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <container id="singlePageApplicationContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+    <container template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
       <portlet-application>
         <portlet>
