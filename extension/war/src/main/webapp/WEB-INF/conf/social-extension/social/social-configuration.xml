@@ -156,19 +156,7 @@
   <external-component-plugins>
     <target-component>org.exoplatform.groovyscript.text.TemplateService</target-component>
     <component-plugin>
-      <name>UIActivityActionBar-kudos</name>
-      <set-method>addTemplateExtension</set-method>
-      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
-      <init-params>
-        <values-param>
-          <name>templates</name>
-          <description>The kudos template to include in all activity actionBar template</description>
-          <value>war:/groovy/social/webui/activity/commons/UIActivityActionBarKudos.gtmpl</value>
-        </values-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>UIActivityActionBar-head</name>
+      <name>UIActivityActionBar-actions</name>
       <set-method>addTemplateExtension</set-method>
       <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
       <init-params>
@@ -180,19 +168,7 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>UIActivityActionBarMobile-kudos</name>
-      <set-method>addTemplateExtension</set-method>
-      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
-      <init-params>
-        <values-param>
-          <name>templates</name>
-          <description>The actionBar kudos mobile activity template to include in all activity templates</description>
-          <value>war:/groovy/social/webui/activity/commons/UIActivityActionBarMobileKudos.gtmpl</value>
-        </values-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>UIActivityActionBar-mobile</name>
+      <name>UIActivityActionBar-actions-mobile</name>
       <set-method>addTemplateExtension</set-method>
       <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
       <init-params>
