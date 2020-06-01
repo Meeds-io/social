@@ -107,7 +107,7 @@ export default {
     },
     getMessage: function() {
       const newData = CKEDITOR.instances['activityContent'].getData();
-      return newData ? newData.replace(/&nbsp;/g, '').trim() : '';
+      return newData ? newData : '';
     }
   }
 };
