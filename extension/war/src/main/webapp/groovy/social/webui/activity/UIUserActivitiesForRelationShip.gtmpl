@@ -280,7 +280,7 @@
                 </div>
             </div>
 
-            <% _ctx.includeTemplates("UIActivityActionBar-mobile") %>
+            <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
 
             <div class="actionsDetailsWrapper">
             	<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
@@ -311,7 +311,7 @@
 				 </div>
 			</div><!--end list like people-->
 			<%}%>
-    <% _ctx.includeTemplates("UIActivityActionBar-head") %>
+    <% _ctx.includeTemplates("UIActivityActionBar-actions") %>
 		</div>
 			<div id="CommentBlockBound${activity.id}" class="commentBox ">
 			<div class="commentList">

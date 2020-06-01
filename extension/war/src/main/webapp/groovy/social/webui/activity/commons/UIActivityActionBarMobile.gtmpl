@@ -8,5 +8,5 @@ int allCommentSize = uicomponent.getAllCommentSize();
 <div class="actionBarMobile">
     <a class="likesNumber" href="#">$totalLikesNum $labelLikesActivity</a>
     <a class="CommentsNumber" href="#">$allCommentSize $labelComments</a>
-    <% _ctx.includeTemplates("UIActivityActionBarMobile-kudos") %>
+    <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile-after") %>
 </div><!--end actionBarMobile-->

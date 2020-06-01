@@ -337,7 +337,7 @@
 				 </div>
 			</div><!--end list like people-->
 			<%}%>
-      <% _ctx.includeTemplates("UIActivityActionBar-head") %>
+      <% _ctx.includeTemplates("UIActivityActionBar-actions") %>
 		</div>
 
 			<div id="CommentBlockBound${activity.id}" class="commentBox ">

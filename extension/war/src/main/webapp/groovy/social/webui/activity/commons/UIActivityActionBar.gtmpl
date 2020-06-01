@@ -36,6 +36,6 @@
         <span class="commentsActionNumber">$allCommentSize</span>
       </a>
     </li>
-    <% _ctx.includeTemplates("UIActivityActionBar-kudos") %>
+    <% _ctx.includeTemplates("UIActivityActionBar-actions-after") %>
   </ul>
 </div><!--end actionBar-->
