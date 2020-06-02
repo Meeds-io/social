@@ -203,7 +203,7 @@ def streamOwner = activity.getStreamOwner();
       ownerUri = Utils.getSpaceHomeURL(space);
       ownerAvatar = space.avatarUrl;
       ownerName = StringEscapeUtils.escapeHtml(space.displayName);
-      ownerDescription = space.description;
+      ownerDescription = StringEscapeUtils.escapeHtml(space.description);
       ownerMembers = space.members;
     } else {
       ownerName = StringEscapeUtils.escapeHtml(ownerIdentity.profile.fullName);
