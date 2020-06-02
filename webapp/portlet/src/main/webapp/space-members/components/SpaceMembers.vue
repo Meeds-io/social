@@ -73,7 +73,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager') && user.isManager;
+          return (this.filter === 'member' || this.filter === 'manager') && (user.isManager || user.isSpacesManager);
         },
         click: (user) => {
           this.$spaceService.removeManager(eXo.env.portal.spaceName, user.username)

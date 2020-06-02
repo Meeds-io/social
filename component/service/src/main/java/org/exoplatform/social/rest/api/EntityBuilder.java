@@ -147,7 +147,8 @@ public class EntityBuilder {
   public static ProfileEntity buildEntityProfile(Space space, Profile profile, String path, String expand) {
     ProfileEntity entity = buildEntityProfile(profile, path, expand);
     String userId = profile.getIdentity().getRemoteId();
-    entity.setIsManager(spaceService.isSuperManager(userId) || spaceService.isManager(space, userId));
+    entity.setIsSpacesManager(spaceService.isSuperManager(userId));
+    entity.setIsManager(spaceService.isManager(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
