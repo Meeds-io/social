@@ -1014,7 +1014,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     if (StringUtils.isNotBlank(model.getDescription())) {
-      space.setDescription(StringEscapeUtils.escapeHtml(model.getDescription()));
+      space.setDescription(model.getDescription());
     }
 
     if (StringUtils.isNotBlank(model.getTemplate())) {

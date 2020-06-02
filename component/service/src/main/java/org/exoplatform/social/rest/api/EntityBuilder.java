@@ -29,6 +29,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -366,7 +367,7 @@ public class EntityBuilder {
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
-    spaceEntity.setDescription(space.getDescription());
+    spaceEntity.setDescription(StringEscapeUtils.unescapeHtml(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
