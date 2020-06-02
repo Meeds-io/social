@@ -80,8 +80,8 @@
             <template slot="selection" slot-scope="{item, selected}">
               <v-chip
                 :input-value="selected"
+                :close="newMembership"
                 class="identitySuggesterItem"
-                close
                 @click:close="membership.userName = null">
                 <span class="text-truncate">
                   {{ item.fullName }}
