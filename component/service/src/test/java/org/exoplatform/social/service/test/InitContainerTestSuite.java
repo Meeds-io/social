@@ -72,7 +72,6 @@ import org.junit.runners.Suite.SuiteClasses;
   SpacesAdministrationRestResourcesTest.class,
   UsersRelationshipsRestResourcesTest.class,
   UserRestResourcesTest.class,
-  UserRestResourcesTest.class,
   GroupSpaceBindingRestServiceTest.class
   })
 @ConfigTestCase(AbstractServiceTest.class)

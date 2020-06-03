@@ -17,8 +17,7 @@
 
 package org.exoplatform.social.rest.api;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,6 +57,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
+import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
 
@@ -973,6 +973,19 @@ public class EntityBuilder {
     operationReportEntity.setStartDate(startDate != null ? dateFormat.format(startDate) : "null");
     operationReportEntity.setEndDate(endDate != null ? dateFormat.format(endDate) : "null");
     return operationReportEntity;
+  }
+
+  public static final <T> T fromJsonString(String value, Class<T> resultClass) {
+    try {
+      if (StringUtils.isBlank(value)) {
+        return null;
+      }
+      JsonDefaultHandler jsonDefaultHandler = new JsonDefaultHandler();
+      new JsonParserImpl().parse(new ByteArrayInputStream(value.getBytes()), jsonDefaultHandler);
+      return ObjectBuilder.createObject(resultClass, jsonDefaultHandler.getJsonObject());
+    } catch (JsonException e) {
+      throw new IllegalStateException("Error creating object from string : " + value, e);
+    }
   }
 
   public static String toJsonString(Object object) {
