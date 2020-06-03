@@ -309,7 +309,7 @@
                     </div>
                 </div>
             </div>
-      <% _ctx.includeTemplates("UIActivityActionBar-mobile") %>
+      <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
         <div class="actionsDetailsWrapper">
             	<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
 			<div class="listLikedBox $listPeopleBGClass">
