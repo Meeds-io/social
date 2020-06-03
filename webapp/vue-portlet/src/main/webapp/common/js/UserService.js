@@ -242,3 +242,66 @@ export function changePassword(username, currentPassword, newPassword) {
     }
   });
 }
+
+export function importUsers(uploadId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `uploadId=${uploadId}`,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    }
+  }).then(error => {
+    if (error) {
+      throw new Error(error);
+    }
+  });
+}
+
+export function checkImportUsersProgress(uploadId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `uploadId=${uploadId}&progress=true`,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    } else {
+      return resp.json();
+    }
+  }).then(data => {
+    if (typeof data === 'string') {
+      throw new Error(data);
+    }
+    return data;
+  });
+}
+
+export function cleanImportUsers(uploadId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `uploadId=${uploadId}&clean=true`,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text();
+    } else {
+      return resp.json();
+    }
+  }).then(data => {
+    if (typeof data === 'string') {
+      throw new Error(data);
+    }
+    return data;
+  });
+}

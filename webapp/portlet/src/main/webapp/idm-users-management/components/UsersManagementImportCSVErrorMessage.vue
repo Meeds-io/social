@@ -1,0 +1,99 @@
+<template>
+  <v-flex v-if="error" class="d-flex flex-wrap">
+    <template v-if="errorMessage === 'UPLOAD_ID:MANDATORY'">
+      {{ $t('UsersManagement.error.importCSV.uploadIdMandatory') }}
+    </template>
+    <template v-else-if="errorMessage === 'UPLOAD_ID:NOT_FOUND' || errorMessage === 'UPLOAD_ID_FILE:NOT_FOUND'">
+      {{ $t('UsersManagement.error.importCSV.uploadedFileNotfound') }}
+    </template>
+    <template v-else-if="errorMessage === 'UPLOAD_ID_PROGRESS:NOT_FOUND'">
+      {{ $t('UsersManagement.error.importCSV.uploadedFileProgressNotfound') }}
+    </template>
+    <template v-else-if="errorMessage === 'UPLOAD_ID_PROCESSING:ALREADY_PROCESSING'">
+      {{ $t('UsersManagement.error.importCSV.uploadedFileIsAlreadyProcessing') }}
+    </template>
+    <template v-else-if="errorMessage === 'ERROR_READING_FILE'">
+      {{ $t('UsersManagement.error.importCSV.errorReadingUploadedFile') }}
+    </template>
+    <template v-else-if="errorMessage === 'BAD_FORMAT:FILE_EMPTY'">
+      {{ $t('UsersManagement.error.importCSV.fileIsEmpty') }}
+    </template>
+    <template v-else-if="createUserErrorMessage">
+      {{ createUserErrorMessage }}
+    </template>
+    <template v-else-if="errorMessage === 'BAD_LINE_FORMAT:MISSING_USERNAME'">
+      {{ $t('UsersManagement.error.importCSV.missingUserName') }}
+    </template>
+    <template v-else-if="errorMessage === 'BAD_LINE_FORMAT:MISSING_USERNAME'">
+      {{ $t('UsersManagement.error.importCSV.missingUserName') }}
+    </template>
+    <template v-else-if="errorMessage === 'BAD_LINE_FORMAT'">
+      {{ $t('UsersManagement.error.importCSV.badLineFormat') }}
+    </template>
+    <template v-else-if="validationErrorMessage">
+      {{ validationErrorMessage }}
+    </template>
+    <template v-else-if="errorMessage === 'USERNAME:ALREADY_EXISTS'">
+      {{ $t('UsersManagement.error.importCSV.userAlreadyExists', {0: userName}) }}
+    </template>
+    <template v-else-if="errorMessage === 'EMAIL:ALREADY_EXISTS'">
+      {{ $t('UsersManagement.error.importCSV.emailAlreadyExists', {0: userName}) }}
+    </template>
+    <template v-else-if="groupNotExistsErrorMessage">
+      {{ groupNotExistsErrorMessage }}
+    </template>
+    <template v-else-if="membershipNotExistsErrorMessage">
+      {{ membershipNotExistsErrorMessage }}
+    </template>
+    <template v-else-if="membershipImportErrorMessage">
+      {{ membershipImportErrorMessage }}
+    </template>
+    <template v-else-if="createUserProfileErrorMessage">
+      {{ createUserProfileErrorMessage }}
+    </template>
+    <template v-else-if="membershipImportErrorMessage">
+      {{ membershipImportErrorMessage }}
+    </template>
+    <template v-else>
+      {{ error }}
+    </template>
+  </v-flex>
+</template>
+
+<script>
+export default {
+  props: {
+    error: {
+      type: String,
+      default: null,
+    },
+    userName: {
+      type: String,
+      default: null,
+    },
+  },
+  computed: {
+    errorMessage() {
+      return this.error && String(this.error).replace('Error: ', '');
+    },
+    validationErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('USER_VALIDATION_ERROR:') > -1 && this.errorMessage.split(':')[1];
+    },
+    createUserErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_ERROR') > -1 && this.$t('UsersManagement.error.importCSV.errorCreatingUser');
+    },
+    groupNotExistsErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('GROUP_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.groupNotExists', {0: this.errorMessage.split(':')[1]});
+    },
+    membershipNotExistsErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('MEMBERSHIP_TYPE_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.membershipNotExists', {0: this.errorMessage.split(':')[1]});
+    },
+    membershipImportErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('IMPORT_MEMBERSHIP_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createMembershipError');
+    },
+    createUserProfileErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_PROFILE_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createSocialProfileError');
+    },
+  },
+};
+</script>

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <users-management-import-csv-result class="px-4" />
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
       :message="deleteConfirmMessage"
