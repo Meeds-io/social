@@ -23,24 +23,33 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
@@ -53,6 +62,7 @@ import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
@@ -74,7 +84,7 @@ import io.swagger.jaxrs.PATCH;
 
 @Path(VersionResources.VERSION_ONE + "/social/users")
 @Api(tags = VersionResources.VERSION_ONE + "/social/users", value = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
-public class UserRestResourcesV1 implements UserRestResources {
+public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   public static final String  PROFILE_DEFAULT_BANNER_URL = "/skin/images/banner/DefaultUserBanner.png";
 
@@ -95,7 +105,27 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
+  public static final UserFieldValidator       USERNAME_VALIDATOR             = new UserFieldValidator("userName", true);
+
+  public static final UserFieldValidator       EMAIL_VALIDATOR                = new UserFieldValidator("email", false);
+
+  public static final UserFieldValidator       LASTNAME_VALIDATOR             = new UserFieldValidator("lastName", false);
+
+  public static final UserFieldValidator       FIRSTNAME_VALIDATOR            = new UserFieldValidator("firstName", false);
+
+  public static final UserFieldValidator       PASSWORD_VALIDATOR             = new UserFieldValidator("password", false, 8, 255);
+
+  public static final List<UserFieldValidator> USER_FIELD_VALIDATORS          = Arrays.asList(USERNAME_VALIDATOR,
+                                                                                              EMAIL_VALIDATOR,
+                                                                                              LASTNAME_VALIDATOR,
+                                                                                              FIRSTNAME_VALIDATOR,
+                                                                                              PASSWORD_VALIDATOR);
+
+  private static Map<String, UserImportResultEntity> importUsersProcessing       = new HashMap<>();
+
   private UserACL userACL;
+
+  private OrganizationService organizationService;
 
   private IdentityManager identityManager;
   
@@ -119,17 +149,37 @@ public class UserRestResourcesV1 implements UserRestResources {
 
   private UploadService       uploadService;
 
-  public UserRestResourcesV1(UserACL userACL, IdentityManager identityManager, RelationshipManager relationshipManager, UserStateService userStateService, SpaceService spaceService, UploadService uploadService) {
+  private ExecutorService     importExecutorService = null;
+
+  public UserRestResourcesV1(UserACL userACL,
+                             OrganizationService organizationService,
+                             IdentityManager identityManager,
+                             RelationshipManager relationshipManager,
+                             UserStateService userStateService,
+                             SpaceService spaceService,
+                             UploadService uploadService) {
     this.userACL = userACL;
+    this.organizationService = organizationService;
     this.identityManager = identityManager;
     this.relationshipManager = relationshipManager;
     this.userStateService = userStateService;
     this.spaceService = spaceService;
     this.uploadService = uploadService;
+    this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
-  
+
+  @Override
+  public void start() {
+    // Nothing to start
+  }
+
+  @Override
+  public void stop() {
+    this.importExecutorService.shutdownNow();
+  }
+
   @GET
   @RolesAllowed("users")
   @ApiOperation(value = "Gets all users",
@@ -241,7 +291,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     }
     
     //Create new user
-    UserHandler userHandler = CommonsUtils.getService(OrganizationService.class).getUserHandler();
+    UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.createUserInstance(model.getUsername());
     user.setFirstName(model.getFirstname());
     user.setLastName(model.getLastname());
@@ -484,22 +534,9 @@ public class UserRestResourcesV1 implements UserRestResources {
       return Response.status(Status.UNAUTHORIZED).build();
     }
 
-    Identity userIdentity = getUserIdentity(username);
-    Profile profile = userIdentity.getProfile();
-
-    try {
-      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
-      for (Entry<String, Object> entry : profileEntries) {
-        String name = entry.getKey();
-        Object value = entry.getValue();
-        String fieldName = ProfileEntity.getFieldName(name);
-        updateProfileField(profile, fieldName, value, false);
-      }
-      identityManager.updateProfile(profile, true);
-    } catch (IdentityStorageException e) {
-      return Response.serverError().entity(e.getMessageKey()).build();
-    } catch (Exception e) {
-      return Response.serverError().entity("Can't update profile entities, error = " + e.getMessage()).build();
+    String errorMessage = saveProfile(username, profileEntity);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.ok(errorMessage).build();
     }
     return Response.noContent().build();
   }
@@ -526,7 +563,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     identityManager.hardDeleteIdentity(identity);
     identity.setDeleted(true);
     // Deletes the user on Portal side
-    UserHandler userHandler = CommonsUtils.getService(OrganizationService.class).getUserHandler();
+    UserHandler userHandler = organizationService.getUserHandler();
     userHandler.removeUser(id, false);
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -549,7 +586,7 @@ public class UserRestResourcesV1 implements UserRestResources {
                                             "<br />\"email\": \"john@exoplatform.com\"," +
                                             "<br />\"firstname\": \"John\"," +
                                             "<br />\"lastname\": \"Smith\"<br />}", required = true) UserEntity model) throws Exception {
-    UserHandler userHandler = CommonsUtils.getService(OrganizationService.class).getUserHandler();
+    UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -795,7 +832,7 @@ public class UserRestResourcesV1 implements UserRestResources {
     }
     return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
   @POST
   @Path("{id}/activities")
   @RolesAllowed("users")
@@ -835,6 +872,229 @@ public class UserRestResourcesV1 implements UserRestResources {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("csv")
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Import users using CSV file that has a header defining user fields names."
+      + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
+  httpMethod = "POST",
+  response = Response.class)
+  public Response importUsers(@Context HttpServletRequest request,
+                              @ApiParam(value = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
+                              @ApiParam(value = "Get processing progress percentage of imported file", required = false, defaultValue = "false") @FormParam("progress") boolean progress,
+                              @ApiParam(value = "Whether clean file after processing or not", required = false, defaultValue = "false") @FormParam("clean") boolean clean,
+                              @ApiParam(value = "Whether process importing users in a sync or async way of current request", required = false, defaultValue = "false") @FormParam("sync") boolean sync) {
+    if (StringUtils.isBlank(uploadId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
+    }
+
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    if (uploadResource == null) {
+      return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID:NOT_FOUND").build();
+    }
+
+    UserImportResultEntity existingImportResult = importUsersProcessing.get(uploadId);
+    if (clean || progress) {
+      if (existingImportResult == null) {
+        return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID_PROGRESS:NOT_FOUND").build();
+      }
+      if (clean) {
+        uploadService.removeUploadResource(uploadId);
+        importUsersProcessing.remove(uploadId);
+      }
+      return Response.ok(existingImportResult).build();
+    } else if (existingImportResult != null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID_PROCESSING:ALREADY_PROCESSING").build();
+    }
+
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, sync);
+    return errorResponse == null ? Response.noContent().build() : errorResponse;
+  }
+
+  private Response importUsers(String uploadId, String fileLocation, Locale locale, boolean sync) {
+    UserImportResultEntity userImportResultEntity = new UserImportResultEntity();
+    importUsersProcessing.put(uploadId, userImportResultEntity);
+
+    // count file lines
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
+      userImportResultEntity.setCount(reader.lines().count() - 1);
+    } catch (FileNotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID_FILE:NOT_FOUND").build();
+    } catch (IOException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("ERROR_READING_FILE").build();
+    }
+
+    if (userImportResultEntity.getCount() < 1) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("BAD_FORMAT:FILE_EMPTY").build();      
+    }
+
+    if (sync) {
+      importUsers(fileLocation, userImportResultEntity, locale);
+    } else {
+      importUsersAsync(fileLocation, userImportResultEntity, locale);
+    }
+    return null;
+  }
+
+  private void importUsersAsync(String fileLocation,
+                                UserImportResultEntity userImportResultEntity,
+                                Locale locale) {
+    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale));
+  }
+
+  private void importUsers(String fileLocation,
+                           UserImportResultEntity userImportResultEntity,
+                           Locale locale) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
+      // Retrieve header line and import others
+      String headerLine = null;
+      headerLine = reader.readLine();
+      if (StringUtils.isBlank(headerLine)) {
+        return;
+      }
+      List<String> fields = Arrays.asList(headerLine.split(","));
+
+      String userCSVLine = reader.readLine();
+      while (userCSVLine != null) {
+        ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
+        RequestLifeCycle.begin(PortalContainer.getInstance());
+        String userName = null;
+        try { // NOSONAR
+          userImportResultEntity.incrementProcessed();
+          if (StringUtils.isBlank(userCSVLine)) {
+            continue;
+          }
+
+          userName = importUser(userImportResultEntity, locale, fields, userCSVLine);
+        } catch (Throwable e) {
+          if (StringUtils.isNotBlank(userName)) {
+            userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
+          }
+        } finally {
+          RequestLifeCycle.end();
+        }
+        userCSVLine = reader.readLine();
+      }
+    } catch (Exception e) {
+      LOG.error("Error while importing CSV file", e);
+    }
+  }
+
+  private String importUser(UserImportResultEntity userImportResultEntity,
+                            Locale locale,
+                            List<String> fields,
+                            String userCSVLine) throws Exception {
+    List<String> userProperties = Arrays.asList(userCSVLine.split(","));
+    JSONObject userObject = new JSONObject();
+    for (int i = 0; i < fields.size(); i++) {
+      if (i < userProperties.size()) {
+        userObject.put(fields.get(i), userProperties.get(i));
+      }
+    }
+    UserImpl user = EntityBuilder.fromJsonString(userObject.toString(), UserImpl.class);
+    String userName = user.getUserName();
+    if (StringUtils.isBlank(userName)) {
+      userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT:MISSING_USERNAME");
+      return userName;
+    }
+    if (userProperties.size() != fields.size()) {
+      userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT");
+      return userName;
+    }
+
+    String errorMessage = null;
+    try {
+      errorMessage = validateUser(userObject, locale);
+    } catch (Exception e) {
+      errorMessage = "USER_VALIDATION_ERROR:" + e.getMessage();
+    }
+    if (StringUtils.isNotBlank(errorMessage)) {
+      userImportResultEntity.addErrorMessage(userName, errorMessage);
+      return userName;
+    }
+
+    User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
+    if (existingUser != null) {
+      userImportResultEntity.addErrorMessage(userName, "USERNAME:ALREADY_EXISTS");
+      return userName;
+    }
+
+    existingUser = getUserByEmail(user.getEmail());
+    if (existingUser != null) {
+      userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
+      return userName;
+    }
+
+    try {
+      organizationService.getUserHandler().createUser(user, true);
+    } catch (Exception e) {
+      userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
+      return userName;
+    }
+
+    String groups = userObject.getString("groups");
+    if (StringUtils.isNotBlank(groups)) {
+      List<String> groupsList = Arrays.asList(groups.split(";"));
+      for (String groupMembershipExpression : groupsList) {
+        String membershipType =
+                              groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
+                                                                      : SpaceUtils.MEMBER;
+        String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
+                                                                 : groupMembershipExpression;
+        Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
+        if (groupObject == null) {
+          userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
+          continue;
+        }
+        MembershipType membershipTypeObject =
+                                            organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
+        if (membershipTypeObject == null) {
+          userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
+          continue;
+        }
+        try {
+          organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
+        } catch (Exception e) {
+          userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
+        }
+      }
+    }
+
+    // Delete imported User object properties
+    userObject.remove("userName");
+    userObject.remove("firstName");
+    userObject.remove("lastName");
+    userObject.remove("password");
+    userObject.remove("email");
+    userObject.remove("groups");
+
+    ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
+    String warnMessage = null;
+    try {
+      warnMessage = saveProfile(userName, profileEntity);
+    } catch (Exception e) {
+      warnMessage = "CREATE_USER_PROFILE_ERROR:" + e.getMessage();
+    }
+    if (warnMessage != null) {
+      userImportResultEntity.addWarnMessage(userName, warnMessage);
+    }
+    return userName;
+  }
+
+  private String validateUser(JSONObject userObject, Locale locale) throws Exception {
+    String errorMessage = null;
+    Iterator<UserFieldValidator> iterator = USER_FIELD_VALIDATORS.iterator();
+    while (iterator.hasNext() && errorMessage == null) {
+      UserFieldValidator userFieldValidator = iterator.next();
+      String fieldName = userFieldValidator.getField();
+      String fieldValue = userObject.getString(fieldName);
+      errorMessage = userFieldValidator.validate(locale, fieldValue);
+    }
+    return errorMessage;
+  }
+
   /**
    * Log metric about composer usage
    * @param activity The posted activity
@@ -871,7 +1131,28 @@ public class UserRestResourcesV1 implements UserRestResources {
             activity.getId(),
             activity.getPosterId());
   }
-  
+
+  private String saveProfile(String username, ProfileEntity profileEntity) {
+    Identity userIdentity = getUserIdentity(username);
+    Profile profile = userIdentity.getProfile();
+
+    try {
+      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+      for (Entry<String, Object> entry : profileEntries) {
+        String name = entry.getKey();
+        Object value = entry.getValue();
+        String fieldName = ProfileEntity.getFieldName(name);
+        updateProfileField(profile, fieldName, value, false);
+      }
+      identityManager.updateProfile(profile, true);
+    } catch (IdentityStorageException e) {
+      return e.getMessageKey();
+    } catch (Exception e) {
+      return "Can't update profile entities, error = " + e.getMessage();
+    }
+    return null;
+  }
+
   private void fillUserFromModel(User user, UserEntity model) {
     if (model.getFirstname() != null && !model.getFirstname().isEmpty()) {
       user.setFirstName(model.getFirstname());
@@ -945,13 +1226,12 @@ public class UserRestResourcesV1 implements UserRestResources {
    * @param email Input email to check.
    * @return true if email is existing in system.
    */
-  public static User getUserByEmail(String email) {
+  private User getUserByEmail(String email) {
     if (email == null) return null;
     try {
       Query query = new Query();
       query.setEmail(email);
-      OrganizationService service = CommonsUtils.getService(OrganizationService.class);
-      User[] users = service.getUserHandler().findUsersByQuery(query).load(0, 10);
+      User[] users = organizationService.getUserHandler().findUsersByQuery(query).load(0, 10);
       return users[0];
     } catch (Exception e) {
       return null;

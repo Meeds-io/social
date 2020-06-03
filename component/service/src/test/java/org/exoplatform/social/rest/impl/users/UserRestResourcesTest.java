@@ -23,12 +23,14 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.api.ErrorResource;
+import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
 import java.io.ByteArrayInputStream;
@@ -424,6 +426,78 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String storedContent = IOUtil.getStreamContentAsString(bannerInputStream);
     String content = IOUtil.getStreamContentAsString(getClass().getClassLoader().getResourceAsStream("blank.gif"));
     assertEquals(content, storedContent);
+  }
+
+  public void testImportUsers() throws Exception {
+    startSessionAs("root");
+
+    String uploadId = "users-empty.csv";
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+
+    assertEquals(404, response.getStatus());
+
+    URL resource = getClass().getClassLoader().getResource("users-empty.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-empty.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertEquals(400, response.getStatus());
+
+    uploadId = "users.csv";
+    resource = getClass().getClassLoader().getResource("users.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    UserImportResultEntity importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(4, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    assertNotNull(uploadResource);
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&clean=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(4, importResultEntity.getCount());
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    uploadResource = uploadService.getUploadResource(uploadId);
+    assertNull(uploadResource);
+
+    uploadId = "users-errors.csv";
+    resource = getClass().getClassLoader().getResource("users-errors.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-errors.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(6, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+    assertNotNull(importResultEntity.getErrorMessages());
+    assertEquals(3, importResultEntity.getErrorMessages().size());
+    assertNotNull(importResultEntity.getWarnMessages());
+    assertEquals(1, importResultEntity.getWarnMessages().size());
   }
 
   public void testUpdateProfileAtributes() throws Exception {
