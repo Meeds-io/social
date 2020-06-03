@@ -1,0 +1,34 @@
+<%
+  import org.apache.commons.lang.StringEscapeUtils
+
+  def activity = uicomponent.getActivity();
+  def activityDeletable = uicomponent.isActivityDeletable();
+  def activityEditable = uicomponent.isActivityEditable(activity);
+  def labelEdit = _ctx.appRes("UIActivity.label.Edit");
+  def labelToDeleteThisActivity=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.msg.Are_You_Sure_To_Delete_This_Activity"));
+  def captionConfirmation=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Confirmation"));
+  def labelClosebutton=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Cancel_Delete_Activity-Button"));
+  def labelConfirmbutton=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Confirm_Delete_Activity-Button"));
+  def labelDelete = _ctx.appRes("UIActivity.label.Delete");
+  String viewActivityTip = _ctx.appRes("UIActivity.msg.ViewActivity");
+%>
+  <div id="dropDownEditActivity${activity.id}" class="btn-group uiDropdownWithIcon actLink ">
+    <div class="dropdown-toggle" data-toggle="dropdown">
+      <i class="uiIconActivityAction uiIconLightGray"></i>
+    </div>
+    <ul class="dropdown-menu pull-right" role="menu">
+      <li>
+        <a id="Permalink${activity.id}" rel="tooltip" data-placement="bottom" title="$viewActivityTip" href="<%=uicomponent.getActivityPermalink(activity.id)%>">$viewActivityTip</a>
+      </li>
+      <% if(activityEditable) {%>
+      <li>
+        <a id="EditActivitylink${activity.id}" class="" data-edit-activity="${activity.id}" data-placement="bottom" href="javascript:void(0)">${labelEdit}</a>
+      </li>
+      <% }
+      if (activityDeletable) {%>
+      <li>
+        <a href="javascript:void(0)" data-confirm="$labelToDeleteThisActivity" data-caption="$captionConfirmation" data-close="$labelClosebutton" data-ok="$labelConfirmbutton"  data-delete="<%=uicomponent.event("DeleteActivity", uicomponent.getId(), "");%>" class="controllDelete" id="DeleteActivityButton${activity.id}">${labelDelete}</a>
+      </li>
+      <%}%>
+    </ul>
+  </div>

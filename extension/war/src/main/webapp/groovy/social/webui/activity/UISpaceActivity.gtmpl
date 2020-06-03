@@ -250,20 +250,15 @@ def streamOwner = activity.getStreamOwner();
 				<span class="arrowLeft"></span>
       <div class="activityAvatar avatarCircle">
         <a href="$spaceCreatorUri">
-        <img alt="$spaceCreatorName" src="$spaceCreatorAvatar"/>
-      </a>
+          <img alt="$spaceCreatorName" src="$spaceCreatorAvatar"/>
+        </a>
       </div>
   <div class="activityAuthorAndDate">
       <div class="author">
-        <!--<div class="hidden-desktop circleSpaceAvatar">
-          <a  href="$ownerUri" space-data="$spaceID">$ownerName
-            <img alt="$ownerName" src="$spaceImageSource"/>
-          </a>
-        </div>-->
       <div class="ownerName">
-    					<a  href="$spaceCreatorUri">$spaceCreatorName</a>
-    		</div>
-      <div class="owner">
+    	  <a  href="$spaceCreatorUri">$spaceCreatorName</a>
+    	</div>
+      <div class="spaceName">
         <a class="space-avatar spaceName" href="$ownerUri" space-data="$spaceID">
           <span class="uiIconArrowRightMini uiIconLightGray"></span>
           <img class="avatarMini" alt="$ownerName" src="$spaceImageSource"/>&nbsp;$ownerName
@@ -341,32 +336,8 @@ $ownerDescription
 <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
 
  <div class="actionsDetailsWrapper">
-<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
-<div class="listLikedBox $listPeopleBGClass">
-<div class="listPeopleContent">
-<% if (!labelLikes) { labelLikes = ""; } %>
-   <% if (identityLikesNum > 0) {%>
-	        <div class="listLiked">
-	        <%
-	        displayedIdentityLikes.each({
-	          def id = Utils.getIdentityManager().getIdentity(it);
-	          personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
-	          personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
-	          personLikeAvatarImageSource = id.profile.avatarUrl;
-	          if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
-	          %>
-	            <a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
-	              <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
-</a>
-	         <% })%>
-	            <button onclick="$loadLikesAction" class="btn">...</button>
-</div> <!-- end listLiked -->
-	        <% }%>
-	        <p>$labelLikes</p>
-	      </div> <!-- end listPeopleContent -->
-</div><!--end listLikedBox-->
-	    <%}%>
 
+  <% _ctx.includeTemplates("UIActivityListLiked") %>
   <% _ctx.includeTemplates("UIActivityActionBar-actions") %>
 </div><!--end actionBar and list like people wrapper-->
 

@@ -179,6 +179,42 @@
         </values-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>UIActivityHeading-head-actions</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The actionBar mobile activity template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/commons/UIActivityHeadingMenu.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>UIActivityHeading-head</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The actionBar mobile activity template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/commons/UIActivityHeading.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>UIActivityListLiked</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The actionBar mobile activity template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/commons/UIActivityListLiked.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
