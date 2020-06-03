@@ -16,10 +16,7 @@
           <span class="caret my-0 mx-3"></span>
         </v-btn>
         <div class="dropdown-menu">
-          <v-btn class="btn">
-            <i class="uiIconImport mr-md-3"></i>
-            {{ $t('UsersManagement.importCSV') }}
-          </v-btn>
+          <users-management-import-csv-button />
         </div>
       </div>
     </v-toolbar-title>

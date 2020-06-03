@@ -903,7 +903,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         uploadService.removeUploadResource(uploadId);
         importUsersProcessing.remove(uploadId);
       }
-      return Response.ok(existingImportResult).build();
+      return Response.ok(existingImportResult.clone()).build();
     } else if (existingImportResult != null) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID_PROCESSING:ALREADY_PROCESSING").build();
     }

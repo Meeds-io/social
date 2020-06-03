@@ -18,7 +18,7 @@ package org.exoplatform.social.rest.api;
 
 import java.util.*;
 
-public class UserImportResultEntity {
+public class UserImportResultEntity implements Cloneable {
 
   private long                      count;
 
@@ -27,6 +27,20 @@ public class UserImportResultEntity {
   private Map<String, String>       errorMessages;
 
   private Map<String, List<String>> warnMessages;
+
+  public UserImportResultEntity() {
+  }
+
+  public UserImportResultEntity(long count,
+                                long processedCount,
+                                Map<String, String> errorMessages,
+                                Map<String, List<String>> warnMessages) {
+    super();
+    this.count = count;
+    this.processedCount = processedCount;
+    this.errorMessages = errorMessages;
+    this.warnMessages = warnMessages;
+  }
 
   public long getCount() {
     return count;
@@ -76,5 +90,12 @@ public class UserImportResultEntity {
       warnMessages = new HashMap<>();
     }
     warnMessages.computeIfAbsent(userName, key -> new ArrayList<>()).add(warnMessage);
+  }
+
+  @Override
+  public UserImportResultEntity clone() { // NOSONAR
+    Map<String, String> errorMessagesCopy = errorMessages == null ? null : Collections.unmodifiableMap(errorMessages);
+    Map<String, List<String>> warnMessagesCopy = warnMessages == null ? null : Collections.unmodifiableMap(warnMessages);
+    return new UserImportResultEntity(count, processedCount, errorMessagesCopy, warnMessagesCopy);
   }
 }
