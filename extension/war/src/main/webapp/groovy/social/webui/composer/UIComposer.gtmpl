@@ -25,9 +25,12 @@
   import org.exoplatform.container.ExoContainerContext;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
   import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
+  import org.exoplatform.commons.utils.PropertyManager;
 
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
+  def isMainStreamComposerEnabled = PropertyManager.getProperty("exo.config.mainStreamComposer.enabled");
   if(featureService.isActiveFeature("new-composer")) {
+    if (isMainStreamComposerEnabled) {
 %>
 <div id="activityComposer"></div>
 <script>
@@ -36,6 +39,7 @@
   });
 </script>
 <%
+    }
   }
 %>
 
