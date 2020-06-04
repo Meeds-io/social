@@ -1,0 +1,12 @@
+<%
+def labelComments= _ctx.appRes("UIActivity.comment.commentsLabel");
+def labelLikesActivity = _ctx.appRes("UIActivity.label.likesLabel");
+def totalLikesNum = uicomponent.getIdentityLikes().length;
+int allCommentSize = uicomponent.getAllCommentSize();
+%>
+
+<div class="actionBarMobile">
+    <a class="likesNumber" href="#">$totalLikesNum $labelLikesActivity</a>
+    <a class="CommentsNumber" href="#">$allCommentSize $labelComments</a>
+    <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile-after") %>
+</div><!--end actionBarMobile-->
