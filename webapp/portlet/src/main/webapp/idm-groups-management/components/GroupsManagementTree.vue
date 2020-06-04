@@ -56,84 +56,103 @@ export default {
   },
   methods: {
     updateGroupItem(group, groups) {
-      if (!groups) {
-        groups = this.groups;
-      }
-      const groupIndex = groups.findIndex(displayedGroup => displayedGroup.id === group.id);
-      if (groupIndex > -1) {
-        groups.splice(groupIndex, 1, group);
-        return;
-      }
-      for (const index in groups) {
-        const displayedGroup = groups[index];
-        if (group.parentId
-            && displayedGroup.children
-            && displayedGroup.children.length
-            && group.parentId.indexOf(displayedGroup.id) === 0) {
-          return this.updateGroupItem(group, displayedGroup.children);
+      this.loading = true;
+      try {
+        if (!groups) {
+          groups = this.groups;
         }
+        const groupIndex = groups.findIndex(displayedGroup => displayedGroup.id === group.id);
+        if (groupIndex > -1) {
+          groups.splice(groupIndex, 1, group);
+          this.$forceUpdate();
+          return;
+        }
+        for (const index in groups) {
+          const displayedGroup = groups[index];
+          if (group.parentId
+              && displayedGroup.children
+              && displayedGroup.children.length
+              && group.parentId.indexOf(displayedGroup.id) === 0) {
+            this.$forceUpdate();
+            return this.updateGroupItem(group, displayedGroup.children);
+          }
+        }
+      } finally {
+        this.$nextTick().then(() => this.loading = false);
       }
     },
     updateGroupTree(group, parentGroup, groups) {
-      if (!groups) {
-        groups = this.groups;
-      }
-      const parentId = parentGroup && parentGroup.id || group.parentId;
-      if (!group.id) {
-        group.id = group.parentId ? `${group.parentId}/${group.groupName}` : group.groupName;
-      }
-      for (const index in groups) {
-        const displayedGroup = groups[index];
-        if (group.id === displayedGroup.id) {
-          Object.assign(displayedGroup, group);
-          return true;
-        } else if (parentId && parentId.indexOf(displayedGroup.id) === 0) {
-          let updated = false;
-          if (displayedGroup.children && displayedGroup.children.length) {
-            updated = this.updateGroupTree(group, parentGroup, displayedGroup.children);
-          }
-          if (updated) {
-            return;
-          } else if (parentId === displayedGroup.id) {
-            if (displayedGroup.childrenRetrieved) {
-              if (!displayedGroup.children || !displayedGroup.children.length) {
-                displayedGroup.children = [group];
-              } else {
-                displayedGroup.children.push(group);
-              }
-              this.updateGroupItem(displayedGroup);
+      this.loading = true;
+      try {
+        if (!groups) {
+          groups = this.groups;
+        }
+        const parentId = parentGroup && parentGroup.id || group.parentId;
+        if (!group.id) {
+          group.id = group.parentId ? `${group.parentId}/${group.groupName}` : group.groupName;
+        }
+        for (const index in groups) {
+          const displayedGroup = groups[index];
+          if (group.id === displayedGroup.id) {
+            Object.assign(displayedGroup, group);
+            return true;
+          } else if (parentId && parentId.indexOf(displayedGroup.id) === 0) {
+            let updated = false;
+            if (displayedGroup.children && displayedGroup.children.length) {
+              updated = this.updateGroupTree(group, parentGroup, displayedGroup.children);
             }
-            return;
+            if (updated) {
+              return;
+            } else if (parentId === displayedGroup.id) {
+              if (displayedGroup.childrenRetrieved) {
+                if (!displayedGroup.children || !displayedGroup.children.length) {
+                  displayedGroup.children = [group];
+                } else {
+                  displayedGroup.children.push(group);
+                  displayedGroup.children = displayedGroup.children.slice();
+                }
+                this.updateGroupItem(displayedGroup);
+              }
+              return;
+            }
           }
         }
-      }
-      if (!parentId) {
-        this.groups.push(group);
+        if (!parentId) {
+          this.groups.push(group);
+        }
+      } finally {
+        this.$nextTick().then(() => this.loading = false);
       }
     },
     removeGroup(group, parentGroup, groups) {
-      if (!groups) {
-        groups = this.groups;
-      }
-      const groupIndex = groups.findIndex(displayedGroup => displayedGroup.id === group.id);
-      if (groupIndex > -1) {
-        groups.splice(groupIndex, 1);
-        if (parentGroup) {
-          if (!groups.length) {
-            delete parentGroup.children;
+      this.loading = true;
+      try {
+        if (!groups) {
+          groups = this.groups;
+        }
+        const groupIndex = groups.findIndex(displayedGroup => displayedGroup.id === group.id);
+        if (groupIndex > -1) {
+          groups.splice(groupIndex, 1);
+          if (parentGroup) {
+            if (!groups.length) {
+              delete parentGroup.children;
+            }
+            this.updateGroupItem(parentGroup);
           }
-          this.updateGroupItem(parentGroup);
+          this.$forceUpdate();
+          return;
         }
-        return;
-      }
-      for (const index in groups) {
-        const displayedGroup = groups[index];
-        if (group.parentId
-            && displayedGroup.children
-            && displayedGroup.children.length
-            && group.parentId.indexOf(displayedGroup.id) === 0) {
-          return this.removeGroup(group, displayedGroup, displayedGroup.children);
+        for (const index in groups) {
+          const displayedGroup = groups[index];
+          if (group.parentId
+              && displayedGroup.children
+              && displayedGroup.children.length
+              && group.parentId.indexOf(displayedGroup.id) === 0) {
+            return this.removeGroup(group, displayedGroup, displayedGroup.children);
+          }
         }
+      } finally {
+        this.$nextTick().then(() => this.loading = false);
       }
     },
     searchGroup(groupId, groups) {
