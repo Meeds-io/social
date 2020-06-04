@@ -106,11 +106,13 @@ export default {
   watch: {
     open() {
       if (this.open && !this.group.childrenRetrieved) {
-        this.$root.$emit('retrieveGroupChildren', this.group, this.page);
+        const offset = (this.page - 1) * this.pageSize;
+        this.$root.$emit('retrieveGroupChildren', this.group, offset);
       }
     },
     page() {
-      this.$root.$emit('retrieveGroupChildren', this.group, this.page);
+      const offset = (this.page - 1) * this.pageSize;
+      this.$root.$emit('retrieveGroupChildren', this.group, offset);
     },
   },
   created() {
