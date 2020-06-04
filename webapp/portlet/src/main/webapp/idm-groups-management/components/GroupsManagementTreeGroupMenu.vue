@@ -69,7 +69,9 @@ export default {
       return this.$t('GroupsManagement.message.confirmDelete', {0: this.group.label});
     },
     groupMenuParentId() {
-      return `groupMenuParent-${this.group.id.replace(/\//g, '_')}`;
+      return `SpaceApplications${parseInt(Math.random() * 10000)
+        .toString()
+        .toString()}`;
     },
   },
   created() {
