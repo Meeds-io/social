@@ -242,22 +242,6 @@
     </depends>
   </module>
 
-  <module>
-    <name>social-ui-link-activity-composer</name>
-    <script>
-      <path>/javascript/eXo/social/webui/UIComposerLinkExtension.js</path>
-    </script>
-    <depends>
-      <module>socialUtil</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>webui</module>
-    </depends>
-  </module>
 
   <module>
     <name>social-ui-activity-updates</name>
