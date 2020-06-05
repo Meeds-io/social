@@ -1589,7 +1589,12 @@
     <component-plugin>
       <name>UserESListenerImpl</name>
       <set-method>addListenerPlugin</set-method>
-      <type>org.exoplatform.social.core.jpa.search.listener.UserESListenerImpl</type>
+      <type>org.exoplatform.social.core.jpa.search.listener.IDMUserESListenerImpl</type>
+    </component-plugin>
+    <component-plugin>
+      <name>IDMProfileESListenerImpl</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.jpa.search.listener.IDMProfileESListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
   

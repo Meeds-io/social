@@ -34,22 +34,20 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS
- * Author : eXoPlatform
- *          exo@exoplatform.com
- * Oct 1, 2015  
+ * Created by The eXo Platform SAS Author : eXoPlatform exo@exoplatform.com Oct
+ * 1, 2015
  */
-public class UserESListenerImpl extends UserEventListener {
-  private static final Log LOG = ExoLogger.getLogger(UserESListenerImpl.class);
+public class IDMUserESListenerImpl extends UserEventListener {
+  private static final Log LOG = ExoLogger.getLogger(IDMUserESListenerImpl.class);
 
   @Override
   public void preDelete(final User user) throws Exception {
     RequestLifeCycle.begin(PortalContainer.getInstance());
-    try{
+    try {
       IdentityManager idm = CommonsUtils.getService(IdentityManager.class);
-      Identity identity = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName(), false);
+      Identity identity = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
 
-      LOG.info("Notifying indexing service for user deletion id={}", identity.getId());
+      LOG.debug("Notifying indexing service for user deletion id={}", identity.getId());
 
       CommonsUtils.getService(IndexingService.class).unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
       reIndexAllConnector(identity);
@@ -57,17 +55,16 @@ public class UserESListenerImpl extends UserEventListener {
       RequestLifeCycle.end();
     }
   }
-  
+
   @Override
   public void postSetEnabled(User user) throws Exception {
     RequestLifeCycle.begin(PortalContainer.getInstance());
     try {
       IdentityManager idm = CommonsUtils.getService(IdentityManager.class);
-      Identity identity = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName(), false);
+      Identity identity = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
 
-      LOG.info("Notifying indexing service for user enable status change id={}", identity.getId());
-
-      if (! user.isEnabled()) {
+      LOG.debug("Notifying indexing service for user enable status change id={}", identity.getId());
+      if (!user.isEnabled()) {
         CommonsUtils.getService(IndexingService.class).unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
       } else {
         CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
