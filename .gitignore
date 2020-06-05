@@ -39,6 +39,7 @@ node_modules/
 .classpath
 .project
 *.log
+.factorypath
 
 # OS
 .DS_Store
