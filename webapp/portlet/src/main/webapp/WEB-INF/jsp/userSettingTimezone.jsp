@@ -25,7 +25,7 @@
     id="UserSettingTimezone">
     <textarea id="userTimezoneValue" class="hidden"><%=timeZoneJSON.toString()%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/UserSettingTimezone'], app => app.init(JSON.parse(document.getElementById('userTimezoneValue').value)));
+      require(['PORTLET/social-portlet/UserSettingTimezone'], app => app.init(JSON.parse(document.getElementById('userTimezoneValue').value)));
     </script>
     <div class="v-application--wrap">
       <div

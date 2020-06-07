@@ -3,7 +3,7 @@
     class="v-application v-application--is-ltr theme--light"
     id="UserSettingNotifications">
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/UserSettingNotifications'],
+      require(['PORTLET/social-portlet/UserSettingNotifications'],
         app => app.init()
       );
     </script>

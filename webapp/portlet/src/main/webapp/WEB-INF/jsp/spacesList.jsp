@@ -15,7 +15,7 @@
     class="v-application transparent v-application--is-ltr theme--light"
     id="spacesListApplication" flat="">
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/SpacesList'],
+      require(['PORTLET/social-portlet/SpacesList'],
           app => app.init('<%=filter%>', <%=canCreateSpace%>)
       );
     </script>

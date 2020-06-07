@@ -20,7 +20,7 @@
     <textarea id="profileContactInformationDefaultValue"
       class="hidden"><%=jsonProfileEntity == null ? "{}" : jsonProfileEntity%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/ProfileContactInformation'], 
+      require(['PORTLET/social-portlet/ProfileContactInformation'], 
           app => app.init(
               JSON.parse(document.getElementById('profileContactInformationDefaultValue').value), 
               <%=maxUploadSize%>)
