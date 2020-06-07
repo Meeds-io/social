@@ -19,7 +19,7 @@
     id="ProfileAboutMe">
     <textarea id="profileAboutMeDefaultValue" class="hidden"><%=aboutMe == null ? "" : aboutMe%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/ProfileAboutMe'], app => app.init(document.getElementById('profileAboutMeDefaultValue').value));
+      require(['PORTLET/social-portlet/ProfileAboutMe'], app => app.init(document.getElementById('profileAboutMeDefaultValue').value));
     </script>
     <div class="v-application--wrap">
       <header

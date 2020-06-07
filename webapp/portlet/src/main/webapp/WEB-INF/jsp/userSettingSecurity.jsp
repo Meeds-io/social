@@ -3,7 +3,7 @@
     class="v-application v-application--is-ltr theme--light"
     id="UserSettingSecurity">
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/UserSettingSecurity'],
+      require(['PORTLET/social-portlet/UserSettingSecurity'],
         app => app.init()
       );
     </script>

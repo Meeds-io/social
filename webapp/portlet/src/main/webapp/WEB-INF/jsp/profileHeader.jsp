@@ -9,7 +9,7 @@
     class="v-application v-application--is-ltr theme--light profileHeaderOwner"
     id="ProfileHeader">
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/ProfileHeader'], app => app.init(<%=maxUploadSize%>));
+      require(['PORTLET/social-portlet/ProfileHeader'], app => app.init(<%=maxUploadSize%>));
     </script>
     <div class="v-application--wrap">
       <div class="v-responsive v-image profileBannerImg d-flex white"

@@ -30,7 +30,7 @@
     id="UserSettingLanguage">
     <textarea id="userLanguagesValue" class="hidden"><%=localesJSON.toString()%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/UserSettingLanguage'], app => app.init(JSON.parse(document.getElementById('userLanguagesValue').value)));
+      require(['PORTLET/social-portlet/UserSettingLanguage'], app => app.init(JSON.parse(document.getElementById('userLanguagesValue').value)));
     </script>
     <div class="v-application--wrap">
       <div

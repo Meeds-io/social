@@ -9,7 +9,7 @@
 <div class="VuetifyApp">
   <div id="SuggestionsPeopleAndSpace">
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/SuggestionsPeopleAndSpace'],
+      require(['PORTLET/social-portlet/SuggestionsPeopleAndSpace'],
         app => app.init('<%=suggestionsType%>')
       );
     </script>

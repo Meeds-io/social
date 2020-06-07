@@ -19,7 +19,7 @@
     id="ProfileWorkExperience">
     <textarea id="profileWorkExperienceDefaultValue" class="hidden"><%=jsonProfileEntity == null ? "{}" : jsonProfileEntity%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-vue-portlet/ProfileWorkExperience'], 
+      require(['PORTLET/social-portlet/ProfileWorkExperience'], 
           app => app.init(
               JSON.parse(document.getElementById('profileWorkExperienceDefaultValue').value), 
               <%=maxUploadSize%>)

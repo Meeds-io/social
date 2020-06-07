@@ -32,7 +32,7 @@
     <show-max-window>false</show-max-window>
     <portlet-application>
       <portlet>
-        <application-ref>social-vue-portlet</application-ref>
+        <application-ref>social-portlet</application-ref>
         <portlet-ref>SpacesAdministration</portlet-ref>
       </portlet>
       <access-permissions>*:/platform/users</access-permissions>

@@ -21,7 +21,7 @@
           <description></description>
           <object type="org.exoplatform.commons.addons.PortletModel">
             <field name="contentId">
-              <string>social-vue-portlet/SiteHamburgerMenu</string>
+              <string>social-portlet/SiteHamburgerMenu</string>
             </field>
             <field name="permissions">
               <collection type="java.util.ArrayList">
@@ -65,7 +65,7 @@
           <description></description>
           <object type="org.exoplatform.commons.addons.PortletModel">
             <field name="contentId">
-              <string>social-vue-portlet/ProfileHamburgerMenu</string>
+              <string>social-portlet/ProfileHamburgerMenu</string>
             </field>
             <field name="permissions">
               <collection type="java.util.ArrayList">
@@ -109,7 +109,7 @@
           <description></description>
           <object type="org.exoplatform.commons.addons.PortletModel">
             <field name="contentId">
-              <string>social-vue-portlet/SpacesHamburgerMenu</string>
+              <string>social-portlet/SpacesHamburgerMenu</string>
             </field>
             <field name="permissions">
               <collection type="java.util.ArrayList">
@@ -153,7 +153,7 @@
           <description></description>
           <object type="org.exoplatform.commons.addons.PortletModel">
             <field name="contentId">
-              <string>social-vue-portlet/TopBarNotification</string>
+              <string>social-portlet/TopBarNotification</string>
             </field>
             <field name="permissions">
               <collection type="java.util.ArrayList">

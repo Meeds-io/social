@@ -14,7 +14,7 @@
       id="spaceApplicationItemsValue"
       class="hidden"><%=jsonEntity == null ? "[]" : jsonEntity%></textarea>
     <script>
-      require(['PORTLET/social-vue-portlet/SpacesAdministration'], function(spacesAdministrationApp) {
+      require(['PORTLET/social-portlet/SpacesAdministration'], function(spacesAdministrationApp) {
         spacesAdministrationApp.init(JSON.parse(document.getElementById('spaceApplicationItemsValue').value));
       });
     </script>
