@@ -27,13 +27,36 @@ public class SearchConnector implements Cloneable {
 
   private boolean enabled;
 
+  private String  module;
+
+  private String  uiComponent;
+
   public SearchConnector() {
   }
 
-  public SearchConnector(String name, String uri, boolean enabled) {
+  public SearchConnector(String name, String uri, boolean enabled, String module, String uiComponent) {
+    super();
     this.name = name;
     this.uri = uri;
     this.enabled = enabled;
+    this.module = module;
+    this.uiComponent = uiComponent;
+  }
+
+  public String getModule() {
+    return module;
+  }
+
+  public void setModule(String module) {
+    this.module = module;
+  }
+
+  public String getUiComponent() {
+    return uiComponent;
+  }
+
+  public void setUiComponent(String uiComponent) {
+    this.uiComponent = uiComponent;
   }
 
   public String getName() {
@@ -88,6 +111,6 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, enabled);
+    return new SearchConnector(name, uri, enabled, module, uiComponent);
   }
 }

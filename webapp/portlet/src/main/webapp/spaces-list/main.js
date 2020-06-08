@@ -1,15 +1,4 @@
-import './initComponents.js';
 import { spacesConstants } from '../js/spacesConstants.js';
-
-// get overrided components if exists
-if (extensionRegistry) {
-  const components = extensionRegistry.loadComponents('SpacesList');
-  if (components && components.length > 0) {
-    components.forEach(cmp => {
-      Vue.component(cmp.componentName, cmp.componentOptions);
-    });
-  }
-}
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 

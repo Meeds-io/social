@@ -12,6 +12,7 @@ let config = {
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
+    spacesListComponents: './src/main/webapp/spaces-list/initComponents.js',
     spacesList: './src/main/webapp/spaces-list/main.js',
     spacesOverview: './src/main/webapp/spaces-overview/main.js',
     suggestions: './src/main/webapp/suggestions-people-space/main.js',
@@ -35,7 +36,10 @@ let config = {
     spaceSettings: './src/main/webapp/space-settings/main.js',
     idmUsersManagement: './src/main/webapp/idm-users-management/main.js',
     idmGroupsManagement: './src/main/webapp/idm-groups-management/main.js',
-    idmMembershipTypesManagement: './src/main/webapp/idm-membership-types-management/main.js'
+    idmMembershipTypesManagement: './src/main/webapp/idm-membership-types-management/main.js',
+    searchApplication: './src/main/webapp/search/main.js',
+    peopleSearchResultCard: './src/main/webapp/search-people/initComponents.js',
+    spaceSearchResultCard: './src/main/webapp/search-space/initComponents.js'
   },
   module: {
     rules: [
