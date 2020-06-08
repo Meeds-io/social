@@ -207,6 +207,18 @@
         </values-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>UIActivityCommentBox</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The actionBar mobile activity template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/commons/UIActivityCommentBox.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
