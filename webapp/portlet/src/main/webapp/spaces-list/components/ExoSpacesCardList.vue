@@ -4,21 +4,35 @@
       <v-item-group>
         <v-container class="pa-0">
           <v-row v-if="skeleton" class="ma-0 border-box-sizing">
-            <exo-space-card
+            <v-col
               v-for="i in pageSize"
               :key="i"
-              :space="{}"
-              :skeleton="skeleton"
-              :profile-action-extensions="profileActionExtensions"
-              @refresh="searchSpaces" />
+              cols="12"
+              md="6"
+              lg="4"
+              xl="3"
+              class="pa-0">
+              <exo-space-card
+                :space="{}"
+                :skeleton="skeleton"
+                :profile-action-extensions="profileActionExtensions"
+                @refresh="searchSpaces" />
+            </v-col>
           </v-row>
           <v-row v-else-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
-            <exo-space-card
+            <v-col
               v-for="space in filteredSpaces"
               :key="space.id"
-              :space="space"
-              :profile-action-extensions="profileActionExtensions"
-              @refresh="searchSpaces" />
+              cols="12"
+              md="6"
+              lg="4"
+              xl="3"
+              class="pa-0">
+              <exo-space-card
+                :space="space"
+                :profile-action-extensions="profileActionExtensions"
+                @refresh="searchSpaces" />
+            </v-col>
           </v-row>
           <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
             <div class="ma-auto noSpacesYet">

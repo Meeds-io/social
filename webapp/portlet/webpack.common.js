@@ -38,8 +38,8 @@ let config = {
     idmGroupsManagement: './src/main/webapp/idm-groups-management/main.js',
     idmMembershipTypesManagement: './src/main/webapp/idm-membership-types-management/main.js',
     searchApplication: './src/main/webapp/search/main.js',
-    peopleSearchResultCard: './src/main/webapp/search-people/initComponents.js',
-    spaceSearchResultCard: './src/main/webapp/search-space/initComponents.js'
+    peopleSearchResultCard: './src/main/webapp/search-people/main.js',
+    spaceSearchResultCard: './src/main/webapp/search-space/main.js'
   },
   module: {
     rules: [
