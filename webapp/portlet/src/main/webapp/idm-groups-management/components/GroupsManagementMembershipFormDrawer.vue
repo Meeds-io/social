@@ -1,0 +1,292 @@
+<template>
+  <exo-drawer
+    id="membershipFormDrawer"
+    ref="membershipFormDrawer"
+    right
+    @closed="drawer = false">
+    <template slot="title">
+      {{ title }}
+    </template>
+    <template slot="content">
+      <v-form
+        ref="membershipForm"
+        class="form-horizontal pt-0 pb-4"
+        flat
+        @submit="saveMembership">
+        <v-card-text v-if="error" class="errorMessage">
+          <v-alert type="error">
+            {{ error }}
+          </v-alert>
+        </v-card-text>
+
+        <v-card-text class="d-flex membershipNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('UsersManagement.membershipType') }} *
+        </v-card-text>
+        <v-card-text class="d-flex membershipNameField py-0">
+          <select
+            ref="membershipTypeInput"
+            v-model="membership.membershipType"
+            :disabled="saving"
+            class="input-block-level ignore-vuetify-classes"
+            required>
+            <option
+              v-for="membershipType in membershipTypes"
+              :key="membershipType.name"
+              :value="membershipType.name">
+              {{ membershipType.name }}
+            </option>
+          </select>
+        </v-card-text>
+
+        <v-card-text class="d-flex membershipUser flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('GroupsManagement.user') }} *
+        </v-card-text>
+        <v-card-text class="d-flex membershipUserField py-0">
+          <v-autocomplete
+            ref="userNameInput"
+            v-model="membership.userName"
+            :disabled="saving || !newMembership"
+            :loading="loadingSuggestions > 0"
+            :items="users"
+            :search-input.sync="searchTerm"
+            :placeholder="$t('GroupsManagement.addMemberInGroup')"
+            :required="!membership.userName"
+            :return-object="false"
+            name="membershipUser"
+            height="100"
+            append-icon=""
+            menu-props="closeOnClick, maxHeight = 100"
+            class="identitySuggester"
+            content-class="identitySuggesterContent"
+            width="100%"
+            max-width="100%"
+            item-text="fullName"
+            item-value="userName"
+            persistent-hint
+            hide-selected
+            chips
+            cache-items
+            dense
+            flat
+            single-line
+            @update:search-input="searchTerm = $event">
+            <template slot="no-data">
+              <v-list-item class="pa-0">
+                <v-list-item-title class="px-2">
+                  {{ $t('GroupsManagement.label.addMembers') }}
+                </v-list-item-title>
+              </v-list-item>
+            </template>
+            <template slot="selection" slot-scope="{item, selected}">
+              <v-chip
+                :input-value="selected"
+                :close="newMembership"
+                class="identitySuggesterItem"
+                @click:close="membership.userName = null">
+                <span class="text-truncate">
+                  {{ item.fullName }}
+                </span>
+              </v-chip>
+            </template>
+            <template slot="item" slot-scope="{ item }">
+              <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
+            </template>
+          </v-autocomplete>
+        </v-card-text>
+      </v-form>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          :disabled="saving"
+          class="btn mr-2"
+          @click="cancel">
+          {{ $t('GroupsManagement.button.cancel') }}
+        </v-btn>
+        <v-btn
+          :disabled="saving"
+          :loading="saving"
+          class="btn btn-primary"
+          @click="saveMembership">
+          {{ $t('GroupsManagement.button.save') }}
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    error: null,
+    fieldError: false,
+    drawer: false,
+    newMembership: false,
+    saving: false,
+    confirmNewPassword: null,
+    previousSearchTerm: null,
+    searchTerm: null,
+    loadingSuggestions: 0,
+    membershipTypes: [],
+    users: [],
+    group: {},
+    membership: {},
+  }),
+  computed: {
+    title() {
+      if (this.newMembership) {
+        return this.$t('GroupsManagement.addMemberInGroup');
+      } else {
+        return this.$t('GroupsManagement.editMembership');
+      }
+    },
+  },
+  watch: {
+    searchTerm(value) {
+      if (value && value.length) {
+        window.setTimeout(() => {
+          if (this.previousSearchTerm === this.searchTerm) {
+            this.users = [];
+
+            this.loadingSuggestions++;
+            this.$userService.getUsersByStatus(value, 0, 20, 'ANY')
+              .then(data => this.users = data && data.entities || [])
+              .finally(() => this.loadingSuggestions--);
+          }
+          this.previousSearchTerm = this.searchTerm;
+        }, 400);
+      } else {
+        this.users = [];
+      }
+    },
+    saving() {
+      if (this.saving) {
+        this.$refs.membershipFormDrawer.startLoading();
+      } else {
+        this.$refs.membershipFormDrawer.endLoading();
+      }
+    },
+    drawer() {
+      if (this.drawer) {
+        this.$refs.membershipFormDrawer.open();
+        window.setTimeout(() => {
+          this.$refs.membershipTypeInput.focus();
+        }, 200);
+      } else {
+        this.$refs.membershipFormDrawer.close();
+      }
+    },
+  },
+  created() {
+    this.$root.$on('addNewMembership', this.addNewMembership);
+    this.$root.$on('editMembership', this.editMembership);
+
+    return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/membershipTypes`, {
+      method: 'GET',
+      credentials: 'include',
+    }).then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Response code indicates a server error', resp);
+      } else {
+        return resp.json();
+      }
+    }).then(data => {
+      this.membershipTypes = data || [];
+    });
+  },
+  methods: {
+    resetCustomValidity() {
+      this.$refs.membershipTypeInput.setCustomValidity('');
+    },
+    addNewMembership(group) {
+      this.membership = {};
+      this.group = group;
+      this.newMembership = true;
+      this.drawer = true;
+    },
+    editMembership(membership, group) {
+      this.membership = Object.assign({}, membership);
+      this.group = group;
+      this.newMembership = false;
+      this.refreshUserSelection(this.membership.userName);
+      this.drawer = true;
+    },
+    saveMembership(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      this.error = null;
+      this.fieldError = false;
+      this.resetCustomValidity();
+
+      if (!this.$refs.membershipForm.validate() // Vuetify rules
+          || !this.$refs.membershipForm.$el.reportValidity()) { // Standard HTML rules
+        return;
+      }
+
+      this.saving = true;
+      this.membership.groupId = this.group.id;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id || ''}`, {
+        method: this.newMembership && 'POST' || 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.membership),
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          if (resp.status === 400) {
+            return resp.text().then(error => {
+              this.fieldError = error;
+              throw new Error(error);
+            });
+          } else {
+            throw new Error('Response code indicates a server error');
+          }
+        }
+      }).then(() => this.$root.$emit('refreshGroupMemberships'))
+        .then(() => this.$refs.membershipFormDrawer.close())
+        .catch(this.handleError)
+        .finally(() => this.saving = false);
+    },
+    cancel() {
+      this.drawer = false;
+    },
+    handleError(error) {
+      this.resetCustomValidity();
+
+      if (error) {
+        if (this.fieldError && this.fieldError === 'MEMBERSHIP:ALREADY_EXISTS') {
+          this.$refs.membershipTypeInput.setCustomValidity(this.$t('GroupsManagement.message.sameMembershipAlreadyExists'));
+        } else {
+          this.error = String(error);
+
+          window.setTimeout(() => {
+            this.error = null;
+          }, 5000);
+        }
+
+        window.setTimeout(() => {
+          if (!this.$refs.membershipForm.validate() // Vuetify rules
+              || !this.$refs.membershipForm.$el.reportValidity()) { // Standard HTML rules
+            return;
+          }
+        }, 200);
+      } else {
+        this.error = null;
+      }
+    },
+    refreshUserSelection(value) {
+      if (value) {
+        this.loadingSuggestions++;
+        this.$userService.getUsersByStatus(value, 0, 20, 'ANY')
+          .then(data => this.users = data && data.entities || [])
+          .finally(() => this.loadingSuggestions--);
+      }
+    },
+  },
+};
+</script>

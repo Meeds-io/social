@@ -17,28 +17,32 @@
 package org.exoplatform.social.core.identity;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.search.UserSearchServiceImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
-public class UserSearchServiceImpl implements UserSearchService {
+public class SocialUserSearchServiceImpl extends UserSearchServiceImpl {
 
   private IdentityStorage     identityStorage;
 
   private OrganizationService organizationService;
 
-  public UserSearchServiceImpl(OrganizationService organizationService, IdentityStorage identityStorage) {
+  public SocialUserSearchServiceImpl(OrganizationService organizationService, IdentityStorage identityStorage) {
+    super(organizationService);
     this.identityStorage = identityStorage;
     this.organizationService = organizationService;
   }
 
   @Override
-  public ListAccess<User> searchUsers(String keyword) throws Exception {
+  public ListAccess<User> searchUsers(String term, UserStatus userStatus) throws Exception {
+    if (userStatus == UserStatus.DISABLED || userStatus == UserStatus.ANY) {
+      return super.searchUsers(term, userStatus);
+    }
+
     ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setName(keyword);
+    profileFilter.setName(term);
     profileFilter.setSearchEmail(true);
     profileFilter.setSorting(new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC));
     return new UserFilterListAccess(organizationService, identityStorage, profileFilter);
