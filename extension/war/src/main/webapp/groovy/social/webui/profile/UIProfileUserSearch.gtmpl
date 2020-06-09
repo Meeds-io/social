@@ -20,7 +20,7 @@
 	  CancelRequest: '${cancelRequestLabel}',
 	  RemoveConnection: '${removeConnectionLabel}',
 	  Ignore: '${ignoreLabel}',
-      Disabled: '${disabledLabel}'
+	  Disabled: '${disabledLabel}'
 	} """
 
 	def params = """ {
