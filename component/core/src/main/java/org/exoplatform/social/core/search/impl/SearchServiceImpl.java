@@ -62,7 +62,7 @@ public class SearchServiceImpl implements SearchService, Startable {
     // Nothing to stop
   }
 
-  public void addPlugin(SearchConnectorPlugin connectorPlugin) {
+  public void addConnector(SearchConnectorPlugin connectorPlugin) {
     if (connectorPlugin == null) {
       throw new IllegalArgumentException("connectorPlugin parameter is mandatory");
     }

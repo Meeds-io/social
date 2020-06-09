@@ -53,7 +53,7 @@ public class SearchServiceTest {
   }
 
   @Test
-  public void testAddPlugin() {
+  public void testAddConnector() {
     InitParams params = new InitParams();
     ObjectParameter objectParameter = new ObjectParameter();
     SearchConnector searchConnector = new SearchConnector();
@@ -64,7 +64,7 @@ public class SearchServiceTest {
     params.addParam(objectParameter);
 
     SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
-    searchService.addPlugin(connectorPlugin);
+    searchService.addConnector(connectorPlugin);
 
     assertNotNull(searchService.getConnectors());
     assertEquals(1, searchService.getConnectors().size());
@@ -82,7 +82,7 @@ public class SearchServiceTest {
     params.addParam(objectParameter);
 
     SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
-    searchService.addPlugin(connectorPlugin);
+    searchService.addConnector(connectorPlugin);
 
     assertNotNull(searchService.getConnectors());
     assertEquals(1, searchService.getConnectors().size());
@@ -122,7 +122,7 @@ public class SearchServiceTest {
     params.addParam(objectParameter);
 
     SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
-    searchService.addPlugin(connectorPlugin);
+    searchService.addConnector(connectorPlugin);
 
     assertNotNull(searchService.getConnectors());
     assertEquals(1, searchService.getConnectors().size());
@@ -149,7 +149,7 @@ public class SearchServiceTest {
     params.addParam(objectParameter);
 
     SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
-    searchService.addPlugin(connectorPlugin);
+    searchService.addConnector(connectorPlugin);
 
     assertNotNull(searchService.getConnectors());
     assertEquals(1, searchService.getConnectors().size());
