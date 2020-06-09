@@ -289,7 +289,7 @@
                  });
                  var fullName = json.fullName;
                  if (!isEnable){
-                     fullName=fullName + " (" + "Disabled   " +")";
+                     fullName=fullName + " (" + labels.Disabled +")";
                  }
                  var aProfile = $("<a/>", {
                      "target":"_self",
