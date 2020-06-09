@@ -54,7 +54,6 @@
   def labelUnlike = _ctx.appRes("UIActivity.label.Unlike");
   def labelSource = _ctx.appRes("UIActivity.label.Source");
   def inputWriteAComment = _ctx.appRes("UIActivity.input.Add_your_comment").replace("'", "\\'");
-  def labelShowPreviousComments = _ctx.appRes("UIActivity.label.Show_Previous_Comments");
   
   def captionConfirmation=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Confirmation"));
   def labelToDeleteThisActivity=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.msg.Are_You_Sure_To_Delete_This_Activity"));
@@ -62,16 +61,9 @@
   def labelClosebutton=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.label.Cancel_Delete_Activity-Button"));
   def labelToDeleteThisComment=StringEscapeUtils.escapeHtml(_ctx.appRes("UIActivity.msg.Are_You_Sure_To_Delete_This_Comment"));
 
-  def likeActivityAction = uicomponent.event("LikeActivity", "true");
-  def unlikeActivityAction = uicomponent.event("LikeActivity", "false");
+  int allCommentSize = uicomponent.getAllCommentSize();y
+  mechya m3aya 
 
-  def commentList = uicomponent.getComments();
-  int allCommentSize = uicomponent.getAllCommentSize();
-  
-  def parentCommentsSize = uicomponent.getParentCommentsSize(commentList);
-  def commentsHidden = allCommentSize-parentCommentsSize;
-  
-  def commentListStatus = uicomponent.getCommentListStatus();
   def commentFormDisplayed = uicomponent.isCommentFormDisplayed();
   def placeholder = _ctx.appRes("UIActivity.comment.placeholder").replace("'", "\\'");
 
