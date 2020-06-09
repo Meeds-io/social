@@ -1,10 +1,5 @@
 <template>
-  <v-col
-    :class="flipCard && 'spaceCardFlip spaceCardFlipped' || 'spaceCardFlip'"
-    cols="12"
-    md="6"
-    lg="4"
-    xl="3">
+  <v-flex :class="flipCard && 'spaceCardFlip spaceCardFlipped' || 'spaceCardFlip'">
     <div class="spaceCardFront">
       <exo-space-card-front
         :space="space"
@@ -19,7 +14,7 @@
         :space="space"
         @flip="flipCard = false" />
     </div>
-  </v-col>
+  </v-flex>
 </template>
 
 <script>

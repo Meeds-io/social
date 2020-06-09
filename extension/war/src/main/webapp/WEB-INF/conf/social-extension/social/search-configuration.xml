@@ -50,8 +50,14 @@
             <field name="enabled">
               <boolean>${exo.search.user.enabled:true}</boolean>
             </field>
-            <field name="module">
+            <field name="jsModule">
               <string>SHARED/PeopleSearchResultCard</string>
+            </field>
+            <field name="cssModule">
+              <string>social-portlet/ProfileSearch</string>
+            </field>
+            <field name="i18nBundle">
+              <string>locale.portlet.social.PeopleListApplication</string>
             </field>
             <field name="uiComponent">
               <string>people-search-result-card</string>
@@ -79,8 +85,14 @@
             <field name="enabled">
               <boolean>${exo.search.space.enabled:true}</boolean>
             </field>
-            <field name="module">
+            <field name="jsModule">
               <string>SHARED/SpaceSearchResultCard</string>
+            </field>
+            <field name="cssModule">
+              <string>social-portlet/SpaceSearch</string>
+            </field>
+            <field name="i18nBundle">
+              <string>locale.portlet.social.SpacesListApplication</string>
             </field>
             <field name="uiComponent">
               <string>space-search-result-card</string>

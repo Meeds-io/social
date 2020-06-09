@@ -27,28 +27,40 @@ public class SearchConnector implements Cloneable {
 
   private boolean enabled;
 
-  private String  module;
+  private String  jsModule;
+
+  private String  cssModule;
+
+  private String  i18nBundle;
 
   private String  uiComponent;
 
   public SearchConnector() {
   }
 
-  public SearchConnector(String name, String uri, boolean enabled, String module, String uiComponent) {
+  public SearchConnector(String name,
+                         String uri,
+                         boolean enabled,
+                         String jsModule,
+                         String cssModule,
+                         String i18nBundle,
+                         String uiComponent) {
     super();
     this.name = name;
     this.uri = uri;
     this.enabled = enabled;
-    this.module = module;
+    this.jsModule = jsModule;
+    this.cssModule = cssModule;
+    this.i18nBundle = i18nBundle;
     this.uiComponent = uiComponent;
   }
 
-  public String getModule() {
-    return module;
+  public String getJsModule() {
+    return jsModule;
   }
 
-  public void setModule(String module) {
-    this.module = module;
+  public void setJsModule(String module) {
+    this.jsModule = module;
   }
 
   public String getUiComponent() {
@@ -83,6 +95,22 @@ public class SearchConnector implements Cloneable {
     this.enabled = enabled;
   }
 
+  public String getCssModule() {
+    return cssModule;
+  }
+
+  public void setCssModule(String cssModule) {
+    this.cssModule = cssModule;
+  }
+
+  public String getI18nBundle() {
+    return i18nBundle;
+  }
+
+  public void setI18nBundle(String i18nBundle) {
+    this.i18nBundle = i18nBundle;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -111,6 +139,6 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, enabled, module, uiComponent);
+    return new SearchConnector(name, uri, enabled, jsModule, cssModule, i18nBundle, uiComponent);
   }
 }

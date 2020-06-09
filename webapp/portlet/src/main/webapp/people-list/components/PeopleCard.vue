@@ -1,10 +1,5 @@
 <template>
-  <v-col
-    :class="flipCard && 'peopleCardFlip peopleCardFlipped' || 'peopleCardFlip'"
-    cols="12"
-    md="6"
-    lg="4"
-    xl="3">
+  <v-flex :class="flipCard && 'peopleCardFlip peopleCardFlipped' || 'peopleCardFlip'">
     <div class="peopleCardFront">
       <people-card-front
         :user="user"
@@ -19,7 +14,7 @@
         :user="user"
         @flip="flipCard = false" />
     </div>
-  </v-col>
+  </v-flex>
 </template>
 
 <script>

@@ -4,21 +4,35 @@
       <v-item-group>
         <v-container class="pa-0">
           <v-row v-if="skeleton" class="ma-0 border-box-sizing">
-            <people-card
+            <v-col
               v-for="i in pageSize"
               :key="i"
-              :user="{}"
-              :skeleton="skeleton"
-              :profile-action-extensions="profileActionExtensions"
-              @refresh="searchPeople" />
+              cols="12"
+              md="6"
+              lg="4"
+              xl="3"
+              class="pa-0">
+              <people-card
+                :user="{}"
+                :skeleton="skeleton"
+                :profile-action-extensions="profileActionExtensions"
+                @refresh="searchPeople" />
+            </v-col>
           </v-row>
           <v-row v-else-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
-            <people-card
+            <v-col
               v-for="user in filteredPeople"
               :key="user.id"
-              :user="user"
-              :profile-action-extensions="profileActionExtensions"
-              @refresh="searchPeople" />
+              cols="12"
+              md="6"
+              lg="4"
+              xl="3"
+              class="pa-0">
+              <people-card
+                :user="user"
+                :profile-action-extensions="profileActionExtensions"
+                @refresh="searchPeople" />
+            </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
             <div class="ma-auto noPeopleYet">

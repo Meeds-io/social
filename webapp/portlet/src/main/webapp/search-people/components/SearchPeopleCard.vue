@@ -1,18 +1,27 @@
 <template>
-  <div>
-  </div>
+  <people-card
+    :user="result"
+    :profile-action-extensions="profileActionExtensions"
+    embedded />
 </template>
 
 <script>
 export default {
   props: {
-    connectors: {
+    term: {
+      type: String,
+      default: null,
+    },
+    result: {
       type: Object,
-      default: () => ({}),
+      default: null,
     },
   },
   data: () => ({
-    dialog: false,
+    profileActionExtensions: [],
   }),
+  created() {
+    this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+  },
 };
 </script>
