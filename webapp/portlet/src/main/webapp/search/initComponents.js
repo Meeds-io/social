@@ -1,7 +1,11 @@
 import SearchApplication from './components/SearchApplication.vue';
+import SearchToolbar from './components/SearchToolbar.vue';
+import SearchResults from './components/SearchResults.vue';
 
 const components = {
   'search-application': SearchApplication,
+  'search-toolbar': SearchToolbar,
+  'search-results': SearchResults,
 };
 
 for (const key in components) {
