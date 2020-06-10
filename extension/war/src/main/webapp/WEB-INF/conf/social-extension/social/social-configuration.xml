@@ -214,8 +214,19 @@
       <init-params>
         <values-param>
           <name>templates</name>
-          <description>The actionBar mobile activity template to include in all activity templates</description>
+          <description>The comment box template to include in all activity templates</description>
           <value>war:/groovy/social/webui/activity/commons/UIActivityCommentBox.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin><component-plugin>
+      <name>UIActivityHeading</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The heading template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/commons/UIActivityHeading.gtmpl</value>
         </values-param>
       </init-params>
     </component-plugin>
