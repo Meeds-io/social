@@ -54,7 +54,6 @@ public abstract class UIAbstractUserPortlet extends UIPortletApplication {
     JSONObject object = new JSONObject();
     WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
     object.put("StatusTitle", UserProfileHelper.getLabel(context, "UserProfilePopup.label.Loading"));
-    object.put("statusDisabled", UserProfileHelper.getLabel(context, "UserProfilePopup.label.Disabled"));
     String[] keys = new String[]{"Connect", "Confirm", "CancelRequest", "RemoveConnection", "Ignore"};
     for (int i = 0; i < keys.length; i++) {
       object.put(keys[i], UserProfileHelper.getLabel(context, "UserProfilePopup.label." + keys[i]));
