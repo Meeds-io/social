@@ -27,7 +27,7 @@
   import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
 
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
-  boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled", "true").equals("true");
+  boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled").equals("true");
   if(featureService.isActiveFeature("new-composer")) {
     if (isMainStreamComposerEnabled) {
 %>
