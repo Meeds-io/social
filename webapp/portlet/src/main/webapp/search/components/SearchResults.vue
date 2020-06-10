@@ -14,7 +14,7 @@
     <v-row v-if="resultsArray" class="searchResultsParent mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
-        :key="result.id"
+        :key="result.domId"
         cols="12"
         md="6"
         lg="4"
@@ -25,8 +25,12 @@
     </v-row>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
       <v-btn
+        :loading="searching > 0"
+        :disabled="searching > 0"
         class="btn mx-auto"
-        @click="loadMore">{{ $t('Search.button.loadMore') }}</v-btn>
+        @click="loadMore">
+        {{ $t('Search.button.loadMore') }}
+      </v-btn>
     </v-flex>
   </v-flex>
 </template>
@@ -63,7 +67,7 @@ export default {
       return this.enabledConnectors.map(connector => connector.name);
     },
     resultsArray() {
-      if (!this.results || !this.totalSize) {
+      if (!this.results || !this.totalSize || this.searching < 0) {
         return;
       }
       const connectorNames = Object.keys(this.results);
@@ -100,6 +104,9 @@ export default {
       this.search();
     },
   },
+  created() {
+    this.$root.$on('refresh', this.retrieveConnectorResults);
+  },
   methods: {
     selectConnector(selectedConnector) {
       if (!selectedConnector) {
@@ -132,51 +139,59 @@ export default {
           return;
         }
 
-        window.require([searchConnector.jsModule], connectorModule => {
-          const options = Object.assign({headers: {
-            Accept: 'application/json',
-          }}, signal);
-          if (searchConnector.uri.indexOf('/') === 0) {
-            options.credentials = 'include';
-          } else {
-            options.referrerPolicy = 'no-referrer';
-            options.mode = 'no-cors';
-          }
-          this.searching++;
-          const uri = searchConnector.uri
-            .replace('{keyword}', this.term)
-            .replace('{limit}', this.limit);
-          fetch(uri, options)
-            .then(resp => {
-              if (resp && resp.ok) {
-                return resp.json();
-              }
-            })
-            .then(result => {
-              if (connectorModule && connectorModule.formatSearchResult) {
-                return connectorModule.formatSearchResult(result);
-              } else {
-                return result;
-              }
-            })
-            .then(resultArray => {
-              if (resultArray && resultArray.length) {
-                searchConnector.size = resultArray.length;
-                searchConnector.hasMore = searchConnector.enabled && searchConnector.uri && searchConnector.size >= this.limit;
-                resultArray.forEach(result => {
-                  result.connector = searchConnector;
-                  if (!result.id) {
-                    result.id = `SearchResult${String(parseInt(Math.random() * 10000))}`;
-                  }
-                });
-                this.$set(this.results, searchConnector.name, resultArray);
-                this.totalSize = this.results[searchConnector.name].length;
-                this.$forceUpdate();
-              }
-            })
-            .catch(e => searchConnector.error = e)
-            .finally(() => this.searching--);
-        });
+        this.retrieveConnectorResults(searchConnector, signal);
+      });
+    },
+    retrieveConnectorResults(searchConnector, signal) {
+      if (!searchConnector) {
+        return;
+      }
+
+      return window.require([searchConnector.jsModule], connectorModule => {
+        let options = {headers: {
+          Accept: 'application/json',
+        }};
+        if (signal) {
+          options = Object.assign(options, signal);
+        }
+        if (searchConnector.uri.indexOf('/') === 0) {
+          options.credentials = 'include';
+        } else {
+          options.referrerPolicy = 'no-referrer';
+          options.mode = 'no-cors';
+        }
+        this.searching++;
+        const uri = searchConnector.uri
+          .replace('{keyword}', this.term)
+          .replace('{limit}', this.limit);
+        return fetch(uri, options)
+          .then(resp => {
+            if (resp && resp.ok) {
+              return resp.json();
+            }
+          })
+          .then(result => {
+            if (connectorModule && connectorModule.formatSearchResult) {
+              return connectorModule.formatSearchResult(result);
+            } else {
+              return result;
+            }
+          })
+          .then(resultArray => {
+            if (resultArray && resultArray.length) {
+              searchConnector.size = resultArray.length;
+              searchConnector.hasMore = searchConnector.enabled && searchConnector.uri && searchConnector.size >= this.limit;
+              resultArray.forEach(result => {
+                result.connector = searchConnector;
+                result.domId = `SearchResult${String(parseInt(Math.random() * 100000))}`;
+              });
+              this.$set(this.results, searchConnector.name, resultArray);
+              this.totalSize = this.results[searchConnector.name].length;
+              this.$forceUpdate();
+            }
+          })
+          .catch(e => searchConnector.error = e)
+          .finally(() => this.searching--);
       });
     },
   },

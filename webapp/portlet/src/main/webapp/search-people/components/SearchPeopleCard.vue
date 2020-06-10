@@ -2,7 +2,8 @@
   <people-card
     :user="result"
     :profile-action-extensions="profileActionExtensions"
-    embedded />
+    embedded
+    @refresh="$emit('refresh')" />
 </template>
 
 <script>

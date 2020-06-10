@@ -28,14 +28,20 @@ export default {
         messages: this.$i18n.messages,
       });
 
+      const self = this;
       const SearchResultItem = Vue.extend({
         data: () => ({
           result: this.result,
           term: this.term,
           id: this.id,
         }),
+        methods: {
+          refresh() {
+            self.$root.$emit('refresh', self.result.connector);
+          },
+        },
         template: `
-          <${this.result.connector.uiComponent} :id="id" :result="result" :term="term" />
+          <${this.result.connector.uiComponent} :id="id" :result="result" :term="term" @refresh="refresh" />
         `,
       });
 
