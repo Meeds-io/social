@@ -25,18 +25,26 @@ if (extensionRegistry) {
 }
 
 // getting locale resources
-export function init() {
+export function init(params) {
   getActivityComposerActionExtensions().forEach(extension => {
     if(extension.resourceBundle) {
       urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
     }
   });
-
+  params = params ? params : '';
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale resources are ready
     new Vue({
       el: '#activityComposer',
-      template: '<exo-activity-composer></exo-activity-composer>',
+      data: function() {
+        return {
+          composerAction: params.composerAction || 'post',
+          activityBody: params.activityBody || '',
+          ckEditorType: params.ckEditorType || 'activityContent',
+          activityId: params.activityId || '',
+        };
+      },
+      template: '<exo-activity-composer :message="activityBody" :activity-id="activityId" :composer-action="composerAction" :ck-editor-type="ckEditorType"></exo-activity-composer>',
       i18n,
       vuetify
     });

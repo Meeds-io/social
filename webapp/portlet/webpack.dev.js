@@ -6,7 +6,7 @@ const webpackCommonConfig = require('./webpack.common.js');
 const app = 'social-portlet';
 
 // add the server path to your server location path
-const exoServerPath = "/exo-server";
+const exoServerPath = "/work/plf-enterprise-tomcat-standalone-6.0.x-20200607.175905-848/platform-6.0.x-SNAPSHOT";
 
 let config = merge(webpackCommonConfig, {
   output: {

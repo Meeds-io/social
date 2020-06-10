@@ -329,37 +329,16 @@
         });
         }
 
-        var editActivityEl = $("[data-edit-activity='" + activityId + "']");
+        var editActivityEl = $("#EditActivitylink" + activityId);
         if (editActivityEl.length > 0) {
           editActivityEl.off('click').on('click', function (evt) {
             evt.stopPropagation();
-            var currentComposerEditInput = 'composerEditInput' + activityId;
             $('#dropDownEditActivity'+ activityId + '.actLink').removeClass("open");
             $('#dropDownEditActivity'+ activityId + '.actionLink').removeClass("open");
-
-            if (!$('#ActivityContextBox'+activityId+' .description').is(":visible") &&
-                $('#ActivityContextBox'+activityId+' .blastInputPeople').first().is(":visible")) {
-              try {
-               if(CKEDITOR.instances[currentComposerEditInput]) {
-                   CKEDITOR.instances[currentComposerEditInput].destroy();
-               }
-              } catch(e){
-               console.log(e);
-              }
-              $('textarea#composerEditInput' + activityId).hide();
-              $('#ActivityContextBox'+activityId+' .blastInputPeople').first().hide();
-              $('#ActivityContextBox'+activityId+' .description').show();
-
-            } else {
-              $('#ActivityContextBox'+activityId+' .blastInputPeople').first().show();
-              $('#ActivityContextBox'+activityId+' .description').hide();
-              $('textarea#composerEditInput' + activityId).show();
-              $('.dropdown-backdrop').remove();
-
-              self.initCKEditorForActivityEditing(currentComposerEditInput, $('#ActivityContextBox'+activityId+' .description'), $('#EditActivityButton' + activityId));
-            }
+            $('#editActivityComposer'+ activityId + ' .editActivityDrawer'+ activityId + '.drawer').addClass("open");
+            $('#editActivityComposer'+ activityId + ' .composerActions').css('display', 'block');
+            $('.activityComposer .drawer-backdrop-activity'+activityId).css('display', 'block');
           });
-
         }
 
        $("[data-edit-comment]").each(function(){

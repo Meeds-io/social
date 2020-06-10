@@ -27,6 +27,11 @@ import java.util.Map;
  */
 public class ActivityRestIn {
   /**
+   * The id.
+   */
+  private String              id;
+
+  /**
    * The title.
    */
   private String              title;
@@ -61,6 +66,14 @@ public class ActivityRestIn {
    * The activity files
    */
   private List<ActivityFileRestIn> files;
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
 
   /**
    * Gets the activity title, required value.
