@@ -47,12 +47,10 @@ public class UISpaceActivityStreamPortlet extends UIPortletApplication {
    */
   public UISpaceActivityStreamPortlet() throws Exception {
     UIComposer uiComposer = addChild(UIComposer.class, null, null);
-    uiComposer.setPostContext(UIComposer.PostContext.SPACE);
 
     uiDisplaySpaceActivities = addChild(UISpaceActivitiesDisplay.class, null, null);
     space = getSpaceService().getSpaceByUrl(Utils.getSpaceUrlByContext());
     uiDisplaySpaceActivities.setSpace(space);
-    uiComposer.setActivityDisplay(uiDisplaySpaceActivities);
     addChild(PopupContainer.class, null, "HiddenContainer_" + hashCode());
   }
 

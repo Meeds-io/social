@@ -24,7 +24,6 @@
 <%
   import org.exoplatform.container.ExoContainerContext;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
-  import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
 
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
   boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled").equals("true");
@@ -41,9 +40,3 @@
     }
   }
 %>
-
-<div id="ComposerContainer" class="clearfix">
-  <%
-    uicomponent.renderChild(UIActivityComposerContainer.class);
-  %>
-</div>

@@ -69,19 +69,17 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
     viewerName = Utils.getViewerRemoteId();
     ownerName = Utils.getOwnerRemoteId();
     uiComposer = addChild(UIComposer.class, null, null);
-    activityId = Utils.getActivityID();    
+    activityId = Utils.getActivityID();
     
     if (activityId != null) {
-      uiComposer.setPostContext(PostContext.SINGLE);
       uiComposer.setRendered(false);
       composerDisplayed = false;
-    } else {      
-      uiComposer.setPostContext(PostContext.USER);
-      composerDisplayed = true;             
-    }  
+    } else {
+      composerDisplayed = true;
+    }
 	  
     uiUserActivitiesDisplay = addChild(UIUserActivitiesDisplay.class, null, "UIUserActivitiesDisplay");
-    uiComposer.setActivityDisplay(uiUserActivitiesDisplay);
+    //uiComposer.setActivityDisplay(uiUserActivitiesDisplay);
     addChild(PopupContainer.class, null, "HiddenContainer");
   }
 
@@ -123,11 +121,8 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
     viewerName = Utils.getViewerRemoteId();
     ownerName = Utils.getOwnerRemoteId();
     if (viewerName.equals(ownerName)) {
-      uiComposer.isActivityStreamOwner(true);
       uiComposer.setRendered(true);
     } else {
-      uiComposer.isActivityStreamOwner(false);
-
       Relationship relationship = Utils.getRelationshipManager().get(Utils.getViewerIdentity(), Utils.getOwnerIdentity());
       if (relationship != null && (relationship.getStatus() == Relationship.Type.CONFIRMED)) {
         uiComposer.setRendered(true);
