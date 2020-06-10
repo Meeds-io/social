@@ -49,8 +49,9 @@
   }
 %>
 <div class="activityAvatar avatarCircle">
-  <a  href="$ownerUri">
-    <img alt="$ownerName" src="$ownerAvatar"/>
+  <a  class="activityHeadingAvatar" href="$ownerUri"
+    style="background-image:url('$ownerAvatar');">
+    <!--<img alt="$ownerName" src="$ownerAvatar"/>-->
   </a>
 </div>
 <div class="activityAuthorAndDate">

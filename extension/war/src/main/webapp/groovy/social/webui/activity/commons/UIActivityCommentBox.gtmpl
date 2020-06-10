@@ -116,8 +116,7 @@ def commentId = it.parentCommentId == null ? it.id : it.parentCommentId;
 <div id="CommentBlock${it.id}" class="commentItem">
 <% }  %>
 <div class="commmentLeft">
-<a href="$commenterProfileUri" title="$commenterFullName" class="avatarXSmall">
-<img alt="$commenterFullName" src="$commenterAvatarImgSrc" />
+<a href="$commenterProfileUri" title="$commenterFullName" style="background-image:url('$commenterAvatarImgSrc');" class="avatarXSmall commenterAvatar">
 </a>
 				</div><!--end commentLeft-->
 <div class="commentRight">
@@ -198,8 +197,8 @@ String idDeleteComment = "DeleteCommentButton${it.id}";
 			  <div class="commentItem commentFormBox" id="CommentFormBlock${activity.id}">
 			<% } %>
 					<div class="commmentLeft">
-						<a title="$currentCommenterName" href="$currentCommenterUri" class="avatarXSmall">
-						   <img alt="$currentCommenterName" src="$currentCommenterAvatar"/>
+						<a title="$currentCommenterName" href="$currentCommenterUri" style="background-image:url('$currentCommenterAvatar');" class="avatarXSmall  commenterAvatar">
+
 </a>
 					</div><!--end commentLeft-->
 <div class="commentRight">

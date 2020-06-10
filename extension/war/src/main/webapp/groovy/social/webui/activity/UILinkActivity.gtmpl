@@ -229,7 +229,7 @@
 				</div><!--end introBox,linkShare-->
 				 <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
 				<% if (embedHtml != null) { %>
-          <ul class="statusAction">
+          <ul class="statusAction uiActivityActions">
             <li>
               <a href="<%=uicomponent.event("ViewDocument")%>"><i class="uiIconWatch uiIconLightGray"></i>&nbsp;<%=_ctx.appRes("SocialIntegration.view");%></a>
             </li>
