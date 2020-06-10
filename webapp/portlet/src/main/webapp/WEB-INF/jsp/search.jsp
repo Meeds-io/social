@@ -1,4 +1,3 @@
-<%@page import="java.util.stream.Collectors"%>
 <%@page import="org.exoplatform.portal.resource.SkinService"%>
 <%@page import="org.exoplatform.services.resources.Orientation"%>
 <%@page import="org.exoplatform.portal.resource.SkinURL"%>
@@ -13,7 +12,7 @@
 <%
   SearchService searchService = ExoContainerContext.getService(SearchService.class);
   SkinService skinService = ExoContainerContext.getService(SkinService.class);
-  Set<SearchConnector> connectors = searchService.getConnectors();
+  Set<SearchConnector> connectors = searchService.getEnabledConnectors();
   String jsonSearchConnectors = EntityBuilder.toJsonString(connectors);
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   ControllerContext controllerContext = rcontext.getControllerContext();

@@ -111,6 +111,42 @@ public class SearchServiceTest {
   }
 
   @Test
+  public void testGetEnabledConnectors() {
+    InitParams params = new InitParams();
+    ObjectParameter objectParameter = new ObjectParameter();
+    SearchConnector searchConnector = new SearchConnector();
+    searchConnector.setEnabled(true);
+    searchConnector.setName("testConnector");
+    searchConnector.setUri("uri");
+    objectParameter.setObject(searchConnector);
+    params.addParam(objectParameter);
+
+    SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
+    searchService.addConnector(connectorPlugin);
+
+    assertNotNull(searchService.getEnabledConnectors());
+    assertEquals(1, searchService.getEnabledConnectors().size());
+
+    try {
+      searchService.getEnabledConnectors().iterator().remove();
+      fail("Returned list must be unmodifiable");
+    } catch (Exception e) {
+      // Expected
+    }
+
+    SearchConnector searchConnectorResult = searchService.getEnabledConnectors().iterator().next();
+    assertNotNull(searchConnectorResult);
+
+    assertTrue(searchConnectorResult.isEnabled());
+    assertEquals("testConnector", searchConnectorResult.getName());
+    assertEquals("uri", searchConnectorResult.getUri());
+
+    searchService.setConnectorAsEnabled(searchConnector.getName(), false);
+    assertNotNull(searchService.getEnabledConnectors());
+    assertEquals(0, searchService.getEnabledConnectors().size());
+  }
+
+  @Test
   public void testSetConnectorAsEnabled() {
     InitParams params = new InitParams();
     ObjectParameter objectParameter = new ObjectParameter();

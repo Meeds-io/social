@@ -75,6 +75,14 @@ public class SearchServiceImpl implements SearchService, Startable {
   }
 
   @Override
+  public Set<SearchConnector> getEnabledConnectors() {
+    return Collections.unmodifiableSet(connectors.stream()
+                                                 .filter(SearchConnector::isEnabled)
+                                                 .map(SearchConnector::clone)
+                                                 .collect(Collectors.toSet()));
+  }
+
+  @Override
   public List<String> getEnabledConnectorNames() {
     SettingValue<?> enabledSearchTypes = settingService.get(SEARCH_CONNECTORS_CONTEXT,
                                                             SEARCH_CONNECTORS_SCOPE,
