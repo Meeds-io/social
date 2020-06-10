@@ -254,26 +254,18 @@ export default {
     template() {
       if (this.template && !this.space.id) {
         this.spaceTemplate = this.templates.find(temp => temp.name === this.template);
-        if (this.spaceTemplate) {
-          this.$set(this.space, 'template', this.template);
-          this.$set(this.space, 'subscription', this.spaceTemplate.registration);
-          this.$set(this.space, 'visibility', this.spaceTemplate.visibility);
-          this.$set(this.space, 'invitedMembers', this.spaceTemplate.invitees && this.spaceTemplate.invitees.split(',') || []);
-          if (this.space.invitedMembers && this.space.invitedMembers.length) {
-            this.space.invitedMembers = this.space.invitedMembers.map(user => ({
-              id: `organization:${user}`,
-              providerId: 'organization',
-              remoteId: user,
-            }));
-          }
-        }
+        this.setSpaceTemplateProperties();
       }
     },
   },
   mounted() {
     this.$root.$on('addNewSpace', () => {
       this.spaceToUpdate = null;
-      this.space = {};
+      this.space = {
+        subscription: 'open',
+        visibility: 'private',
+      };
+      this.setSpaceTemplateProperties();
       this.title= this.$t('spacesList.label.addNewSpace');
       this.$refs.spaceFormDrawer.open();
     });
@@ -287,6 +279,21 @@ export default {
       });
   },
   methods: {
+    setSpaceTemplateProperties() {
+      if (this.spaceTemplate) {
+        this.$set(this.space, 'template', this.template);
+        this.$set(this.space, 'subscription', this.spaceTemplate.registration);
+        this.$set(this.space, 'visibility', this.spaceTemplate.visibility);
+        this.$set(this.space, 'invitedMembers', this.spaceTemplate.invitees && this.spaceTemplate.invitees.split(',') || []);
+        if (this.space.invitedMembers && this.space.invitedMembers.length) {
+          this.space.invitedMembers = this.space.invitedMembers.map(user => ({
+            id: `organization:${user}`,
+            providerId: 'organization',
+            remoteId: user,
+          }));
+        }
+      }
+    },
     editSpace(space) {
       space = space.detail && space.detail.data || space;
       if (!space || !space.id) {
@@ -337,7 +344,7 @@ export default {
           invitedMembers: this.space.invitedMembers,
         })
           .then(space => {
-            Object.assign(this.spaceToUpdate, space, {managers: this.spaceToUpdate.managers});
+            Object.assign(this.spaceToUpdate, space, {managers: this.spaceToUpdate.managers}, {description: space.description || ''});
             this.spaceSaved = true;
 
             window.setTimeout(() => {

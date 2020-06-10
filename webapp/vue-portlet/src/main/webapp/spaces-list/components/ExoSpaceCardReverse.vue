@@ -15,6 +15,7 @@
     </div>
     <v-card-text class="align-center pa-0 flex-grow-1">
       <ellipsis
+        v-show="space.description"
         :title="space.description"
         :data="space.description"
         :line-clamp="3"
