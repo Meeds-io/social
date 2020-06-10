@@ -1,12 +1,14 @@
 <template>
-  <v-list-item class="pr-0">
-    <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
+  <v-list-item class="pr-0 my-2">
+    <v-list-item-content class="align-start">
       <input
+        id="searchInput"
         ref="searchInput"
         v-model="term"
         :placeholder="$t('Search.label.inputPlaceHolder')"
         type="text"
-        class="ignore-vuetify-classes fill-width my-auto" />
+        autocomplete="off"
+        class="fill-width my-auto no-border no-box-shadow headline" />
     </v-list-item-content>
     <v-list-item-action class="align-end d-flex flex-row mx-0">
       <v-btn icon class="searchCloseIcon transparent mx-4" @click="$emit('close-search')">
