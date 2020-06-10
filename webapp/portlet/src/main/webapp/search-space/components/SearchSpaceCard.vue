@@ -1,8 +1,14 @@
 <template>
-  <exo-space-card
-    :space="result"
-    :profile-action-extensions="profileActionExtensions"
-    embedded />
+  <div>
+    <exo-space-card
+      :space="result"
+      :profile-action-extensions="profileActionExtensions"
+      embedded
+      @refresh="$emit('refresh')" />
+
+    <exo-space-managers-drawer />
+    <exo-space-form-drawer />
+  </div>
 </template>
 
 <script>
@@ -19,6 +25,7 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
+    displayDrawers: false,
   }),
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
