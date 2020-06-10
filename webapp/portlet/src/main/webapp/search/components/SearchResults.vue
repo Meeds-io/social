@@ -1,16 +1,34 @@
 <template>
-  <v-row v-if="resultsArray" class="searchResultsParent mx-4 border-box-sizing">
-    <v-col
-      v-for="(result, index) in resultsArray"
-      :key="index"
-      cols="12"
-      md="6"
-      lg="4"
-      xl="3"
-      class="searchCard pa-0">
-      <search-result-card :result="result" :term="term" />
-    </v-col>
-  </v-row>
+  <v-flex>
+    <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+      <v-chip
+        v-for="connector in connectors"
+        :key="connector.name"
+        :outlined="!connector.enabled"
+        :color="connector.enabled ? 'primary' : ''"
+        class="mx-1 border-color"
+        @click="selectConnector(connector)">
+        <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
+      </v-chip>
+    </v-flex>
+    <v-row v-if="resultsArray" class="searchResultsParent mx-4 border-box-sizing">
+      <v-col
+        v-for="result in resultsArray"
+        :key="result.id"
+        cols="12"
+        md="6"
+        lg="4"
+        xl="3"
+        class="searchCard pa-0">
+        <search-result-card :result="result" :term="term" />
+      </v-col>
+    </v-row>
+    <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
+      <v-btn
+        class="btn mx-auto"
+        @click="loadMore">{{ $t('Search.button.loadMore') }}</v-btn>
+    </v-flex>
+  </v-flex>
 </template>
 
 <script>
@@ -19,10 +37,6 @@ export default {
     term: {
       type: String,
       default: null,
-    },
-    pageSize: {
-      type: Number,
-      default: 10,
     },
     connectors: {
       type: Array,
@@ -33,19 +47,48 @@ export default {
     term: null,
     totalSize: 0,
     results: null,
+    pageSize: 10,
+    limit: 10,
     searching: 0,
     abortController: null,
   }),
   computed: {
+    hasMore() {
+      return this.totalSize && this.enabledConnectors && this.enabledConnectors.filter(connector => connector.hasMore).length;
+    },
+    enabledConnectors() {
+      return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
+    },
+    enabledConnectorNames() {
+      return this.enabledConnectors.map(connector => connector.name);
+    },
     resultsArray() {
-      return this.results && this.totalSize ? Object.values(this.results).flat() : null;
+      if (!this.results || !this.totalSize) {
+        return;
+      }
+      const connectorNames = Object.keys(this.results);
+      const results = {};
+      connectorNames.forEach(connectorName => {
+        if (this.enabledConnectorNames.includes(connectorName)) {
+          results[connectorName] = this.results[connectorName];
+        }
+      });
+      return Object.values(results).flat();
     },
   },
   watch: {
+    searching(newValue, oldValue) {
+      if (newValue && !oldValue) {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      } else if (oldValue && !newValue) {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      }
+    },
     term() {
+      this.totalSize = 0;
+      this.limit = this.pageSize;
       if (this.term) {
         this.results = {};
-        this.totalSize = 0;
       }
       this.connectors.forEach(connector => {
         connector.size = -1;
@@ -58,6 +101,17 @@ export default {
     },
   },
   methods: {
+    selectConnector(selectedConnector) {
+      if (!selectedConnector) {
+        return;
+      }
+      selectedConnector.enabled = !selectedConnector.enabled;
+      return this.$nextTick().then(this.search);
+    },
+    loadMore() {
+      this.limit += this.pageSize;
+      this.search();
+    },
     search() {
       if (this.abortController) {
         this.abortController.abort();
@@ -72,10 +126,9 @@ export default {
         signal = this.abortController.signal;
       }
 
-      this.connectors.forEach(searchConnector => {
-        if (!searchConnector.enabled
-            || !searchConnector.uri
-            || searchConnector.size >= 0 && searchConnector.size < this.pageSize) {
+      this.enabledConnectors.forEach(searchConnector => {
+        // If not first loading or connector doesn't have more
+        if (searchConnector.size !== -1 && !searchConnector.hasMore) {
           return;
         }
 
@@ -92,7 +145,7 @@ export default {
           this.searching++;
           const uri = searchConnector.uri
             .replace('{keyword}', this.term)
-            .replace('{limit}', this.pageSize);
+            .replace('{limit}', this.limit);
           fetch(uri, options)
             .then(resp => {
               if (resp && resp.ok) {
@@ -109,8 +162,12 @@ export default {
             .then(resultArray => {
               if (resultArray && resultArray.length) {
                 searchConnector.size = resultArray.length;
+                searchConnector.hasMore = searchConnector.enabled && searchConnector.uri && searchConnector.size >= this.limit;
                 resultArray.forEach(result => {
                   result.connector = searchConnector;
+                  if (!result.id) {
+                    result.id = `SearchResult${String(parseInt(Math.random() * 10000))}`;
+                  }
                 });
                 this.$set(this.results, searchConnector.name, resultArray);
                 this.totalSize = this.results[searchConnector.name].length;

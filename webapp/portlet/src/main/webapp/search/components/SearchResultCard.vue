@@ -15,9 +15,7 @@ export default {
     },
   },
   data: () => ({
-    id: `SearchResult${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
+    id: `SearchResult${String(parseInt(Math.random() * 10000))}`,
   }),
   mounted() {
     if (this.result && this.result.connector) {

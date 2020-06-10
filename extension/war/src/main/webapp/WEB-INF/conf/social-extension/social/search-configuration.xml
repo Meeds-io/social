@@ -42,13 +42,13 @@
           <description>Search connector for users</description>
           <object type="org.exoplatform.social.core.search.SearchConnector">
             <field name="name">
-              <string>user</string>
+              <string>people</string>
             </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/users?q={keyword}&limit={limit}]]></string>
             </field>
             <field name="enabled">
-              <boolean>${exo.search.user.enabled:true}</boolean>
+              <boolean>${exo.search.people.enabled:true}</boolean>
             </field>
             <field name="jsModule">
               <string>SHARED/PeopleSearchResultCard</string>
