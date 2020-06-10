@@ -42,4 +42,9 @@ public interface SearchService {
    */
   public Set<SearchConnector> getConnectors();
 
+  /**
+   * @return a {@link Set} of {@link SearchConnector} set as enabled
+   */
+  public Set<SearchConnector> getEnabledConnectors();
+
 }
