@@ -1001,20 +1001,18 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     if (StringUtils.isNotBlank(model.getDisplayName())) {
       space.setDisplayName(model.getDisplayName());
+      space.setDescription(model.getDescription());
 
       if (StringUtils.isBlank(space.getPrettyName())) {
         space.setPrettyName(model.getDisplayName());
       }
     } else if (StringUtils.isNotBlank(model.getPrettyName())) {
       space.setPrettyName(model.getPrettyName());
+      space.setDescription(model.getDescription());
 
       if (StringUtils.isBlank(space.getDisplayName())) {
         space.setDisplayName(model.getPrettyName());
       }
-    }
-
-    if (StringUtils.isNotBlank(model.getDescription())) {
-      space.setDescription(model.getDescription());
     }
 
     if (StringUtils.isNotBlank(model.getTemplate())) {
@@ -1031,7 +1029,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     if (StringUtils.equalsIgnoreCase(Space.HIDDEN, model.getVisibility())) {
       space.setVisibility(Space.HIDDEN);
-    } else {
+    } else if (StringUtils.equalsIgnoreCase(Space.PRIVATE, model.getVisibility())) {
       space.setVisibility(Space.PRIVATE);
     }
 
@@ -1039,7 +1037,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setRegistration(Space.OPEN);
     } else if (StringUtils.equalsIgnoreCase(Space.CLOSE, model.getSubscription())) {
       space.setRegistration(Space.CLOSE);
-    } else {
+    } else if (StringUtils.equalsIgnoreCase(Space.VALIDATION, model.getSubscription())) {
       space.setRegistration(Space.VALIDATION);
     }
   }
