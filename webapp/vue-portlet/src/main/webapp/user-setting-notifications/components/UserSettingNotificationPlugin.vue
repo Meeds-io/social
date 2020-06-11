@@ -15,7 +15,7 @@
       </v-list-item-action>
     </v-list-item>
 
-    <v-list-item v-if="enabledNotificationLabels && enabledNotificationLabels.length" dense>
+    <v-list-item v-if="hasNotificationSettings" dense>
       <v-list-item-content class="pa-0">
         <v-list-item-title class="text-wrap">
           <template v-if="enabledDigestLabel">
@@ -60,6 +60,12 @@ export default {
   computed: {
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
+    },
+    hasInstantNotificationSettings() {
+      return this.enabledNotificationLabels && this.enabledNotificationLabels.length || this.enabledDigest;
+    },
+    hasNotificationSettings() {
+      return this.hasInstantNotificationSettings || this.enabledDigest;
     },
     enabledDigest() {
       return this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.settings.emailChannel && choice.pluginId === this.plugin.type);

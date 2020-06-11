@@ -206,7 +206,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   public void testCreateSpace() throws Exception {
     startSessionAs("root");
-    String input = "{\"displayName\":social}";
+    String input = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
     //root try to update demo activity
     ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
     assertNotNull(response);
@@ -220,7 +220,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   public void testGetSpace() throws Exception {
     startSessionAs("root");
-    String input = "{\"displayName\":\"test space\"}";
+    String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
     //root creates a space
     ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
     assertNotNull(response);
@@ -243,6 +243,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testGetUpdateDeleteSpaceById() throws Exception {
     //root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
+    space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSE);
+    space = spaceService.updateSpace(space);
+
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
     assertNotNull(response);
@@ -250,7 +254,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertEquals("space1", spaceEntity.getDisplayName());
-    assertEquals(Space.PRIVATE, spaceEntity.getVisibility());
+    assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
+    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
 
     //root update space's description and name
     String spaceId = spaceEntity.getId();
@@ -261,6 +266,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     space = spaceService.getSpaceById(spaceId);
     assertEquals("displayName_updated", space.getDisplayName());
     assertEquals("description_updated", space.getDescription());
+    assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
+    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
 
     //root delete his space
     response = service("DELETE", getURLResource("spaces/" + space.getId()), "", null, null);
