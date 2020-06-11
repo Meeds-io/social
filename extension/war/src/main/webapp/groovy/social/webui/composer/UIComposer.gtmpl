@@ -29,7 +29,7 @@
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
   boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled").equals("true");
   if(featureService.isActiveFeature("new-composer")) {
-    if (isMainStreamComposerEnabled) {
+    if (uicomponent.getSpaceGroupId() != null || isMainStreamComposerEnabled) {
 %>
 <div id="activityComposer"></div>
 <script>
