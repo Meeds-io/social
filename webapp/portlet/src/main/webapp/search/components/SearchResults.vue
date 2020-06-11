@@ -112,7 +112,18 @@ export default {
       if (!selectedConnector) {
         return;
       }
-      selectedConnector.enabled = !selectedConnector.enabled;
+
+      if (this.connectors.length === this.enabledConnectors.length) {
+        this.connectors.forEach(connector => {
+          connector.enabled = connector.name === selectedConnector.name;
+        });
+      } else if (selectedConnector.enabled && this.enabledConnectors.length === 1) {
+        this.connectors.forEach(connector => {
+          connector.enabled = true;
+        });
+      } else {
+        selectedConnector.enabled = !selectedConnector.enabled;
+      }
       return this.$nextTick().then(this.search);
     },
     loadMore() {
