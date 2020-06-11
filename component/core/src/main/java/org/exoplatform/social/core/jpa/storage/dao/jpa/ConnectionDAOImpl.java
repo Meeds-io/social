@@ -17,7 +17,8 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.math.BigInteger;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
@@ -86,6 +87,21 @@ public class ConnectionDAOImpl extends GenericDAOJPAImpl<ConnectionEntity, Long>
       query.setMaxResults((int) limit);
     }
     return query.getResultList();
+  }
+
+  @Override
+  public Set<Long> getConnectionIds(long identityId, Type status) {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocConnection.getConnectionIdsWithStatus", Tuple.class);
+    query.setParameter("identityId", identityId);
+    query.setParameter("status", status);
+    List<Tuple> resultList = query.getResultList();
+    return resultList == null ? Collections.emptySet() : resultList.stream().map(tuple -> {
+      Long id = (Long) tuple.get(0);
+      if (identityId == id) {
+        id = (Long) tuple.get(1);
+      }
+      return id;
+    }).collect(Collectors.toSet());
   }
 
   @Override

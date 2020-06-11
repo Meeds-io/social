@@ -44,14 +44,18 @@ public interface ActivityStream {
     /**
      * String type.
      */
-    private final String typeString;
+    private final String providerId;
 
     /**
      * private constructor.
      * @param string string type
      */
     private Type(final String string) {
-      typeString = string;
+      providerId = string;
+    }
+
+    public String getProviderId() {
+      return providerId;
     }
 
     /**
@@ -61,7 +65,7 @@ public interface ActivityStream {
      */
     @Override
     public String toString() {
-      return typeString;
+      return providerId;
     }
   }
 

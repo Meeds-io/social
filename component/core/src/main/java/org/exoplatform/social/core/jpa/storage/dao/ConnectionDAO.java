@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
@@ -127,4 +128,14 @@ public interface ConnectionDAO extends GenericDAO<ConnectionEntity, Long> {
    * @return connections in common count between two users
    */
   int getConnectionsInCommonCount(String id, String id2);
+
+  /**
+   * Return list of identities with whom the passed identity in parameter has a
+   * confirmed relationship
+   * 
+   * @param identityId
+   * @param status
+   * @return {@link Set} of {@link Identity} ids
+   */
+  Set<Long> getConnectionIds(long identityId, Type status);
 }

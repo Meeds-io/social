@@ -22,7 +22,11 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
    xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
-   
+
+   <component>
+     <type>org.exoplatform.social.core.jpa.search.ActivitySearchProcessor</type>
+   </component> 
+
    <component>
      <type>org.exoplatform.social.core.jpa.search.listener.ProfileESListenerImpl</type>
    </component> 
@@ -38,6 +42,21 @@
       </init-params>
    </component>
 
+   <component>
+     <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
+     <init-params>
+        <value-param>
+          <name>query.file.path</name>
+          <value>${exo.social.activities.es.query.path:jar:/activities-search-query.json}</value>
+        </value-param>
+        <properties-param>
+          <name>constructor.params</name>
+          <property name="searchType" value="activity"/>
+          <property name="index" value="activity_alias"/>
+        </properties-param>
+      </init-params>
+   </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
     <component-plugin>
@@ -49,6 +68,29 @@
           <name>fileNameSpace.params</name>
           <property name="name" value="social"/>
           <property name="description" value="social files storage"/>
+        </properties-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.search.index.IndexingOperationProcessor</target-component>
+    <component-plugin>
+      <name>ActivityIndexingServiceConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector</type>
+      <description>Activity ElasticSearch Indexing Connector</description>
+      <init-params>
+        <value-param>
+          <name>mapping.file.path</name>
+          <value>${exo.social.activities.es.mapping.path:jar:/activities-es-mapping.json}</value>
+        </value-param>
+        <properties-param>
+          <name>constructor.params</name>
+          <property name="index_alias" value="activity_alias" />
+          <property name="index_previous" value="" />
+          <property name="index_current" value="activity_v1" />
+          <property name="type" value="activity" />
         </properties-param>
       </init-params>
     </component-plugin>

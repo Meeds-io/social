@@ -40,7 +40,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.*;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
@@ -56,6 +58,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   public static final String                     COMMENT_PREFIX              = "comment";
 
   private final ActivityDAO                      activityDAO;
+
+  private final ConnectionDAO                    connectionDAO;
 
   private IdentityStorage                        identityStorage;
 
@@ -77,10 +81,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
-                                  ActivityDAO activityDAO) {
+                                  ActivityDAO activityDAO,
+                                  ConnectionDAO connectionDAO) {
     this.identityStorage = identityStorage;
     this.activityProcessors = new TreeSet<>(processorComparator());
     this.activityDAO = activityDAO;
+    this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
   }
 
@@ -1341,6 +1347,26 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     long commentId = getCommentID(comment.getId());
     List<ActivityEntity> subComments = activityDAO.getComments(commentId, 0, -1);
     return convertCommentEntitiesToComments(subComments, false);
+  }
+
+  @Override
+  public Set<Long> getStreamFeedOwnerIds(Identity identity) {
+    Set<Long> owners = new HashSet<>();
+    long identityId = Long.parseLong(identity.getId());
+    owners.add(identityId);
+    List<String> spaceIds = memberOfSpaceIds(identity);
+    if (spaceIds != null) {
+      spaceIds.forEach(spaceId -> {
+        Space space = spaceStorage.getSpaceById(spaceId);
+        Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+        owners.add(Long.parseLong(spaceIdentity.getId()));
+      });
+    }
+    Set<Long> connectionIds = connectionDAO.getConnectionIds(identityId, org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+    if (connectionIds != null) {
+      owners.addAll(connectionIds);
+    }
+    return owners;
   }
 
   private Long getCommentID(String commentId) {

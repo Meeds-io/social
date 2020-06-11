@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "posterId": {
+      "type": "long"
+    },
+    "parentId": {
+      "type": "long"
+    },
+    "parentCommentId": {
+      "type": "long"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "permissions": {
+      "type": "long"
+    },
+    "streamOwner": {
+      "type": "long"
+    },
+    "streamType": {
+      "type": "short"
+    },
+    "postedTime": {
+      "type": "date",
+      "format": "epoch_millis"
+    },
+    "lastUpdatedDate": {
+      "type": "date",
+      "format": "epoch_millis"
+    },
+    "body": {
+      "type": "text",
+      "index_options": "offsets",
+      "fields": {
+        "raw": {
+          "type": "keyword"
+        },
+        "whitespace": {
+          "type": "text",
+          "analyzer": "whitespace_lowercase_asciifolding"
+        }
+      }
+    }
+  }
+}
