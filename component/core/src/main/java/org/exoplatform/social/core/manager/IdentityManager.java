@@ -84,6 +84,7 @@ public interface IdentityManager {
    * @param isProfileLoaded Is profile loaded or not.
    * @return The identity.
    * @LevelAPI Platform 
+   * @deprecated Use {@link #getIdentity(String)} instead.
    */
   Identity getIdentity(String identityId, boolean isProfileLoaded);
 
@@ -270,8 +271,6 @@ public interface IdentityManager {
    * @return Null if nothing is found, or the Identity object.
    * @see #getIdentity(String, boolean)
    * @LevelAPI Provisional
-   * @deprecated Use {@link #getIdentity(String, boolean)} instead.
-   *             Will be removed by 4.0.x.
    */
   Identity getIdentity(String id);
 

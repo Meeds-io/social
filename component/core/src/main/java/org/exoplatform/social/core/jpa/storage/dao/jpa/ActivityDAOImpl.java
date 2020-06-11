@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -36,9 +37,11 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamType;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
@@ -48,7 +51,13 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
  * May 18, 2015  
  */
 public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> implements ActivityDAO {
-  
+
+  private ConnectionDAO connectionDAO;
+
+  public ActivityDAOImpl(ConnectionDAO connectionDAO) {
+    this.connectionDAO = connectionDAO;
+  }
+
   public List<Long> getActivities(Identity owner, Identity viewer, long offset, long limit) throws ActivityStorageException {
     long ownerId = Long.parseLong(owner.getId());
 
@@ -92,7 +101,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<Long> getActivityFeed(Identity ownerIdentity, int offset, int limit, List<String> spaceIds) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getActivityFeed";
     if (connections.isEmpty()) {
@@ -129,7 +138,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
                                            int limit,
                                            List<String> spaceIds) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getActivityIdsFeed";
     if (connections.isEmpty()) {
@@ -163,7 +172,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public int getNumberOfActivitesOnActivityFeed(Identity ownerIdentity, List<String> spaceIds) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getNumberOfActivitesOnActivityFeed";
     if(connections.isEmpty()) {
@@ -197,7 +206,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       }
     }
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getNewerActivityFeed";
     if (connections.isEmpty()) {
@@ -233,7 +242,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       }
     }
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getNumberOfNewerOnActivityFeed";
     if(connections.isEmpty()) {
@@ -261,7 +270,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       }
     }
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getOlderActivityFeed";
     if (connections.isEmpty()) {
@@ -289,7 +298,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public int getNumberOfOlderOnActivityFeed(Identity ownerIdentity, long sinceTime, List<String> spaceIds) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     String queryName = "SocActivity.getNumberOfOlderOnActivityFeed";
     if(connections.isEmpty()) {
@@ -530,7 +539,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<Long> getActivitiesOfConnections(Identity ownerIdentity, int offset, int limit) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if (connections.isEmpty()) {
       return Collections.emptyList();
@@ -553,13 +562,13 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<String> getActivityIdsOfConnections(Identity ownerIdentity, int offset, int limit) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<String> connections = getConnectionIdsInString(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if(connections.isEmpty()) {
       return Collections.emptyList();
     }
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocActivity.getActivityIdsOfConnections", Tuple.class);
-    query.setParameter("connections", connections);
+    query.setParameter("connections", connections.stream().map(id -> id.toString()).collect(Collectors.toSet()));
     query.setParameter("connStreamType", StreamType.POSTER);
 
     if (limit > 0) {
@@ -573,13 +582,13 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public int getNumberOfActivitiesOfConnections(Identity ownerIdentity) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<String> connections = getConnectionIdsInString(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if (connections.isEmpty()) {
       return 0;
     }
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocActivity.numberOfActivitiesOfConnections", Long.class);
-    query.setParameter("connections", connections);
+    query.setParameter("connections", connections.stream().map(id -> id.toString()).collect(Collectors.toSet()));
     query.setParameter("connStreamType", StreamType.POSTER);
 
     return query.getSingleResult().intValue();
@@ -589,7 +598,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<Long> getNewerOnActivitiesOfConnections(Identity ownerIdentity, long sinceTime, long limit) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if (connections.isEmpty()) {
       return Collections.emptyList();
@@ -613,7 +622,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public int getNumberOfNewerOnActivitiesOfConnections(Identity ownerIdentity, long sinceTime) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if(connections.isEmpty()) {
       return 0;
@@ -630,7 +639,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<Long> getOlderOnActivitiesOfConnections(Identity ownerIdentity, long sinceTime, int limit) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if (connections.isEmpty()) {
       return Collections.emptyList();
@@ -654,7 +663,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public int getNumberOfOlderOnActivitiesOfConnections(Identity ownerIdentity, long sinceTime) {
     long ownerId = Long.parseLong(ownerIdentity.getId());
 
-    Set<Long> connections = getConnectionIds(ownerId);
+    Set<Long> connections = connectionDAO.getConnectionIds(ownerId, Type.CONFIRMED);
 
     if(connections.isEmpty()) {
       return 0;
@@ -851,49 +860,6 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
-  }
-
-  private Set<String> getConnectionIdsInString(long ownerId) {
-    Set<String> connectionIds = new HashSet<String>();
-
-    String queryName = "SocConnection.getReceiverIdsBySenderWithStatus";
-    List<Long> receiverIds = getConnectionsByQuery(ownerId, queryName);
-    for (Long receiverId : receiverIds) {
-      connectionIds.add(String.valueOf(receiverId));    
-    }
-
-    queryName = "SocConnection.getSenderIdsByReceiverWithStatus";
-    List<Long> senderIds = getConnectionsByQuery(ownerId, queryName);
-    for (Long senderId : senderIds) {
-      connectionIds.add(String.valueOf(senderId));    
-    }
-    return connectionIds;
-  }
-
-  private Set<Long> getConnectionIds(long ownerId) {
-    Set<Long> connectionIds = new HashSet<Long>();
-    String queryName = "SocConnection.getReceiverIdsBySenderWithStatus";
-
-    connectionIds.addAll(getConnectionsByQuery(ownerId, queryName));    
-
-    queryName = "SocConnection.getSenderIdsByReceiverWithStatus";
-    connectionIds.addAll(getConnectionsByQuery(ownerId, queryName));    
-    return connectionIds;
-  }
-
-  private List<Long> getConnectionsByQuery(long ownerId, String queryName) {
-    TypedQuery<Tuple> searchConnectionsQuery = getEntityManager().createNamedQuery(queryName, Tuple.class);
-    searchConnectionsQuery.setParameter("identityId", ownerId);
-    searchConnectionsQuery.setParameter("status", Relationship.Type.CONFIRMED);
-    List<Tuple> connectionsTuple = searchConnectionsQuery.getResultList();
-    List<Long> connections = new ArrayList<Long>();
-    if (!connectionsTuple.isEmpty()) {
-      for (Tuple tuple : connectionsTuple) {
-        Long id = tuple.get(0, Long.class);
-        connections.add(id);
-      }
-    }
-    return connections;
   }
 
   @Override

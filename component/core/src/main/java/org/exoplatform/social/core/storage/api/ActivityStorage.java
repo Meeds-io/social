@@ -1056,4 +1056,16 @@ public interface ActivityStorage {
    * @return
    */
   public List<ExoSocialActivity> getActivities(List<String> activityIdList);
+
+  /**
+   * Computes the owner Ids of Streams that the user identity can see in his
+   * main activity stream (Spaces where the user is member and his confirmed
+   * connections)
+   * 
+   * @param identity
+   * @return {@link Set} of {@link Identity} technical identifier
+   */
+  default Set<Long> getStreamFeedOwnerIds(Identity identity) {
+    throw new UnsupportedOperationException();
+  }
 }

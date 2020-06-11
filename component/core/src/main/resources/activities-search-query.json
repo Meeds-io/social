@@ -1,0 +1,31 @@
+{
+  "from": "@offset@",
+  "size": "@limit@",
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "constant_score": {
+              "filter": {
+                "terms": {
+                  "permissions": [@permissions@]
+                }
+              }
+            }
+          }
+        },
+        {
+          "match": {
+            "body": {
+              "query": "@term@",
+              "fuzziness": 3,
+              "cutoff_frequency": 0.001,
+              "minimum_should_match": "80%"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
