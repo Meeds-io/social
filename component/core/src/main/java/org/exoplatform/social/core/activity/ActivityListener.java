@@ -20,15 +20,36 @@ import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
 public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEvent> {
   
-  void saveActivity(ActivityLifeCycleEvent event);
+  default void saveActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
 
-  void updateActivity(ActivityLifeCycleEvent event);
+  default void updateActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
 
-  void saveComment(ActivityLifeCycleEvent event);
+  default void saveComment(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
 
-  void updateComment(ActivityLifeCycleEvent event);
+  default void updateComment(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
   
-  void likeActivity(ActivityLifeCycleEvent event);
+  default void likeActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
 
-  void likeComment(ActivityLifeCycleEvent event);
+  default void likeComment(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
+  default void deleteComment(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
+  default void deleteActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
 }

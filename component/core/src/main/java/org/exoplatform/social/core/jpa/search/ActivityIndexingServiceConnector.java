@@ -28,16 +28,15 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
   private static final long             serialVersionUID = 4102484220845897854L;
 
-  private static final Log              LOG              = ExoLogger.getLogger(ActivityIndexingServiceConnector.class);
+  public static final String           TYPE             = "activity";
 
-  private static final String           TYPE             = "activity";
+  private static final Log              LOG              = ExoLogger.getLogger(ActivityIndexingServiceConnector.class);
 
   private final ActivitySearchProcessor activitySearchProcessor;                                                       // NOSONAR
 
