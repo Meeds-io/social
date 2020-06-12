@@ -280,15 +280,25 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   public void deleteActivity(ExoSocialActivity existingActivity) {
+    Validate.notNull(existingActivity, "existingActivity must not be null!");
     Validate.notNull(existingActivity.getId(), "existingActivity.getId() must not be null!");
-    deleteActivity(existingActivity.getId());
+
+    activityStorage.deleteActivity(existingActivity.getId());
+
+    if(existingActivity.isComment() || existingActivity.getParentId() != null){
+      activityLifeCycle.deleteComment(existingActivity);
+    } else {
+      activityLifeCycle.deleteActivity(existingActivity);
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public void deleteActivity(String activityId) {
-    activityStorage.deleteActivity(activityId);
+    Validate.notNull(activityId, "activityId must not be null!");
+
+    deleteActivity(getActivity(activityId));
   }
 
   /**
@@ -367,14 +377,25 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   public void deleteComment(String activityId, String commentId) {
-    activityStorage.deleteComment(activityId, commentId);
+    Validate.notNull(activityId, "activityId must not be null!");
+    Validate.notNull(commentId, "commentId must not be null!");
+
+    deleteComment(getActivity(activityId), getActivity(commentId));
   }
 
   /**
    * {@inheritDoc}
    */
   public void deleteComment(ExoSocialActivity existingActivity, ExoSocialActivity existingComment) {
-    deleteComment(existingActivity.getId(), existingComment.getId());
+    Validate.notNull(existingActivity, "existingActivity must not be null!");
+    Validate.notNull(existingActivity.getId(), "existingActivity.getId() must not be null!");
+
+    Validate.notNull(existingComment, "existingComment must not be null!");
+    Validate.notNull(existingComment.getId(), "existingComment.getId() must not be null!");
+
+    activityStorage.deleteComment(existingActivity.getId(), existingComment.getId());
+
+    activityLifeCycle.deleteComment(existingComment);
   }
 
   /**
