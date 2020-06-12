@@ -14,7 +14,7 @@
           <a class="closebtn" href="javascript:void(0)" @click="closeMessageComposer()">×</a>
         </div>
         <div class="content">
-          <exo-activity-rich-editor ref="richEditor" v-model="message" :ck-editor-type="ckEditorType" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
+          <exo-activity-rich-editor :ref="ckEditorType" v-model="message" :ck-editor-type="ckEditorType" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
           <div class="composerButtons">
             <div v-if="activityComposerHintAction" class="action">
               <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
@@ -183,7 +183,7 @@ export default {
   },
   methods: {
     openMessageComposer: function() {
-      this.$refs.richEditor.setFocus();
+      this.$refs[this.ckEditorType].setFocus();
       this.showMessageComposer = true;
 
       // Send metric
@@ -203,7 +203,7 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const msg = this.$refs.richEditor.getMessage();
+      const msg = this.$refs[this.ckEditorType].getMessage();
       if(this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => this.refreshActivityStream())
@@ -263,8 +263,9 @@ export default {
         document.querySelector(`#editActivityComposer${this.activityId} .drawer`).classList.remove('open');
         document.querySelector(`#editActivityComposer${this.activityId} .composerActions`).style.display = 'none';
         document.querySelector(`.activityComposer .drawer-backdrop-activity${this.activityId}`).style.display = 'none';
+      } else {
+        this.showMessageComposer = false;
       }
-      this.showMessageComposer = false;
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);

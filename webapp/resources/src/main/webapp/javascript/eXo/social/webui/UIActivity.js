@@ -329,16 +329,19 @@
         });
         }
 
-        var editActivityEl = $("#EditActivitylink" + activityId);
+        var editActivityEl = $("[data-edit-activity='" + activityId + "']");
         if (editActivityEl.length > 0) {
           editActivityEl.off('click').on('click', function (evt) {
             evt.stopPropagation();
+            //var currentComposerEditInput = 'composerEditInput' + activityId;
             $('#dropDownEditActivity'+ activityId + '.actLink').removeClass("open");
             $('#dropDownEditActivity'+ activityId + '.actionLink').removeClass("open");
+            //$('#UIActivityLoader'+ activityId + ' .activityComposer').css('display', 'block');
             $('#editActivityComposer'+ activityId + ' .editActivityDrawer'+ activityId + '.drawer').addClass("open");
             $('#editActivityComposer'+ activityId + ' .composerActions').css('display', 'block');
             $('.activityComposer .drawer-backdrop-activity'+activityId).css('display', 'block');
           });
+
         }
 
        $("[data-edit-comment]").each(function(){

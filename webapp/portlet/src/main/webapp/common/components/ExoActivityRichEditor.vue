@@ -63,9 +63,8 @@ export default {
   methods: {
     initCKEditor: function () {
       CKEDITOR.plugins.addExternal('embedsemantic','/commons-extension/eXoPlugins/embedsemantic/','plugin.js');
-      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined') {
-        CKEDITOR.instances[this.ckEditorType].removeAllListeners();
-        CKEDITOR.remove(CKEDITOR.instances[this.ckEditorType]);
+      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined' && !this.ckEditorType.includes('editActivity')) {
+        CKEDITOR.instances[this.ckEditorType].destroy(true);
       }
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
