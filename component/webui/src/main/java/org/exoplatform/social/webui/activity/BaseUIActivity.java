@@ -50,8 +50,11 @@ import org.exoplatform.web.application.ApplicationMessage;
 import org.exoplatform.web.application.JavascriptManager;
 import org.exoplatform.webui.application.WebuiRequestContext;
 import org.exoplatform.webui.application.portlet.PortletRequestContext;
+import org.exoplatform.webui.config.annotation.ComponentConfig;
+import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.UIApplication;
 import org.exoplatform.webui.core.UIPortletApplication;
+import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
 import org.exoplatform.webui.core.lifecycle.WebuiBindingContext;
 import org.exoplatform.webui.event.Event;
 import org.exoplatform.webui.event.EventListener;
@@ -836,7 +839,21 @@ public class BaseUIActivity extends UIForm {
       return commentStatus;
     }
   }
-
+  public static class RefreshActivityActionListener extends EventListener<BaseUIActivity> {
+    @Override
+    public void execute(Event<BaseUIActivity> event) throws Exception {
+      BaseUIActivity uiActivity = event.getSource();
+      String activityId = uiActivity.getActivity().getId();
+      if (uiActivity.isNoLongerExisting(activityId)) {
+        return;
+      }
+      // uiActivity.refresh();
+      uiActivity.setAllLoaded(true);
+      event.getRequestContext().addUIComponentToUpdateByAjax(uiActivity);
+      
+      Utils.initUserProfilePopup(uiActivity.getId());
+    }
+  }
   public static class LoadLikesActionListener extends EventListener<BaseUIActivity> {
     @Override
     public void execute(Event<BaseUIActivity> event) throws Exception {
