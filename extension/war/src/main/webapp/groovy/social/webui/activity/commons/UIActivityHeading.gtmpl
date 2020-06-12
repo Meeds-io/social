@@ -75,4 +75,7 @@
     <div class="dataInfor">
       <span class="dateTime"><i class="uiIconClock  uiIconLightGray"></i>&nbsp;<a id="EditActivityTime${activity.id}" rel="tooltip" data-placement="bottom" title="$absolutePostedTime" href="<%=uicomponent.getActivityPermalink(activity.id)%>" <% if(activity.postedTime != activity.updated.getTime() ){%>> $activityUpdatedTime <%} else {%> >$activityPostedTime <%}%></a></span>
     </div>
+    <div>
+      <a onclick="<%= uicomponent.event("RefreshActivity") %>" id="RefreshActivity${activity.id}" href="javascript:void(0);">Refresh</a>
+    </div>
 </div><!--end activityAuthorAndDate-->
