@@ -105,12 +105,13 @@ public class SpaceEntity extends BaseEntity {
   }
   
   
-  public SpaceEntity setTotalBoundUsers(long totalBoundUsers) {
+  public SpaceEntity setTotalBoundUsers(Long totalBoundUsers) {
     setProperty("totalBoundUsers", totalBoundUsers);
     return this;
   }
-  public long getTotalBoundUsers() {
-    return (long)getProperty("totalBoundUsers");
+
+  public Long getTotalBoundUsers() {
+    return (Long) getProperty("totalBoundUsers");
   }
   
   

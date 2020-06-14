@@ -101,6 +101,38 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>ActivitySearchConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.search.SearchConnectorPlugin</type>
+      <description>Activity Search connector</description>
+      <init-params>
+        <object-param>
+          <name>ActivitySearchConnector</name>
+          <description>Search connector for activities</description>
+          <object type="org.exoplatform.social.core.search.SearchConnector">
+            <field name="name">
+              <string>activity</string>
+            </field>
+            <field name="uri">
+              <string><![CDATA[/portal/rest/v1/social/activities/search?q={keyword}&limit={limit}]]></string>
+            </field>
+            <field name="enabled">
+              <boolean>${exo.search.activity.enabled:true}</boolean>
+            </field>
+            <field name="jsModule">
+              <string>SHARED/ActivitySearchResultCard</string>
+            </field>
+            <field name="cssModule">
+              <string>social-portlet/ActivitySearch</string>
+            </field>
+            <field name="uiComponent">
+              <string>activity-search-result-card</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>

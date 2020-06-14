@@ -119,17 +119,21 @@ public class EntityBuilder {
    * @return a hash map
    */
   public static IdentityEntity buildEntityIdentity(Identity identity, String restPath, String expand) {
-    IdentityEntity idntityEntity = new IdentityEntity(identity.getId());
-    idntityEntity.setHref(RestUtils.getRestUrl(IDENTITIES_TYPE, identity.getId(), restPath));
-    idntityEntity.setProviderId(identity.getProviderId());
-    idntityEntity.setGlobalId(identity.getGlobalId());
-    idntityEntity.setDeleted(identity.isDeleted());
-    if(OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
-      idntityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, ""));//
+    IdentityEntity identityEntity = new IdentityEntity(identity.getId());
+    identityEntity.setHref(RestUtils.getRestUrl(IDENTITIES_TYPE, identity.getId(), restPath));
+    identityEntity.setProviderId(identity.getProviderId());
+    identityEntity.setGlobalId(identity.getGlobalId());
+    identityEntity.setRemoteId(identity.getRemoteId());
+    identityEntity.setDeleted(identity.isDeleted());
+    if (OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
+      identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, ""));//
+    } else if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
+      Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
+      identityEntity.setSpace(buildEntityFromSpace(space, "", restPath, ""));
     }
-    
+
     updateCachedEtagValue(getEtagValue(identity.getId()));
-    return idntityEntity;
+    return identityEntity;
   }
 
   /**
@@ -324,46 +328,53 @@ public class EntityBuilder {
    */
   public static SpaceEntity buildEntityFromSpace(Space space, String userId, String restPath, String expand) {
     SpaceEntity spaceEntity = new SpaceEntity(space.getId());
-    IdentityManager identityManager = getIdentityManager();
-    SpaceService spaceService = getSpaceService();
-    GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-    if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
-      spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
-      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
-      LinkEntity identity;
-      if(RestProperties.IDENTITY.equals(expand)) {
-        identity = new LinkEntity(buildEntityIdentity(spaceIdentity, restPath, null));
-      } else {
-        identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
+    if (StringUtils.isNotBlank(userId)) {
+      IdentityManager identityManager = getIdentityManager();
+      SpaceService spaceService = getSpaceService();
+      GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+      if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
+        spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
+        Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
+        LinkEntity identity;
+        if(RestProperties.IDENTITY.equals(expand)) {
+          identity = new LinkEntity(buildEntityIdentity(spaceIdentity, restPath, null));
+        } else {
+          identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
+        }
+        spaceEntity.setIdentity(identity);
+        spaceEntity.setGroupId(space.getGroupId());
+        spaceEntity.setHasBindings(space.hasBindings());
+        spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
+        spaceEntity.setApplications(getSpaceApplications(space));
+  
+        LinkEntity managers;
+        if(RestProperties.MANAGERS.equals(expand)) {
+          managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
+        } else {
+          managers = new LinkEntity(getMembersSpaceRestUrl(space.getId(), true, restPath));
+        }
+        spaceEntity.setManagers(managers);
+  
+        LinkEntity members;
+        if(RestProperties.MEMBERS.equals(expand)) {
+          members = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
+        } else {
+          members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
+        }
+        spaceEntity.setMembers(members);
+  
+        if(RestProperties.PENDING.equals(expand)) {
+          LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
+          spaceEntity.setPending(pending);
+        }
       }
-      spaceEntity.setIdentity(identity);
-      spaceEntity.setGroupId(space.getGroupId());
-      spaceEntity.setHasBindings(space.hasBindings());
-      spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
-      spaceEntity.setApplications(getSpaceApplications(space));
-
-      LinkEntity managers;
-      if(RestProperties.MANAGERS.equals(expand)) {
-        managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
-      } else {
-        managers = new LinkEntity(getMembersSpaceRestUrl(space.getId(), true, restPath));
-      }
-      spaceEntity.setManagers(managers);
-
-      LinkEntity members;
-      if(RestProperties.MEMBERS.equals(expand)) {
-        members = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
-      } else {
-        members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
-      }
-      spaceEntity.setMembers(members);
-
-      if(RestProperties.PENDING.equals(expand)) {
-        LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
-        spaceEntity.setPending(pending);
-      }
+      boolean isManager = spaceService.isManager(space, userId);
+      spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
+      spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
+      spaceEntity.setIsMember(spaceService.isMember(space, userId));
+      spaceEntity.setCanEdit(spaceService.isSuperManager(userId) || isManager);
+      spaceEntity.setIsManager(isManager);
     }
-    boolean isManager = spaceService.isManager(space, userId);
 
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setTemplate(space.getTemplate());
@@ -374,13 +385,8 @@ public class EntityBuilder {
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
-    spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
-    spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
-    spaceEntity.setIsMember(spaceService.isMember(space, userId));
     spaceEntity.setMembersCount(space.getMembers().length);
-    spaceEntity.setIsManager(isManager);
     spaceEntity.setManagersCount(space.getManagers().length);
-    spaceEntity.setCanEdit(spaceService.isSuperManager(userId) || isManager);
 
     return spaceEntity;
   }
