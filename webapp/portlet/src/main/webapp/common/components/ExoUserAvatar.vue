@@ -7,11 +7,11 @@
       <v-avatar :size="size" class="pull-left my-auto">
         <img :src="avatarUrl" :tile="tile" />
       </v-avatar>
-      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2">
-        <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
+      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
+        <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
           {{ fullname }}
         </p>
-        <p v-if="$slots.subTitle" class="text-sub-title my-0">
+        <p v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
           <slot name="subTitle"></slot>
         </p>
       </div>
