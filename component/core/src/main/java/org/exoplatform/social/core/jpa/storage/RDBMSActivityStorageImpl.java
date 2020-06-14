@@ -1356,11 +1356,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     owners.add(identityId);
     List<String> spaceIds = memberOfSpaceIds(identity);
     if (spaceIds != null) {
-      spaceIds.forEach(spaceId -> {
-        Space space = spaceStorage.getSpaceById(spaceId);
-        Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-        owners.add(Long.parseLong(spaceIdentity.getId()));
-      });
+      owners.addAll(spaceIds.stream().map(spaceId -> Long.parseLong(spaceId)).collect(Collectors.toList()));
     }
     Set<Long> connectionIds = connectionDAO.getConnectionIds(identityId, org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
     if (connectionIds != null) {
