@@ -10,7 +10,7 @@
         autocomplete="off"
         class="fill-width my-auto no-border no-box-shadow headline" />
     </v-list-item-content>
-    <v-list-item-action class="align-end d-flex flex-row mx-0">
+    <v-list-item-action v-if="!standalone" class="align-end d-flex flex-row mx-0">
       <v-btn icon class="searchCloseIcon transparent mx-4" @click="$emit('close-search')">
         <v-icon>mdi-close</v-icon>
       </v-btn>
@@ -20,6 +20,12 @@
 
 <script>
 export default {
+  props: {
+    standalone: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
@@ -46,6 +52,19 @@ export default {
         this.$refs.searchInput.focus();
       }, 200);
     });
+    if (this.standalone) {
+      const search = window.location.search && window.location.search.substring(1);
+      if(search) {
+        const parameters = JSON.parse(
+          `{"${decodeURI(search)
+            .replace(/"/g, '\\"')
+            .replace(/&/g, '","')
+            .replace(/=/g, '":"')}"}`
+        );
+        this.term = window.decodeURIComponent(parameters['q']);
+        this.dialog = true;
+      }
+    }
   },
   methods: {
     waitForEndTyping() {

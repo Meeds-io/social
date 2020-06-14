@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-1">
+  <v-card class="mr-2 mb-4">
     <v-card-text>
       <exo-user-avatar
         :username="poster.username"

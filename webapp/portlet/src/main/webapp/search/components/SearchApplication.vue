@@ -12,6 +12,7 @@
         <v-card flat>
           <search-toolbar
             ref="toolbar"
+            :standalone="standalone"
             @search="term = $event"
             @close-search="dialog = false"/>
           <search-results
@@ -36,20 +37,32 @@ export default {
     dialog: false,
     term: null,
     standalone: false,
+    pageUri: null,
+    pageTitle: null,
   }),
   watch: {
+    term() {
+      const term = window.encodeURIComponent(this.term || '');
+      window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${term}`);
+    },
     dialog() {
       if (this.dialog) {
         $('body').addClass('hide-scroll transparent');
         this.$root.$emit('search-opened');
+        window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${this.term || ''}`);
       } else {
         $('body').removeClass('hide-scroll transparent');
         this.$root.$emit('search-closed');
+        window.history.replaceState('', this.pageTitle, this.pageUri);
       }
     },
   },
   created() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+
+    this.pageUri = window.location.href;
+    this.pageTitle = window.document.title;
+
     const pathParts = window.location.pathname.split('/');
     if (pathParts && pathParts.length && pathParts[pathParts.length - 1] === 'search') {
       this.standalone = true;
