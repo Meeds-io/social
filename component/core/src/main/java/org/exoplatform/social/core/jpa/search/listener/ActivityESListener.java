@@ -18,8 +18,18 @@ public class ActivityESListener implements ActivityListener {
   }
 
   @Override
+  public void updateActivity(ActivityLifeCycleEvent event) {
+    reindexActivity(event.getActivity(), "update activity");
+  }
+
+  @Override
   public void saveComment(ActivityLifeCycleEvent event) {
     reindexActivity(event.getActivity(), "save comment");
+  }
+
+  @Override
+  public void updateComment(ActivityLifeCycleEvent event) {
+    reindexActivity(event.getActivity(), "update comment");
   }
 
   @Override

@@ -74,6 +74,25 @@ public class Identity implements Cloneable {
     this.isEnable = true;
   }
 
+  public Identity(String id,
+                  String remoteId,
+                  String providerId,
+                  boolean isDeleted,
+                  boolean isEnable,
+                  Profile profile,
+                  ProfileLoader profileLoader,
+                  GlobalId globalId) {
+    super();
+    this.id = id;
+    this.remoteId = remoteId;
+    this.providerId = providerId;
+    this.isDeleted = isDeleted;
+    this.isEnable = isEnable;
+    this.profile = profile;
+    this.profileLoader = profileLoader;
+    this.globalId = globalId;
+  }
+
   /**
    * Gets the id.
    *
@@ -245,7 +264,11 @@ public class Identity implements Cloneable {
   }
 
   @Override
-  protected Identity clone() throws CloneNotSupportedException {
-    return (Identity) super.clone();
+  public Identity clone() {
+    try {
+      return (Identity) super.clone();
+    } catch (CloneNotSupportedException e) {
+      return new Identity(id, remoteId, providerId, isDeleted, isEnable, profile, profileLoader, globalId);
+    }
   }
 }
