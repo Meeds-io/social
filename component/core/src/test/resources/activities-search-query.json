@@ -20,14 +20,18 @@
         "match":{
           "body":{
             "query": "@term@",
-            "fuzziness": 2,
-            "operator": "and"
+            "operator": "and",
+            "cutoff_frequency": 0.001
           }
         }
       }
     }
   },
   "highlight" : {
+    "number_of_fragments" : 2,
+    "fragment_size" : 150,
+    "no_match_size" : 0,
+    "order": "score",
     "fields" : {
       "body" : {
         "pre_tags" : ["<span class='searchMatchExcerpt'>"],

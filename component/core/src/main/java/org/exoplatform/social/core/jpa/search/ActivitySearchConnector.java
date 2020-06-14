@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
@@ -29,6 +30,8 @@ public class ActivitySearchConnector {
 
   private static final String           SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
 
+  private final ConfigurationManager    configurationManager;                                                             // NOSONAR
+
   private final ActivitySearchProcessor activitySearchProcessor;                                                          // NOSONAR
 
   private final IdentityManager         identityManager;
@@ -41,6 +44,8 @@ public class ActivitySearchConnector {
 
   private String                        searchType;
 
+  private String                        searchQueryFilePath;
+
   private String                        searchQuery;
 
   public ActivitySearchConnector(ActivitySearchProcessor activitySearchProcessor,
@@ -49,6 +54,7 @@ public class ActivitySearchConnector {
                                  ConfigurationManager configurationManager,
                                  ElasticSearchingClient client,
                                  InitParams initParams) {
+    this.configurationManager = configurationManager;
     this.activitySearchProcessor = activitySearchProcessor;
     this.identityManager = identityManager;
     this.activityStorage = activityStorage;
@@ -58,12 +64,11 @@ public class ActivitySearchConnector {
     this.index = param.getProperty("index");
     this.searchType = param.getProperty("searchType");
     if (initParams.containsKey(SEARCH_QUERY_FILE_PATH_PARAM)) {
-      String queryFilePath = initParams.getValueParam(SEARCH_QUERY_FILE_PATH_PARAM).getValue();
+      searchQueryFilePath = initParams.getValueParam(SEARCH_QUERY_FILE_PATH_PARAM).getValue();
       try {
-        InputStream queryFileIS = configurationManager.getInputStream(queryFilePath);
-        this.searchQuery = IOUtil.getStreamContentAsString(queryFileIS);
+        retrieveSearchQuery();
       } catch (Exception e) {
-        LOG.error("Can't read elasticsearch search query from path {}", queryFilePath, e);
+        LOG.error("Can't read elasticsearch search query from path {}", searchQueryFilePath, e);
       }
     }
   }
@@ -83,10 +88,10 @@ public class ActivitySearchConnector {
                                      long limit) {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
 
-    return searchQuery.replaceAll("@term@", removeAccents(filter.getTerm()))
-                      .replaceAll("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
-                      .replaceAll("@offset@", String.valueOf(offset))
-                      .replaceAll("@limit@", String.valueOf(limit));
+    return retrieveSearchQuery().replaceAll("@term@", removeSpecialCharacters(filter.getTerm()))
+                                .replaceAll("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
+                                .replaceAll("@offset@", String.valueOf(offset))
+                                .replaceAll("@limit@", String.valueOf(limit));
   }
 
   @SuppressWarnings("rawtypes")
@@ -214,9 +219,21 @@ public class ActivitySearchConnector {
     return StringUtils.isBlank(value) ? null : Long.parseLong(value);
   }
 
-  private static String removeAccents(String string) {
+  private String retrieveSearchQuery() {
+    if (this.searchQuery == null || PropertyManager.isDevelopping()) {
+      try {
+        InputStream queryFileIS = this.configurationManager.getInputStream(searchQueryFilePath);
+        this.searchQuery = IOUtil.getStreamContentAsString(queryFileIS);
+      } catch (Exception e) {
+        throw new IllegalStateException("Error retrieving search query from file: " + searchQueryFilePath, e);
+      }
+    }
+    return this.searchQuery;
+  }
+
+  private String removeSpecialCharacters(String string) {
     string = Normalizer.normalize(string, Normalizer.Form.NFD);
-    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replaceAll("'", " ");
     return string;
   }
 }

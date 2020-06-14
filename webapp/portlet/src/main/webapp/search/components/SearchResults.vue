@@ -173,7 +173,7 @@ export default {
         }
         this.searching++;
         const uri = searchConnector.uri
-          .replace('{keyword}', this.term)
+          .replace('{keyword}', window.encodeURIComponent(this.term))
           .replace('{limit}', this.limit);
         return fetch(uri, options)
           .then(resp => {

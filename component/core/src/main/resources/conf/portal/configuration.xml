@@ -42,21 +42,6 @@
       </init-params>
    </component>
 
-   <component>
-     <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
-      <init-params>
-        <value-param>
-          <name>query.file.path</name>
-          <value>${exo.social.activities.es.query.path:jar:/activities-search-query.json}</value>
-        </value-param>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="searchType" value="activity" />
-          <property name="index" value="activity_alias" />
-        </properties-param>
-      </init-params>
-   </component>
-
   <external-component-plugins>
     <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
     <component-plugin>
