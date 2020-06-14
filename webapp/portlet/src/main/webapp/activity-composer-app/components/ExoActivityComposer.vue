@@ -206,11 +206,8 @@ export default {
       const msg = this.$refs[this.ckEditorType].getMessage();
       if(this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
-          .then(() => this.refreshActivityStream())
           .then(() => this.closeMessageComposer())
-          .then(() => {
-            this.resetComposer();
-          })
+          .then(() => this.refreshCurrentActivity())
           .catch(error => {
             console.error(`Error when posting message: ${error}`);
             this.showErrorMessage = true;
@@ -272,6 +269,12 @@ export default {
     },
     updateAttachments(attachments) {
       this.attachments = attachments;
+    },
+    refreshCurrentActivity() {
+      const refreshButton = document.querySelector(`#activityContainer${this.activityId} #RefreshActivity${this.activityId}`);
+      if(refreshButton) {
+        refreshButton.click();
+      }
     }
   }
 };

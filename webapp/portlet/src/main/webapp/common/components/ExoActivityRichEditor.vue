@@ -62,8 +62,8 @@ export default {
   },
   methods: {
     initCKEditor: function () {
-      CKEDITOR.plugins.addExternal('embedsemantic','/commons-extension/eXoPlugins/embedsemantic/','plugin.js');
-      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined' && !this.ckEditorType.includes('editActivity')) {
+      CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined') {
         CKEDITOR.instances[this.ckEditorType].destroy(true);
       }
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
@@ -82,16 +82,16 @@ export default {
         allowedContent: true,
         removePlugins: 'image,confirmBeforeReload,maximize,resize',
         toolbar: [
-          ['Bold','Italic','BulletedList', 'NumberedList', 'Blockquote'],
+          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],
         typeOfRelation: 'mention_activity_stream',
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         on: {
-          instanceReady: function() {
+          instanceReady: function () {
             self.editorReady = true;
           },
-          change: function(evt) {
+          change: function (evt) {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;

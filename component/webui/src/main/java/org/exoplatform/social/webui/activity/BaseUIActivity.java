@@ -849,6 +849,7 @@ public class BaseUIActivity extends UIForm {
       }
       // uiActivity.refresh();
       uiActivity.setAllLoaded(true);
+      uiActivity.setActivity(Utils.getActivityManager().getActivity(activityId));
       event.getRequestContext().addUIComponentToUpdateByAjax(uiActivity);
       
       Utils.initUserProfilePopup(uiActivity.getId());
