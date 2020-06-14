@@ -11,7 +11,7 @@
         <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
       </v-chip>
     </v-flex>
-    <v-row v-if="resultsArray" class="searchResultsParent mx-4 border-box-sizing">
+    <v-row v-if="hasResults" class="searchResultsParent mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
         :key="result.domId"
@@ -23,6 +23,17 @@
         <search-result-card :result="result" :term="term" />
       </v-col>
     </v-row>
+    <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
+      <div class="d-flex flex-column ma-auto text-center text-sub-title">
+        <div>
+          <i class="uiIconSearchLight text-sub-title my-auto">
+            <i class="uiIconCloseLight text-sub-title"></i>
+          </i>
+        </div>
+        <span class="headline">{{ $t('Search.noResults') }}</span>
+        <span class="caption">{{ $t('Search.noResultsMessage') }}</span>
+      </div>
+    </v-flex>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
       <v-btn
         :loading="searching > 0"
@@ -59,6 +70,12 @@ export default {
   computed: {
     hasMore() {
       return this.totalSize && this.enabledConnectors && this.enabledConnectors.filter(connector => connector.hasMore).length;
+    },
+    hasResults() {
+      return this.resultsArray && this.resultsArray.length;
+    },
+    noResults() {
+      return !this.hasResults && this.term && !this.searching;
     },
     enabledConnectors() {
       return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
