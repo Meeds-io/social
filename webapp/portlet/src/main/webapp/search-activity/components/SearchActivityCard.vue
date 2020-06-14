@@ -9,25 +9,20 @@
     </v-card-text>
     <v-divider />
     <v-card-text class="pb-0">
-      <p v-if="spaceDisplayName" class="font-weight-bold text-truncate mb-1">
-        <exo-space-avatar :space="streamOwner" size="21" />
-      </p>
-      <p v-if="isComment" class="font-weight-bold mb-1">
-        {{ $t('Search.activity.inComment') }}
-      </p>
-      <p
+      <blockquote
         v-for="(excerpt, index) in excerpts"
         :key="index"
         class="text-color mb-1"
         v-html="excerpt">
-      </p>
+      </blockquote>
     </v-card-text>
     <v-card-actions>
       <v-btn
         :href="link"
         link
         text
-        color="primary">
+        color="primary"
+        class="text-capitalize">
         {{ $t('Search.activity.open') }}
       </v-btn>
     </v-card-actions>
@@ -71,9 +66,9 @@ export default {
     },
     link() {
       if (this.isComment) {
-        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.result.id}#comment-comment${this.result.comment.id}`
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.result.id}#comment-comment${this.result.comment.id}`;
       } else {
-        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.activity.id}`
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.activity.id}`;
       }
     },
   },
