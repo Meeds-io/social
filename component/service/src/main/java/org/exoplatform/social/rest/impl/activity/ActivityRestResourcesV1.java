@@ -546,6 +546,13 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
       entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
       entity.setStreamOwner(EntityBuilder.buildEntityIdentity(searchResult.getStreamOwner(), uriInfo.getPath(), "all"));
+      ActivitySearchResult comment = searchResult.getComment();
+      if (comment != null) {
+        ActivitySearchResultEntity commentEntity = new ActivitySearchResultEntity(comment);
+        commentEntity.setPoster(EntityBuilder.buildEntityIdentity(comment.getPoster(), uriInfo.getPath(), "all"));
+        commentEntity.setStreamOwner(EntityBuilder.buildEntityIdentity(comment.getStreamOwner(), uriInfo.getPath(), "all"));
+        entity.setComment(commentEntity);
+      }
       return entity;
     }).collect(Collectors.toList());
 

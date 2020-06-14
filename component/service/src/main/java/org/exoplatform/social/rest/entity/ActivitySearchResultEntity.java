@@ -6,21 +6,23 @@ import org.exoplatform.social.core.activity.model.ActivitySearchResult;
 
 public class ActivitySearchResultEntity extends BaseEntity {
 
-  private static final long serialVersionUID = 5467324200693836628L;
+  private static final long          serialVersionUID = 5467324200693836628L;
 
-  private IdentityEntity    streamOwner;
+  private IdentityEntity             streamOwner;
 
-  private IdentityEntity    poster;
+  private IdentityEntity             poster;
 
-  private String            type;
+  private String                     type;
 
-  private String            body;
+  private String                     body;
 
-  private List<String>      excerpts;
+  private List<String>               excerpts;
 
-  private long              postedTime;
+  private long                       postedTime;
 
-  private long              lastUpdatedTime;
+  private long                       lastUpdatedTime;
+
+  private ActivitySearchResultEntity comment;
 
   public ActivitySearchResultEntity() {
   }
@@ -88,6 +90,14 @@ public class ActivitySearchResultEntity extends BaseEntity {
 
   public void setLastUpdatedTime(long lastUpdatedTime) {
     this.lastUpdatedTime = lastUpdatedTime;
+  }
+
+  public ActivitySearchResultEntity getComment() {
+    return comment;
+  }
+
+  public void setComment(ActivitySearchResultEntity comment) {
+    this.comment = comment;
   }
 
 }
