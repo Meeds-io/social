@@ -1,5 +1,7 @@
 package org.exoplatform.social.core.activity.model;
 
+import java.util.List;
+
 import org.exoplatform.social.core.identity.model.Identity;
 
 public class ActivitySearchResult {
@@ -13,6 +15,8 @@ public class ActivitySearchResult {
   private String               type;
 
   private String               body;
+
+  private List<String>         excerpts;
 
   private long                 postedTime;
 
@@ -85,6 +89,14 @@ public class ActivitySearchResult {
 
   public void setComment(ActivitySearchResult comment) {
     this.comment = comment;
+  }
+
+  public List<String> getExcerpts() {
+    return excerpts;
+  }
+
+  public void setExcerpts(List<String> excerpts) {
+    this.excerpts = excerpts;
   }
 
 }

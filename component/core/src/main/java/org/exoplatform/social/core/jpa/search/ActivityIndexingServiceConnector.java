@@ -83,7 +83,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
 
     ExoSocialActivity activity = activityManager.getActivity(id);
     Map<String, String> fields = new HashMap<>();
-    fields.put("id", activity.getId());
+    fields.put("id", activity.getId().replace("comment", ""));
     if (StringUtils.isNotBlank(activity.getBody())) {
       fields.put("body", String.valueOf(activity.getBody()));
     } else if (StringUtils.isNotBlank(activity.getTitle())) {
@@ -93,7 +93,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
       fields.put("parentId", activity.getParentId());
     }
     if (StringUtils.isNotBlank(activity.getParentCommentId())) {
-      fields.put("parentCommentId", activity.getParentCommentId());
+      fields.put("parentCommentId", activity.getParentCommentId().replace("comment", ""));
     }
     if (StringUtils.isNotBlank(activity.getType())) {
       fields.put("type", activity.getType());
@@ -103,7 +103,14 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     }
     ActivityStream activityStream = activity.getActivityStream();
     String ownerIdentityId = null;
-    if (activityStream != null) {
+    if (activityStream == null || activityStream.getType() == null || StringUtils.isBlank(activityStream.getPrettyId())) {
+      if (activity.getParentId() != null) {
+        ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());
+        activityStream = parentActivity.getActivityStream();
+      }
+    }
+
+    if (activityStream != null && activityStream.getType() != null && StringUtils.isNotBlank(activityStream.getPrettyId())) {
       String prettyId = activityStream.getPrettyId();
       String providerId = activityStream.getType().getProviderId();
 

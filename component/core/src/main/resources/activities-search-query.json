@@ -1,31 +1,28 @@
 {
   "from": "@offset@",
   "size": "@limit@",
-  "query": {
-    "bool": {
-      "must": [
-        {
-          "match": {
-            "constant_score": {
-              "filter": {
-                "terms": {
-                  "permissions": [@permissions@]
-                }
-              }
-            }
-          }
-        },
-        {
-          "match": {
-            "body": {
-              "query": "@term@",
-              "fuzziness": 3,
-              "cutoff_frequency": 0.001,
-              "minimum_should_match": "80%"
-            }
+  "query":{
+    "bool":{
+      "filter":{
+        "terms":{
+          "permissions": [@permissions@]
+        }
+      },
+      "must":{
+        "match":{
+          "body":{
+            "query": "@term@",
+            "fuzziness":3,
+            "cutoff_frequency":0.001,
+            "minimum_should_match":"80%"
           }
         }
-      ]
+      }
+    }
+  },
+  "highlight" : {
+    "fields" : {
+      "body" : {"pre_tags" : ["<b><em><span class='searchMatch'>"], "post_tags" : ["</span></em></b>"]}
     }
   }
 }

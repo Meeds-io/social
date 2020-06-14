@@ -112,7 +112,8 @@ public class ActivitySearchConnector {
     for (Object jsonHit : jsonHits) {
       ActivitySearchResult activitySearchResult = new ActivitySearchResult();
 
-      JSONObject hitSource = (JSONObject) ((JSONObject) jsonHit).get("_source");
+      JSONObject jsonHitObject = (JSONObject) jsonHit;
+      JSONObject hitSource = (JSONObject) jsonHitObject.get("_source");
       Long id = parseLong(hitSource, "id");
       Long posterId = parseLong(hitSource, "posterId");
       Long parentId = parseLong(hitSource, "parentId");
@@ -120,6 +121,11 @@ public class ActivitySearchConnector {
       Long postedTime = parseLong(hitSource, "postedTime");
       Long lastUpdatedTime = parseLong(hitSource, "lastUpdatedTime");
       String body = (String) hitSource.get("body");
+      JSONObject hightlightSource = (JSONObject) jsonHitObject.get("highlight");
+      JSONArray bodyExcepts = (JSONArray) hightlightSource.get("body");
+      @SuppressWarnings("unchecked")
+      String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
+      List<String> excerpts = Arrays.asList(bodyExceptsArray);
 
       if (parentId == null) {
         // Activity
@@ -139,6 +145,7 @@ public class ActivitySearchConnector {
           activitySearchResult.setPoster(posterIdentity);
         }
         activitySearchResult.setBody(body);
+        activitySearchResult.setExcerpts(excerpts);
       } else {
         // Comment or sub comment
         ActivitySearchResult commentSearchResult = new ActivitySearchResult();
@@ -155,9 +162,12 @@ public class ActivitySearchConnector {
         }
         if (posterId != null) {
           Identity posterIdentity = identityManager.getIdentity(posterId.toString());
+          posterIdentity = posterIdentity.clone();
+          posterIdentity.setProfile(null);
           commentSearchResult.setPoster(posterIdentity);
         }
         commentSearchResult.setBody(body);
+        commentSearchResult.setExcerpts(excerpts);
         activitySearchResult.setComment(commentSearchResult);
         activitySearchProcessor.formatSearchResult(commentSearchResult);
 

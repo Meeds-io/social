@@ -17,6 +17,7 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -45,10 +46,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.ActivityRestResources;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.CommentEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -505,6 +503,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
 
   @GET
   @Path("search")
+  @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @ApiOperation(
       value = "Search activities using a query",
@@ -519,7 +518,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response searchActivities(@Context UriInfo uriInfo,
-                                   @ApiParam(value = "Term to search", required = true) @PathParam(
+                                   @ApiParam(value = "Term to search", required = true) @QueryParam(
                                        "q"
                                      ) String query,
                                      @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam(
@@ -542,9 +541,15 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
 
     ActivitySearchConnector activitySearchConnector = CommonsUtils.getService(ActivitySearchConnector.class);
     ActivitySearchFilter filter = new ActivitySearchFilter(query);
-    List<ActivitySearchResult> result = activitySearchConnector.search(currentUser, filter, offset, limit);
+    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUser, filter, offset, limit);
+    List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
+      ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
+      entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
+      entity.setStreamOwner(EntityBuilder.buildEntityIdentity(searchResult.getStreamOwner(), uriInfo.getPath(), "all"));
+      return entity;
+    }).collect(Collectors.toList());
 
-    return Response.ok(result).build();
+    return Response.ok(results).build();
   }
 
 }
