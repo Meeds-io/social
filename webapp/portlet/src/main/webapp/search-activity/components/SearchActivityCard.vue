@@ -4,12 +4,15 @@
       <exo-user-avatar
         :username="poster.username"
         :fullname="poster.fullname"
-        :title="poster.fullname" />
-      <template v-if="activityInSpace" slot="subTitle">
-        {{ spaceDisplayName }}
-      </template>
+        :title="poster.fullname">
+      </exo-user-avatar>
     </v-card-text>
     <v-divider />
+    <v-card-text v-if="spaceDisplayName" class="pb-0">
+      <p class="font-weight-bold text-truncate pb-0 mb-0">
+        <exo-space-avatar :space="streamOwner" size="21" />
+      </p>
+    </v-card-text>
     <v-card-text>
       <p v-if="isComment" class="font-weight-bold">
         {{ $t('Search.activity.inComment') }}
@@ -49,17 +52,21 @@ export default {
     isComment() {
       return this.result && this.result.comment;
     },
+    activity() {
+      return this.isComment && this.result.comment || this.result;
+    },
     poster() {
-      return this.result && (this.isComment && this.result.comment.poster.profile || this.result.poster.profile);
+      console.log('poster.profile', this.activity && this.activity.poster.profile);
+      return this.activity && this.activity.poster.profile;
     },
-    activityInSpace() {
-      return this.result && this.result.streamOwner && this.result.streamOwner && this.result.streamOwner.providerId === 'space';
-    },
-    excerpts() {
-      return this.result && (this.isComment && this.result.comment.excerpts || this.result.excerpts);
+    streamOwner() {
+      return this.activity && this.activity.streamOwner.space || this.activity.streamOwner.profile;
     },
     spaceDisplayName() {
-      return this.result && this.result.streamOwner && this.result.streamOwner.space && this.result.streamOwner.space.displayName;
+      return this.streamOwner && this.streamOwner.displayName;
+    },
+    excerpts() {
+      return this.activity && this.activity.excerpts;
     },
   },
   created() {

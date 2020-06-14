@@ -8,13 +8,20 @@
           "permissions": [@permissions@]
         }
       },
+      "should": {
+        "match_phrase": {
+          "body": {
+            "query": "@term@",
+            "boost": 5
+          }
+        }
+      },
       "must":{
         "match":{
           "body":{
             "query": "@term@",
-            "fuzziness":3,
-            "cutoff_frequency":0.001,
-            "minimum_should_match":"80%"
+            "fuzziness": 2,
+            "operator": "and"
           }
         }
       }
@@ -22,7 +29,10 @@
   },
   "highlight" : {
     "fields" : {
-      "body" : {"pre_tags" : ["<b><em><span class='searchMatch'>"], "post_tags" : ["</span></em></b>"]}
+      "body" : {
+        "pre_tags" : ["<span class='searchMatchExcerpt'>"],
+        "post_tags" : ["</span>"]
+      }
     }
   }
 }

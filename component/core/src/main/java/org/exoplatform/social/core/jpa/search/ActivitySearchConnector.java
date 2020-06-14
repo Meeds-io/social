@@ -162,8 +162,6 @@ public class ActivitySearchConnector {
         }
         if (posterId != null) {
           Identity posterIdentity = identityManager.getIdentity(posterId.toString());
-          posterIdentity = posterIdentity.clone();
-          posterIdentity.setProfile(null);
           commentSearchResult.setPoster(posterIdentity);
         }
         commentSearchResult.setBody(body);
@@ -203,7 +201,11 @@ public class ActivitySearchConnector {
       Identity posterIdentity = identityManager.getIdentity(activity.getPosterId());
       activitySearchResult.setPoster(posterIdentity);
     }
-    activitySearchResult.setBody(activity.getBody());
+    if (StringUtils.isNotBlank(activity.getTitle())) {
+      activitySearchResult.setBody(activity.getTitle());
+    } else {
+      activitySearchResult.setBody(activity.getBody());
+    }
     activitySearchProcessor.formatSearchResult(activitySearchResult);
   }
 
