@@ -8,25 +8,27 @@
       </exo-user-avatar>
     </v-card-text>
     <v-divider />
-    <v-card-text v-if="spaceDisplayName" class="pb-0">
-      <p class="font-weight-bold text-truncate pb-0 mb-0">
+    <v-card-text class="pb-0">
+      <p v-if="spaceDisplayName" class="font-weight-bold text-truncate mb-1">
         <exo-space-avatar :space="streamOwner" size="21" />
       </p>
-    </v-card-text>
-    <v-card-text>
-      <p v-if="isComment" class="font-weight-bold">
+      <p v-if="isComment" class="font-weight-bold mb-1">
         {{ $t('Search.activity.inComment') }}
       </p>
-      <div
+      <p
         v-for="(excerpt, index) in excerpts"
         :key="index"
-        class="text-color"
+        class="text-color mb-1"
         v-html="excerpt">
-      </div>
+      </p>
     </v-card-text>
     <v-card-actions>
-      <v-btn text color="primary">
-        Go to activity
+      <v-btn
+        :href="link"
+        link
+        text
+        color="primary">
+        {{ $t('Search.activity.open') }}
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -56,7 +58,6 @@ export default {
       return this.isComment && this.result.comment || this.result;
     },
     poster() {
-      console.log('poster.profile', this.activity && this.activity.poster.profile);
       return this.activity && this.activity.poster.profile;
     },
     streamOwner() {
@@ -67,6 +68,13 @@ export default {
     },
     excerpts() {
       return this.activity && this.activity.excerpts;
+    },
+    link() {
+      if (this.isComment) {
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.result.id}#comment-comment${this.result.comment.id}`
+      } else {
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.activity.id}`
+      }
     },
   },
   created() {
