@@ -44,13 +44,13 @@ public class ActivityESListener implements ActivityListener {
 
   private void reindexActivity(ExoSocialActivity activity, String cause) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    LOG.info("Notifying indexing service for activity with id={}. Cause: {}", activity.getId(), cause);
+    LOG.debug("Notifying indexing service for activity with id={}. Cause: {}", activity.getId(), cause);
     indexingService.reindex(ActivityIndexingServiceConnector.TYPE, activity.getId());
   }
 
   private void unindexActivity(ExoSocialActivity activity, String cause) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    LOG.info("Notifying indexing service for activity with id={}. Cause: {}", activity.getId(), cause);
+    LOG.debug("Notifying indexing service for activity with id={}. Cause: {}", activity.getId(), cause);
     indexingService.unindex(ActivityIndexingServiceConnector.TYPE, activity.getId());
   }
 

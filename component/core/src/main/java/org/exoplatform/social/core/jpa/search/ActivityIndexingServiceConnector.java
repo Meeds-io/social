@@ -141,6 +141,13 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     activitySearchProcessor.index(activity, document);
     body = document.getFields().get("body");
 
+    // Add additional common pattern of information added
+    // in field 'description'
+    if (activity.getTemplateParams() != null && activity.getTemplateParams().containsKey("description")) {
+      body += '\n';
+      body += activity.getTemplateParams().get("description");
+    }
+
     // Ensure to index text only without html tags
     if (StringUtils.isNotBlank(body)) {
       body = StringEscapeUtils.unescapeHtml(body);

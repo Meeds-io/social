@@ -508,7 +508,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       
       //set permission for page
       String visibility = space.getVisibility();
-      if (visibility.equals(Space.PUBLIC)) {
+      if (StringUtils.equals(visibility, Space.PUBLIC)) {
         page.setAccessPermissions(new String[]{UserACL.EVERYONE});
       } else {
         page.setAccessPermissions(new String[]{"*:" + space.getGroupId()});
