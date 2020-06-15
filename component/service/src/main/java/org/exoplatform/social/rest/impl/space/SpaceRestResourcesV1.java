@@ -1031,6 +1031,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       space.setVisibility(Space.HIDDEN);
     } else if (StringUtils.equalsIgnoreCase(Space.PRIVATE, model.getVisibility())) {
       space.setVisibility(Space.PRIVATE);
+    } else if (StringUtils.equalsIgnoreCase(Space.PUBLIC, model.getVisibility())) {
+      space.setVisibility(Space.PUBLIC);
+    } else if (StringUtils.isBlank(model.getVisibility()) && space.getId() == null) {
+      space.setVisibility(Space.PRIVATE);
     }
 
     if (StringUtils.equalsIgnoreCase(Space.OPEN, model.getSubscription())) {
@@ -1038,6 +1042,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     } else if (StringUtils.equalsIgnoreCase(Space.CLOSE, model.getSubscription())) {
       space.setRegistration(Space.CLOSE);
     } else if (StringUtils.equalsIgnoreCase(Space.VALIDATION, model.getSubscription())) {
+      space.setRegistration(Space.VALIDATION);
+    } else if (StringUtils.isBlank(model.getSubscription()) && space.getId() == null) {
       space.setRegistration(Space.VALIDATION);
     }
   }
