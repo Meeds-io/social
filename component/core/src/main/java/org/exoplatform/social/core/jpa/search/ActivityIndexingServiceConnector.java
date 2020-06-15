@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -36,13 +37,13 @@ import org.exoplatform.social.core.processor.I18NActivityProcessor;
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
   private static final long             serialVersionUID = 4102484220845897854L;
 
-  public static final String           TYPE             = "activity";
+  public static final String            TYPE             = "activity";
 
   private static final Log              LOG              = ExoLogger.getLogger(ActivityIndexingServiceConnector.class);
 
   private final ActivitySearchProcessor activitySearchProcessor;                                                       // NOSONAR
 
-  private final I18NActivityProcessor   i18nActivityProcessor;                                                       // NOSONAR
+  private final I18NActivityProcessor   i18nActivityProcessor;                                                         // NOSONAR
 
   private final ActivityManager         activityManager;                                                               // NOSONAR
 
@@ -117,11 +118,10 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     }
     ActivityStream activityStream = activity.getActivityStream();
     String ownerIdentityId = null;
-    if (activityStream == null || activityStream.getType() == null || StringUtils.isBlank(activityStream.getPrettyId())) {
-      if (activity.getParentId() != null) {
-        ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());
-        activityStream = parentActivity.getActivityStream();
-      }
+    if (activity.getParentId() != null
+        && (activityStream == null || activityStream.getType() == null || StringUtils.isBlank(activityStream.getPrettyId()))) {
+      ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());
+      activityStream = parentActivity.getActivityStream();
     }
 
     if (activityStream != null && activityStream.getType() != null && StringUtils.isNotBlank(activityStream.getPrettyId())) {
@@ -151,11 +151,37 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     // Ensure to index text only without html tags
     if (StringUtils.isNotBlank(body)) {
       body = StringEscapeUtils.unescapeHtml(body);
-      body = body.replaceAll("<\\S+\\s*([^><])*>", "");
+      try {
+        body = HTMLSanitizer.sanitize(body);
+      } catch (Exception e) {
+        LOG.warn("Error sanitizing activity '{}' body", activity.getId());
+      }
+      body = htmlToText(body);
       document.addField("body", body);
     }
 
     return document;
+  }
+
+  private String htmlToText(String source) {
+    source = source.replaceAll("<( )*head([^>])*>", "<head>");
+    source = source.replaceAll("(<( )*(/)( )*head( )*>)", "</head>");
+    source = source.replaceAll("(<head>).*(</head>)", "");
+    source = source.replaceAll("<( )*script([^>])*>", "<script>");
+    source = source.replaceAll("(<( )*(/)( )*script( )*>)", "</script>");
+    source = source.replaceAll("(<script>).*(</script>)", "");
+    source = source.replaceAll("javascript:", "");
+    source = source.replaceAll("<( )*style([^>])*>", "<style>");
+    source = source.replaceAll("(<( )*(/)( )*style( )*>)", "</style>");
+    source = source.replaceAll("(<style>).*(</style>)", "");
+    source = source.replaceAll("<( )*td([^>])*>", "\t");
+    source = source.replaceAll("<( )*br( )*(/)*>", "\n");
+    source = source.replaceAll("<( )*li( )*>", "\n");
+    source = source.replaceAll("<( )*div([^>])*>", "\n");
+    source = source.replaceAll("<( )*tr([^>])*>", "\n");
+    source = source.replaceAll("<( )*p([^>])*>", "\n");
+    source = source.replaceAll("<[^>]*>", "");
+    return source;
   }
 
 }
