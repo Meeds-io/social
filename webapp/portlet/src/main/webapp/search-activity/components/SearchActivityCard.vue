@@ -29,6 +29,8 @@
 </template>
 
 <script>
+const MAX_EXCERPT_CHARS_LENGTH = 130;
+
 export default {
   props: {
     term: {
@@ -68,7 +70,41 @@ export default {
       if (!excerpt) {
         return '';
       }
-      return $('<div />').html(excerpt).html();
+      let excerptText = $('<div />').html(excerpt).text();
+      if (excerptText.length > MAX_EXCERPT_CHARS_LENGTH) {
+        const excerptParts = excerpt.split(new RegExp('<span class=["\']searchMatchExcerpt["\']>(.*)</span>'));
+        let startPart = excerptParts[0];
+        let endPart = excerptParts[excerptParts.length - 1];
+        const excerptMandatoryParts = [];
+        for (let i = 1; i < excerptParts.length - 1; i++) {
+          excerptMandatoryParts.push(`<span class="searchMatchExcerpt">${excerptParts[i]}</span>`);
+        }
+        const exceptToDisplay = excerptMandatoryParts.join();
+        excerptText = $('<div />').html(exceptToDisplay).text();
+        if (excerptText.length > MAX_EXCERPT_CHARS_LENGTH) {
+          return exceptToDisplay;
+        }
+
+        const excerptHighlightLength = excerptText.length;
+        const quoteCharsBoudaries = parseInt((MAX_EXCERPT_CHARS_LENGTH - excerptHighlightLength) / 2);
+
+        const startIndex = startPart.length - quoteCharsBoudaries;
+        let endIndex = quoteCharsBoudaries;
+
+        if (startIndex > 0) {
+          startPart = `...${startPart.substring(startIndex)}`;
+        } else {
+          endIndex -= startIndex;
+        }
+
+        if (endIndex < endPart.length) {
+          endPart = `${endPart.substring(0, endIndex)}...`;
+        }
+
+        return `${startPart}${exceptToDisplay}${endPart}`;
+      } else {
+        return excerpt;
+      }
     },
     link() {
       if (this.isComment) {

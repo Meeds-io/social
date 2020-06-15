@@ -83,7 +83,7 @@ export default {
       return this.resultsArray && this.resultsArray.length;
     },
     noResults() {
-      return !this.hasResults && this.term && !this.searching;
+      return !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
     },
     enabledConnectors() {
       return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
