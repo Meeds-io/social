@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-btn icon class="transparent" @click="dialog = !dialog">
+    <v-btn
+      :title="buttonTooltip"
+      icon
+      class="transparent"
+      @click="dialog = !dialog">
       <i class="uiIconPLF24x24Search" />
     </v-btn>
     <v-fade-transition>
@@ -40,6 +44,11 @@ export default {
     pageUri: null,
     pageTitle: null,
   }),
+  computed: {
+    buttonTooltip() {
+      return this.$t('Search.button.tooltip.open', {0: 'Ctrl + Alt + F'});
+    },
+  },
   watch: {
     term() {
       const term = window.encodeURIComponent(this.term || '');
@@ -70,6 +79,9 @@ export default {
       $(document).on('keydown', (event) => {
         if (event.key === 'Escape') {
           this.dialog = false;
+        }
+        if (event.ctrlKey && event.altKey && event.key === 'f') {
+          this.dialog = !this.dialog;
         }
       });
     }
