@@ -2,6 +2,30 @@
   <v-flex>
     <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
       <v-chip
+        :outlined="!allEnabled"
+        :color="allEnabled ? 'primary' : ''"
+        class="mx-1 border-color"
+        @click="selectAllConnector">
+        <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
+      </v-chip>
+      <v-chip
+        v-for="connector in connectors"
+        :key="connector.name"
+        :outlined="allEnabled || !connector.enabled"
+        :color="!allEnabled && connector.enabled ? 'primary' : ''"
+        class="mx-1 border-color"
+        @click="selectConnector(connector)">
+        <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
+      </v-chip>
+      <v-checkbox
+        v-model="allEnabled"
+        :disabled="allEnabled"
+        :label="$t('search.connector.label.all')"
+        class="d-inline-flex">
+      </v-checkbox>
+    </v-flex>
+    <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+      <v-chip
         v-for="connector in connectors"
         :key="connector.name"
         :outlined="!connector.enabled"
@@ -10,6 +34,30 @@
         @click="selectConnector(connector)">
         <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
       </v-chip>
+      <v-chip
+        :outlined="!allEnabled"
+        :color="allEnabled ? 'primary' : ''"
+        class="mx-1 border-color"
+        @click="selectAllConnector">
+        <v-avatar left>
+          <v-icon>mdi-check</v-icon>
+        </v-avatar>
+        <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
+      </v-chip>
+    </v-flex>
+    <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+      <v-chip
+        v-for="connector in connectors"
+        :key="connector.name"
+        :outlined="!connector.enabled"
+        :color="connector.enabled ? 'primary' : ''"
+        class="mx-1 border-color"
+        @click="selectConnector(connector)">
+        <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
+      </v-chip>
+      <v-btn v-if="!allEnabled" text color="error" @click="selectAllConnector">
+        {{ $t('search.connector.label.clear') }}
+      </v-btn>
     </v-flex>
     <v-row v-if="hasResults" class="searchResultsParent mx-4 border-box-sizing">
       <v-col
@@ -64,6 +112,7 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
+    allEnabled: true,
     searching: 0,
     abortController: null,
   }),
@@ -98,6 +147,11 @@ export default {
     },
   },
   watch: {
+    allEnabled() {
+      if (this.allEnabled) {
+        this.selectAllConnector();
+      }
+    },
     searching(newValue, oldValue) {
       if (newValue && !oldValue) {
         document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
@@ -125,6 +179,12 @@ export default {
     this.$root.$on('refresh', this.retrieveConnectorResults);
   },
   methods: {
+    selectAllConnector() {
+      this.connectors.forEach(connector => {
+        connector.enabled = true;
+      });
+      this.allEnabled = true;
+    },
     selectConnector(selectedConnector) {
       if (!selectedConnector) {
         return;
@@ -135,12 +195,16 @@ export default {
           connector.enabled = connector.name === selectedConnector.name;
         });
       } else if (selectedConnector.enabled && this.enabledConnectors.length === 1) {
-        this.connectors.forEach(connector => {
-          connector.enabled = true;
-        });
+        this.selectAllConnector();
       } else {
         selectedConnector.enabled = !selectedConnector.enabled;
       }
+
+      let allEnabled = true;
+      this.connectors.forEach(connector => {
+        allEnabled = allEnabled && connector.enabled;
+      });
+      this.allEnabled = allEnabled;
       return this.$nextTick().then(this.search);
     },
     loadMore() {
