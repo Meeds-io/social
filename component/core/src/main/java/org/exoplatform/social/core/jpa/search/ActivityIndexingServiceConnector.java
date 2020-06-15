@@ -18,6 +18,7 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.util.*;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
@@ -84,11 +85,16 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     ExoSocialActivity activity = activityManager.getActivity(id);
     Map<String, String> fields = new HashMap<>();
     fields.put("id", activity.getId().replace("comment", ""));
-    if (StringUtils.isNotBlank(activity.getBody())) {
-      fields.put("body", String.valueOf(activity.getBody()));
-    } else if (StringUtils.isNotBlank(activity.getTitle())) {
-      fields.put("body", String.valueOf(activity.getTitle()));
+
+    String body = activity.getBody();
+    if (StringUtils.isBlank(body)) {
+      body = activity.getTitle();
     }
+    if (StringUtils.isNotBlank(body)) {
+      body = StringEscapeUtils.unescapeHtml(body);
+      body = body.replaceAll("<\\S*(\\s[^>])*>", "");
+    }
+    fields.put("body", body);
     if (StringUtils.isNotBlank(activity.getParentId())) {
       fields.put("parentId", activity.getParentId());
     }

@@ -1,22 +1,21 @@
 <template>
-  <v-card class="mr-2 mb-4">
-    <v-card-text>
+  <v-card class="d-flex flex-column border-radius box-shadow mr-2 mb-4" flat min-height="227">
+    <v-card-text class="pa-2">
       <exo-user-avatar
         :username="poster.username"
         :fullname="poster.fullname"
         :title="poster.fullname">
       </exo-user-avatar>
     </v-card-text>
-    <v-divider />
-    <v-card-text class="pb-0">
+    <v-divider class="box-shadow no-border" />
+    <v-card-text class="pb-0 flex-grow-1 flex-shrink-0">
       <blockquote
-        v-for="(excerpt, index) in excerpts"
-        :key="index"
-        class="text-color mb-1"
+        v-if="excerpt"
+        class="text-color mb-0"
         v-html="excerpt">
       </blockquote>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions class="pt-1">
       <v-btn
         :href="link"
         link
@@ -63,6 +62,13 @@ export default {
     },
     excerpts() {
       return this.activity && this.activity.excerpts;
+    },
+    excerpt() {
+      const excerpt = this.excerpts && this.excerpts.length && this.excerpts[0];
+      if (!excerpt) {
+        return '';
+      }
+      return $('<div />').html(excerpt).html();
     },
     link() {
       if (this.isComment) {
