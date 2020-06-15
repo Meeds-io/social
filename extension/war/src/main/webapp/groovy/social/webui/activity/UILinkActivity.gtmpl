@@ -92,13 +92,14 @@
     labels: $labels
   }"""
 
+  String activityBody = new StringBuilder(uicomponent.getDefaultTitle()).append("<br><br><br>");
   String ckEditorType = new StringBuilder("editActivity").append(activity.id);
   //params for init edit composer component
   def composerParams = """ {
     activityId: '${activity.id}',
     composerAction: 'update',
     ckEditorType: '${ckEditorType}',
-    activityBody: `${activity.title}`
+    activityBody: `${activityBody}`
   } """
 
   jsManager.require("SHARED/jquery", "jq")
@@ -132,7 +133,6 @@
     }
 	def viewerId = Utils.getViewerIdentity().getId();
 %>
-<div id="activityComposer"></div>
 <div class="activityStream uiActivityStreamWrapper uiLinkActivity" id="activityContainer${activity.id}">
   <% uiform.begin() %>
 
@@ -143,6 +143,7 @@
 					<span class="arrowLeft"></span>
                <div class="activityHeader">
                 <% _ctx.includeTemplates("UIActivityHeading") %>
+                <div id="activityComposer"></div>
                 <!-- three dots activity menu -->
                     <div id="dropDownEditActivity${activity.id}" class="btn-group uiDropdownWithIcon actLink">
                         <div class="dropdown-toggle" data-toggle="dropdown">

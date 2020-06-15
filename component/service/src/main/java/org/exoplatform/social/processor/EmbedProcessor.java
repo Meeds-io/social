@@ -31,6 +31,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
   private static final String LINK_ACTIVITY = "LINK_ACTIVITY";
   private static final String FILE_ACTIVITY = "files:spaces";
   private static final String HTML_PARAM = "html";
+  private static final String DEFAULT_TITLE = "default_title";
 
 
   public EmbedProcessor(InitParams params) {
@@ -89,6 +90,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
            } else {
              activity.setType(LINK_ACTIVITY);
            }
+           templateParams.put(DEFAULT_TITLE, defaultValue);
            activity.setTemplateParams(templateParams);
        }
      } catch (Exception e) {
