@@ -21,7 +21,7 @@
           "body":{
             "query": "@term@",
             "operator": "and",
-            "fuzziness": 1,
+            "fuzziness": 0.5,
             "cutoff_frequency": 0.001,
             "minimum_should_match": "90%"
           }
