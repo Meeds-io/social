@@ -31,6 +31,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.processor.I18NActivityProcessor;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
   private static final long             serialVersionUID = 4102484220845897854L;
@@ -41,11 +42,14 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
 
   private final ActivitySearchProcessor activitySearchProcessor;                                                       // NOSONAR
 
+  private final I18NActivityProcessor   i18nActivityProcessor;                                                       // NOSONAR
+
   private final ActivityManager         activityManager;                                                               // NOSONAR
 
   private final IdentityManager         identityManager;                                                               // NOSONAR
 
   public ActivityIndexingServiceConnector(ActivitySearchProcessor activitySearchProcessor,
+                                          I18NActivityProcessor i18nActivityProcessor,
                                           IdentityManager identityManager,
                                           ActivityManager activityManager,
                                           InitParams initParams) {
@@ -54,6 +58,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     this.activityManager = activityManager;
     this.identityManager = identityManager;
     this.activitySearchProcessor = activitySearchProcessor;
+    this.i18nActivityProcessor = i18nActivityProcessor;
   }
 
   @Override
@@ -86,13 +91,16 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     Map<String, String> fields = new HashMap<>();
     fields.put("id", activity.getId().replace("comment", ""));
 
+    if (activity.getTitleId() != null) {
+      try {
+        activity = i18nActivityProcessor.process(activity, Locale.ENGLISH);
+      } catch (Exception e) {
+        LOG.warn("Error while indexing I18N activity '{}' with type '{}'", activity.getId(), activity.getType(), e);
+      }
+    }
     String body = activity.getBody();
     if (StringUtils.isBlank(body)) {
       body = activity.getTitle();
-    }
-    if (StringUtils.isNotBlank(body)) {
-      body = StringEscapeUtils.unescapeHtml(body);
-      body = body.replaceAll("<\\S*(\\s[^>])*>", "");
     }
     fields.put("body", body);
     if (StringUtils.isNotBlank(activity.getParentId())) {
@@ -131,6 +139,15 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     }
     Document document = new Document(TYPE, id, null, activity.getUpdated(), Collections.singleton(ownerIdentityId), fields);
     activitySearchProcessor.index(activity, document);
+    body = document.getFields().get("body");
+
+    // Ensure to index text only without html tags
+    if (StringUtils.isNotBlank(body)) {
+      body = StringEscapeUtils.unescapeHtml(body);
+      body = body.replaceAll("<\\S+\\s*([^><])*>", "");
+      document.addField("body", body);
+    }
+
     return document;
   }
 
