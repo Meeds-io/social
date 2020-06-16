@@ -134,10 +134,14 @@ export default {
   },
   methods: {
     selectAllConnector() {
+      if (this.allEnabled) {
+        return;
+      }
       this.connectors.forEach(connector => {
         connector.enabled = true;
       });
       this.allEnabled = true;
+      return this.$nextTick().then(this.search);
     },
     selectConnector(selectedConnector) {
       if (!selectedConnector) {
@@ -149,7 +153,9 @@ export default {
           connector.enabled = connector.name === selectedConnector.name;
         });
       } else if (selectedConnector.enabled && this.enabledConnectors.length === 1) {
-        this.selectAllConnector();
+        this.connectors.forEach(connector => {
+          connector.enabled = true;
+        });
       } else {
         selectedConnector.enabled = !selectedConnector.enabled;
       }
