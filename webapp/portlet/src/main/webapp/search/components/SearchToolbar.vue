@@ -1,17 +1,21 @@
 <template>
-  <v-list-item class="pr-0 my-2">
+  <v-list-item class="px-0 my-2">
     <v-list-item-content class="align-start">
-      <input
+      <v-text-field
         id="searchInput"
         ref="searchInput"
         v-model="term"
         :placeholder="$t('Search.label.inputPlaceHolder')"
         type="text"
         autocomplete="off"
-        class="fill-width my-auto no-border no-box-shadow headline" />
+        class="fill-width my-auto pt-0 px-4 searchInputParent">
+      </v-text-field>
     </v-list-item-content>
-    <v-list-item-action v-if="!standalone" class="align-end d-flex flex-row mx-0">
-      <v-btn icon class="searchCloseIcon transparent mx-4" @click="$emit('close-search')">
+    <v-list-item-action class="align-end d-flex flex-row ml-0 mr-4">
+      <v-btn v-if="term" text color="error" @click="clearSearchTerm">
+        {{ $t('search.connector.label.clear') }}
+      </v-btn>
+      <v-btn v-if="!standalone" icon class="searchCloseIcon transparent" @click="$emit('close-search')">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-list-item-action>
@@ -49,7 +53,7 @@ export default {
   created() {
     this.$root.$on('search-opened', () => {
       window.setTimeout(() => {
-        this.$refs.searchInput.focus();
+        this.$refs.searchInput.$el.querySelector('input').focus();
       }, 200);
     });
     if (this.standalone) {
@@ -67,6 +71,12 @@ export default {
     }
   },
   methods: {
+    clearSearchTerm() {
+      this.term = '';
+      window.setTimeout(() => {
+        this.$refs.searchInput.$el.querySelector('input').focus();
+      }, 200);
+    },
     waitForEndTyping() {
       window.setTimeout(() => {
         if (Date.now() > this.startTypingKeywordTimeout) {
