@@ -25,7 +25,6 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
-    displayDrawers: false,
   }),
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];

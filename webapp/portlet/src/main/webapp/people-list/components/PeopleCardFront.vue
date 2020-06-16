@@ -3,7 +3,7 @@
     <v-img
       :src="!skeleton && userBannerUrl || ''"
       height="80px"
-      class="white--text align-start d-none d-sm-block peopleBannerImg">
+      class="white--text align-start d-block peopleBannerImg">
     </v-img>
 
     <div class="peopleToolbarIcons px-2">
@@ -12,7 +12,7 @@
         :class="skeleton && 'skeleton-background skeleton-text'"
         icon
         small
-        class="peopleInfoIcon d-none d-sm-flex"
+        class="peopleInfoIcon d-flex"
         @click="$emit('flip')">
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
@@ -21,10 +21,10 @@
         :title="$t('peopleList.label.spaceManager')"
         :ripple="false"
         color="primary"
-        class="peopleInfoIcon d-none d-sm-flex not-clickable primary-border-color ml-1"
+        class="peopleInfoIcon d-flex not-clickable primary-border-color ml-1"
         icon
         small>
-        <span class="d-none d-sm-flex uiIconMemberAdmin primary--text"></span>
+        <span class="d-flex uiIconMemberAdmin primary--text"></span>
       </v-btn>
       <v-spacer />
       <template v-if="skeleton || canUseActionsMenu">
@@ -33,7 +33,7 @@
           :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
-          class="peopleMenuIcon d-none d-sm-block"
+          class="peopleMenuIcon d-block"
           @click="displayActionMenu = true">
           <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
@@ -103,44 +103,44 @@
         depressed
         disabled
         block>
-        <span v-if="user.deleted" class="d-none d-sm-inline">
+        <span v-if="user.deleted" class="d-inline peopleDeleteButton">
           {{ $t('peopleList.label.deletedUser') }}
         </span>
-        <span v-else class="d-none d-sm-inline">
+        <span v-else class="d-inline peopleDeleteButton">
           {{ $t('peopleList.label.disabledUser') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-minus</v-icon>
+        <v-icon class="d-none peopleDeleteButtonMinus">mdi-minus</v-icon>
       </v-btn>
       <v-btn
         v-else-if="user.relationshipStatus === 'CONFIRMED'"
         :loading="sendingAction"
         :disabled="sendingAction"
-        class="btn mx-auto disconnectUserButton"
+        class="btn mx-auto peopleRelationshipButton disconnectUserButton"
         depressed
         block
         @click="disconnectConfirm">
-        <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
-        <span class="d-none d-sm-inline">
+        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+        <span class="d-inline peopleRelationshipButtonText">
           {{ $t('peopleList.button.disconnect') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-minus</v-icon>
+        <v-icon class="d-none relationshipButtonMinus">mdi-minus</v-icon>
       </v-btn>
       <div v-else-if="user.relationshipStatus === 'INCOMING'" class="invitationButtons">
         <div class="acceptToConnectButtonParent">
           <v-btn
             :loading="sendingAction"
             :disabled="sendingAction"
-            class="btn mx-auto acceptToConnectButton"
+            class="btn mx-auto peopleRelationshipButton acceptToConnectButton"
             depressed
             @click="acceptToConnect">
-            <i class="uiIconSocConnectUser d-none d-sm-inline"/>
-            <span class="d-none d-sm-flex">
+            <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"/>
+            <span class="d-flex">
               {{ $t('peopleList.button.acceptToConnect') }}
             </span>
-            <v-icon class="d-inline d-sm-none">mdi-check</v-icon>
+            <v-icon class="d-none relationshipButtonMinus">mdi-check</v-icon>
           </v-btn>
           <v-btn
-            class="btn peopleButtonMenu d-none d-sm-inline"
+            class="btn peopleButtonMenu d-inline"
             depressed
             x-small
             @click="displaySecondButton = !displaySecondButton">
@@ -151,45 +151,45 @@
           v-show="displaySecondButton"
           :loading="sendingSecondAction"
           :disabled="sendingSecondAction"
-          class="btn mx-auto refuseToConnectButton"
+          class="btn mx-auto peopleRelationshipButton refuseToConnectButton"
           depressed
           block
           @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
-          <span class="d-none d-sm-flex">
+          <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+          <span class="d-flex">
             {{ $t('peopleList.button.refuseToConnect') }}
           </span>
-          <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
+          <v-icon class="d-none relationshipButtonMinus">mdi-close</v-icon>
         </v-btn>
       </div>
       <v-btn
         v-else-if="user.relationshipStatus === 'OUTGOING'"
         :loading="sendingAction"
         :disabled="sendingAction"
-        class="btn mx-auto cancelRequestButton"
+        class="btn mx-auto peopleRelationshipButton cancelRequestButton"
         depressed
         block
         @click="cancelRequest">
-        <i class="uiIconSocCancelConnectUser d-none d-sm-inline"/>
-        <span class="d-none d-sm-inline">
+        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+        <span class="d-inline peopleRelationshipButtonText">
           {{ $t('peopleList.button.cancelRequest') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-close</v-icon>
+        <v-icon class="d-none relationshipButtonMinus">mdi-close</v-icon>
       </v-btn>
       <v-btn
         v-else
         :class="skeleton && 'skeleton-background skeleton-text'"
         :loading="sendingAction"
         :disabled="sendingAction || skeleton"
-        class="btn mx-auto connectUserButton"
+        class="btn mx-auto peopleRelationshipButton connectUserButton"
         depressed
         block
         @click="connect">
-        <i class="uiIconSocConnectUser d-none d-sm-inline"/>
-        <span class="d-none d-sm-inline">
+        <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"/>
+        <span class="d-inline peopleRelationshipButtonText">
           {{ skeleton && '&nbsp;' || $t('peopleList.button.connect') }}
         </span>
-        <v-icon class="d-inline d-sm-none">mdi-plus</v-icon>
+        <v-icon class="d-none relationshipButtonMinus">mdi-plus</v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>
