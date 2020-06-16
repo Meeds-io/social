@@ -82,6 +82,11 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public boolean canReindex() {
+    return false;
+  }
+
   private Document getDocument(String id) {
     if (StringUtils.isBlank(id)) {
       throw new IllegalArgumentException("id is mandatory");
@@ -89,6 +94,9 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     LOG.debug("Index document for activity id={}", id);
 
     ExoSocialActivity activity = activityManager.getActivity(id);
+    if (activity == null) {
+      throw new IllegalStateException("activity with id '" + id + "' is mandatory");
+    }
     Map<String, String> fields = new HashMap<>();
     fields.put("id", activity.getId().replace("comment", ""));
 
