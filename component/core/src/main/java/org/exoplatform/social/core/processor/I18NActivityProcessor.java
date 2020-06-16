@@ -66,7 +66,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
  * 
  * @see org.exoplatform.social.core.processor.ActivityResourceBundlePlugin
  */
-public final class I18NActivityProcessor {
+public class I18NActivityProcessor {
 
   /**
    * The Logger.
