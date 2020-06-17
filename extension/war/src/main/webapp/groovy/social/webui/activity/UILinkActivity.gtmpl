@@ -92,8 +92,12 @@
     labels: $labels
   }"""
 
-  String activityBody = new StringBuilder(uicomponent.getDefaultTitle()).append("<br><br><br>");
+  String activityLink = new StringBuilder("<p><a id='editActivityLinkPreview' href='").append(uicomponent.getLinkTitle())
+                        .append("'>").append(uicomponent.getLinkTitle()).append("</a></p>");
+  def activityTitle = uicomponent.getDefaultTitle();
+  String activityBody = new StringBuilder(activityTitle.split('<oembed>')[0]).append(activityLink);
   String ckEditorType = new StringBuilder("editActivity").append(activity.id);
+
   //params for init edit composer component
   def composerParams = """ {
     activityId: '${activity.id}',
