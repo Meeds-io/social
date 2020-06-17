@@ -64,6 +64,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    standalone: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     term: null,
@@ -131,6 +135,11 @@ export default {
   },
   created() {
     this.$root.$on('refresh', this.retrieveConnectorResults);
+    let allEnabled = true;
+    this.connectors.forEach(connector => {
+      allEnabled = allEnabled && connector.enabled;
+    });
+    this.allEnabled = allEnabled;
   },
   methods: {
     selectAllConnector() {
@@ -142,6 +151,7 @@ export default {
       });
       this.allEnabled = true;
       window.setTimeout(() => {
+        this.$emit('filter-changed');
         this.$nextTick().then(this.search);
       }, 50);
     },
@@ -168,6 +178,7 @@ export default {
       });
       this.allEnabled = allEnabled;
       window.setTimeout(() => {
+        this.$emit('filter-changed');
         this.$nextTick().then(this.search);
       }, 50);
     },
@@ -228,7 +239,7 @@ export default {
           })
           .then(result => {
             if (connectorModule && connectorModule.formatSearchResult) {
-              return connectorModule.formatSearchResult(result);
+              return connectorModule.formatSearchResult(result, this.term);
             } else {
               return result;
             }
