@@ -77,17 +77,31 @@ public class ActivitySearchConnector {
                                            ActivitySearchFilter filter,
                                            long offset,
                                            long limit) {
-    String esQuery = buildQueryStatement(viewerIdentity, filter, offset, limit);
+    if (viewerIdentity == null) {
+      throw new IllegalArgumentException("Viewer identity is mandatory");
+    }
+    if (offset < 0) {
+      throw new IllegalArgumentException("Offset must be positive");
+    }
+    if (limit < 0) {
+      throw new IllegalArgumentException("Limit must be positive");
+    }
+    if (filter == null) {
+      throw new IllegalArgumentException("Filter is mandatory");
+    }
+    if (StringUtils.isBlank(filter.getTerm())) {
+      throw new IllegalArgumentException("Filter term is mandatory");
+    }
+    Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
+    String esQuery = buildQueryStatement(streamFeedOwnerIds, filter, offset, limit);
     String jsonResponse = this.client.sendRequest(esQuery, this.index, this.searchType);
-    return buildResult(jsonResponse);
+    return buildResult(jsonResponse, viewerIdentity, streamFeedOwnerIds);
   }
 
-  private String buildQueryStatement(Identity viewerIdentity,
+  private String buildQueryStatement(Set<Long> streamFeedOwnerIds,
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-    Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
-
     return retrieveSearchQuery().replaceAll("@term@", removeSpecialCharacters(filter.getTerm()))
                                 .replaceAll("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
                                 .replaceAll("@offset@", String.valueOf(offset))
@@ -95,7 +109,7 @@ public class ActivitySearchConnector {
   }
 
   @SuppressWarnings("rawtypes")
-  private List<ActivitySearchResult> buildResult(String jsonResponse) {
+  private List<ActivitySearchResult> buildResult(String jsonResponse, Identity viewerIdentity, Set<Long> streamFeedOwnerIds) {
     LOG.debug("Search Query response from ES : {} ", jsonResponse);
 
     List<ActivitySearchResult> results = new ArrayList<>();
@@ -109,75 +123,89 @@ public class ActivitySearchConnector {
     }
 
     JSONObject jsonResult = (JSONObject) json.get("hits");
-    if (jsonResult == null)
+    if (jsonResult == null) {
       return results;
+    }
 
     //
     JSONArray jsonHits = (JSONArray) jsonResult.get("hits");
     for (Object jsonHit : jsonHits) {
-      ActivitySearchResult activitySearchResult = new ActivitySearchResult();
+      try {
+        ActivitySearchResult activitySearchResult = new ActivitySearchResult();
 
-      JSONObject jsonHitObject = (JSONObject) jsonHit;
-      JSONObject hitSource = (JSONObject) jsonHitObject.get("_source");
-      Long id = parseLong(hitSource, "id");
-      Long posterId = parseLong(hitSource, "posterId");
-      Long parentId = parseLong(hitSource, "parentId");
-      Long streamOwner = parseLong(hitSource, "streamOwner");
-      Long postedTime = parseLong(hitSource, "postedTime");
-      Long lastUpdatedTime = parseLong(hitSource, "lastUpdatedTime");
-      String body = (String) hitSource.get("body");
-      JSONObject hightlightSource = (JSONObject) jsonHitObject.get("highlight");
-      JSONArray bodyExcepts = (JSONArray) hightlightSource.get("body");
-      @SuppressWarnings("unchecked")
-      String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
-      List<String> excerpts = Arrays.asList(bodyExceptsArray);
+        JSONObject jsonHitObject = (JSONObject) jsonHit;
+        JSONObject hitSource = (JSONObject) jsonHitObject.get("_source");
+        Long id = parseLong(hitSource, "id");
+        Long posterId = parseLong(hitSource, "posterId");
+        Long parentId = parseLong(hitSource, "parentId");
+        Long streamOwner = parseLong(hitSource, "streamOwner");
+        if (!streamFeedOwnerIds.contains(streamOwner)) {
+          LOG.warn("Activity '{}' is returned in seach result while it's not permitted to user {}. Ignore it.",
+                   id,
+                   viewerIdentity.getId());
+          continue;
+        }
+        Long postedTime = parseLong(hitSource, "postedTime");
+        Long lastUpdatedTime = (Long) hitSource.get("lastUpdatedDate");
+        String body = (String) hitSource.get("body");
+        String type = (String) hitSource.get("type");
+        JSONObject hightlightSource = (JSONObject) jsonHitObject.get("highlight");
+        JSONArray bodyExcepts = (JSONArray) hightlightSource.get("body");
+        @SuppressWarnings("unchecked")
+        String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
+        List<String> excerpts = Arrays.asList(bodyExceptsArray);
 
-      if (parentId == null) {
-        // Activity
-        activitySearchResult.setId(id);
-        if (lastUpdatedTime != null) {
-          activitySearchResult.setLastUpdatedTime(lastUpdatedTime);
-        }
-        if (postedTime != null) {
-          activitySearchResult.setPostedTime(postedTime);
-        }
-        if (streamOwner != null) {
-          Identity streamOwnerIdentity = identityManager.getIdentity(streamOwner.toString());
-          activitySearchResult.setStreamOwner(streamOwnerIdentity);
-        }
-        if (posterId != null) {
-          Identity posterIdentity = identityManager.getIdentity(posterId.toString());
-          activitySearchResult.setPoster(posterIdentity);
-        }
-        activitySearchResult.setBody(body);
-        activitySearchResult.setExcerpts(excerpts);
-      } else {
-        // Comment or sub comment
-        ActivitySearchResult commentSearchResult = new ActivitySearchResult();
-        commentSearchResult.setId(id);
-        if (lastUpdatedTime != null) {
-          commentSearchResult.setLastUpdatedTime(lastUpdatedTime);
-        }
-        if (postedTime != null) {
-          commentSearchResult.setPostedTime(postedTime);
-        }
-        if (streamOwner != null) {
-          Identity streamOwnerIdentity = identityManager.getIdentity(streamOwner.toString());
-          commentSearchResult.setStreamOwner(streamOwnerIdentity);
-        }
-        if (posterId != null) {
-          Identity posterIdentity = identityManager.getIdentity(posterId.toString());
-          commentSearchResult.setPoster(posterIdentity);
-        }
-        commentSearchResult.setBody(body);
-        commentSearchResult.setExcerpts(excerpts);
-        activitySearchResult.setComment(commentSearchResult);
-        activitySearchProcessor.formatSearchResult(commentSearchResult);
+        if (parentId == null) {
+          // Activity
+          activitySearchResult.setId(id);
+          if (lastUpdatedTime != null) {
+            activitySearchResult.setLastUpdatedTime(lastUpdatedTime);
+          }
+          if (postedTime != null) {
+            activitySearchResult.setPostedTime(postedTime);
+          }
+          if (streamOwner != null) {
+            Identity streamOwnerIdentity = identityManager.getIdentity(streamOwner.toString());
+            activitySearchResult.setStreamOwner(streamOwnerIdentity);
+          }
+          if (posterId != null) {
+            Identity posterIdentity = identityManager.getIdentity(posterId.toString());
+            activitySearchResult.setPoster(posterIdentity);
+          }
+          activitySearchResult.setBody(body);
+          activitySearchResult.setType(type);
+          activitySearchResult.setExcerpts(excerpts);
+        } else {
+          // Comment or sub comment
+          ActivitySearchResult commentSearchResult = new ActivitySearchResult();
+          commentSearchResult.setId(id);
+          if (lastUpdatedTime != null) {
+            commentSearchResult.setLastUpdatedTime(lastUpdatedTime);
+          }
+          if (postedTime != null) {
+            commentSearchResult.setPostedTime(postedTime);
+          }
+          if (streamOwner != null) {
+            Identity streamOwnerIdentity = identityManager.getIdentity(streamOwner.toString());
+            commentSearchResult.setStreamOwner(streamOwnerIdentity);
+          }
+          if (posterId != null) {
+            Identity posterIdentity = identityManager.getIdentity(posterId.toString());
+            commentSearchResult.setPoster(posterIdentity);
+          }
+          commentSearchResult.setBody(body);
+          commentSearchResult.setType(type);
+          commentSearchResult.setExcerpts(excerpts);
+          activitySearchResult.setComment(commentSearchResult);
+          activitySearchProcessor.formatSearchResult(commentSearchResult);
 
-        transformActivityToResult(activitySearchResult, parentId);
+          transformActivityToResult(activitySearchResult, parentId);
+        }
+
+        results.add(activitySearchResult);
+      } catch (Exception e) {
+        LOG.warn("Error processing activity search result item, ignore it from results", e);
       }
-
-      results.add(activitySearchResult);
     }
     return results;
   }
@@ -186,6 +214,7 @@ public class ActivitySearchConnector {
     ExoSocialActivity activity = activityStorage.getActivity(parentId.toString());
 
     // Activity
+    activitySearchResult.setType(activity.getType());
     activitySearchResult.setId(Long.parseLong(activity.getId()));
     if (activity.getUpdated() != null) {
       activitySearchResult.setLastUpdatedTime(activity.getUpdated().getTime());
@@ -220,7 +249,7 @@ public class ActivitySearchConnector {
   }
 
   private String retrieveSearchQuery() {
-    if (this.searchQuery == null || PropertyManager.isDevelopping()) {
+    if (StringUtils.isBlank(this.searchQuery) || PropertyManager.isDevelopping()) {
       try {
         InputStream queryFileIS = this.configurationManager.getInputStream(searchQueryFilePath);
         this.searchQuery = IOUtil.getStreamContentAsString(queryFileIS);

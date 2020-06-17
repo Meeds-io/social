@@ -1,0 +1,55 @@
+{
+  "hits" : {
+    "total" : 2,
+    "hits" : [
+      {
+        "_index" : "activity_v1",
+        "_type" : "activity",
+        "_id" : "6",
+        "_score" : 1.0,
+        "highlight" : {
+          "body": ["term"]
+        },
+        "_source" : {
+          "lastUpdatedDate" : 1592227545759,
+          "streamOwner" : "10",
+          "streamType" : "1",
+          "permissions" : [
+            "10"
+          ],
+          "postedTime" : "1592227545758",
+          "parentCommentId" : "5",
+          "id" : "6",
+          "body" : "term\r\n",
+          "type" : "exosocial:spaces",
+          "parentId" : "3",
+          "posterId" : "1"
+        }
+      },
+      {
+        "_index" : "activity_v1",
+        "_type" : "activity",
+        "_id" : "8",
+        "_score" : 1.0,
+        "highlight" : {
+          "body": ["term"]
+        },
+        "_source" : {
+          "lastUpdatedDate" : 1592229076647,
+          "streamOwner" : "503",
+          "streamType" : "1",
+          "permissions" : [
+            "503"
+          ],
+          "postedTime" : "1592229076647",
+          "parentCommentId" : "5",
+          "id" : "8",
+          "body" : "term\r\n",
+          "type" : "exosocial:spaces",
+          "parentId" : "3",
+          "posterId" : "1"
+        }
+      }
+    ]
+  }
+}
