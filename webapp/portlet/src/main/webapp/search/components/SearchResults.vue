@@ -141,7 +141,9 @@ export default {
         connector.enabled = true;
       });
       this.allEnabled = true;
-      return this.$nextTick().then(this.search);
+      window.setTimeout(() => {
+        this.$nextTick().then(this.search);
+      }, 50);
     },
     selectConnector(selectedConnector) {
       if (!selectedConnector) {
@@ -165,7 +167,9 @@ export default {
         allEnabled = allEnabled && connector.enabled;
       });
       this.allEnabled = allEnabled;
-      return this.$nextTick().then(this.search);
+      window.setTimeout(() => {
+        this.$nextTick().then(this.search);
+      }, 50);
     },
     loadMore() {
       this.limit += this.pageSize;
