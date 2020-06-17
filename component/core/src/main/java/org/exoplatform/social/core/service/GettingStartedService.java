@@ -115,7 +115,7 @@ public class GettingStartedService {
     try {
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       ListAccess<Identity> confirmedContacts = relationshipManager.getConnections(identity);
-      return confirmedContacts.getSize() > 0;
+      return confirmedContacts != null && confirmedContacts.getSize() > 0;
     } catch (Exception e) {
       LOG.warn("Error when checking user activity: " + e.getMessage(), e);
       return false;
