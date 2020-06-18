@@ -22,7 +22,9 @@
           <search-results
             ref="results"
             :connectors="connectors"
-            :term="term" />
+            :term="term"
+            :standalone="standalone"
+            @filter-changed="changeURI" />
         </v-card>
       </v-flex>
     </v-fade-transition>
@@ -51,8 +53,7 @@ export default {
   },
   watch: {
     term() {
-      const term = window.encodeURIComponent(this.term || '');
-      window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${term}`);
+      this.changeURI();
     },
     dialog() {
       if (this.dialog) {
@@ -75,6 +76,22 @@ export default {
     const pathParts = window.location.pathname.split('/');
     if (pathParts && pathParts.length && pathParts[pathParts.length - 1] === 'search') {
       this.standalone = true;
+
+      const search = window.location.search && window.location.search.substring(1);
+      if(search) {
+        const parameters = JSON.parse(
+          `{"${decodeURI(search)
+            .replace(/"/g, '\\"')
+            .replace(/&/g, '","')
+            .replace(/=/g, '":"')}"}`
+        );
+        const selectedTypes = window.decodeURIComponent(parameters['types']);
+        if (selectedTypes && selectedTypes.length) {
+          this.connectors.forEach(connector => {
+            connector.enabled = selectedTypes.includes(connector.name);
+          });
+        }
+      }
     } else {
       $(document).on('keydown', (event) => {
         if (event.key === 'Escape') {
@@ -84,6 +101,17 @@ export default {
           this.dialog = !this.dialog;
         }
       });
+    }
+  },
+  methods: {
+    changeURI() {
+      const term = window.encodeURIComponent(this.term || '');
+      const enabledConnectorNames = this.connectors.filter(connector => connector.enabled).map(connector => connector.name);
+      let enabledConnectorsParam = '';
+      if (enabledConnectorNames.length !== this.connectors.length) {
+        enabledConnectorsParam = window.encodeURIComponent(enabledConnectorNames.join(','));
+      }
+      window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${term}&types=${enabledConnectorsParam}`);
     }
   },
 };

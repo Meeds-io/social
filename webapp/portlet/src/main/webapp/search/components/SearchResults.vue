@@ -64,6 +64,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    standalone: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     term: null,
@@ -131,6 +135,11 @@ export default {
   },
   created() {
     this.$root.$on('refresh', this.retrieveConnectorResults);
+    let allEnabled = true;
+    this.connectors.forEach(connector => {
+      allEnabled = allEnabled && connector.enabled;
+    });
+    this.allEnabled = allEnabled;
   },
   methods: {
     selectAllConnector() {
@@ -141,7 +150,10 @@ export default {
         connector.enabled = true;
       });
       this.allEnabled = true;
-      return this.$nextTick().then(this.search);
+      window.setTimeout(() => {
+        this.$emit('filter-changed');
+        this.$nextTick().then(this.search);
+      }, 50);
     },
     selectConnector(selectedConnector) {
       if (!selectedConnector) {
@@ -165,7 +177,10 @@ export default {
         allEnabled = allEnabled && connector.enabled;
       });
       this.allEnabled = allEnabled;
-      return this.$nextTick().then(this.search);
+      window.setTimeout(() => {
+        this.$emit('filter-changed');
+        this.$nextTick().then(this.search);
+      }, 50);
     },
     loadMore() {
       this.limit += this.pageSize;
@@ -224,7 +239,7 @@ export default {
           })
           .then(result => {
             if (connectorModule && connectorModule.formatSearchResult) {
-              return connectorModule.formatSearchResult(result);
+              return connectorModule.formatSearchResult(result, this.term);
             } else {
               return result;
             }
