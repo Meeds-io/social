@@ -53,6 +53,7 @@ import org.exoplatform.webui.application.portlet.PortletRequestContext;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.UIApplication;
+import org.exoplatform.webui.core.UIComponent;
 import org.exoplatform.webui.core.UIPortletApplication;
 import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
 import org.exoplatform.webui.core.lifecycle.WebuiBindingContext;
@@ -844,15 +845,19 @@ public class BaseUIActivity extends UIForm {
     @Override
     public void execute(Event<BaseUIActivity> event) throws Exception {
       BaseUIActivity uiActivity = event.getSource();
+      UIActivityLoader uiParentActivity = uiActivity.getParent();
       String activityId = uiActivity.getActivity().getId();
       if (uiActivity.isNoLongerExisting(activityId)) {
         return;
       }
-      // uiActivity.refresh();
-      uiActivity.setAllLoaded(true);
-      uiActivity.setActivity(Utils.getActivityManager().getActivity(activityId));
-      event.getRequestContext().addUIComponentToUpdateByAjax(uiActivity);
-      
+
+      UIActivityFactory factory = CommonsUtils.getService(UIActivityFactory.class);
+      ExoSocialActivity updateActivity = Utils.getActivityManager().getActivity(activityId);
+      BaseUIActivity uiUpdatedActivity = factory.buildActivity(updateActivity, uiParentActivity, updateActivity.getType());
+      uiUpdatedActivity.setActivity(Utils.getActivityManager().getActivity(activityId));
+      uiParentActivity.setChildren(Collections.singletonList(uiUpdatedActivity));
+
+      event.getRequestContext().addUIComponentToUpdateByAjax(uiParentActivity);
       Utils.initUserProfilePopup(uiActivity.getId());
     }
   }
