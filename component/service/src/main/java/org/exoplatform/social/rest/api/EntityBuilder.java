@@ -53,6 +53,7 @@ import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
@@ -104,6 +105,8 @@ public class EntityBuilder {
   /** Child Groups of group root */
   public static final String  ORGANIZATION_GROUP_TYPE             = "childGroups";
 
+  public static final String  REDACTOR_MEMBERSHIP             = "redactor";
+
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
 
   private static SpaceService        spaceService;
@@ -153,6 +156,7 @@ public class EntityBuilder {
     String userId = profile.getIdentity().getRemoteId();
     entity.setIsSpacesManager(spaceService.isSuperManager(userId));
     entity.setIsManager(spaceService.isManager(space, userId));
+    entity.setIsSpaceRedactor(SpaceUtils.isUserHasMembershipTypesInGroup(userId, space.getGroupId(), REDACTOR_MEMBERSHIP));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
