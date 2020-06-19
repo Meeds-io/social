@@ -1,0 +1,42 @@
+{
+  "from": "@offset@",
+  "size": "@limit@",
+  "query":{
+    "bool":{
+      "filter":{
+        "terms":{
+          "permissions": [@permissions@]
+        }
+      },
+      "should": {
+        "match_phrase": {
+          "body": {
+            "query": "@term@",
+            "boost": 5
+          }
+        }
+      },
+      "must":{
+        "match":{
+          "body":{
+            "query": "@term@",
+            "operator": "and",
+            "cutoff_frequency": 0.001
+          }
+        }
+      }
+    }
+  },
+  "highlight" : {
+    "number_of_fragments" : 2,
+    "fragment_size" : 150,
+    "no_match_size" : 0,
+    "order": "score",
+    "fields" : {
+      "body" : {
+        "pre_tags" : ["<span class='searchMatchExcerpt'>"],
+        "post_tags" : ["</span>"]
+      }
+    }
+  }
+}

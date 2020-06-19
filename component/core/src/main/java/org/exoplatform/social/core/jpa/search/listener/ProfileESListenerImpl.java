@@ -25,21 +25,29 @@ import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
 
 /**
- * Created by The eXo Platform SAS
- * Author : eXoPlatform
- *          exo@exoplatform.com
- * Sep 29, 2015  
+ * Created by The eXo Platform SAS Author : eXoPlatform exo@exoplatform.com Sep
+ * 29, 2015
  */
 public class ProfileESListenerImpl extends ProfileListenerPlugin {
-  
+
   private static final Log LOG = ExoLogger.getLogger(ProfileESListenerImpl.class);
+
+  @Override
+  public void headerSectionUpdated(ProfileLifeCycleEvent event) {
+    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+    String id = event.getProfile().getIdentity().getId();
+
+    LOG.debug("Notifying indexing service for profile header information update id={}", id);
+
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+  }
 
   @Override
   public void avatarUpdated(ProfileLifeCycleEvent event) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.info("Notifying indexing service for profile avatar update id={}", id);
+    LOG.debug("Notifying indexing service for profile avatar update id={}", id);
 
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
   }
@@ -50,11 +58,21 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   }
 
   @Override
+  public void basicInfoUpdated(ProfileLifeCycleEvent event) {
+    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+    String id = event.getProfile().getIdentity().getId();
+
+    LOG.debug("Notifying indexing service for the basic information update id={}", id);
+
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+  }
+
+  @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.info("Notifying indexing service for the profile contact update id={}", id);
+    LOG.debug("Notifying indexing service for the profile contact update id={}", id);
 
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
   }
@@ -63,7 +81,7 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   public void aboutMeUpdated(ProfileLifeCycleEvent event) {
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.info("Notifying indexing service for the profile aboutme update id={}", id);
+    LOG.debug("Notifying indexing service for the profile aboutme update id={}", id);
 
     CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
   }
@@ -72,7 +90,7 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.info("Notifying indexing service for the profile experience update id={}", id);
+    LOG.debug("Notifying indexing service for the profile experience update id={}", id);
 
     CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
   }
@@ -82,7 +100,7 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.info("Notifying indexing service for the profile creation id={}", id);
+    LOG.debug("Notifying indexing service for the profile creation id={}", id);
 
     indexingService.index(ProfileIndexingServiceConnector.TYPE, id);
   }

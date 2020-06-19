@@ -17,24 +17,28 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityStream;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
@@ -42,10 +46,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.ActivityRestResources;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.CommentEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -498,6 +499,64 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
     }
+  }
+
+  @GET
+  @Path("search")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @ApiOperation(
+      value = "Search activities using a query",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns a list of activities found by using search term"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input") }
+  )
+  public Response searchActivities(@Context UriInfo uriInfo,
+                                   @ApiParam(value = "Term to search", required = true) @QueryParam(
+                                       "q"
+                                     ) String query,
+                                     @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam(
+                                       "offset"
+                                     ) int offset,
+                                     @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam(
+                                       "limit"
+                                   ) int limit) throws Exception {
+
+    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+
+    if (StringUtils.isBlank(query)) {
+      return Response.status(Status.BAD_REQUEST).entity("'q' parameter is mandatory").build();
+    }
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity currentUser = CommonsUtils.getService(IdentityManager.class)
+                                       .getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    ActivitySearchConnector activitySearchConnector = CommonsUtils.getService(ActivitySearchConnector.class);
+    ActivitySearchFilter filter = new ActivitySearchFilter(query);
+    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUser, filter, offset, limit);
+    List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
+      ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
+      entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
+      entity.setStreamOwner(EntityBuilder.buildEntityIdentity(searchResult.getStreamOwner(), uriInfo.getPath(), "all"));
+      ActivitySearchResult comment = searchResult.getComment();
+      if (comment != null) {
+        ActivitySearchResultEntity commentEntity = new ActivitySearchResultEntity(comment);
+        commentEntity.setPoster(EntityBuilder.buildEntityIdentity(comment.getPoster(), uriInfo.getPath(), "all"));
+        commentEntity.setStreamOwner(EntityBuilder.buildEntityIdentity(comment.getStreamOwner(), uriInfo.getPath(), "all"));
+        entity.setComment(commentEntity);
+      }
+      return entity;
+    }).collect(Collectors.toList());
+
+    return Response.ok(results).build();
   }
 
 }

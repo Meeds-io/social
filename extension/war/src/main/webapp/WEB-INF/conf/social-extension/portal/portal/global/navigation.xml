@@ -194,7 +194,7 @@
       <visibility>SYSTEM</visibility>
       <page-reference>portal::global::search</page-reference>
     </node>
-  
+
     <node>
       <name>settings</name>
       <label>#{portal.global.settings}</label>

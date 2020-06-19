@@ -11,6 +11,7 @@
     ],
     "globals": {
         "Vue": true,
+        "VueI18n": true,
         "VueEllipsis": true,
         "Vuetify": true,
         "eXo": true,
@@ -18,7 +19,8 @@
         "global": true,
         "exoi18n": true,
         "extensionRegistry": true,
-        "CKEDITOR": true
+        "CKEDITOR": true,
+        "cCometd": true
     },
     "parserOptions": {
         "sourceType": "module",

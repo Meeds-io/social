@@ -69,4 +69,13 @@ public class IdentityEntity extends BaseEntity {
   public ProfileEntity getProfile() {
     return (ProfileEntity) getProperty("profile");
   }
+
+  public IdentityEntity setSpace(SpaceEntity space) {
+    setProperty("space", space);
+    return this;
+  }
+
+  public SpaceEntity getSpace() {
+    return (SpaceEntity) getProperty("space");
+  }
 }

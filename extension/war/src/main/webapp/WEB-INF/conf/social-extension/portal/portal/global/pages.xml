@@ -30,7 +30,7 @@
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
-            <application-ref>social-vue-portlet</application-ref>
+            <application-ref>social-portlet</application-ref>
             <portlet-ref>PeopleList</portlet-ref>
           </portlet>
           <title>All People</title>
@@ -43,7 +43,7 @@
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
-            <application-ref>social-vue-portlet</application-ref>
+            <application-ref>social-portlet</application-ref>
             <portlet-ref>PeopleOverview</portlet-ref>
           </portlet>
           <title>People Overview Portlet</title>
@@ -54,7 +54,7 @@
         <container id="stickyBlockDesktop" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <portlet-application>
             <portlet>
-              <application-ref>social-vue-portlet</application-ref>
+              <application-ref>social-portlet</application-ref>
               <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
               <preferences>
                 <preference>
@@ -90,7 +90,7 @@
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
-            <application-ref>social-vue-portlet</application-ref>
+            <application-ref>social-portlet</application-ref>
             <portlet-ref>SpacesList</portlet-ref>
           </portlet>
           <title>All Spaces</title>
@@ -103,7 +103,7 @@
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
-            <application-ref>social-vue-portlet</application-ref>
+            <application-ref>social-portlet</application-ref>
             <portlet-ref>SpacesOverview</portlet-ref>
           </portlet>
           <title>Spaces Overview Portlet</title>
@@ -114,7 +114,7 @@
         <container id="stickyBlockDesktop" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <portlet-application>
             <portlet>
-              <application-ref>social-vue-portlet</application-ref>
+              <application-ref>social-portlet</application-ref>
               <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
               <preferences>
                 <preference>
@@ -195,7 +195,7 @@
         <access-permissions>*:/platform/users</access-permissions>
         <portlet-application>
           <portlet>
-            <application-ref>social-vue-portlet</application-ref>
+            <application-ref>social-portlet</application-ref>
             <portlet-ref>ProfileHeader</portlet-ref>
           </portlet>
           <title>Profile Header Portlet</title>
@@ -217,7 +217,7 @@
             <access-permissions>*:/platform/users</access-permissions>
             <portlet-application>
               <portlet>
-                <application-ref>social-vue-portlet</application-ref>
+                <application-ref>social-portlet</application-ref>
                 <portlet-ref>ProfileAboutMe</portlet-ref>
               </portlet>
               <title>Profile AboutMe Portlet</title>
@@ -240,7 +240,7 @@
             <access-permissions>*:/platform/users</access-permissions>
             <portlet-application>
               <portlet>
-                <application-ref>social-vue-portlet</application-ref>
+                <application-ref>social-portlet</application-ref>
                 <portlet-ref>ProfileWorkExperience</portlet-ref>
               </portlet>
               <title>Profile Work Experience Portlet</title>
@@ -266,7 +266,7 @@
             <access-permissions>*:/platform/users</access-permissions>
             <portlet-application>
               <portlet>
-                <application-ref>social-vue-portlet</application-ref>
+                <application-ref>social-portlet</application-ref>
                 <portlet-ref>ProfileContactInformation</portlet-ref>
               </portlet>
               <title>Profile contact information Portlet</title>
@@ -416,17 +416,6 @@
     <title>Search</title>
     <access-permissions>Everyone</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
-    <portlet-application>
-      <portlet>
-        <application-ref>unified-search</application-ref>
-        <portlet-ref>UnifiedsearchPortlet</portlet-ref>
-      </portlet>
-      <title>Search</title>
-      <access-permissions>Everyone</access-permissions>
-      <show-info-bar>false</show-info-bar>
-      <show-application-state>false</show-application-state>
-      <show-application-mode>false</show-application-mode>
-    </portlet-application>
   </page>
 
   <page>
@@ -455,7 +444,7 @@
       <access-permissions>*:/platform/users</access-permissions>
       <portlet-application>
         <portlet>
-          <application-ref>social-vue-portlet</application-ref>
+          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingLanguage</portlet-ref>
         </portlet>
         <title>User Setting Language</title>
@@ -465,7 +454,7 @@
       </portlet-application>
       <portlet-application>
         <portlet>
-          <application-ref>social-vue-portlet</application-ref>
+          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingTimezone</portlet-ref>
         </portlet>
         <title>User Setting Timezone</title>
@@ -475,7 +464,7 @@
       </portlet-application>
       <portlet-application>
         <portlet>
-          <application-ref>social-vue-portlet</application-ref>
+          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingNotifications</portlet-ref>
         </portlet>
         <title>User Setting Notifications</title>
@@ -485,7 +474,7 @@
       </portlet-application>
       <portlet-application>
         <portlet>
-          <application-ref>social-vue-portlet</application-ref>
+          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingSecurity</portlet-ref>
         </portlet>
         <title>User Setting Security</title>
@@ -521,7 +510,7 @@
           <access-permissions>*:/platform/users</access-permissions>
           <portlet-application>
             <portlet>
-              <application-ref>social-vue-portlet</application-ref>
+              <application-ref>social-portlet</application-ref>
               <portlet-ref>GettingStarted</portlet-ref>
             </portlet>
             <title>Getting Started</title>
@@ -574,7 +563,7 @@
           </container>
             <portlet-application>
               <portlet>
-                <application-ref>social-vue-portlet</application-ref>
+                <application-ref>social-portlet</application-ref>
                 <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
               </portlet>
               <title>Suggestions peoples and spaces</title>

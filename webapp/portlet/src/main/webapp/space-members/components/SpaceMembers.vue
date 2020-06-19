@@ -133,7 +133,7 @@ export default {
   },
   methods: {
     refreshInvited() {
-      if (this.filter === 'invited') {
+      if (this.filter === 'invited' || this.filter === 'member') {
         this.$refs.spaceMembers.searchPeople();
       }
     },

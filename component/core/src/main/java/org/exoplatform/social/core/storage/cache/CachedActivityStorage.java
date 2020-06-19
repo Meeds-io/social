@@ -2048,4 +2048,9 @@ public class CachedActivityStorage implements ActivityStorage {
     }
     return result;
   }
+
+  @Override
+  public Set<Long> getStreamFeedOwnerIds(Identity identity) {
+    return storage.getStreamFeedOwnerIds(identity);
+  }
 }

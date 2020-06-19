@@ -42,15 +42,6 @@ public class SpaceESListenerImpl extends SpaceListenerPlugin {
     reindex(event, "space renaming");
   }
 
-  private void reindex(SpaceLifeCycleEvent event, String cause) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getSpace().getId();
-
-    LOG.info("Notifying indexing service for {} id={}", cause, id);
-
-    indexingService.reindex(SpaceIndexingServiceConnector.TYPE, id);
-  }
-
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
     reindex(event, "space access edited");
@@ -63,69 +54,71 @@ public class SpaceESListenerImpl extends SpaceListenerPlugin {
 
   @Override
   public void spaceBannerEdited(SpaceLifeCycleEvent event) {
+    // Banner not indexed
   }
 
   @Override
   public void applicationActivated(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space application activated");
   }
 
   @Override
   public void applicationAdded(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space application added");
   }
 
   @Override
   public void applicationDeactivated(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space application disabled");
   }
 
   @Override
   public void applicationRemoved(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space application removed");
   }
 
   @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space member granted as manager");
   }
 
   @Override
   public void joined(SpaceLifeCycleEvent event) {
-    reindex(event, "space joined");
+    reindex(event, "space member joined");
   }
 
   @Override
   public void left(SpaceLifeCycleEvent event) {
-    reindex(event, "space left");
+    reindex(event, "space member left");
   }
 
   @Override
   public void revokedLead(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space member revoked as manager");
   }
 
   @Override
   public void spaceAvatarEdited(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "space avatar updated");
   }
 
   @Override
   public void addInvitedUser(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "user invited to space");
   }
 
   @Override
   public void addPendingUser(SpaceLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    reindex(event, "user requested access to space");
   }
+
+  private void reindex(SpaceLifeCycleEvent event, String cause) {
+    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+    String id = event.getSpace().getId();
+
+    LOG.debug("Notifying indexing service for {} id={}", cause, id);
+
+    indexingService.reindex(SpaceIndexingServiceConnector.TYPE, id);
+  }
+
 }

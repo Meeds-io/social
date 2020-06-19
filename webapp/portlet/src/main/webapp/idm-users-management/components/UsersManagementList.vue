@@ -145,8 +145,6 @@ export default {
   created() {
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
-
-    this.searchUsers();
   },
   methods: {
     updateSearchTerms(keyword, filter) {
@@ -183,7 +181,8 @@ export default {
       }
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      const uri = this.filter === 'ENABLED' ? 'social/users':'users';
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/${uri}?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -193,9 +192,18 @@ export default {
           return resp.json();
         }
       }).then(data => {
-        const entities = data && data.entities || [];
+        const entities = data.entities || data.users;
         entities.forEach(user => {
           user.statusLabel = user.enabled ? this.$t('UsersManagement.status.enabled') : this.$t('UsersManagement.status.disabled');
+          if (user.firstname) {
+            user.firstName = user.firstname;
+          }
+          if (user.username) {
+            user.userName = user.username;
+          }
+          if (user.lastname) {
+            user.lastName = user.lastname;
+          }
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;

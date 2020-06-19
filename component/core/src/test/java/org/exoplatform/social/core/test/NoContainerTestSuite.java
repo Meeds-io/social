@@ -21,6 +21,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.exoplatform.social.core.activity.ActivityIndexingServiceConnectorTest;
+import org.exoplatform.social.core.activity.ActivitySearchConnectorTest;
 import org.exoplatform.social.core.activity.filter.ActivityIteratorTest;
 import org.exoplatform.social.core.identity.IdentityResultTest;
 import org.exoplatform.social.core.identity.model.GlobalIdTest;
@@ -30,6 +32,7 @@ import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
+import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
 @RunWith(Suite.class)
@@ -45,6 +48,9 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
     UserProfileComparatorTest.class,
+    SearchServiceTest.class,
+    ActivityIndexingServiceConnectorTest.class,
+    ActivitySearchConnectorTest.class,
 })
 public class NoContainerTestSuite {
 
