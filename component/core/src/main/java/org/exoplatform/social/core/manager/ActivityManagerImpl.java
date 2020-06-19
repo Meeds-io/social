@@ -131,6 +131,10 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
+  public static final String          SPACE_ACTIVITY                  = "exo.activity-type.SPACE_ACTIVITY.enabled";
+
+  public static final String          RELATIONSHIP                  = "exo.activity-type.USER_ACTIVITIES_FOR_RELATIONSHIP.enabled";
+
   /**
    * Instantiates a new activity manager.
    *
@@ -531,6 +535,12 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public void initActivityTypes() {
     Properties properties = PropertyManager.getPropertiesByPattern(ACTIVITY_TYPE_PROPERTY_PATTERN);
+    if (properties.getProperty(SPACE_ACTIVITY) == null) {
+      properties.setProperty(SPACE_ACTIVITY,"false");
+    }
+    if (properties.getProperty(RELATIONSHIP) == null) {
+      properties.setProperty(RELATIONSHIP,"false");
+    }
     properties.forEach((k, v) -> {
       String value = properties.getProperty(k.toString());
       String name = k.toString().substring(PREFIX.length(), k.toString().lastIndexOf(SUFFIX));
