@@ -38,7 +38,8 @@ import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
                 @EventConfig(listeners = BaseUIActivity.DeleteCommentActionListener.class),
                 @EventConfig(listeners = BaseUIActivity.LikeCommentActionListener.class),
                 @EventConfig(listeners = BaseUIActivity.EditActivityActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class)
+                @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class),
+                @EventConfig(listeners = BaseUIActivity.RefreshActivityActionListener.class)
         }
 )
 public class UILinkActivity extends BaseUIActivity {

@@ -44,7 +44,7 @@ export function init(params) {
           activityId: params.activityId || '',
         };
       },
-      template: '<exo-activity-composer :message="activityBody" :activity-id="activityId" :composer-action="composerAction" :ck-editor-type="ckEditorType"></exo-activity-composer>',
+      template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :ck-editor-type="ckEditorType"></exo-activity-composer>',
       i18n,
       vuetify
     });

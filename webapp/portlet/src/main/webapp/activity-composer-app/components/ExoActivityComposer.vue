@@ -92,7 +92,7 @@ export default {
     }
   },
   props: {
-    message: {
+    activityBody: {
       type: String,
       default: ''
     },
@@ -115,6 +115,7 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       postTarget: '',
       showMessageComposer: false,
+      message: '',
       showErrorMessage: false,
       activityComposerActions: [],
       activityComposerHintAction: null,
@@ -132,7 +133,7 @@ export default {
     },
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.message.split('<oembed>')[0] === this.activityBody;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
@@ -167,6 +168,7 @@ export default {
     }
   },
   mounted() {
+    this.message = this.activityBody;
     this.postTarget = eXo.env.portal.spaceDisplayName;
     if(!this.postTarget) {
       this.link = this.$t('activity.composer.post');
