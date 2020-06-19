@@ -18,7 +18,7 @@
         <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
       </v-chip>
     </v-flex>
-    <v-row v-if="hasResults" class="searchResultsParent mx-4 border-box-sizing">
+    <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
         :key="result.domId"
