@@ -4,7 +4,10 @@
       :id="id"
       :href="url"
       class="flex-nowrap flex-shrink-0 d-flex">
-      <v-avatar :size="size" class="pull-left my-auto">
+      <v-avatar
+        :size="size"
+        :class="avatarClass"
+        class="pull-left my-auto">
         <img :src="avatarUrl" :tile="tile" />
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
@@ -51,6 +54,10 @@ export default {
     tiptipPosition: {
       type: String,
       default: () => null,
+    },
+    avatarClass: {
+      type: String,
+      default: () => '',
     },
     avatarUrl: {
       type: String,
