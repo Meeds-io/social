@@ -150,7 +150,7 @@ export default {
       }).reduce((a, b) => a + b, 0);
     },
     activityBodyEdited: function() {
-      return this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.activityBody.split('<p><a id=\'editActivityLinkPreview\'')[0]);
+      return this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody));
     }
   },
   watch: {
@@ -214,7 +214,7 @@ export default {
           .then(() => this.closeMessageComposer())
           .then(() => this.refreshCurrentActivity())
           .catch(error => {
-            console.error(`Error when posting message: ${error}`);
+            console.error(`Error when updating the activity: ${error}`);
             this.showErrorMessage = true;
           });
       } else {
@@ -283,8 +283,17 @@ export default {
     },
     escapeHTML: function(html) {
       const text = document.createElement('textarea');
-      text.innerHTML = html.replace(/&nbsp;/g, '').replace(/\n/g, '').replace(/[\t ]+</g, '<').trim();
-      return text.value;
+      text.innerHTML = html;
+      return text.value.replace(/>\s+</g, '><').trim();
+    },
+    cleanInitialActivityBody: function()  {
+      const div = document.createElement('div');
+      div.innerHTML = this.activityBody;
+      const elements = div.querySelectorAll('#editActivityLinkPreview');
+      Array.prototype.forEach.call( elements, function( node ) {
+        node.parentNode.remove();
+      });
+      return div.innerHTML;
     }
   }
 };
