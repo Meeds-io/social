@@ -11,17 +11,17 @@
         </template>
       </exo-user-avatar>
     </v-card-text>
-    <v-card-text class="py-0 flex-grow-1 flex-shrink-0">
+    <div class="mx-auto flex-grow-1 clickable px-3 py-0">
       <div
         ref="excerptNode"
         :title="excerptText"
         class="text-wrap text-break caption">
       </div>
-    </v-card-text>
+    </div>
     <v-list class="light-grey-background flex-grow-0 border-top-color no-border-radius pa-0">
       <v-list-item :href="link" class="px-0 pt-1 pb-2">
         <v-list-item-icon class="mx-0 my-auto">
-          <span :class="activityIcon" class="tertiary--text px-1 display-1"></span>
+          <span :class="activityIcon" class="tertiary--text pl-1 pr-2 display-1"></span>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title :title="activityReactions">
