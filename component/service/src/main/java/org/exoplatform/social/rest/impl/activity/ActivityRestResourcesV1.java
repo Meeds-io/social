@@ -43,6 +43,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.rest.api.ActivityRestResources;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
@@ -553,6 +554,12 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
         commentEntity.setStreamOwner(EntityBuilder.buildEntityIdentity(comment.getStreamOwner(), uriInfo.getPath(), "all"));
         entity.setComment(commentEntity);
       }
+
+      ActivityStorage activityStorage = CommonsUtils.getService(ActivityStorage.class);
+      ExoSocialActivity existingActivity = activityStorage.getActivity(entity.getId());
+      int commentsCount = activityStorage.getNumberOfComments(existingActivity);
+      entity.setCommentsCount(commentsCount);
+      entity.setLikesCount(existingActivity.getNumberOfLikes());
       return entity;
     }).collect(Collectors.toList());
 
