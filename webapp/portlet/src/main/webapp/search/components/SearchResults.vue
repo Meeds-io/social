@@ -78,6 +78,7 @@ export default {
     allEnabled: true,
     searching: 0,
     abortController: null,
+    searchInitialized: false,
   }),
   computed: {
     hasMore() {
@@ -87,7 +88,7 @@ export default {
       return this.resultsArray && this.resultsArray.length;
     },
     noResults() {
-      return !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
+      return this.searchInitialized && !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
     },
     enabledConnectors() {
       return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
@@ -258,7 +259,10 @@ export default {
             }
           })
           .catch(e => searchConnector.error = e)
-          .finally(() => this.searching--);
+          .finally(() => {
+            this.searching--;
+            this.searchInitialized = true;
+          });
       });
     },
   },
