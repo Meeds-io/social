@@ -115,7 +115,6 @@ public class BaseUIActivity extends UIForm {
 
   private ActivityManager activityManager;
 
-
   /**
    * Constructor
    */

@@ -133,7 +133,7 @@ export default {
     },
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.message.split('<oembed>')[0] === this.activityBody;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.activityBodyEdited;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
@@ -148,6 +148,9 @@ export default {
       return this.attachments.map(attachment => {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
       }).reduce((a, b) => a + b, 0);
+    },
+    activityBodyEdited: function() {
+      return this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.activityBody.split('<p><a id=\'editActivityLinkPreview\'')[0]);
     }
   },
   watch: {
@@ -277,6 +280,11 @@ export default {
       if(refreshButton) {
         refreshButton.click();
       }
+    },
+    escapeHTML: function(html) {
+      const text = document.createElement('textarea');
+      text.innerHTML = html.replace(/&nbsp;/g, '').replace(/\n/g, '').replace(/[\t ]+</g, '<').trim();
+      return text.value;
     }
   }
 };
