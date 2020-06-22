@@ -7,7 +7,7 @@
     </div>
 
     <v-app :id="activityId ? `editActivityComposer${activityId}` : 'activityComposerApp'" class="activityComposerApp VuetifyApp">
-      <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivityDrawer${activityId}` : '']" class="drawer">
+      <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivity editActivityDrawer${activityId}` : '']" class="drawer">
         <div class="header">
           <img src="/eXoSkin/skin/images/system/composer/composer.png">
           <span> {{ $t('activity.composer.title') }}</span>
