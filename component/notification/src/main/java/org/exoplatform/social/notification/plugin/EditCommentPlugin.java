@@ -41,6 +41,7 @@ public class EditCommentPlugin  extends BaseNotificationPlugin {
                 Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
                 Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
                 Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
+                Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
                 receivers.remove(parentCommentUserPosterId);
             }
         } else {
@@ -48,6 +49,7 @@ public class EditCommentPlugin  extends BaseNotificationPlugin {
             Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
             Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
             Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
+            Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
         }
         //
         return NotificationInfo.instance()
