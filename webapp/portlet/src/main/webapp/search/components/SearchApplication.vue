@@ -50,6 +50,9 @@ export default {
     buttonTooltip() {
       return this.$t('Search.button.tooltip.open', {0: 'Ctrl + Alt + F'});
     },
+    searchUri() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/search`;
+    },
   },
   watch: {
     term() {
@@ -59,7 +62,7 @@ export default {
       if (this.dialog) {
         $('body').addClass('hide-scroll transparent');
         this.$root.$emit('search-opened');
-        window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${this.term || ''}`);
+        window.history.replaceState('', this.$t('Search.page.title'), `${this.searchUri}?q=${this.term || ''}`);
       } else {
         $('body').removeClass('hide-scroll transparent');
         this.$root.$emit('search-closed');
@@ -73,10 +76,8 @@ export default {
     this.pageUri = window.location.href;
     this.pageTitle = window.document.title;
 
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts && pathParts.length && pathParts[pathParts.length - 1] === 'search') {
-      this.standalone = true;
-
+    this.standalone = window.location.pathname.indexOf(this.searchUri) === 0;
+    if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
       if(search) {
         const parameters = JSON.parse(
@@ -86,7 +87,7 @@ export default {
             .replace(/=/g, '":"')}"}`
         );
         const selectedTypes = window.decodeURIComponent(parameters['types']);
-        if (selectedTypes && selectedTypes.length) {
+        if (selectedTypes && selectedTypes.trim().length) {
           this.connectors.forEach(connector => {
             connector.enabled = selectedTypes.includes(connector.name);
           });
@@ -111,7 +112,7 @@ export default {
       if (enabledConnectorNames.length !== this.connectors.length) {
         enabledConnectorsParam = window.encodeURIComponent(enabledConnectorNames.join(','));
       }
-      window.history.replaceState('', this.$t('Search.page.title'), `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/search?q=${term}&types=${enabledConnectorsParam}`);
+      window.history.replaceState('', this.$t('Search.page.title'), `${this.searchUri}?q=${term}&types=${enabledConnectorsParam}`);
     }
   },
 };

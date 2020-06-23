@@ -9,10 +9,10 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.annotations.*;
 
-@Path(VersionResources.VERSION_ONE + "/social/spaces")
+@Path(VersionResources.VERSION_ONE + "/social/search")
 @Api(
     tags = VersionResources.VERSION_ONE + "/social/search",
-    value = VersionResources.VERSION_ONE + "/social/spaces",
+    value = VersionResources.VERSION_ONE + "/social/search",
     description = "Operations on search connectors" // NOSONAR
 )
 public class SearchRestResourcesV1 {
@@ -45,7 +45,7 @@ public class SearchRestResourcesV1 {
   @RolesAllowed("administrators")
   @ApiOperation(
       value = "Changes status of search connector",
-      httpMethod = "GET",
+      httpMethod = "PUT",
       response = Response.class,
       notes = "This changes the status of a specific search connector"
   )
