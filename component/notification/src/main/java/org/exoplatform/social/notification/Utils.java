@@ -113,6 +113,10 @@ public class Utils {
   public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster) {
     receivers.addAll(getDestinataires(commenters, poster));
   }
+
+  public static void sendToLikers(Set<String> receivers, String[] likers, String poster) {
+    receivers.addAll(getDestinataires(likers, poster));
+  }
   
   /**
    * Checks if a notification message is sent to a stream owner or not.
