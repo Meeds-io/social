@@ -2,8 +2,10 @@ package org.exoplatform.social.rest.impl.search;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.search.SearchService;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -15,7 +17,7 @@ import io.swagger.annotations.*;
     value = VersionResources.VERSION_ONE + "/social/search",
     description = "Operations on search connectors" // NOSONAR
 )
-public class SearchRestResourcesV1 {
+public class SearchRestResourcesV1 implements ResourceContainer {
 
   private SearchService searchService;
 
@@ -25,10 +27,12 @@ public class SearchRestResourcesV1 {
 
   @GET
   @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(
       value = "Gets search connectors",
       httpMethod = "GET",
       response = Response.class,
+      produces = MediaType.APPLICATION_JSON,
       notes = "This returns a list of search connectors"
   )
   @ApiResponses(
