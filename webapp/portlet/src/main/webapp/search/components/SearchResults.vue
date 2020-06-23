@@ -146,7 +146,10 @@ export default {
     },
   },
   created() {
-    this.$root.$on('refresh', this.retrieveConnectorResults);
+    this.$root.$on('refresh', (searchConnector) => {
+      this.$set(this.results, searchConnector.name, []);
+      this.retrieveConnectorResults(searchConnector);
+    });
     let allEnabled = true;
     this.connectors.forEach(connector => {
       allEnabled = allEnabled && connector.enabled;
