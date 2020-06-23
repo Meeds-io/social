@@ -33,11 +33,11 @@ import org.exoplatform.social.core.search.*;
  */
 public class SearchServiceImpl implements SearchService, Startable {
 
-  private static final Scope   SEARCH_CONNECTORS_SCOPE        = Scope.APPLICATION;
+  private static final Context SEARCH_CONNECTORS_CONTEXT      = Context.GLOBAL.id("search");
 
-  private static final Context SEARCH_CONNECTORS_CONTEXT      = Context.GLOBAL;
+  private static final Scope   SEARCH_CONNECTORS_SCOPE        = Scope.APPLICATION.id("connectors");
 
-  private static final String  SEARCH_CONNECTORS_STATUS_PARAM = "enabledSearchTypes";
+  private static final String  SEARCH_CONNECTORS_STATUS_PARAM = "enabledSearchConnectors";
 
   private SettingService       settingService;
 
