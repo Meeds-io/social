@@ -10,6 +10,7 @@
           :url="liker.personLikeProfileUri"
           :size="30"
           class="mr-1" />
+        <p v-if="likersNumber >0 && likersNumber < maxLikersToShow" class="likersNumber mb-0 pl-2 align-self-end caption">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
       </div>
       <div v-if="likersNumber > maxLikersToShow" class="activityLikersAndKudosDrawer">
         <div class="seeMoreLikers" @click="openDrawer">

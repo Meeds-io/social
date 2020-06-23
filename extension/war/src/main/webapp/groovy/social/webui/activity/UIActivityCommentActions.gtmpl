@@ -53,7 +53,7 @@
         <li class="likeUnlike">
             <a onclick="$likeUnlikeCommentAction;(function(evt){ evt.stopPropagation();})(event)" class="likeCommentLink" data-placement="bottom" rel="tooltip" title="$likeUnlikeCommentMsg" id="LikeCommentLink${comment.id}" href="javascript:void(0);">
                 <!--<i class="uiIconThumbUp $likeUnlikeCommentClass"></i>-->
-                <span class="$likeUnlikeCommentClass"">$likeLabel</span>
+                <span class="$likeUnlikeCommentClass">$likeLabel</span>
             </a>
             <%if ( totalCommentLiked > 0 ) {%>
             <a onclick="(function(evt){ evt.stopPropagation();})(event)" data-placement="bottom" class="likeCommentCount $likeUnlikeCommentClass" data-html="true" rel="tooltip" title="$likersList" id="LikeCommentLink_${comment.id}" href="javascript:void(0);">

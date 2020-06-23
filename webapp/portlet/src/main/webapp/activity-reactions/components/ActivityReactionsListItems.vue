@@ -16,7 +16,7 @@
 <script>
 export default {
   props: {
-    liker: {
+    item: {
       type: Object,
       default: () => null,
     },

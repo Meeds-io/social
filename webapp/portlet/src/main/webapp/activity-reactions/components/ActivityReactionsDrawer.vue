@@ -26,7 +26,7 @@
             <activity-reactions-list-items
               v-for="liker in likers"
               :key="liker.id"
-              :liker="liker"
+              :item="liker"
               :avatar="liker.personLikeAvatarImageSource"
               :name="liker.personLikeFullName"
               class="px-3  likersList"/>
@@ -34,7 +34,7 @@
               <activity-reactions-list-items
                 v-for="(item, index) in tab.reactionListItems"
                 :key="index"
-                :liker="item"
+                :item="item"
                 :avatar="item.senderAvatar"
                 :name="item.senderFullName"
                 :class="`${tab.class}List`"
@@ -46,7 +46,7 @@
             <activity-reactions-list-items
               v-for="liker in likers"
               :key="liker.id"
-              :liker="liker"
+              :item="liker"
               :avatar="liker.personLikeAvatarImageSource"
               :name="liker.personLikeFullName"
               class="px-3 likersList"/>
@@ -55,7 +55,7 @@
             <activity-reactions-list-items
               v-for="(item, index) in tab.reactionListItems"
               :key="index"
-              :liker="item"
+              :item="item"
               :avatar="item.senderAvatar"
               :name="item.senderFullName"
               :class="`${tab.class}List`"
