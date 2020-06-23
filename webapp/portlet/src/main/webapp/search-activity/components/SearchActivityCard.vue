@@ -1,6 +1,6 @@
 <template>
   <v-card class="d-flex flex-column border-radius box-shadow mr-2 mb-4" flat min-height="227">
-    <v-card-text class="px-2 pt-2 pb-1">
+    <v-card-text class="px-2 pt-2 pb-0">
       <exo-user-avatar
         :username="poster.username"
         :fullname="poster.fullname"
@@ -11,7 +11,7 @@
         </template>
       </exo-user-avatar>
     </v-card-text>
-    <div class="mx-auto flex-grow-1 clickable px-3 py-0">
+    <div class="mx-auto flex-grow-1 px-3 py-0">
       <div
         ref="excerptNode"
         :title="excerptText"
@@ -49,12 +49,9 @@ export default {
     },
   },
   data: () => ({
-    excerptLines: 6,
+    excerptLines: 5,
     lineHeight: 22,
     profileActionExtensions: [],
-    format: {
-      
-    },
   }),
   computed: {
     maxEllipsisHeight() {
@@ -94,7 +91,7 @@ export default {
       if (!this.result) {
         return '';
       }
-      let typeIcon = this.activityType.replace(':', '_');
+      let typeIcon = this.activityType && this.activityType.replace(':', '_') || '';
       typeIcon = `uiIcon${typeIcon.charAt(0).toUpperCase()}${typeIcon.substring(1)}`;
       return `uiIconActivity ${typeIcon}`;
     },
