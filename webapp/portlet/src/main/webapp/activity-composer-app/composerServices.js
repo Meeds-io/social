@@ -44,7 +44,6 @@ export function updateActivityInUserStream(message, activityId, activityType, at
       'updateDate': Date.now(),
       'title': message,
       'type': activityType,
-      'templateParams': {},
       'files': attachments
     })
   }).then((data) => {
