@@ -70,6 +70,7 @@ export default {
     },
   },
   data: () => ({
+    index: 0,
     term: null,
     totalSize: 0,
     results: null,
@@ -118,7 +119,7 @@ export default {
           results[connectorName] = this.results[connectorName];
         }
       });
-      return Object.values(results).flat();
+      return Object.values(results).flat().sort((a, b) => a.index - b.index);
     },
   },
   watch: {
@@ -265,6 +266,7 @@ export default {
               searchConnector.hasMore = searchConnector.enabled && searchConnector.uri && searchConnector.size >= this.limit;
               resultArray.forEach(result => {
                 result.connector = searchConnector;
+                result.index = ++this.index;
                 result.domId = `SearchResult${String(parseInt(Math.random() * 100000))}`;
               });
               this.$set(this.results, searchConnector.name, resultArray);
