@@ -9,13 +9,13 @@
         <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
       </v-chip>
       <v-chip
-        v-for="connector in connectors"
+        v-for="connector in sortedConnectors"
         :key="connector.name"
         :outlined="allEnabled || !connector.enabled"
         :color="!allEnabled && connector.enabled ? 'primary' : ''"
         class="mx-1 border-color"
         @click="selectConnector(connector)">
-        <span class="subtitle-1">{{ $t(`search.connector.label.${connector.name}`) }}</span>
+        <span class="subtitle-1">{{ connector.label }}</span>
       </v-chip>
     </v-flex>
     <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
@@ -89,6 +89,17 @@ export default {
     },
     noResults() {
       return this.searchInitialized && !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
+    },
+    sortedConnectors() {
+      if (!this.connectors) {
+        return [];
+      }
+      return this.connectors.map(connector => {
+        connector.label = this.$t(`search.connector.label.${connector.name}`);
+        return connector;
+      }).sort((connector1, connector2) => {
+        return connector1.label > connector2.label ? 1 : connector1.label < connector2.label ? -1 : 0;
+      });
     },
     enabledConnectors() {
       return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
