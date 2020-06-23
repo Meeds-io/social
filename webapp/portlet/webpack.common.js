@@ -40,7 +40,8 @@ let config = {
     searchApplication: './src/main/webapp/search/main.js',
     peopleSearchResultCard: './src/main/webapp/search-people/main.js',
     spaceSearchResultCard: './src/main/webapp/search-space/main.js',
-    activitySearchResultCard: './src/main/webapp/search-activity/main.js'
+    activitySearchResultCard: './src/main/webapp/search-activity/main.js',
+    activityReactions: './src/main/webapp/activity-reactions/main.js'
   },
   module: {
     rules: [
