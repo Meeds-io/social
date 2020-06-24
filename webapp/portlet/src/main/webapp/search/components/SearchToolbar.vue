@@ -70,6 +70,11 @@ export default {
       }
     }
   },
+  mounted() {
+    window.setTimeout(() => {
+      this.$refs.searchInput.$el.querySelector('input').focus();
+    }, 200);
+  },
   methods: {
     clearSearchTerm() {
       this.term = '';
