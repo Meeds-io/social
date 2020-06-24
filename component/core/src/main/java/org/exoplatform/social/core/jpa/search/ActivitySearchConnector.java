@@ -3,6 +3,7 @@ package org.exoplatform.social.core.jpa.search;
 import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
@@ -102,7 +103,18 @@ public class ActivitySearchConnector {
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-    return retrieveSearchQuery().replaceAll("@term@", removeSpecialCharacters(filter.getTerm()))
+
+    String term = removeSpecialCharacters(filter.getTerm());
+    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
+      word = word.trim();
+      if (word.length() > 5) {
+        word = word + "~1";
+      }
+      return word;
+    }).collect(Collectors.toList());
+    String termQuery = StringUtils.join(termsQuery, " AND ");
+    return retrieveSearchQuery().replaceAll("@term@", term)
+                                .replaceAll("@term_query@", termQuery)
                                 .replaceAll("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
                                 .replaceAll("@offset@", String.valueOf(offset))
                                 .replaceAll("@limit@", String.valueOf(limit));
