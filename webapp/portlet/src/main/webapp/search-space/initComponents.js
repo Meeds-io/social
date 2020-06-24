@@ -1,7 +1,9 @@
 import SearchSpaceCard from './components/SearchSpaceCard.vue';
+import SearchSpaceDrawers from './components/SearchSpaceDrawers.vue';
 
 const components = {
   'space-search-result-card': SearchSpaceCard,
+  'space-search-drawers': SearchSpaceDrawers,
 };
 
 for (const key in components) {
