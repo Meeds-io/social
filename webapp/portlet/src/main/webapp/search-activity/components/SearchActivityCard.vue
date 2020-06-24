@@ -1,5 +1,5 @@
 <template>
-  <v-card class="d-flex flex-column border-radius box-shadow mr-2 mb-4" flat min-height="227">
+  <v-card class="d-flex flex-column border-radius box-shadow" flat min-height="227">
     <v-card-text class="px-2 pt-2 pb-0">
       <exo-user-avatar
         :username="poster.username"
