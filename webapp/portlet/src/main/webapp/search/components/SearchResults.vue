@@ -267,11 +267,10 @@ export default {
               resultArray.forEach(result => {
                 result.connector = searchConnector;
                 result.index = ++this.index;
-                result.domId = `SearchResult${String(parseInt(Math.random() * 100000))}`;
+                result.domId = result.domId || `SearchResult${result.index}`;
               });
               this.$set(this.results, searchConnector.name, resultArray);
               this.totalSize = this.results[searchConnector.name].length;
-              this.$forceUpdate();
             }
           })
           .catch(e => searchConnector.error = e)

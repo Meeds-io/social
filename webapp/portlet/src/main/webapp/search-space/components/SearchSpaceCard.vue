@@ -5,9 +5,6 @@
       :profile-action-extensions="profileActionExtensions"
       embedded
       @refresh="$emit('refresh')" />
-
-    <exo-space-managers-drawer />
-    <exo-space-form-drawer />
   </div>
 </template>
 
@@ -28,6 +25,8 @@ export default {
   }),
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    this.$root.$on('editSpace', space => document.dispatchEvent(new CustomEvent('editSpaceDetail', {'detail': space})));
+    this.$root.$on('displaySpaceManagers', space => document.dispatchEvent(new CustomEvent('openSpaceManagerDetail', {'detail': space})));
   },
 };
 </script>
