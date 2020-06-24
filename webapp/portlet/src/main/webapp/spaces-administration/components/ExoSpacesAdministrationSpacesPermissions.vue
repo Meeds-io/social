@@ -237,7 +237,7 @@ export default {
 
       spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
-        for(const group of data) {
+        for(const group of data.entities) {
           groups.push({
             avatarUrl: null,
             text: `*:${group.id}`,
