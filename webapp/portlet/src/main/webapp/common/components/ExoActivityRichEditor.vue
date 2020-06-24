@@ -1,6 +1,6 @@
 <template>
   <div class="activityRichEditor">
-    <textarea id="activityContent" ref="editor" v-model="inputVal" :placeholder="placeholder" cols="30" rows="10" class="textarea"></textarea>
+    <textarea ref="editor" :id="ckEditorType" v-model="inputVal" :placeholder="placeholder" cols="30" rows="10" class="textarea"></textarea>
     <v-progress-circular
       v-if="!editorReady"
       :width="3"
@@ -27,6 +27,10 @@ export default {
     maxLength: {
       type: Number,
       default: -1
+    },
+    ckEditorType: {
+      type: String,
+      default: 'activityContent'
     }
   },
   data() {
@@ -43,12 +47,12 @@ export default {
     },
     value(val) {
       // watch value to reset the editor value if the value has been updated by the component parent
-      const editorData = CKEDITOR.instances['activityContent'].getData();
+      const editorData = CKEDITOR.instances[this.ckEditorType].getData();
       if (editorData != null && val !== editorData) {
         if (val === '') {
           this.initCKEditor();
         } else {
-          CKEDITOR.instances['activityContent'].setData(val);
+          CKEDITOR.instances[this.ckEditorType].setData(val);
         }
       }
     }
@@ -58,9 +62,9 @@ export default {
   },
   methods: {
     initCKEditor: function () {
-      CKEDITOR.plugins.addExternal('embedsemantic','/commons-extension/eXoPlugins/embedsemantic/','plugin.js');
-      if (typeof CKEDITOR.instances['activityContent'] !== 'undefined') {
-        CKEDITOR.instances['activityContent'].destroy(true);
+      CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined' && !this.ckEditorType.includes('editActivity')) {
+        CKEDITOR.instances[this.ckEditorType].destroy(true);
       }
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
@@ -78,16 +82,16 @@ export default {
         allowedContent: true,
         removePlugins: 'image,confirmBeforeReload,maximize,resize',
         toolbar: [
-          ['Bold','Italic','BulletedList', 'NumberedList', 'Blockquote'],
+          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],
         typeOfRelation: 'mention_activity_stream',
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         on: {
-          instanceReady: function() {
+          instanceReady: function () {
             self.editorReady = true;
           },
-          change: function(evt) {
+          change: function (evt) {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;
@@ -103,10 +107,10 @@ export default {
       });
     },
     setFocus: function() {
-      CKEDITOR.instances['activityContent'].focus();
+      CKEDITOR.instances[this.ckEditorType].focus();
     },
     getMessage: function() {
-      const newData = CKEDITOR.instances['activityContent'].getData();
+      const newData = CKEDITOR.instances[this.ckEditorType].getData();
       return newData ? newData : '';
     }
   }
