@@ -179,7 +179,7 @@ export default {
       spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
         const boundGroups = this.groupSpaceBindings.map(binding => binding.group);
-        for(const group of data) {
+        for(const group of data.entities) {
           if (!group.id.startsWith('/spaces') && !boundGroups.includes(group.id)) {
             groups.push({
               avatarUrl: null,
