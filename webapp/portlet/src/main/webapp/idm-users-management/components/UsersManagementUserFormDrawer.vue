@@ -234,7 +234,7 @@ export default {
         return;
       }
 
-      if (this.confirmNewPassword !== this.user.password) {
+      if (this.confirmNewPassword && this.user.password && this.confirmNewPassword !== this.user.password) {
         this.$refs.confirmNewPassword.setCustomValidity(this.$t('UsersManagement.newPasswordsDoesNotMatch'));
         if (!this.$refs.userForm.$el.reportValidity()) {
           return;
