@@ -86,7 +86,7 @@ export default {
             .replace(/&/g, '","')
             .replace(/=/g, '":"')}"}`
         );
-        const selectedTypes = window.decodeURIComponent(parameters['types']);
+        const selectedTypes = parameters['types'] && window.decodeURIComponent(parameters['types']);
         if (selectedTypes && selectedTypes.trim().length) {
           this.connectors.forEach(connector => {
             connector.enabled = selectedTypes.includes(connector.name);
