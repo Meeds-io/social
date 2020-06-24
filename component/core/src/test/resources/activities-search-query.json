@@ -17,12 +17,9 @@
         }
       },
       "must":{
-        "match":{
-          "body":{
-            "query": "@term@",
-            "operator": "and",
-            "cutoff_frequency": 0.001
-          }
+        "query_string":{
+          "fields": ["body"],
+          "query": "@term_query@"
         }
       }
     }
