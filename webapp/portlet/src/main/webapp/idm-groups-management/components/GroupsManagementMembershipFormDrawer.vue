@@ -43,6 +43,7 @@
         </v-card-text>
         <v-card-text class="d-flex membershipUserField py-0">
           <v-autocomplete
+            id="userNameInput"
             ref="userNameInput"
             v-model="membership.userName"
             :disabled="saving || !newMembership"
@@ -172,6 +173,12 @@ export default {
         this.$refs.membershipFormDrawer.open();
         window.setTimeout(() => {
           this.$refs.membershipTypeInput.focus();
+          $('#membershipFormDrawer #userNameInput').on('blur', () => {
+            // A hack to close on select
+            // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
+            this.$refs.userNameInput.isFocused = false;
+          });
+
         }, 200);
       } else {
         this.$refs.membershipFormDrawer.close();
@@ -187,7 +194,7 @@ export default {
       credentials: 'include',
     }).then(resp => {
       if (!resp || !resp.ok) {
-        throw new Error('Response code indicates a server error', resp);
+        throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
       } else {
         return resp.json();
       }
@@ -244,7 +251,7 @@ export default {
               throw new Error(error);
             });
           } else {
-            throw new Error('Response code indicates a server error');
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
       }).then(() => this.$root.$emit('refreshGroupMemberships'))

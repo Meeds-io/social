@@ -167,7 +167,7 @@ export default {
               throw new Error(error);
             });
           } else {
-            throw new Error('Response code indicates a server error');
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
       }).then(() => this.$root.$emit('refreshMembershipTypes'))

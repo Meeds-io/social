@@ -7,6 +7,11 @@
       :ok-label="$t('MembershipTypesManagement.button.ok')"
       :cancel-label="$t('MembershipTypesManagement.button.cancel')"
       @ok="deleteConfirm()" />
+    <v-card-text v-if="error" class="errorMessage">
+      <v-alert type="error">
+        {{ error }}
+      </v-alert>
+    </v-card-text>
     <v-data-table
       :headers="headers"
       :items="filteredMembershipTypes"
@@ -69,6 +74,7 @@ export default {
       itemsPerPage: 20,
     },
     loading: true,
+    error: null,
   }),
   computed: {
     hasPages() {
@@ -144,9 +150,26 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          if (resp && resp.status === 400) {
+            return resp.text().then(error => {
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
         }
         return this.searchMembershipTypes();
+      }).catch(error => {
+        error = error.message || String(error);
+        const errorI18NKey = `MembershipTypesManagement.error.${error}`;
+        const errorI18N = this.$t(errorI18NKey, {0: this.selectedMembershipType.name});
+        if (errorI18N !== errorI18NKey) {
+          error = errorI18N;
+        }
+        this.error = error;
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
       })
         .finally(() => this.loading = false);
     },
@@ -157,7 +180,7 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
         } else {
           return resp.json();
         }

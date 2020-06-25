@@ -1,5 +1,10 @@
 <template>
   <v-app class="white">
+    <v-card-text v-if="error" class="errorMessage">
+      <v-alert type="error">
+        {{ error }}
+      </v-alert>
+    </v-card-text>
     <v-card class="d-flex flex py-4 ma-4" flat>
       <v-flex class="sm12 md4" flat>
         <groups-management-tree-toolbar />
@@ -18,8 +23,12 @@
 
 <script>
 export default {
+  data: () => ({
+    error: null,
+  }),
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    this.$root.$on('error', error => this.error = error);
   },
 };
 </script>

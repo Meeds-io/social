@@ -13,6 +13,11 @@
       :message="$t('UsersManagement.message.deleteCurrentUserWarning')"
       :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
       :ok-label="$t('UsersManagement.button.ok')" />
+    <v-card-text v-if="error" class="errorMessage">
+      <v-alert type="error">
+        {{ error }}
+      </v-alert>
+    </v-card-text>
     <v-data-table
       :headers="headers"
       :items="filteredUsers"
@@ -73,6 +78,7 @@ export default {
     },
     totalSize: 0,
     loading: true,
+    error: null,
   }),
   computed: {
     filteredUsers() {
@@ -167,11 +173,27 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          if (resp && resp.status === 400) {
+            return resp.text().then(error => {
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
         }
         return this.searchUsers();
-      })
-        .finally(() => this.loading = false);
+      }).catch(error => {
+        error = error.message || String(error);
+        const errorI18NKey = `UsersManagement.error.${error}`;
+        const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
+        if (errorI18N !== errorI18NKey) {
+          error = errorI18N;
+        }
+        this.error = error;
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
+      }).finally(() => this.loading = false);
     },
     searchUsers() {
       const page = this.options && this.options.page;
@@ -187,7 +209,7 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
         } else {
           return resp.json();
         }

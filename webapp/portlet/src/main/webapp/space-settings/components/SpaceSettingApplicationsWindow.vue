@@ -1,6 +1,13 @@
 <template>
   <v-card
     flat>
+    <exo-confirm-dialog
+      ref="deleteApplicationDialog"
+      :message="deleteApplicationMessage"
+      :title="$t('SpaceSettings.title.deleteApplicationConfirm')"
+      :ok-label="$t('SpaceSettings.label.yes')"
+      :cancel-label="$t('SpaceSettings.label.no')"
+      @ok="removeConfirm()" />
     <v-toolbar
       class="border-box-sizing"
       flat>
@@ -66,6 +73,8 @@ export default {
     },
   },
   data: () => ({
+    deleteApplicationMessage: null,
+    selectedApplication: null,
     saving: false,
   }),
   methods: {
@@ -78,7 +87,12 @@ export default {
         .then(() => this.$emit('refresh'));
     },
     remove(application) {
-      this.$spaceService.removeApplication(this.spaceId, application.id)
+      this.selectedApplication = application;
+      this.deleteApplicationMessage = this.$t('SpaceSettings.deleApplicationConfirm', {0: application.displayName});
+      this.$refs.deleteApplicationDialog.open();
+    },
+    removeConfirm() {
+      this.$spaceService.removeApplication(this.spaceId, this.selectedApplication.id)
         .then(() => this.$emit('refresh'));
     },
     openDrawer() {
