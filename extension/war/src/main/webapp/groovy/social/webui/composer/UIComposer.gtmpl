@@ -25,11 +25,28 @@
   import org.exoplatform.container.ExoContainerContext;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
   import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
+  import org.exoplatform.social.core.space.SpaceUtils;
+  import org.exoplatform.services.security.Identity;
+  import org.exoplatform.services.security.ConversationState;
 
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
   boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled").equals("true");
+  //check if space has redactors
+  Boolean spaceHasRedactors = false;
+  Boolean isCurrentUserRedactor = false;
+  if(uicomponent.getSpaceGroupId()) {
+    String SpaceGroupId = uicomponent.getSpaceGroupId();
+    List<String> spaceRedactors = SpaceUtils.findMembershipUsersByGroupAndTypes(SpaceGroupId, "redactor");
+    if (!spaceRedactors.isEmpty()) {
+      spaceHasRedactors = true;
+      //check if user connected is redactor!!!!
+      ConversationState currentState = ConversationState.getCurrent();
+      String currentUserId = currentState.getIdentity().getUserId();
+      isCurrentUserRedactor = spaceRedactors.contains(currentUserId);
+    }
+  }
   if(featureService.isActiveFeature("new-composer")) {
-    if (uicomponent.getSpaceGroupId() != null || isMainStreamComposerEnabled) {
+    if (uicomponent.getSpaceGroupId() != null && (!spaceHasRedactors || isCurrentUserRedactor) || isMainStreamComposerEnabled ) {
 %>
 <div id="activityComposer"></div>
 <script>
