@@ -113,11 +113,27 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          if (resp && resp.status === 400) {
+            return resp.text().then(error => {
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
         }
         return this.$root.$emit('removeGroup', this.group);
-      })
-        .finally(() => this.loading = false);
+      }).catch(error => {
+        error = error.message || String(error);
+        const errorI18NKey = `GroupsManagement.error.${error}`;
+        const errorI18N = this.$t(errorI18NKey, {0: this.group.label});
+        if (errorI18N !== errorI18NKey) {
+          error = errorI18N;
+        }
+        this.$root.$emit('error', error);
+        window.setTimeout(() => {
+          this.$root.$emit('error', null);
+        }, 5000);
+      }).finally(() => this.loading = false);
     },
   },
 };
