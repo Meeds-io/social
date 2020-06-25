@@ -178,7 +178,7 @@ export default {
               throw new Error(error);
             });
           } else {
-            throw new Error(this.$t('UsersManagement.error.UnknownServerError'));
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
         return this.searchUsers();
@@ -209,7 +209,7 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
+          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
         } else {
           return resp.json();
         }
