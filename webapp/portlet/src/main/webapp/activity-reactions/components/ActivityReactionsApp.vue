@@ -34,11 +34,6 @@
           @reactions="reactionsNumber"
         />
       </div>
-      <!--<div class="actionBarMobile">
-        <a class="likesNumber" @click="openDrawer">{{ likersNumber }} Likes</a>
-        <a class="CommentsNumber" href="#">3 Comments</a>
-        <a class="KudosNumber" href="#" @click="openDrawer">{{ kudosNumber }} Kudos</a>
-      </div>-->
       <activity-reactions-mobile
         :kudos-number="kudosNumber"
         :likers-number="likersNumber"
@@ -82,9 +77,8 @@ export default {
     openDrawer() {
       this.$refs.reactionsDrawer.open();
     },
-    reactionsNumber(value) {
-      console.log('heloooooooooooooooooooooooooooooooooooooooooooooooooo',value);
-      this.kudosNumber = value;
+    reactionsNumber(kudosCount) {
+      this.kudosNumber = kudosCount;
     }
   },
 };

@@ -243,7 +243,6 @@
 					<% } %>
 				</div>
 				</div><!--end introBox,linkShare-->
-				 <% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
 				<% if (embedHtml != null) { %>
           <ul class="statusAction uiActivityActions">
             <li>
