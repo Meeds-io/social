@@ -5,7 +5,7 @@
       body-classes="hide-scroll decrease-z-index-more"
       right>
       <template slot="title">
-        <div class="activityLikersDrawerTitle">
+        <div class="activityReactionsTitle">
           <v-tabs v-model="tab">
             <v-tab class="allLikersAndKudos text-color pr-3 pl-0" href="#tab-1">{{ $t('UIActivity.label.Show_All_Likers') }} {{ reactionsNumber }}</v-tab>
             <v-tab class="allLikers pr-3 pl-0" href="#tab-2"><i class="uiIconThumbUp"></i> <span class="primary--text">{{ likersNumber }}</span></v-tab>
@@ -26,18 +26,20 @@
             <activity-reactions-list-items
               v-for="liker in likers"
               :key="liker.id"
-              :item="liker"
+              :user-id="liker.likerId"
               :avatar="liker.personLikeAvatarImageSource"
               :name="liker.personLikeFullName"
+              :profile-url="liker.personLikeProfileUri"
               class="px-3  likersList"/>
             <div v-for="(tab, i) in enabledReactionsTabsExtensions" :key="i">
               <activity-reactions-list-items
                 v-for="(item, index) in tab.reactionListItems"
                 :key="index"
-                :item="item"
+                :user-id="item.senderId"
                 :avatar="item.senderAvatar"
                 :name="item.senderFullName"
                 :class="`${tab.class}List`"
+                :profile-url="item.senderURL"
                 class="px-3"/>
             </div>
 
@@ -46,25 +48,27 @@
             <activity-reactions-list-items
               v-for="liker in likers"
               :key="liker.id"
-              :item="liker"
+              :user-id="liker.likerId"
               :avatar="liker.personLikeAvatarImageSource"
               :name="liker.personLikeFullName"
+              :profile-url="liker.personLikeProfileUri"
               class="px-3 likersList"/>
           </v-tab-item>
           <v-tab-item v-for="(tab, i) in enabledReactionsTabsExtensions" :key="i" :eager="true" :value="`tab-${tab.order}`">
             <activity-reactions-list-items
               v-for="(item, index) in tab.reactionListItems"
               :key="index"
-              :item="item"
+              :user-id="item.senderId"
               :avatar="item.senderAvatar"
               :name="item.senderFullName"
               :class="`${tab.class}List`"
+              :profile-url="item.senderURL"
               class="px-3"/>
           </v-tab-item>
         </v-tabs-items>
       </template>
     </exo-drawer>
-    <p class="reactionsNumber mb-0 pl-2 align-self-end caption">{{ reactionsNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
+    <p class="reactionsNumber mb-0 pl-2 align-self-end caption" @click="open">{{ reactionsNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
   </div>
 </template>
 
@@ -92,6 +96,7 @@ export default {
     return {
       tab: null,
       activityReactionsExtensions: [],
+      user: {}
     };
   },
   computed: {
@@ -101,6 +106,12 @@ export default {
         allReactionsNumber += item.reactionListItems.length;
       });
       return allReactionsNumber;
+    },
+    likerNumber () {
+      return this.likersNumber;
+    },
+    kudosNumber() {
+      return this.reactionsNumber - this.likersNumber;
     },
     enabledReactionsTabsExtensions() {
       if (!this.activityReactionsExtensions) {
@@ -124,6 +135,7 @@ export default {
       const contentsToLoad = extensionRegistry.loadExtensions('activity-reactions', 'activity-kudos-reactions') || [];
       // eslint-disable-next-line eqeqeq
       this.activityReactionsExtensions = contentsToLoad.filter(contentDetail => contentDetail.activityId == this.activityId );
+      this.$emit('reactions', this.kudosNumber);
     },
   },
 };

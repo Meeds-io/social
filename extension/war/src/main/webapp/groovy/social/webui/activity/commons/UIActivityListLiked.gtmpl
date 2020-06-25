@@ -65,11 +65,13 @@
     personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
     personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
     personLikeAvatarImageSource = id.profile.avatarUrl;
+    def userName = id.getRemoteId();
     def liker = """ {
       id:'$id',
       personLikeFullName: '$personLikeFullName',
       personLikeProfileUri: '$personLikeProfileUri',
       personLikeAvatarImageSource: '$personLikeAvatarImageSource',
+      likerId: '$userName',
     }""";
     likers.add(liker);
   });
