@@ -38,7 +38,8 @@ import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
                 @EventConfig(listeners = BaseUIActivity.DeleteCommentActionListener.class),
                 @EventConfig(listeners = BaseUIActivity.LikeCommentActionListener.class),
                 @EventConfig(listeners = BaseUIActivity.EditActivityActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class)
+                @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class),
+                @EventConfig(listeners = BaseUIActivity.RefreshActivityActionListener.class)
         }
 )
 public class UILinkActivity extends BaseUIActivity {
@@ -50,6 +51,7 @@ public class UILinkActivity extends BaseUIActivity {
   public static final String DESCRIPTION_PARAM = "description";
   public static final String COMMENT_PARAM = "comment";
   public static final String HTML_PARAM = "html";
+  public static final String DEFAULT_TITLE = "default_title";
 
   private String linkSource = "";
   private String linkTitle = "";
@@ -57,6 +59,7 @@ public class UILinkActivity extends BaseUIActivity {
   private String linkDescription = "";
   private String linkComment = "";
   private String embedHtml = "";
+  private String defaultTitle = "";
 
   public String getLinkComment() {
     return linkComment;
@@ -93,6 +96,14 @@ public class UILinkActivity extends BaseUIActivity {
   }
   public void setEmbedHtml(String embedHtml) {
     this.embedHtml = embedHtml;
+  }
+
+  public String getDefaultTitle() {
+    return defaultTitle;
+  }
+
+  public void setDefaultTitle(String defaultTitle) {
+    this.defaultTitle = defaultTitle;
   }
 
   @Override

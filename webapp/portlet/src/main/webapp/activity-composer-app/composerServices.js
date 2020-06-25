@@ -33,3 +33,20 @@ export function postMessageInUserStream(message, activityType, attachments, user
     return data.json();
   });
 }
+export function updateActivityInUserStream(message, activityId, activityType, attachments) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'PUT',
+    body: JSON.stringify({
+      'updateDate': Date.now(),
+      'title': message,
+      'type': activityType,
+      'files': attachments
+    })
+  }).then((data) => {
+    return data.json();
+  });
+}

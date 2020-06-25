@@ -1,10 +1,10 @@
 <template>
-  <v-card class="d-flex flex-column border-radius box-shadow mr-2 mb-4" flat min-height="227">
-    <v-card-text class="px-2 pt-2 pb-0">
+  <v-card class="d-flex flex-column border-radius box-shadow" flat min-height="227">
+    <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
       <exo-user-avatar
-        :username="poster.username"
-        :fullname="poster.fullname"
-        :title="poster.fullname"
+        :username="posterUsername"
+        :fullname="posterFullname"
+        :title="posterFullname"
         avatar-class="border-color">
         <template slot="subTitle">
           <date-format :value="postedTime" />
@@ -49,14 +49,11 @@ export default {
     },
   },
   data: () => ({
-    excerptLines: 5,
+    maxEllipsisHeight: 100,
     lineHeight: 22,
     profileActionExtensions: [],
   }),
   computed: {
-    maxEllipsisHeight() {
-      return this.lineHeight * this.excerptLines;
-    },
     isComment() {
       return this.result && this.result.comment;
     },
@@ -65,6 +62,12 @@ export default {
     },
     poster() {
       return this.activity && this.activity.poster.profile;
+    },
+    posterFullname() {
+      return this.poster && this.poster.fullname;
+    },
+    posterUsername() {
+      return this.poster && this.poster.username;
     },
     streamOwner() {
       return this.activity && this.activity.streamOwner.space || this.activity.streamOwner.profile;
@@ -149,7 +152,7 @@ export default {
       let stNodeHeight = stNode.getBoundingClientRect().height || this.lineHeight;
       if (stNodeHeight > this.maxEllipsisHeight) {
         while (stNodeHeight > this.maxEllipsisHeight) {
-          const newHtml = this.deleteLastChars(stNode.innerHTML.replace(/&[a-z]*;/, ''), 10);
+          const newHtml = this.deleteLastChars(stNode.innerHTML.replace(/&[a-z]*;/, ''), 20);
           if (newHtml.length === stNode.innerHTML.length) {
             break;
           }

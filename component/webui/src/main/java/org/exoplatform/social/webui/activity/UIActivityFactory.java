@@ -68,7 +68,7 @@ public class UIActivityFactory extends BaseComponentPlugin {
     return buildActivity(activity, parent, UIDefaultActivity.ACTIVITY_TYPE);
   }
 
-  private BaseUIActivity buildActivity(ExoSocialActivity activity, UIContainer parent, String type) throws Exception {
+  public BaseUIActivity buildActivity(ExoSocialActivity activity, UIContainer parent, String type) throws Exception {
     
     UIExtension activityExtension = extensionManager.getUIExtension(BaseUIActivity.class.getName(), type);
     if (activityExtension == null) {

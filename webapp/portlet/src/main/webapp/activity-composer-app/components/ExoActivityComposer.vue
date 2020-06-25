@@ -1,20 +1,20 @@
 <template>
   <div class="activityComposer">
-    <div class="openLink">
+    <div :style="{display: activityId ? 'none' : 'block'}" class="openLink">
       <a @click="openMessageComposer()">
         <i class="uiIconEdit"></i>{{ link.replace('{0}', postTarget) }}
       </a>
     </div>
 
-    <v-app id="activityComposerApp" class="VuetifyApp">
-      <div :class="showMessageComposer ? 'open' : ''" class="drawer">
+    <v-app :id="activityId ? `editActivityComposer${activityId}` : 'activityComposerApp'" class="activityComposerApp VuetifyApp">
+      <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivity editActivityDrawer${activityId}` : '']" class="drawer">
         <div class="header">
           <img src="/eXoSkin/skin/images/system/composer/composer.png">
           <span> {{ $t('activity.composer.title') }}</span>
           <a class="closebtn" href="javascript:void(0)" @click="closeMessageComposer()">×</a>
         </div>
         <div class="content">
-          <exo-activity-rich-editor ref="richEditor" v-model="message" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
+          <exo-activity-rich-editor :ref="ckEditorType" v-model="message" :ck-editor-type="ckEditorType" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
           <div class="composerButtons">
             <div v-if="activityComposerHintAction" class="action">
               <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
@@ -22,7 +22,7 @@
             </div>
             <div v-if="activityComposerHintAction === null || typeof activityComposerHintAction === 'undefined' || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
             </div>
-            <div><button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes btnStyle" @click="postMessage()">{{ $t('activity.composer.post') }}</button></div>
+            <div><button :disabled="postDisabled" type="button" class="btn btn-primary ignore-vuetify-classes btnStyle" @click="postMessage()">{{ $t(`activity.composer.${composerAction}`) }}</button></div>
           </div>
           <transition name="fade">
             <div v-show="showErrorMessage" class="alert alert-error">
@@ -43,7 +43,7 @@
             </v-app>
           </div>
 
-          <div class="composerActions">
+          <div v-show="activityId ? false : showMessageComposer" class="composerActions">
             <div v-for="action in activityComposerActions" :key="action.key" :class="`${action.appClass}Action`">
               <div class="actionItem" @click="executeAction(action)">
                 <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
@@ -55,14 +55,14 @@
                 </div>
               </div>
               <component v-dynamic-events="actionsEvents[action.key]" v-if="action.component"
-                         v-show="showMessageComposer" :ref="action.key" v-bind="action.component.props"
+                         :ref="action.key" v-bind="action.component.props"
                          v-model="actionsData[action.key].value" :is="action.component.name"></component>
             </div>
           </div>
         </div>
       </div>
     </v-app>
-    <div v-show="showMessageComposer" class="drawer-backdrop" @click="closeMessageComposer()"></div>
+    <div v-show="showMessageComposer" :class="`drawer-backdrop-activity${activityId}`" class="drawer-backdrop" @click="closeMessageComposer()"></div>
   </div>
 </template>
 
@@ -91,6 +91,24 @@ export default {
       },
     }
   },
+  props: {
+    activityBody: {
+      type: String,
+      default: ''
+    },
+    activityId: {
+      type: String,
+      default: ''
+    },
+    composerAction: {
+      type: String,
+      default: 'post'
+    },
+    ckEditorType: {
+      type: String,
+      default: 'activityContent'
+    }
+  },
   data() {
     return {
       MESSAGE_MAX_LENGTH: 1300,
@@ -115,7 +133,7 @@ export default {
     },
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.activityBodyEdited;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
@@ -130,6 +148,9 @@ export default {
       return this.attachments.map(attachment => {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
       }).reduce((a, b) => a + b, 0);
+    },
+    activityBodyEdited: function() {
+      return this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody));
     }
   },
   watch: {
@@ -150,6 +171,7 @@ export default {
     }
   },
   mounted() {
+    this.message = this.activityBody;
     this.postTarget = eXo.env.portal.spaceDisplayName;
     if(!this.postTarget) {
       this.link = this.$t('activity.composer.post');
@@ -166,7 +188,7 @@ export default {
   },
   methods: {
     openMessageComposer: function() {
-      this.$refs.richEditor.setFocus();
+      this.$refs[this.ckEditorType].setFocus();
       this.showMessageComposer = true;
 
       // Send metric
@@ -186,29 +208,39 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const msg = this.$refs.richEditor.getMessage();
-      if(eXo.env.portal.spaceId) {
-        composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
-          .then(() => this.refreshActivityStream())
+      const msg = this.$refs[this.ckEditorType].getMessage();
+      if(this.composerAction === 'update') {
+        composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => this.closeMessageComposer())
-          .then(() => {
-            this.resetComposer();
-          })
+          .then(() => this.refreshCurrentActivity())
           .catch(error => {
-            console.error(`Error when posting message: ${error}`);
+            console.error(`Error when updating the activity: ${error}`);
             this.showErrorMessage = true;
           });
       } else {
-        composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
-          .then(() => this.refreshActivityStream())
-          .then(() => this.closeMessageComposer())
-          .then(() => {
-            this.resetComposer();
-          })
-          .catch(error => {
-            console.error(`Error when posting message: ${error}`);
-            this.showErrorMessage = true;
-          });
+        if(eXo.env.portal.spaceId) {
+          composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
+            .then(() => this.refreshActivityStream())
+            .then(() => this.closeMessageComposer())
+            .then(() => {
+              this.resetComposer();
+            })
+            .catch(error => {
+              console.error(`Error when posting message: ${error}`);
+              this.showErrorMessage = true;
+            });
+        } else {
+          composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
+            .then(() => this.refreshActivityStream())
+            .then(() => this.closeMessageComposer())
+            .then(() => {
+              this.resetComposer();
+            })
+            .catch(error => {
+              console.error(`Error when posting message: ${error}`);
+              this.showErrorMessage = true;
+            });
+        }
       }
     },
     resetComposer() {
@@ -229,13 +261,39 @@ export default {
       }
     },
     closeMessageComposer: function() {
-      this.showMessageComposer = false;
+      if (this.activityId) {
+        document.querySelector(`#editActivityComposer${this.activityId} .drawer`).classList.remove('open');
+        document.querySelector(`#editActivityComposer${this.activityId} .composerActions`).style.display = 'none';
+        document.querySelector(`.activityComposer .drawer-backdrop-activity${this.activityId}`).style.display = 'none';
+      } else {
+        this.showMessageComposer = false;
+      }
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);
     },
     updateAttachments(attachments) {
       this.attachments = attachments;
+    },
+    refreshCurrentActivity() {
+      const refreshButton = document.querySelector(`#activityContainer${this.activityId} #RefreshActivity${this.activityId}`);
+      if(refreshButton) {
+        refreshButton.click();
+      }
+    },
+    escapeHTML: function(html) {
+      const text = document.createElement('textarea');
+      text.innerHTML = html;
+      return text.value.replace(/>\s+</g, '><').trim();
+    },
+    cleanInitialActivityBody: function()  {
+      const div = document.createElement('div');
+      div.innerHTML = this.activityBody;
+      const elements = div.querySelectorAll('#editActivityLinkPreview');
+      Array.prototype.forEach.call( elements, function( node ) {
+        node.parentNode.remove();
+      });
+      return div.innerHTML;
     }
   }
 };
