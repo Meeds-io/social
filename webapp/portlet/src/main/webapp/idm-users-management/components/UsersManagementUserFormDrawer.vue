@@ -296,8 +296,13 @@ export default {
           const newPasswordError = this.fieldError.replace('PASSWORD:', '');
           this.$refs.newPasswordInput.setCustomValidity(newPasswordError);
         } else {
-          this.error = String(error);
-
+          error = error.message || String(error);
+          const errorI18NKey = `UsersManagement.error.${error}`;
+          const errorI18N = this.$t(errorI18NKey, {0: this.user.fullname});
+          if (errorI18N !== errorI18NKey) {
+            error = errorI18N;
+          }
+          this.error = error;
           window.setTimeout(() => {
             this.error = null;
           }, 5000);
