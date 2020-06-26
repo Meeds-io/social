@@ -153,12 +153,12 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setIsSpaceRedactor(boolean isSpaceRedactor) {
-    setProperty("IsSpaceRedactor", isSpaceRedactor);
+    setProperty("isSpaceRedactor", isSpaceRedactor);
     return this;
   }
 
   public Boolean getIsSpaceRedactor() {
-    return (Boolean) getProperty("IsSpaceRedactor");
+    return (Boolean) getProperty("isSpaceRedactor");
   }
 
   public ProfileEntity setFullname(String fullname) {

@@ -35,18 +35,17 @@
   Boolean spaceHasRedactors = false;
   Boolean isCurrentUserRedactor = false;
   if(uicomponent.getSpaceGroupId()) {
-    String SpaceGroupId = uicomponent.getSpaceGroupId();
-    List<String> spaceRedactors = SpaceUtils.findMembershipUsersByGroupAndTypes(SpaceGroupId, "redactor");
+    String spaceGroupId = uicomponent.getSpaceGroupId();
+    List<String> spaceRedactors = SpaceUtils.findMembershipUsersByGroupAndTypes(spaceGroupId, "redactor");
     if (!spaceRedactors.isEmpty()) {
       spaceHasRedactors = true;
-      //check if user connected is redactor!!!!
-      ConversationState currentState = ConversationState.getCurrent();
-      String currentUserId = currentState.getIdentity().getUserId();
+      //check if connected user is redactor
+      String currentUserId = _ctx.getRequestContext().getRemoteUser();
       isCurrentUserRedactor = spaceRedactors.contains(currentUserId);
     }
   }
   if(featureService.isActiveFeature("new-composer")) {
-    if (uicomponent.getSpaceGroupId() != null && (!spaceHasRedactors || isCurrentUserRedactor) || isMainStreamComposerEnabled ) {
+    if (uicomponent.getSpaceGroupId() != null && (!spaceHasRedactors || isCurrentUserRedactor) || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
 %>
 <div id="activityComposer"></div>
 <script>
