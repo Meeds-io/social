@@ -30,9 +30,10 @@ export function init(params) {
     new Vue({
       data: () => ({
         likers: params.likers,
-        likersNumber: params.likersNum
+        likersNumber: params.likersNum,
+        commentNumber: params.commentNum
       }),
-      template: `<activity-reactions :activity-id=${params.activityId} :likers="likers" :likers-number="likersNumber"  app-id="activityReactions-${params.activityId}" data-id="${params.activityId}"/>`,
+      template: `<activity-reactions :activity-id=${params.activityId} :likers="likers" :likers-number="likersNumber" :comment-number="commentNumber" app-id="activityReactions-${params.activityId}" data-id="${params.activityId}"/>`,
       i18n,
       vuetify,
     }).$mount(`#activityReactions-${params.activityId}`);

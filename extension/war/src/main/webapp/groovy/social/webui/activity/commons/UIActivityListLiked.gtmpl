@@ -16,6 +16,10 @@
 
   def activity = uicomponent.getActivity();
   def displayedIdentityLikes = uicomponent.getDisplayedIdentityLikes();
+
+  int allCommentSize = uicomponent.getAllCommentSize();
+
+
   def identityLikesNum = 0;
   if (displayedIdentityLikes != null) {
     identityLikesNum = displayedIdentityLikes.length;
@@ -81,6 +85,7 @@
       activityId: '${activity.id}',
       likers: $likers,
       likersNum : $identityLikesNum,
+      commentNum: $allCommentSize,
       likersLabel: '${labelLikes}'
     } """;
 %>

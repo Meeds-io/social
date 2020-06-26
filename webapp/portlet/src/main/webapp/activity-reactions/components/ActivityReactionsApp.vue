@@ -39,6 +39,7 @@
       <activity-reactions-mobile
         :kudos-number="kudosNumber"
         :likers-number="likersNumber"
+        :comment-number="commentNumber"
         @openDrawer="openDrawer"/>
     </div>
   </v-app>
@@ -55,6 +56,10 @@ export default {
       default: () => []
     },
     likersNumber: {
+      type: Number,
+      default: 0
+    },
+    commentNumber: {
       type: Number,
       default: 0
     },
