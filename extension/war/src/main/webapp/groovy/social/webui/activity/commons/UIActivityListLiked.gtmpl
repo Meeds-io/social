@@ -1,6 +1,7 @@
 <%
   import org.apache.commons.lang.StringEscapeUtils;
   import org.exoplatform.social.webui.Utils;
+  import org.exoplatform.portal.webui.util.Util;
   import org.exoplatform.social.core.service.LinkProvider;
 
   def labelYouLikeThis=_ctx.appRes("UIActivity.label.You_Like_This");
@@ -10,8 +11,15 @@
   def labelYouAndOnePersonLikeThis=_ctx.appRes("UIActivity.label.You_And_One_Person_Like_This");
   def labelYouAndOthersLikeThis=_ctx.appRes("UIActivity.label.You_And_Others_Like_This");
 
+  def pcontext = Util.getPortalRequestContext();
+  def jsManager = pcontext.getJavascriptManager();
+
   def activity = uicomponent.getActivity();
   def displayedIdentityLikes = uicomponent.getDisplayedIdentityLikes();
+
+  int allCommentSize = uicomponent.getAllCommentSize();
+
+
   def identityLikesNum = 0;
   if (displayedIdentityLikes != null) {
     identityLikesNum = displayedIdentityLikes.length;
@@ -55,32 +63,40 @@
    //hides diplayPeopleBG
    listPeopleBGClass = "displayNone";
   }
+  def likers = [];
+  displayedIdentityLikes.each({
+    def id = Utils.getIdentityManager().getIdentity(it);
+    personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
+    personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
+    personLikeAvatarImageSource = id.profile.avatarUrl;
+    def userName = id.getRemoteId();
+    def liker = """ {
+      id:'$id',
+      personLikeFullName: '$personLikeFullName',
+      personLikeProfileUri: '$personLikeProfileUri',
+      personLikeAvatarImageSource: '$personLikeAvatarImageSource',
+      likerId: '$userName',
+    }""";
+    likers.add(liker);
+  });
+
+  //params for init UIActivity javascript object
+  def params = """ {
+      activityId: '${activity.id}',
+      likers: $likers,
+      likersNum : $identityLikesNum,
+      commentNum: $allCommentSize,
+      likersLabel: '${labelLikes}'
+    } """;
 %>
-<% if (identityLikesNum > 0 || uicomponent.isLiked()) {%>
-  <div class="listLikedBox $listPeopleBGClass">
-    <div class="listPeopleContent">
-      <% if (!labelLikes) { labelLikes = ""; } %>
-        <% if (identityLikesNum > 0) {%>
-        <div class="listLiked">
-        <%
-          displayedIdentityLikes.each({
-          def id = Utils.getIdentityManager().getIdentity(it);
-          personLikeFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
-          personLikeProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
-          personLikeAvatarImageSource = id.profile.avatarUrl;
-          if (!personLikeAvatarImageSource) { personLikeAvatarImageSource = LinkProvider.PROFILE_DEFAULT_AVATAR_URL; }
-          %>
-            <a class="avatarXSmall" title="$personLikeFullName" href="$personLikeProfileUri">
-            <img src="$personLikeAvatarImageSource" alt="$personLikeFullName" />
-            </a>
-        <% })%>
-        <button onclick="$loadLikesAction" class="btn">...</button>
-      </div>
-      <% }%>
-      <p>$labelLikes</p>
+<script>
+  require(["SHARED/ActivityReactions"], activityReactions => activityReactions.init($params));
+</script>
+<div class="activityReactionsContainer">
+  <div class="VuetifyApp">
+    <div id="activityReactions-${activity.id}"></div>
   </div>
-</div><!--end list like people-->
-<%}%>
+</div>
 
 
   

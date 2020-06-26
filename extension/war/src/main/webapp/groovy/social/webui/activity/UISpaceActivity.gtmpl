@@ -268,8 +268,6 @@ $ownerDescription
             </div>
 </div>
 
-<% _ctx.includeTemplates("UIActivityActionBar-actions-mobile") %>
-
  <div class="actionsDetailsWrapper">
   <% _ctx.includeTemplates("UIActivityListLiked") %>
   <% _ctx.includeTemplates("UIActivityActionBar-actions") %>
