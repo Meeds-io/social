@@ -49,7 +49,7 @@ export default {
     },
   },
   data: () => ({
-    maxEllipsisHeight: 100,
+    maxEllipsisHeight: 90,
     lineHeight: 22,
     profileActionExtensions: [],
   }),
@@ -143,25 +143,28 @@ export default {
       if (!this.excerptHtml || this.excerptHtml.length === 0) {
         return;
       }
-      const stNode = this.$refs.excerptNode;
-      if (!stNode) {
+      const excerptParent = this.$refs.excerptNode;
+      if (!excerptParent) {
         return;
       }
-      stNode.innerHTML = this.excerptHtml;
+      excerptParent.innerHTML = this.excerptHtml;
 
-      let stNodeHeight = stNode.getBoundingClientRect().height || this.lineHeight;
-      if (stNodeHeight > this.maxEllipsisHeight) {
-        while (stNodeHeight > this.maxEllipsisHeight) {
-          const newHtml = this.deleteLastChars(stNode.innerHTML.replace(/&[a-z]*;/, ''), 20);
-          if (newHtml.length === stNode.innerHTML.length) {
-            break;
+      let charsToDelete = 20;
+      let excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;
+      if (excerptParentHeight > this.maxEllipsisHeight) {
+        while (excerptParentHeight > this.maxEllipsisHeight) {
+          const newHtml = this.deleteLastChars(excerptParent.innerHTML.replace(/&[a-z]*;/, ''), charsToDelete);
+          const oldLength = excerptParent.innerHTML.length;
+          excerptParent.innerHTML = newHtml;
+          if (excerptParent.innerHTML.length === oldLength) {
+            charsToDelete = charsToDelete * 2;
           }
-          stNode.innerHTML = newHtml;
-          stNodeHeight = stNode.getBoundingClientRect().height || this.lineHeight;
+          excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;
         }
+        console.warn('excerptParentHeight > this.maxEllipsisHeight', excerptParentHeight, this.maxEllipsisHeight);
 
-        stNode.innerHTML = this.deleteLastChars(stNode.innerHTML, 4);
-        stNode.innerHTML = `${stNode.innerHTML}...`;
+        excerptParent.innerHTML = this.deleteLastChars(excerptParent.innerHTML, 4);
+        excerptParent.innerHTML = `${excerptParent.innerHTML}...`;
       }
     },
     deleteLastChars(html, charsToDelete) {
