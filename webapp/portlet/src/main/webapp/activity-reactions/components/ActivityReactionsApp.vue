@@ -11,33 +11,35 @@
             :url="liker.personLikeProfileUri"
             :size="30"
             class="mr-1" />
-          <p v-if="likersNumber >0 && likersNumber < maxLikersToShow" class="likersNumber mb-0 pl-2 align-self-end caption">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
         </div>
       </div>
       <div class="activityLikersAndKudosDrawer">
-        <div v-if="likersNumber > maxLikersToShow" class="seeMoreLikers" @click="openDrawer">
-          <v-avatar
-            :size="30">
-            <img
-              :src="likers[maxLikersToShow].personLikeAvatarImageSource"
-              :title="likers[maxLikersToShow].personLikeFullName"
-            >
-          </v-avatar>
-          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
+        <div class="seeMoreReactionsContainer">
+          <div v-if="likersNumber > maxLikersToShow" class="seeMoreLikers" @click="openDrawer">
+            <v-avatar
+              :size="30">
+              <img
+                :src="likers[maxLikersToShow].personLikeAvatarImageSource"
+                :title="likers[maxLikersToShow].personLikeFullName"
+              >
+            </v-avatar>
+            <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
+          </div>
+          <p v-if="likersNumber > 0 " class="likersNumber mb-0 pl-2 align-self-end caption" @click="openDrawer">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
         </div>
-
         <activity-reactions-drawer
           ref="reactionsDrawer"
           :likers="likers"
           :likers-number="likersNumber"
           :activity-id="activityId"
+          :max-items-to-show="maxLikersToShow"
           @reactions="reactionsNumber"
         />
       </div>
       <activity-reactions-mobile
         :kudos-number="kudosNumber"
         :likers-number="likersNumber"
-        @openDrawer="openDrawer"></activity-reactions-mobile>
+        @openDrawer="openDrawer"/>
     </div>
   </v-app>
 </template>
@@ -62,7 +64,7 @@ export default {
     }
   },
   data: () => ({
-    maxLikersToShow : 5,
+    maxLikersToShow : 4,
     kudosNumber: 0
   }),
   computed: {

@@ -68,7 +68,6 @@
         </v-tabs-items>
       </template>
     </exo-drawer>
-    <p class="reactionsNumber mb-0 pl-2 align-self-end caption" @click="open">{{ reactionsNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
   </div>
 </template>
 
@@ -91,6 +90,10 @@ export default {
       type: String,
       default: () => ''
     },
+    maxItemsToShow: {
+      type: Number,
+      default: 0
+    }
   },
   data () {
     return {
