@@ -161,8 +161,6 @@ export default {
           }
           excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;
         }
-        console.warn('excerptParentHeight > this.maxEllipsisHeight', excerptParentHeight, this.maxEllipsisHeight);
-
         excerptParent.innerHTML = this.deleteLastChars(excerptParent.innerHTML, 4);
         excerptParent.innerHTML = `${excerptParent.innerHTML}...`;
       }
