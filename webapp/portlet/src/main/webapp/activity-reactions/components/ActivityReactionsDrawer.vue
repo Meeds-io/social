@@ -110,9 +110,6 @@ export default {
       });
       return allReactionsNumber;
     },
-    likerNumber () {
-      return this.likersNumber;
-    },
     kudosNumber() {
       return this.reactionsNumber - this.likersNumber;
     },
@@ -135,7 +132,8 @@ export default {
       this.$refs.activityReactionsDrawer.close();
     },
     refreshReactions() {
-      const contentsToLoad = extensionRegistry.loadExtensions('activity-reactions', 'activity-kudos-reactions') || [];
+      this.activityReactionsExtensions= [];
+      const contentsToLoad = extensionRegistry.loadExtensions('activity-reactions', 'activity-reactions') || [];
       // eslint-disable-next-line eqeqeq
       this.activityReactionsExtensions = contentsToLoad.filter(contentDetail => contentDetail.activityId == this.activityId );
       this.$emit('reactions', this.kudosNumber);

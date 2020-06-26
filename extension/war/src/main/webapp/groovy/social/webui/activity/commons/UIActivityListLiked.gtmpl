@@ -83,8 +83,10 @@
       likersNum : $identityLikesNum,
       likersLabel: '${labelLikes}'
     } """;
-  jsManager.require("SHARED/ActivityReactions", "activityReactions").addScripts("activityReactions.init($params);");
 %>
+<script>
+  require(["SHARED/ActivityReactions"], activityReactions => activityReactions.init($params));
+</script>
 <div class="activityReactionsContainer">
   <div class="VuetifyApp">
     <div id="activityReactions-${activity.id}"></div>
