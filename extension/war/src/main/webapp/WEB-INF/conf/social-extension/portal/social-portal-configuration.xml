@@ -151,6 +151,9 @@
                   <string>/platform/administrators</string>
                 </value>
                 <value>
+                  <string>/platform/professional</string>
+                </value>
+                <value>
                   <string>/platform/users</string>
                 </value>
               </collection>

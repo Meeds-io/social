@@ -6,7 +6,7 @@
   <page>
     <name>usersManagement</name>
     <title>Users Management</title>
-    <access-permissions>manager:/platform/administrators</access-permissions>
+    <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
     <container id="singlePageApplicationContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
@@ -16,7 +16,7 @@
           <portlet-ref>IDMUsersManagement</portlet-ref>
         </portlet>
         <title>Users Management</title>
-        <access-permissions>manager:/platform/administrators</access-permissions>
+        <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
         <show-info-bar>false</show-info-bar>
         <show-application-state>false</show-application-state>
       </portlet-application>
@@ -63,7 +63,7 @@
   <page>
     <name>branding</name>
     <title>Branding</title>
-    <access-permissions>manager:/platform/administrators</access-permissions>
+    <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
     <portlet-application>
       <portlet>
@@ -71,7 +71,7 @@
         <portlet-ref>Branding</portlet-ref>
       </portlet>
       <title>Branding Portlet</title>
-      <access-permissions>manager:/platform/administrators</access-permissions>
+      <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
       <show-info-bar>false</show-info-bar>
     </portlet-application>
   </page>
@@ -93,7 +93,7 @@
   <page>
     <name>notification</name>
     <title>Notifications Administration</title>
-    <access-permissions>manager:/platform/administrators</access-permissions>
+    <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
     <portlet-application>
       <portlet>
@@ -102,7 +102,7 @@
         <preferences></preferences>
       </portlet>
       <title>Notifications Administration</title>
-      <access-permissions>manager:/platform/administrators</access-permissions>
+      <access-permissions>manager:/platform/administrators;*:/platform/professional</access-permissions>
       <show-info-bar>false</show-info-bar>
       <show-application-state>false</show-application-state>
       <show-application-mode>false</show-application-mode>

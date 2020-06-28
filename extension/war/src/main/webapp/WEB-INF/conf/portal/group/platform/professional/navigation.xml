@@ -2,17 +2,17 @@
 <!--
 
     Copyright (C) 2009 eXo Platform SAS.
-    
+
     This is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation; either version 2.1 of
     the License, or (at your option) any later version.
-    
+
     This software is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     Lesser General Public License for more details.
-    
+
     You should have received a copy of the GNU Lesser General Public
     License along with this software; if not, write to the Free
     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -20,23 +20,34 @@
 
 -->
 
-<page-set
+<node-navigation
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_objects_1_6 http://www.gatein.org/xml/ns/gatein_objects_1_6"
   xmlns="http://www.gatein.org/xml/ns/gatein_objects_1_6">
-  <page>
-    <name>spacesAdministration</name>
-    <title>Spaces Administration</title>
-    <access-permissions>*:/platform/administrators;*:/platform/professional</access-permissions>
-    <edit-permission>*:/platform/administrators</edit-permission>
-    <show-max-window>false</show-max-window>
-    <portlet-application>
-      <portlet>
-        <application-ref>social-portlet</application-ref>
-        <portlet-ref>SpacesAdministration</portlet-ref>
-      </portlet>
-      <access-permissions>*:/platform/users</access-permissions>
-      <show-info-bar>false</show-info-bar>
-    </portlet-application>
-  </page>
-</page-set>
+  <priority>2</priority>
+
+  <page-nodes>
+    <node>
+      <name>usersManagement</name>
+      <label xml:lang="en">Manage users</label>
+      <label xml:lang="fr">Gérer les utilisateurs</label>
+      <page-reference>group::/platform/administrators::usersManagement</page-reference>
+    </node>
+    <node>
+      <name>spacesAdministration</name>
+      <label xml:lang="en">Manage Spaces</label>
+      <label xml:lang="fr">Gérer les espaces</label>
+      <page-reference>group::/platform/users::spacesAdministration</page-reference>
+    </node>
+    <node>
+      <name>branding</name>
+      <label>Branding</label>
+      <page-reference>group::/platform/administrators::branding</page-reference>
+    </node>
+    <node>
+      <name>notification</name>
+      <label>Notification</label>
+      <page-reference>group::/platform/administrators::notification</page-reference>
+    </node>
+  </page-nodes>
+</node-navigation>
