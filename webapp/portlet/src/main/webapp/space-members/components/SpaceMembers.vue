@@ -53,8 +53,12 @@ export default {
     peopleCount: 0,
     loadingPeople: false,
     skeleton: true,
+    space: {}
   }),
   created() {
+    this.$spaceService.getSpaceById(eXo.env.portal.spaceId).then( space => {
+      this.space = space;
+    });
     if (this.isManager) {
       extensionRegistry.registerExtension('profile-extension', 'action', {
         title: this.$t('peopleList.button.removeMember'),
@@ -89,6 +93,36 @@ export default {
         },
         click: (user) => {
           this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
+            .then(() => this.$refs.spaceMembers.searchPeople());
+        },
+      });
+      extensionRegistry.registerExtension('profile-extension', 'action', {
+        title: this.$t('peopleList.button.setAsRedactor'),
+        icon: 'uiIconEditMembership',
+        order: 1,
+        enabled: (user) => {
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.IsSpaceRedactor;
+        },
+        click: (user) => {
+          const membership = {
+            groupId: this.space.groupId,
+            userName: user.username,
+            membershipType: 'redactor'
+          };
+          this.$spaceService.setAsRedactor(membership)
+            .then(() => this.$refs.spaceMembers.searchPeople());
+        },
+      });
+      extensionRegistry.registerExtension('profile-extension', 'action', {
+        title: this.$t('peopleList.button.removeRedactor'),
+        icon: 'uiIconEditMembership',
+        order: 1,
+        enabled: (user) => {
+          return user.IsSpaceRedactor && (this.filter === 'member' || this.filter === 'manager');
+        },
+        click: (user) => {
+          const id = `redactor:${user.username}:${this.space.groupId}`;
+          this.$spaceService.removeRedactor(id)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });

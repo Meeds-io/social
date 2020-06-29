@@ -334,6 +334,32 @@ export function removeManager(spacePrettyName, username) {
   });
 }
 
+export function setAsRedactor(membership) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${membership.id || ''}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(membership),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error(`Error while setting user ${membership.userId} as a redactor in ${membership.spaceName} space`, resp);
+    }
+  });
+}
+
+export function removeRedactor(id) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function addApplication(spaceId, appId) {
   return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
     method: 'POST',
