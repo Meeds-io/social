@@ -150,7 +150,7 @@ export default {
       }).reduce((a, b) => a + b, 0);
     },
     activityBodyEdited: function() {
-      return this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody));
+      return this.activityId ? this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody)) : false;
     }
   },
   watch: {
