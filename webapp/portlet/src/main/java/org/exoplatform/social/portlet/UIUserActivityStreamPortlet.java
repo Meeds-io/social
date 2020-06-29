@@ -79,7 +79,6 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
     }
 	  
     uiUserActivitiesDisplay = addChild(UIUserActivitiesDisplay.class, null, "UIUserActivitiesDisplay");
-    //uiComposer.setActivityDisplay(uiUserActivitiesDisplay);
     addChild(PopupContainer.class, null, "HiddenContainer");
   }
 

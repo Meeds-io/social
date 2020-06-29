@@ -62,15 +62,7 @@ import java.util.List;
                    events = {
                        @EventConfig(listeners = UIUserActivitiesDisplay.RefreshStreamActionListener.class)
                    }
-                 ),
-  @ComponentConfig(
-    type = UIDropDownControl.class, 
-    id = "DisplayModesDropDown", 
-    template = "system:/groovy/webui/core/UIDropDownControl.gtmpl",
-    events = {
-      @EventConfig(listeners = UIUserActivitiesDisplay.ChangeOptionActionListener.class)
-    }
-  )
+                 )
 })
 public class UIUserActivitiesDisplay extends AbstractActivitiesDisplay {
   private static final Log LOG = ExoLogger.getLogger(UIUserActivitiesDisplay.class);
@@ -105,19 +97,6 @@ public class UIUserActivitiesDisplay extends AbstractActivitiesDisplay {
    */
   public UIUserActivitiesDisplay() throws Exception {
     ACTIVITY_PER_PAGE = Integer.valueOf(PrivilegedSystemHelper.getProperty(ACTIVITIES_PER_PAGE_KEY, "10").trim());
-    //
-    List<SelectItemOption<String>> displayModes = new ArrayList<SelectItemOption<String>>(4);
-    displayModes.add(new SelectItemOption<String>("All_Updates", DisplayMode.ALL_ACTIVITIES.toString()));
-    displayModes.add(new SelectItemOption<String>("Space_Updates", DisplayMode.MY_SPACE.toString()));
-    displayModes.add(new SelectItemOption<String>("Network_Updates", DisplayMode.CONNECTIONS.toString()));
-    displayModes.add(new SelectItemOption<String>("My_Status", DisplayMode.MY_ACTIVITIES.toString()));
-    
-    UIDropDownControl uiDropDownControl = addChild(UIDropDownControl.class, "DisplayModesDropDown", null);
-    uiDropDownControl.setOptions(displayModes);
-    
-    setSelectedMode(uiDropDownControl);
-    
-    addChild(uiDropDownControl);
 
     // TODO: init() run two time when initiation this form.
     //String remoteId = Utils.getOwnerRemoteId();
@@ -161,12 +140,6 @@ public class UIUserActivitiesDisplay extends AbstractActivitiesDisplay {
   
   public void setSelectedDisplayMode(DisplayMode displayMode) {
     selectedDisplayMode = displayMode;
-    getChild(UIDropDownControl.class).setValue(selectedDisplayMode.toString());
-    try {
-      //init();
-    } catch (Exception e) {
-      LOG.error("Failed to init()");
-    }
   }
 
   public void setSelectedDisplayMode(String selectedDisplayMode) {
@@ -284,12 +257,6 @@ public class UIUserActivitiesDisplay extends AbstractActivitiesDisplay {
     //
     activitiesLoader.init();
   }
-  
-  private void setSelectedMode(UIDropDownControl uiDropDownControl) {
-    if (selectedDisplayMode != null) {
-      uiDropDownControl.setValue(selectedDisplayMode.toString());
-    }
-  }
 
   public void setChangedMode(boolean changedMode) {
     this.notChangedMode = changedMode;
@@ -315,49 +282,6 @@ public class UIUserActivitiesDisplay extends AbstractActivitiesDisplay {
       return false;
     }
   }
-  
-  public static class ChangeOptionActionListener extends EventListener<UIDropDownControl> {
-
-    public void execute(Event<UIDropDownControl> event) throws Exception {
-     UIDropDownControl uiDropDown = event.getSource();
-     UIUserActivitiesDisplay uiUserActivities = uiDropDown.getParent();
-     WebuiRequestContext requestContext = event.getRequestContext();
-     String selectedDisplayMode = requestContext.getRequestParameter(OBJECTID);
-
-     if (selectedDisplayMode.equals(DisplayMode.ALL_ACTIVITIES.toString())) {
-       uiUserActivities.setSelectedDisplayMode(DisplayMode.ALL_ACTIVITIES);
-     } else if (selectedDisplayMode.equals(DisplayMode.MY_ACTIVITIES.toString())) {
-       uiUserActivities.setSelectedDisplayMode(DisplayMode.MY_ACTIVITIES);
-     } else if (selectedDisplayMode.equals(DisplayMode.MY_SPACE.toString())) {
-       uiUserActivities.setSelectedDisplayMode(DisplayMode.MY_SPACE);
-     } else {
-       uiUserActivities.setSelectedDisplayMode(DisplayMode.CONNECTIONS);
-     }
-     
-     if (selectedDisplayMode != null) {
-       uiUserActivities.setSelectedDisplayMode(selectedDisplayMode);
-       uiUserActivities.init();
-       
-       uiUserActivities.setChangedMode(false);
-       
-       //int numberOfUpdates = uiUserActivities.getNumberOfUpdatedActivities();
-       
-       //
-       event.getRequestContext().getJavascriptManager()
-            .require("SHARED/social-ui-activity-updates", "activityUpdates")
-            .require("SHARED/social-ui-activity", "activity")
-            .addScripts("activity.responsiveMobile('" + uiUserActivities.getAncestorOfType(UIPortletApplication.class).getId() + "');")
-            .addScripts("activityUpdates.resetCookie('" + String.format(Utils.ACTIVITY_STREAM_TAB_SELECTED_COOKIED, Utils.getViewerRemoteId()) + "','" + selectedDisplayMode + "');");
-//       
-//       event.getRequestContext().getJavascriptManager()
-//       .require("SHARED/social-ui-activity-updates", "activityUpdates").addScripts("activityUpdates.resetCookie('" + String.format(Utils.LAST_UPDATED_ACTIVITIES_NUM, selectedDisplayMode, Utils.getViewerRemoteId()) + "','" + numberOfUpdates + "');");
-
-     }
-     
-     requestContext.addUIComponentToUpdateByAjax(uiUserActivities);
-     
-   }
- }
   
   public static class RefreshStreamActionListener extends EventListener<UIUserActivitiesDisplay> {
     public void execute(Event<UIUserActivitiesDisplay> event) throws Exception {
