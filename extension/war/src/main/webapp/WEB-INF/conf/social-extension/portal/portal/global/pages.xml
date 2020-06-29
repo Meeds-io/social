@@ -532,23 +532,23 @@
             <show-application-state>true</show-application-state>
           </portlet-application>
         </container>
-        <container id="WhoIsOnLineContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-          <access-permissions>*:/platform/users</access-permissions>
-          <portlet-application>
-            <portlet>
-              <application-ref>social-portlet</application-ref>
-              <portlet-ref>WhoIsOnLinePortlet</portlet-ref>
-            </portlet>
-            <title>Who is on line</title>
-            <access-permissions>*:/platform/users</access-permissions>
-            <show-info-bar>false</show-info-bar>
-            <show-application-state>false</show-application-state>
-            <show-application-mode>false</show-application-mode>
-          </portlet-application>
-        </container>
         <container id="stickyBlockDesktop" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>*:/platform/users</access-permissions>
-            <container id="PerkstoreWalletContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+          <container id="WhoIsOnLineContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+            <access-permissions>*:/platform/users</access-permissions>
+            <portlet-application>
+              <portlet>
+                <application-ref>social-portlet</application-ref>
+                <portlet-ref>WhoIsOnLinePortlet</portlet-ref>
+              </portlet>
+              <title>Who is on line</title>
+              <access-permissions>*:/platform/users</access-permissions>
+              <show-info-bar>false</show-info-bar>
+              <show-application-state>false</show-application-state>
+              <show-application-mode>false</show-application-mode>
+            </portlet-application>
+          </container>
+          <container id="PerkstoreWalletContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
             <access-permissions>*:/platform/users</access-permissions>
             <container id="PerkstoreWidgetContainer" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
               <name>PerkstoreWidgetContainer</name>
@@ -561,19 +561,19 @@
               <factory-id>addonContainer</factory-id>
             </container>
           </container>
-            <portlet-application>
-              <portlet>
-                <application-ref>social-portlet</application-ref>
-                <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
-              </portlet>
-              <title>Suggestions peoples and spaces</title>
-              <access-permissions>*:/platform/users</access-permissions>
-              <show-info-bar>false</show-info-bar>
-              <show-application-state>false</show-application-state>
-              <show-application-mode>false</show-application-mode>
-            </portlet-application>
-          </container>
+          <portlet-application>
+            <portlet>
+              <application-ref>social-portlet</application-ref>
+              <portlet-ref>SuggestionsPeopleAndSpace</portlet-ref>
+            </portlet>
+            <title>Suggestions peoples and spaces</title>
+            <access-permissions>*:/platform/users</access-permissions>
+            <show-info-bar>false</show-info-bar>
+            <show-application-state>false</show-application-state>
+            <show-application-mode>false</show-application-mode>
+          </portlet-application>
         </container>
       </container>
+    </container>
   </page>
 </page-set>
