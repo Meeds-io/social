@@ -99,6 +99,27 @@ public class Profile {
   /** POSITION. */
   public static final String  POSITION                = "position";
 
+  /** COMPANY. */
+  public static final String COMPANY                  = "company";
+
+  /** LOCATION. */
+  public static final String LOCATION                 = "location";
+
+  /** DEPARTMENT. */
+  public static final String DEPARTMENT               = "department";
+
+  /** TEAM. */
+  public static final String TEAM                   = "team";
+
+  /** PROFESSION. */
+  public static final String PROFESSION               = "profession";
+
+  /** COUNTRY. */
+  public static final String COUNTRY                  = "country";
+
+  /** CITY. */
+  public static final String CITY                     = "city";
+
   /**
    * An optional url for this profile
    */
@@ -126,6 +147,13 @@ public class Profile {
   /** Types of updating of profile. */
   public static enum UpdateType {
     POSITION,
+    COMPANY,
+    LOCATION,
+    DEPARTMENT,
+    TEAM,
+    PROFESSION,
+    COUNTRY,
+    CITY,
     BASIC_INFOR,
     CONTACT,
     EXPERIENCES,
@@ -189,6 +217,13 @@ public class Profile {
     updateTypes.put(UpdateType.EXPERIENCES, new String[] { EXPERIENCES });
     updateTypes.put(UpdateType.AVATAR, new String[] { AVATAR });
     updateTypes.put(UpdateType.BANNER, new String[] { BANNER });
+    updateTypes.put(UpdateType.COMPANY, new String[] { COMPANY });
+    updateTypes.put(UpdateType.LOCATION, new String[] { LOCATION });
+    updateTypes.put(UpdateType.DEPARTMENT, new String[] { DEPARTMENT });
+    updateTypes.put(UpdateType.PROFESSION, new String[] { PROFESSION });
+    updateTypes.put(UpdateType.COUNTRY, new String[] { COUNTRY });
+    updateTypes.put(UpdateType.CITY, new String[] { CITY });
+    updateTypes.put(UpdateType.TEAM, new String[] { TEAM });
   }
 
   /** The identity. */
@@ -548,6 +583,34 @@ public class Profile {
    */
   public final String getPosition() {
     return (String) getProperty(Profile.POSITION);
+  }
+
+  public final String getCompany() {
+    return (String) getProperty(Profile.COMPANY);
+  }
+
+  public final String getLocation() {
+    return (String) getProperty(Profile.LOCATION);
+  }
+
+  public final String getDepartment() {
+    return (String) getProperty(Profile.DEPARTMENT);
+  }
+
+  public final String getTeam() {
+    return (String) getProperty(Profile.TEAM);
+  }
+
+  public final String getProfession() {
+    return (String) getProperty(Profile.PROFESSION);
+  }
+
+  public final String getCountry() {
+    return (String) getProperty(Profile.COUNTRY);
+  }
+
+  public final String getCity() {
+    return (String) getProperty(Profile.CITY);
   }
 
   public String getAboutMe() {

@@ -80,6 +80,90 @@
             maxlength="2000"
             required />
         </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.company') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.company"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.location') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.location"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.department') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.department"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.team') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.team"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.profession') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.profession"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.country') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.country"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
+        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileContactInformation.city') }}
+        </v-card-text>
+        <v-card-text class="d-flex positionField py-0">
+          <input
+            v-model="userToSave.city"
+            :disabled="saving"
+            type="text"
+            class="ignore-vuetify-classes"
+            maxlength="2000"
+          />
+        </v-card-text>
         <profile-contact-edit-phone v-model="userToSave.phones" />
         <profile-contact-edit-ims v-model="userToSave.ims" />
         <profile-contact-edit-urls v-model="userToSave.urls" />
@@ -154,9 +238,16 @@ export default {
         'fullname',
         'email',
         'position',
+        'company',
+        'location',
+        'department',
+        'team',
+        'profession',
+        'country',
+        'city',
         'phones',
         'ims',
-        'urls',
+        'urls'
       ])
         .then(this.refresh)
         .then(() => {
