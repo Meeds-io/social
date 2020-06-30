@@ -22,7 +22,6 @@
 %>
 <%
   import org.exoplatform.social.webui.activity.UIActivitiesLoader;
-  import org.exoplatform.webui.core.UIDropDownControl;
   import org.exoplatform.social.core.service.LinkProvider;
   import org.exoplatform.social.webui.Utils;
   import java.util.Calendar;
@@ -114,9 +113,6 @@
   <div class="clearfix activityTop">
     <!--hide Share button when show activity detail in responsive device -->
  <% if (Utils.isHomePage()) { %>
-    <div class="pull-right">
-      <% uicomponent.renderChild(UIDropDownControl.class);%>
-    </div>
     <!-- add comment for Number of updates
       <% if (uicomponent.hasActivities()) { %>
 	    <% if(numberOfUpdatedActivities > 0) { %>
@@ -144,9 +140,6 @@
 
   <!-- add more for devices -->
   <div class="clearfix activityTop">
-	<div class="pull-right">
-	  <% uicomponent.renderChild(UIDropDownControl.class);%>
-	</div>
 	<div class="activityStreamStatus pull-left">
 	  <div class="arrowBottom"></div>
 	  <a class="uiIconRefresh uiIconLightGray" href="javascript:void(0);" rel="tooltip" title="$refreshTooltipButton" id="RefreshButton" onclick="<%=uicomponent.event("RefreshStream")%>" ></a>

@@ -24,7 +24,6 @@
 <%
   import org.exoplatform.container.ExoContainerContext;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
-  import org.exoplatform.social.webui.composer.UIActivityComposerContainer;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.services.security.Identity;
   import org.exoplatform.services.security.ConversationState;

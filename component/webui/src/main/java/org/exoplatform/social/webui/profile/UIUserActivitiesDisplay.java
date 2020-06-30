@@ -16,7 +16,10 @@
  */
 package org.exoplatform.social.webui.profile;
 
+import java.util.Calendar;
+
 import org.apache.commons.lang.Validate;
+
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.portal.application.PortalRequestContext;
@@ -31,24 +34,13 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.webui.URLUtils;
 import org.exoplatform.social.webui.Utils;
-import org.exoplatform.social.webui.activity.AbstractActivitiesDisplay;
-import org.exoplatform.social.webui.activity.UIActivitiesContainer;
-import org.exoplatform.social.webui.activity.UIActivitiesLoader;
+import org.exoplatform.social.webui.activity.*;
 import org.exoplatform.social.webui.composer.UIComposer;
 import org.exoplatform.social.webui.composer.UIComposer.PostContext;
-import org.exoplatform.webui.application.WebuiRequestContext;
-import org.exoplatform.webui.config.annotation.ComponentConfig;
-import org.exoplatform.webui.config.annotation.ComponentConfigs;
-import org.exoplatform.webui.config.annotation.EventConfig;
-import org.exoplatform.webui.core.UIDropDownControl;
+import org.exoplatform.webui.config.annotation.*;
 import org.exoplatform.webui.core.UIPortletApplication;
-import org.exoplatform.webui.core.model.SelectItemOption;
 import org.exoplatform.webui.event.Event;
 import org.exoplatform.webui.event.EventListener;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 /**
  * Displays user's activities
