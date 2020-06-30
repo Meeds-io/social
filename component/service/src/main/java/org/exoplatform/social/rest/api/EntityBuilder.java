@@ -183,7 +183,7 @@ public class EntityBuilder {
     buildExperienceEntities(profile, userEntity);
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
-    userEntity.setCompany((String) profile.getProperty(Profile.COUNTRY));
+    userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
     userEntity.setLocation((String) profile.getProperty(profile.LOCATION));
     userEntity.setDepartment((String) profile.getProperty(profile.DEPARTMENT));
     userEntity.setTeam((String) profile.getProperty(profile.TEAM));
