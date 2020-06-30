@@ -64,6 +64,20 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String ENABLED          = "enabled";
 
+  public static final String COMPANY          = "company";
+
+  public static final String LOCATION         = "location";
+
+  public static final String DEPARTMENT       = "department";
+
+  public static final String TEAM           = "team";
+
+  public static final String PROFESSION       = "profession";
+
+  public static final String COUNTRY          = "country";
+
+  public static final String CITY             = "city";
+
   public ProfileEntity() {
   }
 
@@ -96,6 +110,68 @@ public class ProfileEntity extends BaseEntity {
 
   public String getFirstname() {
     return getString(FIRSTNAME);
+  }
+
+  public ProfileEntity setCompany(String company) {
+    setProperty(COMPANY, company);
+    return this;
+  }
+
+  public String getCompany() {
+    return getString(COMPANY);
+  }
+
+  public ProfileEntity setLocation(String location) {
+    setProperty(LOCATION, location);
+    return this;
+  }
+
+  public String getLocation() {
+    return getString(LOCATION);
+  }
+
+  public ProfileEntity setDepartment(String department) {
+    setProperty(DEPARTMENT, department);
+    return this;
+  }
+  public String getDepartment() {
+    return getString(DEPARTMENT);
+  }
+
+  public ProfileEntity setTeam(String team) {
+    setProperty(TEAM, team);
+    return this;
+  }
+
+  public String getTeam() {
+    return getString(TEAM);
+  }
+
+  public ProfileEntity setProfession(String profession) {
+    setProperty(PROFESSION, profession);
+    return this;
+  }
+
+  public String getProfession() {
+    return getString(PROFESSION);
+  }
+
+  public ProfileEntity setCountry(String country) {
+    setProperty(COUNTRY, country);
+    return this;
+  }
+
+  public String getCountry() {
+    return getString(COUNTRY);
+  }
+
+  public ProfileEntity setCity(String city) {
+    setProperty(CITY, city);
+    return this;
+  }
+
+  public String getCity() {
+    return getString(CITY);
   }
 
   public ProfileEntity setLastname(String lastname) {
@@ -369,6 +445,20 @@ public class ProfileEntity extends BaseEntity {
       return Profile.CONTACT_URLS;
     } else if (StringUtils.equals(EXPERIENCES, name)) {
       return Profile.EXPERIENCES;
+    } else if (StringUtils.equals(COMPANY, name)) {
+      return Profile.COMPANY;
+    } else if (StringUtils.equals(LOCATION, name)) {
+      return Profile.LOCATION;
+    } else if (StringUtils.equals(DEPARTMENT, name)) {
+      return Profile.DEPARTMENT;
+    } else if (StringUtils.equals(TEAM, name)) {
+      return Profile.TEAM;
+    } else if (StringUtils.equals(PROFESSION, name)) {
+      return Profile.PROFESSION;
+    } else if (StringUtils.equals(COUNTRY, name)) {
+      return Profile.COUNTRY;
+    } else if (StringUtils.equals(CITY, name)) {
+      return Profile.CITY;
     }
     return name;
   }

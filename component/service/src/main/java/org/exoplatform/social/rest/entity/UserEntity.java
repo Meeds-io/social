@@ -109,6 +109,66 @@ public class UserEntity extends BaseEntity {
     return getString("position");
   }
 
+  public UserEntity setCompany(String company) {
+    setProperty("company", company);
+    return this;
+  }
+
+  public String getCompany() {
+    return getString("company");
+  }
+
+  public UserEntity setLocation(String location) {
+    setProperty("location", location);
+    return this;
+  }
+
+  public String getLocation() {
+    return getString("location");
+  }
+
+  public UserEntity setDepartment(String department) {
+    setProperty("department", department);
+    return this;
+  }
+
+  public String getTeam() {
+    return getString("team");
+  }
+
+  public UserEntity setTeam(String team) {
+    setProperty("team", team);
+    return this;
+  }
+
+  public String getProfession() {
+    return getString("profession");
+  }
+
+  public UserEntity setProfession(String profession) {
+    setProperty("profession", profession);
+    return this;
+  }
+
+  public String getCountry() {
+    return getString("country");
+  }
+
+  public UserEntity setCountry(String country) {
+    setProperty("country", country);
+    return this;
+  }
+
+  public String getCity() {
+    return getString("city");
+  }
+
+  public UserEntity setCity(String city) {
+    setProperty("city", city);
+    return this;
+  }
+
+
   public UserEntity setAvatar(String avatar) {
     setProperty("avatar", avatar);
     return this;
