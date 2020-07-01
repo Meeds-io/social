@@ -147,11 +147,8 @@
           {{ skeleton && '&nbsp;' || user.city }}
         </div>
       </v-flex>
-      <v-divider class="my-4" />
       <profile-contact-phone :user="user" :skeleton="skeleton" />
-      <v-divider class="my-4" />
       <profile-contact-ims :user="user" :skeleton="skeleton" />
-      <v-divider class="my-4" />
       <profile-contact-urls :user="user" :skeleton="skeleton" />
     </div>
     <profile-contact-information-drawer
