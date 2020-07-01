@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div v-if="user.phones.length>0">
     <v-divider class="my-4" />
-    <v-flex v-if="user.phones.length>0" class="d-flex">
+    <v-flex class="d-flex">
       <div
         :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
         class="align-start text-no-wrap font-weight-bold mr-3">
