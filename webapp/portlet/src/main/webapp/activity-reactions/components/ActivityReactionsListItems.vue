@@ -11,18 +11,16 @@
           {{ name }}
         </a>
       </v-list-item-title>
-      <v-list-item-subtitle class="caption text-bold">
-        {{ getUserInformations(userId).InCommonconnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
+      <v-list-item-subtitle v-if="attributesLoaded && !sameUser" class="caption text-bold">
+        {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
       </v-list-item-subtitle>
     </v-list-item-content>
-    <v-list-item-action v-if="user.isMyConnexion">
+    <v-list-item-action v-if="notConnected">
       <v-btn-toggle class="transparent">
-        <a :class="isInvited ? 'hideInvitationButton' : ''"
-           text
+        <a text
            icon
-           small
            min-width="auto"
-           @click="connect(userId)">
+           @click="connect()">
           <i class="uiIconInviteUser"></i>
         </a>
       </v-btn-toggle>
@@ -55,35 +53,40 @@ export default {
   },
   data () {
     return {
-      user: {
-        InCommonconnections: 0,
-        isMyConnexion: false
-      },
-      isInvited: false
+      user: null,
+      attributesLoaded: false
     };
   },
-  methods: {
-    getUserInformations(userId) {
-      this.$userService.getUser(userId, 'all,connectionsInCommonCount,relationshipStatus')
-        .then(item => {
-          this.user.InCommonconnections = item.connectionsInCommonCount;
-          this.user.isMyConnexion = !item.relationshipStatus ? true : false;
-        })
-        .catch((e) => {
-          console.error('Error while getting user details', e);
-        });
-      return this.user;
+  computed: {
+    inCommonConnections() {
+      return this.user && this.user.connectionsInCommonCount || 0;
     },
-    connect(userId) {
-      this.isInvited = true;
-      this.$userService.connect(userId)
-        .then(this.getUserInformations(userId))
+    sameUser() {
+      return this.user && this.user.username === eXo.env.portal.userName;
+    },
+    notConnected() {
+      return this.user && !this.user.relationshipStatus && !this.sameUser;
+    },
+  },
+  created() {
+    this.retrieveUserInformations();
+  },
+  methods: {
+    retrieveUserInformations() {
+      return this.$userService.getUser(this.userId, 'all,connectionsInCommonCount,relationshipStatus')
+        .then(item => this.user = item)
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error while getting user details', e);
+        })
+        .finally(() => this.attributesLoaded = true);
+    },
+    connect() {
+      this.$userService.connect(this.userId)
+        .then(this.retrieveUserInformations())
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.isInvited = false;
         });
     },
   },
