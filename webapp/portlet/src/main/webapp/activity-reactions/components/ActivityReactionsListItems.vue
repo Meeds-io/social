@@ -59,7 +59,7 @@ export default {
   },
   computed: {
     inCommonConnections() {
-      return this.user && this.user.inCommonConnections || 0;
+      return this.user && this.user.connectionsInCommonCount || 0;
     },
     sameUser() {
       return this.user && this.user.username === eXo.env.portal.userName;
