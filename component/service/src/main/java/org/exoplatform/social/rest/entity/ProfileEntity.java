@@ -113,7 +113,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setCompany(String company) {
-    setProperty(COMPANY, company);
+    //Not working when we call directly setProperty(COMPANY, company); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(COMPANY, company);
+    setDataEntity(dataEntity);
     return this;
   }
 
@@ -122,7 +125,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setLocation(String location) {
-    setProperty(LOCATION, location);
+    //Not working when we call directly dataEntity.put(LOCATION, location); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(LOCATION, location);
+    setDataEntity(dataEntity);
     return this;
   }
 
@@ -131,7 +137,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setDepartment(String department) {
-    setProperty(DEPARTMENT, department);
+    //Not working when we call directly dataEntity.put(DEPARTMENT, department); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(DEPARTMENT, department);
+    setDataEntity(dataEntity);
     return this;
   }
   public String getDepartment() {
@@ -139,7 +148,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setTeam(String team) {
-    setProperty(TEAM, team);
+    //Not working when we call directly dataEntity.put(TEAM, team); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(TEAM, team);
+    setDataEntity(dataEntity);
     return this;
   }
 
@@ -148,7 +160,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setProfession(String profession) {
-    setProperty(PROFESSION, profession);
+    //Not working when we call directly dataEntity.put(PROFESSION, profession); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(PROFESSION, profession);
+    setDataEntity(dataEntity);
     return this;
   }
 
@@ -157,7 +172,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setCountry(String country) {
-    setProperty(COUNTRY, country);
+    //Not working when we call directly dataEntity.put(COUNTRY, country); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(COUNTRY, country);
+    setDataEntity(dataEntity);
     return this;
   }
 
@@ -166,7 +184,10 @@ public class ProfileEntity extends BaseEntity {
   }
 
   public ProfileEntity setCity(String city) {
-    setProperty(CITY, city);
+    //Not working when we call directly dataEntity.put(CITY, city); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(CITY, city);
+    setDataEntity(dataEntity);
     return this;
   }
 
