@@ -178,15 +178,19 @@ export default {
     }
   },
   created() {
-    this.activityComposerActions = getActivityComposerActionExtensions();
-    this.activityComposerActions.forEach(action => {
-      if (action.component) {
-        this.actionsData[action.key] = action.component.model.value;
-        this.actionsEvents[action.key] = action.component.events;
-      }
-    });
+    document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
+    this.refreshExtensions();
   },
   methods: {
+    refreshExtensions: function() {
+      this.activityComposerActions = getActivityComposerActionExtensions();
+      this.activityComposerActions.forEach(action => {
+        if (action.component) {
+          this.actionsData[action.key] = action.component.model.value;
+          this.actionsEvents[action.key] = action.component.events;
+        }
+      });
+    },
     openMessageComposer: function() {
       this.$refs[this.ckEditorType].setFocus();
       this.showMessageComposer = true;
