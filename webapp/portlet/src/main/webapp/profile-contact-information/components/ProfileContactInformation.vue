@@ -50,8 +50,8 @@
           {{ skeleton && '&nbsp;' || user.email }}
         </div>
       </v-flex>
-      <v-divider class="my-4" />
-      <v-flex class="d-flex">
+      <v-divider v-if="user.position" class="my-4" />
+      <v-flex v-if="user.position" class="d-flex">
         <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
              class="align-start text-no-wrap font-weight-bold mr-3">
           {{ skeleton && '&nbsp;' || $t('profileContactInformation.jobTitle') }}
