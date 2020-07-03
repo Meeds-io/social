@@ -22,7 +22,7 @@
       </ul>
       <div class="tab-content">
         <div v-if="showManageSpaces" id="manage" class="tab-pane fade in active">
-          <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 3"></exo-spaces-administration-manage-spaces>
+          <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 5"></exo-spaces-administration-manage-spaces>
         </div>
         <div v-else-if="showPermissions" id="permissions" class="tab-pane fade in active">
           <exo-spaces-administration-manage-permissions></exo-spaces-administration-manage-permissions>
