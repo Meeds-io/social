@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.phones.length>0">
+  <div v-if="user.phones && user.phones.length">
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div
