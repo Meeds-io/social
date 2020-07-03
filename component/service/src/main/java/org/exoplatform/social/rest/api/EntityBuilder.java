@@ -160,6 +160,12 @@ public class EntityBuilder {
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
+    String[] expandArray = StringUtils.split(expand, ",");
+    List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
+    if (expandAttributes.contains("binding") || expandAttributes.contains("all")) {
+      GroupSpaceBindingService spaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
+      entity.setIsGroupBound(spaceBindingService.countUserBindings(space.getId(), userId) > 0);
+    }
     return entity;
   }
 
