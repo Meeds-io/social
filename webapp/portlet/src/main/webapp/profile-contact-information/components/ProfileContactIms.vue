@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.ims.length>0">
+  <div v-if="user.ims && user.ims.length>0">
     <v-divider class="my-4"/>
     <v-flex class="d-flex">
       <div

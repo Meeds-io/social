@@ -73,7 +73,7 @@ export default {
       this.sendingImage = false;
     },
     uploadAvatar(file) {
-      if (file && file.size) {
+      if (file && file.size && file.type && file.type.indexOf('image/') === 0) {
         if (file.size > this.maxUploadSizeInBytes) {
           this.$emit('error', this.$uploadService.avatarExcceedsLimitError);
           return;
