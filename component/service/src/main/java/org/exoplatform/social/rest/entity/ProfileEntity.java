@@ -258,6 +258,15 @@ public class ProfileEntity extends BaseEntity {
     return (Boolean) getProperty("isSpaceRedactor");
   }
 
+  public ProfileEntity setIsGroupBound(boolean isSpaceRedactor) {
+    setProperty("isGroupBound", isSpaceRedactor);
+    return this;
+  }
+
+  public Boolean getIsGroupBound() {
+    return (Boolean) getProperty("isGroupBound");
+  }
+
   public ProfileEntity setFullname(String fullname) {
     setProperty(FULLNAME, fullname);
     return this;
