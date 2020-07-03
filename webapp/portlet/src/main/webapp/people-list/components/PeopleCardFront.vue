@@ -28,7 +28,7 @@
       </v-btn>
       <v-btn
         v-if="user.isGroupBound"
-        :title="$t('peopleList.label.groupBinded')"
+        :title="$t('peopleList.label.groupBound')"
         :ripple="false"
         color="grey"
         class="peopleGroupMemberBindingIcon d-flex not-clickable ml-1"
@@ -365,4 +365,3 @@ export default {
   },
 };
 </script>
-
