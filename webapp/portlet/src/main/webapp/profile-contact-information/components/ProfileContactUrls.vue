@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.urls && user.urls.length>0">
+  <div v-if="user.urls && user.urls.length">
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div

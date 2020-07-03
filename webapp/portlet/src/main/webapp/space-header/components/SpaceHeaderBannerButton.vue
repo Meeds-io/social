@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     uploadBanner(file) {
-      if (file && file.size) {
+      if (file && file.size && file.type && file.type.indexOf('image/') === 0) {
         if (file.size > this.maxUploadSize) {
           this.$emit('error', this.$uploadService.bannerExcceedsLimitError);
           return;
