@@ -14,7 +14,7 @@
         small
         class="peopleInfoIcon d-flex"
         @click="$emit('flip')">
-        <v-icon size="12">fa-info</v-icon>
+        <v-icon v-if="!skeleton" size="12">fa-info</v-icon>
       </v-btn>
       <v-btn
         v-if="user.isManager"
@@ -24,7 +24,17 @@
         class="peopleInfoIcon d-flex not-clickable primary-border-color ml-1"
         icon
         small>
-        <span class="d-flex uiIconMemberAdmin primary--text"></span>
+        <span v-if="!skeleton" class="d-flex uiIconMemberAdmin primary--text"></span>
+      </v-btn>
+      <v-btn
+        v-if="user.isGroupBound"
+        :title="$t('peopleList.label.groupBinded')"
+        :ripple="false"
+        color="grey"
+        class="peopleGroupMemberBindingIcon d-flex not-clickable ml-1"
+        icon
+        small>
+        <span v-if="!skeleton" class="d-flex uiIconPLFFont uiIconGroup"></span>
       </v-btn>
       <v-spacer />
       <template v-if="skeleton || canUseActionsMenu">
@@ -35,7 +45,7 @@
           text
           class="peopleMenuIcon d-block"
           @click="displayActionMenu = true">
-          <v-icon size="21">mdi-dots-vertical</v-icon>
+          <v-icon v-if="!skeleton" size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu
           v-if="!skeleton"
