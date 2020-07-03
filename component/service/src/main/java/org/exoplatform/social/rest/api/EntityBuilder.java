@@ -183,6 +183,13 @@ public class EntityBuilder {
     buildExperienceEntities(profile, userEntity);
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
+    userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
+    userEntity.setLocation((String) profile.getProperty(profile.LOCATION));
+    userEntity.setDepartment((String) profile.getProperty(profile.DEPARTMENT));
+    userEntity.setTeam((String) profile.getProperty(profile.TEAM));
+    userEntity.setProfession((String) profile.getProperty(profile.PROFESSION));
+    userEntity.setCountry((String) profile.getProperty(profile.COUNTRY));
+    userEntity.setCity((String) profile.getProperty(profile.CITY));
 
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);

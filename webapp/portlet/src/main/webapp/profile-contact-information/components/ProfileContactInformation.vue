@@ -50,11 +50,10 @@
           {{ skeleton && '&nbsp;' || user.email }}
         </div>
       </v-flex>
-      <v-divider class="my-4" />
-      <v-flex class="d-flex">
-        <div
-          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
-          class="align-start text-no-wrap font-weight-bold mr-3">
+      <v-divider v-if="user.position" class="my-4" />
+      <v-flex v-if="user.position" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
           {{ skeleton && '&nbsp;' || $t('profileContactInformation.jobTitle') }}
         </div>
         <div
@@ -64,11 +63,92 @@
           {{ skeleton && '&nbsp;' || user.position || '' }}
         </div>
       </v-flex>
-      <v-divider class="my-4" />
+      <v-divider v-if="user.company" class="my-4" />
+      <v-flex v-if="user.company" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.company') }}
+        </div>
+        <div :title="user.company"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.company }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.location" class="my-4" />
+      <v-flex v-if="user.location" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.location') }}
+        </div>
+        <div :title="user.location"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.location }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.department" class="my-4" />
+      <v-flex v-if="user.department" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.department') }}
+        </div>
+        <div :title="user.department"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.department }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.team" class="my-4" />
+      <v-flex v-if="user.team" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.team') }}
+        </div>
+        <div :title="user.team"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.team }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.profession" class="my-4" />
+      <v-flex v-if="user.profession" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.profession') }}
+        </div>
+        <div :title="user.profession"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.profession }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.country" class="my-4" />
+      <v-flex v-if="user.country" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.country') }}
+        </div>
+        <div :title="user.country"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.country }}
+        </div>
+      </v-flex>
+      <v-divider v-if="user.city" class="my-4" />
+      <v-flex v-if="user.city" class="d-flex">
+        <div :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius'"
+             class="align-start text-no-wrap font-weight-bold mr-3">
+          {{ skeleton && '&nbsp;' || $t('profileContactInformation.city') }}
+        </div>
+        <div :title="user.city"
+             :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
+             class="align-end flex-grow-1 text-truncate text-end">
+          {{ skeleton && '&nbsp;' || user.city }}
+        </div>
+      </v-flex>
       <profile-contact-phone :user="user" :skeleton="skeleton" />
-      <v-divider class="my-4" />
       <profile-contact-ims :user="user" :skeleton="skeleton" />
-      <v-divider class="my-4" />
       <profile-contact-urls :user="user" :skeleton="skeleton" />
     </div>
     <profile-contact-information-drawer

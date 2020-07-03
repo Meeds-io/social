@@ -64,6 +64,20 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String ENABLED          = "enabled";
 
+  public static final String COMPANY          = "company";
+
+  public static final String LOCATION         = "location";
+
+  public static final String DEPARTMENT       = "department";
+
+  public static final String TEAM           = "team";
+
+  public static final String PROFESSION       = "profession";
+
+  public static final String COUNTRY          = "country";
+
+  public static final String CITY             = "city";
+
   public ProfileEntity() {
   }
 
@@ -96,6 +110,89 @@ public class ProfileEntity extends BaseEntity {
 
   public String getFirstname() {
     return getString(FIRSTNAME);
+  }
+
+  public ProfileEntity setCompany(String company) {
+    //Not working when we call directly setProperty(COMPANY, company); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(COMPANY, company);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getCompany() {
+    return getString(COMPANY);
+  }
+
+  public ProfileEntity setLocation(String location) {
+    //Not working when we call directly dataEntity.put(LOCATION, location); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(LOCATION, location);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getLocation() {
+    return getString(LOCATION);
+  }
+
+  public ProfileEntity setDepartment(String department) {
+    //Not working when we call directly dataEntity.put(DEPARTMENT, department); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(DEPARTMENT, department);
+    setDataEntity(dataEntity);
+    return this;
+  }
+  public String getDepartment() {
+    return getString(DEPARTMENT);
+  }
+
+  public ProfileEntity setTeam(String team) {
+    //Not working when we call directly dataEntity.put(TEAM, team); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(TEAM, team);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getTeam() {
+    return getString(TEAM);
+  }
+
+  public ProfileEntity setProfession(String profession) {
+    //Not working when we call directly dataEntity.put(PROFESSION, profession); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(PROFESSION, profession);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getProfession() {
+    return getString(PROFESSION);
+  }
+
+  public ProfileEntity setCountry(String country) {
+    //Not working when we call directly dataEntity.put(COUNTRY, country); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(COUNTRY, country);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getCountry() {
+    return getString(COUNTRY);
+  }
+
+  public ProfileEntity setCity(String city) {
+    //Not working when we call directly dataEntity.put(CITY, city); in the case of updating with an empty value
+    DataEntity dataEntity = getDataEntity();
+    dataEntity.put(CITY, city);
+    setDataEntity(dataEntity);
+    return this;
+  }
+
+  public String getCity() {
+    return getString(CITY);
   }
 
   public ProfileEntity setLastname(String lastname) {
@@ -369,6 +466,20 @@ public class ProfileEntity extends BaseEntity {
       return Profile.CONTACT_URLS;
     } else if (StringUtils.equals(EXPERIENCES, name)) {
       return Profile.EXPERIENCES;
+    } else if (StringUtils.equals(COMPANY, name)) {
+      return Profile.COMPANY;
+    } else if (StringUtils.equals(LOCATION, name)) {
+      return Profile.LOCATION;
+    } else if (StringUtils.equals(DEPARTMENT, name)) {
+      return Profile.DEPARTMENT;
+    } else if (StringUtils.equals(TEAM, name)) {
+      return Profile.TEAM;
+    } else if (StringUtils.equals(PROFESSION, name)) {
+      return Profile.PROFESSION;
+    } else if (StringUtils.equals(COUNTRY, name)) {
+      return Profile.COUNTRY;
+    } else if (StringUtils.equals(CITY, name)) {
+      return Profile.CITY;
     }
     return name;
   }

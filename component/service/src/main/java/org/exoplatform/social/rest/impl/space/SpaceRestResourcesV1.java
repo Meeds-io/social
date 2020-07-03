@@ -145,8 +145,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     ListAccess<Space> listAccess = null;
     SpaceFilter spaceFilter = new SpaceFilter();
 
-    if (q != null) {
-      spaceFilter.setSpaceNameSearchCondition(q);
+    if (StringUtils.isNotBlank(q)) {
+      spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
     
     if (StringUtils.isNotBlank(sort)) {
