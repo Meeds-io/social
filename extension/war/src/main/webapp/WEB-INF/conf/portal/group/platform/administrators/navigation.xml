@@ -48,19 +48,9 @@
       <page-reference>group::/platform/administrators::branding</page-reference>
     </node>
     <node>
-      <name>search</name>
-      <label>#{administration.search}</label>
-      <page-reference>group::/platform/administrators::search</page-reference>
-    </node>
-    <node>
       <name>notification</name>
       <label>#{administration.notification}</label>
       <page-reference>group::/platform/administrators::notification</page-reference>
-    </node>
-    <node>
-      <name>searchIndexing</name>
-      <label>Search Indexing</label>
-      <page-reference>group::/platform/administrators::searchIndexing</page-reference>
     </node>
   </page-nodes>
 </node-navigation>
