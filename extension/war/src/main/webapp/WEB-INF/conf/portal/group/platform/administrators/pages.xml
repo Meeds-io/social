@@ -78,7 +78,7 @@
   <page>
     <name>notification</name>
     <title>Notifications Administration</title>
-    <access-permissions>*:/platform/administrators</access-permissions>
+    <access-permissions>manager:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
     <portlet-application>
       <portlet>
@@ -87,7 +87,7 @@
         <preferences></preferences>
       </portlet>
       <title>Notifications Administration</title>
-      <access-permissions>*:/platform/administrators</access-permissions>
+      <access-permissions>manager:/platform/administrators</access-permissions>
       <show-info-bar>false</show-info-bar>
       <show-application-state>false</show-application-state>
       <show-application-mode>false</show-application-mode>
