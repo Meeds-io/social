@@ -239,9 +239,6 @@ export default {
         }
         if (searchConnector.uri.indexOf('/') === 0) {
           options.credentials = 'include';
-        } else {
-          options.referrerPolicy = 'no-referrer';
-          options.mode = 'no-cors';
         }
         this.searching++;
         const uri = searchConnector.uri
