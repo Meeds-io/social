@@ -157,7 +157,7 @@ export default {
     message() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
       if (pureText.length > this.MESSAGE_MAX_LENGTH) {
-        if (this.activityComposerHintAction === null) {
+        if (this.activityComposerHintAction === null && eXo.env.portal.spaceDisplayName !== '') {
           this.activityComposerHintAction = getActivityComposerHintActionExtensions();
         }
       } else {
