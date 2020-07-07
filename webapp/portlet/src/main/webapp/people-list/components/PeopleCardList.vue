@@ -138,7 +138,7 @@ export default {
     },
     filteredPeople() {
       if (!this.keyword || !this.loadingPeople) {
-        return this.users;
+        return this.users.slice().sort((userA, userB) => userA.lastname.localeCompare(userB.lastname));
       } else {
         return this.users.slice().filter(user => {
           return user.fullname && user.fullname.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
