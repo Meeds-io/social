@@ -111,7 +111,7 @@ export default {
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
-    fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount',
+    fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
     hasPeople: false,
     offset: 0,
     pageSize: 20,
