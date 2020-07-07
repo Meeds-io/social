@@ -293,7 +293,7 @@
             <value-param>
                 <name>sort.field.name</name>
                 <description>Identities sort field name</description>
-                <value>${exo.social.identity.sort.field:fullname}</value>
+                <value>${exo.social.identity.sort.field:lastname}</value>
             </value-param>
             <value-param>
                 <name>sort.order.direction</name>
