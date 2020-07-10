@@ -327,7 +327,7 @@
 
                     if ((isManager && json.manager >1)|| (!isManager && isMember)) {
                         action = $('<div/>', {
-                            "class": "btn-link",
+                            "class": "btn-link leave-space",
                             "text": "" + labels.leave,
                             "data-action": spaceName+":" + opts.userName+":member",
                             "onclick": "executeAction(this)"
@@ -336,7 +336,7 @@
 
                     if (!isMember) {
                         action = $('<div/>', {
-                            "class": "btn-link",
+                            "class": "btn-link join-space",
                             "text": "" + labels.join,
                             "data-action": spaceName+":" + opts.userName+":member",
                             "onclick": "executeAction(this)"
@@ -350,9 +350,11 @@
                     var tbody = $("<tbody/>");
                     var tr = $("<tr/>");
                     var tdAvatar = $("<td/>", {
-                        "width":"50px"
+                        "width":"50px",
+                        "valign" : "top"
                     });
                     var img = $("<img/>", {
+                        "class": "tiptip-space-avatar",
                         "src":json.avatarUrl
                     });
 
@@ -373,12 +375,20 @@
                     });
 
                     tdProfile.append(aProfile);
-                    var divMembersCount;
                     if(json.member > 0){
-                        divMembersCount = $("<div/>", {
+                        var divMembersCount = $("<div/>", {
+                            "class" : "space-members",
+                        });
+                        divMembersIcon = $("<i/>", {
+                            "class" : "space-members-icon uiIconMembers",
+                        });
+                        divMembersSpan = $("<span/>", {
+                            "class" : "space-members-count",
                             "font-weight":"normal",
                             "text":json.member + " " + opts.labels.members
                         });
+                        divMembersCount.append(divMembersIcon);
+                        divMembersCount.append(divMembersSpan);
                     } else {
                         divMembersCount = $("<div/>");
                     }
@@ -390,22 +400,14 @@
                             "text": json.description.replace(/<[^>]+>/g, '')
                         });
                     }
+                    if(divDescription){
+                        tdProfile.append(divDescription);
+                    }
+
                     tr.append(tdAvatar).append(tdProfile);
 
                     tbody.append(tr);
 
-
-                    if(divDescription){
-                        var trDesc = $("<tr/>");
-                        var td = $("<td/>", {
-                            "width":"50px"
-                        });
-                        trDesc.append(td);
-                        var tdDesc = $("<td/>");
-                        tdDesc.append(divDescription)
-                        trDesc.append(tdDesc);
-                        tbody.append(trDesc);
-                    }
 
                     popupContent.append(tbody);
 
