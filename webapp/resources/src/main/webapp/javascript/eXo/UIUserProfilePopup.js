@@ -224,39 +224,34 @@
 
                  if (currentViewerId != ownerUserId && !isDeleted) {
 
-                     action = $('<div/>', {
-                         "class": "connect btn-link",
-                         "text": "" + labels.Connect,
+                     action = $('<i/>', {
+                         "class": "connect uiIcon uiConnectUserTiptip uiIconInviteUser",
                          "data-action": "Invite:" + ownerUserId,
                          "onclick": "takeAction(this)"
                      });
 
                      //
                      if (relationStatus == "pending") { // Viewing is not owner
-                         action = $('<div/>', {
-                             "class": "connect btn-link",
-                             "text": "" + labels.Confirm,
+                         action = $('<i/>', {
+                             "class": "connect uiIcon uiConnectUserTiptip uiIconAcceptUser",
                              "data-action": "Accept:" + ownerUserId,
                              "onclick": "takeAction(this)"
                          });
                      } else if (relationStatus == "waiting") { // Viewing is owner
-                         action = $('<div/>', {
-                             "class": "connect btn-link",
-                             "text": "" + labels.CancelRequest,
+                         action = $('<i/>', {
+                             "class": "connect uiIcon uiConnectUserTiptip uiIconDisconnectUser",
                              "data-action":"Revoke:" + ownerUserId,
                              "onclick":"takeAction(this)"
                          });
                      } else if (relationStatus == "confirmed") { // Had Connection
-                         action = $('<div/>', {
-                             "class":"connect btn-link",
-                             "text":"" + labels.RemoveConnection,
+                         action = $('<i/>', {
+                             "class":"connect uiIcon uiConnectUserTiptip uiIconDisconnectUser",
                              "data-action":"Disconnect:" + ownerUserId,
                              "onclick":"takeAction(this)"
                          });
                      } else if (relationStatus == "ignored") { // Connection is removed
-                         action = $('<div/>', {
-                             "class":"connect btn-link",
-                             "text":"" + labels.Connect,
+                         action = $('<i/>', {
+                             "class":"connect uiIcon uiConnectUserTiptip uiIconInviteUser",
                              "data-action":"Invite:" + ownerUserId,
                              "onclick":"takeAction(this)"
                          });
@@ -311,29 +306,6 @@
 
                  tr.append(tdAvatar).append(tdProfile);
                  tbody.append(tr);
-
-                 if (json.activityTitle) {
-                     var blockquote = $("<blockquote/>", {
-                         "text": json.activityTitle.replace(/<[^>]+>/g, '')
-                     });
-                     var activityDiv=$("<div/>",{
-                         "id": "recentActivity"
-                     });
-                     activityDiv.append(blockquote);
-                 }
-
-                 if (activityDiv) {
-                     var trDesc = $("<tr/>");
-                     var td = $("<td/>", {
-                         "width":"50px"
-                     });
-                     trDesc.append(td);
-                     var tdDesc = $("<td/>");
-                     tdDesc.append(activityDiv)
-                     trDesc.append(tdDesc);
-                     tbody.append(trDesc);
-                 }
-
                  popupContent.append(tbody);
                  popupContentContainer.append(popupContent);
 
