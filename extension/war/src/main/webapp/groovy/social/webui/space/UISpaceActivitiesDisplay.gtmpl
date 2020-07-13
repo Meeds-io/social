@@ -33,14 +33,13 @@
 <div class="uiDisplaySpaceActivities uiActivitiesDisplay" id="$uicomponent.id">
   <div class="clearfix activityTop">
   <!--hide Share button when show activity detail -->
-  <% if (hasActivities) { 
-       def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
+  <%
+     def refreshTooltipButton = _ctx.appRes("UIActivity.label.Refresh");
   %>
     <div class="activityStreamStatus pull-left">
       <div class="arrowBottom"></div>
 	    <a class="uiIconRefresh uiIconLightGray" href="javascript:void(0);" rel="tooltip" title="$refreshTooltipButton" id="RefreshButton" onclick="<%=uicomponent.event("RefreshStream")%>" ></a>
 	  </div>
-	<% } %>
   </div>
   <% uicomponent.renderChild(UIActivitiesLoader.class);%>
     <% if ( hasActivities ) { %>
