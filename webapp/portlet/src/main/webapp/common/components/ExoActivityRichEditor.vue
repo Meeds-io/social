@@ -80,7 +80,7 @@ export default {
         customConfig: '/commons-extension/ckeditorCustom/config.js',
         extraPlugins: extraPlugins,
         allowedContent: true,
-        removePlugins: 'image,confirmBeforeReload,maximize,resize',
+        removePlugins: 'image,maximize,resize',
         toolbar: [
           ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],
