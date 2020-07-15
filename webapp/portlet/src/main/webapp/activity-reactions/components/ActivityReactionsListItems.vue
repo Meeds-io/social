@@ -7,6 +7,7 @@
       <v-list-item-title class="body-2 font-weight-bold text-color">
         <a
           :href="profileUrl"
+          rel="nofollow"
           class="text-color">
           {{ name }}
         </a>
