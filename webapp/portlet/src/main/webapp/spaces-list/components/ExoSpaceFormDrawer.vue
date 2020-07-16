@@ -27,7 +27,6 @@
                 type="text"
                 name="name"
                 class="input-block-level ignore-vuetify-classes my-3"
-                maxlength="200"
                 required />
               <v-label for="description">
                 {{ $t('spacesList.label.description') }}
@@ -373,6 +372,8 @@ export default {
             console.warn('Error creating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
               this.error = this.$t('spacesList.error.spaceWithSameNameExists');
+            } else if (String(e).indexOf('SPACE_NAME_TOO_LONG') >= 0) {
+              this.error = this.$t('spacesList.error.spaceNameLengthInvalid');
             } else {
               this.error = this.$t('spacesList.error.unknownErrorWhenSavingSpace');
             }

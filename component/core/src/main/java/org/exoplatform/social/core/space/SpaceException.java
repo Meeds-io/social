@@ -76,7 +76,10 @@ public class SpaceException extends Exception{
 
     /** The SPAC e_ alread y_ exist. */
     SPACE_ALREADY_EXIST,
-    
+
+    /** Space name too long. */
+    SPACE_NAME_TOO_LONG,
+
     /** User don't have permission */
     SPACE_PERMISSION,
 
