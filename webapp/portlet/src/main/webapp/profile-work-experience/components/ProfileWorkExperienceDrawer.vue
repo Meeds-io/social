@@ -83,7 +83,7 @@ export default {
           this.handleError(this.$t('profileWorkExperiences.invalidEndDate'));
           return;
         }
-        if (experience.startDate && experience.endDate && new Date(experience.endDate) > new Date()) {
+        if (experience.endDate && new Date(experience.endDate) > new Date()) {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayEndDate'));
           return;
         }
