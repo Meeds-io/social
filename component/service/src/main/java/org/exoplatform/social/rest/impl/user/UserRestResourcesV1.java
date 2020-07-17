@@ -233,6 +233,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     } else {
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
+      filter.setPosition(q == null || q.isEmpty() ? "" : q);
+      filter.setSkills(q == null || q.isEmpty() ? "" : q);
       ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
       identities = list.load(offset, limit);
       if(returnSize) {
