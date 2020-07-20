@@ -69,7 +69,7 @@
         </li>
         <% _ctx.includeTemplates("UIActivityCommentActionBar-actions-after") %>
         <li class="dateTime">
-            <a id="EditCommentTime${comment.id}" rel="tooltip" data-placement="bottom" title="<%=if(comment.postedTime != comment.updated.getTime() ){ _ctx.appRes("UIActivity.label.PostedFrom").replace("{0}",commentAbsolutePostedTime) } else { commentAbsolutePostedTime }%>" href="<%=uicomponent.getActivityPermalink(activityID)%>" <% if(comment.postedTime != comment.updated.getTime() ){%>> $commentEditedTime <%} else {%> > ${commentPostedTime} <%}%></a>
+            <a class="editCommentTimeComment" id="EditCommentTime${comment.id}" rel="tooltip" data-placement="bottom" title="<%=if(comment.postedTime != comment.updated.getTime() ){ _ctx.appRes("UIActivity.label.PostedFrom").replace("{0}",commentAbsolutePostedTime) } else { commentAbsolutePostedTime }%>" href="<%=uicomponent.getActivityPermalink(activityID)%>" <% if(comment.postedTime != comment.updated.getTime() ){%>> $commentEditedTime <%} else {%> > ${commentPostedTime} <%}%></a>
         </li>
     </ul>
 
