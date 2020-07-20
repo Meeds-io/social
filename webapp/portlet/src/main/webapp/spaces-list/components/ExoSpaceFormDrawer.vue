@@ -372,7 +372,7 @@ export default {
             console.warn('Error creating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
               this.error = this.$t('spacesList.error.spaceWithSameNameExists');
-            } else if (String(e).indexOf('SPACE_NAME_TOO_LONG') >= 0) {
+            } else if (String(e).indexOf('INVALID_SPACE_NAME_LENGTH') >= 0) {
               this.error = this.$t('spacesList.error.spaceNameLengthInvalid');
             } else {
               this.error = this.$t('spacesList.error.unknownErrorWhenSavingSpace');

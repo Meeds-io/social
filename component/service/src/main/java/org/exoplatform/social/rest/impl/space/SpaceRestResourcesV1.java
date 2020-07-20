@@ -232,13 +232,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                                 "<br />\"visibility\": \"private\"," +
                                                 "<br />\"subscription\": \"validation\"<br />}" 
                                                 , required = true) SpaceEntity model) throws Exception {
-    if (model == null || model.getDisplayName() == null || model.getDisplayName().length() == 0 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    if (model == null || model.getDisplayName() == null || model.getDisplayName().length() == 0 || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
+      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME_LENGTH);
     }
-    // validate the name length
-    if (model.getDisplayName().length() > 200) {
-      throw new SpaceException(SpaceException.Code.SPACE_NAME_TOO_LONG);
-    }
+
     // validate the display name
     if (spaceService.getSpaceByDisplayName(model.getDisplayName()) != null) {
       throw new SpaceException(SpaceException.Code.SPACE_ALREADY_EXIST);
