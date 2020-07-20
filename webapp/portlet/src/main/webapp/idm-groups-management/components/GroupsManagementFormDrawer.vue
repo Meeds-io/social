@@ -1,89 +1,97 @@
 <template>
-  <exo-drawer
-    id="groupFormDrawer"
-    ref="groupFormDrawer"
-    right
-    @closed="drawer = false">
-    <template slot="title">
-      {{ title }}
-    </template>
-    <template slot="content">
-      <v-form
-        ref="groupForm"
-        class="form-horizontal pt-0 pb-4"
-        flat
-        @submit="saveGroup">
-        <v-card-text v-if="error" class="errorMessage">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>
+  <div>
+    <exo-drawer
+      id="groupFormDrawer"
+      ref="groupFormDrawer"
+      right
+      @closed="drawer = false">
+      <template slot="title">
+        {{ title }}
+      </template>
+      <template slot="content">
+        <v-form
+          ref="groupForm"
+          class="form-horizontal pt-0 pb-4"
+          flat
+          @submit="saveGroup">
+          <v-card-text v-if="error" class="errorMessage">
+            <v-alert type="error">
+              {{ error }}
+            </v-alert>
+          </v-card-text>
 
-        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('GroupsManagement.name') }}<template v-if="newGroup">*</template>
-        </v-card-text>
-        <v-card-text class="d-flex groupNameField py-0">
-          <input
-            ref="nameInput"
-            v-model="group.groupName"
-            :disabled="saving || !newGroup"
-            :autofocus="drawer"
-            :placeholder="$t('GroupsManagement.namePlaceholder')"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
-            required />
-        </v-card-text>
+          <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+            {{ $t('GroupsManagement.name') }}<template v-if="newGroup">*</template>
+          </v-card-text>
+          <v-card-text class="d-flex groupNameField py-0">
+            <input
+              ref="nameInput"
+              v-model="group.groupName"
+              :disabled="saving || !newGroup"
+              :autofocus="drawer"
+              :placeholder="$t('GroupsManagement.namePlaceholder')"
+              type="text"
+              class="ignore-vuetify-classes flex-grow-1"
+              maxlength="2000"
+              required />
+          </v-card-text>
 
-        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('GroupsManagement.label') }}*
-        </v-card-text>
-        <v-card-text class="d-flex groupNameField py-0">
-          <input
-            ref="labelInput"
-            v-model="group.label"
+          <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+            {{ $t('GroupsManagement.label') }}*
+          </v-card-text>
+          <v-card-text class="d-flex groupNameField py-0">
+            <input
+              ref="labelInput"
+              v-model="group.label"
+              :disabled="saving"
+              :placeholder="$t('GroupsManagement.labelPlaceholder')"
+              type="text"
+              class="ignore-vuetify-classes flex-grow-1"
+              maxlength="2000"
+              required />
+          </v-card-text>
+
+          <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+            {{ $t('GroupsManagement.description') }}
+          </v-card-text>
+          <v-card-text class="d-flex descriptionField py-0">
+            <textarea
+              ref="descriptionInput"
+              v-model="group.description"
+              :disabled="saving"
+              :placeholder="$t('GroupsManagement.descriptionPlaceholder')"
+              type="text"
+              class="ignore-vuetify-classes flex-grow-1 textarea-no-resize"
+              maxlength="2000"></textarea>
+          </v-card-text>
+        </v-form>
+      </template>
+      <template slot="footer">
+        <div class="d-flex">
+          <v-spacer />
+          <v-btn
             :disabled="saving"
-            :placeholder="$t('GroupsManagement.labelPlaceholder')"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
-            required />
-        </v-card-text>
-
-        <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('GroupsManagement.description') }}
-        </v-card-text>
-        <v-card-text class="d-flex descriptionField py-0">
-          <textarea
-            ref="descriptionInput"
-            v-model="group.description"
+            class="btn mr-2"
+            @click="cancel">
+            {{ $t('GroupsManagement.button.cancel') }}
+          </v-btn>
+          <v-btn
             :disabled="saving"
-            :placeholder="$t('GroupsManagement.descriptionPlaceholder')"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1 textarea-no-resize"
-            maxlength="2000"></textarea>
-        </v-card-text>
-      </v-form>
-    </template>
-    <template slot="footer">
-      <div class="d-flex">
-        <v-spacer />
-        <v-btn
-          :disabled="saving"
-          class="btn mr-2"
-          @click="cancel">
-          {{ $t('GroupsManagement.button.cancel') }}
-        </v-btn>
-        <v-btn
-          :disabled="saving"
-          :loading="saving"
-          class="btn btn-primary"
-          @click="saveGroup">
-          {{ $t('GroupsManagement.button.save') }}
-        </v-btn>
-      </div>
-    </template>
-  </exo-drawer>
+            :loading="saving"
+            class="btn btn-primary"
+            @click="saveGroup">
+            {{ $t('GroupsManagement.button.save') }}
+          </v-btn>
+        </div>
+      </template>
+    </exo-drawer>
+    <exo-confirm-dialog
+      ref="confirmDialog"
+      :message="popupBodyMessage"
+      :title="$t('GroupsManagement.popup.title')"
+      :ok-label="$t('GroupsManagement.popup.ok.label')"
+      @ok="cancel"/>
+  </div>
 </template>
 
 <script>
@@ -97,6 +105,7 @@ export default {
     confirmNewPassword: null,
     group: {},
     parentGroup: null,
+    popupBodyMessage:''
   }),
   computed: {
     title() {
@@ -161,6 +170,13 @@ export default {
       this.drawer = true;
     },
     saveGroup(event) {
+      const regex =  /^[a-zA-Z0-9-_]+$/;
+      const isValid = regex.test(this.group.groupName);
+      if (!isValid){
+        this.$refs.confirmDialog.open();
+        this.popupBodyMessage = this.$t('GroupsManagement.popup.message');
+        return;
+      }
       if (event) {
         event.preventDefault();
         event.stopPropagation();
