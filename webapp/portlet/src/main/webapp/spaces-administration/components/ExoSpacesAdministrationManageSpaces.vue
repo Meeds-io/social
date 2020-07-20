@@ -272,7 +272,6 @@ export default {
     closeGroupBindingDrawer() {
       this.showGroupBindingForm = false;
       this.groupSpaceBindings = [];
-      this.forceRerender();
     },
     openBindingModal(groups) {
       this.groupsToBind = groups;

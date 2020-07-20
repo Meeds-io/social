@@ -114,7 +114,7 @@
       </v-card-actions>      
     </v-flex>
     <div v-show="showSelectGroupsTree">
-      <exo-group-binding-second-level-drawer :already-selected="groups" :group-space-bindings="groupSpaceBindings" @selectionSaved="selectionSaved" @back="back" @close="closeDrawer"></exo-group-binding-second-level-drawer>
+      <exo-group-binding-second-level-drawer :key="groupBindingSecondDrawerKey" :already-selected="groups" :group-space-bindings="groupSpaceBindings" @selectionSaved="selectionSaved" @back="back" @close="closeDrawer"></exo-group-binding-second-level-drawer>
     </div>
   </div>
 </template>
@@ -146,6 +146,7 @@ export default {
       showSelectGroupsTree: false,
       avatar: spacesConstants.DEFAULT_SPACE_AVATAR,
       secondDrawerSelectedGroups : [],
+      groupBindingSecondDrawerKey: 0,
       suggesterOptions: {
         type: 'tag',
         plugins: ['remove_button', 'restore_on_backspace'],
@@ -206,11 +207,13 @@ export default {
     closeDrawer() {
       this.showSelectGroupsTree = false;
       this.$emit('close');
+      this.forceRerenderSecondDrawer();
     },
     cancelBinding() {
       this.groups = [];
       this.$emit('close');
       this.showSelectGroupsTree = false;
+      this.forceRerenderSecondDrawer();
     },
     renderGroupName(groupName) {
       let groupPrettyName = groupName.slice(groupName.lastIndexOf('/') + 1, groupName.length);
@@ -224,6 +227,9 @@ export default {
       this.groups = [];
       this.groups.push(...groupsIds);
     },
+    forceRerenderSecondDrawer() {
+      this.groupBindingSecondDrawerKey += 1;
+    }
   }
 };
 </script>
