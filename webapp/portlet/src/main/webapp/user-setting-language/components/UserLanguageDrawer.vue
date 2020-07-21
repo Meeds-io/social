@@ -52,7 +52,8 @@ export default {
       this.$refs.userLanguageDrawer.open();
     },
     saveLanguage() {
-      window.location.replace(`${eXo.env.portal.context}/${this.value}/${eXo.env.portal.portalName}/settings`);
+      const lang = this.value.replace('_', '-');
+      window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.portalName}/settings`);
     },
     cancel() {
       this.$refs.userLanguageDrawer.close();
