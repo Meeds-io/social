@@ -101,7 +101,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.IsSpaceRedactor;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.isSpaceRedactor;
         },
         click: (user) => {
           const membership = {
@@ -118,7 +118,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.IsSpaceRedactor && (this.filter === 'member' || this.filter === 'manager');
+          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager');
         },
         click: (user) => {
           const id = `redactor:${user.username}:${this.space.groupId}`;
