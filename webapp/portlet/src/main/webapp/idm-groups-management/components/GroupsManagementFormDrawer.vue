@@ -192,8 +192,9 @@ export default {
       }).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
-            return resp.text().then(() => {
-              throw new Error(this.$t('GroupsManagement.error.invalidGroupName'));
+            return resp.text().then(error => {
+              this.fieldError = error;
+              throw new Error(error);
             });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
