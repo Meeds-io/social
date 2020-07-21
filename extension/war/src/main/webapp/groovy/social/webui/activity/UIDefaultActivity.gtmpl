@@ -139,17 +139,23 @@
           <i class="uiIconActivityAction uiIconLightGray">
           </i>
                                 </div>
-          <ul class="dropdown-menu pull-right" role="menu">
+          <ul class="dropdown-menu actLink-items pull-right" role="menu">
           <% if(activityEditable) {%>
-          <li>
-          <a id="EditActivitylink${activity.id}" class="" data-edit-activity="${activity.id}" data-placement="bottom" href="javascript:void(0)">${labelEdit}</a>
+          <li class="actLink-item">
+          <a id="EditActivitylink${activity.id}" class="" data-edit-activity="${activity.id}" data-placement="bottom" href="javascript:void(0)">
+              <i class="uiIcon uiIconEdit actLink-icon"></i>
+              <span class="actLink-label">${labelEdit}</span>
+          </a>
                                     </li>
           <%
           }
           if (activityDeletable) {
           %>
-          <li>
-          <a href="javascript:void(0)" data-confirm="$labelToDeleteThisActivity" data-caption="$captionConfirmation" data-close="$labelClosebutton" data-ok="$labelConfirmbutton"  data-delete="<%=uicomponent.event("DeleteActivity", uicomponent.getId(), "");%>" class="controllDelete" id="DeleteActivityButton${activity.id}">${labelDelete}</a>
+          <li class="actLink-item">
+          <a href="javascript:void(0)" data-confirm="$labelToDeleteThisActivity" data-caption="$captionConfirmation" data-close="$labelClosebutton" data-ok="$labelConfirmbutton"  data-delete="<%=uicomponent.event("DeleteActivity", uicomponent.getId(), "");%>" class="controllDelete" id="DeleteActivityButton${activity.id}">
+              <i class="uiIcon uiIconTrashActivity actLink-icon"></i>
+              <span class="actLink-label">${labelDelete}</span>
+          </a>
 
                                     </li>
           <%}%>

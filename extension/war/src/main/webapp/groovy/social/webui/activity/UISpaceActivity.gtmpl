@@ -209,17 +209,22 @@ def streamOwner = activity.getStreamOwner();
   <i class="uiIconActivityAction uiIconLightGray">
   </i>
                         </div>
-  <ul class="dropdown-menu pull-right" role="menu">
-  <li>
-  <a id="Permalink${activity.id}" rel="tooltip" data-placement="bottom" title="$viewActivityTip" href="<%=uicomponent.getActivityPermalink(activity.id)%>">$viewActivityTip</a>
+  <ul class="dropdown-menu actLink-items pull-right" role="menu">
+  <li class="actLink-item">
+  <a id="Permalink${activity.id}" rel="tooltip" data-placement="bottom" title="$viewActivityTip" href="<%=uicomponent.getActivityPermalink(activity.id)%>">
+    <i class="uiIcon uiIconOpenActivity actLink-icon"></i>
+    <span class="actLink-label">$viewActivityTip</span>
+  </a>
   </li>
   <%
   if (activityDeletable) {
   %>
-  <li>
-  <a href="javascript:void(0)" data-confirm="$labelToDeleteThisActivity" data-caption="$captionConfirmation" data-close="$labelClosebutton" data-ok="$labelConfirmbutton"  data-delete="<%=uicomponent.event("DeleteActivity", uicomponent.getId(), "");%>" class="controllDelete" id="DeleteActivityButton${activity.id}">${labelDelete}</a>
-
-                            </li>
+  <li class="actLink-item">
+  <a href="javascript:void(0)" data-confirm="$labelToDeleteThisActivity" data-caption="$captionConfirmation" data-close="$labelClosebutton" data-ok="$labelConfirmbutton"  data-delete="<%=uicomponent.event("DeleteActivity", uicomponent.getId(), "");%>" class="controllDelete" id="DeleteActivityButton${activity.id}">
+    <i class="uiIcon uiIconTrashActivity actLink-icon"></i>
+    <span class="actLink-label">${labelDelete}</span>
+  </a>
+  </li>
   <%}%>
   </ul>
                     </div>
