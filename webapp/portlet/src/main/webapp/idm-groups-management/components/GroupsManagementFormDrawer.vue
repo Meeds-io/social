@@ -164,10 +164,7 @@ export default {
       const regex =  /^[a-zA-Z0-9-_]+$/;
       const isValid = regex.test(this.group.groupName);
       if (!isValid){
-        this.error = this.$t('GroupsManagement.popup.message');
-        window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
+        this.handleError(this.$t('GroupsManagement.error.invalidGroupName'));
         return ;
       }
       if (event) {
@@ -196,7 +193,7 @@ export default {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
             return resp.text().then(() => {
-              throw new Error(this.$t('GroupsManagement.popup.message'));
+              throw new Error(this.$t('GroupsManagement.error.invalidGroupName'));
             });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
