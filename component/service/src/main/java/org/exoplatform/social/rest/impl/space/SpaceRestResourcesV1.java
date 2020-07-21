@@ -233,7 +233,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                                 "<br />\"subscription\": \"validation\"<br />}" 
                                                 , required = true) SpaceEntity model) throws Exception {
     if (model == null || model.getDisplayName() == null || model.getDisplayName().length() == 0 || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
-      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME_LENGTH);
+      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
     // validate the display name
