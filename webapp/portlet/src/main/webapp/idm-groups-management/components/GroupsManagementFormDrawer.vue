@@ -170,13 +170,6 @@ export default {
       this.drawer = true;
     },
     saveGroup(event) {
-      const regex =  /^[a-zA-Z0-9-_]+$/;
-      const isValid = regex.test(this.group.groupName);
-      if (!isValid){
-        this.$refs.confirmDialog.open();
-        this.popupBodyMessage = this.$t('GroupsManagement.popup.message');
-        return;
-      }
       if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -202,10 +195,10 @@ export default {
       }).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
-            return resp.text().then(error => {
-              this.fieldError = error;
-              throw new Error(error);
-            });
+            this.$refs.confirmDialog.open();
+            this.popupBodyMessage = this.$t('GroupsManagement.popup.message');
+            this.group = null;
+            return ;
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
