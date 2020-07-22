@@ -41,6 +41,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -182,6 +183,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         space.setHasBindings(spaceBindingService.isBoundSpace(space.getId()));
         
         SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+        if (space.hasBindings()) {
+          spaceInfo.setIsUserBound(spaceBindingService.countUserBindings(space.getId(), authenticatedUser) > 0);
+        }
         //
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
