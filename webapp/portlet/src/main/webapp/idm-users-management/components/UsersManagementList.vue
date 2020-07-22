@@ -217,15 +217,9 @@ export default {
         const entities = data.entities || data.users;
         entities.forEach(user => {
           user.statusLabel = user.enabled ? this.$t('UsersManagement.status.enabled') : this.$t('UsersManagement.status.disabled');
-          if (user.firstname) {
-            user.firstName = user.firstname;
-          }
-          if (user.username) {
-            user.userName = user.username;
-          }
-          if (user.lastname) {
-            user.lastName = user.lastname;
-          }
+          user.userName = user.userName || user.username || '';
+          user.firstName = user.firstName || user.firstname || '';
+          user.lastName = user.lastName || user.lastname || '';
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;
