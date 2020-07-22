@@ -163,10 +163,18 @@ export default {
     saveGroup(event) {
       const regex =  /^[a-zA-Z0-9-_]+$/;
       const isValid = regex.test(this.group.groupName);
-      if (!isValid){
+      if (!isValid) {
         this.handleError(this.$t('GroupsManagement.error.invalidGroupName'));
-        return ;
+        return;
       }
+      if (this.group.label) {
+        if (this.group.label.length < 3 || this.group.label.length > 50) {
+          this.$refs.labelInput.setCustomValidity(this.$t('GroupsManagement.message.invalidLabelLength'));
+        } else {
+          this.$refs.labelInput.setCustomValidity('');
+        }
+      }
+      
       if (event) {
         event.preventDefault();
         event.stopPropagation();
