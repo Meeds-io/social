@@ -502,8 +502,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testUpdateProfileAtributes() throws Exception {
     String firstName = "Johnny";
-    String lastName = "B";
-    String fullName = "Johnny B";
+    String lastName = "Bravo";
+    String fullName = "Johnny Bravo";
     String aboutMe = "AboutMe";
     String imType = "Skype";
     String imId = "johnnyB";
