@@ -114,7 +114,7 @@
       <v-btn
         v-if="space.isMember"
         :loading="sendingAction"
-        :disabled="sendingAction"
+        :disabled="sendingAction || space.isUserBound"
         class="btn mx-auto spaceMembershipButton leaveSpaceButton"
         depressed
         block
