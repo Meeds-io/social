@@ -41,6 +41,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -182,6 +183,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         space.setHasBindings(spaceBindingService.isBoundSpace(space.getId()));
         
         SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+        if (space.hasBindings()) {
+          spaceInfo.setIsUserBound(spaceBindingService.countUserBindings(space.getId(), authenticatedUser) > 0);
+        }
         //
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
@@ -233,7 +237,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                                 "<br />\"subscription\": \"validation\"<br />}" 
                                                 , required = true) SpaceEntity model) throws Exception {
     if (model == null || model.getDisplayName() == null || model.getDisplayName().length() == 0 || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
     // validate the display name

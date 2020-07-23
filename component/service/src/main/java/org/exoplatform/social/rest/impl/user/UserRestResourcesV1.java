@@ -105,15 +105,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
-  public static final UserFieldValidator       USERNAME_VALIDATOR             = new UserFieldValidator("userName", true);
+  public static final UserFieldValidator       USERNAME_VALIDATOR             = new UserFieldValidator("userName", true, false);
 
-  public static final UserFieldValidator       EMAIL_VALIDATOR                = new UserFieldValidator("email", false);
+  public static final UserFieldValidator       EMAIL_VALIDATOR                = new UserFieldValidator("email", false, false);
 
-  public static final UserFieldValidator       LASTNAME_VALIDATOR             = new UserFieldValidator("lastName", false);
+  public static final UserFieldValidator       LASTNAME_VALIDATOR             = new UserFieldValidator("lastName", false, true);
 
-  public static final UserFieldValidator       FIRSTNAME_VALIDATOR            = new UserFieldValidator("firstName", false);
+  public static final UserFieldValidator       FIRSTNAME_VALIDATOR            = new UserFieldValidator("firstName", false, true);
 
-  public static final UserFieldValidator       PASSWORD_VALIDATOR             = new UserFieldValidator("password", false, 8, 255);
+  public static final UserFieldValidator       PASSWORD_VALIDATOR             = new UserFieldValidator("password", false, false, 8, 255);
 
   public static final List<UserFieldValidator> USER_FIELD_VALIDATORS          = Arrays.asList(USERNAME_VALIDATOR,
                                                                                               EMAIL_VALIDATOR,
@@ -523,7 +523,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
       @ApiResponse (code = 403, message = "Unothorized to modify user profile"),
       @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response updateUserProfileAttributes(@ApiParam(value = "User name", required = true) @PathParam("id") String username,
+  public Response updateUserProfileAttributes(@Context HttpServletRequest request,
+                                              @ApiParam(value = "User name", required = true) @PathParam("id") String username,
                                               @ApiParam(value = "User profile attributes map", required = true) ProfileEntity profileEntity) throws IOException {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
@@ -531,6 +532,25 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (profileEntity == null) {
       return Response.status(Status.BAD_REQUEST).entity("Use profile entity is mandatory").build();
     }
+
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+
+    String firstName = profileEntity.getFirstname();
+    String lastName = profileEntity.getLastname();
+
+    if (StringUtils.isNotBlank(firstName)) {
+      String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, firstName);
+      if (StringUtils.isNotBlank(errorMessage)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+      }
+    }
+    if (StringUtils.isNotBlank(lastName)) {
+      String errorMessage = LASTNAME_VALIDATOR.validate(locale, lastName);
+      if (StringUtils.isNotBlank(errorMessage)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+      }
+    }
+
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username)) {
       return Response.status(Status.UNAUTHORIZED).build();

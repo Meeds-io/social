@@ -246,6 +246,15 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
+  public SpaceEntity setIsUserBound(boolean isUserBound) {
+    setProperty("isUserBound", isUserBound);
+    return this;
+  }
+
+  public Boolean getIsUserBound() {
+    return (Boolean) getProperty("isUserBound");
+  }
+
   public Boolean getIsPending() {
     return (Boolean) getProperty("isPending");
   }
