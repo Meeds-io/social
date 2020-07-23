@@ -86,12 +86,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     Space space = getSpaceInstance(1, "root");
 
     Map<String,String> listOfResponses = new HashMap<String,String>() {{
-      put("{\"visibility\":PRIVATE}", Space.PRIVATE);
-      put("{\"visibility\":private}", Space.PRIVATE);
-      put("{\"visibility\":PriVatE}", Space.PRIVATE);
-      put("{\"visibility\":HIDDEN}", Space.HIDDEN);
-      put("{\"visibility\":hidden}", Space.HIDDEN);
-      put("{\"visibility\":HiDdEn}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":PRIVATE}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":private}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":PriVatE}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":HIDDEN}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":hidden}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":HiDdEn}", Space.HIDDEN);
     }};
 
     ContainerResponse response = null;
