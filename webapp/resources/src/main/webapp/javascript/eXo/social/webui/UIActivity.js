@@ -32,6 +32,7 @@
     },
     configure: function(params) {
       UIActivity.activityId = params.activityId || null;
+      UIActivity.activityBody = params.activityBody || '';
       UIActivity.inputWriteAComment = params.inputWriteAComment || "";
       UIActivity.commentMinCharactersAllowed = params.commentMinCharactersAllowed || 0;
       UIActivity.commentMaxCharactersAllowed = params.commentMaxCharactersAllowed || 0;
@@ -44,7 +45,7 @@
       UIActivity.labels = params.labels;
 
       if (UIActivity.activityId == null) {
-        alert('err: activityId is null!');
+        console.error('err: activityId is null!');
         return;
       }
       UIActivity.commentLinkId = 'CommentLink' + UIActivity.activityId;
@@ -79,6 +80,18 @@
         } catch (e) {
           console.log(e);
         }
+      });
+
+      var editActivityButton = $("#EditActivitylink" + UIActivity.activityId);
+      editActivityButton.on('mouseup', () => {
+        window.require(['SHARED/ActivityComposer'], activityComposerApp => {
+          activityComposerApp.init({
+            activityId: params.activityId,
+            composerAction: 'update',
+            ckEditorType: `editActivity${params.activityId}`,
+            activityBody: params.activityBody
+          });
+        });
       });
     },
 
