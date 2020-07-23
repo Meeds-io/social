@@ -5,6 +5,6 @@ export function getSpaceDescriptionByPrettyName(){
 }
 
 export function getSpaceManagersByPrettyName(){
-  return fetch(`${spacesConstants.SOCIAL_SPACE_API}${spacesConstants.SPACE_ID}${spacesConstants.MANAGERS_ROLE}`, {credentials: 'include'}).then(resp => resp.json()).catch(e => {console.log(e);});
+  return fetch(`${spacesConstants.SOCIAL_SPACE_API}${spacesConstants.SPACE_ID}${spacesConstants.MANAGERS_ROLE}`, {credentials: 'include'}).then(resp => resp.json());
 }
 
