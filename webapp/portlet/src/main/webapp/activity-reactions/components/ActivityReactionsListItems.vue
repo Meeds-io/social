@@ -55,9 +55,16 @@ export default {
   },
   data () {
     return {
-      cmpId: `chip${parseInt(Math.random() * 10000)
-        .toString()
+      cmpId: `react${parseInt(Math.random() * 10000)
         .toString()}`,
+      labels: {
+        CancelRequest: this.$t('UIActivity.label.profile.CancelRequest'),
+        Confirm: this.$t('UIActivity.label.profile.Confirm'),
+        Connect: this.$t('UIActivity.label.profile.Connect'),
+        Ignore: this.$t('UIActivity.label.profile.Ignore'),
+        RemoveConnection: this.$t('UIActivity.label.profile.RemoveConnection'),
+        StatusTitle: `${this.$t('UIActivity.label.profile.StatusTitle')}...`,
+      },
       user: null,
       attributesLoaded: false
     };
@@ -100,6 +107,7 @@ export default {
         $(`#${this.cmpId}`).userPopup({
           restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
           userId: this.id,
+          labels: this.labels,
           content: false,
           keepAlive: true,
           defaultPosition: 'top_left',
