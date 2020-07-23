@@ -26,27 +26,37 @@ if (extensionRegistry) {
 
 // getting locale resources
 export function init(params) {
-  getActivityComposerActionExtensions().forEach(extension => {
-    if(extension.resourceBundle) {
-      urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
+  if ($('.activityComposerApp').length) {
+    if (params && params.activityId) {
+      document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail : params}));
     }
-  });
-  params = params ? params : '';
-  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    // init Vue app when locale resources are ready
-    new Vue({
-      el: '#activityComposer',
-      data: function() {
-        return {
-          composerAction: params.composerAction || 'post',
-          activityBody: params.activityBody || '',
-          ckEditorType: params.ckEditorType || 'activityContent',
-          activityId: params.activityId || '',
-        };
-      },
-      template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :ck-editor-type="ckEditorType"></exo-activity-composer>',
-      i18n,
-      vuetify
+  } else {
+    getActivityComposerActionExtensions().forEach(extension => {
+      if(extension.resourceBundle) {
+        urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
+      }
     });
-  });
+    params = params ? params : '';
+    exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
+      let elementId = '#activityComposer';
+      if (!$('#activityComposer').length && params && params.activityId) {
+        elementId = `#activityComposer${params.activityId}`;
+      }
+
+      // init Vue app when locale resources are ready
+      new Vue({
+        el: elementId,
+        data: () => ({
+          composerAction: params && params.composerAction || 'post',
+          activityBody: params && params.activityBody || '',
+          activityId: params && params.activityId || '',
+          standalone: !!(params && params.activityId),
+        }),
+        template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
+        i18n,
+        vuetify
+      });
+    });
+    window.activityComposerInitialized = true;
+  }
 }
