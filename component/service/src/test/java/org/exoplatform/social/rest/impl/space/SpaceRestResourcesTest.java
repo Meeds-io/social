@@ -75,7 +75,21 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     super.tearDown();
     removeResource(spaceRestResources.getClass());
   }
+public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
+  startSessionAs("root");
+  Space space = getSpaceInstance(1, "root");
+  ContainerResponse response = null;
+  String inputWithCorrectName = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+  String inputWithSpecialCharacter = "{\"displayName\":\"~#Social~#\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+  String inputWithAndCharacter = "{\"displayName\":\"social & social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
 
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithCorrectName);
+  assertEquals(200, response.getStatus());
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithSpecialCharacter);
+  assertEquals(500, response.getStatus());
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithAndCharacter);
+  assertEquals(200, response.getStatus());
+}
   public void testSpaceVisibilityUpdateWithDifferentCases () throws Exception {
     startSessionAs("root");
     /*
