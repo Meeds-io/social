@@ -6,7 +6,9 @@
     <v-list-item-content class="pb-3">
       <v-list-item-title class="body-2 font-weight-bold text-color">
         <a
+          :id="cmpId"
           :href="profileUrl"
+          rel="nofollow"
           class="text-color">
           {{ name }}
         </a>
@@ -53,6 +55,16 @@ export default {
   },
   data () {
     return {
+      cmpId: `react${parseInt(Math.random() * 10000)
+        .toString()}`,
+      labels: {
+        CancelRequest: this.$t('UIActivity.label.profile.CancelRequest'),
+        Confirm: this.$t('UIActivity.label.profile.Confirm'),
+        Connect: this.$t('UIActivity.label.profile.Connect'),
+        Ignore: this.$t('UIActivity.label.profile.Ignore'),
+        RemoveConnection: this.$t('UIActivity.label.profile.RemoveConnection'),
+        StatusTitle: `${this.$t('UIActivity.label.profile.StatusTitle')}...`,
+      },
       user: null,
       attributesLoaded: false
     };
@@ -70,6 +82,7 @@ export default {
   },
   created() {
     this.retrieveUserInformations();
+    this.initTiptip();
   },
   methods: {
     retrieveUserInformations() {
@@ -88,6 +101,19 @@ export default {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         });
+    },
+    initTiptip() {
+      this.$nextTick(() => {
+        $(`#${this.cmpId}`).userPopup({
+          restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
+          userId: this.id,
+          labels: this.labels,
+          content: false,
+          keepAlive: true,
+          defaultPosition: 'top_left',
+          maxWidth: '240px',
+        });
+      });
     },
   },
 };
