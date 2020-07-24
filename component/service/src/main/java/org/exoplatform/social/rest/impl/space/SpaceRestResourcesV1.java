@@ -442,8 +442,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    if (space.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(space.getDisplayName())) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    if ( StringUtils.isBlank(model.getDisplayName()) || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
+      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
