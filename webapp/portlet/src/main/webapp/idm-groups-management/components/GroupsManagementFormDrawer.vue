@@ -96,7 +96,7 @@ export default {
     saving: false,
     confirmNewPassword: null,
     group: {},
-    parentGroup: null,
+    parentGroup: null
   }),
   computed: {
     title() {
@@ -161,6 +161,12 @@ export default {
       this.drawer = true;
     },
     saveGroup(event) {
+      const regex =  /^[a-zA-Z0-9-_]+$/;
+      const isValid = regex.test(this.group.groupName);
+      if (!isValid){
+        this.handleError(this.$t('GroupsManagement.error.invalidGroupName'));
+        return ;
+      }
       if (event) {
         event.preventDefault();
         event.stopPropagation();

@@ -268,16 +268,22 @@
                  var tdAvatar = $("<td/>", {
                      "width":"50px"
                  });
-                 var img = $("<img/>", {
-                     "src":json.avatarURL
-                 });
 
                  var aAvatar = $("<a/>", {
                      "target":"_self",
-                     "href":json.profileUrl
+                     "href":json.profileUrl,
                  });
 
-                 tdAvatar.append(aAvatar.append(img));
+                 aAvatar.css({
+                     "background-image":"url("+json.avatarURL+")",
+                     "display": "block",
+                     "height": "50px",
+                     "background-position": "center",
+                     "background-size": "cover",
+                     "border-radius": "50%"
+                 });
+
+                 tdAvatar.append(aAvatar);
 
                  var tdProfile = $("<td/>",{
                      "id": "profileName"

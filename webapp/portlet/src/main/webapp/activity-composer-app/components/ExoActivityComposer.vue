@@ -1,12 +1,12 @@
 <template>
-  <div class="activityComposer">
-    <div :style="{display: activityId ? 'none' : 'block'}" class="openLink">
+  <div id="activityComposer" class="activityComposer">
+    <div v-if="!standalone" class="openLink">
       <a @click="openMessageComposer()">
         <i class="uiIconEdit"></i>{{ link.replace('{0}', postTarget) }}
       </a>
     </div>
 
-    <v-app :id="activityId ? `editActivityComposer${activityId}` : 'activityComposerApp'" class="activityComposerApp VuetifyApp">
+    <v-app id="activityComposerApp" class="activityComposerApp VuetifyApp">
       <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivity editActivityDrawer${activityId}` : '']" class="drawer">
         <div class="header">
           <img src="/eXoSkin/skin/images/system/composer/composer.png">
@@ -14,7 +14,7 @@
           <a class="closebtn" href="javascript:void(0)" @click="closeMessageComposer()">×</a>
         </div>
         <div class="content">
-          <exo-activity-rich-editor :ref="ckEditorType" v-model="message" :ck-editor-type="ckEditorType" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
+          <exo-activity-rich-editor :ref="ckEditorId" v-model="message" :ck-editor-type="ckEditorId" :max-length="MESSAGE_MAX_LENGTH" :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"></exo-activity-rich-editor>
           <div class="composerButtons">
             <div v-if="activityComposerHintAction" class="action">
               <i class="fas fa-pencil-alt fa-sm	colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
@@ -104,10 +104,10 @@ export default {
       type: String,
       default: 'post'
     },
-    ckEditorType: {
-      type: String,
-      default: 'activityContent'
-    }
+    standalone: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -123,6 +123,7 @@ export default {
       percent: 100,
       actionsData: [],
       actionsEvents: [],
+      ckEditorId: 'activityContent',
       link : `${this.$t('activity.composer.link')}`,
     };
   },
@@ -171,13 +172,15 @@ export default {
     }
   },
   mounted() {
+    this.postTarget = eXo.env.portal.spaceDisplayName || this.$t('activity.composer.post');
     this.message = this.activityBody;
-    this.postTarget = eXo.env.portal.spaceDisplayName;
-    if(!this.postTarget) {
-      this.link = this.$t('activity.composer.post');
+
+    if (this.activityId) {
+      this.editActivity();
     }
   },
   created() {
+    document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
     this.refreshExtensions();
   },
@@ -191,9 +194,32 @@ export default {
         }
       });
     },
-    openMessageComposer: function() {
-      this.$refs[this.ckEditorType].setFocus();
+    editActivity(params) {
+      params = params && params.detail;
+      if (params) {
+        this.resetComposer();
+
+        this.message = params.activityBody;
+        this.activityId = params.activityId;
+        this.composerAction = params.composerAction;
+      }
+
       this.showMessageComposer = true;
+      this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
+    },
+    openMessageComposer: function() {
+      // If previously, the activity composer
+      // was used to edit an activity, then purge its content
+      if (this.activityId) {
+        this.activityId = null;
+        this.resetComposer();
+      }
+
+      this.composerAction = 'post';
+      this.message = '';
+
+      this.showMessageComposer = true;
+      this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
 
       // Send metric
       let url = '/portal/rest/v1/social/metrics/composer/click?composer=new';
@@ -212,12 +238,13 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const msg = this.$refs[this.ckEditorType].getMessage();
+      const msg = this.$refs[this.ckEditorId].getMessage();
       if(this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => this.closeMessageComposer())
           .then(() => this.refreshCurrentActivity())
           .catch(error => {
+            // eslint-disable-next-line no-console
             console.error(`Error when updating the activity: ${error}`);
             this.showErrorMessage = true;
           });
@@ -230,6 +257,7 @@ export default {
               this.resetComposer();
             })
             .catch(error => {
+              // eslint-disable-next-line no-console
               console.error(`Error when posting message: ${error}`);
               this.showErrorMessage = true;
             });
@@ -241,6 +269,7 @@ export default {
               this.resetComposer();
             })
             .catch(error => {
+              // eslint-disable-next-line no-console
               console.error(`Error when posting message: ${error}`);
               this.showErrorMessage = true;
             });
@@ -248,7 +277,6 @@ export default {
       }
     },
     resetComposer() {
-      this.message = '';
       this.activityComposerActions.forEach(action => {
         if (action.component) {
           action.component.model.value = action.component.model.default.slice();
@@ -265,13 +293,7 @@ export default {
       }
     },
     closeMessageComposer: function() {
-      if (this.activityId) {
-        document.querySelector(`#editActivityComposer${this.activityId} .drawer`).classList.remove('open');
-        document.querySelector(`#editActivityComposer${this.activityId} .composerActions`).style.display = 'none';
-        document.querySelector(`.activityComposer .drawer-backdrop-activity${this.activityId}`).style.display = 'none';
-      } else {
-        this.showMessageComposer = false;
-      }
+      this.showMessageComposer = false;
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);

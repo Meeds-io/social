@@ -137,6 +137,14 @@ export default {
       this.drawer = true;
     },
     saveMembershipType(event) {
+      if (this.membershipType.name.length < 3 || this.membershipType.name.length > 30) {
+        this.handleError(this.$t('MembershipTypesManagement.error.invalidRoleName'));
+        return ;
+      }
+      if (this.membershipType.description.length < 3 || this.membershipType.description.length > 255) {
+        this.handleError(this.$t('MembershipTypesManagement.error.invalidRoleDescription'));
+        return ;
+      }
       if (event) {
         event.preventDefault();
         event.stopPropagation();
