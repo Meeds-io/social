@@ -294,6 +294,7 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
+      this.message = '';
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);
