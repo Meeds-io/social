@@ -102,6 +102,18 @@ export default {
           }            
         }
         
+        if (this.$refs.profileContactForm.$el[3]) {
+          if (experience.description && experience.description.length > 1500) {
+            this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              0: this.$t('profileWorkExperiences.jobDetails'),
+              1: 0,
+              2: 1500,
+            }));
+          } else if (experience.description) {
+            this.$refs.profileContactForm.$el[3].setCustomValidity('');
+          }            
+        }
+        
         if (experience.endDate && new Date(experience.endDate) > new Date()) {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayEndDate'));
           return;
