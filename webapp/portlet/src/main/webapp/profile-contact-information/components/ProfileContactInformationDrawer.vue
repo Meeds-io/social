@@ -215,6 +215,16 @@ export default {
   methods: {
     save() {
       this.error = null;
+      
+      if (this.userToSave.firstname.length > 45) {
+        this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+          0: this.$t('profileContactInformation.firstName'),
+          1: 3,
+          2: 45,
+        }));
+      } else {
+        this.$refs.profileContactForm.$el[3].setCustomValidity('');
+      }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
           || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules

@@ -78,7 +78,11 @@ export default {
           return;
         }
         if (experience.company && experience.company.length > 250) {
-          this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidOrganizationName'));
+          this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+            0: this.$t('profileWorkExperiences.company'),
+            1: 0,
+            2: 250,
+          }));
         } else if (experience.company) {
           this.$refs.profileContactForm.$el[1].setCustomValidity('');
         }
