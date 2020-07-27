@@ -79,14 +79,26 @@ export default {
         }
         
         if (this.$refs.profileContactForm.$el[1]) {
-          if (experience.company && experience.company.length > 250) {
+          if (experience.company && experience.company.length > 250 || experience.company && experience.company.length < 3) {
             this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.company'),
-              1: 0,
+              1: 3,
               2: 250,
             }));
           } else if (experience.company) {
             this.$refs.profileContactForm.$el[1].setCustomValidity('');
+          }            
+        }
+        
+        if (this.$refs.profileContactForm.$el[2]) {
+          if (experience.position && experience.position.length > 100 || experience.position && experience.position.length < 3) {
+            this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              0: this.$t('profileWorkExperiences.jobTitle'),
+              1: 3,
+              2: 100,
+            }));
+          } else if (experience.position) {
+            this.$refs.profileContactForm.$el[2].setCustomValidity('');
           }            
         }
         
