@@ -71,17 +71,16 @@ export default {
     save() {
       this.error = null;
 
-      if (!this.$refs.profileContactForm.validate() // Vuetify rules
-          || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
-        this.handleError(this.$t('profileWorkExperiences.formValidationError'));
-        return;
-      }
-
       const experiences = this.experiences.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
       for (const experience of experiences) {
         if (experience.startDate && experience.endDate && new Date(experience.startDate) > new Date(experience.endDate)) {
           this.handleError(this.$t('profileWorkExperiences.invalidEndDate'));
           return;
+        }
+        if (experience.company && experience.company.length > 250) {
+          this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidOrganizationName'));
+        } else if (experience.company) {
+          this.$refs.profileContactForm.$el[1].setCustomValidity('');
         }
         if (experience.endDate && new Date(experience.endDate) > new Date()) {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayEndDate'));
@@ -91,6 +90,12 @@ export default {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayStartDate'));
           return;
         }
+      }
+
+      if (!this.$refs.profileContactForm.validate() // Vuetify rules
+        || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
+        this.handleError(this.$t('profileWorkExperiences.formValidationError'));
+        return;
       }
 
       this.$refs.profileWorkExperiencesDrawer.startLoading();
