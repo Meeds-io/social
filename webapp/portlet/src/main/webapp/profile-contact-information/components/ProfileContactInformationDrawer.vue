@@ -215,12 +215,22 @@ export default {
   methods: {
     save() {
       this.error = null;
+      const regex =  /^[a-zA-Z0-9-_]+$/;
+      const isValidFirstName = regex.test(this.userToSave.firstname);
       
       if (this.userToSave.firstname.length > 45 || this.userToSave.firstname.length < 3) {
         this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
           0: this.$t('profileContactInformation.firstName'),
           1: 3,
           2: 45,
+        }));
+      } else {
+        this.$refs.profileContactForm.$el[3].setCustomValidity('');
+      }
+
+      if (this.userToSave.firstname.length && !isValidFirstName) {
+        this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
+          0: this.$t('profileContactInformation.firstName'),
         }));
       } else {
         this.$refs.profileContactForm.$el[3].setCustomValidity('');
