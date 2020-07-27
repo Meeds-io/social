@@ -77,19 +77,24 @@ export default {
           this.handleError(this.$t('profileWorkExperiences.invalidEndDate'));
           return;
         }
-        if (experience.company && experience.company.length > 250) {
-          this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
-            0: this.$t('profileWorkExperiences.company'),
-            1: 0,
-            2: 250,
-          }));
-        } else if (experience.company) {
-          this.$refs.profileContactForm.$el[1].setCustomValidity('');
+        
+        if (this.$refs.profileContactForm.$el[1]) {
+          if (experience.company && experience.company.length > 250) {
+            this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              0: this.$t('profileWorkExperiences.company'),
+              1: 0,
+              2: 250,
+            }));
+          } else if (experience.company) {
+            this.$refs.profileContactForm.$el[1].setCustomValidity('');
+          }            
         }
+        
         if (experience.endDate && new Date(experience.endDate) > new Date()) {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayEndDate'));
           return;
         }
+        
         if (experience.startDate && new Date(experience.startDate) > new Date()) {
           this.handleError(this.$t('profileWorkExperiences.beforeTodayStartDate'));
           return;
