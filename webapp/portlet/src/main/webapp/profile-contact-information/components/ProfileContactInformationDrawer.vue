@@ -264,6 +264,26 @@ export default {
       } else {
         this.$refs.profileContactForm.$el[5].setCustomValidity('');
       }
+      
+      if (this.userToSave.urls.length) {
+        if (this.userToSave.urls.some(urlDiv => urlDiv.url.length > 100)) {
+          this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
+            0: this.$t('profileContactInformation.url'),
+            1: 10,
+            2: 100,
+          }));
+          return;
+        }
+        if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
+          this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+            0: this.$t('profileContactInformation.email'),
+            1: 10,
+            2: 100,
+          }));
+        } else {
+          this.$refs.profileContactForm.$el[5].setCustomValidity('');
+        }
+      }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
           || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
@@ -316,6 +336,14 @@ export default {
           this.error = String(error);
         }
 
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
+      }
+    },
+    handleError(error) {
+      if (error) {
+        this.error = String(error);
         window.setTimeout(() => {
           this.error = null;
         }, 5000);
