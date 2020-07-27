@@ -216,7 +216,7 @@ export default {
     save() {
       this.error = null;
       
-      if (this.userToSave.firstname.length > 45) {
+      if (this.userToSave.firstname.length > 45 || this.userToSave.firstname.length < 3) {
         this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
           0: this.$t('profileContactInformation.firstName'),
           1: 3,
@@ -224,6 +224,16 @@ export default {
         }));
       } else {
         this.$refs.profileContactForm.$el[3].setCustomValidity('');
+      }
+      
+      if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
+        this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+          0: this.$t('profileContactInformation.email'),
+          1: 10,
+          2: 100,
+        }));
+      } else {
+        this.$refs.profileContactForm.$el[5].setCustomValidity('');
       }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
