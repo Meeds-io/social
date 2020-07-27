@@ -226,6 +226,16 @@ export default {
         this.$refs.profileContactForm.$el[3].setCustomValidity('');
       }
       
+      if (this.userToSave.lastname.length > 45 || this.userToSave.lastname.length < 3) {
+        this.$refs.profileContactForm.$el[4].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+          0: this.$t('profileContactInformation.lastName'),
+          1: 3,
+          2: 45,
+        }));
+      } else {
+        this.$refs.profileContactForm.$el[4].setCustomValidity('');
+      }
+      
       if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
         this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
           0: this.$t('profileContactInformation.email'),
