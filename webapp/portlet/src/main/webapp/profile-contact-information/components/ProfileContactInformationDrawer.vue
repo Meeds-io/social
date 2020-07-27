@@ -217,6 +217,7 @@ export default {
       this.error = null;
       const regex =  /^[a-zA-Z0-9-_]+$/;
       const isValidFirstName = regex.test(this.userToSave.firstname);
+      const isValidLastName = regex.test(this.userToSave.lastname);
       
       if (this.userToSave.firstname.length > 45 || this.userToSave.firstname.length < 3) {
         this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
@@ -241,6 +242,14 @@ export default {
           0: this.$t('profileContactInformation.lastName'),
           1: 3,
           2: 45,
+        }));
+      } else {
+        this.$refs.profileContactForm.$el[4].setCustomValidity('');
+      }
+
+      if (this.userToSave.lastname.length && !isValidLastName) {
+        this.$refs.profileContactForm.$el[4].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
+          0: this.$t('profileContactInformation.lastName'),
         }));
       } else {
         this.$refs.profileContactForm.$el[4].setCustomValidity('');
