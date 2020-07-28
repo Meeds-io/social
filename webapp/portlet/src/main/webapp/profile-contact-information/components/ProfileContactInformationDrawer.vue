@@ -226,15 +226,13 @@ export default {
           2: 45,
         }));
       } else {
-        this.$refs.profileContactForm.$el[3].setCustomValidity('');
-      }
-
-      if (this.userToSave.firstname.length && !isValidFirstName) {
-        this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
-          0: this.$t('profileContactInformation.firstName'),
-        }));
-      } else {
-        this.$refs.profileContactForm.$el[3].setCustomValidity('');
+        if (this.userToSave.firstname.length && !isValidFirstName) {
+          this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
+            0: this.$t('profileContactInformation.firstName'),
+          }));
+        } else {
+          this.$refs.profileContactForm.$el[3].setCustomValidity('');
+        }
       }
       
       if (this.userToSave.lastname.length > 45 || this.userToSave.lastname.length < 3) {
@@ -244,15 +242,13 @@ export default {
           2: 45,
         }));
       } else {
-        this.$refs.profileContactForm.$el[4].setCustomValidity('');
-      }
-
-      if (this.userToSave.lastname.length && !isValidLastName) {
-        this.$refs.profileContactForm.$el[4].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
-          0: this.$t('profileContactInformation.lastName'),
-        }));
-      } else {
-        this.$refs.profileContactForm.$el[4].setCustomValidity('');
+        if (this.userToSave.lastname.length && !isValidLastName) {
+          this.$refs.profileContactForm.$el[4].setCustomValidity(this.$t('profileContactInformation.error.invalidField', {
+            0: this.$t('profileContactInformation.lastName'),
+          }));
+        } else {
+          this.$refs.profileContactForm.$el[4].setCustomValidity('');
+        }
       }
       
       if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
