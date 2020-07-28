@@ -169,7 +169,11 @@ export default {
       }
       if (this.group.label) {
         if (this.group.label.length < 3 || this.group.label.length > 50) {
-          this.$refs.labelInput.setCustomValidity(this.$t('GroupsManagement.message.invalidLabelLength'));
+          this.$refs.labelInput.setCustomValidity(this.$t('GroupsManagement.message.invalidFieldLength', {
+            0: this.$t('GroupsManagement.label'),
+            1: 3,
+            2: 50,
+          }));
         } else {
           this.$refs.labelInput.setCustomValidity('');
         }
