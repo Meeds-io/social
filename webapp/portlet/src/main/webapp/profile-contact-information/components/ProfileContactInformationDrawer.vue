@@ -216,6 +216,7 @@ export default {
     save() {
       this.error = null;
       const regex =  /^[a-zA-Z0-9-_]+$/;
+      const startWithRegex =  /^\d/;
       const isValidFirstName = regex.test(this.userToSave.firstname);
       const isValidLastName = regex.test(this.userToSave.lastname);
       
@@ -231,7 +232,13 @@ export default {
             0: this.$t('profileContactInformation.firstName'),
           }));
         } else {
-          this.$refs.profileContactForm.$el[3].setCustomValidity('');
+          if (startWithRegex.test(this.userToSave.firstname)) {
+            this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileContactInformation.error.invalidStartOfField', {
+              0: this.$t('profileContactInformation.firstName'),
+            }));
+          } else {
+            this.$refs.profileContactForm.$el[3].setCustomValidity('');
+          }
         }
       }
       
@@ -247,7 +254,13 @@ export default {
             0: this.$t('profileContactInformation.lastName'),
           }));
         } else {
-          this.$refs.profileContactForm.$el[4].setCustomValidity('');
+          if (startWithRegex.test(this.userToSave.lastname)) {
+            this.$refs.profileContactForm.$el[4].setCustomValidity(this.$t('profileContactInformation.error.invalidStartOfField', {
+              0: this.$t('profileContactInformation.lastName'),
+            }));
+          } else {
+            this.$refs.profileContactForm.$el[4].setCustomValidity('');
+          }
         }
       }
       
@@ -262,7 +275,7 @@ export default {
       }
       
       if (this.userToSave.urls.length) {
-        if (this.userToSave.urls.some(urlDiv => urlDiv.url.length > 100)) {
+        if (this.userToSave.urls.some(urlDiv => urlDiv.url && urlDiv.url.length > 100)) {
           this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
             0: this.$t('profileContactInformation.url'),
             1: 10,
