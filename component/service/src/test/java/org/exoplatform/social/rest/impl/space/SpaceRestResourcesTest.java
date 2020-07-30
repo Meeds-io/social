@@ -75,7 +75,21 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     super.tearDown();
     removeResource(spaceRestResources.getClass());
   }
+public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
+  startSessionAs("root");
+  Space space = getSpaceInstance(1, "root");
+  ContainerResponse response = null;
+  String inputWithCorrectName = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+  String inputWithSpecialCharacter = "{\"displayName\":\"~#Social~#\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+  String inputWithAndCharacter = "{\"displayName\":\"social & social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
 
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithCorrectName);
+  assertEquals(200, response.getStatus());
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithSpecialCharacter);
+  assertEquals(500, response.getStatus());
+  response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithAndCharacter);
+  assertEquals(200, response.getStatus());
+}
   public void testSpaceVisibilityUpdateWithDifferentCases () throws Exception {
     startSessionAs("root");
     /*
@@ -86,12 +100,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     Space space = getSpaceInstance(1, "root");
 
     Map<String,String> listOfResponses = new HashMap<String,String>() {{
-      put("{\"visibility\":PRIVATE}", Space.PRIVATE);
-      put("{\"visibility\":private}", Space.PRIVATE);
-      put("{\"visibility\":PriVatE}", Space.PRIVATE);
-      put("{\"visibility\":HIDDEN}", Space.HIDDEN);
-      put("{\"visibility\":hidden}", Space.HIDDEN);
-      put("{\"visibility\":HiDdEn}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":PRIVATE}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":private}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":PriVatE}", Space.PRIVATE);
+      put("{\"displayName\":\"social\",\"visibility\":HIDDEN}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":hidden}", Space.HIDDEN);
+      put("{\"displayName\":\"social\",\"visibility\":HiDdEn}", Space.HIDDEN);
     }};
 
     ContainerResponse response = null;

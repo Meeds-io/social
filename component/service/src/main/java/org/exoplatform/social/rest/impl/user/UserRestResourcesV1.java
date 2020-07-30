@@ -57,6 +57,7 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.*;
@@ -1336,12 +1337,14 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                             uploadResource.getMimeType(),
                                             inputStream,
                                             System.currentTimeMillis());
+          profile.setListUpdateTypes(Arrays.asList(UpdateType.AVATAR));
         } else {
           attachment = new BannerAttachment(null,
                                             uploadResource.getFileName(),
                                             uploadResource.getMimeType(),
                                             inputStream,
                                             System.currentTimeMillis());
+          profile.setListUpdateTypes(Arrays.asList(UpdateType.BANNER));
         }
         profile.setProperty(name, attachment);
         if (save) {
