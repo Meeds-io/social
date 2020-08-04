@@ -161,12 +161,33 @@ export default {
       this.drawer = true;
     },
     saveGroup(event) {
+      const startWithRegex =  /^\d/;
       const regex =  /^[a-zA-Z0-9-_]+$/;
       const isValid = regex.test(this.group.groupName);
+      
       if (!isValid) {
-        this.handleError(this.$t('GroupsManagement.error.invalidGroupName'));
+        this.handleError(this.$t('GroupsManagement.error.invalidGroupName', {
+          0: this.$t('GroupsManagement.name'),
+        }));
         return;
       }
+      
+      if (this.group.groupName) {
+        if (this.group.groupName.length < 3 || this.group.groupName.length > 30) {
+          this.$refs.nameInput.setCustomValidity(this.$t('GroupsManagement.message.invalidFieldLength', {
+            0: this.$t('GroupsManagement.name'),
+            1: 3,
+            2: 50,
+          }));
+        } else {
+          if (startWithRegex.test(this.group.groupName)) {
+            this.$refs.nameInput.setCustomValidity(this.$t('GroupsManagement.error.invalidStartOfField', {0: this.$t('GroupsManagement.name')}));
+          } else {
+            this.$refs.nameInput.setCustomValidity('');
+          }
+        }
+      }
+      
       if (this.group.label) {
         if (this.group.label.length < 3 || this.group.label.length > 50) {
           this.$refs.labelInput.setCustomValidity(this.$t('GroupsManagement.message.invalidFieldLength', {
@@ -186,7 +207,6 @@ export default {
 
       this.error = null;
       this.fieldError = false;
-      this.resetCustomValidity();
 
       if (!this.$refs.groupForm.validate() // Vuetify rules
           || !this.$refs.groupForm.$el.reportValidity()) { // Standard HTML rules
