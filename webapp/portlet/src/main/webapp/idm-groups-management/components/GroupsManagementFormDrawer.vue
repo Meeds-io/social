@@ -199,6 +199,18 @@ export default {
           this.$refs.labelInput.setCustomValidity('');
         }
       }
+
+      if (this.group.description) {
+        if (this.group.description.length < 3 || this.group.description.length > 255) {
+          this.$refs.descriptionInput.setCustomValidity(this.$t('GroupsManagement.message.invalidFieldLength', {
+            0: this.$t('GroupsManagement.description'),
+            1: 0,
+            2: 255,
+          }));
+        } else {
+          this.$refs.descriptionInput.setCustomValidity('');
+        }
+      }
       
       if (event) {
         event.preventDefault();
