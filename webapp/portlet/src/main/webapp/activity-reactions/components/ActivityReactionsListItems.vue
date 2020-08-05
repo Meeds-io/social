@@ -9,8 +9,8 @@
           :id="cmpId"
           :href="profileUrl"
           rel="nofollow"
-          class="text-color">
-          {{ name }}
+          class="text-color"
+          v-html="name">
         </a>
       </v-list-item-title>
       <v-list-item-subtitle v-if="attributesLoaded && !sameUser" class="caption text-bold">
