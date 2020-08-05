@@ -65,7 +65,7 @@ export default {
         icon: 'uiIconTrash',
         order: 0,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager') && user.isMember;
+          return (this.filter === 'member' || this.filter === 'manager') && user.isMember && !user.isGroupBound;
         },
         click: (user) => {
           this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
