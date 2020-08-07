@@ -510,6 +510,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String phoneType = "work";
     String phoneNumber = "123456";
     String url = "fakeURL";
+    String email = "johnny@localhost.com";
 
     StringBuilder input = new StringBuilder("{");
     input.append("\"");
@@ -528,6 +529,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     input.append(ProfileEntity.FULLNAME);
     input.append("\":\"");
     input.append(fullName);
+    input.append("\",");
+
+    input.append("\"");
+    input.append(ProfileEntity.EMAIL);
+    input.append("\":\"");
+    input.append(email);
     input.append("\",");
 
     input.append("\"");

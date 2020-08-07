@@ -206,6 +206,7 @@ export default {
     userToSave: {},
     error: null,
     saving: null,
+    fieldError: false,
   }),
   computed: {
     maxUploadSizeInBytes() {
@@ -213,8 +214,35 @@ export default {
     },
   },
   methods: {
+    resetCustomValidity() {
+      this.$refs.profileContactForm.$el[3].setCustomValidity('');
+      this.$refs.profileContactForm.$el[4].setCustomValidity('');
+      this.$refs.profileContactForm.$el[5].setCustomValidity('');
+    },
     save() {
       this.error = null;
+      this.fieldError = false;
+      this.resetCustomValidity();
+      
+      if (this.userToSave.urls.length) {
+        if (this.userToSave.urls.some(urlDiv => urlDiv.url && urlDiv.url.length > 100)) {
+          this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
+            0: this.$t('profileContactInformation.url'),
+            1: 10,
+            2: 100,
+          }));
+          return;
+        }
+        if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
+          this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+            0: this.$t('profileContactInformation.email'),
+            1: 10,
+            2: 100,
+          }));
+        } else {
+          this.$refs.profileContactForm.$el[5].setCustomValidity('');
+        }
+      }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
           || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
@@ -231,7 +259,8 @@ export default {
       if (this.userToSave.firstname !== this.user.firstname || this.userToSave.lastname !== this.user.lastname) {
         this.userToSave.fullname = `${this.userToSave.firstname} ${this.userToSave.lastname}`;
       }
-      this.$userService.updateProfileFields(eXo.env.portal.userName, this.userToSave, [
+
+      const fields = [
         'avatar',
         'firstname',
         'lastname',
@@ -248,12 +277,34 @@ export default {
         'phones',
         'ims',
         'urls'
-      ])
-        .then(this.refresh)
-        .then(() => {
-          this.$refs.profileContactInformationDrawer.close();
-        })
-        .catch(this.handleImageUploadError)
+      ];
+      const objectToSend = {};
+      for (const i in fields) {
+        objectToSend[fields[i]] = this.userToSave[fields[i]];
+      }
+
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/profile`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(objectToSend),
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          if (resp.status === 400) {
+            return resp.text().then(error => {
+              this.fieldError = error;
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
+        }
+      }).then(this.refresh)
+        .then(() => this.$refs.profileContactInformationDrawer.close())
+        .catch(this.handleError)
         .finally(() => {
           this.saving = false;
           this.$refs.profileContactInformationDrawer.endLoading();
@@ -270,6 +321,48 @@ export default {
         window.setTimeout(() => {
           this.error = null;
         }, 5000);
+      }
+    },
+    handleError(error) {
+      this.resetCustomValidity();
+      
+      if (error) {
+        if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
+          this.error = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit});
+        } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
+          const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
+          this.$refs.profileContactForm.$el[3].setCustomValidity(firstNameError);
+        } else if (this.fieldError && this.fieldError.indexOf('LASTNAME:') === 0) {
+          const lastNameError = this.fieldError.replace('LASTNAME:', '');
+          this.$refs.profileContactForm.$el[4].setCustomValidity(lastNameError);
+        } else if (this.fieldError && this.fieldError.indexOf('EMAIL:') === 0) {
+          if (this.fieldError === 'EMAIL:ALREADY_EXISTS') {
+            this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'));
+          } else {
+            const emailError = this.fieldError.replace('EMAIL:', '');
+            this.$refs.profileContactForm.$el[5].setCustomValidity(emailError);
+          }
+        } else {
+          error = error.message || String(error);
+          const errorI18NKey = `UsersManagement.error.${error}`;
+          const errorI18N = this.$t(errorI18NKey, {0: this.userToSave.fullname});
+          if (errorI18N !== errorI18NKey) {
+            error = errorI18N;
+          }
+          this.error = error;
+          window.setTimeout(() => {
+            this.error = null;
+          }, 5000);
+        }
+
+        window.setTimeout(() => {
+          if (!this.$refs.profileContactForm.validate() // Vuetify rules
+            || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
+            return;
+          }
+        }, 200);
+      } else {
+        this.error = null;
       }
     },
     refresh() {
