@@ -34,7 +34,6 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
 
@@ -526,7 +525,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       @ApiResponse (code = 400, message = "Invalid query input") })
   public Response updateUserProfileAttributes(@Context HttpServletRequest request,
                                               @ApiParam(value = "User name", required = true) @PathParam("id") String username,
-                                              @ApiParam(value = "User profile attributes map", required = true) ProfileEntity profileEntity) throws IOException {
+                                              @ApiParam(value = "User profile attributes map", required = true) ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -538,6 +537,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String firstName = profileEntity.getFirstname();
     String lastName = profileEntity.getLastname();
+    String email = profileEntity.getEmail();
 
     if (StringUtils.isNotBlank(firstName)) {
       String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, firstName);
@@ -550,6 +550,19 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isNotBlank(errorMessage)) {
         return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
       }
+    }
+    if (StringUtils.isNoneBlank(email)) {
+      String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
+      if (StringUtils.isNotBlank(errorMessage)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+      }
+    }
+    // Check if mail address is already used
+    Query query = new Query();
+    query.setEmail(email);
+    ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
+    if (users.getSize() > 0 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:ALREADY_EXISTS").build();
     }
 
     String currentUser = getCurrentUser();
