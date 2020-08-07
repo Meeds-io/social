@@ -17,7 +17,8 @@
           v-model="experience.company"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000" />
+          maxlength="2000"
+          required />
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
         {{ $t('profileWorkExperiences.jobTitle') }}
@@ -27,7 +28,8 @@
           v-model="experience.position"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000" />
+          maxlength="2000"
+          required />
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
         {{ $t('profileWorkExperiences.jobDetails') }}
