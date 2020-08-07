@@ -46,6 +46,7 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class SpaceServiceTest extends AbstractCoreTest {
@@ -2892,17 +2893,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     // TODO Complete this
   }
 
-  /**
-   * Test
-   * {@link SpaceService#addSpaceTemplateConfigPlugin(SpaceTemplateConfigPlugin)}
-   * (org.exoplatform.social.core.space.spaceTemplateConfigPlugin)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testAddSpaceTemplateConfigPlugin() throws Exception {
-    // TODO Complete this
-  }
 
   /**
    * Test {@link SpaceService}
@@ -2916,7 +2906,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   /**
    * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getVisibleSpaces(String)}
+   * {@link SpaceStorage#getVisibleSpaces(java.lang.String, org.exoplatform.social.core.space.SpaceFilter)(String)}
    *
    * @throws Exception
    * @since 1.2.5-GA
@@ -3101,6 +3091,35 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotNull(spacesApplications);
     assertEquals(1, spacesApplications.size());
   }
+
+  public void testInviteSuperManager() throws Exception {
+    // Create a super manager user
+    String username = "ali";
+    User superManager = organizationService.getUserHandler().createUserInstance(username);
+    organizationService.getUserHandler().createUser(superManager, false);
+    Identity superManagerIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,username);
+    assertFalse(spaceService.isSuperManager(username));
+    // Create Super managers group
+    Group group = organizationService.getGroupHandler().createGroupInstance();
+    group.setGroupName("space-managers");
+    organizationService.getGroupHandler().addChild(null, group, true);
+    MembershipType msType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
+    msType.setName("test-ms");
+    organizationService.getMembershipTypeHandler().createMembershipType(msType, true);
+    //Add user to super managers
+    organizationService.getMembershipHandler().linkMembership(superManager, group, msType, true);
+    // Register group as super administrators
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/space-managers",
+                                                                                                       "test-ms")));
+    assertTrue(spaceService.isSuperManager(username));
+
+    Space space = createSpace("spacename1", "root");
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.OPEN);
+    spaceService.inviteIdentities(space, Collections.singletonList(superManagerIdentity));
+    assertTrue(spaceService.isInvitedUser(space, username));
+  }
+
 
 //FIXME regression JCR to RDBMS migration
 //  public void testSpacesSuperManager() throws Exception {
