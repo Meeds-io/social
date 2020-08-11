@@ -457,9 +457,7 @@ public class SpaceServiceImpl implements SpaceService {
         continue;
       }
 
-      if (isSuperManager(userId)) {
-        addMember(space, userId);
-      } else if (!isInvited(space, userId)) {
+      if (!isInvited(space, userId)) {
         inviteMember(space, userId);
       }
     }
