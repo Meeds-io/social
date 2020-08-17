@@ -22,7 +22,6 @@
         def likeUnlikeCommentMsg = "";
         def likeUnlikeCommentAction = "";
         def likeUnlikeCommentClass = "";
-        def replyCommentClass = "";
         def likeLabel = _ctx.appRes("UIActivity.msg.LikeComment");
         def parentCommentId = comment.parentCommentId == null ? comment.id : comment.parentCommentId;
         def subCommentId = comment.parentCommentId == null ? "" : comment.id;
@@ -34,11 +33,6 @@
             likeUnlikeCommentAction = likeCommentAction;
             likeUnlikeCommentMsg = _ctx.appRes("UIActivity.msg.LikeComment");
             likeUnlikeCommentClass = "";
-        }
-        if (comment.parentCommentId!=null) {
-            replyCommentClass = "reply";
-        } else {
-            replyCommentClass = "replyComment";
         }
 
         def likes = Arrays.copyOf(comment.likeIdentityIds, comment.likeIdentityIds.length);
@@ -70,7 +64,7 @@
         <li class="separator">-</li>
         <li class="reply">
             <a id="CommentLink${comment.id}" data-activity="$comment.parentId" data-comment="$parentCommentId" data-sub-comment="$subCommentId" data-author-name="$authorName" data-author-fullname="$authorFullName" href="javascript:void(0);">
-                <span class="$replyCommentClass">$labelReply</span>
+                <span class="replyComment">$labelReply</span>
             </a> 
         </li>
         <% _ctx.includeTemplates("UIActivityCommentActionBar-actions-after") %>
