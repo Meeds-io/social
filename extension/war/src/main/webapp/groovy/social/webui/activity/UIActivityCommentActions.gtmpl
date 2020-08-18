@@ -64,7 +64,7 @@
         <li class="separator">-</li>
         <li class="reply">
             <a id="CommentLink${comment.id}" data-activity="$comment.parentId" data-comment="$parentCommentId" data-sub-comment="$subCommentId" data-author-name="$authorName" data-author-fullname="$authorFullName" href="javascript:void(0);">
-                $labelReply
+                <span class="replyComment">$labelReply</span>
             </a> 
         </li>
         <% _ctx.includeTemplates("UIActivityCommentActionBar-actions-after") %>
