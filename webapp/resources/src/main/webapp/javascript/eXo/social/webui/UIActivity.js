@@ -127,6 +127,25 @@
             // Hide the editor toolbar
             var elId = this.element.$.id.replace('CommentTextarea','');
             $('#CommentButton' + elId).prop("disabled", true);
+
+            var elTime = 0;
+            //Increment the time counter every minute.
+            setInterval(timerIncrement, 60000); // 1 minute
+
+            //reset time on mouse movement.
+            $(this).mousemove(function (e) {
+              elTime = 0;
+            });
+            $(this).keypress(function (e) {
+              elTime = 0;
+            });
+
+            function timerIncrement() {
+              elTime = elTime + 1;
+              if (elTime > 29) { // 30 minutes
+                alert('The session is about to expire, please backup your content.');
+              }
+            }
           },
           change: function( evt) {
             var newData = evt.editor.getData();
