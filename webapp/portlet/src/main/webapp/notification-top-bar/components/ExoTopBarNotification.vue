@@ -28,7 +28,7 @@
           max-height="100vh"
           max-width="100vw"
           class="notifDrawer">
-          <v-row class="mx-0 px-3 notifDrawerHeader">
+          <v-row class="mx-0 notifDrawerHeader">
             <v-list-item>
               <v-list-item-content>
                 <span class="notifDrawerTitle">{{ $t('UIIntranetNotificationsPortlet.title.notifications') }}</span>
@@ -59,7 +59,7 @@
               <p>{{ $t('UIIntranetNotificationsPortlet.label.NoNotifications') }}</p>
             </div>
           </div>
-          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0 px-3">
+          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0">
             <v-card 
               flat
               tile 
