@@ -59,7 +59,7 @@
               <p>{{ $t('UIIntranetNotificationsPortlet.label.NoNotifications') }}</p>
             </div>
           </div>
-          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0 px-3">
+          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0">
             <v-card 
               flat
               tile 
