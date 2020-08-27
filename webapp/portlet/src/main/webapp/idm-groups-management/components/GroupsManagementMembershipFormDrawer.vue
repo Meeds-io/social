@@ -151,7 +151,7 @@ export default {
             this.users = [];
 
             this.loadingSuggestions++;
-            this.$userService.getUsersByStatus(value, 0, 20, 'ANY')
+            this.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
               .then(data => this.users = data && data.entities || [])
               .finally(() => this.loadingSuggestions--);
           }
