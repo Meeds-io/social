@@ -10,7 +10,7 @@
             :value="badge > 0"
             :content="badge"
             flat
-            color="red"
+            color="var(--allPagesBadgePrimaryColor, #ff5335)"
             overlap>
             <v-icon
               class="grey-color">
