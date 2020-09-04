@@ -1,10 +1,8 @@
 let activityComposerActions = null;
 let activityComposerHintAction = null;
 export function getActivityComposerActionExtensions() {
-  if(activityComposerActions == null) {
-    const allExtensions = getExtensionsByType('activity-composer-action');
-    activityComposerActions = allExtensions.filter(extension => isExtensionEnabled(extension));
-  }
+  const allExtensions = getExtensionsByType('activity-composer-action');
+  activityComposerActions = allExtensions.filter(extension => isExtensionEnabled(extension));
 
   return activityComposerActions;
 }

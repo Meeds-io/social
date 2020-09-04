@@ -193,6 +193,8 @@ export default {
           this.actionsEvents[action.key] = action.component.events;
         }
       });
+      const url = '/portal/rest/i18n/bundle/locale.portlet.news.News-en.json';
+      exoi18n.loadLanguageAsync(eXo.env.portal.language, url);
     },
     editActivity(params) {
       params = params && params.detail;
