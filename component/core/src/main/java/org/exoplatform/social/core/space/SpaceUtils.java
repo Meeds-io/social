@@ -25,6 +25,7 @@ import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -1789,6 +1790,32 @@ public class SpaceUtils {
     }
 
     return new ArrayList<String>(userNames);
+  }
+
+
+  /**
+   * Check if the user has the role redactor in that space
+   * @param userName
+   * @param spaceGroupId
+   * @return boolean true if the user has that role Or the role is not present in the space
+   * @throws Exception
+   */
+  public static boolean isRedactor (String userName, String spaceGroupId) throws Exception{
+    boolean spaceHasRedactorRole = false;
+    String REDACTOR_MEMBERSHIP_NAME = "redactor";
+
+    List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
+    for(MembershipType membershipType : membershipTypes) {
+      if(REDACTOR_MEMBERSHIP_NAME.equals(membershipType.getName())) {
+        spaceHasRedactorRole = true;
+        break;
+      }
+    }
+    if (spaceHasRedactorRole) {
+      return getOrganizationService().getMembershipHandler().
+              findMembershipByUserGroupAndType(userName, spaceGroupId, REDACTOR_MEMBERSHIP_NAME) != null;
+    }
+    return true;
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,
