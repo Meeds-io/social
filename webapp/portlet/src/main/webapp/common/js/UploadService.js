@@ -2,7 +2,39 @@ export const avatarExcceedsLimitError = 'AVATAR_EXCEEDS_LIMIT';
 export const bannerExcceedsLimitError = 'BANNER_EXCEEDS_LIMIT';
 export const MAX_RANDOM_NUMBER = 100000;
 
-export function upload(file, uploadId) {
+export function getUploadProgress(uploadId) {
+  return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=progress`, {
+    method: 'GET',
+    credentials: 'include'
+  }).then(resp => {
+    return resp && resp.ok && resp.text();
+  }).then(data => {
+    data = JSON.parse(data.replace('upload', '"upload"'));
+    data = data && data['upload'] || data;
+    if (data[uploadId]) {
+      if (data[uploadId] && data[uploadId].status === 'failed') {
+        throw new Error('Upload error');
+      }
+      return data[uploadId].percent;
+    }
+  });
+}
+
+export function deleteUpload(uploadId) {
+  return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=delete`, {
+    method: 'POST',
+    credentials: 'include'
+  });
+}
+
+export function abortUpload(uploadId) {
+  return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=abort`, {
+    method: 'POST',
+    credentials: 'include'
+  });
+}
+
+export function upload(file, uploadId, signal) {
   if (!uploadId) {
     uploadId = generateRandomId();
   }
@@ -11,11 +43,15 @@ export function upload(file, uploadId) {
   const formData = new FormData();
   formData.append('file', file);
 
-  return fetch(uploadUrl, {
+  const headers = {
     method: 'POST',
     credentials: 'include',
     body: formData,
-  }).then(resp => resp && resp.ok && uploadId);
+  };
+  if (signal) {
+    headers.signal = signal;
+  }
+  return fetch(uploadUrl, headers).then(resp => resp && resp.ok && uploadId);
 }
 
 export function generateRandomId() {
