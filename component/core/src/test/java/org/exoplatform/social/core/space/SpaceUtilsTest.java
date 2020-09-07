@@ -21,6 +21,8 @@ import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -168,5 +170,26 @@ public class SpaceUtilsTest extends AbstractCoreTest {
       assertEquals("newspacetitle", AppName);
     }
 
+  }
+
+  public void testIsRedactor() throws Exception{
+    String REDACTOR = "redactor";
+    String JOHN = "john";
+    String DEMO = "demo";
+    Space space = tearDown.get(0);
+    // No redactor in /spaces/space1 -> john is redactor
+    try {
+      assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+    } catch (Exception e) {
+      LOG.error("Problem executing Test",e);
+      fail();
+    }
+    // Add another redactor in group -> john is no more redactor
+    addUserToGroupWithMembership(DEMO, space.getGroupId(), REDACTOR);
+    assertFalse(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+
+    // add the user with membership redactor -> john is redactor
+    addUserToGroupWithMembership(JOHN, space.getGroupId(), REDACTOR);
+    assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
   }
 }
