@@ -739,6 +739,16 @@
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$MembershipType">
                     <field name="type">
+                      <string>redactor</string>
+                    </field>
+                    <field name="description">
+                      <string>redactor membership type</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$MembershipType">
+                    <field name="type">
                       <string>*</string>
                     </field>
                     <field name="description">

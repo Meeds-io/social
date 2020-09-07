@@ -31,20 +31,14 @@
   ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
   boolean isMainStreamComposerEnabled = System.getProperty("exo.config.mainStreamComposer.enabled").equals("true");
   //check if space has redactors
-  Boolean spaceHasRedactors = false;
   Boolean isCurrentUserRedactor = false;
   if(uicomponent.getSpaceGroupId()) {
     String spaceGroupId = uicomponent.getSpaceGroupId();
-    List<String> spaceRedactors = SpaceUtils.findMembershipUsersByGroupAndTypes(spaceGroupId, "redactor");
-    if (!spaceRedactors.isEmpty()) {
-      spaceHasRedactors = true;
-      //check if connected user is redactor
-      String currentUserId = _ctx.getRequestContext().getRemoteUser();
-      isCurrentUserRedactor = spaceRedactors.contains(currentUserId);
-    }
+    String currentUserId = _ctx.getRequestContext().getRemoteUser();
+    isCurrentUserRedactor = SpaceUtils.isRedactor(currentUserId, spaceGroupId);
   }
   if(featureService.isActiveFeature("new-composer")) {
-    if (uicomponent.getSpaceGroupId() != null && (!spaceHasRedactors || isCurrentUserRedactor) || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
+    if (uicomponent.getSpaceGroupId() != null && isCurrentUserRedactor || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
 %>
 <div id="activityComposer"></div>
 <script>
