@@ -214,6 +214,9 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         if ("manager".equalsIgnoreCase(model.getRole())) {
           spaceService.setManager(givenSpace, user, true);
         }
+        if ("redactor".equalsIgnoreCase(model.getRole())) {
+          spaceService.setRedactor(givenSpace, user, true);
+        }
       } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
@@ -377,6 +380,9 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     //
     String role = idParams[2];
     space.setEditor(authenticatedUser);
+    if (role != null && role.equals("redactor")) {
+      spaceService.setRedactor(space, targetUser, false);
+    }
     if (role != null && role.equals("manager")) {
       spaceService.setManager(space, targetUser, false);
     }

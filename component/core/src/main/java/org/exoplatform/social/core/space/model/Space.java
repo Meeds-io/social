@@ -142,6 +142,8 @@ public class Space {
    */
   private String[] members;
   
+  private String[] redactors;
+  
   /** The Constant ACTIVE_STATUS. */
   public final static String ACTIVE_STATUS = "active";
 
@@ -692,6 +694,20 @@ public class Space {
     this.members = members;
   }
   
+  /**
+   * @return the redactors
+   */
+  public String[] getRedactors() {
+    return redactors;
+  }
+
+  /**
+   * @param redactors the redactors to set
+   */
+  public void setRedactors(String[] redactors) {
+    this.redactors = redactors;
+  }
+
   /**
    * Gets the last updated time in milliseconds of avatar in a space
    * @return {@link Void}

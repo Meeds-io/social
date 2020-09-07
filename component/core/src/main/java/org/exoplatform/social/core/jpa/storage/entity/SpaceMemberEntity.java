@@ -179,6 +179,6 @@ public class SpaceMemberEntity implements Serializable {
   }
 
   public static enum Status {
-    MEMBER, MANAGER, PENDING, INVITED, IGNORED
+    MEMBER, MANAGER, REDACTOR, PENDING, INVITED, IGNORED
   }
 }

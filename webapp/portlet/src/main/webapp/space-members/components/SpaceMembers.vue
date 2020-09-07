@@ -104,12 +104,7 @@ export default {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.isSpaceRedactor;
         },
         click: (user) => {
-          const membership = {
-            groupId: this.space.groupId,
-            userName: user.username,
-            membershipType: 'redactor'
-          };
-          this.$spaceService.setAsRedactor(membership)
+          this.$spaceService.setAsRedactor(eXo.env.portal.spaceDisplayName, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -121,8 +116,7 @@ export default {
           return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager');
         },
         click: (user) => {
-          const id = `redactor:${user.username}:${this.space.groupId}`;
-          this.$spaceService.removeRedactor(id)
+          this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
