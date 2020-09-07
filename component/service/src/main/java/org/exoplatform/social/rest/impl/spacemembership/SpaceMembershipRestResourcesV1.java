@@ -390,6 +390,9 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
       if (spaceService.isManager(space, targetUser)) {
         spaceService.setManager(space, targetUser, false);
       }
+      if (spaceService.isRedactor(space, targetUser)) {
+        spaceService.setRedactor(space, targetUser, false);
+      }
       spaceService.removeMember(space, targetUser);
     }
     //
