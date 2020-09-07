@@ -65,7 +65,7 @@ export default {
         icon: 'uiIconTrash',
         order: 0,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager') && user.isMember && !user.isGroupBound;
+          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && user.isMember && !user.isGroupBound;
         },
         click: (user) => {
           this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
@@ -77,7 +77,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager') && (user.isManager || user.isSpacesManager);
+          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && (user.isManager || user.isSpacesManager);
         },
         click: (user) => {
           this.$spaceService.removeManager(eXo.env.portal.spaceName, user.username)
@@ -89,7 +89,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.isManager;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isManager;
         },
         click: (user) => {
           this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
@@ -101,7 +101,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager') && !user.isSpaceRedactor;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isSpaceRedactor;
         },
         click: (user) => {
           this.$spaceService.setAsRedactor(eXo.env.portal.spaceDisplayName, user.username)
@@ -113,7 +113,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager');
+          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor');
         },
         click: (user) => {
           this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
