@@ -181,6 +181,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     try {
       assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
     } catch (Exception e) {
+      LOG.error("Problem executing Test",e);
       fail();
     }
     // Add another redactor in group -> john is no more redactor

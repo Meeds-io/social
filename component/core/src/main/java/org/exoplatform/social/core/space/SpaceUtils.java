@@ -1801,19 +1801,14 @@ public class SpaceUtils {
    * @throws Exception
    */
   public static boolean isRedactor (String userName, String spaceGroupId) throws Exception{
-    boolean spaceHasRedactorRole = false;
     String REDACTOR_MEMBERSHIP_NAME = "redactor";
 
     List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
     for(MembershipType membershipType : membershipTypes) {
       if(REDACTOR_MEMBERSHIP_NAME.equals(membershipType.getName())) {
-        spaceHasRedactorRole = true;
-        break;
+        return getOrganizationService().getMembershipHandler().
+                findMembershipByUserGroupAndType(userName, spaceGroupId, REDACTOR_MEMBERSHIP_NAME) != null;
       }
-    }
-    if (spaceHasRedactorRole) {
-      return getOrganizationService().getMembershipHandler().
-              findMembershipByUserGroupAndType(userName, spaceGroupId, REDACTOR_MEMBERSHIP_NAME) != null;
     }
     return true;
   }
