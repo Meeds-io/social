@@ -129,7 +129,8 @@ export default {
       } else if (this.filter === 'member'
           || this.filter === 'manager'
           || this.filter === 'invited'
-          || this.filter === 'pending') {
+          || this.filter === 'pending'
+          || this.filter === 'redactor') {
         return this.$spaceService.getSpaceMembers;
       }
     },
