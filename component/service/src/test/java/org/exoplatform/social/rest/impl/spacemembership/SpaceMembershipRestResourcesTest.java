@@ -119,6 +119,14 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     Space space = spaceService.getSpaceByPrettyName("space1");
     assertTrue(ArrayUtils.contains(space.getMembers(), "demo"));
     
+    input = "{\"space\":space1, \"user\":john, \"role\":redactor}";
+    response = getResponse("POST", getURLResource("spacesMemberships"), input);
+    
+    space = spaceService.getSpaceByPrettyName("space1");
+    assertTrue(ArrayUtils.contains(space.getRedactors(), "john"));
+    assertFalse(ArrayUtils.contains(space.getRedactors(), "demo"));
+    assertEquals(1, space.getRedactors().length);
+    
     //demo add mary as member of space1 but has no permission
     startSessionAs("demo");
     input = "{\"space\":space1, \"user\":mary}";
@@ -147,6 +155,12 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     response = service("DELETE", getURLResource("spacesMemberships/" + id), "", null, null);
     assertEquals(200, response.getStatus());
     assertFalse(spaceService.isMember(spaceService.getSpaceByPrettyName("space1"), "demo"));
+    
+    spaceService.addRedactor(spaceService.getSpaceByPrettyName("space1"), "demo");
+    id = "space1:demo:redactor";
+    response = service("DELETE", getURLResource("spacesMemberships/" + id), "", null, null);
+    assertEquals(200, response.getStatus());
+    assertFalse(spaceService.isRedactor(spaceService.getSpaceByPrettyName("space1"), "demo"));
   }
 
   public void testGetInvitedSpaceMemberships() throws Exception {

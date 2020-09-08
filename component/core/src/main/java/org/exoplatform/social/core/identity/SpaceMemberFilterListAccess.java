@@ -60,6 +60,8 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
     MEMBER,
     /** Gets a list of identities who are the leader of  */
     MANAGER,
+    /** Gets a list of identities who are the redactor of  */
+    REDACTOR,
     /** Gets a list of identities who are invited to join the space  */
     INVITED,
     /** Gets a list of identities who are pending of membership approval  */

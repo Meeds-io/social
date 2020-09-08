@@ -420,7 +420,41 @@ public interface SpaceService {
    * @LevelAPI Platform
    */
   boolean isMember(Space space, String userId);
-
+  
+  /**
+   * Assigns the "redactor" role to a user in a space.
+   *
+   * @param space The space that its user is assigned to redactor.
+   * @param userId The remote user Id.
+   * @LevelAPI Platform
+   */
+  default void addRedactor(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * Removes the "redactor" role of a user in a space.
+   *
+   * @param space The space that its user is assigned to redactor.
+   * @param userId The remote user Id.
+   * @LevelAPI Platform
+   */
+  default void removeRedactor(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * Checks if a given user has the "redactor" role in a space.
+   *
+   * @param space The space that its user is checked if he has the "redactor" role or not.
+   * @param userId The remote user Id.
+   * @return "True" if the user has the "redactor" role. Otherwise, it returns "false".
+   * @LevelAPI Platform
+   */
+  default boolean isRedactor(Space space, String userId) {
+    return false;
+  }
+  
   /**
    * Assigns the "manager" role to a user in a space.
    *
@@ -442,7 +476,7 @@ public interface SpaceService {
    * @since  1.2.0-GA
    */
   boolean isManager(Space space, String userId);
-
+  
   /**
    * Checks if a given user is the only one who has the "manager" role in a space.
    *

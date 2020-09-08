@@ -16,13 +16,13 @@
  */
 package org.exoplatform.social.core.space.spi;
 
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
@@ -31,7 +31,10 @@ import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -39,14 +42,15 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.AvatarAttachment;
-import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceListAccess;
+import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class SpaceServiceTest extends AbstractCoreTest {
@@ -1950,6 +1954,37 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue("spaceService.isManager(savedSpace, \"tom\") must return true", spaceService.isManager(savedSpace, "tom"));
     assertFalse("spaceService.isManager(savedSpace, \"mary\") must return false", spaceService.isManager(savedSpace, "mary"));
     assertFalse("spaceService.isManager(savedSpace, \"john\") must return false", spaceService.isManager(savedSpace, "john"));
+  }
+  
+  /**
+   * Test {@link SpaceService#setRedactor(Space, String, boolean)}
+   *
+   * @throws Exception
+   */
+  public void testSetRedactor() throws Exception {
+    Space space = new Space();
+    space.setDisplayName("space1");
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space1");
+    space.setType(DefaultSpaceApplicationHandler.NAME);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setGroupId("/space/space1");
+    space.setUrl(space.getPrettyName());
+    space = spaceService.createSpace(space, "root");
+    String[] members = new String[] { "ghost", "john" };
+    space.setMembers(members);
+    MembershipType redactorMembershipType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
+    redactorMembershipType.setName("redactor");
+    spaceService.addRedactor(space, "ghost");
+    spaceService.addRedactor(space, "john");
+    assertEquals(2, space.getRedactors().length);
+    spaceService.removeRedactor(space, "john");
+    assertEquals(1, space.getRedactors().length);
+    assertTrue(spaceService.isRedactor(space, "ghost"));
+    assertFalse(spaceService.isRedactor(space, "john"));
   }
 
   /**
