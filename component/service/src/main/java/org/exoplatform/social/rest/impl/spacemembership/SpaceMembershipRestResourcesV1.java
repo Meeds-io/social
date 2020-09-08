@@ -215,7 +215,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
           spaceService.setManager(givenSpace, user, true);
         }
         if ("redactor".equalsIgnoreCase(model.getRole())) {
-          spaceService.setRedactor(givenSpace, user, true);
+          spaceService.addRedactor(givenSpace, user);
         }
       } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -381,7 +381,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     String role = idParams[2];
     space.setEditor(authenticatedUser);
     if (role != null && role.equals("redactor")) {
-      spaceService.setRedactor(space, targetUser, false);
+      spaceService.removeRedactor(space, targetUser);
     }
     if (role != null && role.equals("manager")) {
       spaceService.setManager(space, targetUser, false);
@@ -391,7 +391,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         spaceService.setManager(space, targetUser, false);
       }
       if (spaceService.isRedactor(space, targetUser)) {
-        spaceService.setRedactor(space, targetUser, false);
+        spaceService.removeRedactor(space, targetUser);
       }
       spaceService.removeMember(space, targetUser);
     }

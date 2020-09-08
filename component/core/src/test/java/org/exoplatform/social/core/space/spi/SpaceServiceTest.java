@@ -1978,10 +1978,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setMembers(members);
     MembershipType redactorMembershipType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
     redactorMembershipType.setName("redactor");
-    spaceService.setRedactor(space, "ghost", true);
-    spaceService.setRedactor(space, "john", true);
+    spaceService.addRedactor(space, "ghost");
+    spaceService.addRedactor(space, "john");
     assertEquals(2, space.getRedactors().length);
-    spaceService.setRedactor(space, "john", false);
+    spaceService.removeRedactor(space, "john");
     assertEquals(1, space.getRedactors().length);
     assertTrue(spaceService.isRedactor(space, "ghost"));
     assertFalse(spaceService.isRedactor(space, "john"));

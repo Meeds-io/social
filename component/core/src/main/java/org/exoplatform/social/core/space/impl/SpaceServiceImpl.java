@@ -1513,24 +1513,27 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
-  public void setRedactor(Space space, String userId, boolean isRedactor) {
+  public void addRedactor(Space space, String userId) {
     String[] redactors = space.getRedactors();
-    if (isRedactor) {
-      if (!ArrayUtils.contains(redactors, userId)) {
-        redactors = (String[]) ArrayUtils.add(redactors, userId);
-        space.setRedactors(redactors);
-        this.updateSpace(space);
-        SpaceUtils.addUserToGroupWithRedactorMembership(userId, space.getGroupId());
-      }
-    } else {
-      if (ArrayUtils.contains(redactors, userId)) {
-        redactors = (String[]) ArrayUtils.removeElement(redactors, userId);
-        space.setRedactors(redactors);
-        this.updateSpace(space);
-        SpaceUtils.removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
-      }
+    if (!ArrayUtils.contains(redactors, userId)) {
+      redactors = (String[]) ArrayUtils.add(redactors, userId);
+      space.setRedactors(redactors);
+      this.updateSpace(space);
+      SpaceUtils.addUserToGroupWithRedactorMembership(userId, space.getGroupId());
     }
-   
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void removeRedactor(Space space, String userId) {
+    String[] redactors = space.getRedactors();
+    if (ArrayUtils.contains(redactors, userId)) {
+      redactors = (String[]) ArrayUtils.removeElement(redactors, userId);
+      space.setRedactors(redactors);
+      this.updateSpace(space);
+      SpaceUtils.removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
+    }
   }
 
   /**

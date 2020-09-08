@@ -156,7 +156,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     assertFalse(spaceService.isMember(spaceService.getSpaceByPrettyName("space1"), "demo"));
     
-    spaceService.setRedactor(spaceService.getSpaceByPrettyName("space1"), "demo", true);
+    spaceService.addRedactor(spaceService.getSpaceByPrettyName("space1"), "demo");
     id = "space1:demo:redactor";
     response = service("DELETE", getURLResource("spacesMemberships/" + id), "", null, null);
     assertEquals(200, response.getStatus());
