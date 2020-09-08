@@ -334,23 +334,28 @@ export function removeManager(spacePrettyName, username) {
   });
 }
 
-export function setAsRedactor(membership) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${membership.id || ''}`, {
+export function setAsRedactor(spaceDisplayName, userId) {
+  return fetch('/portal/rest/v1/social/spacesMemberships', {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(membership),
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      role: 'redactor',
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
-      throw new Error(`Error while setting user ${membership.userId} as a redactor in ${membership.spaceName} space`, resp);
+      throw new Error(`Error while setting user ${userId} as a redactor in ${spaceDisplayName} space`, resp);
     }
   });
 }
 
-export function removeRedactor(id) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${id}`, {
+export function removeRedactor(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:redactor`;
+  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {

@@ -91,6 +91,8 @@ public class SpaceUtils {
   public static final String                                  MANAGER               = "manager";
 
   public static final String                                  MEMBER                = "member";
+  
+  public static final String                                  REDACTOR              = "redactor";
 
   public static final String                                  MENU_CONTAINER        = "Menu";
 
@@ -834,6 +836,13 @@ public class SpaceUtils {
         removeUserFromGroupWithManagerMembership(userId, space.getGroupId());
       }
     }
+    
+    // remove users from group with role is redactor
+    if (space.getRedactors() != null) {
+      for (String userId : space.getRedactors()) {
+        removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
+      }
+    }
   }
 
   /**
@@ -907,6 +916,16 @@ public class SpaceUtils {
   public static void addUserToGroupWithMemberMembership(String remoteId, String groupId) {
     addUserToGroupWithMembership(remoteId, groupId, MEMBER);
   }
+  
+  /**
+   * Adds the user to group with the membership (redactor).
+   * 
+   * @param remoteId
+   * @param groupId
+   */
+  public static void addUserToGroupWithRedactorMembership(String remoteId, String groupId) {
+    addUserToGroupWithMembership(remoteId, groupId, REDACTOR);
+  }
 
   /**
    * Adds the user to group with the membership (manager).
@@ -920,7 +939,7 @@ public class SpaceUtils {
   }
 
   /**
-   * Removes the user from group with the membership (member, manager).
+   * Removes the user from group with the membership (member, manager, redactor).
    * 
    * @param remoteId
    * @param groupId
@@ -942,10 +961,10 @@ public class SpaceUtils {
           Membership mbShip = itr.next();
           memberShipHandler.removeMembership(mbShip.getId(), true);
         }
-      } else if (getUserACL().getAdminMSType().equals(membership)) {
+      } else {
         Membership memberShip = memberShipHandler.findMembershipByUserGroupAndType(remoteId,
                                                                                    groupId,
-                                                                                   getUserACL().getAdminMSType());
+                                                                                   membership);
         Membership any = memberShipHandler.findMembershipByUserGroupAndType(remoteId,
                                                                             groupId,
                                                                             MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
@@ -953,7 +972,7 @@ public class SpaceUtils {
           memberShipHandler.removeMembership(any.getId(), true);
         }
         if (memberShip == null) {
-          LOG.info("User: " + remoteId + " is not a manager of group: " + groupId);
+          LOG.info("User: " + remoteId + " is not a " + membership + " of group: " + groupId);
           return;
         }
         UserHandler userHandler = organizationService.getUserHandler();
@@ -978,6 +997,16 @@ public class SpaceUtils {
    */
   public static void removeUserFromGroupWithMemberMembership(String remoteId, String groupId) {
     removeUserFromGroupWithMembership(remoteId, groupId, MEMBER);
+  }
+  
+  /**
+   * Removes the user from group with redactor membership.
+   * 
+   * @param remoteId
+   * @param groupId
+   */
+  public static void removeUserFromGroupWithRedactorMembership(String remoteId, String groupId) {
+    removeUserFromGroupWithMembership(remoteId, groupId, REDACTOR);
   }
 
   /**

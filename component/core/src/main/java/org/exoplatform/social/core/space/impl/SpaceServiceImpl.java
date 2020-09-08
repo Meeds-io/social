@@ -17,14 +17,24 @@
 package org.exoplatform.social.core.space.impl;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import org.exoplatform.application.registry.*;
-import org.exoplatform.commons.api.notification.model.*;
+import org.exoplatform.application.registry.Application;
+import org.exoplatform.application.registry.ApplicationCategory;
+import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.model.PluginKey;
+import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -35,8 +45,14 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.services.security.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -44,11 +60,22 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
+import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceLifecycle;
+import org.exoplatform.social.core.space.SpaceListAccess;
+import org.exoplatform.social.core.space.SpaceListenerPlugin;
+import org.exoplatform.social.core.space.SpaceTemplate;
+import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.model.Space.UpdatedField;
-import org.exoplatform.social.core.space.spi.*;
+import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 
@@ -1411,6 +1438,13 @@ public class SpaceServiceImpl implements SpaceService {
   public boolean isManager(Space space, String userId) {
     return ArrayUtils.contains(space.getManagers(), userId);
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isRedactor(Space space, String userId) {
+    return ArrayUtils.contains(space.getRedactors(), userId);
+  }
 
   /**
    * {@inheritDoc}
@@ -1473,6 +1507,32 @@ public class SpaceServiceImpl implements SpaceService {
       }
     } else {
       LOG.error("Cannot update web notfication. WebNotificationService is null");
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void addRedactor(Space space, String userId) {
+    String[] redactors = space.getRedactors();
+    if (!ArrayUtils.contains(redactors, userId)) {
+      redactors = (String[]) ArrayUtils.add(redactors, userId);
+      space.setRedactors(redactors);
+      this.updateSpace(space);
+      SpaceUtils.addUserToGroupWithRedactorMembership(userId, space.getGroupId());
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void removeRedactor(Space space, String userId) {
+    String[] redactors = space.getRedactors();
+    if (ArrayUtils.contains(redactors, userId)) {
+      redactors = (String[]) ArrayUtils.removeElement(redactors, userId);
+      space.setRedactors(redactors);
+      this.updateSpace(space);
+      SpaceUtils.removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
     }
   }
 
