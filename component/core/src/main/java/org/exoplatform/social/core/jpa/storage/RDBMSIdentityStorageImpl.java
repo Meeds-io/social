@@ -759,6 +759,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     case MANAGER:
       status = Status.MANAGER;
       break;
+    case REDACTOR:
+      status = Status.REDACTOR;
+      break;
     case INVITED:
       status = Status.INVITED;
       break;

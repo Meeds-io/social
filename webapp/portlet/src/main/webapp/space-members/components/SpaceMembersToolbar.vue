@@ -128,6 +128,9 @@ export default {
           text: this.$t('peopleList.label.filter.manager'),
           value: 'manager',
         },{
+          text: this.$t('peopleList.label.filter.redactor'),
+          value: 'redactor',
+        },{
           text: this.$t('peopleList.label.filter.invited'),
           value: 'invited',
         },{
