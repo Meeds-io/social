@@ -428,7 +428,9 @@ public interface SpaceService {
    * @param userId The remote user Id.
    * @LevelAPI Platform
    */
-  void addRedactor(Space space, String userId);
+  default void addRedactor(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
   
   /**
    * Removes the "redactor" role of a user in a space.
@@ -437,7 +439,9 @@ public interface SpaceService {
    * @param userId The remote user Id.
    * @LevelAPI Platform
    */
-  void removeRedactor(Space space, String userId);
+  default void removeRedactor(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
   
   /**
    * Checks if a given user has the "redactor" role in a space.
@@ -447,7 +451,9 @@ public interface SpaceService {
    * @return "True" if the user has the "redactor" role. Otherwise, it returns "false".
    * @LevelAPI Platform
    */
-  boolean isRedactor(Space space, String userId);
+  default boolean isRedactor(Space space, String userId) {
+    return false;
+  }
   
   /**
    * Assigns the "manager" role to a user in a space.
