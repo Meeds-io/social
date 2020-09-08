@@ -16,7 +16,7 @@
     <li>
       <a onclick="$unlikeActivityAction" rel="tooltip" data-placement="bottom" title="<%=_ctx.appRes("UIActivity.msg.UnlikeActivity"); %>" id="UnLikeLink${activity.id}" href="javascript:void(0);">
         <i class="uiIconThumbUp uiIconBlue"></i>
-        <span class="LikeLabel reactionLabel">$labelLike</span>
+        <span class="LikeLabel reactionLabel uiIconBlue">$labelLike</span>
       </a>
     </li>
   <% } else { %>
