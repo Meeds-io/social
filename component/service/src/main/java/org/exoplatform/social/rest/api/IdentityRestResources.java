@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.exoplatform.social.rest.entity.IdentityEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 
 public interface IdentityRestResources extends SocialRest {
@@ -74,6 +75,23 @@ public interface IdentityRestResources extends SocialRest {
   public abstract Response getIdentityById(@Context UriInfo uriInfo,
                                            @PathParam("id") String id,
                                            @QueryParam("expand") String expand) throws Exception;
+  
+
+  /**
+   * Return an identity identified by its providerId and remoteId
+   * 
+   * @param uriInfo
+   * @param providerId
+   * @param remoteId
+   * @param expand
+   * @return {@link Response} containing {@link IdentityEntity}
+   */
+  @GET
+  @Path("{providerId}/{remoteId}")
+  public Response getIdentityProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                   @PathParam("providerId") String providerId,
+                                                   @PathParam("remoteId") String remoteId,
+                                                   @QueryParam("expand") String expand);
 
   /**
    * Process to update an identity by id

@@ -30,20 +30,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
@@ -156,7 +147,6 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     return EntityBuilder.getResponse(identityInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
-
   /**
    * {@inheritDoc}
    */
@@ -184,7 +174,44 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
     return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  @GET
+  @Path("{providerId}/{remoteId}")
+  @RolesAllowed("users")
+  @ApiOperation(
+      value = "Gets an identity by id",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns the identity if the authenticated user has permissions to view the object linked to this identity."
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input") }
+  )
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getIdentityProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                   @ApiParam(
+                                                       value = "Identity provider id which can be of type 'space' or 'organization' for example",
+                                                       required = true
+                                                   ) @PathParam("providerId") String providerId,
+                                                   @ApiParam(
+                                                       value = "Identity id which is the unique name (remote id) of identity",
+                                                       required = true
+                                                   ) @PathParam("remoteId") String remoteId,
+                                                   @ApiParam(
+                                                       value = "Asking for a full representation of a specific subresource if any",
+                                                       required = false
+                                                   ) @QueryParam("expand") String expand) {
+    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId);
+    if (identity == null) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
+    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
   /**
    *
    * @param uriInfo

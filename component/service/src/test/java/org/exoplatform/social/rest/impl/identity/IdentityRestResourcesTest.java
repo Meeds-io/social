@@ -5,7 +5,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
-import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
@@ -42,6 +42,19 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     assertEquals(4, collections.getEntities().size());
   }
   
+  
+  public void testGetIdentityProviderIdAndRemoteId() throws Exception {
+    startSessionAs("root");
+    ContainerResponse response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/organization/root", "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    DataEntity identityEntity = (DataEntity) response.getEntity();
+    assertNotNull(identityEntity);
+    assertEquals("root", identityEntity.get("remoteId"));
+    assertEquals("organization", identityEntity.get("providerId"));
+    assertNotNull(identityEntity.get("id"));
+  }
+
   public void testGetCommonConnectionsWithIdentity() throws Exception {
     startSessionAs("root");
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
