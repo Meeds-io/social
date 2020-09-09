@@ -327,14 +327,16 @@ export default {
 
       this.saving = true;
       this.membership.groupId = this.group.id;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id || ''}`, {
+      const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'multiMemberships' : 'memberships'}?membershipId=${this.membership.id || ''}`;
+      const init = {
         method: this.newMembership && 'POST' || 'PUT',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.membership),
-      }).then(resp => {
+        body: JSON.stringify(this.newMembership ? this.memberships : this.membership),
+      };
+      return fetch(input, init).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
             return resp.text().then(error => {
