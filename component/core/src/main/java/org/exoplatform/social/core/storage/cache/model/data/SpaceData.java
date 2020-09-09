@@ -49,6 +49,7 @@ public class SpaceData implements CacheData<Space> {
   private final Long createdTime;
 
   private final String[] members;
+  private final String[] redactors;
   private final String[] managers;
   private final String[] pendingUser;
   private final String[] invitedUser;
@@ -72,6 +73,7 @@ public class SpaceData implements CacheData<Space> {
     url = space.getUrl();
 
     members = space.getMembers();
+    redactors = space.getRedactors();
     managers = space.getManagers();
     pendingUser = space.getPendingUsers();
     invitedUser = space.getInvitedUsers();
@@ -99,6 +101,7 @@ public class SpaceData implements CacheData<Space> {
     space.setGroupId(groupId);
     space.setUrl(url);
     space.setMembers(members);
+    space.setRedactors(redactors);
     space.setManagers(managers);
     space.setPendingUsers(pendingUser);
     space.setInvitedUsers(invitedUser);
@@ -159,6 +162,10 @@ public class SpaceData implements CacheData<Space> {
   public String[] getMembers() {
     return members;
   }
+  
+  public String[] getRedactors() {
+    return redactors;
+  }
 
   public String[] getManagers() {
     return managers;
@@ -198,6 +205,7 @@ public class SpaceData implements CacheData<Space> {
             Objects.equals(bannerLastUpdated, spaceData.bannerLastUpdated) &&
             Objects.equals(createdTime, spaceData.createdTime) &&
             Arrays.equals(members, spaceData.members) &&
+            Arrays.equals(redactors, spaceData.redactors) &&
             Arrays.equals(managers, spaceData.managers) &&
             Arrays.equals(pendingUser, spaceData.pendingUser) &&
             Arrays.equals(invitedUser, spaceData.invitedUser);
@@ -207,6 +215,6 @@ public class SpaceData implements CacheData<Space> {
   public int hashCode() {
     return Objects.hash(id, app, prettyName, displayName, registration, description, type, visibility,
             priority, avatarUrl, bannerUrl, groupId, url, avatarLastUpdated, bannerLastUpdated, createdTime,
-            members, managers, pendingUser, invitedUser);
+            members, managers, redactors, pendingUser, invitedUser);
   }
 }
