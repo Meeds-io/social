@@ -24,8 +24,8 @@ export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
   });
 }
 
-export function getSpaceById(spaceId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}`, {
+export function getSpaceById(spaceId, expand) {
+  return fetch(`/portal/rest/v1/social/spaces/${spaceId}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -37,8 +37,8 @@ export function getSpaceById(spaceId) {
   });
 }
 
-export function getSpaceByPrettyName(prettyName) {
-  return fetch(`/portal/rest/v1/social/spaces/byPrettyName/${prettyName}`, {
+export function getSpaceByPrettyName(prettyName, expand) {
+  return fetch(`/portal/rest/v1/social/spaces/byPrettyName/${prettyName}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -50,8 +50,8 @@ export function getSpaceByPrettyName(prettyName) {
   });
 }
 
-export function getSpaceByDisplayName(displayName) {
-  return fetch(`/portal/rest/v1/social/spaces/byDisplayName/${displayName}`, {
+export function getSpaceByDisplayName(displayName, expand) {
+  return fetch(`/portal/rest/v1/social/spaces/byDisplayName/${displayName}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
