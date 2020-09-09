@@ -90,6 +90,40 @@ public interface SpaceRestResources extends SocialRest {
                                         @QueryParam("expand") String expand) throws Exception;
 
   /**
+   * Process to return a space by pretty name
+   * 
+   * @param uriInfo
+   * @param prettyName
+   * @param expand
+   * @return
+   * @throws Exception
+   */
+  @GET
+  @Path("{prettyName}")
+  public abstract Response getSpaceByPrettyName(@Context UriInfo uriInfo,
+                                                @PathParam(
+                                                  "prettyName"
+                                                ) String prettyName,
+                                                @QueryParam("expand") String expand) throws Exception;
+
+  /**
+   * Process to return a space by display name
+   * 
+   * @param uriInfo
+   * @param displayName
+   * @param expand
+   * @return
+   * @throws Exception
+   */
+  @GET
+  @Path("{displayName}")
+  public abstract Response getSpaceByDisplayName(@Context UriInfo uriInfo,
+                                                 @PathParam(
+                                                   "displayName"
+                                                 ) String displayName,
+                                                 @QueryParam("expand") String expand) throws Exception;
+
+  /**
    * Process to update a space by id
    * 
    * @param uriInfo

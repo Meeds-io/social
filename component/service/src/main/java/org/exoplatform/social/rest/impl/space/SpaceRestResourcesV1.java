@@ -287,7 +287,85 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @GET
+  @Path("byPrettyName/{prettyName}")
+  @RolesAllowed("users")
+  @ApiOperation(
+      value = "Gets a specific space by pretty name",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input") }
+  )
+  public Response getSpaceByPrettyName(@Context UriInfo uriInfo,
+                                       @ApiParam(value = "Space id", required = true) @PathParam(
+                                         "prettyName"
+                                       ) String prettyName,
+                                       @ApiParam(
+                                           value = "Asking for a full representation of a specific subresource, ex: members or managers",
+                                           required = false
+                                       ) @QueryParam("expand") String expand) throws Exception {
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceByPrettyName(prettyName);
+    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
+        && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
+                                     uriInfo,
+                                     RestUtils.getJsonMediaType(),
+                                     Response.Status.OK);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @GET
+  @Path("byDisplayName/{displayName}")
+  @RolesAllowed("users")
+  @ApiOperation(
+      value = "Gets a specific space by display name",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input") }
+  )
+  public Response getSpaceByDisplayName(@Context UriInfo uriInfo,
+                                        @ApiParam(value = "Space id", required = true) @PathParam(
+                                          "displayName"
+                                        ) String displayName,
+                                        @ApiParam(
+                                            value = "Asking for a full representation of a specific subresource, ex: members or managers",
+                                            required = false
+                                        ) @QueryParam("expand") String expand) throws Exception {
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Space space = spaceService.getSpaceByDisplayName(displayName);
+    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
+        && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
+                                     uriInfo,
+                                     RestUtils.getJsonMediaType(),
+                                     Response.Status.OK);
+  }
+
   @GET
   @Path("{id}/avatar")
   @RolesAllowed("users")

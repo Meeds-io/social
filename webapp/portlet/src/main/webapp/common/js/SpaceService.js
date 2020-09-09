@@ -37,6 +37,32 @@ export function getSpaceById(spaceId) {
   });
 }
 
+export function getSpaceByPrettyName(prettyName) {
+  return fetch(`/portal/rest/v1/social/spaces/byPrettyName/${prettyName}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceByDisplayName(displayName) {
+  return fetch(`/portal/rest/v1/social/spaces/byDisplayName/${displayName}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getSpaceApplications(spaceId) {
   return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
     method: 'GET',
