@@ -261,9 +261,6 @@ export default {
         this.$refs.membershipFormDrawer.close();
       }
     },
-    membershipType() {
-      this.memberships.forEach(membership => membership.membershipType = this.membershipType);
-    },
     selectedUsers() {
       this.selectedUsers.forEach(user => {
         if (!this.memberships.some(membership => membership.userName === user)) {
@@ -298,12 +295,16 @@ export default {
       this.$refs.membershipTypeInput.setCustomValidity('');
     },
     addNewMembership(group) {
+      this.membershipType = null;
+      this.selectedUsers = [];
       this.membership = {};
       this.group = group;
       this.newMembership = true;
       this.drawer = true;
     },
     editMembership(membership, group) {
+      this.membershipType = null;
+      this.selectedUsers = [];
       this.membership = Object.assign({}, membership);
       this.group = group;
       this.newMembership = false;
@@ -327,6 +328,9 @@ export default {
 
       this.saving = true;
       this.membership.groupId = this.group.id;
+      
+      // set the membershipType for each membership
+      this.memberships.forEach(membership => membership.membershipType = this.membershipType);
       const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'multiMemberships' : 'memberships'}?membershipId=${this.membership.id || ''}`;
       const init = {
         method: this.newMembership && 'POST' || 'PUT',
@@ -350,7 +354,10 @@ export default {
       }).then(() => this.$root.$emit('refreshGroupMemberships'))
         .then(() => this.$refs.membershipFormDrawer.close())
         .catch(this.handleError)
-        .finally(() => this.saving = false);
+        .finally(() => {
+          this.memberships = [];
+          this.saving = false;
+        });
     },
     cancel() {
       this.drawer = false;
