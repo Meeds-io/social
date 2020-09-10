@@ -539,11 +539,11 @@ public class PeopleRestService implements ResourceContainer{
     SpaceService spaceSrv = getSpaceService(); 
     for (Identity identity : identities) {
       String fullName = identity.getProfile().getFullName();
-      String userName = (String) identity.getProfile().getProperty(Profile.USERNAME); 
+      String userName = identity.getRemoteId();
       Option opt = new Option();
       if (SPACE_MEMBER.equals(typeOfRelation) && spaceSrv.isMember(space, userName)) {
         opt.setType("user");
-        opt.setValue(fullName);
+        opt.setValue(userName);
         opt.setText(fullName);
         opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
       } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!spaceSrv.isInvitedUser(space, userName)
