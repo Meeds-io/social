@@ -43,7 +43,7 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
   }
   
   
-  public void testGetIdentityProviderIdAndRemoteId() throws Exception {
+  public void testGetIdentityByProviderIdAndRemoteId() throws Exception {
     startSessionAs("root");
     ContainerResponse response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/organization/root", "", null, null);
     assertNotNull(response);
