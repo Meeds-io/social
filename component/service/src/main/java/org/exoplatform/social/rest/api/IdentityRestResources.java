@@ -88,7 +88,7 @@ public interface IdentityRestResources extends SocialRest {
    */
   @GET
   @Path("{providerId}/{remoteId}")
-  public Response getIdentityProviderIdAndRemoteId(@Context UriInfo uriInfo,
+  public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
                                                    @PathParam("providerId") String providerId,
                                                    @PathParam("remoteId") String remoteId,
                                                    @QueryParam("expand") String expand);
