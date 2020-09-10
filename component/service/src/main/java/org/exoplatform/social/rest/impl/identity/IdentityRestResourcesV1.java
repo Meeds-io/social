@@ -191,7 +191,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getIdentityProviderIdAndRemoteId(@Context UriInfo uriInfo,
+  public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
                                                    @ApiParam(
                                                        value = "Identity provider id which can be of type 'space' or 'organization' for example",
                                                        required = true
