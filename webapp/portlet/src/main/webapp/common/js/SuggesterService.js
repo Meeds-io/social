@@ -1,3 +1,5 @@
+import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
+
 export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
@@ -61,4 +63,69 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
         }
       }
     });
+}
+
+export function convertIdentityToSuggesterItem(identity) {
+  if (!identity) {
+    return null;
+  }
+
+  const suggesterIdentity = {
+    id: `${identity.providerId}:${identity.remoteId}`,
+    providerId: identity.providerId,
+    remoteId: identity.remoteId
+  };
+
+  const profile = identity.profile || identity.space;
+  if (profile) {
+    suggesterIdentity.profile = {
+      avatarUrl: profile.avatarUrl || profile.avatar,
+      fullName: profile.displayName || profile.fullname || profile.fullName,
+    };
+  }
+  return suggesterIdentity;
+}
+
+export function convertSuggesterItemToIdentity(suggesterIdentity) {
+  if (!convertSuggesterItemToIdentity) {
+    return null;
+  }
+  
+  const identity = {
+    providerId: suggesterIdentity.providerId,
+    remoteId: suggesterIdentity.remoteId,
+  };
+  
+  const profile = suggesterIdentity.profile;
+  if (profile) {
+    identity.profile = {
+      avatar: profile.avatarUrl,
+      fullname: profile.fullName,
+    };
+  }
+  return identity;
+}
+
+export function getSuggesterItemByIdentityId(identityId) {
+  if (!identityId) {
+    return Promise.resolve(null);
+  }
+
+  return getIdentityById(identityId)
+    .then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Response code indicates a server error', resp);
+      } else {
+        return resp.json();
+      }
+    })
+    .then(convertIdentityToSuggesterItem);
+}
+
+export function getSuggesterItemToIdentity(suggesterIdentity) {
+  if (!suggesterIdentity || !suggesterIdentity.providerId || !suggesterIdentity.remoteId) {
+    return Promise.resolve(null);
+  }
+
+  return getIdentityByProviderIdAndRemoteId(suggesterIdentity.providerId, suggesterIdentity.remoteId);
 }
