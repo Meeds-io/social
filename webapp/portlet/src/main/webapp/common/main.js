@@ -4,6 +4,7 @@ import * as userService from './js/UserService.js';
 import * as spaceService from './js/SpaceService.js';
 import * as suggesterService from './js/SuggesterService.js';
 import * as uploadService from './js/UploadService.js';
+import * as identityService from './js/IdentityService.js';
 import * as dateUtil from './js/DateUtil.js';
 
 // get overrided components if exists
@@ -30,6 +31,9 @@ window.Object.defineProperty(Vue.prototype, '$suggesterService', {
 });
 window.Object.defineProperty(Vue.prototype, '$uploadService', {
   value: uploadService,
+});
+window.Object.defineProperty(Vue.prototype, '$identityService', {
+  value: identityService,
 });
 window.Object.defineProperty(Vue.prototype, '$dateUtil', {
   value: dateUtil,

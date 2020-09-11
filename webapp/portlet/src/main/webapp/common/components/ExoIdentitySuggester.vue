@@ -224,7 +224,7 @@ export default {
     remove(item) {
       if(this.value) {
         if(this.value.splice) {
-          const index = this.value.indexOf(item);
+          const index = this.value.findIndex(val => val.id === item.id);
           if (index >= 0){
             this.value.splice(index, 1);
           }

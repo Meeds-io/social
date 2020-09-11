@@ -232,7 +232,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals("social", space.getDisplayName());
   }
 
-  public void testGetSpace() throws Exception {
+  public void testGetSpaceById() throws Exception {
     startSessionAs("root");
     String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
     //root creates a space
@@ -246,6 +246,50 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
 
     // Get space by its id
     response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity);
+    assertEquals("test space", spaceEntity.getDisplayName());
+  }
+
+  public void testGetSpaceByPrettyName() throws Exception {
+    startSessionAs("root");
+    String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+    // root creates a space
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    Space space = spaceService.getSpaceById(spaceEntity.getId());
+    assertNotNull(space);
+
+    // Get space by its pretty name
+    response = service("GET", getURLResource("spaces/byPrettyName/" + space.getPrettyName()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity);
+    assertEquals("test space", spaceEntity.getDisplayName());
+  }
+
+  public void testGetSpaceByDisplayName() throws Exception {
+    startSessionAs("root");
+    String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+    // root creates a space
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    Space space = spaceService.getSpaceById(spaceEntity.getId());
+    assertNotNull(space);
+
+    // Get space by its display name
+    response = service("GET", getURLResource("spaces/byDisplayName/" + space.getDisplayName().replaceAll(" ", "%20")), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 

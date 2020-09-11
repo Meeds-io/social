@@ -331,7 +331,7 @@ export default {
       
       // set the membershipType for each membership
       this.memberships.forEach(membership => membership.membershipType = this.membershipType);
-      const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'multiMemberships' : 'memberships'}?membershipId=${this.membership.id || ''}`;
+      const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'memberships/bulk' : 'memberships'}?membershipId=${this.membership.id || ''}`;
       const init = {
         method: this.newMembership && 'POST' || 'PUT',
         credentials: 'include',
