@@ -69,7 +69,7 @@
               :items="users"
               :search-input.sync="searchTerm"
               :placeholder="$t('GroupsManagement.addMemberInGroup')"
-              :required="!membership.userName"
+              :required="!selectedUsers.length"
               :return-object="false"
               name="membershipUser"
               height="100"
