@@ -396,6 +396,7 @@ export default {
     },
     removeMemberShip(user) {
       this.memberships.splice(this.memberships.findIndex(membership => membership.userName === user.userName), 1);
+      this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
     }
   },
 };
