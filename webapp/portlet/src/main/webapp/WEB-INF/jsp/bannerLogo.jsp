@@ -20,7 +20,7 @@
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
     Branding branding = brandingService.getBrandingInformation();
     Logo logo = branding.getLogo();
-    logoPath = "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
+    logoPath = logo == null ? null : "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
     logoTitle = branding.getCompanyName();
 
     UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
@@ -54,9 +54,11 @@
     <div class="v-application--wrap">
       <div class="container pa-0 pl-3">
         <div class="d-flex mx-0 pa-0">
+          <% if (logoPath != null) { %>
           <a id="UserHomePortalLink" href="<%=portalPath%>" class="pr-3 logoContainer">
             <img src="<%=logoPath%>" class="<%=imageClass%>" alt="Logo">
           </a>
+          <% } %>
           <a href="<%=portalPath%>" title="<%=logoTitle%>" class="pl-2 align-self-center brandingContainer <%=titleClass%>">
             <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
               <%= logoTitle%>
