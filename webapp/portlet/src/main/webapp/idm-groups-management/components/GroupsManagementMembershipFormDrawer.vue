@@ -69,7 +69,7 @@
               :items="users"
               :search-input.sync="searchTerm"
               :placeholder="$t('GroupsManagement.addMemberInGroup')"
-              :required="!membership.userName"
+              :required="!selectedUsers.length"
               :return-object="false"
               name="membershipUser"
               height="100"
@@ -88,6 +88,7 @@
               dense
               flat
               multiple
+              @change="clearSearch"
               @update:search-input="searchTerm = $event">
               <template slot="no-data">
                 <v-list-item class="pa-0">
@@ -266,7 +267,7 @@ export default {
         if (!this.memberships.some(membership => membership.userName === user)) {
           this.memberships.push({
             groupId: this.group.id,
-            membershipType: this.membership.membershipType,
+            membershipType: this.membershipType,
             userName: user
           });
         }
@@ -295,7 +296,7 @@ export default {
       this.$refs.membershipTypeInput.setCustomValidity('');
     },
     addNewMembership(group) {
-      this.membershipType = null;
+      this.membershipType = 'member';
       this.selectedUsers = [];
       this.membership = {};
       this.group = group;
@@ -396,6 +397,10 @@ export default {
     },
     removeMemberShip(user) {
       this.memberships.splice(this.memberships.findIndex(membership => membership.userName === user.userName), 1);
+      this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
+    },
+    clearSearch() {
+      this.searchTerm = null;
     }
   },
 };
