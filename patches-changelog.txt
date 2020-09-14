@@ -2,4 +2,17 @@
 
    # 6.0.0 Patches changelog: 
 
+* 2020-09-14: Patch-6.0.0:1, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
 
+  -  https://github.com/Meeds-io/gatein-sso/commit/71682632c044c7c22df62445b301ab2ddc7ac720
+
+* 2020-09-14: Patch-6.0.0:2, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
+
+  -  https://github.com/exo-addons/saml2-addon/pull/6
+  
+  * 2020-09-14: Patch-6.0.0:3, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
+
+  -	https://github.com/Meeds-io/core/pull/11
+  -	https://github.com/Meeds-io/gatein-portal/pull/68
+  -	https://github.com/Meeds-io/social/pull/258
+  -	https://github.com/exoplatform/news/pull/38
