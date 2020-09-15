@@ -70,7 +70,6 @@ export default {
   methods: {
     save() {
       this.error = null;
-      const regex = /^[^\s]+(\s+[^\s]+)*$/;
 
       const experiences = this.experiences.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
       for (const experience of experiences) {
@@ -80,35 +79,29 @@ export default {
         }
         
         if (this.$refs.profileContactForm.$el[1]) {
+          experience.company = experience.company.trim();
           if (experience.company && experience.company.length > 250 || experience.company && experience.company.length < 3) {
             this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.company'),
               1: 3,
               2: 250,
             }));
-          } else if (!regex.test(experience.company)) {
-            this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidField', { 
-              0: this.$t('profileWorkExperiences.company')
-            }));
           } else if (experience.company) {
             this.$refs.profileContactForm.$el[1].setCustomValidity('');
-          }
+          }            
         }
         
         if (this.$refs.profileContactForm.$el[2]) {
+          experience.position = experience.position.trim();
           if (experience.position && experience.position.length > 100 || experience.position && experience.position.length < 3) {
             this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.jobTitle'),
               1: 3,
               2: 100,
             }));
-          } else if (!regex.test(experience.position)) {
-            this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidField', {
-              0: this.$t('profileWorkExperiences.jobTitle')
-            }));
           } else if (experience.position) {
             this.$refs.profileContactForm.$el[2].setCustomValidity('');
-          }
+          }            
         }
         
         if (this.$refs.profileContactForm.$el[3]) {
@@ -120,7 +113,7 @@ export default {
             }));
           } else if (experience.description) {
             this.$refs.profileContactForm.$el[3].setCustomValidity('');
-          }
+          }            
         }
         
         if (experience.endDate && new Date(experience.endDate) > new Date()) {
