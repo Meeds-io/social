@@ -105,7 +105,7 @@
                     class="my-0" />
                   <v-radio
                     :label="$t('spacesList.label.closed')"
-                    value="closed"
+                    value="close"
                     class="my-0" />
                 </v-radio-group>
               </div>
