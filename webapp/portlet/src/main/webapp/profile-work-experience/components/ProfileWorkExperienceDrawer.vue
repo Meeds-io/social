@@ -79,6 +79,7 @@ export default {
         }
         
         if (this.$refs.profileContactForm.$el[1]) {
+          experience.company = experience.company.trim();
           if (experience.company && experience.company.length > 250 || experience.company && experience.company.length < 3) {
             this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.company'),
@@ -91,6 +92,7 @@ export default {
         }
         
         if (this.$refs.profileContactForm.$el[2]) {
+          experience.position = experience.position.trim();
           if (experience.position && experience.position.length > 100 || experience.position && experience.position.length < 3) {
             this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.jobTitle'),
