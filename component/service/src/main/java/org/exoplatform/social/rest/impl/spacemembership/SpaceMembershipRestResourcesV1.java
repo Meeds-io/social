@@ -213,6 +213,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         spaceService.addMember(givenSpace, user);
         if ("manager".equalsIgnoreCase(model.getRole())) {
           spaceService.setManager(givenSpace, user, true);
+          spaceService.addRedactor(givenSpace, user);
         }
         if ("redactor".equalsIgnoreCase(model.getRole())) {
           spaceService.addRedactor(givenSpace, user);
