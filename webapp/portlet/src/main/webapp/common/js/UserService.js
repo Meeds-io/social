@@ -252,9 +252,11 @@ export function importUsers(uploadId) {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: `uploadId=${uploadId}`,
+    body: JSON.stringify({
+      uploadId: `${uploadId}`,
+    })
   }).then(resp => {
     if (!resp || !resp.ok) {
       return resp.text();
@@ -271,9 +273,12 @@ export function checkImportUsersProgress(uploadId) {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: `uploadId=${uploadId}&progress=true`,
+    body: JSON.stringify({
+      uploadId: `${uploadId}`,
+      progress: true,
+    })
   }).then(resp => {
     if (!resp || !resp.ok) {
       return resp.text();
@@ -293,9 +298,12 @@ export function cleanImportUsers(uploadId) {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: `uploadId=${uploadId}&clean=true`,
+    body: JSON.stringify({
+      uploadId: `${uploadId}`,
+      clean: true,
+    })
   }).then(resp => {
     if (!resp || !resp.ok) {
       return resp.text();

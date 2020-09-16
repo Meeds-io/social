@@ -432,28 +432,26 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
 
     String uploadId = "users-empty.csv";
-    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
-    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    ContainerResponse response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"sync\":\"true\"}");
     assertNotNull(response);
 
     assertEquals(404, response.getStatus());
 
     URL resource = getClass().getClassLoader().getResource("users-empty.csv");
     uploadService.createUploadResource(uploadId, resource.getFile(), "users-empty.csv", "text/csv");
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"sync\":\"true\"}");
     assertNotNull(response);
     assertEquals(400, response.getStatus());
 
     uploadId = "users.csv";
     resource = getClass().getClassLoader().getResource("users.csv");
     uploadService.createUploadResource(uploadId, resource.getFile(), "users.csv", "text/csv");
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"sync\":\"true\"}");
     assertNotNull(response);
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"progress\":\"true\"}");
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -466,7 +464,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     UploadResource uploadResource = uploadService.getUploadResource(uploadId);
     assertNotNull(uploadResource);
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&clean=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"clean\":\"true\"}");
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -481,12 +479,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadId = "users-errors.csv";
     resource = getClass().getClassLoader().getResource("users-errors.csv");
     uploadService.createUploadResource(uploadId, resource.getFile(), "users-errors.csv", "text/csv");
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"sync\":\"true\"}");
     assertNotNull(response);
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    response = getResponse("POST", "/v1/social/users/csv", "{\"uploadId\":\"" + uploadId + "\", \"progress\":\"true\"}");
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());

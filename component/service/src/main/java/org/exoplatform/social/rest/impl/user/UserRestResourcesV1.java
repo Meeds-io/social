@@ -917,11 +917,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
   httpMethod = "POST",
   response = Response.class)
-  public Response importUsers(@Context HttpServletRequest request,
-                              @ApiParam(value = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
-                              @ApiParam(value = "Get processing progress percentage of imported file", required = false, defaultValue = "false") @FormParam("progress") boolean progress,
-                              @ApiParam(value = "Whether clean file after processing or not", required = false, defaultValue = "false") @FormParam("clean") boolean clean,
-                              @ApiParam(value = "Whether process importing users in a sync or async way of current request", required = false, defaultValue = "false") @FormParam("sync") boolean sync) {
+  public Response importUsers(@Context HttpServletRequest request, RequestCsvFile requestCsvFile) {
+
+    String uploadId = requestCsvFile.getUploadId();
+
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }
@@ -932,11 +931,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     UserImportResultEntity existingImportResult = importUsersProcessing.get(uploadId);
-    if (clean || progress) {
+    if (requestCsvFile.getClean() || requestCsvFile.getProgress()) {
       if (existingImportResult == null) {
         return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID_PROGRESS:NOT_FOUND").build();
       }
-      if (clean) {
+      if (requestCsvFile.getClean()) {
         uploadService.removeUploadResource(uploadId);
         importUsersProcessing.remove(uploadId);
       }
@@ -946,7 +945,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, sync);
+    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, requestCsvFile.getSync());
     return errorResponse == null ? Response.noContent().build() : errorResponse;
   }
 
