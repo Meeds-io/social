@@ -27,6 +27,7 @@ let config = {
     userSettingNotifications: './src/main/webapp/user-setting-notifications/main.js',
     userSettingSecurity: './src/main/webapp/user-setting-security/main.js',
     userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js',
+    userSettingAgenda: './src/main/webapp/user-setting-agenda/main.js',
     spaceInfos: './src/main/webapp/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/who-is-online-app/main.js',
     activityComposer: './src/main/webapp/activity-composer-app/main.js',

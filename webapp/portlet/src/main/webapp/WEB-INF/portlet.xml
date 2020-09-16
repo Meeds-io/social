@@ -1187,6 +1187,21 @@
   </portlet>
 
   <portlet>
+    <portlet-name>UserSettingAgenda</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/userSettingAgenda.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>User Setting Agenda</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>SiteHamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>

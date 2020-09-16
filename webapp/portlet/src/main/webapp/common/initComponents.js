@@ -8,6 +8,7 @@ import ExoActivityRichEditor from './components/ExoActivityRichEditor.vue';
 import DatePicker from './components/DatePicker.vue';
 import DateFormat from './components/DateFormat.vue';
 import ExoModal from './components/ExoModal.vue';
+import TimePicker from './components/TimePicker.vue';
 
 const components = {
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -20,6 +21,7 @@ const components = {
   'date-picker': DatePicker,
   'date-format': DateFormat,
   'exo-modal': ExoModal,
+  'time-picker': TimePicker,
 };
 
 for (const key in components) {

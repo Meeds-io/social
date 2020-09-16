@@ -482,6 +482,16 @@
         <show-info-bar>false</show-info-bar>
         <show-application-state>false</show-application-state>
       </portlet-application>
+      <portlet-application>
+        <portlet>
+          <application-ref>social-portlet</application-ref>
+          <portlet-ref>UserSettingAgenda</portlet-ref>
+        </portlet>
+        <title>User Setting Agenda</title>
+        <access-permissions>*:/platform/users</access-permissions>
+        <show-info-bar>false</show-info-bar>
+        <show-application-state>false</show-application-state>
+      </portlet-application>
     </container>
   </page>
 	<page>
