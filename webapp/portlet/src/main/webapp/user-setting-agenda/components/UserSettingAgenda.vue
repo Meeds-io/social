@@ -11,7 +11,30 @@
             </v-list-item-title>
             <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
               <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
-                {{ skeleton && '&nbsp;' || timezoneLabel }}
+                <v-list-item v-if="settings" dense>
+                  <v-list-item-content class="pa-0">
+                    <v-list-item-title class="text-wrap">
+                      <template>
+                        <v-chip
+                          class="ma-2"
+                          color="primary">
+                          {{ agendaView }}
+                        </v-chip>
+                        <v-chip
+                          class="ma-2"
+                          color="primary">
+                          {{ agendaWeekStartOnLabel }}
+                        </v-chip>
+                        <v-chip
+                          v-if="settings.showWorkingTime"
+                          class="ma-2"
+                          color="primary">
+                          {{ agendaWorkingTime }}
+                        </v-chip>
+                      </template>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
               </div>
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -51,6 +74,24 @@ export default {
     displayed: true,
     skeleton: true,
   }),
+  computed: {
+    agendaView () {
+      return this.settings && this.settings.agendaDefaultView && `${this.settings.agendaDefaultView} ${this.$t('UserSettings.agenda.label.view')}`;
+    },
+    agendaWeekStartOn() {
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      return this.settings && this.settings.agendaWeekStartOn && days[this.settings.agendaWeekStartOn.split(',')[0]];
+    },
+    agendaWeekStartOnLabel () {
+      return this.agendaWeekStartOn && this.$t('UserSettings.agenda.label.weekStartsOn',
+        {0: this.$t(`UserSettings.agenda.drawer.day.${this.agendaWeekStartOn}`)});
+    },
+    agendaWorkingTime () {
+      return this.settings && this.settings.workingTimeStart && this.settings.workingTimeEnd
+        && this.$t('UserSettings.agenda.label.workingTime',
+          {0: this.settings.workingTimeStart, 1: this.settings.workingTimeEnd});
+    }
+  },
   created() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {

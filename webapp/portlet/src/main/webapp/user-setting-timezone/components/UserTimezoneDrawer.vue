@@ -20,6 +20,22 @@
           :value="timezone.offset"
           class="text-capitalize" />
       </v-radio-group>
+      <div class="d-flex flex-column mb-5">
+        <label class="switch-label-text mt-1 text-subtitle-1">{{ $t('UserSettings.agenda.drawer.label.DateFormat') }}</label>
+        <select v-model="value.agendaDateFormat" class="width-auto my-auto pr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+          <option value="MM/DD/YY">{{ $t('UserSettings.agenda.drawer.dateFormat.monthDayYearBySlash') }}</option>
+          <option value="MM-DD-YY">{{ $t('UserSettings.agenda.drawer.dateFormat.monthDayYearByHyphen') }}</option>
+          <option value="DD/MM/YY">{{ $t('UserSettings.agenda.drawer.timeFormat.dayMonthYearBySlash') }}</option>
+          <option value="DD-MM-YY">{{ $t('UserSettings.agenda.drawer.timeFormat.dayMonthYearByHyphen') }}</option>
+        </select>
+      </div>
+      <div class="d-flex flex-column mb-5">
+        <label class="switch-label-text mt-1 text-subtitle-1">{{ $t('UserSettings.agenda.drawer.label.TimeFormat') }}</label>
+        <select v-model="value.agendaTimeFormat" class="width-auto my-auto pr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+          <option>{{ $t('UserSettings.agenda.drawer.timeFormat.AMPM') }}</option>
+          <option>{{ $t('UserSettings.agenda.drawer.timeFormat.24hours') }}</option>
+        </select>
+      </div>
     </template>
     <template slot="footer">
       <div class="d-flex">
