@@ -48,7 +48,7 @@
           close
           class="identitySuggesterItem"
           @click:close="remove(item)">
-          <v-avatar left>
+          <v-avatar :class="item.providerId ==='space' ? 'spaceAvatar ' : ''" left>
             <v-img :src="item.profile.avatarUrl"></v-img>
           </v-avatar>
           <span class="text-truncate">
@@ -60,6 +60,7 @@
       <template slot="item" slot-scope="data">
         <v-list-item-avatar
           v-if="data.item && data.item.profile && data.item.profile.avatarUrl"
+          :class="data.item.providerId ==='space' ? 'spaceAvatar ' : ''"
           size="20">
           <v-img :src="data.item.profile.avatarUrl"></v-img>
         </v-list-item-avatar>

@@ -56,7 +56,7 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
               providerId: 'organization',
               profile: {
                 fullName: item.name || item.text,
-                avatarUrl: item.avatar || item.avatarUrl || `/portal/rest/v1/social/users/${username}/avatar`,
+                avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/users/${username}/avatar`,
               },
             });
           });
