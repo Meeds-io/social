@@ -6,7 +6,7 @@ const webpackCommonConfig = require('./webpack.common.js');
 const app = 'social-portlet';
 
 // add the server path to your server location path
-const exoServerPath = "/work/agenda/6.1.x/platform-6.1.x-SNAPSHOT";
+const exoServerPath = "/exo-server";
 
 let config = merge(webpackCommonConfig, {
   output: {

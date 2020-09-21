@@ -78,6 +78,10 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String CITY             = "city";
 
+  public static final String DATE_FORMAT      = "dateFormat";
+
+  public static final String TIME_FORMAT      = "timeFormat";
+
   public ProfileEntity() {
   }
 
@@ -344,6 +348,24 @@ public class ProfileEntity extends BaseEntity {
 
   public void setTimeZoneDSTSavings(String timeZoneDayLightSaving) {
     setProperty(TIME_ZONE_DST, timeZoneDayLightSaving);
+  }
+
+  public ProfileEntity setDateFormat(String dateFormat) {
+    setProperty(DATE_FORMAT, dateFormat);
+    return this;
+  }
+
+  public String getDateFormat() {
+    return getString(DATE_FORMAT);
+  }
+
+  public ProfileEntity setTimeFormat(String timeFormat) {
+    setProperty(TIME_FORMAT, timeFormat);
+    return this;
+  }
+
+  public String getTimeFormat() {
+    return getString(TIME_FORMAT);
   }
 
   public ProfileEntity setConnectionsCount(String connectionsCount) {

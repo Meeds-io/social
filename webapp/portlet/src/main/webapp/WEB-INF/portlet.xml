@@ -1172,32 +1172,17 @@
   </portlet>
 
   <portlet>
-    <portlet-name>UserSettingTimezone</portlet-name>
+    <portlet-name>UserSettingDateTime</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/userSettingTimezone.jsp</value>
+      <value>/WEB-INF/jsp/userSettingDateTime.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>User Setting timezone</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>UserSettingAgenda</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/userSettingAgenda.jsp</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>User Setting Agenda</title>
+      <title>User Setting date and time</title>
     </portlet-info>
   </portlet>
 

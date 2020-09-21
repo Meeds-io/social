@@ -22,10 +22,10 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
-    id="UserSettingTimezone">
+    id="userSettingDateTime">
     <textarea id="userTimezoneValue" class="hidden"><%=timeZoneJSON.toString()%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/UserSettingTimezone'], app => app.init(JSON.parse(document.getElementById('userTimezoneValue').value)));
+      require(['PORTLET/social-portlet/UserSettingDateTime'], app => app.init(JSON.parse(document.getElementById('userTimezoneValue').value)));
     </script>
     <div class="v-application--wrap">
       <div

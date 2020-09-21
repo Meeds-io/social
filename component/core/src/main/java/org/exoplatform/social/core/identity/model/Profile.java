@@ -144,6 +144,12 @@ public class Profile {
   /** Space string */
   private static final String SPACE_STR               = " ";
 
+  /** Date Format string */
+  public static final String DATE_FORMAT      = "dateFormat";
+
+  /** Time Format string */
+  public static final String TIME_FORMAT      = "timeFormat";
+
   /** Types of updating of profile. */
   public static enum UpdateType {
     POSITION,
@@ -636,6 +642,23 @@ public class Profile {
 
   public void setTimeZoneDSTSavings(Object timeZoneDayLightSaving) {
     setProperty(Profile.TIME_ZONE_DST_SAVINGS, String.valueOf(timeZoneDayLightSaving == null ? 0 : timeZoneDayLightSaving));
+  }
+
+
+  public String getDateFormat() {
+    return (String) getProperty(Profile.DATE_FORMAT);
+  }
+
+  public void setDateFormat(String dateFormat) {
+    setProperty(Profile.DATE_FORMAT, dateFormat);
+  }
+
+  public void setTimeFormat(String timeFormat) {
+    setProperty(TIME_FORMAT, timeFormat);
+  }
+
+  public String getTimeFormat() {
+    return (String) getProperty(Profile.TIME_FORMAT);
   }
 
   /**

@@ -183,6 +183,9 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
+    userEntity.setDateFormat(profile.getDateFormat());
+    userEntity.setTimeFormat(profile.getTimeFormat());
+    //TODO add timeZone settings
     buildPhoneEntities(profile, userEntity);
     buildImEntities(profile, userEntity);
     buildUrlEntities(profile, userEntity);

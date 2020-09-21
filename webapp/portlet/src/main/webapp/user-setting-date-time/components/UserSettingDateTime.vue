@@ -6,14 +6,16 @@
           <v-list-item-content>
             <v-list-item-title class="title text-color">
               <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.timezone') }}
+                {{ skeleton && '&nbsp;' || $t('UserSettings.dateTime') }}
               </div>
             </v-list-item-title>
-            <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
-                {{ skeleton && '&nbsp;' || timezoneLabel }}
-              </div>
-            </v-list-item-subtitle>
+            <user-setting-date-time-info
+              :skeleton="skeleton"
+              :timezone-label="timezoneLabel"
+              :time-format-label="timeFormat"
+              :date-format-label="dateFormat" ></user-setting-date-time-info>
+
+            <v-divider class="mx-4" />
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
@@ -26,9 +28,8 @@
           </v-list-item-action>
         </v-list-item>
       </v-list>
-      <user-timezone-drawer
-        ref="timezonesDrawer"
-        v-model="timezoneOffset"
+      <user-date-time-drawer
+        ref="dateTimeDrawer"
         :timezones="timezones" />
     </v-card>
   </v-app>
@@ -38,8 +39,8 @@
 export default {
   props: {
     timezones: {
-      type: Array,
-      default: null,
+      type: Object,
+      default: () => ({}),
     },
   },
   data: () => ({
@@ -47,6 +48,8 @@ export default {
       .toString()
       .toString()}`,
     timezoneOffset: eXo.env.portal.timezoneOffset,
+    dateFormat: eXo.env.portal.dateFormat,
+    timeFormat: eXo.env.portal.timeFormat,
     selectedTimezone: null,
     displayed: true,
     skeleton: true,
@@ -54,6 +57,12 @@ export default {
   computed: {
     timezoneLabel() {
       return this.selectedTimezone && this.selectedTimezone.text;
+    },
+    DateFormatLabel() {
+      return this.$t(`UserSettings.agenda.drawer.dateFormat.${this.dateFormat}`);
+    },
+    timeFormatLabel() {
+      return this.$t(`UserSettings.agenda.drawer.timeFormat.${this.timeFormat}`);
     },
   },
   created() {
@@ -69,7 +78,7 @@ export default {
   },
   methods: {
     openDrawer() {
-      this.$refs.timezonesDrawer.open();
+      this.$refs.dateTimeDrawer.open();
     },
   },
 };
