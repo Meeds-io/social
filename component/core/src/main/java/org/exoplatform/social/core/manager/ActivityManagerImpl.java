@@ -695,17 +695,13 @@ public class ActivityManagerImpl implements ActivityManager {
   public boolean isActivityEditable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
     if (activity != null) {
       boolean enableEdit;
-      boolean enableManagerEdit;
       if (activity.isComment()) {
         enableEdit = enableEditComment;
-        enableManagerEdit = enableManagerEditComment;
       } else {
         enableEdit = enableEditActivity;
-        enableManagerEdit = enableManagerEditActivity;
       }
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, viewer.getUserId());
-      if (enableEdit && identity != null && (StringUtils.equals(identity.getId(), activity.getPosterId())
-          || (enableManagerEdit && viewer.getGroups().contains(userACL.getAdminGroups())))) {
+      if (enableEdit && identity != null && StringUtils.equals(identity.getId(), activity.getPosterId())) {
         return !activity.isComment() || !isAutomaticComment(activity);
       }
     }
