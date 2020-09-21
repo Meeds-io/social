@@ -580,7 +580,7 @@ public class BaseUIActivity extends UIForm {
 
     UserACL userACL = getApplicationComponent(UserACL.class);
     if (space != null) {
-      return userACL.isSuperUser() || spaceService.isSuperManager(Utils.getOwnerRemoteId()) || spaceService.isManager(space, Utils.getOwnerRemoteId()) || ConversationState.getCurrent().getIdentity().getGroups().contains(userACL.getAdminGroups());
+      return userACL.isSuperUser() || spaceService.isSuperManager(Utils.getOwnerRemoteId()) || spaceService.isManager(space, Utils.getOwnerRemoteId());
     }
 
     return false;
