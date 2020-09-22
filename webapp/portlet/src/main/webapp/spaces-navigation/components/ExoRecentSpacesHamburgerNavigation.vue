@@ -66,7 +66,7 @@ export default {
       itemsToShow: 15,
       canAddSpaces: false,
       showFilter: false,
-      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces`,
+      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
       keyword: '',
     };
   },
