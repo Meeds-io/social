@@ -107,6 +107,45 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(401, response.getStatus());
   }
 
+  public void testShouldAuthorizeCanCreateSpaces() throws Exception {
+    // Given
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
+        new MembershipEntry("/platform/users", "manager"),
+        new MembershipEntry("/platform/administrators", "*")
+    ));
+
+    startSessionAs("mary");
+
+   spacesAdministrationService.canCreateSpace("mary");
+
+    // When
+    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/mary"), "", null, null, "mary");
+
+    // Then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertTrue(response.getEntity().equals("true"));
+  }
+
+  public void testShouldNotAuthorizeCanCreateSpacesWhenUsernameIsBlank() throws Exception {
+    // Given
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
+        new MembershipEntry("/platform/users", "manager"),
+        new MembershipEntry("/platform/administrators", "*")
+    ));
+
+    startSessionAs("mary");
+
+    spacesAdministrationService.canCreateSpace("mary");
+
+    // When
+    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/"), "", null, null, "mary");
+
+    // Then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+  }
+
   public void testShouldReturnEmptySpacesAdministratorsWhenSettingIsEmpty() throws Exception {
     // Given
     spacesAdministrationService.updateSpacesAdministratorsMemberships(Collections.EMPTY_LIST);
