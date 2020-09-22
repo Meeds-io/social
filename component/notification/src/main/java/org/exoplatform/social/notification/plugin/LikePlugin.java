@@ -19,6 +19,7 @@ package org.exoplatform.social.notification.plugin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -43,6 +44,9 @@ public class LikePlugin extends BaseNotificationPlugin {
   public NotificationInfo makeNotification(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
     
+    if (StringUtils.equals(activity.getType(), "news")) {
+      return null;
+    }
     String[] likersId = activity.getLikeIdentityIds();
     String liker = Utils.getUserId(likersId[likersId.length - 1]);
 

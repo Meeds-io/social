@@ -46,6 +46,9 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
 
+    if (StringUtils.equals(activity.getType(), "news")) {
+      return null;
+    }
     Set<String> receivers = new HashSet<String>();
     if (StringUtils.isNotBlank(comment.getParentCommentId())) {
       ExoSocialActivity parentComment = Utils.getActivityManager().getActivity(comment.getParentCommentId());

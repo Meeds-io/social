@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.notification.plugin;
 
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -44,6 +45,9 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
     try {
       
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
+      if (StringUtils.equals(activity.getType(), "news")) {
+        return null;
+      }
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
       String poster = Utils.getUserId(activity.getPosterId());
       
