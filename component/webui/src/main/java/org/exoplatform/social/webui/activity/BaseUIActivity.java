@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.DateUtils;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -577,8 +578,9 @@ public class BaseUIActivity extends UIForm {
       }
     }
 
+    UserACL userACL = getApplicationComponent(UserACL.class);
     if (space != null) {
-      return spaceService.isManager(space, Utils.getOwnerRemoteId());
+      return userACL.isSuperUser() || spaceService.isSuperManager(Utils.getOwnerRemoteId()) || spaceService.isManager(space, Utils.getOwnerRemoteId());
     }
 
     return false;
