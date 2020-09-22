@@ -45,7 +45,7 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
     try {
       
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-      if (StringUtils.equals(activity.getType(), "news")) {
+      if (StringUtils.equals(activity.getType(), "news") || StringUtils.equals(activity.getType(), "shared_news")) {
         return null;
       }
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
