@@ -243,6 +243,7 @@ export default {
           window.setTimeout(() => {
             this.$refs.spaceFormDrawer.close();
           }, 200);
+          location.reload();
         })
         .catch(e => {
           // eslint-disable-next-line no-console

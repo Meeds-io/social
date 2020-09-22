@@ -44,6 +44,7 @@ public class SpaceMenuPortlet extends GenericPortlet {
     Locale locale = request.getLocale();
     String currentUser = request.getRemoteUser();
     try {
+      SpaceUtils.renameNavigationAndGroup(space);
       List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space,
                                                                   locale,
                                                                   currentUser);

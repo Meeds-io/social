@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.web.url.navigation.NodeURL;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -1887,6 +1888,87 @@ public class SpaceUtils {
       LOG.warn("Get UserNode of Space failed.");
     }
     return navigations;
+  }
+
+  /**
+   * Get the space url.
+   *
+   * @param node
+   * @return
+   * @since 1.2.1
+   */
+  public static String getSpaceURL(UserNode node) {
+    RequestContext ctx = RequestContext.getCurrentInstance();
+    NodeURL nodeURL =  ctx.createURL(NodeURL.TYPE);
+    return nodeURL.setNode(node).toString();
+  }
+  /**
+   * Get the space url.
+   *
+   * @param space
+   * @return
+   * @since 1.2.1
+   */
+  public static void renameNavigationAndGroup(Space space) throws  Exception{
+    String oldSpaceName = space.getGroupId().split(SPACE_GROUP +"/")[1];
+    if (!oldSpaceName.equals(space.getDisplayName())) {
+      String cleanedString = SpaceUtils.cleanString(space.getDisplayName());
+      UserNode node = renamePageNode(cleanedString, space);
+      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+      GroupHandler groupHandler = organizationService.getGroupHandler();
+      Group group = groupHandler.findGroupById(space.getGroupId());
+      group.setLabel(space.getDisplayName());
+      groupHandler.saveGroup(group, true);
+      if (node != null) {
+        PortalRequestContext prContext = Util.getPortalRequestContext();
+        prContext.createURL(NodeURL.TYPE).setNode(node);
+        space.setUrl(getSpaceURL(node));
+      }
+    }
+  }
+
+  /**
+   * Rename page node.
+   *
+   * @param newNodeLabel
+   * @param space
+   * @return
+   * @since 1.2.8
+   */
+  public static UserNode renamePageNode(String newNodeLabel, Space space) {
+
+    try {
+
+      DataStorage dataService = CommonsUtils.getService(DataStorage.class);
+      UserNode renamedNode = SpaceUtils.getSpaceUserNode(space);
+      UserNode parentNode = renamedNode.getParent();
+      String newNodeName = SpaceUtils.cleanString(newNodeLabel);
+      //
+      renamedNode.setLabel(newNodeLabel);
+      renamedNode.setName(newNodeName);
+
+      Page page = dataService.getPage(renamedNode.getPageRef().format());
+      if (page != null) {
+        page.setTitle(newNodeLabel);
+        dataService.save(page);
+      }
+
+      SpaceUtils.getUserPortal().saveNode(parentNode, null);
+
+      space.setUrl(newNodeName);
+      SpaceUtils.changeSpaceUrlPreference(renamedNode, space, newNodeLabel);
+      SpaceUtils.changeAppPageTitle(renamedNode, newNodeLabel);
+
+      List<UserNode> userNodes =  new ArrayList<UserNode>(renamedNode.getChildren());
+      for (UserNode childNode : userNodes) {
+        SpaceUtils.changeSpaceUrlPreference(childNode, space, newNodeLabel);
+        SpaceUtils.changeAppPageTitle(childNode, newNodeLabel);
+      }
+      return renamedNode;
+    } catch (Exception e) {
+      LOG.warn(e.getMessage() , e);
+      return null;
+    }
   }
 
   public static String getUri(UserNode userNode) {
