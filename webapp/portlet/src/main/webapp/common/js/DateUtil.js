@@ -69,3 +69,15 @@ export function formatDateObjectToDisplay(dateObj, format, lang) {
     return getISODate(dateObj);
   }
 }
+
+export function generateTimePickerValues() {
+  const timeValues = [];
+  for (let hour = 0; hour < 24; hour++) {
+    const hourStr = `${hour.toString().padStart(2, '0')}:`;
+    let time = `${hourStr}00`;
+    timeValues.push(time);
+    time = `${hourStr}30`;
+    timeValues.push(time);
+  }
+  return timeValues;
+}
