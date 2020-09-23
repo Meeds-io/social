@@ -26,6 +26,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.Utils;
+import org.exoplatform.social.service.rest.Util;
 
 public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
   
@@ -45,7 +46,7 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
     try {
       
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-      if (StringUtils.equals(activity.getType(), "news") || StringUtils.equals(activity.getType(), "shared_news")) {
+      if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || StringUtils.equals(activity.getType(), "shared_news")) {
         return null;
       }
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());

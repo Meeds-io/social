@@ -16,15 +16,9 @@
  */
 package org.exoplatform.social.notification;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.exoplatform.commons.api.notification.service.storage.MailNotificationStorage;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -35,6 +29,13 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
   
@@ -63,6 +64,11 @@ public class Utils {
       "(?:[\\/|\\?|\\#].*)?$");                                                               // path and query
   
   private static final String styleCSS = " style=\"color: #2f5e92; text-decoration: none;\"";
+
+  /**
+   * Exo property name used for disable news activity notifications
+   */
+  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo\\.notifications\\.activity-type.news-shared_news\\.enabled";
   
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
@@ -290,5 +296,9 @@ public class Utils {
 
   public static RelationshipManager getRelationshipManager() {
     return getService(RelationshipManager.class);
+  }
+
+  public static boolean isNewsActivityNotificationsEnabled() {
+    return Boolean.parseBoolean(PropertyManager.getProperty(NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME));
   }
 }

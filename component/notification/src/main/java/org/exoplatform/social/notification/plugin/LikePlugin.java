@@ -44,7 +44,7 @@ public class LikePlugin extends BaseNotificationPlugin {
   public NotificationInfo makeNotification(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
     
-    if (StringUtils.equals(activity.getType(), "news") || org.apache.commons.lang.StringUtils.equals(activity.getType(), "shared_news")) {
+    if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || org.apache.commons.lang.StringUtils.equals(activity.getType(), "shared_news")) {
       return null;
     }
     String[] likersId = activity.getLikeIdentityIds();
