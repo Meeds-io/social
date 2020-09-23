@@ -45,7 +45,7 @@
         <v-chip
           v-if="item.profile"
           :input-value="selected"
-          close
+          :close="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
           <v-avatar left>
