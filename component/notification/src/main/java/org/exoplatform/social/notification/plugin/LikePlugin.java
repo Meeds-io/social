@@ -16,9 +16,6 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
@@ -26,6 +23,9 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.notification.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LikePlugin extends BaseNotificationPlugin {
   
@@ -44,9 +44,6 @@ public class LikePlugin extends BaseNotificationPlugin {
   public NotificationInfo makeNotification(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
     
-    if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || org.apache.commons.lang.StringUtils.equals(activity.getType(), "shared_news")) {
-      return null;
-    }
     String[] likersId = activity.getLikeIdentityIds();
     String liker = Utils.getUserId(likersId[likersId.length - 1]);
 
@@ -66,6 +63,11 @@ public class LikePlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
+
+    if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || org.apache.commons.lang.StringUtils.equals(activity.getType(), "shared_news")) {
+      return false;
+    }
+    
     String[] likersId = activity.getLikeIdentityIds();
     if (activity.getPosterId().equals(likersId[likersId.length-1])) {
       return false;

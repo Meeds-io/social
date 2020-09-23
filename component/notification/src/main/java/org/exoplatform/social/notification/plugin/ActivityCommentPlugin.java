@@ -16,12 +16,7 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -30,6 +25,10 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.notification.Utils;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ActivityCommentPlugin extends BaseNotificationPlugin {
 
@@ -46,9 +45,6 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
 
-    if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || StringUtils.equals(activity.getType(), "shared_news")) {
-      return null;
-    }
     Set<String> receivers = new HashSet<String>();
     if (StringUtils.isNotBlank(comment.getParentCommentId())) {
       ExoSocialActivity parentComment = Utils.getActivityManager().getActivity(comment.getParentCommentId());
@@ -89,6 +85,10 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
+
+    if (!Utils.isNewsActivityNotificationsEnabled() && StringUtils.equals(activity.getType(), "news") || StringUtils.equals(activity.getType(), "shared_news")) {
+      return false;
+    }
 
     if(isSubComment && comment.getParentCommentId() == null) {
       return false;
