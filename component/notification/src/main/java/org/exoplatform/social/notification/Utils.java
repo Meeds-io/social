@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.notification;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.service.storage.MailNotificationStorage;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
@@ -30,10 +31,7 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +66,7 @@ public class Utils {
   /**
    * Exo property name used for disable news activity notifications
    */
-  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo\\.notifications\\.activity-type.news-shared_news\\.enabled";
+  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo\\.notifications\\.activity-type\\.enabled";
   
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
@@ -298,7 +296,18 @@ public class Utils {
     return getService(RelationshipManager.class);
   }
 
-  public static boolean isNewsActivityNotificationsEnabled() {
-    return Boolean.parseBoolean(PropertyManager.getProperty(NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME));
+  /**
+   * Checks if the notification is enabled for activities of type activityType
+   *
+   * @param activityType type of activity to check if their notification is enabled
+   * @return true if the notification is enabled for this Activity Type
+   */
+  public static boolean isActivityNotificationsEnabled(String activityType) {
+    String disabledNotifications = PropertyManager.getProperty(NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME);
+    if (StringUtils.isNotBlank(disabledNotifications)) {
+      String[] activityTypes = disabledNotifications.split(",");
+      return !Arrays.asList(activityTypes).contains(activityType);
+    }
+    return true;
   }
 }
