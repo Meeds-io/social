@@ -1,5 +1,6 @@
 package org.exoplatform.social.rest.impl.spacesadministration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +108,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(401, response.getStatus());
   }
 
-  public void testShouldAuthorizeCanCreateSpaces() throws Exception {
+  public void testShouldReturnTrueWhenAuthorizedCanCreateSpaces() throws Exception {
     // Given
     spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
         new MembershipEntry("/platform/users", "manager"),
@@ -115,8 +116,6 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     ));
 
     startSessionAs("mary");
-
-   spacesAdministrationService.canCreateSpace("mary");
 
     // When
     ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/mary"), "", null, null, "mary");
@@ -127,7 +126,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertTrue(response.getEntity().equals("true"));
   }
 
-  public void testShouldNotAuthorizeCanCreateSpacesWhenUsernameIsBlank() throws Exception {
+  public void testShouldReturnFalseWhenUserAuthorizedCanCreateSpaces() throws Exception {
     // Given
     spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
         new MembershipEntry("/platform/users", "manager"),
@@ -136,14 +135,13 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
 
     startSessionAs("mary");
 
-    spacesAdministrationService.canCreateSpace("mary");
-
     // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/"), "", null, null, "mary");
+    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/__anonim"), "", null, null, "mary");
 
     // Then
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(200, response.getStatus());
+    assertTrue(response.getEntity().equals("false"));
   }
 
   public void testShouldReturnEmptySpacesAdministratorsWhenSettingIsEmpty() throws Exception {

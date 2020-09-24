@@ -140,13 +140,9 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
       @ApiResponse (code = 200, message = "Request fulfilled"),
       @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
       @ApiResponse (code = 404, message = "Resource not found"),
-      @ApiResponse (code = 500, message = "Internal server error"),
-      @ApiResponse (code = 400, message = "Invalid query input") })
+      @ApiResponse (code = 500, message = "Internal server error")})
   public Response canCreatespaces(@Context UriInfo uriInfo, @ApiParam(value = "Username", required = true) @PathParam("username") String username) {
 
-    if (StringUtils.isBlank(username)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("'username' parameter is mandatory").build();
-    }
     Boolean canCreateSpaces = spacesAdministrationService.canCreateSpace(username);
 
     return EntityBuilder.getResponse(canCreateSpaces.toString(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
