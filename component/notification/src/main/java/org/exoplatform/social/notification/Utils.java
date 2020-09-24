@@ -66,7 +66,7 @@ public class Utils {
   /**
    * Exo property name used for disable news activity notifications
    */
-  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo.notifications.activity-type.enabled";
+  private static final String DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME = "exo.notifications.activity-type.disabled";
   
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
@@ -303,7 +303,7 @@ public class Utils {
    * @return true if the notification is enabled for this Activity Type
    */
   public static boolean isActivityNotificationsEnabled(String activityType) {
-    String disabledNotifications = PropertyManager.getProperty(NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME);
+    String disabledNotifications = PropertyManager.getProperty(DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME);
     if (StringUtils.isNotBlank(disabledNotifications)) {
       String[] activityTypes = disabledNotifications.split(",");
       return !Arrays.asList(activityTypes).contains(activityType);
