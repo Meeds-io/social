@@ -66,7 +66,7 @@ public class Utils {
   /**
    * Exo property name used for disable news activity notifications
    */
-  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo\\.notifications\\.activity-type\\.enabled";
+  private static final String NEWS_ACTIVITY_NOTIFICATIONS_PROPERTY_NAME = "exo.notifications.activity-type.enabled";
   
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
