@@ -131,6 +131,14 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
+  private static final String CREATION_MESSAGE = "files:spaces.CREATION_COMMENT";
+
+  private static final String RENAME_COMMENT   = "files:spaces.RENAME_COMMENT";
+
+  private static final String MOVE_COMMENT  = "files:spaces.MOVE_COMMENT";
+
+  private static final String TAG_ACTION_COMMENT = "files:spaces.TAG_ACTION_COMMENT";
+
   /**
    * Instantiates a new activity manager.
    *
@@ -775,7 +783,10 @@ public class ActivityManagerImpl implements ActivityManager {
    * @return
    */
   public boolean isActivityTypeEnabled (String activityType) {
-    return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
+    if (CREATION_MESSAGE.equals(activityType) || RENAME_COMMENT.equals(activityType) || MOVE_COMMENT.equals(activityType) || TAG_ACTION_COMMENT.equals(activityType)){
+      return activityTypesRegistry.get(activityType) == null ? false : activityTypesRegistry.get(activityType);
+    }else {
+      return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
+    }
   }
-
 }
