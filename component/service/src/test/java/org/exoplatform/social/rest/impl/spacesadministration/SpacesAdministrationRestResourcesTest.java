@@ -1,5 +1,6 @@
 package org.exoplatform.social.rest.impl.spacesadministration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -105,6 +106,42 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     // Then
     assertNotNull(response);
     assertEquals(401, response.getStatus());
+  }
+
+  public void testShouldReturnTrueWhenAuthorizedCanCreateSpaces() throws Exception {
+    // Given
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
+        new MembershipEntry("/platform/users", "manager"),
+        new MembershipEntry("/platform/administrators", "*")
+    ));
+
+    startSessionAs("mary");
+
+    // When
+    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/mary"), "", null, null, "mary");
+
+    // Then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertTrue(response.getEntity().equals("true"));
+  }
+
+  public void testShouldReturnFalseWhenUserAuthorizedCanCreateSpaces() throws Exception {
+    // Given
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
+        new MembershipEntry("/platform/users", "manager"),
+        new MembershipEntry("/platform/administrators", "*")
+    ));
+
+    startSessionAs("mary");
+
+    // When
+    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/__anonim"), "", null, null, "mary");
+
+    // Then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertTrue(response.getEntity().equals("false"));
   }
 
   public void testShouldReturnEmptySpacesAdministratorsWhenSettingIsEmpty() throws Exception {
