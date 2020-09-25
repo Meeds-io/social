@@ -86,8 +86,7 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
 
-    if (StringUtils.equals(activity.getType(), "news") && !Utils.isActivityNotificationsEnabled("news") ||
-            StringUtils.equals(activity.getType(), "shared_news") && !Utils.isActivityNotificationsEnabled("shared_news")) {
+    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
       return false;
     }
 

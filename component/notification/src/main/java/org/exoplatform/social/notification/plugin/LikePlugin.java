@@ -64,8 +64,7 @@ public class LikePlugin extends BaseNotificationPlugin {
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
 
-    if (StringUtils.equals(activity.getType(), "news") && !Utils.isActivityNotificationsEnabled("news") ||
-            StringUtils.equals(activity.getType(), "shared_news") && !Utils.isActivityNotificationsEnabled("shared_news")) {
+    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
       return false;
     }
 
