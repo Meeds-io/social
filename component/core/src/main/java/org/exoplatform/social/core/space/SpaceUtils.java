@@ -1895,35 +1895,41 @@ public class SpaceUtils {
    *
    * @param node
    * @return
-   * @since 1.2.1
    */
   public static String getSpaceURL(UserNode node) {
     RequestContext ctx = RequestContext.getCurrentInstance();
     NodeURL nodeURL =  ctx.createURL(NodeURL.TYPE);
     return nodeURL.setNode(node).toString();
   }
+
   /**
-   * Get the space url.
+   * Rename navigation and group
    *
    * @param space
    * @return
-   * @since 1.2.1
    */
-  public static void renameNavigationAndGroup(Space space) throws  Exception{
-    String oldSpaceName = space.getGroupId().split(SPACE_GROUP +"/")[1];
-    if (!oldSpaceName.equals(space.getDisplayName())) {
-      String cleanedString = SpaceUtils.cleanString(space.getDisplayName());
-      UserNode node = renamePageNode(cleanedString, space);
-      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
-      GroupHandler groupHandler = organizationService.getGroupHandler();
-      Group group = groupHandler.findGroupById(space.getGroupId());
-      group.setLabel(space.getDisplayName());
-      groupHandler.saveGroup(group, true);
-      if (node != null) {
-        PortalRequestContext prContext = Util.getPortalRequestContext();
-        prContext.createURL(NodeURL.TYPE).setNode(node);
-        space.setUrl(getSpaceURL(node));
+  public static void renameNavigationAndGroup(Space space) {
+    try {
+
+      String oldSpaceName = space.getGroupId().split(SPACE_GROUP + "/")[1];
+      if (!oldSpaceName.equals(space.getDisplayName())) {
+        String cleanedString = SpaceUtils.cleanString(space.getDisplayName());
+        UserNode node = renamePageNode(cleanedString, space);
+        OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+        GroupHandler groupHandler = organizationService.getGroupHandler();
+        Group group = groupHandler.findGroupById(space.getGroupId());
+        group.setLabel(space.getDisplayName());
+        groupHandler.saveGroup(group, true);
+        if (node != null) {
+          PortalRequestContext prContext = Util.getPortalRequestContext();
+          prContext.createURL(NodeURL.TYPE).setNode(node);
+          space.setUrl(getSpaceURL(node));
+        }
       }
+    } catch (Exception e) {
+      LOG.warn(e.getMessage(), e);
+    } finally {
+      RequestLifeCycle.end();
     }
   }
 
@@ -1933,7 +1939,6 @@ public class SpaceUtils {
    * @param newNodeLabel
    * @param space
    * @return
-   * @since 1.2.8
    */
   public static UserNode renamePageNode(String newNodeLabel, Space space) {
 

@@ -243,7 +243,7 @@ export default {
           window.setTimeout(() => {
             this.$refs.spaceFormDrawer.close();
           }, 200);
-          location.reload();
+          window.location.href = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}`;
         })
         .catch(e => {
           // eslint-disable-next-line no-console
