@@ -45,7 +45,7 @@
       dense
       nav
       class="recentSpacesWrapper">
-      <v-list-item :href="allSpacesLink" class="addSpaces my-2">
+      <v-list-item v-if="canAddSpaces" :href="allSpacesLink" class="addSpaces my-2">
         <v-list-item-avatar class="mr-3" size="22" tile>
           <i class="uiPlusEmptyIcon"></i>
         </v-list-item-avatar>
@@ -58,14 +58,22 @@
   </v-container>
 </template>
 <script>
+import {checkCanCreateSpaces} from '../../spaces-administration/spacesAdministrationServices.js';
+
 export default {
   data () {
     return {
       itemsToShow: 15,
+      canAddSpaces: false,
       showFilter: false,
-      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces`,
+      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
       keyword: '',
     };
+  },
+  created() {
+    checkCanCreateSpaces().then(data => {
+      this.canAddSpaces = data;
+    });
   },
   methods: {
     closeMenu() {
