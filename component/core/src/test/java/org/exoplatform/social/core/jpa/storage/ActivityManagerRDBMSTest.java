@@ -139,8 +139,8 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Mockito.when(comment.getType()).thenReturn("TestActivityType");
     assertFalse(manager.isActivityEditable(comment, owner));
 
-    // manager is able to edit other activity
-    assertTrue(manager.isActivityEditable(activity, admin));
+    // manager is not able to edit other activity
+    assertFalse(manager.isActivityEditable(activity, admin));
     // not manager
     assertFalse(manager.isActivityEditable(activity, mary));
 
@@ -163,7 +163,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(manager.isActivityEditable(comment, admin));
     assertFalse(manager.isActivityEditable(comment, owner));
     assertTrue(manager.isActivityEditable(activity, owner));
-    assertTrue(manager.isActivityEditable(activity, admin));
+    assertFalse(manager.isActivityEditable(activity, admin));
 
     // not enable edit activity
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_MANAGER_EDIT_ACTIVITY)).thenReturn(true);
