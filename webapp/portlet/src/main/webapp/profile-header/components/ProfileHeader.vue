@@ -30,31 +30,33 @@
                   @refresh="avatarUpdated"
                   @error="handleError" />
               </v-hover>
-              <div class="profileHeaderText align-start d-flex flex-grow-0">
-                <profile-header-text
-                  :user="user"
-                  :skeleton="skeleton"
-                  :class="skeleton && 'skeleton-text' || ''"
-                  class="ma-auto pb-10" />
-              </div>
-              <div class="flex-grow-1"></div>
-              <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-4">
-                <profile-header-banner-button
-                  v-if="owner"
-                  :user="user"
-                  :max-upload-size="maxUploadSizeInBytes"
-                  :skeleton="skeleton"
-                  :owner="owner"
-                  :hover="hover"
-                  @refresh="refresh"
-                  @error="handleError" />
-                <profile-header-actions
-                  v-else
-                  :user="user"
-                  :skeleton="skeleton"
-                  :owner="owner"
-                  :hover="hover"
-                  @refresh="refresh" />
+              <div class="profileHeader">
+                <div class="profileHeaderText align-start d-flex flex-grow-0">
+                  <profile-header-text
+                    :user="user"
+                    :skeleton="skeleton"
+                    :class="skeleton && 'skeleton-text' || ''"
+                    class="ma-auto pb-10" />
+                </div>
+                <div class="flex-grow-1"></div>
+                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-4">
+                  <profile-header-banner-button
+                    v-if="owner"
+                    :user="user"
+                    :max-upload-size="maxUploadSizeInBytes"
+                    :skeleton="skeleton"
+                    :owner="owner"
+                    :hover="hover"
+                    @refresh="refresh"
+                    @error="handleError" />
+                  <profile-header-actions
+                    v-else
+                    :user="user"
+                    :skeleton="skeleton"
+                    :owner="owner"
+                    :hover="hover"
+                    @refresh="refresh" />
+                </div>
               </div>
             </v-flex>
           </v-layout>
