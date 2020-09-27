@@ -186,13 +186,18 @@ export default {
   },
   methods: {
     refreshExtensions: function() {
+      const urls = [];
       this.activityComposerActions = getActivityComposerActionExtensions();
       this.activityComposerActions.forEach(action => {
         if (action.component) {
           this.actionsData[action.key] = action.component.model.value;
           this.actionsEvents[action.key] = action.component.events;
         }
+        if(action.resourceBundle) {
+          urls.push(`/portal/rest/i18n/bundle/${action.resourceBundle}-${eXo.env.portal.language}.json`);
+        }
       });
+      exoi18n.loadLanguageAsync(eXo.env.portal.language, urls);
     },
     editActivity(params) {
       params = params && params.detail;
