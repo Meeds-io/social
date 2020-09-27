@@ -1,0 +1,5 @@
+              2020-09-27 eXo Support <support@exoplatform.org> 
+
+   # 6.0.1 Patches changelog: 
+
+
