@@ -223,8 +223,8 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("position", removeAccents(profile.getPosition()));
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
     fields.put("avatarUrl", profile.getAvatarUrl());
-    fields.put("userName", removeAccents(identity.getRemoteId()));
-    fields.put("email", removeAccents(profile.getEmail()));
+    fields.put("userName", identity.getRemoteId());
+    fields.put("email", profile.getEmail());
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections
