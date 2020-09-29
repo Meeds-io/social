@@ -854,6 +854,14 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             .filter(username -> !excludedMembers.contains(username))
             .collect(Collectors.toList());
         break;
+      case REDACTOR:
+        if(space.getRedactors() == null || space.getRedactors().length == 0) {
+          return 0;
+        }
+        spaceMembers = Arrays.stream(space.getRedactors())
+            .filter(username -> !excludedMembers.contains(username))
+            .collect(Collectors.toList());
+        break;
       default:
         if(space.getMembers() == null || space.getMembers().length == 0) {
           return 0;

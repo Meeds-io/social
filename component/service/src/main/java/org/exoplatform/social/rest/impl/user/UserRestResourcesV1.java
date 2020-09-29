@@ -556,14 +556,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isNotBlank(errorMessage)) {
         return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
       }
+      // Check if mail address is already used
+      Query query = new Query();
+      query.setEmail(email);
+      ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
+      if (users.getSize() > 0 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:ALREADY_EXISTS").build();
+      }
     }
-    // Check if mail address is already used
-    Query query = new Query();
-    query.setEmail(email);
-    ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
-    if (users.getSize() > 0 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:ALREADY_EXISTS").build();
-    }
+
 
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username)) {

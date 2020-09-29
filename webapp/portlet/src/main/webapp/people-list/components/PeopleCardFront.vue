@@ -252,10 +252,14 @@ export default {
       if (!this.profileActionExtensions || !this.user) {
         return [];
       }
+      if (this.isSameUser) {
+        return this.profileActionExtensions.slice().filter(extension => extension.title === this.$t('peopleList.button.setAsRedactor')
+            || extension.title === this.$t('peopleList.button.removeRedactor') && extension.enabled(this.user));
+      }
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
     canUseActionsMenu() {
-      return this.user && this.user.username !== eXo.env.portal.userName && this.enabledProfileActionExtensions.length;
+      return this.user && this.enabledProfileActionExtensions.length;
     },
     url() {
       if (this.user && this.user.username) {

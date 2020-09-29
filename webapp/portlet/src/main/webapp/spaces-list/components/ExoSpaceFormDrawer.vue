@@ -105,7 +105,7 @@
                     class="my-0" />
                   <v-radio
                     :label="$t('spacesList.label.closed')"
-                    value="closed"
+                    value="close"
                     class="my-0" />
                 </v-radio-group>
               </div>
@@ -258,6 +258,11 @@ export default {
     },
   },
   mounted() {
+    if(location.search){
+      this.setSpaceTemplateProperties();
+      this.title= this.$t('spacesList.label.addNewSpace');
+      this.$refs.spaceFormDrawer.open();
+    }
     this.$root.$on('addNewSpace', () => {
       this.spaceToUpdate = null;
       this.space = {
