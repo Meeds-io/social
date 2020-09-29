@@ -16,15 +16,10 @@
  */
 package org.exoplatform.social.notification;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.service.storage.MailNotificationStorage;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -35,6 +30,10 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
   
@@ -63,6 +62,11 @@ public class Utils {
       "(?:[\\/|\\?|\\#].*)?$");                                                               // path and query
   
   private static final String styleCSS = " style=\"color: #2f5e92; text-decoration: none;\"";
+
+  /**
+   * Exo property name used for disable news activity notifications
+   */
+  private static final String DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME = "exo.notifications.activity-type.disabled";
   
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
@@ -290,5 +294,20 @@ public class Utils {
 
   public static RelationshipManager getRelationshipManager() {
     return getService(RelationshipManager.class);
+  }
+
+  /**
+   * Checks if the notification is enabled for activities of type activityType
+   *
+   * @param activityType type of activity to check if their notification is enabled
+   * @return true if the notification is enabled for this Activity Type
+   */
+  public static boolean isActivityNotificationsEnabled(String activityType) {
+    String disabledNotifications = PropertyManager.getProperty(DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME);
+    if (StringUtils.isNotBlank(disabledNotifications)) {
+      String[] activityTypes = disabledNotifications.split(",");
+      return !Arrays.asList(activityTypes).contains(activityType);
+    }
+    return true;
   }
 }
