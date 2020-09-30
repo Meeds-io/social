@@ -49,7 +49,7 @@
       <template slot="content">
         <v-card flat>
           <v-card-text>
-            <exo-textarea
+            <extended-textarea
               v-model="modifyingAboutMe"
               :max-length="aboutMeTextLength" />
           </v-card-text>

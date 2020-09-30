@@ -1,12 +1,11 @@
 <template>
   <v-textarea
-    id="exoTextarea"
     v-model="value"
     :rules="rules"
     :counter-value="counterValue"
     :placeholder="placeholder"
     counter
-    class="exoTextarea">
+    class="extended-textarea">
   </v-textarea>
 </template>
 
