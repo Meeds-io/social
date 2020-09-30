@@ -49,13 +49,9 @@
       <template slot="content">
         <v-card flat>
           <v-card-text>
-            <v-textarea
+            <extended-textarea
               v-model="modifyingAboutMe"
-              :rules="rules"
-              :counter-value="counterValue"
-              counter
-              class="aboutMeTextArea">
-            </v-textarea>
+              :max-length="aboutMeTextLength" />
           </v-card-text>
           <v-card-actions class="px-4">
             <v-spacer />
@@ -79,7 +75,6 @@
 </template>
 
 <script>
-const MAX_TEXT = 2000;
 
 export default {
   props: {
@@ -90,15 +85,15 @@ export default {
   },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
-    rules: [v => !v || v.length <= MAX_TEXT || ' '],
     skeleton: true,
     error: null,
     saving: null,
     modifyingAboutMe: null,
+    aboutMeTextLength: 2000
   }),
   computed: {
     valid() {
-      return !this.modifyingAboutMe || this.modifyingAboutMe.length <= MAX_TEXT;
+      return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.aboutMeTextLength;
     }
   },
   mounted() {
@@ -113,9 +108,6 @@ export default {
     editAboutMe() {
       this.modifyingAboutMe = this.aboutMe;
       this.$refs.aboutMeDrawer.open();
-    },
-    counterValue(value) {
-      return `${value && value.length || 0} / ${MAX_TEXT}`;
     },
     saveAboutMe() {
       this.error = null;
