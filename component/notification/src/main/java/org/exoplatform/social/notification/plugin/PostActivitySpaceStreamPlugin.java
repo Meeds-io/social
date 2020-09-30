@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.notification.plugin;
 
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -62,12 +63,17 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
+
+    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
+      return false;
+    }
+
     Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), false);
     //if the space is not null and it's not the default activity of space, then it's valid to make notification 
     if (spaceIdentity != null && activity.getPosterId().equals(spaceIdentity.getId()) == false) {
       return true;
     }
-    
+
     return false;
   }
 }
