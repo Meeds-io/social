@@ -5,6 +5,7 @@
     :counter-value="counterValue"
     :placeholder="placeholder"
     counter
+    auto-grow
     class="extended-textarea">
   </v-textarea>
 </template>
