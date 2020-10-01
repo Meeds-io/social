@@ -1,5 +1,7 @@
 package org.exoplatform.social.service.test;
 
+import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 
@@ -42,6 +44,11 @@ public class MockSpacesAdministrationService implements SpacesAdministrationServ
 
   @Override
   public boolean canCreateSpace(String username) {
-    return true;
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username) || IdentityConstants.SYSTEM.equals(username)) {
+      return false;
+    }
+    else {
+      return true;
+    }
   }
 }

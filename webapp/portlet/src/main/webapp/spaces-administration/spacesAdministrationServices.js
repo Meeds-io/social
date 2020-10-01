@@ -54,6 +54,22 @@ export function getSpacesAdministrationSetting(key) {
   });
 }
 
+export function checkCanCreateSpaces() {
+  return fetch(`${spacesConstants.SPACES_ADMINISTRATION_API}/permissions/canCreatespaces/${eXo.env.portal.userName}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'GET'
+  }).then(resp => {
+    if(resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error ('Error to check can add spaces');
+    }
+  });
+}
+
 export function updateSpacesAdministrationSetting(key, value) {
   return fetch(`${spacesConstants.SPACES_ADMINISTRATION_API}/permissions/${key}`, {
     headers: {

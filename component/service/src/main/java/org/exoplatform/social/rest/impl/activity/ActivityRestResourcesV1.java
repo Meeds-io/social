@@ -59,7 +59,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
 
   private static final Log LOG = ExoLogger.getLogger(ActivityRestResourcesV1.class);
 
-  private static final String SPACE_PREFIX = "/spaces/";
   private static final String TYPE = "space";
 
   
@@ -487,8 +486,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
   private void checkPermissionToModifyActivity(ExoSocialActivity activity, Identity currentUser) {
     if (activity.getActivityStream().getType().toString().equalsIgnoreCase(TYPE)) {
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      String spaceGroupId = SPACE_PREFIX + activity.getActivityStream().getPrettyId();
-      Space space = spaceService.getSpaceByGroupId(spaceGroupId);
+      Space space = spaceService.getSpaceByPrettyName(activity.getActivityStream().getPrettyId());
       if (space == null) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
