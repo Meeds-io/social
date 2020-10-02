@@ -61,8 +61,8 @@ export default {
         const minMinutes = Number(this.min.substring(3, 5));
         return minHours * 60 + minMinutes;
       } else if (typeof this.min === 'string' && this.min.length > 5
-          || typeof this.min === 'object' && this.min.getTime
-          || typeof this.min === 'number') {
+          || typeof this.min === 'number'
+          || typeof this.min === 'object' && this.min.getTime) {
         const date = new Date(this.min);
         if (!Number.isNaN(date.getTime())) {
           const minHours = date.getHours();
@@ -140,18 +140,23 @@ export default {
       }
     },
     computeSelectedValue() {
-      if (typeof this.value === 'string' && this.value.length === 5) {
-        this.valueType = 'time';
-        this.timeValue = this.value;
-      } else if (typeof this.value === 'string' && this.value.length > 5) {
-        this.valueType = 'datetime';
-        this.timeValue = this.getTimeValueByDate(new Date(this.value));
-      } else if (typeof this.value === 'object' && this.value.getTime) {
-        this.valueType = 'date';
-        this.timeValue = this.getTimeValueByDate(this.value);
-      } else if (typeof this.value === 'number') {
-        this.valueType = 'number';
-        this.timeValue = this.getTimeValueByDate(new Date(this.value));
+      if (this.value) {
+        if (typeof this.value === 'string' && this.value.length === 5) {
+          this.valueType = 'time';
+          this.timeValue = this.value;
+        } else if (typeof this.value === 'string' && this.value.length > 5) {
+          this.valueType = 'datetime';
+          this.timeValue = this.getTimeValueByDate(new Date(this.value));
+        } else if (typeof this.value === 'object' && this.value.getTime) {
+          this.valueType = 'date';
+          this.timeValue = this.getTimeValueByDate(this.value);
+        } else if (typeof this.value === 'number') {
+          this.valueType = 'number';
+          this.timeValue = this.getTimeValueByDate(new Date(this.value));
+        }
+      }
+      if (!this.timeValue) {
+        this.timeValue = this.getTimeValueByDate(new Date());
       }
       this.computeTimeValue();
     },

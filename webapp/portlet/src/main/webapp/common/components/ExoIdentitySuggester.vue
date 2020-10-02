@@ -9,7 +9,7 @@
       :loading="loadingSuggestions > 0"
       :rules="rules"
       :multiple="multiple"
-      :required="required"
+      :required="required && !value"
       :items="items"
       :search-input.sync="searchTerm"
       :height="height"

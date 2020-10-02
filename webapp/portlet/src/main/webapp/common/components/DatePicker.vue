@@ -135,7 +135,6 @@ export default {
       .toString()
       .toString()}`,
     date: null,
-    minDate: null,
     dateFormatted: null,
     dateValue: null,
     menu: false,
