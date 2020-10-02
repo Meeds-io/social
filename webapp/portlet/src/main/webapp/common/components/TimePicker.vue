@@ -4,6 +4,7 @@
     class="width-auto my-auto ml-4 ignore-vuetify-classes">
     <option
       v-for="time in timeOptions"
+      v-if="time.enabled"
       :key="time.value"
       :value="time.value">
       {{ time.text }}
@@ -17,6 +18,10 @@ export default {
     value: {
       type: Object,
       default: () => new Date(),
+    },
+    min: {
+      type: Object,
+      default: null,
     },
     intervalMinutes: {
       type: Number,
@@ -39,7 +44,45 @@ export default {
     timeValue: '00:00',
     valueType: 'date',
   }),
+  computed: {
+    filteredTimeOptions() {
+      if (this.min) {
+        return this.timeOptions.filter(timeOption => timeOption.enabled);
+      } else {
+        return this.timeOptions;
+      }
+    },
+    minTimeInMinutes() {
+      if (!this.min) {
+        return 0;
+      }
+      if (typeof this.min === 'string' && this.min.length === 5) {
+        const minHours = Number(this.min.substring(0, 2));
+        const minMinutes = Number(this.min.substring(3, 5));
+        return minHours * 60 + minMinutes;
+      } else if (typeof this.min === 'string' && this.min.length > 5
+          || typeof this.min === 'object' && this.min.getTime
+          || typeof this.min === 'number') {
+        const date = new Date(this.min);
+        if (!Number.isNaN(date.getTime())) {
+          const minHours = date.getHours();
+          const minMinutes = date.getMinutes();
+          return minHours * 60 + minMinutes;
+        }
+      }
+      return 0;
+    },
+    minTimeValue() {
+      const minHours = parseInt(this.minTimeInMinutes / 60);
+      const minMinutes = this.minTimeInMinutes % 60;
+      return this.getTimeValue(minHours, minMinutes);
+    },
+  },
   watch: {
+    minTimeValue() {
+      this.computeOptions();
+      this.computeTimeValue();
+    },
     value() {
       this.computeSelectedValue();
     },
@@ -47,8 +90,9 @@ export default {
       if (newVal === oldVal) {
         return;
       }
-      if (!newVal) {
-        this.$emit('change', null);
+      if (!this.timeValue) {
+        this.$emit('input', null);
+        return;
       }
       const timeOption = this.timeOptionsByValue[this.timeValue];
       if (this.valueType === 'date') {
@@ -72,24 +116,29 @@ export default {
     },
   },
   mounted() {
+    this.computeOptions();
     this.computeSelectedValue();
-    for (let i = 0; i < 24; i++) {
-      for (let j = 0; j < 60; j++) {
-        const time = i * 60 + j;
-        if (time % this.intervalMinutes === 0) {
-          const timeOption = {
-            value: this.getTimeValue(i, j),
-            text: this.getTimeLabel(i, j),
-            hours: i,
-            minutes: j,
-          };
-          this.timeOptions.push(timeOption);
-          this.timeOptionsByValue[timeOption.value] = timeOption;
-        }
-      }
-    }
   },
   methods: {
+    computeOptions() {
+      this.timeOptions = [];
+      for (let i = 0; i < 24; i++) {
+        for (let j = 0; j < 60; j++) {
+          const time = i * 60 + j;
+          if (time % this.intervalMinutes === 0) {
+            const timeOption = {
+              value: this.getTimeValue(i, j),
+              text: this.getTimeLabel(i, j),
+              hours: i,
+              minutes: j,
+              enabled: this.minTimeInMinutes <= time,
+            };
+            this.timeOptions.push(timeOption);
+            this.timeOptionsByValue[timeOption.value] = timeOption;
+          }
+        }
+      }
+    },
     computeSelectedValue() {
       if (typeof this.value === 'string' && this.value.length === 5) {
         this.valueType = 'time';
@@ -104,12 +153,27 @@ export default {
         this.valueType = 'number';
         this.timeValue = this.getTimeValueByDate(new Date(this.value));
       }
+      this.computeTimeValue();
+    },
+    computeTimeValue() {
+      const selectedOption = this.timeOptionsByValue[this.timeValue];
+      if (selectedOption && !selectedOption.enabled) {
+        this.timeValue = this.minTimeValue;
+      }
+      if (!this.timeValue) {
+        this.timeValue = this.minTimeValue;
+      }
     },
     getTimeValue(hour, minute) {
       const date = new Date(2003, 11, 20, hour, minute);
       return this.getTimeValueByDate(date);
     },
     getTimeValueByDate(date) {
+      const time = parseInt((date.getHours() * 60 + date.getMinutes()) / this.intervalMinutes) * this.intervalMinutes;
+      const minutes = time % 60;
+      const hours = parseInt(time / 60);
+      date.setHours(hours);
+      date.setMinutes(minutes);
       return this.$dateUtil.formatDateObjectToDisplay(date, this.timeFormat, 'fr');
     },
     getTimeLabel(hour, minute) {
