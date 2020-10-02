@@ -9,6 +9,7 @@ import DatePicker from './components/DatePicker.vue';
 import TimePicker from './components/TimePicker.vue';
 import DateFormat from './components/DateFormat.vue';
 import ExoModal from './components/ExoModal.vue';
+import ExtendedTextarea from './components/ExtendedTextarea.vue';
 
 const components = {
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -22,6 +23,7 @@ const components = {
   'time-picker': TimePicker,
   'date-format': DateFormat,
   'exo-modal': ExoModal,
+  'extended-textarea': ExtendedTextarea,
 };
 
 for (const key in components) {
