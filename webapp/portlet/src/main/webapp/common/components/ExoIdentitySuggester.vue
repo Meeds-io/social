@@ -9,11 +9,13 @@
       :loading="loadingSuggestions > 0"
       :rules="rules"
       :multiple="multiple"
-      :required="required"
+      :required="required && !value"
       :items="items"
       :search-input.sync="searchTerm"
       :height="height"
       :filter="filterIgnoredItems"
+      :hide-no-data="hideNoData"
+      :class="(required && !value && 'required-field invalid') || (required && 'required-field')"
       append-icon=""
       menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
@@ -31,12 +33,12 @@
       flat
       @update:search-input="searchTerm = $event">
       <template slot="no-data">
-        <v-list-item v-if="labels.noDataLabel || labels.searchPlaceholder" class="pa-0">
-          <v-list-item-title v-if="labels.noDataLabel" class="px-2">
-            {{ labels.noDataLabel }}
-          </v-list-item-title>
-          <v-list-item-title v-else class="px-2">
+        <v-list-item class="pa-0">
+          <v-list-item-title v-if="displaySearchPlaceHolder" class="px-2">
             {{ labels.searchPlaceholder }}
+          </v-list-item-title>
+          <v-list-item-title v-else-if="labels.noDataLabel" class="px-2">
+            {{ labels.noDataLabel }}
           </v-list-item-title>
         </v-list-item>
       </template>
@@ -45,7 +47,7 @@
         <v-chip
           v-if="item.profile"
           :input-value="selected"
-          close
+          :close="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
           <v-avatar left>
@@ -156,10 +158,24 @@ export default {
         .toString()}`,
       previousSearchTerm: null,
       searchTerm: null,
+      searchStarted: null,
       loadingSuggestions: 0,
     };
   },
+  computed: {
+    displaySearchPlaceHolder() {
+      return this.labels.searchPlaceholder && (!this.searchStarted || !this.value);
+    },
+    hideNoData() {
+      return !this.labels.noDataLabel && !this.labels.searchPlaceholder;
+    },
+  },
   watch: {
+    loadingSuggestions() {
+      if (this.loadingSuggestions > 0 && !this.searchStarted) {
+        this.searchStarted = true;
+      }
+    },
     searchTerm(value) {
       if (value && value.length) {
         window.setTimeout(() => {

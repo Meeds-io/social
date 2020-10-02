@@ -142,8 +142,10 @@ export function getSpaceNavigations(spaceId) {
     });
 }
 
-export function getSpaces(query, offset, limit, filter) {
-  const expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
+export function getSpaces(query, offset, limit, filter, expand) {
+  if (!expand) {
+    expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
+  }
   return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
     method: 'GET',
     credentials: 'include',

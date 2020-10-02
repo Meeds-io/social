@@ -258,6 +258,11 @@ export default {
     },
   },
   mounted() {
+    if(location.search){
+      this.setSpaceTemplateProperties();
+      this.title= this.$t('spacesList.label.addNewSpace');
+      this.$refs.spaceFormDrawer.open();
+    }
     this.$root.$on('addNewSpace', () => {
       this.spaceToUpdate = null;
       this.space = {

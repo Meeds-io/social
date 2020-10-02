@@ -16,15 +16,16 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.notification.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LikePlugin extends BaseNotificationPlugin {
   
@@ -62,8 +63,13 @@ public class LikePlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
+
+    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
+      return false;
+    }
+
     String[] likersId = activity.getLikeIdentityIds();
-    if (activity.getPosterId().equals(likersId[likersId.length-1])) {
+    if (activity.getPosterId().equals(likersId[likersId.length - 1])) {
       return false;
     }
     return true;

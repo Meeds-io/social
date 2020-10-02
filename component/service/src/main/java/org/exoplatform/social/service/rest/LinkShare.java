@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
@@ -311,16 +312,10 @@ public class LinkShare extends DefaultFilter {
     //Creates element remover filter
     ElementRemover remover = new ElementRemover();
     remover.acceptElement("head", null);
-    remover.acceptElement("meta", new String[] {"name", "content", "lang"});
+    remover.acceptElement("meta", new String[] {"name", "content", "lang", "property"});
     remover.acceptElement("link", new String[] {"rel", "href"});
     remover.acceptElement("title", null);
     remover.acceptElement("img", new String[] {"src", "width", "height"});
-    remover.acceptElement("p", null);
-    //accepts more tags to get text from a <p> tag
-    remover.acceptElement("a", null);
-    remover.acceptElement("b", null);
-    remover.acceptElement("i", null);
-    remover.acceptElement("strong", null);
     
     remover.removeElement("script");
     //Sets up filter chain
@@ -487,6 +482,10 @@ public class LinkShare extends DefaultFilter {
   
   /**
    * this filter method is called back when scanning meets empty element tag
+   * Getting the image will use the following :
+   * 1- Meta tag with property og:image
+   * 2- Otherwise, link tag with image_src as Rel value
+   * 3- Otherwise the first image to get from the page
    */
   public void emptyElement(QName element, XMLAttributes attributes, Augmentations augs) {
     if("link".equalsIgnoreCase(element.rawname)) { //process link tag
@@ -495,7 +494,8 @@ public class LinkShare extends DefaultFilter {
       relValue = attributes.getValue("rel");
       hrefValue = attributes.getValue("href");
       if (hrefValue != null) hrefValue = getAbsLink(hrefValue);
-      if ("image_src".equalsIgnoreCase(relValue)) {
+      // Do not use image_src unless there is no og:image meta property
+      if (StringUtils.isBlank(imageSrc) && "image_src".equalsIgnoreCase(relValue)) {
         imageSrc = hrefValue;
       } else if ("audio_src".equalsIgnoreCase(relValue)) {
         mediaSrc = hrefValue;
@@ -508,7 +508,8 @@ public class LinkShare extends DefaultFilter {
       String nameValue;
       String contentValue;
       nameValue = attributes.getValue("name");
-      if (nameValue == null) return;
+      String propertyValue = attributes.getValue("property");
+      if (nameValue == null && propertyValue == null) return;
       contentValue = attributes.getValue("content");
       if (contentValue == null) return;
       //Set mediumType
@@ -535,6 +536,11 @@ public class LinkShare extends DefaultFilter {
           descriptions.put(langValue, contentValue);
         } else {
           description = contentValue;
+        }
+      } else if ("og:image".equalsIgnoreCase(propertyValue)) {
+        if (isAcceptableImg(contentValue)) {
+          contentValue = getAbsLink(contentValue);
+          imageSrc = contentValue;
         }
       }
       
@@ -563,10 +569,10 @@ public class LinkShare extends DefaultFilter {
           mediaAlbum = contentValue;
         }
       }
-    } else if ((imageSrc == null) && ("img".equalsIgnoreCase(element.rawname))) { //process img tag
+    } else if ((imageSrc == null) && ("img".equalsIgnoreCase(element.rawname))) { //process img tag will be done once there is no og:image or image_ref
       String src = attributes.getValue("src");
       if (src == null) return;
-      
+
       if (isAcceptableImg(src)) {
         src = getAbsLink(src);
         if (images == null) images = new ArrayList<String>();
@@ -657,6 +663,9 @@ public class LinkShare extends DefaultFilter {
     BufferedImage img = null;
     try {
        img = ImageIO.read(new URL(src));
+       if(img == null) {
+         return false;
+       }
        int width = img.getWidth();
        int height = img.getHeight();
        return (width > MIN_WIDTH && height > MIN_HEIGHT);
