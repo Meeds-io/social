@@ -15,6 +15,7 @@
       :height="height"
       :filter="filterIgnoredItems"
       :hide-no-data="hideNoData"
+      :class="(required && !value && 'required-field invalid') || (required && 'required-field')"
       append-icon=""
       menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
