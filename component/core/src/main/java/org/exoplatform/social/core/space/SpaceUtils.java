@@ -422,7 +422,6 @@ public class SpaceUtils {
    * Rename label group
    *
    * @param space
-   * @return
    */
   public static void renameGroupLabel(Space space) {
     try {
@@ -443,7 +442,7 @@ public class SpaceUtils {
    * Rename page node.
    *
    * @param space
-   * @return
+   * @return UserNode
    */
   public static UserNode renamePageNode(Space space) {
 
