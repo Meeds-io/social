@@ -838,6 +838,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     CollectionEntity collectionCommonSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
 
+    if (returnSize) {
+      collectionCommonSpace.setSize( commonSpaceInfos.size());
+    }
     return EntityBuilder.getResponse(collectionCommonSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
