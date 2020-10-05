@@ -172,7 +172,7 @@ export default {
     }
   },
   mounted() {
-    this.postTarget = eXo.env.portal.spaceDisplayName || this.$t('activity.composer.post');
+    this.postTarget = eXo.env.portal.spaceDisplayName || this.$t('activity.composer.stream');
     this.message = this.activityBody;
 
     if (this.activityId) {
