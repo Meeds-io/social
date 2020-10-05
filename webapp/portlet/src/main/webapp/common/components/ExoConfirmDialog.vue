@@ -1,6 +1,8 @@
 <template>
   <v-dialog
+    ref="dialog"
     v-model="dialog"
+    :persistent="persistent"
     :width="width"
     content-class="uiPopup"
     max-width="100vw">
@@ -43,6 +45,12 @@
 export default {
   props: {
     loading: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
+    persistent: {
       type: Boolean,
       default: function() {
         return false;
@@ -97,30 +105,28 @@ export default {
       }
     },
   },
-  created() {
-    $(document).on('keydown', (event) => {
-      if (event.key === 'Escape') {
-        this.dialog = false;
-      }
-    });
-  },
   methods: {
     ok(event) {
-      event.preventDefault();
-      event.stopPropagation();
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
 
       this.$emit('ok');
-      this.dialog = false;
+      this.close(event);
     },
     close(event) {
-      event.preventDefault();
-      event.stopPropagation();
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
 
       this.$emit('closed');
-      this.dialog = false;
+      this.$nextTick(() => this.dialog = false);
     },
     open() {
-      this.dialog = true;
+      this.$emit('opened');
+      this.$nextTick(() => this.dialog = true);
     },
   },
 };
