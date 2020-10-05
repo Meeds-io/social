@@ -359,7 +359,6 @@ public class EntityBuilder {
           identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
         }
         spaceEntity.setIdentity(identity);
-        spaceEntity.setGroupId(space.getGroupId());
         spaceEntity.setHasBindings(space.hasBindings());
         spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
         spaceEntity.setApplications(getSpaceApplications(space));
@@ -396,6 +395,7 @@ public class EntityBuilder {
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
+    spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
