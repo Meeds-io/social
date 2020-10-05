@@ -21,14 +21,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
@@ -128,6 +126,26 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
     List<MembershipEntry> memberships = spacesAdministrationService.getSpacesCreatorsMemberships();
 
     return EntityBuilder.getResponse(new SpacesAdministrationMembershipsEntity("spacesCreators", memberships), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+
+  @GET
+  @Path("permissions/canCreatespaces/{username}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Check if members can create spaces",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns if members can add spaces")
+  @ApiResponses(value = {
+      @ApiResponse (code = 200, message = "Request fulfilled"),
+      @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
+      @ApiResponse (code = 404, message = "Resource not found"),
+      @ApiResponse (code = 500, message = "Internal server error")})
+  public Response canCreatespaces(@Context UriInfo uriInfo, @ApiParam(value = "Username", required = true) @PathParam("username") String username) {
+
+    Boolean canCreateSpaces = spacesAdministrationService.canCreateSpace(username);
+
+    return EntityBuilder.getResponse(canCreateSpaces.toString(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
   @PUT
