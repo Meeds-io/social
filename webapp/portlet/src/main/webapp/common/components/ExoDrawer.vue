@@ -8,8 +8,8 @@
     :fixed="fixed"
     temporary
     touchless
-    height="100vh"
-    max-height="100vh"
+    height="100%"
+    max-height="100%"
     width="420px"
     max-width="100vw"
     class="drawerParent">
