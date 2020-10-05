@@ -99,6 +99,7 @@ export default {
         const date = new Date(this.value);
         date.setHours(timeOption.hours);
         date.setMinutes(timeOption.minutes);
+        date.setSeconds(0);
         this.$emit('input', date);
       } else if (this.valueType === 'time') {
         this.$emit('input', this.timeValue);
@@ -106,11 +107,13 @@ export default {
         const date = new Date(this.value);
         date.setHours(timeOption.hours);
         date.setMinutes(timeOption.minutes);
+        date.setSeconds(0);
         this.$emit('input', date.toLocaleString(this.lang));
       } else if (this.valueType === 'number') {
         const date = new Date(this.value);
         date.setHours(timeOption.hours);
         date.setMinutes(timeOption.minutes);
+        date.setSeconds(0);
         this.$emit('input', date.getTime());
       }
     },
