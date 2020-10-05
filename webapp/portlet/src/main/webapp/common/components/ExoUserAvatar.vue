@@ -71,6 +71,10 @@ export default {
         return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       },
     },
+    labels: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
@@ -79,20 +83,18 @@ export default {
         .toString()}`,
     };
   },
-  computed: {
-    labels() {
-      return {
-        CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
-        Confirm: this.$t('spacesList.label.profile.Confirm'),
-        Connect: this.$t('spacesList.label.profile.Connect'),
-        Ignore: this.$t('spacesList.label.profile.Ignore'),
-        RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
-        StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
-      };
-    },
-  },
   mounted() {
     if (this.username && this.tiptip) {
+      if (!this.labels) {
+        this.labels = {
+          CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
+          Confirm: this.$t('spacesList.label.profile.Confirm'),
+          Connect: this.$t('spacesList.label.profile.Connect'),
+          Ignore: this.$t('spacesList.label.profile.Ignore'),
+          RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
+          StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
+        };
+      }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
     }
