@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.web.url.navigation.NodeURL;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -415,6 +416,67 @@ public class SpaceUtils {
       }
     }
     return cleanedStr.toString().toLowerCase();
+  }
+
+  /**
+   * Rename label group
+   *
+   * @param space
+   */
+  public static void renameGroupLabel(Space space) {
+    try {
+      RequestLifeCycle.begin(PortalContainer.getInstance());
+      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+      GroupHandler groupHandler = organizationService.getGroupHandler();
+      Group group = groupHandler.findGroupById(space.getGroupId());
+      group.setLabel(space.getDisplayName());
+      groupHandler.saveGroup(group, true);
+    } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
+    } finally {
+      RequestLifeCycle.end();
+    }
+  }
+
+  /**
+   * Rename page node.
+   *
+   * @param space
+   * @return UserNode
+   */
+  public static UserNode renamePageNode(Space space) {
+
+    try {
+
+      DataStorage dataService = CommonsUtils.getService(DataStorage.class);
+      UserNode renamedNode = SpaceUtils.getSpaceUserNode(space);
+      UserNode parentNode = renamedNode.getParent();
+      String newNodeLabel = space.getDisplayName();
+      String newNodeName = SpaceUtils.cleanString(newNodeLabel);
+      renamedNode.setLabel(newNodeLabel);
+      renamedNode.setName(newNodeName);
+
+      Page page = dataService.getPage(renamedNode.getPageRef().format());
+      if (page != null) {
+        page.setTitle(newNodeLabel);
+        dataService.save(page);
+      }
+
+      SpaceUtils.getUserPortal().saveNode(parentNode, null);
+
+      space.setUrl(newNodeName);
+      SpaceUtils.changeAppPageTitle(renamedNode, newNodeLabel);
+
+      List<UserNode> userNodes = new ArrayList<>(renamedNode.getChildren());
+      for (UserNode childNode : userNodes) {
+        SpaceUtils.changeSpaceUrlPreference(childNode, space, newNodeLabel);
+        SpaceUtils.changeAppPageTitle(childNode, newNodeLabel);
+      }
+      return renamedNode;
+    } catch (Exception e) {
+      LOG.warn(e.getMessage(), e);
+      return null;
+    }
   }
 
   /**

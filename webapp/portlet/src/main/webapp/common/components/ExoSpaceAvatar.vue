@@ -53,6 +53,10 @@ export default {
         return null;
       },
     },
+    labels: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
@@ -62,19 +66,6 @@ export default {
     };
   },
   computed: {
-    labels() {
-      return {
-        CancelRequest: this.$t('profile.CancelRequest'),
-        Confirm: this.$t('profile.Confirm'),
-        Connect: this.$t('profile.Connect'),
-        Ignore: this.$t('profile.Ignore'),
-        RemoveConnection: this.$t('profile.RemoveConnection'),
-        StatusTitle: this.$t('profile.StatusTitle'),
-        join: this.$t('profile.join'),
-        leave: this.$t('profile.leave'),
-        members: this.$t('profile.members'),
-      };
-    },
     spaceId() {
       return this.space && this.space.id;
     },
@@ -100,6 +91,19 @@ export default {
   },
   mounted() {
     if (this.spaceId && this.groupId && this.tiptip) {
+      if (!this.labels) {
+        this.labels = {
+          CancelRequest: this.$t('profile.CancelRequest'),
+          Confirm: this.$t('profile.Confirm'),
+          Connect: this.$t('profile.Connect'),
+          Ignore: this.$t('profile.Ignore'),
+          RemoveConnection: this.$t('profile.RemoveConnection'),
+          StatusTitle: this.$t('profile.StatusTitle'),
+          join: this.$t('profile.join'),
+          leave: this.$t('profile.leave'),
+          members: this.$t('profile.members'),
+        };
+      }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
     }

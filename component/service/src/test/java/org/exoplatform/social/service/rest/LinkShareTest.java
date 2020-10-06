@@ -28,4 +28,28 @@ public class LinkShareTest {
       }
     }
   }
+
+  @Test
+  public void shouldFetchLinkPreviewWhenPreviewIsDisabled() throws Exception {
+    // Given
+    String previousPropertyValue = System.getProperty(LinkShare.ACTIVITY_LINK_PREVIEW_ENABLED_PROPERTY);
+    System.setProperty(LinkShare.ACTIVITY_LINK_PREVIEW_ENABLED_PROPERTY, "true");
+
+    try {
+      // When
+      LinkShare linkShare = LinkShare.getInstance("https://www.meeds.io/");
+
+      // Then
+      assertNotNull(linkShare);
+      assertEquals("https://www.meeds.io/", linkShare.getLink());
+      assertNotNull(linkShare.getDescription());
+      assertNotNull(linkShare.getImages());
+    } finally {
+      if (previousPropertyValue == null) {
+        System.clearProperty(LinkShare.ACTIVITY_LINK_PREVIEW_ENABLED_PROPERTY);
+      } else {
+        System.setProperty(LinkShare.ACTIVITY_LINK_PREVIEW_ENABLED_PROPERTY, previousPropertyValue);
+      }
+    }
+  }
 }

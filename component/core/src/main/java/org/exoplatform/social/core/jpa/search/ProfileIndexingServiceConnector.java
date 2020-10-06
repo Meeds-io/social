@@ -250,8 +250,10 @@ import org.exoplatform.social.core.relationship.model.Relationship;
   }
 
   private static String removeAccents(String string) {
-    string = Normalizer.normalize(string, Normalizer.Form.NFD);
-    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    if (StringUtils.isNotBlank(string)){
+      string = Normalizer.normalize(string, Normalizer.Form.NFD);
+      string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    }
     return string;
   }
 }

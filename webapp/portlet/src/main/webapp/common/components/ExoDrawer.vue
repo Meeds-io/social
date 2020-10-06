@@ -8,8 +8,8 @@
     :fixed="fixed"
     temporary
     touchless
-    height="100vh"
-    max-height="100vh"
+    height="100%"
+    max-height="100%"
     width="420px"
     max-width="100vw"
     class="drawerParent">
@@ -23,7 +23,7 @@
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
-                <v-icon class="my-auto" @click="drawer = false">mdi-close</v-icon>
+                <v-icon class="my-auto" @click="close()">mdi-close</v-icon>
               </v-list-item-action>
             </v-list-item>
           </v-flex>
@@ -39,6 +39,15 @@
             <slot name="footer"></slot>
           </v-flex>
         </template>
+        <exo-confirm-dialog
+          v-if="confirmClose"
+          ref="closeConfirmDialog"
+          :title="confirmCloseLabels.title"
+          :message="confirmCloseLabels.message"
+          :ok-label="confirmCloseLabels.ok"
+          :cancel-label="confirmCloseLabels.cancel"
+          persistent
+          @ok="closeEffectively" />
       </v-layout>
     </v-container>
   </v-navigation-drawer>
@@ -59,6 +68,19 @@ export default {
       type: String,
       default: () => 'hide-scroll decrease-z-index',
     },
+    confirmClose: {
+      type: Boolean,
+      default: () => false,
+    },
+    confirmCloseLabels: {
+      type: Object,
+      default: () => ({
+        title: null,
+        message: null,
+        ok: null,
+        cancel: null,
+      }),
+    },
   },
   data: () => ({
     drawer: false,
@@ -75,25 +97,50 @@ export default {
         }, 200);
         this.$emit('closed');
       }
+
       this.$nextTick().then(() => {
         $('.v-overlay').off('click').on('click', () => {
-          this.drawer = false;
+          this.close();
         });
       });
     },
   },
   created() {
-    $(document).on('keydown', (event) => {
-      if (event.key === 'Escape') {
-        this.drawer = false;
-      }
-    });
+    $(document).on('keydown', this.closeByEscape);
   },
   methods: {
     open() {
       this.drawer = true;
     },
+    closeByEscape(event) {
+      if (event.key === 'Escape' && this.drawer) {
+        this.close(event);
+      }
+    },
     close() {
+      if (this.confirmClose) {
+        if (this.$refs.closeConfirmDialog) {
+          if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          if (this.$refs.closeConfirmDialog.dialog) {
+            this.$nextTick(this.$refs.closeConfirmDialog.close);
+          } else {
+            this.$nextTick(this.$refs.closeConfirmDialog.open);
+          }
+        }
+      } else {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        this.closeEffectively();
+      }
+    },
+    closeEffectively() {
       this.drawer = false;
     },
     startLoading() {

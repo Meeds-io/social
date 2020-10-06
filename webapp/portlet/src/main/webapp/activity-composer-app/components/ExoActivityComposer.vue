@@ -172,8 +172,12 @@ export default {
     }
   },
   mounted() {
-    this.postTarget = eXo.env.portal.spaceDisplayName || this.$t('activity.composer.post');
+    this.postTarget = eXo.env.portal.spaceDisplayName || '';
     this.message = this.activityBody;
+
+    if (!eXo.env.portal.spaceDisplayName){
+      this.link = `${this.$t('activity.composer.post')}`;
+    }
 
     if (this.activityId) {
       this.editActivity();
