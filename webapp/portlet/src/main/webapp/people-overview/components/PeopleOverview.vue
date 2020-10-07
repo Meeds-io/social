@@ -46,6 +46,9 @@ export default {
             this.skeleton = false;
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
+          if (window.location.pathname.includes('receivedInvitations')) {
+            this.$refs.peopleDrawer.open('invitations', this.$t('peopleOverview.label.invitations'));
+          }
         });
       this.$userService.getPending()
         .then(data => {
