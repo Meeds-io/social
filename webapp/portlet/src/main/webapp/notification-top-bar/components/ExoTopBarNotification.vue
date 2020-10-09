@@ -189,6 +189,7 @@ export default {
             $(this).removeClass('unread').addClass('read');
           }
           notificationlAPI.updateNotification(dataId,'markAsRead');
+          const chatRoomId = $(this).find('.contentSmall:first').data('room-id');
 
           if(linkId != null && linkId.length >1 ) {
             if (linkId[0].includes('/view_full_activity/')) {
@@ -197,6 +198,10 @@ export default {
             } else {
               location.href = `${eXo.env.portal.context}/${linkId[1]}`;
             }
+          } else if (chatRoomId) {
+            document.dispatchEvent(new CustomEvent('exo-chat-select-room-requested', {'detail': chatRoomId}));
+            const chatWindowUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/chat`;
+            window.open(chatWindowUrl, '_chat').focus();
           } else {
             location.href = dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`);
           }
