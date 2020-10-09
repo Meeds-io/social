@@ -127,7 +127,7 @@ public class ActivitySearchConnector {
     List<ActivitySearchResult> results = new ArrayList<>();
     JSONParser parser = new JSONParser();
 
-    Map json = null;
+    Map json;
     try {
       json = (Map) parser.parse(jsonResponse);
     } catch (ParseException e) {
@@ -152,7 +152,7 @@ public class ActivitySearchConnector {
         Long parentId = parseLong(hitSource, "parentId");
         Long streamOwner = parseLong(hitSource, "streamOwner");
         if (!streamFeedOwnerIds.contains(streamOwner)) {
-          LOG.warn("Activity '{}' is returned in seach result while it's not permitted to user {}. Ignore it.",
+          LOG.warn("Activity '{}' is returned in search result while it's not permitted to user {}. Ignore it.",
                    id,
                    viewerIdentity.getId());
           continue;
@@ -161,11 +161,15 @@ public class ActivitySearchConnector {
         Long lastUpdatedTime = (Long) hitSource.get("lastUpdatedDate");
         String body = (String) hitSource.get("body");
         String type = (String) hitSource.get("type");
-        JSONObject hightlightSource = (JSONObject) jsonHitObject.get("highlight");
-        JSONArray bodyExcepts = (JSONArray) hightlightSource.get("body");
-        @SuppressWarnings("unchecked")
-        String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
-        List<String> excerpts = Arrays.asList(bodyExceptsArray);
+        JSONObject highlightSource = (JSONObject) jsonHitObject.get("highlight");
+        List<String> excerpts = new ArrayList<>();
+        if(highlightSource != null) {
+          JSONArray bodyExcepts = (JSONArray) highlightSource.get("body");
+          if(bodyExcepts != null) {
+            String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
+            excerpts = Arrays.asList(bodyExceptsArray);
+          }
+        }
 
         if (parentId == null) {
           // Activity

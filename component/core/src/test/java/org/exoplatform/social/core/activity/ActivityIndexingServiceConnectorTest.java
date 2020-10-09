@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Locale;
 
+import org.exoplatform.social.core.identity.model.Profile;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -115,6 +116,12 @@ public class ActivityIndexingServiceConnectorTest {
     Identity streamOwner = new Identity("streamOwner");
     when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
 
+    Identity posterIdentity = new Identity("posterId");
+    Profile posterProfile = new Profile(posterIdentity);
+    posterProfile.setProperty("fullName", "Poster FullName");
+    posterIdentity.setProfile(posterProfile);
+    when(identityManager.getIdentity("posterId")).thenReturn(posterIdentity);
+
     when(activityManager.getActivity(eq("1"))).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
@@ -131,6 +138,7 @@ public class ActivityIndexingServiceConnectorTest {
     assertEquals("type", document.getFields().get("type"));
     assertEquals(ActivityIndexingServiceConnector.TYPE, document.getType());
     assertEquals("posterId", document.getFields().get("posterId"));
+    assertEquals("Poster FullName", document.getFields().get("posterName"));
     assertEquals("1234", document.getFields().get("postedTime"));
     assertNotNull(document.getLastUpdatedDate());
     assertEquals(4321L, document.getLastUpdatedDate().getTime());
@@ -178,6 +186,12 @@ public class ActivityIndexingServiceConnectorTest {
     Identity streamOwner = new Identity("streamOwner");
     when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
 
+    Identity posterIdentity = new Identity("posterId");
+    Profile posterProfile = new Profile(posterIdentity);
+    posterProfile.setProperty("fullName", "PosterUpdated FullName");
+    posterIdentity.setProfile(posterProfile);
+    when(identityManager.getIdentity("posterId")).thenReturn(posterIdentity);
+
     when(activityManager.getActivity(eq("1"))).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
@@ -194,6 +208,7 @@ public class ActivityIndexingServiceConnectorTest {
     assertEquals("type", document.getFields().get("type"));
     assertEquals(ActivityIndexingServiceConnector.TYPE, document.getType());
     assertEquals("posterId", document.getFields().get("posterId"));
+    assertEquals("PosterUpdated FullName", document.getFields().get("posterName"));
     assertEquals("1234", document.getFields().get("postedTime"));
     assertNotNull(document.getLastUpdatedDate());
     assertEquals(4321L, document.getLastUpdatedDate().getTime());

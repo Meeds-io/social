@@ -18,7 +18,7 @@
       },
       "must":{
         "query_string":{
-          "fields": ["body"],
+          "fields": ["body", "posterName"],
           "query": "@term_query@"
         }
       }
