@@ -258,7 +258,7 @@ export default {
     },
   },
   mounted() {
-    if(location.search === '?createSpace=true'){
+    if(window.location.href.indexOf('/all-spaces?createSpace=true') > -1){
       this.setSpaceTemplateProperties();
       this.title= this.$t('spacesList.label.addNewSpace');
       this.$refs.spaceFormDrawer.open();
