@@ -784,6 +784,71 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     
     return EntityBuilder.getResponse(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
+
+  @GET
+  @Path("{userId}/spaces/{profileId}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Gets commons spaces of current user",
+      httpMethod = "GET",
+      response = Response.class,
+      notes = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  public Response getCommonSpacesOfUser(@Context UriInfo uriInfo,
+                                        @ApiParam(value = "User Id", required = true) @PathParam("userId") String userId,
+                                        @ApiParam(value = "Profile Id", required = true) @PathParam("profileId") String profileId,
+                                        @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
+                                        @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
+                                        @ApiParam(value = "Returning the number of spaces or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                        @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>", required = false) @QueryParam("expand") String expand) throws Exception {
+
+    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+    Identity userProfile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, profileId);
+    //Check if the current user and profile user exists
+    if (currentUser == null || userProfile == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    //Check permission of authenticated user : he must be an admin or he is the given user
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId) ) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+
+    List<String> userSpaceInfos = new ArrayList<String>();
+    List<String> profileSpaceInfos = new ArrayList<String>();
+    List<DataEntity> commonSpaceInfos = new ArrayList<DataEntity>();
+
+    ListAccess<Space> cureentUserListAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(userId);
+    ListAccess<Space> profileUserlistAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(profileId);
+
+    for (Space space : cureentUserListAccess.load(offset, limit)) {
+      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand);
+      userSpaceInfos.add(spaceInfo.getId());
+    }
+
+    for (Space space : profileUserlistAccess.load(offset, limit)) {
+      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, profileId, uriInfo.getPath(), expand);
+      profileSpaceInfos.add(spaceInfo.getId());
+    }
+
+    List<String> commonSpacesId = userSpaceInfos.stream()
+                                                .filter(profileSpaceInfos::contains)
+                                                .collect(Collectors.toList());
+
+    for(String id : commonSpacesId){
+      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id), profileId, uriInfo.getPath(), expand);
+      commonSpaceInfos.add(spaceInfo.getDataEntity());
+    }
+
+    CollectionEntity collectionCommonSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
+
+    if (returnSize) {
+      collectionCommonSpace.setSize( commonSpaceInfos.size());
+    }
+    return EntityBuilder.getResponse(collectionCommonSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
   
   @GET
   @Path("{id}/activities")

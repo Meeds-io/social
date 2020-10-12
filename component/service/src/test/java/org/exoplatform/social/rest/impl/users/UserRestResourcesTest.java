@@ -340,6 +340,48 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, collections.getEntities().size());
   }
 
+
+  public void testGetCommonSpaces() throws Exception {
+    Space spaceTest =  getSpaceInstance(0, "root");
+    Space spaceTest1 =  getSpaceInstance(1, "demo");
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
+    spaceTest.setMembers(new String[] {"john"});
+    spaceService.updateSpace(spaceTest);
+    response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    startSessionAs("john");
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    spaceTest1.setMembers(new String[] {"john", "root"});
+    spaceService.updateSpace(spaceTest1);
+
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
+    startSessionAs("demo");
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(403, response.getStatus());
+  }
+
   public void testAddActivityByUser() throws Exception {
     String input = "{\"title\":titleOfActivity,\"templateParams\":{\"param1\": value1,\"param2\":value2}}";
     startSessionAs("john");
