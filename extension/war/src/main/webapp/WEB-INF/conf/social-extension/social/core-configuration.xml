@@ -783,6 +783,15 @@
     </external-component-plugins>
 
     <external-component-plugins>
+        <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
+        <component-plugin>
+            <name>SpaceRenamedListenerImpl</name>
+            <set-method>addSpaceListener</set-method>
+            <type>org.exoplatform.social.core.space.impl.SpaceRenamedListenerImpl</type>
+        </component-plugin>
+    </external-component-plugins>
+
+    <external-component-plugins>
         <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
         <component-plugin>
             <name>space.binding.group.event.listener</name>
