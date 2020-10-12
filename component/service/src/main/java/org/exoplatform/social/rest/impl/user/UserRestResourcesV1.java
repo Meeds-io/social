@@ -772,7 +772,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     //Check permission of authenticated user : he must be an admin or he is the given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id)) {
-      //Check permission of user owner of spaces to retrieve : authenticated user must be in a confirmed relationship with user
+      //Check permission of spaces to retrieve owner : authenticated user must be in a confirmed relationship with spaces to retrieve's owner
       Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
       if (relationshipManager.get(authenticatedUserIdentity, userIdentity).getStatus() != Relationship.Type.CONFIRMED) {
