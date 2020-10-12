@@ -115,6 +115,7 @@ export default {
   }),
   watch: {
     experience() {
+      console.log('###*** Works: ', this.experience);
       this.copyAtributes();
     },
     endDate() {

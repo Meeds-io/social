@@ -63,22 +63,41 @@ export default {
     },
   },
   data: () => ({
+    hasCurrentExperience: false,
     openedExperience: null,
     saving: null,
     error: null,
   }),
+  created() {
+    console.log('######### Created !!!');
+    console.log('######### Experiences: ', this.experiences);
+    if (this.experiences) {
+      this.hasCurrentExperience = this.experiences.some(experience => experience.isCurrent);
+    }
+  },
   methods: {
     save() {
       this.error = null;
 
       const experiences = this.experiences.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
       for (const experience of experiences) {
-        if (experience.startDate && experience.endDate && new Date(experience.startDate) > new Date(experience.endDate)) {
+        console.log('*** Here 0 ***');
+        console.log('#################################################');
+        console.log('### $refs: ', this.$refs);
+        console.log('### profileContactForm: ', this.$refs.profileContactForm);
+        console.log('### hasCurrentExperience: ', this.hasCurrentExperience);
+        console.log('Experience: ', experience);
+        if (!experience.endDate && this.hasCurrentExperience && !experience.id) {
+          this.handleError(this.$t('profileWorkExperiences.invalidStillInPosition'));
+          return;
+        }
+        if (experience.startDate && experience.endDate && new Date(experience.startDate) >= new Date(experience.endDate)) {
           this.handleError(this.$t('profileWorkExperiences.invalidEndDate'));
           return;
         }
         
         if (experience.company && experience.position) {
+          console.log('*** Here 1 ***');
           if (this.$refs.profileContactForm.$el[1]) {
             experience.company = experience.company.trim();
             if (experience.company !== null && experience.company.length > 250 || experience.company !== null && experience.company.length < 3) {
@@ -126,7 +145,28 @@ export default {
             this.handleError(this.$t('profileWorkExperiences.beforeTodayStartDate'));
             return;
           }
-        }        
+        } else {
+          console.log('*** Here 2 ***');
+          if (!experience.company) {
+            this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              0: this.$t('profileWorkExperiences.company'),
+              1: 3,
+              2: 250,
+            }));
+          } else {
+            this.$refs.profileContactForm.$el[1].setCustomValidity('');
+          }
+
+          if (!experience.position) {
+            this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              0: this.$t('profileWorkExperiences.jobTitle'),
+              1: 3,
+              2: 100,
+            }));
+          } else {
+            this.$refs.profileContactForm.$el[2].setCustomValidity('');
+          }
+        }
       }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
@@ -150,6 +190,7 @@ export default {
         .finally(() => {
           this.saving = false;
           this.$refs.profileWorkExperiencesDrawer.endLoading();
+          this.$emit('refreshWorkExperiencesDrawer');
         });
     },
     handleError(error) {
