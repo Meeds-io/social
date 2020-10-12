@@ -810,6 +810,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
+    //Check permission of authenticated user : he must be an admin or he is the given user
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId) ) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+
     List<String> userSpaceInfos = new ArrayList<String>();
     List<String> profileSpaceInfos = new ArrayList<String>();
     List<DataEntity> commonSpaceInfos = new ArrayList<DataEntity>();
