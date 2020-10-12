@@ -775,7 +775,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       //Check permission of spaces to retrieve owner : authenticated user must be in a confirmed relationship with spaces to retrieve's owner
       Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-      if (relationshipManager.get(authenticatedUserIdentity, userIdentity).getStatus() != Relationship.Type.CONFIRMED) {
+      Relationship relationship = relationshipManager.get(authenticatedUserIdentity, userIdentity);
+      if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
         throw new WebApplicationException(Response.Status.FORBIDDEN);
       }
     }
