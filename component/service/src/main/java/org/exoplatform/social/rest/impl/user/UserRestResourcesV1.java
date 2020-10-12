@@ -16,30 +16,14 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
-
+import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
-import org.picocontainer.Startable;
-
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.*;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -53,14 +37,21 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.*;
-import org.exoplatform.social.core.model.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.model.Attachment;
+import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -72,9 +63,24 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
+import org.json.JSONObject;
+import org.picocontainer.Startable;
 
-import io.swagger.annotations.*;
-import io.swagger.jaxrs.PATCH;
+import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
+import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
 
 /**
  * 
@@ -745,19 +751,19 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("{id}/spaces")
   @RolesAllowed("users")
   @ApiOperation(value = "Gets spaces of a specific user",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   public Response getSpacesOfUser(@Context UriInfo uriInfo,
                                   @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                                   @ApiParam(value = "Returning the number of spaces or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                                   @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>", required = false) @QueryParam("expand") String expand) throws Exception {
-    
+
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    
+
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     //Check if the given user exists
     if (target == null) {
@@ -765,23 +771,28 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     //Check permission of authenticated user : he must be an admin or he is the given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id) ) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id)) {
+      //Check permission of user owner of spaces to retrieve : authenticated user must be in a confirmed relationship with user
+      Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+      if (relationshipManager.get(authenticatedUserIdentity, userIdentity).getStatus() != Relationship.Type.CONFIRMED) {
+        throw new WebApplicationException(Response.Status.FORBIDDEN);
+      }
     }
-    
+
     List<DataEntity> spaceInfos = new ArrayList<DataEntity>();
     ListAccess<Space> listAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(id);
-    
+
     for (Space space : listAccess.load(offset, limit)) {
       SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, id, uriInfo.getPath(), expand);
       //
-      spaceInfos.add(spaceInfo.getDataEntity()); 
+      spaceInfos.add(spaceInfo.getDataEntity());
     }
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
-      collectionSpace.setSize( listAccess.getSize());
+      collectionSpace.setSize(listAccess.getSize());
     }
-    
+
     return EntityBuilder.getResponse(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
