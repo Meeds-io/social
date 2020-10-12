@@ -305,6 +305,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     getSpaceInstance(1, "john");
     getSpaceInstance(2, "demo");
     getSpaceInstance(3, "demo");
+    getSpaceInstance(4, "mary");
     
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users/root/spaces?limit=5&offset=0"), "", null, null);
@@ -314,6 +315,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, collections.getEntities().size());
 
     startSessionAs("john");
+    relationshipManager.inviteToConnect(johnIdentity, demoIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
     response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -329,6 +332,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs("john");
     response = service("GET", getURLResource("users/demo/spaces?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    startSessionAs("john");
+    response = service("GET", getURLResource("users/mary/spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(403, response.getStatus());
 
