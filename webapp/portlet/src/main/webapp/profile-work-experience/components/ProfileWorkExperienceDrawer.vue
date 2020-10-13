@@ -22,8 +22,9 @@
         </v-card-text>
         <v-expansion-panels
           v-if="experiences && experiences.length"
-          v-model="openedExperience"
+          v-model="openedExperiences"
           class="d-block border-box-sizing"
+          multiple
           flat>
           <profile-work-experience-edit-item
             v-for="(experience,i) in experiences"
@@ -64,13 +65,16 @@ export default {
   },
   data: () => ({
     hasCurrentExperience: false,
-    openedExperience: null,
+    openedExperiences: [],
     saving: null,
     error: null,
   }),
+  watch: {
+    openedExperiences() {
+      console.log('*** openedExperiences: ', this.openedExperiences);
+    }
+  },
   created() {
-    console.log('######### Created !!!');
-    console.log('######### Experiences: ', this.experiences);
     if (this.experiences) {
       this.hasCurrentExperience = this.experiences.some(experience => experience.isCurrent);
     }
@@ -80,13 +84,17 @@ export default {
       this.error = null;
 
       const experiences = this.experiences.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
+      console.log('Experiences: ', experiences);
       for (const experience of experiences) {
-        console.log('*** Here 0 ***');
-        console.log('#################################################');
+        const itemIndex = this.experiences.findIndex(exp => exp.id === experience.id);
+        console.log('############################################');
+        console.log('this.experiences: ', this.experiences);
+        console.log('# * # itemIndex : ', itemIndex);
         console.log('### $refs: ', this.$refs);
         console.log('### profileContactForm: ', this.$refs.profileContactForm);
-        console.log('### hasCurrentExperience: ', this.hasCurrentExperience);
-        console.log('Experience: ', experience);
+        this.openedExperiences = [];
+        this.openedExperiences.push(itemIndex);
+        
         if (!experience.endDate && this.hasCurrentExperience && !experience.id) {
           this.handleError(this.$t('profileWorkExperiences.invalidStillInPosition'));
           return;
@@ -97,7 +105,8 @@ export default {
         }
         
         if (experience.company && experience.position) {
-          console.log('*** Here 1 ***');
+          console.log('experience.company: ', experience.company);
+          console.log('experience.company.field: ', this.$refs.profileContactForm.$el[1]);
           if (this.$refs.profileContactForm.$el[1]) {
             experience.company = experience.company.trim();
             if (experience.company !== null && experience.company.length > 250 || experience.company !== null && experience.company.length < 3) {
@@ -111,6 +120,8 @@ export default {
             }
           }
 
+          console.log('experience.position: ', experience.position);
+          console.log('experience.position.field: ', this.$refs.profileContactForm.$el[2]);
           if (this.$refs.profileContactForm.$el[2]) {
             experience.position = experience.position.trim();
             if (experience.position !== null && experience.position.length > 100 || experience.position !== null && experience.position.length < 3) {
@@ -146,7 +157,9 @@ export default {
             return;
           }
         } else {
-          console.log('*** Here 2 ***');
+          console.log('*experience.company: ', experience.company ? 'true': 'false');
+          console.log('*experience.position: ', experience.position ? 'true': 'false');
+          console.log('*EL: ', this.$refs.profileContactForm.$el);
           if (!experience.company) {
             this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
               0: this.$t('profileWorkExperiences.company'),
@@ -213,12 +226,12 @@ export default {
     },
     addNew() {
       this.experiences.unshift({});
-      this.openedExperience = 0;
+      this.openedExperiences.push(0);
     },
     remove(experience) {
       const index = this.experiences.findIndex(temp => temp === experience);
-      if (this.openedExperience === index) {
-        this.openedExperience = null;
+      if (this.openedExperiences.includes(index)) {
+        this.openedExperiences.splice(this.openedExperiences.findIndex(index), 1);
       }
       this.experiences.splice(index, 1);
     },
