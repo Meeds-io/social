@@ -90,7 +90,6 @@ export default {
     },
     setExperiences(experiences) {
       experiences = experiences || [];
-      console.log('*experiences: ', experiences);
       try {
         experiences.sort((a, b) => {
           if (a.isCurrent) {
@@ -108,7 +107,6 @@ export default {
           if (!b.startDate) {
             return -1;
           }
-          console.log('*Test: ', Date(b.startDate).getTime() - new Date(a.startDate).getTime());
           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
         });
       } catch (e) {
