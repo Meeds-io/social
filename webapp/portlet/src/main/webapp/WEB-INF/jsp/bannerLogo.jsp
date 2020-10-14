@@ -32,7 +32,8 @@
   } else {
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
-    portalPath = space.getUrl();
+    String permanentSpaceName = space.getGroupId().split("/")[2];
+    portalPath ="/portal/g/:spaces:"+ permanentSpaceName + "/"+ space.getDisplayName();
     imageClass="spaceAvatar";
     titleClass = "space";
   }
