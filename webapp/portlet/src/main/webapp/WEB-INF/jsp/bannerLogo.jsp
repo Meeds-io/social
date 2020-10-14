@@ -32,7 +32,8 @@
   } else {
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
-    portalPath = space.getUrl();
+    String permanentSpaceName = space.getGroupId().split("/")[2];
+    portalPath ="/portal/g/:spaces:"+ permanentSpaceName + "/"+ space.getDisplayName();
     imageClass="spaceAvatar";
     titleClass = "space";
   }
@@ -56,7 +57,7 @@
         <div class="d-flex mx-0 pa-0">
           <% if (logoPath != null) { %>
           <a id="UserHomePortalLink" href="<%=portalPath%>" class="pr-3 logoContainer">
-            <img src="<%=logoPath%>" class="<%=imageClass%>" alt="Logo">
+            <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%> - Homepage">
           </a>
           <% } %>
           <a href="<%=portalPath%>" title="<%=logoTitle%>" class="pl-2 align-self-center brandingContainer <%=titleClass%>">

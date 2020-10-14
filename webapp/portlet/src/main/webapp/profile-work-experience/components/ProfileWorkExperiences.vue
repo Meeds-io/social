@@ -41,7 +41,9 @@
     </div>
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
+      :key="workExperiencesDrawerKey"
       :experiences="experiences"
+      @refreshWorkExperiencesDrawer="initWorkExperiencesDrawer"
       @refresh="setExperiences($event)" />
   </v-app>
 </template>
@@ -59,6 +61,7 @@ export default {
     skeleton: true,
     error: null,
     saving: null,
+    workExperiencesDrawerKey: 0,
   }),
   computed: {
     mobile() {
@@ -110,6 +113,9 @@ export default {
         console.error('Error sorting experiences', e); // eslint-disable-line no-console
       }
       this.experiences = experiences;
+    },
+    initWorkExperiencesDrawer() {
+      this.workExperiencesDrawerKey += 1;
     },
     editWorkExperiences() {
       this.$refs.profileWorkExperiencesDrawer.open();

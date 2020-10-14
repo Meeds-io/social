@@ -305,6 +305,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     getSpaceInstance(1, "john");
     getSpaceInstance(2, "demo");
     getSpaceInstance(3, "demo");
+    getSpaceInstance(4, "mary");
     
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users/root/spaces?limit=5&offset=0"), "", null, null);
@@ -314,6 +315,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, collections.getEntities().size());
 
     startSessionAs("john");
+    relationshipManager.inviteToConnect(johnIdentity, demoIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
     response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -330,6 +333,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("john");
     response = service("GET", getURLResource("users/demo/spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    startSessionAs("john");
+    response = service("GET", getURLResource("users/mary/spaces?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
     assertEquals(403, response.getStatus());
 
     startSessionAs("root");
@@ -338,6 +346,48 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(2, collections.getEntities().size());
+  }
+
+
+  public void testGetCommonSpaces() throws Exception {
+    Space spaceTest =  getSpaceInstance(0, "root");
+    Space spaceTest1 =  getSpaceInstance(1, "demo");
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
+    spaceTest.setMembers(new String[] {"john"});
+    spaceService.updateSpace(spaceTest);
+    response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    startSessionAs("john");
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    spaceTest1.setMembers(new String[] {"john", "root"});
+    spaceService.updateSpace(spaceTest1);
+
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
+    startSessionAs("demo");
+    response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(403, response.getStatus());
   }
 
   public void testAddActivityByUser() throws Exception {

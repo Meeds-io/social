@@ -22,8 +22,9 @@
         </v-card-text>
         <v-expansion-panels
           v-if="experiences && experiences.length"
-          v-model="openedExperience"
+          v-model="openedExperiences"
           class="d-block border-box-sizing"
+          multiple
           flat>
           <profile-work-experience-edit-item
             v-for="(experience,i) in experiences"
@@ -63,70 +64,120 @@ export default {
     },
   },
   data: () => ({
-    openedExperience: null,
+    hasCurrentExperience: false,
+    openedExperiences: [],
     saving: null,
     error: null,
   }),
+  created() {
+    if (this.experiences) {
+      this.hasCurrentExperience = this.experiences.some(experience => experience.isCurrent);
+    }
+  },
   methods: {
     save() {
       this.error = null;
 
       const experiences = this.experiences.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
       for (const experience of experiences) {
-        if (experience.startDate && experience.endDate && new Date(experience.startDate) > new Date(experience.endDate)) {
+        const itemIndex = this.experiences.findIndex(exp => exp.id === experience.id);
+        this.openedExperiences = [];
+        this.openedExperiences.push(itemIndex);
+        
+        if (!experience.endDate && this.hasCurrentExperience && !experience.id) {
+          this.handleError(this.$t('profileWorkExperiences.invalidStillInPosition'));
+          return;
+        }
+        if (experience.startDate && experience.endDate && new Date(experience.startDate) >= new Date(experience.endDate)) {
           this.handleError(this.$t('profileWorkExperiences.invalidEndDate'));
           return;
         }
         
         if (experience.company && experience.position) {
-          if (this.$refs.profileContactForm.$el[1]) {
+          if (this.$refs.profileContactForm.$el[itemIndex + 1]) {
             experience.company = experience.company.trim();
             if (experience.company !== null && experience.company.length > 250 || experience.company !== null && experience.company.length < 3) {
-              this.$refs.profileContactForm.$el[1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              this.$refs.profileContactForm.$el[itemIndex + 1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
                 0: this.$t('profileWorkExperiences.company'),
                 1: 3,
                 2: 250,
               }));
             } else if (experience.company) {
-              this.$refs.profileContactForm.$el[1].setCustomValidity('');
+              this.$refs.profileContactForm.$el[itemIndex + 1].setCustomValidity('');
             }
           }
-
-          if (this.$refs.profileContactForm.$el[2]) {
+          
+          if (this.$refs.profileContactForm.$el[itemIndex + 2]) {
             experience.position = experience.position.trim();
             if (experience.position !== null && experience.position.length > 100 || experience.position !== null && experience.position.length < 3) {
-              this.$refs.profileContactForm.$el[2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              this.$refs.profileContactForm.$el[itemIndex + 2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
                 0: this.$t('profileWorkExperiences.jobTitle'),
                 1: 3,
                 2: 100,
               }));
             } else if (experience.position) {
-              this.$refs.profileContactForm.$el[2].setCustomValidity('');
+              this.$refs.profileContactForm.$el[itemIndex + 2].setCustomValidity('');
             }
           }
 
-          if (this.$refs.profileContactForm.$el[3]) {
+          if (this.$refs.profileContactForm.$el[itemIndex + 3]) {
             if (experience.description && experience.description.length > 1500) {
-              this.$refs.profileContactForm.$el[3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+              this.$refs.profileContactForm.$el[itemIndex + 3].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
                 0: this.$t('profileWorkExperiences.jobDetails'),
                 1: 0,
                 2: 1500,
               }));
             } else if (experience.description) {
-              this.$refs.profileContactForm.$el[3].setCustomValidity('');
+              this.$refs.profileContactForm.$el[itemIndex + 3].setCustomValidity('');
             }
           }
 
           if (experience.endDate && new Date(experience.endDate) > new Date()) {
             this.handleError(this.$t('profileWorkExperiences.beforeTodayEndDate'));
-            return;
+            break;
           }
 
           if (experience.startDate && new Date(experience.startDate) > new Date()) {
             this.handleError(this.$t('profileWorkExperiences.beforeTodayStartDate'));
-            return;
+            break;
           }
-        }        
+        } else {
+          if (!experience.company) {
+            if (this.$refs.profileContactForm.$el[itemIndex + 1]) {
+              this.$refs.profileContactForm.$el[itemIndex + 1].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+                0: this.$t('profileWorkExperiences.company'),
+                1: 3,
+                2: 250,
+              }));
+              break;
+            } else {
+              this.handleError(this.$t('profileWorkExperiences.formValidationError'));
+              break;
+            }
+          } else {
+            if (this.$refs.profileContactForm.$el[itemIndex + 1]) {
+              this.$refs.profileContactForm.$el[itemIndex + 1].setCustomValidity('');
+            }
+          }
+
+          if (!experience.position) {
+            if (this.$refs.profileContactForm.$el[itemIndex + 2]) {
+              this.$refs.profileContactForm.$el[itemIndex + 2].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+                0: this.$t('profileWorkExperiences.jobTitle'),
+                1: 3,
+                2: 100,
+              }));
+              break;
+            } else {
+              this.handleError(this.$t('profileWorkExperiences.formValidationError'));
+              break;
+            }
+          } else {
+            if (this.$refs.profileContactForm.$el[itemIndex + 2]) {
+              this.$refs.profileContactForm.$el[itemIndex + 2].setCustomValidity('');
+            }
+          }
+        }
       }
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
@@ -150,6 +201,7 @@ export default {
         .finally(() => {
           this.saving = false;
           this.$refs.profileWorkExperiencesDrawer.endLoading();
+          this.$emit('refreshWorkExperiencesDrawer');
         });
     },
     handleError(error) {
@@ -172,12 +224,12 @@ export default {
     },
     addNew() {
       this.experiences.unshift({});
-      this.openedExperience = 0;
+      this.openedExperiences.push(this.openedExperiences.length);
     },
     remove(experience) {
       const index = this.experiences.findIndex(temp => temp === experience);
-      if (this.openedExperience === index) {
-        this.openedExperience = null;
+      if (this.openedExperiences.includes(index)) {
+        this.openedExperiences.splice(this.openedExperiences.findIndex(index), 1);
       }
       this.experiences.splice(index, 1);
     },

@@ -8,7 +8,7 @@
         :size="size"
         :class="avatarClass"
         class="pull-left my-auto">
-        <img :src="avatarUrl" :tile="tile" />
+        <img :src="avatarUrl" :alt="title"/>
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
@@ -74,6 +74,12 @@ export default {
     labels: {
       type: Object,
       default: null,
+    },
+    title: {
+      type: String,
+      default: function() {
+        return `${this.title}`;
+      }
     },
   },
   data() {
