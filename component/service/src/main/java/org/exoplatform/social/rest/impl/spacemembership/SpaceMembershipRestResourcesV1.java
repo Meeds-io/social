@@ -374,11 +374,12 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     if (! authenticatedUser.equals(targetUser) && ! spaceService.isSuperManager(authenticatedUser) && ! spaceService.isManager(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    if (spaceService.isOnlyManager(space, targetUser)) {
+    String role = idParams[2];
+    if (role != null && !role.equals("redactor") && spaceService.isOnlyManager(space, targetUser)) {
       throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
     }
     //
-    String role = idParams[2];
+    
     space.setEditor(authenticatedUser);
     if (role != null && role.equals("redactor")) {
       spaceService.removeRedactor(space, targetUser);
