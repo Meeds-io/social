@@ -253,8 +253,8 @@ export default {
         return [];
       }
       if (this.isSameUser) {
-        return this.profileActionExtensions.slice().filter(extension => extension.title === this.$t('peopleList.button.setAsRedactor')
-            || extension.title === this.$t('peopleList.button.removeRedactor') && extension.enabled(this.user));
+        return this.profileActionExtensions.slice().filter(extension => (extension.title === this.$t('peopleList.button.setAsRedactor')
+            || extension.title === this.$t('peopleList.button.removeRedactor')) && extension.enabled(this.user));
       }
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
