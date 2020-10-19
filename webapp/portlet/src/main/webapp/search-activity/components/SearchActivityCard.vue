@@ -140,14 +140,14 @@ export default {
   },
   methods: {
     computeEllipsis() {
-      if (!this.excerptHtml || this.excerptHtml.length === 0) {
+      if ((!this.excerptHtml || this.excerptHtml.length === 0) && (!this.result || !this.result.body || this.result.body.length === 0)) {
         return;
       }
       const excerptParent = this.$refs.excerptNode;
       if (!excerptParent) {
         return;
       }
-      excerptParent.innerHTML = this.excerptHtml;
+      excerptParent.innerHTML = this.excerptHtml || this.result.body;
 
       let charsToDelete = 20;
       let excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;

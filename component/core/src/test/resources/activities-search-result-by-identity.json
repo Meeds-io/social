@@ -1,0 +1,27 @@
+{
+  "hits" : {
+    "total" : 1,
+    "hits" : [
+      {
+        "_index" : "activity_v1",
+        "_type" : "activity",
+        "_id" : "7",
+        "_score" : 1.0,
+        "_source" : {
+          "lastUpdatedDate" : 4321,
+          "streamOwner" : "10",
+          "streamType" : "1",
+          "permissions" : [
+            "10"
+          ],
+          "postedTime" : "1234",
+          "id" : "7",
+          "body" : "\nwhatever\r\n",
+          "type" : "activity-type",
+          "posterId" : "2",
+          "posterName" : "John Doe"
+        }
+      }
+    ]
+  }
+}

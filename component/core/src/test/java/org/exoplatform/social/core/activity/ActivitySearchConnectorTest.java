@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
@@ -207,6 +208,59 @@ public class ActivitySearchConnectorTest {
     assertEquals(1592227545759L, commentSearchResult.getLastUpdatedTime());
     assertNull(commentSearchResult.getStreamOwner());
   }
+
+  @Test
+  public void testSearchWithIdentityResult() throws IOException {// NOSONAR
+    ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+            identityManager,
+            activityStorage,
+            configurationManager,
+            client,
+            getParams());
+
+    ActivitySearchFilter filter = new ActivitySearchFilter("John");
+    HashSet<Long> permissions = new HashSet<>(Arrays.asList(10L, 20L, 30L));
+    Identity identity = mock(Identity.class);
+    when(identity.getId()).thenReturn("1");
+    when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
+    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
+            .replaceAll("@permissions@", StringUtils.join(permissions, ","))
+            .replaceAll("@offset@", "0")
+            .replaceAll("@limit@", "10");
+    searchResult = IOUtil.getStreamContentAsString(getClass().getClassLoader()
+            .getResourceAsStream("activities-search-result-by-identity.json"));
+    when(client.sendRequest(eq(expectedESQuery), eq(ES_INDEX), eq(ES_TYPE))).thenReturn(searchResult);
+
+    ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
+    activity.setId("7");
+    activity.setType("activity-type");
+    activity.setPosterId("7");
+    activity.setPostedTime(1234L);
+    activity.setUpdated(4321L);
+
+    Identity streamOwner = new Identity("streamOwner");
+    streamOwner.setId("10");
+    Identity poster = new Identity("posterId");
+    when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
+    when(identityManager.getIdentity("2")).thenReturn(poster);
+    when(identityManager.getIdentity("10")).thenReturn(streamOwner);
+
+    when(activityStorage.getActivity(eq("7"))).thenReturn(activity);
+
+    List<ActivitySearchResult> result = activitySearchConnector.search(identity, filter, 0, 10);
+    assertNotNull(result);
+    assertEquals(1, result.size());
+
+    ActivitySearchResult activitySearchResult = result.iterator().next();
+    assertEquals(7L, activitySearchResult.getId());
+    assertEquals("activity-type", activitySearchResult.getType());
+    assertEquals(poster, activitySearchResult.getPoster());
+    assertEquals(1234L, activitySearchResult.getPostedTime());
+    assertEquals(4321L, activitySearchResult.getLastUpdatedTime());
+    assertNotNull(activitySearchResult.getExcerpts());
+    assertEquals(0, activitySearchResult.getExcerpts().size());
+    assertEquals(streamOwner, activitySearchResult.getStreamOwner()); }
+
 
   private InitParams getParams() {
     InitParams params = new InitParams();

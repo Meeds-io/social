@@ -123,6 +123,10 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     }
     if (StringUtils.isNotBlank(activity.getPosterId())) {
       fields.put("posterId", activity.getPosterId());
+      Identity posterIdentity = identityManager.getIdentity(activity.getPosterId());
+      if(posterIdentity != null && posterIdentity.getProfile() != null && StringUtils.isNotBlank(posterIdentity.getProfile().getFullName())) {
+        fields.put("posterName", posterIdentity.getProfile().getFullName());
+      }
     }
     ActivityStream activityStream = activity.getActivityStream();
     String ownerIdentityId = null;
