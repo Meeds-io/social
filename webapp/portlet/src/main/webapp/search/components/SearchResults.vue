@@ -245,8 +245,8 @@ export default {
           .replace('{keyword}', window.encodeURIComponent(this.term))
           .replace('{limit}', this.limit);
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
-            connectorModule.fetchSearchResult(uri, options)
-            : fetch(uri, options);
+          connectorModule.fetchSearchResult(uri, options)
+          : fetch(uri, options);
         return fetchResultsQuery
           .then(resp => {
             if (resp && resp.ok) {
