@@ -102,6 +102,7 @@ export default {
                 1: 3,
                 2: 250,
               }));
+              break;
             } else if (experience.company) {
               this.$refs.profileContactForm.$el[itemIndex + 1].setCustomValidity('');
             }
@@ -115,6 +116,7 @@ export default {
                 1: 3,
                 2: 100,
               }));
+              break;
             } else if (experience.position) {
               this.$refs.profileContactForm.$el[itemIndex + 2].setCustomValidity('');
             }
@@ -127,6 +129,7 @@ export default {
                 1: 0,
                 2: 1500,
               }));
+              break;
             } else if (experience.description) {
               this.$refs.profileContactForm.$el[itemIndex + 3].setCustomValidity('');
             }
