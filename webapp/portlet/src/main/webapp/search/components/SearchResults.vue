@@ -244,7 +244,10 @@ export default {
         const uri = searchConnector.uri
           .replace('{keyword}', window.encodeURIComponent(this.term))
           .replace('{limit}', this.limit);
-        return fetch(uri, options)
+        const fetchResultsQuery = connectorModule.fetchSearchResult ?
+          connectorModule.fetchSearchResult(uri, options)
+          : fetch(uri, options);
+        return fetchResultsQuery
           .then(resp => {
             if (resp && resp.ok) {
               return resp.json();
