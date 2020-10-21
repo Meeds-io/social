@@ -219,6 +219,7 @@
                  var labels = opts.labels;
                  var isDeleted = json.deleted;
                  var isEnable = json.enable;
+                 const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
 
                  tiptip_content.empty();
 
@@ -329,6 +330,24 @@
                              }
                          }
                      }
+
+                     for(const extension of extensions) {
+                         if(extension.enabled) {
+                             const extensionContainer = $(`<div class="${extension.appClass}"></div>`);
+                             if (extension.component) {
+                                 extensionContainer.append(`<div><${extension.component.name}></${extension.component.name}></div>`);
+                             } else if (extension.element) {
+                                 const innerContainer = $(`<div></div>`);
+                                 innerContainer.append(extension.element);
+                                 extensionContainer.append(innerContainer);
+                             } else if (extension.html) {
+                                 const innerContainer = $(`<div></div>`);
+                                 innerContainer.append(extension.html);
+                                 extensionContainer.append(extension.innerContainer);
+                             }
+                             divUIAction.append(extensionContainer);
+                         }
+                     }
                  }
 
                  if (divUIAction) {
@@ -336,6 +355,17 @@
                  }
 
                  tiptip_content.html(popupContentContainer.html());
+
+                 initExtensionComponents(extensions, ownerUserId);
+             }
+
+             function initExtensionComponents(extensionComponents, userId) {
+                 for (const extension of extensionComponents) {
+                     if (extension.init && extension.enabled) {
+                         const extensionContainer = $(`#tiptip_holder .uiAction .${extension.appClass} div`).first();
+                         extension.init(extensionContainer, userId);
+                     }
+                 }
              }
 
              function takeAction(el) {
