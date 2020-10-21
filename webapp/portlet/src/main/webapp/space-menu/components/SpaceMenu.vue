@@ -3,14 +3,14 @@
     <div class="space-action-menu">
       <div v-for="action in spaceMenuActionComponents" v-if="action.enabled" :key="action.key"
            :class="`${action.appClass}`">
-        <div v-if="action.component">
+        <div v-if="action.component" :ref="action.key">
           <component v-dynamic-events="action.component.events"
                      v-bind="action.component.props ? action.component.props : {}"
-                     :is="action.component.name" :ref="action.key"></component>
+                     :is="action.component.name"></component>
         </div>
-        <div v-else-if="action.element" v-html="action.element.outerHTML">
+        <div v-else-if="action.element" :ref="action.key" v-html="action.element.outerHTML">
         </div>
-        <div v-else-if="action.html" v-html="action.html">
+        <div v-else-if="action.html" :ref="action.key" v-html="action.html">
         </div>
       </div>
     </div>
@@ -103,13 +103,16 @@ export default {
         });
     });
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+  },
+  mounted() {
     this.initSpaceMenuActionComponents();
   },
   methods: {
     initSpaceMenuActionComponents() {
       for (const action of this.spaceMenuActionComponents) {
-        if (action.init) {
-          action.init(eXo.env.portal.spaceName, eXo.env.portal.userName);
+        if (action.init && action.enabled) {
+          const container = this.$refs[action.key];
+          action.init(container, eXo.env.portal.spaceName);
         }
       }
     }
