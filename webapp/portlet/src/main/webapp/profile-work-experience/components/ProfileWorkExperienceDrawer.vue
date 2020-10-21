@@ -232,7 +232,7 @@ export default {
     remove(experience) {
       const index = this.experiences.findIndex(temp => temp === experience);
       if (this.openedExperiences.includes(index)) {
-        this.openedExperiences.splice(this.openedExperiences.findIndex(index), 1);
+        this.openedExperiences.splice(this.openedExperiences.indexOf(index), 1);
       }
       this.experiences.splice(index, 1);
     },
