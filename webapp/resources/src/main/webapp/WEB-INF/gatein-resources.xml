@@ -427,8 +427,8 @@
       <minify>false</minify>
       <adapter>
         (function() {
-        <include>/javascript/linkify.min.js</include>
-        Vue.directive('linkified',(el, binding)=>el.innerHTML =  linkify.link(binding.value, binding.arg));
+        <include>/javascript/autolinker.min.js</include>
+        Vue.directive('linkified',(el, binding)=>el.innerHTML =  Autolinker.link(binding.value, binding.arg));
         })();
       </adapter>
     </script>
