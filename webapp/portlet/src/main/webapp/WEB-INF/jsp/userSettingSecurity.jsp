@@ -1,16 +1,16 @@
 <%@ page import="org.gatein.sso.integration.SSOUtils" %>
-<% boolean ssoFiltre = SSOUtils.isSSOEnabled(); %>
+<% boolean ssoEnabled = SSOUtils.isSSOEnabled(); %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="UserSettingSecurity">
     <script type="text/javascript">
       require(['PORTLET/social-portlet/UserSettingSecurity'],
-        app => app.init(<%=ssoFiltre%>)
+        app => app.init(<%=ssoEnabled%>)
       );
     </script>
     <%
-      if (!ssoFiltre) {
+      if (!ssoEnabled) {
     %>
     <div class="v-application--wrap">
       <div
