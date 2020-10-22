@@ -19,7 +19,7 @@ package org.exoplatform.social.common.xmlprocessor.filters;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.exoplatform.social.common.xmlprocessor.BaseXMLFilterPlugin;
 import org.exoplatform.social.common.xmlprocessor.DOMParser;
 import org.exoplatform.social.common.xmlprocessor.Tokenizer;
@@ -93,7 +93,7 @@ public class XMLBalancerFilterPlugin extends BaseXMLFilterPlugin {
         }
         if (searchOpenedNode.getParentNode() == null) {
           Node invalidNode = new Node();
-          invalidNode.setContent(StringEscapeUtils.escapeHtml(token));
+          invalidNode.setContent(StringEscapeUtils.escapeHtml4(token));
           currentNode.addChildNode(invalidNode);
         } else if (searchOpenedNode.getTitle().equals(currentNode.getTitle())) {
           currentNode = currentNode.getParentNode();
@@ -105,8 +105,8 @@ public class XMLBalancerFilterPlugin extends BaseXMLFilterPlugin {
         parsingNode = new Node();
         parsingNode.setParentNode(currentNode);
         // make sure the content part which was escaped before don't be escaped again
-        String content = StringEscapeUtils.unescapeHtml(token);
-        parsingNode.setContent(StringEscapeUtils.escapeHtml(content));
+        String content = StringEscapeUtils.unescapeHtml4(token);
+        parsingNode.setContent(StringEscapeUtils.escapeHtml4(content));
 
         currentNode.addChildNode(parsingNode);
       }
