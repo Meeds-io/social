@@ -43,7 +43,10 @@ Vue.directive('cacheable', {
       window.caches.open('pwa-resources-dom')
         .then(cache => {
           if (cache) {
-            cache.put(`/dom-cache?id=${appId}`, new Response(vnode.componentInstance.$root.$el.innerHTML));
+            window.setTimeout(() => {
+              const domToCache = vnode.componentInstance.$root.$el.innerHTML.replaceAll('<input ', '<input disabled ').replaceAll('<button ', '<button disabled ');
+              cache.put(`/dom-cache?id=${appId}`, new Response(domToCache));
+            }, 200);
           }
         });
     };

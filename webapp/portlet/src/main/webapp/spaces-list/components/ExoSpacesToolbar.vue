@@ -19,8 +19,8 @@
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
-        :disabled="skeleton"
         :placeholder="$t('spacesList.label.filterSpaces')"
+        :readonly="skeleton"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>

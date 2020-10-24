@@ -117,7 +117,7 @@
       <v-btn
         v-if="space.isMember"
         :loading="sendingAction"
-        :disabled="sendingAction || space.isUserBound"
+        :disabled="skeleton || sendingAction || space.isUserBound"
         class="btn mx-auto spaceMembershipButton leaveSpaceButton"
         depressed
         block
@@ -131,7 +131,7 @@
         <div class="acceptToJoinSpaceButtonParent">
           <v-btn
             :loading="sendingAction"
-            :disabled="sendingAction"
+            :disabled="skeleton || sendingAction"
             class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
             depressed
             @click="acceptToJoin">
@@ -151,7 +151,7 @@
         <v-btn
           v-show="displaySecondButton"
           :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
+          :disabled="skeleton || sendingSecondAction"
           class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
           depressed
           block
@@ -165,7 +165,7 @@
       <v-btn
         v-else-if="space.isPending"
         :loading="sendingAction"
-        :disabled="sendingAction"
+        :disabled="skeleton || sendingAction"
         class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
         depressed
         block
@@ -178,7 +178,7 @@
       <v-btn
         v-else-if="space.subscription === 'open'"
         :loading="sendingAction"
-        :disabled="sendingAction"
+        :disabled="skeleton || sendingAction"
         class="btn mx-auto spaceMembershipButton joinSpaceButton"
         depressed
         block
@@ -191,7 +191,7 @@
       <v-btn
         v-else-if="space.subscription === 'validation'"
         :loading="sendingAction"
-        :disabled="sendingAction"
+        :disabled="skeleton || sendingAction"
         class="btn mx-auto spaceMembershipButton joinSpaceButton"
         depressed
         block
