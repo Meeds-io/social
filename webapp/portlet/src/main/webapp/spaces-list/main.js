@@ -24,10 +24,20 @@ export function init(filter, canCreateSpace) {
 
     // init Vue app when locale ressources are ready
     new Vue({
+      data: () => ({
+        loaded: false,
+      }),
       created() {
         this.$root.$on('application-loaded', () => {
-          this.cacheDom();
-          this.mountApplication();
+          if (this.loaded) {
+            return;
+          }
+          try {
+            this.cacheDom();
+            this.mountApplication();
+          } finally {
+            this.loaded = true;
+          }
         });
       },
       methods: {
@@ -36,7 +46,7 @@ export function init(filter, canCreateSpace) {
           cachedAppElement.parentElement.replaceChild(this.$root.$el, cachedAppElement);
         },
         cacheDom() {
-          window.caches.open('exo-pwa-resources-dom')
+          window.caches.open('pwa-resources-dom')
             .then(cache => {
               if (cache) {
                 cache.put(`/dom-cache?id=${appId}`, new Response(this.$root.$el.innerHTML));

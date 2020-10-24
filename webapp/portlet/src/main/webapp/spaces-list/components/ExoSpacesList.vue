@@ -1,8 +1,5 @@
 <template>
-  <v-app 
-    id="spacesListApplication"
-    class="transparent"
-    flat>
+  <v-app class="transparent" flat>
     <exo-spaces-toolbar
       :keyword="keyword"
       :filter="filter"
