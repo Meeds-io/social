@@ -29,3 +29,35 @@ const components = {
 for (const key in components) {
   Vue.component(key, components[key]);
 }
+
+Vue.directive('cacheable', {
+  bind: function (el, binding, vnode) {
+    const appId = el.id;
+
+    const mountApplication = function() {
+      const cachedAppElement = document.querySelector(`.VuetifyApp #${appId}`);
+      cachedAppElement.parentElement.replaceChild(vnode.componentInstance.$root.$el, cachedAppElement);
+    };
+
+    const cacheDom = function() {
+      window.caches.open('pwa-resources-dom')
+        .then(cache => {
+          if (cache) {
+            cache.put(`/dom-cache?id=${appId}`, new Response(vnode.componentInstance.$root.$el.innerHTML));
+          }
+        });
+    };
+
+    vnode.componentInstance.$root.$on('application-loaded', () => {
+      if (vnode.componentInstance.loaded) {
+        return;
+      }
+      try {
+        cacheDom();
+        mountApplication();
+      } finally {
+        vnode.componentInstance.loaded = true;
+      }
+    });
+  }
+});

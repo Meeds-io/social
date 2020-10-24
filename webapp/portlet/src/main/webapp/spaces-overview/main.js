@@ -35,37 +35,7 @@ export function init() {
 
     // init Vue app when locale ressources are ready
     new Vue({
-      data: () => ({
-        loaded: false,
-      }),
-      created() {
-        this.$root.$on('application-loaded', () => {
-          if (this.loaded) {
-            return;
-          }
-          try {
-            this.cacheDom();
-            this.mountApplication();
-          } finally {
-            this.loaded = true;
-          }
-        });
-      },
-      methods: {
-        mountApplication() {
-          const cachedAppElement = document.querySelector(`.VuetifyApp #${appId}`);
-          cachedAppElement.parentElement.replaceChild(this.$root.$el, cachedAppElement);
-        },
-        cacheDom() {
-          window.caches.open('pwa-resources-dom')
-            .then(cache => {
-              if (cache) {
-                cache.put(`/dom-cache?id=${appId}`, new Response(this.$root.$el.innerHTML));
-              }
-            });
-        },
-      },
-      template: `<spaces-overview id="${appId}" />`,
+      template: `<spaces-overview v-cacheable id="${appId}" />`,
       i18n,
       vuetify,
     }).$mount(appElement);

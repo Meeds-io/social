@@ -24,37 +24,7 @@ export function init(filter, canCreateSpace) {
 
     // init Vue app when locale ressources are ready
     new Vue({
-      data: () => ({
-        loaded: false,
-      }),
-      created() {
-        this.$root.$on('application-loaded', () => {
-          if (this.loaded) {
-            return;
-          }
-          try {
-            this.cacheDom();
-            this.mountApplication();
-          } finally {
-            this.loaded = true;
-          }
-        });
-      },
-      methods: {
-        mountApplication() {
-          const cachedAppElement = document.querySelector(`.VuetifyApp #${appId}`);
-          cachedAppElement.parentElement.replaceChild(this.$root.$el, cachedAppElement);
-        },
-        cacheDom() {
-          window.caches.open('pwa-resources-dom')
-            .then(cache => {
-              if (cache) {
-                cache.put(`/dom-cache?id=${appId}`, new Response(this.$root.$el.innerHTML));
-              }
-            });
-        },
-      },
-      template: `<exo-spaces-list id="${appId}" app-id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
+      template: `<exo-spaces-list v-cacheable id="${appId}" app-id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify,
     }).$mount(appElement);
