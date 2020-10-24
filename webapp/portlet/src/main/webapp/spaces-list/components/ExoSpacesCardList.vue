@@ -3,23 +3,7 @@
     <v-card-text id="spacesListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
-          <v-row v-if="skeleton" class="ma-0 border-box-sizing">
-            <v-col
-              v-for="i in pageSize"
-              :key="i"
-              cols="12"
-              md="6"
-              lg="4"
-              xl="3"
-              class="pa-0">
-              <exo-space-card
-                :space="{}"
-                :skeleton="skeleton"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchSpaces" />
-            </v-col>
-          </v-row>
-          <v-row v-else-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
+          <v-row v-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
             <v-col
               v-for="space in filteredSpaces"
               :key="space.id"
@@ -31,6 +15,7 @@
               <exo-space-card
                 :space="space"
                 :profile-action-extensions="profileActionExtensions"
+                :skeleton="skeleton"
                 @refresh="searchSpaces" />
             </v-col>
           </v-row>
@@ -66,10 +51,9 @@
     </v-card-text>
     <v-card-actions id="spacesListFooter" class="pt-0 px-5 border-box-sizing">
       <v-btn
-        v-if="skeleton || canShowMore"
+        v-if="canShowMore"
         :loading="loadingSpaces"
         :disabled="skeleton || loadingSpaces"
-        :class="skeleton && 'skeleton-background skeleton-text'"
         class="loadMoreButton ma-auto btn"
         block
         @click="loadNextPage">
@@ -100,7 +84,7 @@ export default {
     },
     skeleton: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: () => ({

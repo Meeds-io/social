@@ -37,6 +37,10 @@ export default {
       type: String,
       default: null,
     },
+    appId: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     keyword: null,
@@ -49,6 +53,7 @@ export default {
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.spacesSize = spacesSize;
       if (this.skeleton) {
+        this.$root.$emit('application-loaded');
         this.skeleton = false;
       }
     }

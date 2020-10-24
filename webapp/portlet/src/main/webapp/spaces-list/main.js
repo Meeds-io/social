@@ -19,11 +19,34 @@ const appId = 'spacesListApplication';
 
 export function init(filter, canCreateSpace) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
+    // init Vue app when locale ressources are ready
     new Vue({
-      template: `<exo-spaces-list id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
+      created() {
+        this.$root.$on('application-loaded', () => {
+          this.cacheDom();
+          this.mountApplication();
+        });
+      },
+      methods: {
+        mountApplication() {
+          const cachedAppElement = document.querySelector(`.VuetifyApp #${appId}`);
+          cachedAppElement.parentElement.replaceChild(this.$root.$el, cachedAppElement);
+        },
+        cacheDom() {
+          window.caches.open('exo-pwa-resources-dom')
+            .then(cache => {
+              if (cache) {
+                cache.put(`/dom-cache?id=${appId}`, new Response(this.$root.$el.innerHTML));
+              }
+            });
+        },
+      },
+      template: `<exo-spaces-list id="${appId}" app-id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

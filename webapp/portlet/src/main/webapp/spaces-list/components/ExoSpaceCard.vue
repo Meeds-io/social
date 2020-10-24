@@ -9,7 +9,7 @@
         @flip="flipCard = true"
         @refresh="$emit('refresh')" />
     </div>
-    <div v-if="!skeleton" class="spaceCardBack">
+    <div class="spaceCardBack">
       <exo-space-card-reverse
         :space="space"
         @flip="flipCard = false" />
@@ -30,7 +30,7 @@ export default {
     },
     skeleton: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: () => ({

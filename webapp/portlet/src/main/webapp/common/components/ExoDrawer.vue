@@ -13,7 +13,7 @@
     width="420px"
     max-width="100vw"
     class="drawerParent">
-    <v-container fill-height class="pa-0">
+    <v-container v-if="initialized" fill-height class="pa-0">
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
@@ -83,12 +83,17 @@ export default {
     },
   },
   data: () => ({
+    initialized: false,
     drawer: false,
     loading: false,
   }),
   watch: {
     drawer() {
       if (this.drawer) {
+        if (!this.initialized) {
+          this.initialized = true;
+        }
+
         $('body').addClass(this.bodyClasses);
         this.$emit('opened');
       } else {
