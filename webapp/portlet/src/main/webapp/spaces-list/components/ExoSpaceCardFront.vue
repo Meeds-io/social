@@ -1,7 +1,6 @@
 <template>
   <v-card :id="spaceMenuParentId" class="spaceCardItem d-block d-sm-flex" flat>
     <v-img
-      :lazy-src="spaceBannerUrl"
       :src="spaceBannerUrl"
       transition="none"
       height="80px"
@@ -14,7 +13,6 @@
 
     <div class="spaceToolbarIcons px-2">
       <v-btn
-        :disabled="skeleton"
         icon
         small
         class="spaceInfoIcon d-flex"
@@ -25,7 +23,6 @@
       <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"
-          :disabled="skeleton"
           icon
           text
           class="spaceActionIcon spaceEditIcon d-none"
@@ -33,7 +30,6 @@
           <i class="uiIcon uiIconEdit" />
         </v-btn>
         <v-btn
-          :disabled="skeleton"
           icon
           text
           class="spaceMenuIcon d-block"
@@ -79,7 +75,6 @@
     <div class="spaceAvatar">
       <a :href="url">
         <v-img
-          :lazy-src="spaceAvatarUrl"
           :src="spaceAvatarUrl"
           transition="none"
           class="mx-auto"
@@ -117,7 +112,7 @@
       <v-btn
         v-if="space.isMember"
         :loading="sendingAction"
-        :disabled="skeleton || sendingAction || space.isUserBound"
+        :disabled="sendingAction || space.isUserBound"
         class="btn mx-auto spaceMembershipButton leaveSpaceButton"
         depressed
         block
@@ -131,7 +126,7 @@
         <div class="acceptToJoinSpaceButtonParent">
           <v-btn
             :loading="sendingAction"
-            :disabled="skeleton || sendingAction"
+            :disabled="sendingAction"
             class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
             depressed
             @click="acceptToJoin">
@@ -151,7 +146,7 @@
         <v-btn
           v-show="displaySecondButton"
           :loading="sendingSecondAction"
-          :disabled="skeleton || sendingSecondAction"
+          :disabled="sendingSecondAction"
           class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
           depressed
           block
@@ -165,7 +160,7 @@
       <v-btn
         v-else-if="space.isPending"
         :loading="sendingAction"
-        :disabled="skeleton || sendingAction"
+        :disabled="sendingAction"
         class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
         depressed
         block
@@ -178,7 +173,7 @@
       <v-btn
         v-else-if="space.subscription === 'open'"
         :loading="sendingAction"
-        :disabled="skeleton || sendingAction"
+        :disabled="sendingAction"
         class="btn mx-auto spaceMembershipButton joinSpaceButton"
         depressed
         block
@@ -191,7 +186,7 @@
       <v-btn
         v-else-if="space.subscription === 'validation'"
         :loading="sendingAction"
-        :disabled="skeleton || sendingAction"
+        :disabled="sendingAction"
         class="btn mx-auto spaceMembershipButton joinSpaceButton"
         depressed
         block
@@ -227,10 +222,6 @@ export default {
     space: {
       type: Object,
       default: null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: true,
     },
     profileActionExtensions: {
       type: Array,

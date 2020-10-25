@@ -29,14 +29,16 @@ const appId = 'UserSettingLanguage';
 
 export function init(languages) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         languages: languages,
       }),
-      template: `<user-setting-language id="${appId}" :languages="languages" />`,
+      template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

@@ -123,7 +123,6 @@ export default {
     error: null,
     saving: false,
     displayed: true,
-    skeleton: true,
   }),
   watch: {
     confirmNewPassword() {

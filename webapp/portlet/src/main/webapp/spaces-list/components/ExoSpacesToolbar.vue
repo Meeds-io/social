@@ -2,7 +2,6 @@
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title v-if="canCreateSpace">
       <v-btn
-        :disabled="skeleton"
         class="btn btn-primary pr-2 pl-0 addNewSpaceButton"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
@@ -20,14 +19,12 @@
       <v-text-field
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpaces')"
-        :readonly="skeleton"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        :disabled="skeleton"
         class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="spaceFilter in spaceFilters"
@@ -99,10 +96,6 @@ export default {
     spacesSize: {
       type: String,
       default: null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: true,
     },
   },
   data: () => ({

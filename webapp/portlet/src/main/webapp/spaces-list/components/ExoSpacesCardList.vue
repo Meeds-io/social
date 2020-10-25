@@ -15,7 +15,6 @@
               <exo-space-card
                 :space="space"
                 :profile-action-extensions="profileActionExtensions"
-                :skeleton="skeleton"
                 @refresh="searchSpaces" />
             </v-col>
           </v-row>
@@ -53,7 +52,7 @@
       <v-btn
         v-if="canShowMore"
         :loading="loadingSpaces"
-        :disabled="skeleton || loadingSpaces"
+        :disabled="loadingSpaces"
         class="loadMoreButton ma-auto btn"
         block
         @click="loadNextPage">
@@ -81,10 +80,6 @@ export default {
     loadingSpaces: {
       type: Boolean,
       default: false,
-    },
-    skeleton: {
-      type: Boolean,
-      default: true,
     },
   },
   data: () => ({

@@ -52,7 +52,7 @@ export default {
     this.$root.$on('retrieveGroupChildren', this.retrieveGroupTree);
     this.$root.$on('searchGroup', keyword => this.keyword = keyword);
 
-    this.retrieveGroupTree();
+    this.retrieveGroupTree().finally(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     updateGroupItem(group, groups) {
@@ -200,6 +200,7 @@ export default {
         } else {
           this.groups = groups;
         }
+        return this.$nextTick();
       }).finally(() => {
         if (parentGroup) {
           parentGroup.childrenRetrieved = true;

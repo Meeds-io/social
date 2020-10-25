@@ -23,7 +23,9 @@
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
-                <v-icon class="my-auto" @click="close()">mdi-close</v-icon>
+                <v-btn icon>
+                  <v-icon @click="close()">mdi-close</v-icon>
+                </v-btn>
               </v-list-item-action>
             </v-list-item>
           </v-flex>

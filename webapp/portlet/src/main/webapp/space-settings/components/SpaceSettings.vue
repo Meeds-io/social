@@ -1,14 +1,7 @@
 <template>
-  <v-app
-    class="transparent"
-    flat>
-    <space-setting-general
-      :space-id="spaceId"
-      :skeleton="skeleton"
-      class="mb-6" />
-    <space-setting-applications
-      :space-id="spaceId"
-      :skeleton="skeleton" />
+  <v-app class="transparent" flat>
+    <space-setting-general :space-id="spaceId" class="mb-6" />
+    <space-setting-applications :space-id="spaceId" />
   </v-app>
 </template>
 
@@ -16,11 +9,10 @@
 export default {
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
-    skeleton: true,
   }),
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-    this.skeleton = false;
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
 };
 </script>

@@ -34,6 +34,9 @@
         <module>eXoVueI18n</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>extensionRegistry</module>
       </depends>
       <depends>

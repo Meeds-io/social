@@ -24,7 +24,7 @@ export function init(filter, canCreateSpace) {
 
     // init Vue app when locale ressources are ready
     new Vue({
-      template: `<exo-spaces-list v-cacheable id="${appId}" app-id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
+      template: `<exo-spaces-list v-cacheable id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify,
     }).$mount(appElement);
