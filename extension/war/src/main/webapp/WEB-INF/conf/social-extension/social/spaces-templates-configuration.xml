@@ -150,7 +150,7 @@
               <string>war:/conf/social-extension/social/space-template/communication/banner.png</string>
             </field>
             <field name="permissions">
-              <string>${exo.social.space.template.communication.permissions:*:/platform/users}</string>
+              <string>${exo.social.space.template.communication.permissions:*:/platform/administrators;*:/platform/web-contributors}</string>
             </field>
             <field name="invitees">
               <string>${exo.social.space.template.communication.invitees:}</string>
