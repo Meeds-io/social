@@ -5,6 +5,7 @@
     <v-hover>
       <v-img
         slot-scope="{ hover }"
+        :lazy-src="bannerUrl || ''"
         :src="bannerUrl || ''"
         :height="height"
         :min-height="height"
@@ -113,14 +114,20 @@ export default {
             });
             this.navigations = data;
           }
-        });
+          return this.$nextTick();
+        })
+        .then(() => this.$root.$emit('application-cache'));
     });
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+  },
+  mounted() {
+    this.$root.$emit('application-loaded');
   },
   methods: {
     refresh() {
       // Force refresh by using random query param 'updated'
       this.bannerUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${eXo.env.portal.spaceName}/banner?updated=${Math.random()}`;
+      this.$nextTick().then(() => this.$root.$emit('application-cache'));
     },
     handleError(error) {
       if (error) {

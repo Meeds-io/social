@@ -77,6 +77,7 @@ export default {
       itemsPerPage: 20,
     },
     totalSize: 0,
+    initialized: false,
     loading: true,
     error: null,
   }),
@@ -223,8 +224,15 @@ export default {
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;
+        return this.$nextTick();
       })
-        .finally(() => this.loading = false);
+        .finally(() => {
+          if (!this.initialized) {
+            this.$root.$emit('application-loaded');
+          }
+          this.loading = false;
+          this.initialized = true;
+        });
     },
     waitForEndTyping() {
       window.setTimeout(() => {

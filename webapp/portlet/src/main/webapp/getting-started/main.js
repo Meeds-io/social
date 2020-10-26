@@ -24,12 +24,17 @@ const vuetify = new Vuetify({
   iconfont: '',
 });
 
+const appId = 'GettingStartedPortlet';
+
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      template: '<exo-getting-started></exo-getting-started>',
+      template: `<exo-getting-started v-cacheable id="${appId}"></exo-getting-started>`,
       i18n,
       vuetify,
-    }).$mount('#GettingStarted');
+    }).$mount(appElement);
   });
 }

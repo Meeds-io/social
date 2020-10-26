@@ -3,23 +3,7 @@
     <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
-          <v-row v-if="skeleton" class="ma-0 border-box-sizing">
-            <v-col
-              v-for="i in pageSize"
-              :key="i"
-              cols="12"
-              md="6"
-              lg="4"
-              xl="3"
-              class="pa-0">
-              <people-card
-                :user="{}"
-                :skeleton="skeleton"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchPeople" />
-            </v-col>
-          </v-row>
-          <v-row v-else-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
+          <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
             <v-col
               v-for="user in filteredPeople"
               :key="user.id"
@@ -61,10 +45,9 @@
     </v-card-text>
     <v-card-actions id="peopleListFooter" class="pt-0 px-5 border-box-sizing">
       <v-btn
-        v-if="skeleton || canShowMore"
+        v-if="canShowMore"
         :loading="loadingPeople"
-        :disabled="skeleton || loadingPeople"
-        :class="skeleton && 'skeleton-background skeleton-text'"
+        :disabled="loadingPeople"
         class="loadMoreButton ma-auto btn"
         block
         @click="loadNextPage">
@@ -101,10 +84,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    skeleton: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: () => ({
     profileActionExtensions: [],
@@ -112,6 +91,7 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+    initialized: false,
     hasPeople: false,
     offset: 0,
     pageSize: 20,
@@ -209,7 +189,13 @@ export default {
             this.limitToFetch += this.pageSize;
           }
         })
-        .finally(() => this.loadingPeople = false);
+        .finally(() => {
+          if (!this.initialized) {
+            this.$root.$emit('application-loaded');
+          }
+          this.loadingPeople = false;
+          this.initialized = true;
+        });
     },
     resetSearch() {
       if (this.limitToFetch !== this.originalLimitToFetch) {

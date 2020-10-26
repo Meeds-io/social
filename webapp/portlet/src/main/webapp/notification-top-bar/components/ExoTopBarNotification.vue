@@ -1,5 +1,5 @@
 <template>
-  <v-app id="NotificationPopoverPortlet" class="VuetifyApp">
+  <v-app id="NotificationPopoverPortlet">
     <v-flex>
       <v-layout>
         <v-btn
@@ -18,70 +18,67 @@
             </v-icon>
           </v-badge>
         </v-btn>
-        <v-navigation-drawer
-          v-model="drawerNotification"
-          right
-          absolute
-          temporary
-          width="420"
-          height="100vh"
-          max-height="100vh"
-          max-width="100vw"
-          class="notifDrawer">
-          <v-row class="mx-0 notifDrawerHeader">
-            <v-list-item>
-              <v-list-item-content>
-                <span class="notifDrawerTitle">{{ $t('UIIntranetNotificationsPortlet.title.notifications') }}</span>
-              </v-list-item-content>
-              <v-list-item-action class="notifDrawerIcons">
-                <i :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')" class="uiSettingsIcon notifDrawerSettings mr-3" @click="navigateTo('settings')"></i>
-                <i class="uiCloseIcon notifDrawerClose" @click="closeDrawer()"></i>
-              </v-list-item-action>
-            </v-list-item>
-          </v-row>
-
-          <v-divider
-            :inset="inset" 
-            class="my-0"/>
-          <div v-if="notificationsSize > 0" class="notifDrawerItems">
-            <div
-              v-for="(notif, i) in notifications"
-              :key="i"
-              :id="'notifItem-'+i"
-              class="notifDrawerItem"
-              @mouseenter="applyActions(`notifItem-`+i)"
-              v-html="notif.notification">
+        <exo-drawer
+          ref="drawerNotificationDrawer"
+          class="notifDrawer"
+          body-classes="hide-scroll"
+          right>
+          <template slot="title">
+            {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
+          </template>
+          <template slot="titleIcons">
+            <v-btn
+              :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')"
+              :href="settingsLink"
+              icon>
+              <v-icon class="uiSettingsIcon notifDrawerSettings" />
+            </v-btn>
+          </template>
+          <template v-if="notificationsSize" slot="content">
+            <div class="notifDrawerItems">
+              <div
+                v-for="(notif, i) in notifications"
+                :key="i"
+                :id="'notifItem-'+i"
+                class="notifDrawerItem"
+                @mouseenter="applyActions(`notifItem-`+i)"
+                v-html="notif.notification">
+              </div>
             </div>
-          </div>
-          <div v-else class="noNoticationWrapper">
-            <div class="noNotificationsContent">
-              <i class="uiNoNotifIcon"></i>
-              <p>{{ $t('UIIntranetNotificationsPortlet.label.NoNotifications') }}</p>
+          </template>
+          <template v-else slot="content">
+            <div class="noNoticationWrapper">
+              <div class="noNotificationsContent">
+                <i class="uiNoNotifIcon"></i>
+                <p>{{ $t('UIIntranetNotificationsPortlet.label.NoNotifications') }}</p>
+              </div>
             </div>
-          </div>
-          <v-row v-if="notificationsSize > 0" class="notifFooterActions mx-0">
-            <v-card 
-              flat
-              tile 
-              class="d-flex flex justify-end mx-2">
-              <v-btn 
-                text
-                small
-                class="text-uppercase caption markAllAsRead"
-                color="primary"
-                @click="markAllAsRead()">
-                {{ $t('UIIntranetNotificationsPortlet.label.MarkAllAsRead') }}
-              </v-btn>
-              <v-btn 
-                class="text-uppercase caption primary--text seeAllNotif"
-                outlined 
-                small
-                @click="navigateTo('allNotifications/')">
-                {{ $t('UIIntranetNotificationsPortlet.label.seeAll') }}
-              </v-btn>
-            </v-card>
-          </v-row>
-        </v-navigation-drawer>
+          </template>
+          <template v-if="notificationsSize" slot="footer">
+            <v-row class="notifFooterActions mx-0">
+              <v-card 
+                flat
+                tile 
+                class="d-flex flex justify-end mx-2">
+                <v-btn 
+                  text
+                  small
+                  class="text-uppercase caption markAllAsRead"
+                  color="primary"
+                  @click="markAllAsRead()">
+                  {{ $t('UIIntranetNotificationsPortlet.label.MarkAllAsRead') }}
+                </v-btn>
+                <v-btn 
+                  :href="allNotificationsLink"
+                  class="text-uppercase caption primary--text seeAllNotif"
+                  outlined
+                  small>
+                  {{ $t('UIIntranetNotificationsPortlet.label.seeAll') }}
+                </v-btn>
+              </v-card>
+            </v-row>
+          </template>
+        </exo-drawer>
       </v-layout>
     </v-flex>
   </v-app>
@@ -95,29 +92,17 @@ const SLIDE_UP_MORE = 600;
 export default {
   data () {
     return {
-      drawerNotification: null,
+      drawerNotification: false,
       notifications: [],
       badge: 0,
-      notificationsSize: 0
+      notificationsSize: 0,
+      settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
+      allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
     };
   },
   watch: {
     badge() {
       return this.badge;
-    },
-    drawerNotification() {
-      if (this.drawerNotification) {
-        $('body').addClass('hide-scroll');
-      } else {
-        window.setTimeout(() => {
-          $('body').removeClass('hide-scroll');
-        }, 200);
-      }
-      this.$nextTick().then(() => {
-        $('#NotificationPopoverPortlet .v-overlay').click(() => {
-          this.drawerNotification = false;
-        });
-      });
     },
   },
   created() {
@@ -128,41 +113,36 @@ export default {
       }
     );
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
-    $(document).on('keydown', (event) => {
-      if (event.key === 'Escape') {
-        this.drawerNotification = false;
-      }
-    });
   },
   methods: {
     getNotifications() {
-      notificationlAPI.getNotifications().then((data) => {
-        this.notifications = data.notifications;
-        this.badge = data.badge;
-        this.notificationsSize = this.notifications.length;
-      });
+      return notificationlAPI.getNotifications()
+        .then((data) => {
+          this.notifications = data.notifications;
+          this.badge = data.badge;
+          this.notificationsSize = this.notifications.length;
+          return this.$nextTick();
+        })
+        .then(() => this.$root.$emit('application-loaded'));
     },
-
     markAllAsRead() {
-      notificationlAPI.updateNotification(null, 'markAllAsRead');
-      $('.notifDrawerItems').find('li').each(function() {
-        if($(this).hasClass('unread')) {
-          $(this).removeClass('unread').addClass('read');
-        }
-      });
+      return notificationlAPI.updateNotification(null, 'markAllAsRead')
+        .then(() => {
+          $('.notifDrawerItems').find('li').each(function() {
+            if($(this).hasClass('unread')) {
+              $(this).removeClass('unread').addClass('read');
+            }
+          });
+        });
     },
-
     openDrawer() {
-      this.drawerNotification = !this.drawerNotification;
-      if(this.badge > 0) {
-        notificationlAPI.updateNotification(null, 'resetNew');
-        this.badge = 0;
-      }
+      this.$refs.drawerNotificationDrawer.open();
+      return notificationlAPI.updateNotification(null, 'resetNew')
+        .then(() => this.badge = 0);
     },
     closeDrawer() {
-      this.drawerNotification = !this.drawerNotification;
+      this.$refs.drawerNotificationDrawer.close();
     },
-
     navigateTo(pagelink) {
       location.href=`${ eXo.env.portal.context }/${ eXo.env.portal.portalName }/${ pagelink }` ;
     },
@@ -188,18 +168,20 @@ export default {
           if($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
-          notificationlAPI.updateNotification(dataId,'markAsRead');
 
-          if(linkId != null && linkId.length >1 ) {
-            if (linkId[0].includes('/view_full_activity/')) {
-              const id = linkId[0].split('/view_full_activity/')[1];
-              location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
-            } else {
-              location.href = `${eXo.env.portal.context}/${linkId[1]}`;
-            }
-          } else {
-            location.href = dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`);
-          }
+          notificationlAPI.updateNotification(dataId, 'markAsRead')
+            .finally(() => {
+              if(linkId != null && linkId.length >1 ) {
+                if (linkId[0].includes('/view_full_activity/')) {
+                  const id = linkId[0].split('/view_full_activity/')[1];
+                  location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
+                } else {
+                  location.href = `${eXo.env.portal.context}/${linkId[1]}`;
+                }
+              } else {
+                location.href = dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`);
+              }
+            });
         });
 
         // ------------- hide notif
@@ -240,7 +222,7 @@ export default {
             let restCancelURl = $(this).data('rest');
             if(restCancelURl.indexOf('?') >= 0 ) {
               restCancelURl += '&';
-            } 
+            }
             else {
               restCancelURl += '?';
             }

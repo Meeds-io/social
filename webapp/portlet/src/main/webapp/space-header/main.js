@@ -17,6 +17,7 @@ const vuetify = new Vuetify({
 });
 
 const appId = 'SpaceHeader';
+const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 //getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -28,16 +29,18 @@ export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         navigations: settings && settings.navigations,
         selectedNavigationUri: settings && settings.selectedNavigationUri,
         bannerUrl: bannerUrl,
       }),
-      template: `<space-header id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
+      template: `<space-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
       vuetify,
-      i18n
-    }).$mount(`#${appId}`);
+      i18n,
+    }).$mount(appElement);
   });
 }

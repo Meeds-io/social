@@ -26,12 +26,16 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`;
 
 const appId = 'peopleListApplication';
+const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 export function init(filter, isManager) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       template: `<space-members
+                  v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   :is-manager="${isManager}"
                   filter="${filter || 'member'}"
@@ -39,6 +43,6 @@ export function init(filter, isManager) {
                   class="singlePageApplication" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

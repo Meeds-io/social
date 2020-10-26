@@ -1,38 +1,30 @@
 <template>
   <v-toolbar id="peopleListToolbar" flat>
-    <v-toolbar-title v-if="skeleton || isManager">
+    <v-toolbar-title v-if="isManager">
       <v-btn
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-text skeleton-background'"
         class="btn pr-2 pl-0 mr-4 inviteUserToSpaceButton"
         @click="$emit('invite-users')">
-        <span v-if="skeleton" class="mx-2">&nbsp;</span>
-        <i v-else class="uiIconInviteUser ml-2 mr-1" />
+        <i class="uiIconInviteUser ml-2 mr-1" />
         <span class="d-none d-sm-inline">
-          {{ skeleton && '&nbsp;' || $t('peopleList.button.inviteUsers') }}
+          {{ $t('peopleList.button.inviteUsers') }}
         </span>
       </v-btn>
     </v-toolbar-title>
     <div
-      :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
       class="showingPeopleText text-sub-title d-none d-sm-flex">
-      {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('peopleList.label.peopleCount', {0: peopleCount}) }}
+      {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-text'"
-        :placeholder="!skeleton && $t('peopleList.label.filterPeople') || '&nbsp;'"
+        :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
         class="inputPeopleFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text'"
         class="selectPeopleFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="peopleFilter in peopleFilters"
@@ -43,7 +35,6 @@
       </select>
     </v-scale-transition>
     <v-icon
-      :class="skeleton && 'skeleton-text'"
       class="d-sm-none"
       @click="openBottomMenu">
       fa-filter
@@ -103,10 +94,6 @@ export default {
       default: null,
     },
     isManager: {
-      type: Boolean,
-      default: false,
-    },
-    skeleton: {
       type: Boolean,
       default: false,
     },

@@ -16,9 +16,6 @@
 </template>
 
 <script>
-import * as spaceInfosServices from '../spaceInfosServices.js';
-import { spacesConstants } from '../../js/spacesConstants.js';
-
 export default {
   data() {
     return {
@@ -27,41 +24,27 @@ export default {
     };
   },
   created() {
-    this.initSpaceDescription();
-    this.initSpaceManagers();
-  },
-  updated() {
-    this.initPopup();
+    this.init(eXo.env.portal.spaceId);
   },
   methods: {
-    initSpaceDescription() {
-      spaceInfosServices.getSpaceDescriptionByPrettyName().then(data => {
-        if(data) {
-          this.description = data.description;
-        }
-      });
-    },
-    initSpaceManagers() {
-      spaceInfosServices.getSpaceManagersByPrettyName().then(response => {
-        if(response) {
-          const got = response.users;
-          if (got && got.length > 0) {
-            this.managers = [];
-            for (const el of got) {
-              el.href = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_NAME}/profile/${el.username}`;
-              if (!el.avatar) {
-                el.avatar = `${spacesConstants.SOCIAL_USER_API}/${el.username}/avatar`;
-              }
-              if(el.enabled && !el.deleted) {
-                this.managers.push(el);
-              }
+    init(spaceId) {
+      if(spaceId) {
+        return this.$spaceService.getSpaceById(spaceId, 'managers')
+          .then(space => {
+            if (space) {
+              this.description = space.description || '';
+              this.managers = space.managers && space.managers.filter(manager => manager.enabled && !manager.deleted) || [];
             }
-          }
-        }
-      });
+            return this.$nextTick();
+          })
+          .then(() => {
+            this.initPopup();
+            this.$root.$emit('application-loaded');
+          });
+      }
     },
     initPopup() {
-      const restUrl = `//${spacesConstants.HOST_NAME}${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;
+      const restUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/social/people/getPeopleInfo/{0}.json`;
       const labels = {
         youHaveSentAnInvitation: this.$t('message.label'),
         StatusTitle: this.$t('Loading.label'),

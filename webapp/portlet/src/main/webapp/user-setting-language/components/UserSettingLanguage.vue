@@ -5,23 +5,18 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.language') }}
-              </div>
+              {{ $t('UserSettings.language') }}
             </v-list-item-title>
             <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
-                {{ skeleton && '&nbsp;' || languageLabel }}
-              </div>
+              {{ languageLabel }}
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              :class="skeleton && 'skeleton-background'"
               small
               icon
               @click="openDrawer">
-              <i v-if="!skeleton" class="uiIconEdit uiIconLightBlue pb-2"></i>
+              <i class="uiIconEdit uiIconLightBlue pb-2"></i>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -48,7 +43,6 @@ export default {
       .toString()}`,
     language: eXo.env.portal.language,
     displayed: true,
-    skeleton: true,
   }),
   computed: {
     languageLabel() {
@@ -65,7 +59,7 @@ export default {
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
-    this.skeleton = false;
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     openDrawer() {

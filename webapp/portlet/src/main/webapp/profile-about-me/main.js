@@ -23,20 +23,23 @@ const vuetify = new Vuetify({
 const lang = eXo && eXo.env.portal.language || 'en';
 
 const appId = 'ProfileAboutMe';
+const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.${appId}-${lang}.json`;
 
 export function init(aboutMe) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         aboutMe: aboutMe,
       }),
-      template: `<profile-about-me id="${appId}" :about-me="aboutMe" />`,
+      template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

@@ -3,8 +3,8 @@
     id="profileHeaderActions"
     :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
     class="mt-auto mr-3">
-    <template v-if="!owner || skeleton">
-      <template v-if="!skeleton">
+    <template v-if="!owner">
+      <template>
         <v-btn
           v-for="(extension, i) in enabledProfileActionExtensions"
           :key="i"
@@ -16,7 +16,7 @@
           </span>
         </v-btn>
       </template>
-      <div v-if="!skeleton && invited" class="invitationButtons d-inline">
+      <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"
           width="200"
@@ -75,7 +75,7 @@
         </v-btn>
       </div>
       <v-btn
-        v-else-if="!skeleton && requested"
+        v-else-if="requested"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn btn-primary mx-auto cancelRequestButton"
@@ -86,15 +86,14 @@
         </span>
       </v-btn>
       <v-btn
-        v-else-if="skeleton || disconnected"
+        v-else-if="disconnected"
         :loading="sendingAction"
-        :disabled="sendingAction || skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
-        class="btn mx-auto connectUserButton"
+        :disabled="sendingAction"
+        class="btn btn-primary mx-auto connectUserButton"
         @click="connect">
-        <i v-if="!skeleton" class="uiIconSocConnectUser"/>
+        <i class="uiIconSocConnectUser"/>
         <span class="buttonText">
-          {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;' || $t('profileHeader.button.connect') }}
+          {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
     </template>
@@ -107,10 +106,6 @@ export default {
     user: {
       type: Object,
       default: () => null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: () => true,
     },
     owner: {
       type: Boolean,
