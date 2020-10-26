@@ -8,18 +8,15 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.security') }}
-              </div>
+              {{ $t('UserSettings.security') }}
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              :class="skeleton && 'skeleton-background'"
               small
               icon
               @click="openSecurityDetail">
-              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
+              <v-icon size="24" class="text-sub-title">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -38,7 +35,6 @@ export default {
       .toString()}`,
     displayed: true,
     displayDetails: false,
-    skeleton: true,
   }),
   created() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
@@ -48,7 +44,7 @@ export default {
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
-    this.skeleton = false;
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     openSecurityDetail() {

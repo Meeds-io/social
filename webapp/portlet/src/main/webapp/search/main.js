@@ -26,14 +26,16 @@ export function init(connectors) {
   }
 
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         connectors: connectors,
       }),
-      template: `<search-application id="${appId}" :connectors="connectors" />`,
+      template: `<search-application v-cacheable id="${appId}" :connectors="connectors" />`,
       vuetify,
       i18n
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

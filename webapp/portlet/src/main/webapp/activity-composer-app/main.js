@@ -26,10 +26,8 @@ if (extensionRegistry) {
 
 // getting locale resources
 export function init(params) {
-  if ($('.activityComposerApp').length) {
-    if (params && params.activityId) {
-      document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail : params}));
-    }
+  if ($('.activityComposerApp').length && params && params.activityId) {
+    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail : params}));
   } else {
     getActivityComposerActionExtensions().forEach(extension => {
       if(extension.resourceBundle) {
@@ -38,25 +36,47 @@ export function init(params) {
     });
     params = params ? params : '';
     exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-      let elementId = '#activityComposer';
-      if (!$('#activityComposer').length && params && params.activityId) {
-        elementId = `#activityComposer${params.activityId}`;
-      }
+      if ($('#activityComposer').length || !params || !params.activityId) {
+        const appId = 'activityComposer';
+        const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
-      // init Vue app when locale resources are ready
-      new Vue({
-        el: elementId,
-        data: () => ({
-          composerAction: params && params.composerAction || 'post',
-          activityBody: params && params.activityBody || '',
-          activityId: params && params.activityId || '',
-          standalone: !!(params && params.activityId),
-        }),
-        template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
-        i18n,
-        vuetify
-      });
+        const appElement = document.createElement('div');
+        appElement.id = appId;
+
+        new Vue({
+          data: () => ({
+            composerAction: params && params.composerAction || 'post',
+            activityBody: params && params.activityBody || '',
+            activityId: params && params.activityId || '',
+            standalone: !!(params && params.activityId),
+          }),
+          template: `<exo-activity-composer
+                       v-cacheable="{cacheId: '${cacheId}'}"
+                       id="${appId}"
+                       :activityBody="activityBody"
+                       :activity-id="activityId"
+                       :composer-action="composerAction"
+                       :standalone="standalone">
+                     </exo-activity-composer>`,
+          i18n,
+          vuetify,
+        }).$mount(appElement);
+      } else {
+        new Vue({
+          el: `#activityComposer${params.activityId}`,
+          data: () => ({
+            composerAction: params && params.composerAction || 'post',
+            activityBody: params && params.activityBody || '',
+            activityId: params && params.activityId || '',
+            standalone: !!(params && params.activityId),
+          }),
+          template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
+          i18n,
+          vuetify
+        });
+      }
     });
+
     window.activityComposerInitialized = true;
   }
 }

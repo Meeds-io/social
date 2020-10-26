@@ -3,23 +3,17 @@
     :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
     class="white">
     <v-toolbar color="white" flat class="border-box-sizing">
-      <div
-        :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-thick skeleton-border-radius'"
-        class="text-header-title text-sub-title">
-        {{ skeleton && '&nbsp;' || $t('profileWorkExperiences.title') }}
+      <div class="text-header-title text-sub-title">
+        {{ $t('profileWorkExperiences.title') }}
       </div>
       <v-spacer />
       <v-btn
-        v-if="owner || skeleton"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background'"
+        v-if="owner"
         icon
         outlined
         small
         @click="editWorkExperiences">
-        <i
-          v-if="!skeleton"
-          class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
     <div v-if="owner || (experiences && experiences.length)" class="px-4 pb-6 white">
@@ -31,8 +25,7 @@
           <profile-work-experience-item
             v-for="experience in experiences"
             :key="experience.id"
-            :experience="experience"
-            :skeleton="skeleton" />
+            :experience="experience" />
         </template>
         <template v-else-if="owner">
           <profile-work-experience-item empty />
@@ -58,7 +51,6 @@ export default {
   },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
-    skeleton: true,
     error: null,
     saving: null,
     workExperiencesDrawerKey: 0,
@@ -71,7 +63,7 @@ export default {
   mounted() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.setExperiences(this.experiences);
-    this.skeleton = false;
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     refresh() {
@@ -84,8 +76,8 @@ export default {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })
         .finally(() => {
-          this.skeleton = false;
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         });
     },
     setExperiences(experiences) {

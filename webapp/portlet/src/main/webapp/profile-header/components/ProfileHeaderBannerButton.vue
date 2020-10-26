@@ -1,9 +1,8 @@
 <template>
   <v-file-input
     v-if="!sendingImage"
-    v-show="skeleton || hover"
+    v-show="hover"
     ref="bannerInput"
-    :class="skeleton && 'skeleton-background skeleton-text' || ''"
     prepend-icon="fa-file-image"
     class="changeBannerButton mr-4"
     accept="image/*"
@@ -17,10 +16,6 @@ export default {
     maxUploadSize: {
       type: Number,
       default: () => 2,
-    },
-    skeleton: {
-      type: Boolean,
-      default: () => true,
     },
     hover: {
       type: Boolean,

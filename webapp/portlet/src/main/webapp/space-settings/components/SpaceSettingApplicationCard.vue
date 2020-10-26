@@ -24,8 +24,6 @@
       <div class="SpaceApplicationCardAction">
         <v-btn
           v-if="spaceId"
-          :disabled="skeleton"
-          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="primary--text"
@@ -42,7 +40,6 @@
           <v-icon size="36">mdi-plus</v-icon>
         </v-btn>
         <v-menu
-          v-if="!skeleton"
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${applicationId}`"

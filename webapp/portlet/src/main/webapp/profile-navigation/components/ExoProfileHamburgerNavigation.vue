@@ -5,7 +5,7 @@
         :href="PROFILE_URI"
         class="accountTitleItem py-3">
         <v-list-item-avatar size="44" class="mr-3 mt-0 mb-0 elevation-1">
-          <v-img :src="avatar"/>
+          <v-img :src="avatar" eager />
         </v-list-item-avatar>
         <v-list-item-content class="py-0 accountTitleLabel">
           <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }}</v-list-item-title>
@@ -15,42 +15,45 @@
     </v-row>
   </v-flex>
 </template>
+
 <script>
 export default {
   data() {
     return {
       PROFILE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile`,
       IDENTITY_REST_API_URI: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${eXo.env.portal.userIdentityId}`,
-      DEFAULT_AVATAR: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/avatar`,
       profile: null,
     };
   },
   computed: {
     avatar() {
-      return this.profile && this.profile.avatar || this.DEFAULT_AVATAR;
+      return this.profile && this.profile.avatar || '';
     },
     fullName() {
-      return this.profile && this.profile.fullname;
+      return this.profile && this.profile.fullname || '';
     },
     position() {
-      return this.profile && this.profile.position;
+      return this.profile && this.profile.position || '';
     },
   },
   created() {
-    fetch(this.IDENTITY_REST_API_URI, {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(data => data && data.ok && data.json())
-      .then(data => this.profile = data && data.profile)
-      .finally(() => {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      });
+    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    window.setTimeout(this.retrieveUserInformation, 1000);
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
         Object.assign(this.profile, event.detail);
       }
     });
+  },
+  methods: {
+    retrieveUserInformation() {
+      fetch(this.IDENTITY_REST_API_URI, {
+        method: 'GET',
+        credentials: 'include',
+      })
+        .then(data => data && data.ok && data.json())
+        .then(data => this.profile = data && data.profile);
+    },
   },
 };
 </script>
