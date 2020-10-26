@@ -250,7 +250,7 @@ public class NotificationsRestService implements ResourceContainer {
    * @throws Exception
    */
   @GET
-  @Path("validateRequestToJoinSpace/{spaceId}/{userId}/")
+  @Path("validateRequestToJoinSpace/{spaceId}/{userId}")
   public Response validateRequestToJoinSpace(@PathParam("spaceId") String spaceId,
                                              @PathParam("userId") String userId) throws Exception {
     checkAuthenticatedRequest();
