@@ -29,11 +29,13 @@ const appId = 'UserSettingSecurity';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      template: `<user-setting-security id="${appId}" />`,
+      template: `<user-setting-security v-cacheable id="${appId}" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

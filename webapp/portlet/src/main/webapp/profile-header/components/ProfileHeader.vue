@@ -1,10 +1,11 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
-    <v-hover :disabled="skeleton">
+    <v-hover>
       <v-img
         slot-scope="{ hover }"
-        :src="!skeleton && user && user.banner || ''"
-        :class="skeleton && 'white' || ''"
+        :lazy-src="user && user.banner"
+        :src="user && user.banner"
+        transition="none"
         class="profileBannerImg d-flex"
         min-height="240px"
         height="240px"
@@ -18,12 +19,11 @@
                 :message="errorMessage"
                 :title="$t('profileHeader.title.errorUploadingImage')"
                 :ok-label="$t('profileHeader.label.ok')" />
-              <v-hover :disabled="skeleton">
+              <v-hover>
                 <profile-header-avatar
                   slot-scope="{ hover }"
                   :user="user"
                   :max-upload-size="maxUploadSizeInBytes"
-                  :skeleton="skeleton"
                   :owner="owner"
                   :hover="hover"
                   save
@@ -34,17 +34,14 @@
                 <div class="profileHeaderText align-start d-flex flex-grow-0">
                   <profile-header-text
                     :user="user"
-                    :skeleton="skeleton"
-                    :class="skeleton && 'skeleton-text' || ''"
                     class="ma-auto pb-10" />
                 </div>
                 <div class="flex-grow-1"></div>
-                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-4">
+                <div class="d-flex flex-grow-0 justify-end pr-4">
                   <profile-header-banner-button
                     v-if="owner"
                     :user="user"
                     :max-upload-size="maxUploadSizeInBytes"
-                    :skeleton="skeleton"
                     :owner="owner"
                     :hover="hover"
                     @refresh="refresh"
@@ -52,7 +49,6 @@
                   <profile-header-actions
                     v-else
                     :user="user"
-                    :skeleton="skeleton"
                     :owner="owner"
                     :hover="hover"
                     @refresh="refresh" />
@@ -76,7 +72,6 @@ export default {
   },
   data: () => ({
     user: null,
-    skeleton: true,
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     errorMessage: null,
   }),
@@ -93,6 +88,7 @@ export default {
     document.addEventListener('userModified', event => {
       if (event && event.detail && event.detail !== this.user) {
         Object.assign(this.user, event.detail);
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }
     });
   },
@@ -108,12 +104,12 @@ export default {
           this.user = user;
           return this.$nextTick();
         })
-        .then(() => this.skeleton = false)
         .catch((e) => {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })
         .finally(() => {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         });
     },
     handleError(error) {

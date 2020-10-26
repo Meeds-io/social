@@ -11,18 +11,15 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('SpaceSettings.applications') }}
-              </div>
+              {{ $t('SpaceSettings.applications') }}
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              :class="skeleton && 'skeleton-background'"
               small
               icon
               @click="openDetail">
-              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
+              <v-icon size="24" class="text-sub-title">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -39,10 +36,6 @@ export default {
     spaceId: {
       type: Number,
       default: 0,
-    },
-    skeleton: {
-      type: Boolean,
-      default: () => false,
     },
   },
   data: () => ({

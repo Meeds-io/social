@@ -23,15 +23,18 @@ if (extensionRegistry) {
   }
 }
 
+const appId = 'OnlinePortlet';
+
 // getting locale ressources
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      el: '#whoIsOnline',
-      template: '<exo-who-is-online></exo-who-is-online>',
+      template: `<exo-who-is-online v-cacheable id="${appId}"></exo-who-is-online>`,
       i18n,
       vuetify
-    });
+    }).$mount(appElement);
   });
 }

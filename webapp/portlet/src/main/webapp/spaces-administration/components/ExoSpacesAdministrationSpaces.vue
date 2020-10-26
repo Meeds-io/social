@@ -80,6 +80,7 @@ export default {
     spacesAdministrationServices.getUserPermissions(eXo.env.portal.userName).then(data => {
       if(data && data.platformAdministrator) {
         this.canChangePermissions = data.platformAdministrator;
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }
     });
   },
