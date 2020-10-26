@@ -27,18 +27,21 @@ if (extensionRegistry) {
   }
 }
 
+const appId = 'spacesAdministration';
+
 // getting locale ressources
 export function init(applicationsByCategory) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      el: '#spacesAdministration',
       data: () => ({
         applicationsByCategory: applicationsByCategory,
       }),
-      template: '<exo-spaces-administration-spaces :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>',
+      template: `<exo-spaces-administration-spaces v-cacheable id="${appId}" :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>`,
       i18n,
       vuetify,
-    });
+    }).$mount(appElement);
   });
 }

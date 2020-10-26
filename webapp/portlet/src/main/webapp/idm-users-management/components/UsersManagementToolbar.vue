@@ -15,7 +15,7 @@
           data-toggle="dropdown">
           <span class="caret my-0 mx-3"></span>
         </v-btn>
-        <div class="dropdown-menu">
+        <div v-if="initialized" class="dropdown-menu">
           <users-management-import-csv-button />
         </div>
       </div>
@@ -47,6 +47,7 @@
 export default {
   data: () => ({
     filter: 'ENABLED',
+    initialized: false,
     keyword: null,
   }),
   watch: {
@@ -56,6 +57,11 @@ export default {
     filter() {
       this.$root.$emit('searchUser', this.keyword, this.filter);
     },
-  }
+  },
+  updated() {
+    // Workaround to hide DropDown Menu on initialization
+    // that causes html breaking sometimes
+    window.setTimeout(() => this.initialized = true, 1000);
+  },
 };
 </script>

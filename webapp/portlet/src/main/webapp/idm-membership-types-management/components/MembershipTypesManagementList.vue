@@ -132,7 +132,7 @@ export default {
     this.$root.$on('searchMembershipType', this.updateSearchTerms);
     this.$root.$on('refreshMembershipTypes', this.searchMembershipTypes);
 
-    this.searchMembershipTypes();
+    this.searchMembershipTypes().finally(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     updateSearchTerms(keyword) {

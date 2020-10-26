@@ -37,18 +37,11 @@
       <div data-app="true"
         class="v-application v-application--is-ltr theme--light"
         id="SearchApplication">
-        <div class="v-application--wrap">
-          <button type="button"
-            class="transparent v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default">
-            <span class="v-btn__content"> <i
-              class="uiIconPLF24x24Search"></i>
-            </span>
-          </button>
-        </div>
+        <v-cacheable-dom-app cache-id="SearchApplication"></v-cacheable-dom-app>
         <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
         <script type="text/javascript">
-        require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
-      </script>
+          require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
+        </script>
       </div>
     </div>
   </body>

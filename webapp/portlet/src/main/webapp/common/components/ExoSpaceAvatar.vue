@@ -10,7 +10,8 @@
         :width="size"
         :max-height="size"
         :max-width="size"
-        class="mx-auto">
+        class="mx-auto"
+        eager>
       </v-img>
     </v-avatar>
     <div v-if="displayName || $slots.subTitle" class="pull-left ml-2">

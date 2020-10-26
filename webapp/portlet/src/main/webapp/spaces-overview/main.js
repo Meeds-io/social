@@ -30,11 +30,14 @@ const appId = 'SpacesOverview';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
+    // init Vue app when locale ressources are ready
     new Vue({
-      template: `<spaces-overview id="${appId}" />`,
+      template: `<spaces-overview v-cacheable id="${appId}" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }
