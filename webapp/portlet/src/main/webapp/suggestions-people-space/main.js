@@ -24,12 +24,19 @@ const vuetify = new Vuetify({
   iconfont: '',
 });
 
+const appId = 'SuggestionsPeopleAndSpace';
+
 export function init(suggestionsType) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
+    const cacheId = `${appId}_${suggestionsType || ''}`;
+
     new Vue({
-      template: `<exo-suggestions-people-and-space suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
+      template: `<exo-suggestions-people-and-space v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
       vuetify,
-    }).$mount('#SuggestionsPeopleAndSpace');
+    }).$mount(appElement);
   });
 }

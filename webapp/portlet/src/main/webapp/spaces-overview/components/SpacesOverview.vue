@@ -44,65 +44,73 @@ export default {
     sentRequests: '-',
     receivedRequests: '-',
     managing: '-',
+    loading: 0,
   }),
+  watch: {
+    loading(newVal, oldVal) {
+      if (oldVal && !newVal) {
+        this.$root.$emit('application-loaded');
+      }
+    },
+  },
   created() {
     this.refresh();
   },
   methods: {
     refresh(itemType) {
-      let loading = 0;
+      this.loading = 0;
       if (!itemType || itemType === 'invitations') {
         this.invitations = '-';
-        loading++;
+        this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'invited')
           .then(data => {
             this.invitations = data && data.size || 0;
           })
           .finally(() => {
-            loading--;
-            if (loading === 0) {
+            this.loading--;
+            if (this.loading === 0) {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           });
       }
       if (!itemType || itemType === 'sentRequests') {
         this.sentRequests = '-';
-        loading++;
+        this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'pending')
           .then(data => {
             this.sentRequests = data && data.size || 0;
           })
           .finally(() => {
-            loading--;
-            if (loading === 0) {
+            this.loading--;
+            if (this.loading === 0) {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           });
       }
       if (!itemType || itemType === 'receivedRequests') {
         this.receivedRequests = '-';
-        loading++;
+        this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'requests')
           .then(data => {
             this.receivedRequests = data && data.size || 0;
           })
           .finally(() => {
-            loading--;
-            if (loading === 0) {
+            this.loading--;
+            if (this.loading === 0) {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           });
       }
       if (!itemType || itemType === 'managing') {
         this.managing = '-';
-        loading++;
+        this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'manager')
           .then(data => {
             this.managing = data && data.size || 0;
           })
           .finally(() => {
-            loading--;
-            if (loading === 0) {
+            this.loading--;
+            if (this.loading === 0) {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           });
@@ -111,4 +119,3 @@ export default {
   },
 };
 </script>
-

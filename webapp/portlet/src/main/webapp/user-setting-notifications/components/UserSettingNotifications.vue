@@ -9,9 +9,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.notifications') }}
-              </div>
+              {{ $t('UserSettings.notifications') }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -22,25 +20,21 @@
             :key="channel"
             :channel="channel"
             :active="notificationSettings.channelStatus[channel]"
-            :settings="notificationSettings"
-            :skeleton="skeleton" />
+            :settings="notificationSettings" />
         </template>
 
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.manageNotifications') }}
-              </div>
+              {{ $t('UserSettings.manageNotifications') }}
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              :class="skeleton && 'skeleton-background'"
               small
               icon
               @click="openDetail">
-              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
+              <v-icon size="24" class="text-sub-title">
                 fa-caret-right
               </v-icon>
             </v-btn>
@@ -60,7 +54,6 @@ export default {
     notificationSettings: null,
     displayDetails: false,
     displayed: true,
-    skeleton: true,
   }),
   created() {
     document.addEventListener('hideSettingsApps', (event) => {
@@ -82,7 +75,7 @@ export default {
         })
         .finally(() => {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          this.skeleton = false;
+          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         });
     },
     openDetail() {

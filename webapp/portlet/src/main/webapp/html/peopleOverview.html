@@ -2,77 +2,9 @@
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="PeopleOverview">
+    <v-cacheable-dom-app cache-id="PeopleOverview"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/PeopleOverview'], app => app.init());
     </script>
-    <div class="v-application--wrap">
-      <div
-        class="pa-4 text-center v-card v-card--flat v-sheet theme--light">
-        <div
-          class="border-box-sizing d-flex flex-row justify-center ma-0 v-card v-card--flat v-sheet theme--light">
-          <div class="peopleOverviewCard d-flex flex-column">
-            <div class="ma-auto">
-              <div
-                class="peopleOverviewCount text-center pb-1 skeleton-background skeleton-border-radius skeleton-text">
-                &nbsp;&nbsp;</div>
-              <div
-                class="peopleOverviewTitle text-center text-truncate pt-1 skeleton-background skeleton-border-radius skeleton-text">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-            </div>
-          </div>
-          <hr role="separator" aria-orientation="vertical"
-            class="peopleOverviewVertivalSeparator ma-auto v-divider v-divider--vertical theme--light">
-          <div class="peopleOverviewCard d-flex flex-column">
-            <div class="ma-auto">
-              <div
-                class="peopleOverviewCount text-center pb-1 skeleton-background skeleton-border-radius skeleton-text">
-                &nbsp;&nbsp;</div>
-              <div
-                class="peopleOverviewTitle text-center text-truncate pt-1 skeleton-background skeleton-border-radius skeleton-text">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <aside
-        class="drawerParent v-navigation-drawer v-navigation-drawer--absolute v-navigation-drawer--close v-navigation-drawer--right v-navigation-drawer--temporary theme--light d-none d-sm-flex"
-        max-height="100vh" max-width="100vw"
-        style="height: 100vh; top: 0px; transform: translateX(100%); width: 420px;"
-        data-booted="true">
-        <div class="v-navigation-drawer__content">
-          <div class="container pa-0 fill-height">
-            <div class="layout column">
-              <div class="flex mx-0 drawerHeader flex-grow-0">
-                <div tabindex="-1" class="pr-0 v-list-item theme--light">
-                  <div
-                    class="v-list-item__content drawerTitle align-start text-header-title text-truncate">
-                  </div>
-                  <div class="v-list-item__action drawerIcons align-end">
-                    <button type="button"
-                      class="v-icon notranslate v-icon--link mdi mdi-close theme--light"></button>
-                  </div>
-                </div>
-              </div>
-              <hr role="separator" aria-orientation="horizontal"
-                class="my-0 v-divider theme--light">
-              <div
-                class="flex drawerContent flex-grow-1 overflow-auto border-box-sizing">
-                <div class="layout ma-3 column">
-                  <span class="ma-auto">No people!</span>
-                  <div
-                    class="v-card__actions flex-grow-1 justify-center my-2">
-                    <div class="spacer"></div>
-                    <!---->
-                    <div class="spacer"></div>
-                  </div>
-                </div>
-              </div>
-              <!---->
-            </div>
-          </div>
-        </div>
-        <div class="v-navigation-drawer__border"></div>
-      </aside>
-    </div>
   </div>
 </div>

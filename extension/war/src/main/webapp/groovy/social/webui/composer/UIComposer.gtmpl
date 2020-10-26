@@ -37,15 +37,20 @@
     String currentUserId = _ctx.getRequestContext().getRemoteUser();
     isCurrentUserRedactor = SpaceUtils.isRedactor(currentUserId, spaceGroupId);
   }
+  def space = SpaceUtils.getSpaceByContext();
+  def spaceId = space == null ? "" : space.getId();
+
   if(featureService.isActiveFeature("new-composer")) {
     if (uicomponent.getSpaceGroupId() != null && isCurrentUserRedactor || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
 %>
-<div id="activityComposer"></div>
-<script>
-  require(['SHARED/jquery', 'SHARED/ActivityComposer'], function(jq, activityComposerApp) {
-    activityComposerApp.init();
-  });
-</script>
+<div id="activityComposer" class="activityComposer">
+  <v-cacheable-dom-app cache-id="activityComposer_<%=spaceId%>"></v-cacheable-dom-app>
+  <script>
+    require(['SHARED/jquery', 'SHARED/ActivityComposer'], function(jq, activityComposerApp) {
+      activityComposerApp.init();
+    });
+  </script>
+</div>
 <%
     }
   }

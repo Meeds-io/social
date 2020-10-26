@@ -17,11 +17,13 @@ const appId = 'peopleListApplication';
 
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
+      template: `<people-list v-cacheable id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

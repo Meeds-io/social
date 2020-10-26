@@ -1,5 +1,5 @@
 export function getSpaceTemplates() {
-  return fetch(`/portal/rest/v1/social/spaceTemplates/templates?lang=${eXo.env.portal.language}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/templates?lang=${eXo.env.portal.language}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -25,7 +25,7 @@ export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
 }
 
 export function getSpaceById(spaceId, expand) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}?expand=${expand || ''}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -38,7 +38,7 @@ export function getSpaceById(spaceId, expand) {
 }
 
 export function getSpaceByPrettyName(prettyName, expand) {
-  return fetch(`/portal/rest/v1/social/spaces/byPrettyName/${prettyName}?expand=${expand || ''}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byPrettyName/${prettyName}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -51,7 +51,7 @@ export function getSpaceByPrettyName(prettyName, expand) {
 }
 
 export function getSpaceByDisplayName(displayName, expand) {
-  return fetch(`/portal/rest/v1/social/spaces/byDisplayName/${displayName}?expand=${expand || ''}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byDisplayName/${displayName}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -64,7 +64,7 @@ export function getSpaceByDisplayName(displayName, expand) {
 }
 
 export function getSpaceApplications(spaceId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -77,7 +77,7 @@ export function getSpaceApplications(spaceId) {
 }
 
 export function getSpaceApplicationsChoices() {
-  return fetch('/portal/rest/v1/social/spaces/applications', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -90,7 +90,7 @@ export function getSpaceApplicationsChoices() {
 }
 
 export function removeSpacesApplication(appName) {
-  return fetch(`/portal/rest/v1/social/spaces/applications/${appName}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications/${appName}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -101,7 +101,7 @@ export function removeSpacesApplication(appName) {
 }
 
 export function addSpacesApplication(application) {
-  return fetch('/portal/rest/v1/social/spaces/applications', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -122,7 +122,7 @@ export function addSpacesApplication(application) {
 }
 
 export function getSpaceNavigations(spaceId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/navigations`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/navigations`, {
     method: 'GET',
     credentials: 'include',
   })
@@ -146,7 +146,7 @@ export function getSpaces(query, offset, limit, filter, expand) {
   if (!expand) {
     expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
   }
-  return fetch(`/portal/rest/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -159,7 +159,7 @@ export function getSpaces(query, offset, limit, filter, expand) {
 }
 
 export function removeSpace(spaceId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -170,7 +170,7 @@ export function removeSpace(spaceId) {
 }
 
 export function updateSpace(space) {
-  return fetch(`/portal/rest/v1/social/spaces/${space.id}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${space.id}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -189,7 +189,7 @@ export function updateSpace(space) {
 }
 
 export function createSpace(space) {
-  return fetch('/portal/rest/v1/social/spaces/', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -208,7 +208,7 @@ export function createSpace(space) {
 }
 
 export function leave(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/leave/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/leave/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -219,7 +219,7 @@ export function leave(spaceId) {
 }
 
 export function cancel(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/cancel/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/cancel/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -230,7 +230,7 @@ export function cancel(spaceId) {
 }
 
 export function join(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/join/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/join/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -241,7 +241,7 @@ export function join(spaceId) {
 }
 
 export function requestJoin(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/request/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/request/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -252,7 +252,7 @@ export function requestJoin(spaceId) {
 }
 
 export function accept(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/accept/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/accept/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -263,7 +263,7 @@ export function accept(spaceId) {
 }
 
 export function deny(spaceId) {
-  return fetch(`/portal/rest/homepage/intranet/spaces/deny/${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/deny/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -274,7 +274,7 @@ export function deny(spaceId) {
 }
 
 export function acceptUserRequest(spaceDisplayName, userId) {
-  return fetch('/portal/rest/v1/social/spacesMemberships', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -294,7 +294,7 @@ export function acceptUserRequest(spaceDisplayName, userId) {
 }
 
 export function refuseUserRequest(spaceDisplayName, userId) {
-  return fetch('/portal/rest/v1/social/spacesMemberships', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -313,7 +313,7 @@ export function refuseUserRequest(spaceDisplayName, userId) {
 }
 
 export function cancelInvitation(spaceDisplayName, userId) {
-  return fetch('/portal/rest/v1/social/spacesMemberships', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -332,7 +332,7 @@ export function cancelInvitation(spaceDisplayName, userId) {
 }
 
 export function promoteManager(spaceDisplayName, userId) {
-  return fetch('/portal/rest/v1/social/spacesMemberships', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -352,7 +352,7 @@ export function promoteManager(spaceDisplayName, userId) {
 
 export function removeManager(spacePrettyName, username) {
   const id = `${spacePrettyName}:${username}:manager`;
-  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -363,7 +363,7 @@ export function removeManager(spacePrettyName, username) {
 }
 
 export function setAsRedactor(spaceDisplayName, userId) {
-  return fetch('/portal/rest/v1/social/spacesMemberships', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -383,7 +383,7 @@ export function setAsRedactor(spaceDisplayName, userId) {
 
 export function removeRedactor(spacePrettyName, username) {
   const id = `${spacePrettyName}:${username}:redactor`;
-  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -394,7 +394,7 @@ export function removeRedactor(spacePrettyName, username) {
 }
 
 export function addApplication(spaceId, appId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -409,7 +409,7 @@ export function addApplication(spaceId, appId) {
 }
 
 export function removeApplication(spaceId, appId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -420,7 +420,7 @@ export function removeApplication(spaceId, appId) {
 }
 
 export function moveApplicationUp(spaceId, appId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -435,7 +435,7 @@ export function moveApplicationUp(spaceId, appId) {
 }
 
 export function moveApplicationDown(spaceId, appId) {
-  return fetch(`/portal/rest/v1/social/spaces/${spaceId}/applications/${appId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -451,7 +451,7 @@ export function moveApplicationDown(spaceId, appId) {
 
 export function removeMember(spacePrettyName, username) {
   const id = `${spacePrettyName}:${username}:member`;
-  return fetch(`/portal/rest/v1/social/spacesMemberships/${id}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -462,7 +462,7 @@ export function removeMember(spacePrettyName, username) {
 }
 
 export function getSuggestionsSpace(){
-  return fetch('/portal/rest/homepage/intranet/spaces/suggestions', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/suggestions`, {
     credentials: 'include'
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -477,7 +477,7 @@ export function getSuggestionsSpace(){
 
 export function ignoreSuggestion(item) {
   const data = {'user': item.username,'space': item.displayName, 'status':'IGNORED'};
-  return fetch('/portal/rest/v1/social/spacesMemberships/', {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

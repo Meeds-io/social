@@ -15,6 +15,7 @@
     </div>
     <div class="aboutMeText align-center py-0 px-1 flex-grow-1">
       <ellipsis
+        v-if="user.aboutMe"
         :title="user.aboutMe"
         :data="user.aboutMe"
         :line-clamp="5"

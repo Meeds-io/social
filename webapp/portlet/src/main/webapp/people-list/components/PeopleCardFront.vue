@@ -1,20 +1,21 @@
 <template>
   <v-card :id="userMenuParentId" class="peopleCardItem d-block d-sm-flex" flat>
     <v-img
-      :src="!skeleton && userBannerUrl || ''"
+      :lazy-src="userBannerUrl"
+      :src="userBannerUrl"
+      transition="none"
       height="80px"
-      class="white--text align-start d-block peopleBannerImg">
+      class="white--text align-start d-block peopleBannerImg"
+      eager>
     </v-img>
 
     <div class="peopleToolbarIcons px-2">
       <v-btn
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text'"
         icon
         small
         class="peopleInfoIcon d-flex"
         @click="$emit('flip')">
-        <v-icon v-if="!skeleton" size="12">fa-info</v-icon>
+        <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-btn
         v-if="user.isManager"
@@ -24,7 +25,7 @@
         class="peopleInfoIcon d-flex not-clickable primary-border-color ml-1"
         icon
         small>
-        <span v-if="!skeleton" class="d-flex uiIconMemberAdmin primary--text"></span>
+        <span class="d-flex uiIconMemberAdmin primary--text"></span>
       </v-btn>
       <v-btn
         v-if="user.isGroupBound"
@@ -34,21 +35,18 @@
         class="peopleGroupMemberBindingIcon d-flex not-clickable ml-1"
         icon
         small>
-        <span v-if="!skeleton" class="d-flex uiIconPLFFont uiIconGroup"></span>
+        <span class="d-flex uiIconPLFFont uiIconGroup"></span>
       </v-btn>
       <v-spacer />
-      <template v-if="skeleton || canUseActionsMenu">
+      <template v-if="canUseActionsMenu">
         <v-btn
-          :disabled="skeleton"
-          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="peopleMenuIcon d-block"
           @click="displayActionMenu = true">
-          <v-icon v-if="!skeleton" size="21">mdi-dots-vertical</v-icon>
+          <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu
-          v-if="!skeleton"
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${userMenuParentId}`"
@@ -73,13 +71,15 @@
     <div class="peopleAvatar">
       <a :href="url">
         <v-img
-          :src="!skeleton && userAvatarUrl || ''"
-          :class="skeleton && 'skeleton-background'"
+          :lazy-src="userAvatarUrl"
+          :src="userAvatarUrl"
+          transition="none"
           class="mx-auto"
           height="65px"
           width="65px"
           max-height="65px"
-          max-width="65px">
+          max-width="65px"
+          eager>
         </v-img>
       </a>
     </div>
@@ -90,11 +90,10 @@
         :title="user.fullname"
         :class="(!user.enabled || user.deleted) && 'text-sub-title' || 'text-color'"
         class="userFullname text-truncate font-weight-bold d-block">
-        {{ skeleton && '&nbsp;' || user.fullname }}
+        {{ user.fullname }}
       </a>
-      <v-card-subtitle
-        class="userPositionLabel text-truncate py-0">
-        {{ skeleton && '&nbsp;' || user.position || '&nbsp;' }}
+      <v-card-subtitle class="userPositionLabel text-truncate py-0">
+        {{ user.position || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>
 
@@ -108,7 +107,7 @@
         @ok="okConfirmDialog"
         @dialog-closed="closeConfirmDialog" />
       <v-btn
-        v-if="!skeleton && (!user.enabled || user.deleted)"
+        v-if="!user.enabled || user.deleted"
         class="btn mx-auto cancelRequestButton"
         depressed
         disabled
@@ -188,16 +187,15 @@
       </v-btn>
       <v-btn
         v-else
-        :class="skeleton && 'skeleton-background skeleton-text'"
         :loading="sendingAction"
-        :disabled="sendingAction || skeleton"
+        :disabled="sendingAction"
         class="btn mx-auto peopleRelationshipButton connectUserButton"
         depressed
         block
         @click="connect">
         <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"/>
         <span class="d-inline peopleRelationshipButtonText">
-          {{ skeleton && '&nbsp;' || $t('peopleList.button.connect') }}
+          {{ $t('peopleList.button.connect') }}
         </span>
         <v-icon class="d-none relationshipButtonMinus">mdi-plus</v-icon>
       </v-btn>
@@ -213,10 +211,6 @@ export default {
       default: null,
     },
     isManager: {
-      type: Boolean,
-      default: false,
-    },
-    skeleton: {
       type: Boolean,
       default: false,
     },

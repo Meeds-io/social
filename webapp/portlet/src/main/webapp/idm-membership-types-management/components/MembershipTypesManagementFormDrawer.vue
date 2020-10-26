@@ -137,11 +137,11 @@ export default {
       this.drawer = true;
     },
     saveMembershipType(event) {
-      if (this.membershipType.name.length < 3 || this.membershipType.name.length > 30) {
+      if (!this.membershipType.name || this.membershipType.name.length < 3 || this.membershipType.name.length > 30) {
         this.handleError(this.$t('MembershipTypesManagement.error.invalidRoleName'));
         return ;
       }
-      if (this.membershipType.description.length < 3 || this.membershipType.description.length > 255) {
+      if (!this.membershipType.description || this.membershipType.description.length < 3 || this.membershipType.description.length > 255) {
         this.handleError(this.$t('MembershipTypesManagement.error.invalidRoleDescription'));
         return ;
       }

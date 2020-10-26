@@ -29,14 +29,16 @@ const appId = 'UserSettingTimezone';
 
 export function init(timezones) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         timezones: timezones,
       }),
-      template: `<user-setting-timezone id="${appId}" :timezones="timezones" />`,
+      template: `<user-setting-timezone v-cacheable id="${appId}" :timezones="timezones" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

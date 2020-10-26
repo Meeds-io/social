@@ -26,14 +26,17 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileHeader-${lang}.json`;
 
 const appId = 'ProfileHeader';
+const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 export function init(maxUploadSize) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      template: `<profile-header id="${appId}" max-upload-size="${maxUploadSize}" />`,
+      template: `<profile-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" max-upload-size="${maxUploadSize}" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }
