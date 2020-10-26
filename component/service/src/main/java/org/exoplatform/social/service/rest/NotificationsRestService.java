@@ -258,9 +258,8 @@ public class NotificationsRestService implements ResourceContainer {
     checkAuthenticatedRequest();
 
     Space space = getSpaceService().getSpaceById(spaceId);
-    OrganizationService organizationService = (OrganizationService) getPortalContainer().getComponentInstanceOfType(OrganizationService.class);
-    User user = organizationService.getUserHandler().findUserByName(userId);
-    if (user == null || space == null) {
+    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId); 
+    if (userIdentity == null || space == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     //check user permission
