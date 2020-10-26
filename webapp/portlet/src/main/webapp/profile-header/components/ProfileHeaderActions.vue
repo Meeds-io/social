@@ -97,11 +97,27 @@
           {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;' || $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
+      <div class="profileHeaderActionComponents">
+        <div v-for="action in profileHeaderActionComponents" v-if="action.enabled" :key="action.key"
+             :class="action.appClass">
+          <div v-if="action.component" :ref="action.key">
+            <component v-dynamic-events="action.component.events"
+                       v-bind="action.component.props ? action.component.props : {}"
+                       :is="action.component.name"></component>
+          </div>
+          <div v-else-if="action.element" :ref="action.key" v-html="action.element.outerHTML">
+          </div>
+          <div v-else-if="action.html" :ref="action.key" v-html="action.html">
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
 
 <script>
+import {profileHeaderActionComponents} from '../extension.js';
+
 export default {
   props: {
     user: {
@@ -128,6 +144,7 @@ export default {
     sendingSecondAction: false,
     displaySecondButton: false,
     waitTimeUntilCloseMenu: 200,
+    profileHeaderActionComponents: profileHeaderActionComponents
   }),
   computed: {
     relationshipStatus() {
@@ -168,6 +185,9 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
+  },
+  mounted() {
+    this.initProfileHeaderActionComponents();
   },
   methods: {
     refreshExtensions() {
@@ -228,6 +248,17 @@ export default {
           this.sendingAction = false;
         });
     },
+    initProfileHeaderActionComponents() {
+      for (const action of this.profileHeaderActionComponents) {
+        if (action.init && action.enabled) {
+          let container = this.$refs[action.key];
+          if(container && container.length > 0) {
+            container = container[0];
+          }
+          action.init(container, this.user.username);
+        }
+      }
+    }
   },
 };
 </script>
