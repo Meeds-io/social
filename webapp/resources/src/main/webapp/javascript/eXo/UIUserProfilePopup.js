@@ -362,7 +362,10 @@
              function initExtensionComponents(extensionComponents, userId) {
                  for (const extension of extensionComponents) {
                      if (extension.init && extension.enabled) {
-                         const extensionContainer = $(`#tiptip_holder .uiAction .${extension.appClass} div`).first();
+                         let extensionContainer = $(`#tiptip_holder .uiAction .${extension.appClass} div`).first();
+                         if(extensionContainer && extensionContainer.length > 0) {
+                             extensionContainer = extensionContainer[0];
+                         }
                          extension.init(extensionContainer, userId);
                      }
                  }
