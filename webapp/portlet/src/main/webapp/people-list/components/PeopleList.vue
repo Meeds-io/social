@@ -6,7 +6,6 @@
       :keyword="keyword"
       :filter="filter"
       :people-count="peopleCount"
-      :skeleton="skeleton"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
     <people-card-list
@@ -14,7 +13,6 @@
       :keyword="keyword"
       :filter="filter"
       :loading-people="loadingPeople"
-      :skeleton="skeleton"
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
   </v-app>    
@@ -33,15 +31,11 @@ export default {
     keyword: null,
     peopleCount: 0,
     loadingPeople: false,
-    skeleton: true,
   }),
   methods: {
     peopleLoaded(peopleCount) {
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.peopleCount = peopleCount;
-      if (this.skeleton) {
-        this.skeleton = false;
-      }
     }
   },
 };

@@ -25,17 +25,21 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 
 const appId = 'SpaceSettings';
+const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 export function init(maxUploadSize) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       template: `<space-settings
+                  v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   :max-upload-size="${maxUploadSize}"
                   class="singlePageApplication" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

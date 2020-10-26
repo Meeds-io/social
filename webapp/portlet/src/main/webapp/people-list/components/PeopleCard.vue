@@ -4,12 +4,11 @@
       <people-card-front
         :user="user"
         :profile-action-extensions="profileActionExtensions"
-        :skeleton="skeleton"
         front
         @flip="flipCard = true"
         @refresh="$emit('refresh')" />
     </div>
-    <div v-if="!skeleton" class="peopleCardBack">
+    <div class="peopleCardBack">
       <people-card-reverse
         :user="user"
         @flip="flipCard = false" />
@@ -27,10 +26,6 @@ export default {
     profileActionExtensions: {
       type: Array,
       default: () => [],
-    },
-    skeleton: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({

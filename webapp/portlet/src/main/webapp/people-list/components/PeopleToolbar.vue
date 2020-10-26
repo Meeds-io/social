@@ -1,25 +1,19 @@
 <template>
   <v-toolbar id="peopleListToolbar" flat>
-    <div
-      :class="skeleton && 'skeleton-text skeleton-background skeleton-border-radius'"
-      class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
-      {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || $t('peopleList.label.peopleCount', {0: peopleCount}) }}
+    <div class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
+      {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-text'"
-        :placeholder="!skeleton && $t('peopleList.label.filterPeople') || '&nbsp;'"
+        :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
         class="inputPeopleFilter pa-0 mr-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text'"
         class="selectPeopleFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="peopleFilter in peopleFilters"
@@ -30,7 +24,6 @@
       </select>
     </v-scale-transition>
     <v-icon
-      :class="skeleton && 'skeleton-text'"
       class="d-sm-none"
       @click="openBottomMenu">
       fa-filter
@@ -88,10 +81,6 @@ export default {
     peopleCount: {
       type: String,
       default: null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({

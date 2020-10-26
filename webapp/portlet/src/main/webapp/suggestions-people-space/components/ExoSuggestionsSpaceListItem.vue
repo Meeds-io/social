@@ -3,30 +3,26 @@
     <v-list-item-avatar
       :size="avatarSize"
       class="spaceAvatar">
-      <v-img :src="!skeleton && avatarUrl || ''"
-             :class="skeleton && 'skeleton-background'"></v-img>
+      <v-img
+        :lazy-src="avatarUrl || ''"
+        :src="avatarUrl || ''"
+        transition="none"
+        eager />
     </v-list-item-avatar>
     <v-list-item-content class="pb-3">
       <v-list-item-title
         class="body-2 font-weight-bold suggestions-list-item-title">
-        <a
-          :href="url"
-          :class="skeleton && 'skeleton-background skeleton-text skeleton-list-item-title skeleton-border-radius'"
-          class="text-color">
+        <a :href="url" class="text-color">
           {{ space.displayName }}
         </a>
       </v-list-item-title>
-      <v-list-item-subtitle
-        class="caption text-sub-title suggestions-list-item-subtitle">
-        <span :class="skeleton && 'skeleton-background skeleton-text skeleton-list-item-subtitle skeleton-border-radius'">
-          {{ space.members }} {{ $t('spacemember.Label') }}
-        </span>
+      <v-list-item-subtitle class="caption text-sub-title suggestions-list-item-subtitle">
+        {{ space.members }} {{ $t('spacemember.Label') }}
       </v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
-        <a :class="skeleton && 'skeleton-background skeleton-text skeleton-border-radius'"
-           text
+        <a text
            icon
            small
            min-width="auto"
@@ -34,8 +30,7 @@
            @click="joinSpace(space)">
           <i class="uiIconPlusLight"></i>
         </a>
-        <a :class="skeleton && 'skeleton-background skeleton-text skeleton-border-radius'"
-           text
+        <a text
            small
            min-width="auto"
            class="px-0 suggestions-btn-action connexion-refuse-btn"
@@ -57,10 +52,6 @@ export default {
     avatarSize: {
       type: Number,
       default: () => 37,
-    },
-    skeleton: {
-      type: Boolean,
-      default: false,
     },
     spacesSuggestionsList: {
       type: Array,

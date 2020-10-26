@@ -177,6 +177,14 @@
     <finalName>social-portlet</finalName>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <includeEmptyDirectories>false</includeEmptyDirectories>
+          <packagingExcludes>WEB-INF/lib/*.jar,**/*.less,**/less/**,**/*.vue,css/lib/*,vue-app/**,js/mock/**/*,**-dev.*,**/main.js,**/initComponents.js,**/components</packagingExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${com.github.eirslett.frontend.version}</version>

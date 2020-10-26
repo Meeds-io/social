@@ -72,6 +72,7 @@ export default {
   },
   created() {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
 
     this.pageUri = window.location.href;
     this.pageTitle = window.document.title;

@@ -1,16 +1,18 @@
 <template>
   <v-card :id="spaceMenuParentId" class="spaceCardItem d-block d-sm-flex" flat>
-
     <v-img
-      :src="!skeleton && spaceBannerUrl || ''"
+      :src="spaceBannerUrl"
+      transition="none"
       height="80px"
-      class="white--text align-start d-block spaceBannerImg">
+      min-height="80px"
+      max-height="80px"
+      min-width="100%"
+      class="white--text align-start d-block spaceBannerImg"
+      eager>
     </v-img>
 
     <div class="spaceToolbarIcons px-2">
       <v-btn
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text'"
         icon
         small
         class="spaceInfoIcon d-flex"
@@ -18,11 +20,9 @@
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-spacer />
-      <template v-if="skeleton || canUseActionsMenu">
+      <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"
-          :disabled="skeleton"
-          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="spaceActionIcon spaceEditIcon d-none"
@@ -30,8 +30,6 @@
           <i class="uiIcon uiIconEdit" />
         </v-btn>
         <v-btn
-          :disabled="skeleton"
-          :class="skeleton && 'skeleton-background skeleton-text'"
           icon
           text
           class="spaceMenuIcon d-block"
@@ -39,7 +37,6 @@
           <v-icon size="21">mdi-dots-vertical</v-icon>
         </v-btn>
         <v-menu
-          v-if="!skeleton"
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${spaceMenuParentId}`"
@@ -78,13 +75,14 @@
     <div class="spaceAvatar">
       <a :href="url">
         <v-img
-          :src="!skeleton && spaceAvatarUrl || ''"
-          :class="skeleton && 'skeleton-background'"
+          :src="spaceAvatarUrl"
+          transition="none"
           class="mx-auto"
           height="75px"
           width="75px"
           max-height="75px"
-          max-width="75px">
+          max-width="75px"
+          eager>
         </v-img>
       </a>
     </div>
@@ -94,11 +92,11 @@
         :href="url"
         :title="space.displayName"
         class="spaceDisplayName text-truncate d-block">
-        {{ skeleton && '&nbsp;' || space.displayName }}
+        {{ space.displayName }}
       </a>
       <v-card-subtitle
         class="spaceMembersLabel py-0">
-        {{ skeleton && '&nbsp;' || $t('spacesList.label.members', {0: space.membersCount}) }}
+        {{ $t('spacesList.label.members', {0: space.membersCount}) }}
       </v-card-subtitle>
     </v-card-text>
 
@@ -203,15 +201,14 @@
         :title="$t('spacesList.label.closedSpace')"
         class="joinSpaceDisabledLabel">
         <v-btn
-          :class="skeleton && 'skeleton-background skeleton-text'"
           disabled
           class="btn mx-auto spaceMembershipButton joinSpaceButton"
           depressed
           block
           @click="join">
-          <v-icon v-if="!skeleton">mdi-plus</v-icon>
+          <v-icon>mdi-plus</v-icon>
           <span class="spaceMembershipButtonText d-inline">
-            {{ skeleton && '&nbsp;' || $t('spacesList.button.join') }}
+            {{ $t('spacesList.button.join') }}
           </span>
         </v-btn>
       </div>
@@ -225,10 +222,6 @@ export default {
     space: {
       type: Object,
       default: null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: false,
     },
     profileActionExtensions: {
       type: Array,

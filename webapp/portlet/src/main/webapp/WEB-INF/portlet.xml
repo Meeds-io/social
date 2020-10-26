@@ -108,6 +108,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/who-is-online-app/index.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -126,7 +127,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-infos-app/index.html</value>
+      <value>/space-infos-app/index.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1273,6 +1274,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/space-templates-app/index.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1373,6 +1375,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/topbarNotification.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1388,6 +1391,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/gettingStarted.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1422,6 +1426,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/spacesOverview.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1456,6 +1461,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/peopleOverview.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>

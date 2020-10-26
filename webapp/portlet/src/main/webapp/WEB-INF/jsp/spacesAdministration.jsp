@@ -9,7 +9,10 @@
   String jsonEntity = EntityBuilder.toJsonString(categories);
 %>
 <div class="VuetifyApp">
-  <div id="spacesAdministration">
+  <div data-app="true"
+    class="v-application white v-application--is-ltr theme--light spacesAdministration"
+    id="spacesAdministration">
+    <v-cacheable-dom-app cache-id="spacesAdministration"></v-cacheable-dom-app>
     <textarea
       id="spaceApplicationItemsValue"
       class="hidden"><%=jsonEntity == null ? "[]" : jsonEntity%></textarea>
