@@ -19,6 +19,8 @@ package org.exoplatform.social.service.rest;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -40,6 +42,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+
 import java.net.URI;
 import java.util.Arrays;
 
@@ -255,11 +258,11 @@ public class NotificationsRestService implements ResourceContainer {
     checkAuthenticatedRequest();
 
     Space space = getSpaceService().getSpaceById(spaceId);
-    
-    if (space == null) {
+    OrganizationService organizationService = (OrganizationService) getPortalContainer().getComponentInstanceOfType(OrganizationService.class);
+    User user = organizationService.getUserHandler().findUserByName(userId);
+    if (user == null || space == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    
     //check user permission
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (! getSpaceService().isManager(space, authenticatedUser)) {
