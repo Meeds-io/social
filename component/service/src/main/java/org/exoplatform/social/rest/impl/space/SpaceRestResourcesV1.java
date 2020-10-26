@@ -197,11 +197,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     
     EntityTag eTag = null;
-    if (collectionSpace != null) {
-      eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
-    }
-    //
-    Response.ResponseBuilder builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
+    eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
