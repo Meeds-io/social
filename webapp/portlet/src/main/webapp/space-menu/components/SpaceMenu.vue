@@ -2,7 +2,7 @@
   <v-app v-if="navigations && navigations.length" class="spaceMenuParent white">
     <div class="space-action-menu">
       <div v-for="action in spaceMenuActionComponents" v-if="action.enabled" :key="action.key"
-           :class="`${action.appClass}`">
+           :class="action.appClass">
         <div v-if="action.component" :ref="action.key">
           <component v-dynamic-events="action.component.events"
                      v-bind="action.component.props ? action.component.props : {}"
@@ -111,7 +111,10 @@ export default {
     initSpaceMenuActionComponents() {
       for (const action of this.spaceMenuActionComponents) {
         if (action.init && action.enabled) {
-          const container = this.$refs[action.key];
+          let container = this.$refs[action.key];
+          if(container && container.length > 0) {
+            container = container[0];
+          }
           action.init(container, eXo.env.portal.spaceName);
         }
       }
