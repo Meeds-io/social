@@ -304,9 +304,10 @@ export default {
       if (this.groupSpaceBindings && this.groupSpaceBindings.length > 0) {
         const boundGroupIds = this.groupSpaceBindings.map(binding => binding.group);
         boundGroupIds.forEach(groupId => {
-          boundItems.push(this.getItem(groupId));
+          const item = this.getItem(groupId);
+          item.bound = true;
+          boundItems.push(item);
         });
-        boundItems.forEach(item => item.bound = true);
       }
       return boundItems;
     },
