@@ -8,13 +8,6 @@
       );
     </script>
     <div class="v-application--wrap">
-      <div
-        class="ma-4 border-radius v-card v-card--flat v-sheet theme--light">
-        <div role="list"
-          class="v-list v-sheet v-sheet--tile theme--light">
-
-        </div>
-      </div>
     </div>
   </div>
 </div>

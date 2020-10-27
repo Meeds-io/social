@@ -9,15 +9,18 @@
                 {{ skeleton && '&nbsp;' || $t('Platform.settings.usersVisibility') }}
               </div>
             </v-list-item-title>
+            <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
+              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
+                {{ skeleton && '&nbsp;' || $t('Platform.settings.usersVisibility.description') }}
+              </div>
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
               :class="skeleton && 'skeleton-background'"
               small
               icon>
-              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
-                fa-caret-right
-              </v-icon>
+              <i v-if="!skeleton" class="uiIconEdit uiIconLightBlue pb-2"></i>
             </v-btn>
           </v-list-item-action>
         </v-list-item>

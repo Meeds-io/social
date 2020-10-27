@@ -10,6 +10,11 @@
                 {{ skeleton && '&nbsp;' || $t('Platform.settings.documentSharingVisibility') }}
               </div>
             </v-list-item-title>
+            <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
+              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width-small skeleton-text-height-fine my-2'">
+                {{ skeleton && '&nbsp;' || $t('Platform.settings.documentSharingVisibility.description') }}
+              </div>
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
