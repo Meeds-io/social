@@ -9,7 +9,7 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application transparent v-application--is-ltr theme--light"
+    class="v-application hiddenable-widget transparent v-application--is-ltr theme--light"
     id="SuggestionsPeopleAndSpace" flat="">
     <v-cacheable-dom-app cache-id="SuggestionsPeopleAndSpace_<%=suggestionsType%>"></v-cacheable-dom-app>
     <script type="text/javascript">
