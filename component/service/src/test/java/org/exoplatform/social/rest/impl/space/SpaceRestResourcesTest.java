@@ -292,6 +292,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertNotNull(spaceEntity);
     assertEquals("test space", spaceEntity.getDisplayName());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
   }
 
   public void testGetSpaceByDisplayName() throws Exception {
@@ -314,6 +316,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertNotNull(spaceEntity);
     assertEquals("test space", spaceEntity.getDisplayName());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
   }
 
   public void testGetUpdateDeleteSpaceById() throws Exception {

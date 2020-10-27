@@ -102,6 +102,7 @@ public interface SpaceRestResources extends SocialRest {
   @GET
   @Path("{prettyName}")
   public abstract Response getSpaceByPrettyName(@Context UriInfo uriInfo,
+                                                @Context Request request,
                                                 @PathParam(
                                                   "prettyName"
                                                 ) String prettyName,
@@ -119,6 +120,7 @@ public interface SpaceRestResources extends SocialRest {
   @GET
   @Path("{displayName}")
   public abstract Response getSpaceByDisplayName(@Context UriInfo uriInfo,
+                                                 @Context Request request,
                                                  @PathParam(
                                                    "displayName"
                                                  ) String displayName,

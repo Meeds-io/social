@@ -318,6 +318,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response getSpaceByPrettyName(@Context UriInfo uriInfo,
+                                       @Context Request request,
                                        @ApiParam(value = "Space id", required = true) @PathParam(
                                          "prettyName"
                                        ) String prettyName,
@@ -331,11 +332,20 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }    EntityTag eTag;
+    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+
+    CacheControl cc = new CacheControl();
+    builder.cacheControl(cc);
+
+    return builder.build();
+
   }
 
   /**
@@ -357,6 +367,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response getSpaceByDisplayName(@Context UriInfo uriInfo,
+                                        @Context Request request,
                                         @ApiParam(value = "Space id", required = true) @PathParam(
                                           "displayName"
                                         ) String displayName,
@@ -371,10 +382,19 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    EntityTag eTag;
+    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    CacheControl cc = new CacheControl();
+    builder.cacheControl(cc);
+
+    return builder.build();
   }
 
   @GET
