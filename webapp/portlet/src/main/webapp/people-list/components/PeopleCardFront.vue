@@ -10,6 +10,7 @@
       <v-btn
         :disabled="skeleton"
         :class="skeleton && 'skeleton-background skeleton-text'"
+        :title="$t('peopleList.label.openUserInfo')"
         icon
         small
         class="peopleInfoIcon d-flex"
@@ -41,6 +42,7 @@
         <v-btn
           :disabled="skeleton"
           :class="skeleton && 'skeleton-background skeleton-text'"
+          :title="$t('peopleList.label.openUserMenu')"
           icon
           text
           class="peopleMenuIcon d-block"
