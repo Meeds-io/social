@@ -416,7 +416,6 @@ public class EntityBuilder {
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setMembersCount(space.getMembers().length);
     spaceEntity.setManagersCount(space.getManagers().length);
-    updateCachedEtagValue((int) space.getLastUpdatedTime());
     return spaceEntity;
   }
   

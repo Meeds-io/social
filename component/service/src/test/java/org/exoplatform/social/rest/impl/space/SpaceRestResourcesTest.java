@@ -268,6 +268,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertNotNull(spaceEntity);
     assertEquals("test space", spaceEntity.getDisplayName());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
   }
 
   public void testGetSpaceByPrettyName() throws Exception {
@@ -330,6 +332,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals("space1", spaceEntity.getDisplayName());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
     assertEquals(Space.CLOSE, spaceEntity.getSubscription());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
 
     //root update space's description and name
     String spaceId = spaceEntity.getId();
@@ -337,12 +341,16 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    space = spaceService.getSpaceById(spaceId);
-    assertEquals("displayName_updated", space.getDisplayName());
-    assertEquals("description_updated", space.getDescription());
+    response = service("GET", getURLResource("spaces/" + spaceId), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertEquals("displayName_updated", spaceEntity.getDisplayName());
+    assertEquals("description_updated", spaceEntity.getDescription());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
     assertEquals(Space.CLOSE, spaceEntity.getSubscription());
-
+    EntityTag updatedETag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotSame(eTag, updatedETag);
     //root delete his space
     response = service("DELETE", getURLResource("spaces/" + space.getId()), "", null, null);
     assertNotNull(response);

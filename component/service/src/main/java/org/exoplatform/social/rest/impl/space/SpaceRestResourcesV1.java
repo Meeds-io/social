@@ -275,6 +275,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getSpaceById(@Context UriInfo uriInfo,
+                               @Context Request request,
                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
     
@@ -283,7 +284,19 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    EntityTag eTag = null;
+    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    CacheControl cc = new CacheControl();
+    builder.cacheControl(cc);
+
+    return builder.build();
   }
 
   /**

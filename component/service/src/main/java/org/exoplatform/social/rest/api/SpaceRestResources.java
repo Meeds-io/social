@@ -86,6 +86,7 @@ public interface SpaceRestResources extends SocialRest {
   @GET
   @Path("{id}")
   public abstract Response getSpaceById(@Context UriInfo uriInfo,
+                                        @Context Request request,
                                         @PathParam("id") String id,
                                         @QueryParam("expand") String expand) throws Exception;
 
