@@ -1415,6 +1415,25 @@
     </portlet-info>
   </portlet>
 
+
+  <portlet>
+    <portlet-name>platformSettingsPortlet</portlet-name>
+    <display-name xml:lang="EN">platform Settings</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/platformSettings.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>platform Settings</title>
+    </portlet-info>
+  </portlet>
+
   <portlet>
     <portlet-name>SpacesOverview</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>

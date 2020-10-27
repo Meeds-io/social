@@ -26,6 +26,7 @@ let config = {
     userSettingLanguage: './src/main/webapp/user-setting-language/main.js',
     userSettingNotifications: './src/main/webapp/user-setting-notifications/main.js',
     userSettingSecurity: './src/main/webapp/user-setting-security/main.js',
+    platformSettings: './src/main/webapp/platform-settings/main.js',
     userSettingTimezone: './src/main/webapp/user-setting-timezone/main.js',
     spaceInfos: './src/main/webapp/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/who-is-online-app/main.js',

@@ -60,6 +60,7 @@
       </portlet-application>
     </container>
   </page>
+
   <page>
     <name>branding</name>
     <title>Branding</title>
@@ -91,6 +92,24 @@
       <show-info-bar>false</show-info-bar>
       <show-application-state>false</show-application-state>
       <show-application-mode>false</show-application-mode>
+    </portlet-application>
+  </page>
+
+  <page>
+    <name>platformSettings</name>
+    <title>platform Settings Administration</title>
+    <access-permissions>*:/platform/administrators</access-permissions>
+    <edit-permission>*:/platform/administrators</edit-permission>
+    <portlet-application>
+      <portlet>
+        <application-ref>social-portlet</application-ref>
+        <portlet-ref>platformSettingsPortlet</portlet-ref>
+        <preferences>
+        </preferences>
+      </portlet>
+      <title>platform Settings Administration</title>
+      <access-permissions>*:/platform/administrators</access-permissions>
+      <show-info-bar>false</show-info-bar>
     </portlet-application>
   </page>
 </page-set>
