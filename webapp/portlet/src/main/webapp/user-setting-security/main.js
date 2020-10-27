@@ -27,13 +27,17 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'UserSettingSecurity';
 
-export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
-    new Vue({
-      template: `<user-setting-security id="${appId}" />`,
-      i18n,
-      vuetify,
-    }).$mount(`#${appId}`);
-  });
+export function init(ssoEnabled) {
+  if (ssoEnabled) {
+    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+  } else {
+    exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+      // init Vue app when locale ressources are ready
+      new Vue({
+        template: `<user-setting-security id="${appId}" />`,
+        i18n,
+        vuetify,
+      }).$mount(`#${appId}`);
+    });
+  }
 }

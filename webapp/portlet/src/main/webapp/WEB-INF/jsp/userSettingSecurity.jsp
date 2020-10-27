@@ -1,12 +1,17 @@
+<%@ page import="org.gatein.sso.integration.SSOUtils" %>
+<% boolean ssoEnabled = SSOUtils.isSSOEnabled(); %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="UserSettingSecurity">
     <script type="text/javascript">
       require(['PORTLET/social-portlet/UserSettingSecurity'],
-        app => app.init()
+        app => app.init(<%=ssoEnabled%>)
       );
     </script>
+    <%
+      if (!ssoEnabled) {
+    %>
     <div class="v-application--wrap">
       <div
         class="ma-4 border-radius v-card v-card--flat v-sheet theme--light">
@@ -31,5 +36,8 @@
         </div>
       </div>
     </div>
+    <%
+      }
+    %>
   </div>
 </div>
