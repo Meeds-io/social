@@ -1,5 +1,5 @@
 <template>
-  <v-app :class="appVisibilityClass">
+  <v-app class="hiddenable-widget">
     <div :class="appVisibilityClass" class="onlinePortlet">
       <div id="onlineContent" class="white">
         <v-card-title class="title center">
