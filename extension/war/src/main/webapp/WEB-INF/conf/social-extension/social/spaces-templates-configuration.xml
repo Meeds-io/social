@@ -150,7 +150,7 @@
               <string>war:/conf/social-extension/social/space-template/communication/banner.png</string>
             </field>
             <field name="permissions">
-              <string>${exo.social.space.template.communication.permissions:*:/platform/users}</string>
+              <string>${exo.social.space.template.communication.permissions:*:/platform/administrators;*:/platform/web-contributors}</string>
             </field>
             <field name="invitees">
               <string>${exo.social.space.template.communication.invitees:}</string>
@@ -236,10 +236,10 @@
               <string>project</string>
             </field>
             <field name="visibility">
-              <string>private</string>
+              <string>hidden</string>
             </field>
             <field name="registration">
-              <string>validation</string>
+              <string>close</string>
             </field>
             <field name="bannerPath">
               <string>war:/conf/social-extension/social/space-template/project/banner.png</string>
@@ -331,10 +331,10 @@
               <string>team</string>
             </field>
             <field name="visibility">
-              <string>hidden</string>
+              <string>private</string>
             </field>
             <field name="registration">
-              <string>validation</string>
+              <string>close</string>
             </field>
             <field name="bannerPath">
               <string>war:/conf/social-extension/social/space-template/team/banner.png</string>
