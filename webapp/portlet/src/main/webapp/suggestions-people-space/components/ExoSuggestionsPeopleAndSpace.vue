@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="hiddenable-widget">
     <v-flex :class="appVisibilityClass" xs12 sm12>
       <v-layout row wrap mx-0>
         <v-flex d-flex xs12>
