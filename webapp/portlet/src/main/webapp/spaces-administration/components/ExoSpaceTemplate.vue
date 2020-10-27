@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     applications() {
-      let applications = '';
+      let applications = `${this.$t('Stream.label.name')}, `;
       const size = this.template.spaceApplicationList.length;
       for (let i=0; i<size-1; i++) {
         applications += `${this.$t(`${this.template.spaceApplicationList[i].portletName}.label.name`)}, `;
