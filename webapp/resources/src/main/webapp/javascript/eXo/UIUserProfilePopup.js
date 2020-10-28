@@ -333,7 +333,7 @@
 
                      for(const extension of extensions) {
                          if(extension.enabled) {
-                             const extensionContainer = $(`<div class="${extension.appClass}"></div>`);
+                             const extensionContainer = $(`<div class="${extension.appClass} ${action.typeClass}"></div>`);
                              if (extension.component) {
                                  extensionContainer.append(`<div><${extension.component.name}></${extension.component.name}></div>`);
                              } else if (extension.element) {
