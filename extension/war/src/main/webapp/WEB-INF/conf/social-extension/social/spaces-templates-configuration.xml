@@ -113,7 +113,7 @@
                       <boolean>false</boolean>
                     </field>
                     <field name="order">
-                      <int>100</int>
+                      <int>700</int>
                     </field>
                     <field name="uri">
                       <string>members</string>
