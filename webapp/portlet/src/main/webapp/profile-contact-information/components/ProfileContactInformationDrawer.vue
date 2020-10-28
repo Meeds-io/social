@@ -382,7 +382,9 @@ export default {
     open() {
       this.error = null;
 
-      this.$refs.avatar.reset();
+      if (this.$refs.avatar) {
+        this.$refs.avatar.reset();
+      }
 
       // Avoid to change on original user
       this.userToSave = JSON.parse(JSON.stringify(this.user));

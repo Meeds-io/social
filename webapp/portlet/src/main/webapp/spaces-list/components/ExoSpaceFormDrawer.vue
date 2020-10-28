@@ -257,12 +257,28 @@ export default {
       }
     },
   },
-  mounted() {
-    if(window.location.href.indexOf('/all-spaces?createSpace=true') > -1){
-      this.setSpaceTemplateProperties();
-      this.title= this.$t('spacesList.label.addNewSpace');
-      this.$refs.spaceFormDrawer.open();
+  created() {
+    const search = window.location.search && window.location.search.substring(1);
+    if(search) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      const createSpace = parameters['createSpace'];
+      if (createSpace && Boolean(createSpace)) {
+        this.$root.$once('application-loaded', () => {
+          this.$nextTick().then(() => {
+            this.setSpaceTemplateProperties();
+            this.title= this.$t('spacesList.label.addNewSpace');
+            this.$refs.spaceFormDrawer.open();
+          });
+        });
+      }
     }
+  },
+  mounted() {
     this.$root.$on('addNewSpace', () => {
       this.spaceToUpdate = null;
       this.space = {
