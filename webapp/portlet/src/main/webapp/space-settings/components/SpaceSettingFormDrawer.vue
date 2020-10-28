@@ -180,7 +180,9 @@ export default {
       this.template = null;
       this.spaceTemplate = null;
       this.spaceToUpdate = null;
-      this.$refs.spaceAvatar.reset();
+      if(this.$refs.spaceAvatar) {
+        this.$refs.spaceAvatar.reset();
+      }
       this.space = {};
       this.$spaceService.getSpaceById(spaceId)
         .then(this.editSpace);
