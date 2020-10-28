@@ -11,6 +11,7 @@
 
     <div class="peopleToolbarIcons px-2">
       <v-btn
+        :title="$t('peopleList.label.openUserInfo')"
         icon
         small
         class="peopleInfoIcon d-flex"
@@ -40,6 +41,7 @@
       <v-spacer />
       <template v-if="canUseActionsMenu">
         <v-btn
+          :title="$t('peopleList.label.openUserMenu')"
           icon
           text
           class="peopleMenuIcon d-block"
