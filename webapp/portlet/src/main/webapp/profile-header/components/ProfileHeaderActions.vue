@@ -99,7 +99,7 @@
       </v-btn>
       <div class="profileHeaderActionComponents">
         <div v-for="action in profileHeaderActionComponents" v-if="action.enabled" :key="action.key"
-             :class="action.appClass">
+             :class="`${action.appClass} ${action.typeClass}`">
           <div v-if="action.component" :ref="action.key">
             <component v-dynamic-events="action.component.events"
                        v-bind="action.component.props ? action.component.props : {}"
