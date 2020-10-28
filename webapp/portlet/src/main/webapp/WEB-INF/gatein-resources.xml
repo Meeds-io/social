@@ -1145,7 +1145,7 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>linkifyVue</module>
+      <module>autoLinkerVue</module>
     </depends>
     <depends>
       <module>vueEllipsis</module>
