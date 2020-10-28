@@ -396,10 +396,9 @@ public class ProfileSearchConnector {
 
     //skills
     String skills = StringUtils.isBlank(filter.getSkills()) ? null : filter.getSkills().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-    if (skills.startsWith("\"") && skills.endsWith("\"")) {
-      skills = skills.replace("\"", "");
-    }
+
     if (StringUtils.isNotBlank(skills)) {
+      skills = skills.startsWith("\"") && skills.endsWith("\"")  ? skills.replace("\"", "") : skills;
       if (esExp.length() > 0) {
         esExp.append(" OR ");
       }
@@ -409,10 +408,9 @@ public class ProfileSearchConnector {
 
     //position
     String position = StringUtils.isBlank(filter.getPosition()) ? null : filter.getPosition().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-    if (position.startsWith("\"") && position.endsWith("\"")) {
-      position = position.replace("\"", "");
-    }
+
     if (StringUtils.isNotBlank(position)) {
+      position = position.startsWith("\"") && position.endsWith("\"") ? position.replace("\"", "") : position;
       if (esExp.length() > 0) {
         esExp.append(" OR ");
       }
