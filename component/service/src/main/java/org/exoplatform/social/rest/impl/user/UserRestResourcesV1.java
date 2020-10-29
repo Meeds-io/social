@@ -1131,7 +1131,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null) {
-      userImportResultEntity.addErrorMessage(userName, "USERNAME:ALREADY_EXISTS");
+      organizationService.getUserHandler().saveUser(user, true);
       return userName;
     }
 
