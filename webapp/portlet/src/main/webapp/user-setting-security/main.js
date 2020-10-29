@@ -26,7 +26,7 @@ const appId = 'UserSettingSecurity';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(ssoEnabled) {
+export function init(ssoEnabled, allowChangeExternalPassword) {
   if (ssoEnabled) {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   } else {
@@ -38,7 +38,7 @@ export function init(ssoEnabled) {
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
-        template: `<user-setting-security id="${appId}" v-cacheable />`,
+        template: `<user-setting-security id="${appId}" allowChangeExternalPassword="${allowChangeExternalPassword}" v-cacheable />`,
         i18n,
         vuetify,
       }).$mount(appElement);

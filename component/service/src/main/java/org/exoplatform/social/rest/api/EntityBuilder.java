@@ -36,6 +36,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -111,6 +112,8 @@ public class EntityBuilder {
 
   private static SpaceService        spaceService;
 
+  private static OrganizationService organizationService;
+
   private static RelationshipManager relationshipManager;
 
   private static IdentityManager     identityManager;
@@ -183,6 +186,11 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
+    try {
+      userEntity.setIsInternal(isInternal(userEntity.getUsername()));
+    } catch (Exception e) {
+      LOG.warn("Error while checking internal store user", e);
+    }
     buildPhoneEntities(profile, userEntity);
     buildImEntities(profile, userEntity);
     buildUrlEntities(profile, userEntity);
@@ -935,6 +943,11 @@ public class EntityBuilder {
     return "<" + uri + "?offset="+ offset + "&limit="+ limit + ">; rel=\"" + rel + "\"";
   }
 
+  private static boolean isInternal(String userId) throws  Exception {
+    OrganizationService organizationService = getOrganizationService();
+    return organizationService.getUserHandler().findUserByName(userId).isInternalStore();
+  }
+
   /**
    * Build rest binding entity from GroupSpaceBinding object
    *
@@ -1046,6 +1059,13 @@ public class EntityBuilder {
       spaceService = CommonsUtils.getService(SpaceService.class);
     }
     return spaceService;
+  }
+
+  public static OrganizationService getOrganizationService() {
+    if (organizationService == null) {
+      organizationService = CommonsUtils.getService(OrganizationService.class);
+    }
+    return organizationService;
   }
 
   public static RelationshipManager getRelationshipManager() {
