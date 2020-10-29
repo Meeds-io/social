@@ -57,6 +57,7 @@
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
     <org.exoplatform.commons.version>6.1.x-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.gatein.sso.version>6.1.x-SNAPSHOT</org.exoplatform.gatein.sso.version>
     <!-- For surefire and failsafe to be compatible with jacoco -->
     <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
     <!-- Elasticsearch dependencies -->
@@ -79,6 +80,14 @@
         <version>${org.exoplatform.commons.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <!-- Import versions from gatein-sso project -->
+      <dependency>
+        <groupId>org.exoplatform.gatein.sso</groupId>
+        <artifactId>sso-integration</artifactId>
+        <version>${org.exoplatform.gatein.sso.version}</version>
+        <type>pom</type>
+        <scope>import</scope>      
       </dependency>
       <!-- Declare our own artifacts -->
       <dependency>
