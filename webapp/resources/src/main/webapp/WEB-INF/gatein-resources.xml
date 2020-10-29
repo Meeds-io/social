@@ -409,6 +409,9 @@
       <module>jquery</module>
       <as>jQuery</as>
     </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
   </module>
   <module>
     <name>spacePopupPlugin</name>

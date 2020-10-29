@@ -1,5 +1,19 @@
 <template>
   <v-app v-if="navigations && navigations.length" class="spaceMenuParent white">
+    <div class="space-action-menu">
+      <div v-for="action in spaceMenuActionComponents" v-if="action.enabled" :key="action.key"
+           :class="`${action.appClass} ${action.typeClass}`">
+        <div v-if="action.component" :ref="action.key">
+          <component v-dynamic-events="action.component.events"
+                     v-bind="action.component.props ? action.component.props : {}"
+                     :is="action.component.name"></component>
+        </div>
+        <div v-else-if="action.element" :ref="action.key" v-html="action.element.outerHTML">
+        </div>
+        <div v-else-if="action.html" :ref="action.key" v-html="action.html">
+        </div>
+      </div>
+    </div>
     <v-dialog
       v-if="isMobile"
       :value="true"
@@ -47,6 +61,8 @@
 </template>
 
 <script>
+import {spaceMenuActionComponents} from '../extension.js';
+
 export default {
   props: {
     navigations: {
@@ -57,6 +73,11 @@ export default {
       type: String,
       default: null,
     },
+  },
+  data() {
+    return {
+      spaceMenuActionComponents: spaceMenuActionComponents
+    };
   },
   computed: {
     isMobile() {
@@ -83,5 +104,21 @@ export default {
     });
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   },
+  mounted() {
+    this.initSpaceMenuActionComponents();
+  },
+  methods: {
+    initSpaceMenuActionComponents() {
+      for (const action of this.spaceMenuActionComponents) {
+        if (action.init && action.enabled) {
+          let container = this.$refs[action.key];
+          if(container && container.length > 0) {
+            container = container[0];
+          }
+          action.init(container, eXo.env.portal.spaceName);
+        }
+      }
+    }
+  }
 };
 </script>
