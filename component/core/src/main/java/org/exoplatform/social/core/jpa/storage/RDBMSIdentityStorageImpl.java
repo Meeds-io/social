@@ -312,6 +312,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
     Date created = profile.getCreatedTime() <= 0 ? new Date() : new Date(profile.getCreatedTime());
     identityEntity.setCreatedDate(created);
+    Date lastUpdatedDate = profile.getLastUpdatedDate() <= 0 ? new Date() : new Date(profile.getLastUpdatedDate());
+    identityEntity.setCreatedDate(lastUpdatedDate);
   }
   /**
    * Saves identity.
@@ -335,6 +337,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     EntityConverterUtils.mapToEntity(identity, entity);
 
     if (entity.getId() > 0) {
+      entity.setLastUpdatedDate(new Date());
       getIdentityDAO().update(entity);
     } else {
       if (identity.getProfile() != null) {
@@ -371,6 +374,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     }
 
     EntityConverterUtils.mapToEntity(identity, entity);
+    entity.setLastUpdatedDate(new Date());
     entity = getIdentityDAO().update(entity);
 
     return EntityConverterUtils.convertToIdentity(entity, true);
@@ -514,6 +518,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     if (entity == null) {
       throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_UPDATE_PROFILE, "Profile does not exist on RDBMS");
     } else {
+      profile.setLastUpdatedDate(System.currentTimeMillis());
       mapToProfileEntity(profile, entity);
       identityDAO.update(entity);
     }
@@ -535,6 +540,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     if (entity == null) {
       throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_UPDATE_PROFILE, "Profile does not exist on RDBMS");
     } else {
+      profile.setLastUpdatedDate(System.currentTimeMillis());
       mapToProfileEntity(profile, entity);
       identityDAO.update(entity);
     }    

@@ -102,6 +102,10 @@ public class IdentityEntity {
   @Column(name = "CREATED_DATE")
   private Date createdDate = new Date();
 
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "UPDATED_DATE")
+  private Date lastUpdatedDate = new Date();
+
   @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, orphanRemoval = true)
   private Set<ConnectionEntity> incomingConnections;
 
@@ -192,5 +196,11 @@ public class IdentityEntity {
     this.createdDate = createdTime;
   }
 
+  public Date getLastUpdatedDate() {
+    return lastUpdatedDate;
+  }
 
+  public void setLastUpdatedDate(Date lastUpdatedDate) {
+    this.lastUpdatedDate = lastUpdatedDate;
+  }
 }

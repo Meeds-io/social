@@ -147,7 +147,17 @@ public class Profile {
   /** Space string */
   private static final String SPACE_STR               = " ";
 
-  /** Types of updating of profile. */
+  /**  Last Updated Date */
+  private long lastUpdatedDate;
+
+  public void setLastUpdatedDate(long lastUpdatedDate) {
+    this.lastUpdatedDate = lastUpdatedDate;
+  }
+  public long getLastUpdatedDate() {
+    return lastUpdatedDate;
+  }
+
+    /** Types of updating of profile. */
   public static enum UpdateType {
     POSITION,
     COMPANY,

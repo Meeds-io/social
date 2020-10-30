@@ -98,6 +98,7 @@ public class ProfileDAOTest extends BaseCoreTest {
 
   private IdentityEntity createProfile(IdentityEntity profile) {
     profile.setCreatedDate(new Date());
+    profile.setLastUpdatedDate(new Date());
 
     ProfileExperienceEntity exp = new ProfileExperienceEntity();
     exp.setCompany("eXo Platform");

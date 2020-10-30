@@ -162,6 +162,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getIdentityById(@Context UriInfo uriInfo,
+                                  @Context Request request,
                                   @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
@@ -172,7 +173,16 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     }
     
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    EntityTag eTag = new EntityTag(String.valueOf(profileInfo.getProfile().getLastUpdatedTime()));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+    CacheControl cc = new CacheControl();
+    cc.setMaxAge(86400);
+    builder.cacheControl(cc);
+    return builder.cacheControl(cc).build();
   }
 
   @GET
