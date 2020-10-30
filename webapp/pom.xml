@@ -33,12 +33,4 @@
     <module>portlet</module>
     <module>juzu-portlet</module>
   </modules>
-  <dependencies>
-    <dependency>
-      <groupId>org.exoplatform.gatein.sso</groupId>
-      <artifactId>sso-integration</artifactId>
-      <version>6.1.x-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
 </project>
