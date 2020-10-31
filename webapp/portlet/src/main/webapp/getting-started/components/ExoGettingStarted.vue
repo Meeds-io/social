@@ -1,9 +1,6 @@
 <template>
   <v-app>
-    <v-flex 
-      d-flex 
-      xs12 
-      sm12>
+    <v-flex d-flex xs12 sm12 class="hiddenable-widget">
       <v-layout 
         row 
         wrap 
