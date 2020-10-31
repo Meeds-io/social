@@ -36,6 +36,9 @@ export function init(timezones) {
       data: () => ({
         timezones: timezones,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<user-setting-timezone v-cacheable id="${appId}" :timezones="timezones" />`,
       i18n,
       vuetify,

@@ -34,6 +34,9 @@ export function init(ssoEnabled) {
     exoi18n.loadLanguageAsync(lang, url).then(i18n => {
       // init Vue app when locale ressources are ready
       new Vue({
+        mounted() {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        },
         template: `<user-setting-security id="${appId}" />`,
         i18n,
         vuetify,

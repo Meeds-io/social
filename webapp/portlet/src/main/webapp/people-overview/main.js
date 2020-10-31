@@ -33,6 +33,9 @@ export function init() {
     appElement.id = appId;
 
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<people-overview v-cacheable id="${appId}" />`,
       i18n,
       vuetify,

@@ -52,7 +52,6 @@ export default {
   },
   created() {
     this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;

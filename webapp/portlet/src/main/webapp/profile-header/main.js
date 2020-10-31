@@ -34,6 +34,9 @@ export function init(maxUploadSize) {
     appElement.id = appId;
 
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<profile-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" max-upload-size="${maxUploadSize}" />`,
       i18n,
       vuetify,

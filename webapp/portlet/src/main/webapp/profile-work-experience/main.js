@@ -37,6 +37,9 @@ export function init(user) {
       data: () => ({
         experiences: user && user.experiences || [],
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<profile-work-experiences v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :experiences="experiences" />`,
       i18n,
       vuetify,

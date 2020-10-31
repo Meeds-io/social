@@ -52,7 +52,6 @@ export default {
   },
   created() {
     this.selectedTimezone = this.timezones.find(tmp => tmp.offset === this.timezoneOffset);
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;

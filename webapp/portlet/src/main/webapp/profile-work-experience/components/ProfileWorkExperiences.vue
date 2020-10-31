@@ -61,7 +61,6 @@ export default {
     },
   },
   mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.setExperiences(this.experiences);
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
@@ -76,7 +75,6 @@ export default {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })
         .finally(() => {
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         });
     },

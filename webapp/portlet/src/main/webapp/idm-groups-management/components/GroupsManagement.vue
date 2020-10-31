@@ -27,7 +27,6 @@ export default {
     error: null,
   }),
   mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.$root.$on('error', error => this.error = error);
   },
 };

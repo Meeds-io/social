@@ -14,9 +14,8 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 //should expose the locale ressources as REST API 
 const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`];
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 export function init(connectors) {
-  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
   if (connectors && connectors.length) {
     connectors.forEach(connector => {
       if (connector.i18nBundle) {
@@ -33,6 +32,9 @@ export function init(connectors) {
       data: () => ({
         connectors: connectors,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<search-application v-cacheable id="${appId}" :connectors="connectors" />`,
       vuetify,
       i18n

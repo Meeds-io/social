@@ -163,7 +163,6 @@ export default {
       }
     },
     peopleLoaded(peopleCount) {
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.peopleCount = peopleCount;
     }
   },

@@ -11,7 +11,6 @@ export default {
     spaceId: eXo.env.portal.spaceId,
   }),
   mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
 };

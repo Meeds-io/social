@@ -68,9 +68,6 @@ export default {
           })
           .finally(() => {
             this.loading--;
-            if (this.loading === 0) {
-              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            }
           });
       }
       if (!itemType || itemType === 'sentRequests') {
@@ -82,9 +79,6 @@ export default {
           })
           .finally(() => {
             this.loading--;
-            if (this.loading === 0) {
-              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            }
           });
       }
       if (!itemType || itemType === 'receivedRequests') {
@@ -96,9 +90,6 @@ export default {
           })
           .finally(() => {
             this.loading--;
-            if (this.loading === 0) {
-              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            }
           });
       }
       if (!itemType || itemType === 'managing') {
@@ -110,9 +101,6 @@ export default {
           })
           .finally(() => {
             this.loading--;
-            if (this.loading === 0) {
-              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            }
           });
       }
     },

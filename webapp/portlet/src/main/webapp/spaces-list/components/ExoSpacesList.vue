@@ -45,7 +45,6 @@ export default {
   }),
   methods: {
     spacesLoaded(spacesSize) {
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.spacesSize = spacesSize;
       if (!this.initialized) {
         this.$root.$emit('application-loaded');

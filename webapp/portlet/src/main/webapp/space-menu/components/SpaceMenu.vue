@@ -104,7 +104,6 @@ export default {
         })
         .then(() => this.$root.$emit('application-loaded'));
     });
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   },
   mounted() {
     this.$root.$emit('application-loaded');

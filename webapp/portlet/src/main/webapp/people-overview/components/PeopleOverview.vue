@@ -49,7 +49,6 @@ export default {
           loading--;
           if (loading === 0) {
             this.initialized = true;
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
           if (window.location.pathname.includes('receivedInvitations')) {
             this.$refs.peopleDrawer.open('invitations', this.$t('peopleOverview.label.invitations'));
@@ -63,7 +62,6 @@ export default {
           loading--;
           if (loading === 0) {
             this.initialized = true;
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           }
         });
     },

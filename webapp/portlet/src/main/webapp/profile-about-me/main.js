@@ -10,8 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
 const vuetify = new Vuetify({
@@ -28,6 +26,7 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.${appId}-${lang}.json`;
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 export function init(aboutMe) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
@@ -37,6 +36,9 @@ export function init(aboutMe) {
       data: () => ({
         aboutMe: aboutMe,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
       vuetify,

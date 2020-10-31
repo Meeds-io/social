@@ -37,6 +37,9 @@ export function init(user, uploadLimit) {
       data: () => ({
         user: user,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :user="user" :upload-limit="${uploadLimit}" />`,
       i18n,
       vuetify,

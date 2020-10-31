@@ -34,6 +34,9 @@ export function init(filter, isManager) {
     appElement.id = appId;
 
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<space-members
                   v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"

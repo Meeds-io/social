@@ -157,7 +157,6 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
   }),
   mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
         const user = event.detail;

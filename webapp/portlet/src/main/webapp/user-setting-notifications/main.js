@@ -36,6 +36,9 @@ export function init(settings) {
       data: () => ({
         settings: settings,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<user-setting-notifications v-cacheable id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
       i18n,
       vuetify,

@@ -108,7 +108,6 @@ export default {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })
         .finally(() => {
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         });
     },

@@ -33,6 +33,9 @@ export function init(maxUploadSize) {
     appElement.id = appId;
 
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<space-settings
                   v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"

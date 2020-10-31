@@ -30,6 +30,9 @@ export function init(settings) {
       navigations: settings && settings.navigations,
       selectedNavigationUri: settings && settings.selectedNavigationUri,
     }),
+    mounted() {
+      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    },
     template: `<space-menu v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
     vuetify,
   }).$mount(appElement);

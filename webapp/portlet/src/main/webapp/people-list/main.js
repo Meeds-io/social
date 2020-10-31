@@ -1,5 +1,3 @@
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
 const vuetify = new Vuetify({
@@ -15,12 +13,17 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'peopleListApplication';
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<people-list v-cacheable id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
       vuetify,

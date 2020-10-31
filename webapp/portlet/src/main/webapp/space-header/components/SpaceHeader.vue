@@ -118,7 +118,6 @@ export default {
         })
         .then(() => this.$root.$emit('application-cache'));
     });
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   },
   mounted() {
     this.$root.$emit('application-loaded');

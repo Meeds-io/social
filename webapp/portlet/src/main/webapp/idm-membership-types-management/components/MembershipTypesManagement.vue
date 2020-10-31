@@ -7,11 +7,3 @@
     </v-card>
   </v-app>
 </template>
-
-<script>
-export default {
-  mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-  }
-};
-</script>

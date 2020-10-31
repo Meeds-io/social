@@ -37,7 +37,6 @@ export default {
     displayDetails: false,
   }),
   created() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;

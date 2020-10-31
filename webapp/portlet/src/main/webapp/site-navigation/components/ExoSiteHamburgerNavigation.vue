@@ -93,9 +93,6 @@ export default {
         if (this.navigations && this.navigations.length && !this.homeLink) {
           this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
         }
-      })
-      .finally(() => {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       });
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;

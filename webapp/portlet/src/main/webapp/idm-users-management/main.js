@@ -33,6 +33,9 @@ export function init() {
 
     // init Vue app when locale ressources are ready
     new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<users-management v-cacheable id="${appId}" />`,
       vuetify,
       i18n

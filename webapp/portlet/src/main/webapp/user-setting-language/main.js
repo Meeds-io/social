@@ -36,6 +36,9 @@ export function init(languages) {
       data: () => ({
         languages: languages,
       }),
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
       template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
       i18n,
       vuetify,

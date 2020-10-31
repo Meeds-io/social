@@ -37,7 +37,6 @@ export default {
     },
   },
   created() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     window.setTimeout(this.retrieveUserInformation, 1000);
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
