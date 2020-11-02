@@ -1761,13 +1761,15 @@ public class ActivityStreamResourcesTest extends AbstractResourceTest {
       // Demo creates 5 activities to space activity stream
       createActivities(demoIdentity, spaceIdentity, 5);
       List<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity)
-                                                              .loadAsList(0, 20);
+                                                              .loadAsList(0, 1);
 
       ExoSocialActivity likeActivity = demoActivities.get(0);
       activityManager.saveLike(likeActivity, demoIdentity);
       activityManager.saveLike(likeActivity, johnIdentity);
       activityManager.saveLike(likeActivity, maryIdentity);
 
+      demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity)
+              .loadAsList(0, 20);
       ContainerResponse containerResponse2 = service("GET", resourceUrl, "", null, null);
       assertEquals("containerResponse2.getStatus() must return 200", 200,
                    containerResponse2.getStatus());
