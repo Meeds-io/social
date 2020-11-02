@@ -123,7 +123,6 @@ export default {
     error: null,
     saving: false,
     displayed: true,
-    skeleton: true,
   }),
   watch: {
     confirmNewPassword() {
@@ -131,7 +130,6 @@ export default {
     },
   },
   created() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (id) => {
       if (this.id !== id) {
         this.displayed = false;

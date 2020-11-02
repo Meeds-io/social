@@ -6,7 +6,6 @@
       :keyword="keyword"
       :filter="filter"
       :people-count="peopleCount"
-      :skeleton="skeleton"
       :is-manager="isManager"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event"
@@ -18,7 +17,6 @@
       :keyword="keyword"
       :filter="filter"
       :loading-people="loadingPeople"
-      :skeleton="skeleton"
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
@@ -52,7 +50,6 @@ export default {
     keyword: null,
     peopleCount: 0,
     loadingPeople: false,
-    skeleton: true,
     space: {}
   }),
   created() {
@@ -166,11 +163,7 @@ export default {
       }
     },
     peopleLoaded(peopleCount) {
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       this.peopleCount = peopleCount;
-      if (this.skeleton) {
-        this.skeleton = false;
-      }
     }
   },
 };

@@ -5,14 +5,11 @@
     @click="count && $emit('click')">
     <div class="ma-auto">
       <div
-        :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text'"
         class="peopleOverviewCount text-center pb-1">
-        {{ skeleton && '&nbsp;&nbsp;' || count }}
+        {{ count }}
       </div>
-      <div
-        :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text'"
-        class="peopleOverviewTitle text-center text-truncate pt-1">
-        {{ skeleton && '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' || title }}
+      <div class="peopleOverviewTitle text-center text-truncate pt-1">
+        {{ title }}
       </div>
     </div>
   </div>
@@ -32,10 +29,6 @@ export default {
     count: {
       type: Number,
       default: () => 0,
-    },
-    skeleton: {
-      type: Boolean,
-      default: () => true,
     },
   },
   computed: {

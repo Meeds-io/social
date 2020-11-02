@@ -100,25 +100,13 @@ export default {
             });
             this.navigations = data;
           }
-        });
+          return this.$nextTick();
+        })
+        .then(() => this.$root.$emit('application-loaded'));
     });
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   },
   mounted() {
-    this.initSpaceMenuActionComponents();
+    this.$root.$emit('application-loaded');
   },
-  methods: {
-    initSpaceMenuActionComponents() {
-      for (const action of this.spaceMenuActionComponents) {
-        if (action.init && action.enabled) {
-          let container = this.$refs[action.key];
-          if(container && container.length > 0) {
-            container = container[0];
-          }
-          action.init(container, eXo.env.portal.spaceName);
-        }
-      }
-    }
-  }
 };
 </script>

@@ -6,7 +6,6 @@
           id="peopleInvitationsOverview"
           :title="$t('peopleOverview.label.invitations')"
           :count="invitations"
-          :skeleton="skeleton"
           :class="invitations === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
         <v-divider class="peopleOverviewVertivalSeparator ma-auto" vertical />
@@ -14,7 +13,6 @@
           id="peoplePendingOverview"
           :title="$t('peopleOverview.label.pending')"
           :count="pending"
-          :skeleton="skeleton"
           :class="pending === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
       </v-card>
@@ -28,8 +26,15 @@ export default {
   data: () => ({
     invitations: '-',
     pending: '-',
-    skeleton: true,
+    initialized: false,
   }),
+  watch: {
+    initialized(newVal, oldVal) {
+      if (newVal !== oldVal && newVal) {
+        this.$root.$emit('application-loaded');
+      }
+    },
+  },
   created() {
     this.refresh();
   },
@@ -43,8 +48,7 @@ export default {
         .finally(() => {
           loading--;
           if (loading === 0) {
-            this.skeleton = false;
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            this.initialized = true;
           }
           if (window.location.pathname.includes('receivedInvitations')) {
             this.$refs.peopleDrawer.open('invitations', this.$t('peopleOverview.label.invitations'));
@@ -57,8 +61,7 @@ export default {
         .finally(() => {
           loading--;
           if (loading === 0) {
-            this.skeleton = false;
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            this.initialized = true;
           }
         });
     },

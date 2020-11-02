@@ -1,32 +1,31 @@
 <template>
-  <v-app v-if="displayed">
-    <user-setting-security-window
-      v-if="displayDetails"
-      @back="closeSecurityDetail" />
-    <v-card v-else class="ma-4 border-radius" flat>
-      <v-list>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title text-color">
-              <div :class="skeleton && 'skeleton-background skeleton-border-radius skeleton-text-width skeleton-text-height my-2'">
-                {{ skeleton && '&nbsp;' || $t('UserSettings.security') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              :class="skeleton && 'skeleton-background'"
-              small
-              icon
-              @click="openSecurityDetail">
-              <v-icon v-if="!skeleton" size="24" class="text-sub-title">
-                fa-caret-right
-              </v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+  <v-app>
+    <template v-if="displayed">
+      <user-setting-security-window
+        v-if="displayDetails"
+        @back="closeSecurityDetail" />
+      <v-card v-else class="ma-4 border-radius" flat>
+        <v-list>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title class="title text-color">
+                {{ $t('UserSettings.security') }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn
+                small
+                icon
+                @click="openSecurityDetail">
+                <v-icon size="24" class="text-sub-title">
+                  fa-caret-right
+                </v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </template>
   </v-app>
 </template>
 
@@ -38,17 +37,22 @@ export default {
       .toString()}`,
     displayed: true,
     displayDetails: false,
-    skeleton: true,
   }),
+  watch: {
+    displayed() {
+      this.$nextTick().then(() => this.$root.$emit('application-cache'));
+    },
+  },
   created() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
-    this.skeleton = false;
+  },
+  mounted() {
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     openSecurityDetail() {

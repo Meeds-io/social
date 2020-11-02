@@ -1,16 +1,19 @@
 <template>
-  <v-app v-if="users && users.length > 0" id="OnlinePortlet">
-    <div class="onlinePortlet">
-      <div id="onlineContent" class="uiBox">
+  <v-app class="hiddenable-widget">
+    <div :class="appVisibilityClass" class="onlinePortlet">
+      <div id="onlineContent" class="white">
         <v-card-title class="title center">
-          <span :class="firstLoadingOnLineUsers && 'skeleton-background skeleton-text skeleton-header skeleton-border-radius'">{{ $t('header.label') }}</span>
+          {{ $t('header.label') }}
         </v-card-title>
         <ul id="onlineList" class="gallery uiContentBox">
           <li v-for="user in users" :key="user" :id="user.id">
             <a :href="user.href" class="avatarXSmall">
               <v-avatar size="37" class="mx-1">
-                <v-img :src="!firstLoadingOnLineUsers && user.avatar || ''"
-                       :class="firstLoadingOnLineUsers && 'skeleton-background'"></v-img>
+                <v-img
+                  :lazy-src="user.avatar"
+                  :src="user.avatar"
+                  transition="eager"
+                  eager />
               </v-avatar>
             </a>
           </li>
@@ -28,8 +31,14 @@ export default {
   data() {
     return {
       users: [],
-      firstLoadingOnLineUsers: true
     };
+  },
+  computed: {
+    appVisibilityClass() {
+      if (!this.users || !this.users.length) {
+        return 'd-none hidden';
+      }
+    },
   },
   created() {
     this.initOnlineUsers();
@@ -44,28 +53,22 @@ export default {
   },
   methods: {
     initOnlineUsers() {
-      whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId).then(response => {
-        let got;
-        if (response) {
-          got = response.users;
-          if (got && got.length > 0) {
-            this.users = [];
-            for (const el of got) {
-              el.href = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_NAME}/profile/${el.username}`;
-              if (!el.avatar) {
-                el.avatar = `${spacesConstants.SOCIAL_USER_API}/${el.username}/avatar`;
+      whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
+        .then(response => {
+          if (response) {
+            const users = response.users || [];
+            for (const user of users) {
+              user.href = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_NAME}/profile/${user.username}`;
+              if (!user.avatar) {
+                user.avatar = `${spacesConstants.SOCIAL_USER_API}/${user.username}/avatar`;
               }
-              this.users.push(el);
             }
-            $('#OnlinePortlet').show();
+            this.users = users;
           } else {
-            $('#OnlinePortlet').hide();
+            this.users = [];
           }
-          if(this.firstLoadingOnLineUsers) {
-            this.firstLoadingOnLineUsers = false;
-          }
-        }
-      });
+          window.setTimeout(() => this.$root.$emit('application-loaded'), 200);
+        });
     },
     initPopup() {
       const restUrl = `//${spacesConstants.HOST_NAME}${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;

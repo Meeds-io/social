@@ -1,5 +1,4 @@
 import './initComponents.js';
-
 // get overrided components if exists
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('UserSettingSecurity');
@@ -9,8 +8,6 @@ if (extensionRegistry) {
     });
   }
 }
-
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
@@ -27,17 +24,24 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 const appId = 'UserSettingSecurity';
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
 export function init(ssoEnabled) {
   if (ssoEnabled) {
     document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
   } else {
     exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-      // init Vue app when locale ressources are ready
+      const appElement = document.createElement('div');
+      appElement.id = appId;
+
       new Vue({
-        template: `<user-setting-security id="${appId}" />`,
+        mounted() {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        },
+        template: `<user-setting-security id="${appId}" v-cacheable />`,
         i18n,
         vuetify,
-      }).$mount(`#${appId}`);
+      }).$mount(appElement);
     });
   }
 }

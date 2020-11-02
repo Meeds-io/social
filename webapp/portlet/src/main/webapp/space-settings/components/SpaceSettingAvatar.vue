@@ -4,7 +4,7 @@
     :size="size"
     class="spaceAvatar"
     tile>
-    <v-img :src="!skeleton && (avatarData || avatarUrl) || ''" />
+    <v-img :src="avatarData || avatarUrl || ''" />
     <v-file-input
       v-if="!sendingImage"
       v-show="hover"
@@ -29,10 +29,6 @@ export default {
       default: () => 0,
     },
     save: {
-      type: Boolean,
-      default: () => false,
-    },
-    skeleton: {
       type: Boolean,
       default: () => false,
     },

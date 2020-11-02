@@ -4,38 +4,23 @@
     class="white">
     <v-toolbar color="white" flat class="border-box-sizing">
       <div
-        :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-thick skeleton-border-radius'"
         class="text-header-title text-sub-title">
-        {{ skeleton && '&nbsp;' || $t('profileAboutMe.title') }}
+        {{ $t('profileAboutMe.title') }}
       </div>
       <v-spacer />
       <v-btn
-        v-if="owner || skeleton"
-        :disabled="skeleton"
-        :class="skeleton && 'skeleton-background'"
+        v-if="owner"
         icon
         outlined
         small
         @click="editAboutMe">
-        <i
-          v-if="!skeleton"
-          class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2" />
       </v-btn>
     </v-toolbar>
     <v-card
-      :class="skeleton && 'pr-7'"
       class="border-box-sizing"
       flat>
-      <template v-if="skeleton">
-        <div
-          v-for="i in 8"
-          :key="i"
-          :class="(i % 2) === 0 && 'skeleton-text-full-width' || 'skeleton-text-half-width'"
-          class="my-3 mx-4 border-box-sizing skeleton-text skeleton-text-width skeleton-background skeleton-text-height skeleton-border-radius">
-          &nbsp;
-        </div>
-      </template>
-      <p v-else-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
+      <p v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
       <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
     <exo-drawer
@@ -85,7 +70,6 @@ export default {
   },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
-    skeleton: true,
     error: null,
     saving: null,
     modifyingAboutMe: null,
@@ -97,13 +81,13 @@ export default {
     }
   },
   mounted() {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-    this.skeleton = false;
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     refresh(aboutMe) {
       this.aboutMe = aboutMe;
       this.$refs.aboutMeDrawer.close();
+      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     },
     editAboutMe() {
       this.modifyingAboutMe = this.aboutMe;

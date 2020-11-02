@@ -17,14 +17,18 @@ if (extensionRegistry) {
   }
 }
 
+const appId = 'spaceInfosApp';
+const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
+
 // getting locale ressources
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
-      el: '#spaceInfos',
-      template: '<exo-space-infos></exo-space-infos>',
-      i18n
-    });
+      template: `<exo-space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-space-infos>`,
+      i18n,
+    }).$mount(appElement);
   });
 }

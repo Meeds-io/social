@@ -29,14 +29,19 @@ const appId = 'UserSettingNotifications';
 
 export function init(settings) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-  // init Vue app when locale ressources are ready
+    const appElement = document.createElement('div');
+    appElement.id = appId;
+
     new Vue({
       data: () => ({
         settings: settings,
       }),
-      template: `<user-setting-notifications id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
+      template: `<user-setting-notifications v-cacheable id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
       i18n,
       vuetify,
-    }).$mount(`#${appId}`);
+    }).$mount(appElement);
   });
 }

@@ -10,7 +10,5 @@ if (extensionRegistry) {
   }
 }
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 // add menu entry in Hamburger Menu
 document.dispatchEvent(new CustomEvent('exo-hamburger-menu-navigation-refresh'));

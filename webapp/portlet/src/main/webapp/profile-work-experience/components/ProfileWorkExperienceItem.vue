@@ -1,49 +1,34 @@
 <template>
   <v-timeline-item
     :class="mobile && 'caption' || ''"
-    :color="skeleton && 'skeleton-background' || 'tertiary'"
     :small="mobile"
+    color="tertiary"
     class="workExperienceTimeLineItem"
     right>
     <div
       v-if="!mobile"
       slot="opposite"
-      :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius'"
       class="workExperienceTimeLineItemTime">
-      {{ skeleton && '&nbsp;' || displayedDate }}
+      {{ displayedDate }}
     </div>
-    <v-card :class="skeleton && 'elevation-0 skeleton-border'">
+    <v-card>
       <v-card-text v-if="experience" class="pb-3">
         <div
           v-if="mobile"
-          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-color font-weight-bold mb-2"
           v-text="displayedDate">
         </div>
         <div
-          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-color"
           v-text="experience.position">
         </div>
         <div
-          :class="skeleton && 'skeleton-text skeleton-text-width skeleton-background skeleton-text-height-fine skeleton-border-radius mb-3'"
           class="text-sub-title"
           v-text="experience.company">
         </div>
       </v-card-text>
       <v-card-text class="pt-0">
-        <template v-if="skeleton">
-          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'">
-            &nbsp;
-          </div>
-          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-5'">
-            &nbsp;
-          </div>
-          <div :class="skeleton && 'skeleton-text skeleton-text-width-full-width skeleton-background skeleton-text-height skeleton-border-radius mb-3'">
-            &nbsp;
-          </div>
-        </template>
-        <template v-else-if="empty">
+        <template v-if="empty">
           <div class="text-color pt-2">
             {{ $t('profileWorkExperiences.emptyExperienceDescription') }}
           </div>
@@ -68,10 +53,6 @@ export default {
     experience: {
       type: Object,
       default: () => null,
-    },
-    skeleton: {
-      type: Boolean,
-      default: false,
     },
     empty: {
       type: Boolean,
