@@ -16,9 +16,64 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import io.swagger.annotations.*;
+import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
+import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.jaxrs.PATCH;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.picocontainer.Startable;
+
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -31,7 +86,13 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
@@ -57,30 +118,26 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
-import org.exoplatform.social.rest.api.*;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.ErrorResource;
+import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.api.UserImportResultEntity;
+import org.exoplatform.social.rest.api.UserRestResources;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.PhoneEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.entity.URLEntity;
+import org.exoplatform.social.rest.entity.UserEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
-import org.json.JSONObject;
-import org.picocontainer.Startable;
-
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 /**
  * 
@@ -146,7 +203,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   private static final String INVISIBLE = "invisible";
-
+  
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
   private byte[]              defaultUserAvatar = null;
@@ -156,7 +213,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private UploadService       uploadService;
 
   private ExecutorService     importExecutorService = null;
-
+  
   public UserRestResourcesV1(UserACL userACL,
                              OrganizationService organizationService,
                              IdentityManager identityManager,
@@ -1023,11 +1080,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, sync);
+    StringBuilder url = new StringBuilder();
+    url.append(request.getScheme()).append("://").append(request.getServerName());
+    if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+      url.append(':').append(request.getServerPort());
+    }
+    PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
+    url.append(container.getPortalContext().getContextPath());
+    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, url, sync);
     return errorResponse == null ? Response.noContent().build() : errorResponse;
   }
 
-  private Response importUsers(String uploadId, String fileLocation, Locale locale, boolean sync) {
+  private Response importUsers(String uploadId, String fileLocation, Locale locale, StringBuilder url, boolean sync) {
     UserImportResultEntity userImportResultEntity = new UserImportResultEntity();
     importUsersProcessing.put(uploadId, userImportResultEntity);
 
@@ -1045,22 +1109,24 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     if (sync) {
-      importUsers(fileLocation, userImportResultEntity, locale);
+      importUsers(fileLocation, userImportResultEntity, locale, url);
     } else {
-      importUsersAsync(fileLocation, userImportResultEntity, locale);
+      importUsersAsync(fileLocation, userImportResultEntity, locale, url);
     }
     return null;
   }
 
   private void importUsersAsync(String fileLocation,
                                 UserImportResultEntity userImportResultEntity,
-                                Locale locale) {
-    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale));
+                                Locale locale,
+                                StringBuilder url) {
+    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale, url));
   }
 
   private void importUsers(String fileLocation,
                            UserImportResultEntity userImportResultEntity,
-                           Locale locale) {
+                           Locale locale,
+                           StringBuilder url) {
     try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
       // Retrieve header line and import others
       String headerLine = null;
@@ -1081,7 +1147,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             continue;
           }
 
-          userName = importUser(userImportResultEntity, locale, fields, userCSVLine);
+          userName = importUser(userImportResultEntity, locale, url, fields, userCSVLine);
         } catch (Throwable e) {
           if (StringUtils.isNotBlank(userName)) {
             userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
@@ -1098,6 +1164,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private String importUser(UserImportResultEntity userImportResultEntity,
                             Locale locale,
+                            StringBuilder url,
                             List<String> fields,
                             String userCSVLine) throws Exception {
     List<String> userProperties = Arrays.asList(userCSVLine.split(","));
@@ -1128,28 +1195,29 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, errorMessage);
       return userName;
     }
+    boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null) {
       organizationService.getUserHandler().saveUser(user, true);
-      return userName;
+      onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
+    }
+    else {
+      existingUser = getUserByEmail(user.getEmail());
+      if (existingUser != null) {
+        userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
+        return userName;
+      }
+      try {
+        organizationService.getUserHandler().createUser(user, true);
+      } catch (Exception e) {
+        userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
+        return userName;
+      }
     }
 
-    existingUser = getUserByEmail(user.getEmail());
-    if (existingUser != null) {
-      userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
-      return userName;
-    }
-
-    try {
-      organizationService.getUserHandler().createUser(user, true);
-    } catch (Exception e) {
-      userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
-      return userName;
-    }
-
-    String groups = userObject.getString("groups");
-    if (StringUtils.isNotBlank(groups)) {
+    if (!userObject.isNull("groups")) {
+      String groups = userObject.getString("groups");
       List<String> groupsList = Arrays.asList(groups.split(";"));
       for (String groupMembershipExpression : groupsList) {
         String membershipType =
@@ -1175,7 +1243,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       }
     }
-
+    //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
+    if (onboardUser) {
+      PasswordRecoveryService passwordRecoveryService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
+      passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+    }
+    
     // Delete imported User object properties
     userObject.remove("userName");
     userObject.remove("firstName");
@@ -1545,5 +1618,4 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
     }
   }
-
 }
