@@ -1244,7 +1244,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (!userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true") && user.isEnabled() && (user.getLastLoginTime() == null || user.getLastLoginTime().getTime() == user.getCreatedDate().getTime())) {
       PasswordRecoveryService passwordRecoveryService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
-      passwordRecoveryService.sendOnboardingEmail(existingUser, locale, url);
+      passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     }
     
     // Delete imported User object properties
