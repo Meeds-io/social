@@ -48,21 +48,23 @@ Vue.directive('cacheable', {
     };
 
     const cacheDom = function() {
-      window.caches.open('portal-pwa-resources-dom')
-        .then(cache => {
-          if (cache) {
-            window.setTimeout(() => {
-              const domToCache = vnode.componentInstance.$root.$el.innerHTML
-                .replaceAll('<input ', '<input disabled ')
-                .replaceAll('<button ', '<button disabled ')
-                .replaceAll('<select ', '<select disabled ')
-                .replaceAll('<textarea ', '<textarea disabled ');
-              cache.put(`/dom-cache?id=${cacheId}`, new Response($(`<div>${domToCache}</div>`).html(), {
-                headers: {'content-type': 'text/html;charset=UTF-8'},
-              }));
-            }, 200);
-          }
-        });
+      if (window.caches) {
+        window.caches.open('portal-pwa-resources-dom')
+          .then(cache => {
+            if (cache) {
+              window.setTimeout(() => {
+                const domToCache = vnode.componentInstance.$root.$el.innerHTML
+                  .replaceAll('<input ', '<input disabled ')
+                  .replaceAll('<button ', '<button disabled ')
+                  .replaceAll('<select ', '<select disabled ')
+                  .replaceAll('<textarea ', '<textarea disabled ');
+                cache.put(`/dom-cache?id=${cacheId}`, new Response($(`<div>${domToCache}</div>`).html(), {
+                  headers: {'content-type': 'text/html;charset=UTF-8'},
+                }));
+              }, 200);
+            }
+          });
+      }
     };
 
     vnode.componentInstance.$root.$once('application-mount', () => {
