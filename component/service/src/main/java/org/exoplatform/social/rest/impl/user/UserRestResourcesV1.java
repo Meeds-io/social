@@ -1195,10 +1195,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, errorMessage);
       return userName;
     }
+    boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null) {
       organizationService.getUserHandler().saveUser(user, true);
+      onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
     else {
       existingUser = getUserByEmail(user.getEmail());
@@ -1242,7 +1244,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
-    if (!userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true") && user.isEnabled() && (user.getLastLoginTime() == null || user.getLastLoginTime().getTime() == user.getCreatedDate().getTime())) {
+    if (onboardUser) {
       PasswordRecoveryService passwordRecoveryService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
       passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     }
