@@ -212,6 +212,8 @@
              }
 
              function buildPopup(json, ownerUserId) {
+                 console.log("buildPopup");
+
                  var portal = eXo.env.portal;
                  var relationStatus = json.relationshipType;
                  var currentViewerId = portal.userName;
@@ -317,6 +319,7 @@
                  popupContentContainer.append(popupContent);
 
                  var divUIAction;
+                 var readyForPopupContentContainerInit = $.Deferred();
                  if (currentViewerId != ownerUserId && !isDeleted) {
                      divUIAction = $("<div/>", {
                          "class":"uiAction connectAction"
@@ -331,42 +334,34 @@
                          }
                      }
 
-                     for(const extension of extensions) {
-                         if(extension.enabled) {
-                             const extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
-                             if (extension.component) {
-                                 extensionContainer.append(`<div><${extension.component.name}></${extension.component.name}></div>`);
-                             } else if (extension.element) {
-                                 const innerContainer = $(`<div></div>`);
-                                 innerContainer.append(extension.element);
-                                 extensionContainer.append(innerContainer);
-                             } else if (extension.html) {
-                                 const innerContainer = $(`<div></div>`);
-                                 innerContainer.append(extension.html);
-                                 extensionContainer.append(extension.innerContainer);
-                             }
-                             divUIAction.append(extensionContainer);
-                         }
+                     addExtensions(divUIAction, extensions, ownerUserId).then(() => {
+                         readyForPopupContentContainerInit.resolve();
+                     });
+                 } else {
+                     readyForPopupContentContainerInit.resolve();
+                 }
+
+                 readyForPopupContentContainerInit.then(() => {
+                     if (divUIAction) {
+                         popupContentContainer.append(divUIAction);
                      }
-                 }
 
-                 if (divUIAction) {
-                     popupContentContainer.append(divUIAction);
-                 }
-
-                 tiptip_content.html(popupContentContainer.html());
-
-                 initExtensionComponents(extensions, ownerUserId);
+                     tiptip_content.html(popupContentContainer.html());
+                 });
              }
 
-             function initExtensionComponents(extensionComponents, userId) {
-                 for (const extension of extensionComponents) {
-                     if (extension.init && extension.enabled) {
-                         let extensionContainer = $(`#tiptip_holder .uiAction .${extension.appClass} div`).first();
-                         if(extensionContainer && extensionContainer.length > 0) {
-                             extensionContainer = extensionContainer[0];
+             async function addExtensions(divUIAction, extensions, ownerUserId) {
+                 for (const extension of extensions) {
+                     if (extension.enabled) {
+                         const extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
+                         if (extension.element) {
+                             const extensionElement = await extension.element
+                               .build(extensionContainer.get(0), ownerUserId);
+                             //divUIAction.append(extensionElement);
+                         } else if (extension.html) {
+                             extensionContainer.append(extension.html);
                          }
-                         extension.init(extensionContainer, userId);
+                         divUIAction.append(extensionContainer);
                      }
                  }
              }
