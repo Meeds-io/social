@@ -30,6 +30,15 @@ public class GroupNodeEntity extends BaseEntity {
     return getString("parentId");
   }
 
+  public GroupNodeEntity setBound(boolean bound) {
+    setProperty("bound", bound);
+    return this;
+  }
+
+  public String getIsBound() {
+    return getString("bound");
+  }
+
   public GroupNodeEntity setChildGroupNodesEntities(List<DataEntity> childrenEntities) {
     setProperty("children", childrenEntities);
     return this;
