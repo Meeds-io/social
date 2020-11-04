@@ -962,6 +962,7 @@ public class EntityBuilder {
     groupNodeEntity.setGroupName(groupName);
     String parentId = group.getParentId() == null ? "root" : group.getParentId();
     groupNodeEntity.setParentId(parentId);
+    groupNodeEntity.setBound(false);
     groupNodeEntity.setChildGroupNodesEntities(new ArrayList<>());
     return groupNodeEntity;
   }
