@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <template v-if="displayed && canChangePassword">
+    <template v-if="displayed">
       <user-setting-security-window
         v-if="displayDetails"
         @back="closeSecurityDetail" />
@@ -31,21 +31,13 @@
 
 <script>
 
-import {getCurrentUser} from '../userSettingSecurity.js';
 export default {
-  props: {
-    allowChangeExternalPassword: {
-      type: String,
-      default: null,
-    },
-  },
   data: () => ({
     id: `Security${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
     displayed: true,
     displayDetails: false,
-    canChangePassword: true,
   }),
   watch: {
     displayed() {
@@ -59,9 +51,6 @@ export default {
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
-    getCurrentUser().then(data => {
-      this.canChangePassword = data && (data.isInternal || this.allowChangeExternalPassword ==='true');
-    });
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));

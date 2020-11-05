@@ -26,22 +26,18 @@ const appId = 'UserSettingSecurity';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(ssoEnabled, allowChangeExternalPassword) {
-  if (ssoEnabled) {
-    document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-  } else {
-    exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-      const appElement = document.createElement('div');
-      appElement.id = appId;
+export function init() {
+  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    const appElement = document.createElement('div');
+    appElement.id = appId;
 
-      new Vue({
-        mounted() {
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-        },
-        template: `<user-setting-security id="${appId}" allowChangeExternalPassword="${allowChangeExternalPassword}" v-cacheable />`,
-        i18n,
-        vuetify,
-      }).$mount(appElement);
-    });
-  }
+    new Vue({
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
+      template: `<user-setting-security id="${appId}" v-cacheable />`,
+      i18n,
+      vuetify,
+    }).$mount(appElement);
+  });
 }
