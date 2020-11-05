@@ -301,7 +301,7 @@ public class EntityBuilder {
         Boolean isCurrent = (Boolean) experience.get(Profile.EXPERIENCES_IS_CURRENT);
         String startDate = (String) experience.get(Profile.EXPERIENCES_START_DATE);
         String endDate = (String) experience.get(Profile.EXPERIENCES_END_DATE);
-        if (!isCurrent && endDate.isEmpty()) {
+        if (!isCurrent && StringUtils.isNotBlank(endDate)) {
           isCurrent = true;
         }
         experienceEntities.add(new ExperienceEntity(id, company, description, position, skills, isCurrent, startDate, endDate));
