@@ -223,8 +223,6 @@
                  var isEnable = json.enable;
                  const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
 
-                 tiptip_content.empty();
-
                  if (currentViewerId != ownerUserId && !isDeleted) {
 
                      action = $('<i/>', {
@@ -319,7 +317,7 @@
                  popupContentContainer.append(popupContent);
 
                  var divUIAction;
-                 var readyForPopupContentContainerInit = $.Deferred();
+                 var containerProcess = $.Deferred();
                  if (currentViewerId != ownerUserId && !isDeleted) {
                      divUIAction = $("<div/>", {
                          "class":"uiAction connectAction"
@@ -335,18 +333,19 @@
                      }
 
                      addExtensions(divUIAction, extensions, ownerUserId).then(() => {
-                         readyForPopupContentContainerInit.resolve();
+                         containerProcess.resolve();
                      });
                  } else {
-                     readyForPopupContentContainerInit.resolve();
+                     containerProcess.resolve();
                  }
 
-                 readyForPopupContentContainerInit.then(() => {
+                 containerProcess.then(() => {
                      if (divUIAction) {
                          popupContentContainer.append(divUIAction);
                      }
 
-                     tiptip_content.html(popupContentContainer.html());
+                     tiptip_content.empty();
+                     tiptip_content.append(popupContentContainer);
                  });
              }
 
