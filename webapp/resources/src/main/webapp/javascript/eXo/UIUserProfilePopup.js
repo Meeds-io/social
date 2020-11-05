@@ -212,8 +212,6 @@
              }
 
              function buildPopup(json, ownerUserId) {
-                 console.log("buildPopup");
-
                  var portal = eXo.env.portal;
                  var relationStatus = json.relationshipType;
                  var currentViewerId = portal.userName;
@@ -221,7 +219,6 @@
                  var labels = opts.labels;
                  var isDeleted = json.deleted;
                  var isEnable = json.enable;
-                 const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
 
                  if (currentViewerId != ownerUserId && !isDeleted) {
 
@@ -332,7 +329,7 @@
                          }
                      }
 
-                     addExtensions(divUIAction, extensions, ownerUserId).then(() => {
+                     addExtensions(divUIAction, ownerUserId).then(() => {
                          containerProcess.resolve();
                      });
                  } else {
@@ -349,18 +346,18 @@
                  });
              }
 
-             async function addExtensions(divUIAction, extensions, ownerUserId) {
+             async function addExtensions(divUIAction, ownerUserId) {
+                 const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
+
                  for (const extension of extensions) {
                      if (extension.enabled) {
-                         const extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
+                         const $extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
                          if (extension.element) {
-                             const extensionElement = await extension.element
-                               .build(extensionContainer.get(0), ownerUserId);
-                             //divUIAction.append(extensionElement);
+                             await extension.element.build($extensionContainer[0], ownerUserId);
                          } else if (extension.html) {
-                             extensionContainer.append(extension.html);
+                             $extensionContainer.append(extension.html);
                          }
-                         divUIAction.append(extensionContainer);
+                         divUIAction.append($extensionContainer);
                      }
                  }
              }
