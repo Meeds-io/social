@@ -30,7 +30,6 @@
 </template>
 
 <script>
-
 export default {
   data: () => ({
     id: `Security${parseInt(Math.random() * 10000)
@@ -67,3 +66,4 @@ export default {
   },
 };
 </script>
+
