@@ -3,7 +3,7 @@
 <%@ page import="org.exoplatform.web.login.recovery.PasswordRecoveryService" %>
 
 <%
-  PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(OrganizationService.class);
+  PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
   boolean ssoEnabled = SSOUtils.isSSOEnabled();
   boolean allowChangeExternalPassword = passwordRecoveryService.allowChangePassword(request.getRemoteUser());
 %>
