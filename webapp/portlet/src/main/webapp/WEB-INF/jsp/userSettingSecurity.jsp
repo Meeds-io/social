@@ -1,15 +1,14 @@
 <%@ page import="org.gatein.sso.integration.SSOUtils" %>
-<%@ page import="org.exoplatform.services.organization.OrganizationService" %>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
+<%@ page import="org.exoplatform.web.login.recovery.PasswordRecoveryService" %>
 
 <%
-  OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
-  boolean isInternalUser = organizationService.getUserHandler().findUserByName(request.getRemoteUser()).isInternalStore();
+  PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(OrganizationService.class);
   boolean ssoEnabled = SSOUtils.isSSOEnabled();
-  String allowChangeExternalPassword = System.getProperty("exo.portal.allow.change.external.password");
+  boolean allowChangeExternalPassword = passwordRecoveryService.allowChangePassword(request.getRemoteUser());
 %>
 
-<% if (!ssoEnabled && (isInternalUser || allowChangeExternalPassword.equals("true"))) { %>
+<% if (!ssoEnabled && allowChangeExternalPassword) { %>
   <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
