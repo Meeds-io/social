@@ -64,6 +64,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String ENABLED          = "enabled";
 
+  public static final String IS_INTERNAL          = "isInternal";
+
   public static final String COMPANY          = "company";
 
   public static final String LOCATION         = "location";
@@ -225,6 +227,15 @@ public class ProfileEntity extends BaseEntity {
   public ProfileEntity setIsMember(boolean isMember) {
     setProperty("isMember", isMember);
     return this;
+  }
+
+  public ProfileEntity setIsInternal(boolean isInternal) {
+    setProperty(IS_INTERNAL, isInternal);
+    return this;
+  }
+
+  public Boolean getIsInternal() {
+    return (Boolean) getProperty(IS_INTERNAL);
   }
 
   public Boolean getIsMember() {
