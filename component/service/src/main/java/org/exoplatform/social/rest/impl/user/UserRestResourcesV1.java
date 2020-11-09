@@ -82,8 +82,10 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
+import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -1245,7 +1247,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
-      PasswordRecoveryService passwordRecoveryService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
+      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+      String currentSiteName = CommonsUtils.getCurrentSite().getName();
+      try {
+        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+        locale = new Locale(currentSiteLocale);
+      } catch (Exception e) {
+        LOG.error("Failure to retrieve portal config", e);
+      }
       passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     }
     
