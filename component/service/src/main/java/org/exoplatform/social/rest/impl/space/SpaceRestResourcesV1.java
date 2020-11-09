@@ -92,8 +92,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
 
-  // 3 days
-  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
+  // 7 days
+  private static final int          CACHE_IN_SECONDS            = 7 * 86400;
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
@@ -284,8 +284,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    EntityTag eTag = null;
-    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+    EntityTag eTag;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -293,9 +294,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       builder.tag(eTag);
     }
 
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
-
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
     return builder.build();
   }
 
@@ -332,8 +335,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }    EntityTag eTag;
-    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+    }
+    EntityTag eTag;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -341,11 +346,12 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       builder.tag(eTag);
     }
 
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
-
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
     return builder.build();
-
   }
 
   /**
@@ -382,8 +388,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    EntityTag eTag;
-    eTag = new EntityTag(String.valueOf(space.getLastUpdatedTime()));
+    EntityTag eTag = null;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -391,9 +398,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       builder.tag(eTag);
     }
 
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
-
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
     return builder.build();
   }
 
