@@ -85,6 +85,7 @@ export default {
           ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],
         typeOfRelation: 'mention_activity_stream',
+        spaceURL: eXo.env.portal.spaceUrl,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         on: {
