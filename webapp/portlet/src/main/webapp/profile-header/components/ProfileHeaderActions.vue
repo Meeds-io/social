@@ -108,6 +108,7 @@
           </div>
           <div v-else-if="action.html" v-html="action.html">
           </div>
+          {{ initTitleActionComponent(action) }}
         </div>
       </div>
     </template>
@@ -139,7 +140,9 @@ export default {
     sendingSecondAction: false,
     displaySecondButton: false,
     waitTimeUntilCloseMenu: 200,
-    profileHeaderActionComponents: profileHeaderActionComponents
+    profileHeaderActionComponents: profileHeaderActionComponents,
+    isMounted: null,
+    resolveMounting: null
   }),
   computed: {
     relationshipStatus() {
@@ -180,9 +183,14 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
+
+    const thevue = this;
+    this.isMounted = new Promise(function(resolve) {
+      thevue.resolveMounting = resolve;
+    });
   },
   mounted() {
-    this.initProfileHeaderActionComponents();
+    this.resolveMounting();
   },
   methods: {
     refreshExtensions() {
@@ -243,15 +251,19 @@ export default {
           this.sendingAction = false;
         });
     },
-    initProfileHeaderActionComponents() {
-      for (const action of this.profileHeaderActionComponents) {
-        if (action.init && action.enabled) {
+    initTitleActionComponent(action) {
+      const thevue = this;
+      if (action.init && !action.isStartedInit && action.enabled && this.user) {
+        action.isStartedInit = true;
+        this.isMounted.then(() => {
           let container = this.$refs[action.key];
-          if(container && container.length > 0) {
+          if (container && container.length > 0) {
             container = container[0];
+            action.init(container, thevue.user.username);
+          } else {
+            console.error(`Error initialization of the ${action.key} action component: empty container`);
           }
-          action.init(container, this.user.username);
-        }
+        });
       }
     }
   },
