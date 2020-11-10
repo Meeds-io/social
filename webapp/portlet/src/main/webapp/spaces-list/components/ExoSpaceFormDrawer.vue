@@ -270,6 +270,7 @@ export default {
       if (createSpace && Boolean(createSpace)) {
         this.$root.$once('application-loaded', () => {
           this.$nextTick().then(() => {
+            this.spaceToUpdate = null;
             this.setSpaceTemplateProperties();
             this.title= this.$t('spacesList.label.addNewSpace');
             this.$refs.spaceFormDrawer.open();
