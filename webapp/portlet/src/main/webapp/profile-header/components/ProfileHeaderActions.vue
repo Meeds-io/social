@@ -2,13 +2,13 @@
   <div
     id="profileHeaderActions"
     :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
-    class="mt-auto mr-3">
-    <template v-if="!owner">
-      <template>
+    class="d-flex mt-auto justify-end flex-wrap">
+    <template v-if="!owner || skeleton">
+      <template v-if="!skeleton">
         <v-btn
           v-for="(extension, i) in enabledProfileActionExtensions"
           :key="i"
-          class="btn mx-2"
+          class="btn ma-2 mb-0"
           @click="extension.click(user)">
           <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
           <span class="buttonText">
@@ -88,15 +88,16 @@
       <v-btn
         v-else-if="disconnected"
         :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn btn-primary mx-auto connectUserButton"
+        :disabled="sendingAction || skeleton"
+        :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
+        class="btn ma-2 mb-0 connectUserButton"
         @click="connect">
         <i class="uiIconSocConnectUser"/>
         <span class="buttonText">
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents">
+      <div class="profileHeaderActionComponents order-first ma-2 mb-0">
         <div v-for="action in profileHeaderActionComponents" v-if="action.enabled" :key="action.key"
              :class="`${action.appClass} ${action.typeClass}`" :ref="action.key">
           <div v-if="action.component">

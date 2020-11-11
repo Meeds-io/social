@@ -34,10 +34,12 @@
                 <div class="profileHeaderText align-start d-flex flex-grow-0">
                   <profile-header-text
                     :user="user"
-                    class="ma-auto pb-10" />
+                    :skeleton="skeleton"
+                    :class="skeleton && 'skeleton-text' || ''"
+                    class="ma-auto pb-0" />
                 </div>
                 <div class="flex-grow-1"></div>
-                <div class="d-flex flex-grow-0 justify-end pr-4">
+                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-2">
                   <profile-header-banner-button
                     v-if="owner"
                     :user="user"
