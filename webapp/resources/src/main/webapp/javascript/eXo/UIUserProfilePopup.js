@@ -452,6 +452,7 @@
                  }
                  var timeout = false;
                  if (opts.activation == "hover") {
+                     org_elem.unbind('mouseenter mouseleave'); // unbind hover if defined
                      org_elem.hover(function () {
                      
                          //
