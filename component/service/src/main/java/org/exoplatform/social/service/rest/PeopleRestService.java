@@ -407,23 +407,24 @@ public class PeopleRestService implements ResourceContainer{
       }
       
       // add space members in the suggestion list when mentioning in a comment in a space Activity Stream
-      if (currentSpace != null && currentActivity != null) {
+      if (currentSpace != null) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
           userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser);
         }
       }
+      else {
+        // add the connections in the suggestion
+        remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
+        if (remain > 0) {
+          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
+        }
 
-      // add the connections in the suggestion
-      remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-      if (remain > 0) {
-        userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
-      }
-
-      // finally add others in the suggestion
-      remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-      if (remain > 0) {
-        userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+        // finally add others in the suggestion
+        remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
+        if (remain > 0) {
+          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+        }
       }
       return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
 
