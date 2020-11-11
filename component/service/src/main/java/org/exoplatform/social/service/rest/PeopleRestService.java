@@ -361,16 +361,18 @@ public class PeopleRestService implements ResourceContainer{
       if (currentSpace != null) {
         userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser);
       }
-      // then add connections in the suggestions
-      long remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-      if (remain > 0) {
-        userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
-      }
-
-      // finally add others users in the suggestions
-      remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-      if (remain > 0) {
-        userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+      else {
+        // then add connections in the suggestions
+        long remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
+        if (remain > 0) {
+          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
+        }
+  
+        // finally add others users in the suggestions
+        remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
+        if (remain > 0) {
+          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+        }
       }
       return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
 
@@ -403,7 +405,7 @@ public class PeopleRestService implements ResourceContainer{
         }
 
       }
-
+      
       // add space members in the suggestion list when mentioning in a comment in a space Activity Stream
       if (currentSpace != null && currentActivity != null) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
@@ -423,7 +425,6 @@ public class PeopleRestService implements ResourceContainer{
       if (remain > 0) {
         userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
       }
-
       return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
 
     } else { // Identities that match the keywords.
