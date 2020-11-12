@@ -50,7 +50,7 @@
               <img v-else :src="avatar" class="avatar" />
               {{ props.item.space.displayName }}
             </td>
-            <td class="text-md-center">{{ props.item.group.name }}</td>
+            <td :title="props.item.group.name" class="text-md-center nameGroupBinding" rel="tooltip" data-placement="bottom">{{ props.item.group.name }}</td>
             <td class="text-md-center">{{ props.item.startDate }}</td>
             <td class="text-md-center">
               <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
