@@ -219,9 +219,6 @@
                  var labels = opts.labels;
                  var isDeleted = json.deleted;
                  var isEnable = json.enable;
-                 const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
-
-                 tiptip_content.empty();
 
                  if (currentViewerId != ownerUserId && !isDeleted) {
 
@@ -317,6 +314,7 @@
                  popupContentContainer.append(popupContent);
 
                  var divUIAction;
+                 var containerProcess = $.Deferred();
                  if (currentViewerId != ownerUserId && !isDeleted) {
                      divUIAction = $("<div/>", {
                          "class":"uiAction connectAction"
@@ -331,42 +329,35 @@
                          }
                      }
 
-                     for(const extension of extensions) {
-                         if(extension.enabled) {
-                             const extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
-                             if (extension.component) {
-                                 extensionContainer.append(`<div><${extension.component.name}></${extension.component.name}></div>`);
-                             } else if (extension.element) {
-                                 const innerContainer = $(`<div></div>`);
-                                 innerContainer.append(extension.element);
-                                 extensionContainer.append(innerContainer);
-                             } else if (extension.html) {
-                                 const innerContainer = $(`<div></div>`);
-                                 innerContainer.append(extension.html);
-                                 extensionContainer.append(extension.innerContainer);
-                             }
-                             divUIAction.append(extensionContainer);
-                         }
+                     addExtensions(divUIAction, ownerUserId).then(() => {
+                         containerProcess.resolve();
+                     });
+                 } else {
+                     containerProcess.resolve();
+                 }
+
+                 containerProcess.then(() => {
+                     if (divUIAction) {
+                         popupContentContainer.append(divUIAction);
                      }
-                 }
 
-                 if (divUIAction) {
-                     popupContentContainer.append(divUIAction);
-                 }
-
-                 tiptip_content.html(popupContentContainer.html());
-
-                 initExtensionComponents(extensions, ownerUserId);
+                     tiptip_content.empty();
+                     tiptip_content.append(popupContentContainer);
+                 });
              }
 
-             function initExtensionComponents(extensionComponents, userId) {
-                 for (const extension of extensionComponents) {
-                     if (extension.init && extension.enabled) {
-                         let extensionContainer = $(`#tiptip_holder .uiAction .${extension.appClass} div`).first();
-                         if(extensionContainer && extensionContainer.length > 0) {
-                             extensionContainer = extensionContainer[0];
+             async function addExtensions(divUIAction, ownerUserId) {
+                 const extensions = extensionRegistry.loadExtensions('user-profile-popup', 'exo-social-user-popup-component');
+
+                 for (const extension of extensions) {
+                     if (extension.enabled) {
+                         const $extensionContainer = $(`<div class="${extension.appClass} ${extension.typeClass}"></div>`);
+                         if (extension.element) {
+                             await extension.element.build($extensionContainer[0], ownerUserId);
+                         } else if (extension.html) {
+                             $extensionContainer.append(extension.html);
                          }
-                         extension.init(extensionContainer, userId);
+                         divUIAction.append($extensionContainer);
                      }
                  }
              }
@@ -461,6 +452,7 @@
                  }
                  var timeout = false;
                  if (opts.activation == "hover") {
+                     org_elem.unbind('mouseenter mouseleave'); // unbind hover if defined
                      org_elem.hover(function () {
                      
                          //
