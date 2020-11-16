@@ -19,11 +19,10 @@
 
 package org.exoplatform.social.core.jpa.storage.entity;
 
-import java.util.*;
+import org.exoplatform.commons.api.persistence.ExoEntity;
 
 import javax.persistence.*;
-
-import org.exoplatform.commons.api.persistence.ExoEntity;
+import java.util.*;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
@@ -35,17 +34,17 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         @NamedQuery(
                 name = "SocIdentity.findIdentitiesByIDs",
                 query = "SELECT identity " +
-                  " FROM SocIdentityEntity identity "  +
-                  " WHERE identity.id in (:ids) "
+                        " FROM SocIdentityEntity identity " +
+                        " WHERE identity.id in (:ids) "
         ),
         @NamedQuery(
                 name = "SocIdentity.countIdentitiesByProviderWithExcludedIdentity",
                 query = "SELECT count(identity) " +
-                " FROM SocIdentityEntity identity "  +
-                " WHERE   identity.deleted = FALSE " +
-                "     AND identity.enabled = TRUE " +
-                "     AND identity.providerId = :providerId "
-          ),
+                        " FROM SocIdentityEntity identity " +
+                        " WHERE   identity.deleted = FALSE " +
+                        "     AND identity.enabled = TRUE " +
+                        "     AND identity.providerId = :providerId "
+        ),
         @NamedQuery(
                 name = "SocIdentity.findByProviderAndRemoteId",
                 query = "SELECT id FROM SocIdentityEntity id WHERE id.providerId = :providerId AND id.remoteId = :remoteId"
@@ -66,9 +65,9 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 public class IdentityEntity {
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_IDENTITY_ID", sequenceName="SEQ_SOC_IDENTITY_ID")
-  @GeneratedValue(strategy= GenerationType.AUTO, generator="SEQ_SOC_IDENTITY_ID")
-  @Column(name="IDENTITY_ID")
+  @SequenceGenerator(name = "SEQ_SOC_IDENTITY_ID", sequenceName = "SEQ_SOC_IDENTITY_ID")
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_IDENTITY_ID")
+  @Column(name = "IDENTITY_ID")
   private long id;
 
   @Column(name = "PROVIDER_ID", nullable = false)
@@ -88,6 +87,10 @@ public class IdentityEntity {
 
   @Column(name = "BANNER_FILE_ID")
   private Long bannerFileId;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "UPDATED_DATE", nullable = false)
+  private Date updatedDate = new Date();
 
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "NAME")
@@ -166,6 +169,14 @@ public class IdentityEntity {
 
   public void setBannerFileId(Long bannerFileId) {
     this.bannerFileId = bannerFileId;
+  }
+
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
   }
 
   public Map<String, String> getProperties() {
