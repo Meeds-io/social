@@ -30,6 +30,12 @@
       <label>#{portal.global.stream}</label>
       <page-reference>portal::global::stream</page-reference>
     </node>
+	
+    <node>
+      <name>external-stream</name>
+      <label>#{portal.global.stream}</label>
+      <page-reference>portal::global::external-stream</page-reference>
+    </node>
 
     <node>
       <name>spaces</name>
