@@ -207,16 +207,22 @@ export default {
     },
     value() {
       this.emitSelectedValue(this.value);
+      this.init();
     },
   },
+
   mounted() {
     $(`#${this.id} input`).on('blur', () => {
       // A hack to close on select
       // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
       this.$refs.selectAutoComplete.isFocused = false;
     });
+    this.init();
   },
   methods: {
+    init() {
+      this.items = this.value && (this.value.length && this.value || [this.value]) || [];
+    },
     emitSelectedValue(value) {
       this.$emit('input', value);
       this.searchTerm = null;
@@ -253,6 +259,7 @@ export default {
           this.value = null;
         }
       }
+      this.$emit('removeValue');
     },
   },
 };
