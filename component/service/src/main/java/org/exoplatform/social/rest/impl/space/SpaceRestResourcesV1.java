@@ -33,8 +33,7 @@ import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -69,6 +68,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
 import io.swagger.annotations.*;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Api(tags = VersionResources.VERSION_ONE + "/social/spaces", value = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -571,6 +571,28 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
       spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
     }
+
+    if (model.getExternalInvitedUsers() != null) {
+      String uri = uriInfo.getBaseUri().toString()
+              .substring(0, uriInfo.getBaseUri().toString()
+                      .lastIndexOf("/"));
+      StringBuilder url = new StringBuilder(uri);
+
+      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+      String currentSiteName = CommonsUtils.getCurrentSite().getName();
+      Locale locale = null;
+      try {
+        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+        locale = new Locale(currentSiteLocale);
+      } catch (Exception e) {
+        LOG.error("Failure to retrieve portal config", e);
+      }
+      for (String email : model.getExternalInvitedUsers()) {
+        passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, email, locale, space.getDisplayName(), url);
+      }
+    }
+
 
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
