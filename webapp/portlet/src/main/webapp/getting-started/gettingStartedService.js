@@ -5,7 +5,7 @@ export function getGettingStartedSteps(){
 }
 
 export function saveGettingStartedSettings() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/USER,${eXo.env.portal.userName}/APPLICATION,GettingStarted/isGettingStartedEnabled`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/USER,${eXo.env.portal.userName}/APPLICATION,GettingStarted/gettingStartedStatus`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -26,7 +26,7 @@ export function saveGettingStartedSettings() {
   });
 }
 export function getGettingStartedSettings() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/USER,${eXo.env.portal.userName}/APPLICATION,GettingStarted/isGettingStartedEnabled`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/USER,${eXo.env.portal.userName}/APPLICATION,GettingStarted/gettingStartedStatus`, {
     method: 'GET',
     credentials: 'include',
     headers: {

@@ -48,18 +48,11 @@ export default {
   data () {
     return {
       gettingStratedSteps: [],
-      showButtonClose: true,
       showGettingStrated: true
     };
-  },
-  watch: {
-    gettingStratedSteps(){
-      for (let i =0 ;i<this.gettingStratedSteps.length;i++){
-        if (!this.gettingStratedSteps[i].status){
-          this.showButtonClose = false;
-          break;
-        }
-      }
+  },computed: {
+    showButtonClose : function () {
+      return this.gettingStratedSteps.some(step => step.status === false) ? false : true;
     }
   },
   created() {
@@ -70,18 +63,12 @@ export default {
       gettingStartedService.getGettingStartedSteps()
         .then(data => {
           this.gettingStratedSteps = data;
-          for (let i =0 ;i<this.gettingStratedSteps[i].length;i++){
-            if (!this.gettingStratedSteps[i].status){
-              this.showButtonClose = false;
-              break;
-            }
-          }
           return this.$nextTick();
         })
         .then(() => {
           if (localStorage.getItem('gettingStarted') && this.showButtonClose){
             const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
-            if (data.user === eXo.env.portal.userName && data.isGettingStartedEnabled === true){
+            if (data.user === eXo.env.portal.userName && data.gettingStartedStatus === true){
               this.showGettingStrated = false;
               return;
             }
@@ -103,7 +90,7 @@ export default {
         if (response){
           const gettingStarted = {
             user : eXo.env.portal.userName,
-            isGettingStartedEnabled: true
+            gettingStartedStatus: true
           };
           localStorage.setItem('gettingStarted',JSON.stringify(gettingStarted));
           this.showGettingStrated = false;
