@@ -13,10 +13,10 @@
               flat
               class="flex">
               <v-card-title class="getting-started-title subtitle-1 text-uppercase pb-0">
-                <span style="width: 95%">
+                <span class="title">
                   {{ $t('locale.portlet.gettingStarted.title') }}
                 </span>
-                <a v-if="showButtonClose" href="#" @click="hideGettingStarted">x</a>
+                <a v-if="showButtonClose" :title="$t('locale.portlet.gettingStarted.button.close')" href="#" rel="tooltip" data-placement="bottom" @click="hideGettingStarted">x</a>
               </v-card-title>
               <v-list dense class="getting-started-list">
                 <v-list-item v-for="(step, index) in gettingStratedSteps" :key="index" class="getting-started-list-item">
@@ -49,7 +49,7 @@ export default {
     return {
       gettingStratedSteps: [],
       showButtonClose: true,
-      showGettingStrated: null
+      showGettingStrated: true
     };
   },
   watch: {
@@ -57,6 +57,7 @@ export default {
       for (let i =0 ;i<this.gettingStratedSteps.length;i++){
         if (!this.gettingStratedSteps[i].status){
           this.showButtonClose = false;
+          break;
         }
       }
     }
@@ -69,30 +70,33 @@ export default {
       gettingStartedService.getGettingStartedSteps()
         .then(data => {
           this.gettingStratedSteps = data;
+          for (let i =0 ;i<this.gettingStratedSteps[i].length;i++){
+            if (!this.gettingStratedSteps[i].status){
+              this.showButtonClose = false;
+              break;
+            }
+          }
           return this.$nextTick();
         })
-        .then(() => this.$root.$emit('application-loaded'));
-      for (let i =0 ;i<this.gettingStratedSteps.length;i++){
-        if (!this.gettingStratedSteps.status){
-          this.showButtonClose = false;
-        }
-      }
-      if (localStorage.getItem('gettingStarted') && this.showButtonClose){
-        const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
-        if (data.user === eXo.env.portal.userName && data.isGettingStartedEnabled === true){
-          this.showGettingStrated = false;
-          return;
-        }
-      }else if (this.showButtonClose){
-        gettingStartedService.getGettingStartedSettings().then((resp) =>{
-          if (resp && resp.value){
-            this.showGettingStrated = false;
-            return;
-          }else {
-            this.showGettingStrated = true;
+        .then(() => {
+          if (localStorage.getItem('gettingStarted') && this.showButtonClose){
+            const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
+            if (data.user === eXo.env.portal.userName && data.isGettingStartedEnabled === true){
+              this.showGettingStrated = false;
+              return;
+            }
+          }else if (this.showButtonClose){
+            gettingStartedService.getGettingStartedSettings().then((resp) =>{
+              if (resp && resp.value){
+                this.showGettingStrated = false;
+                return;
+              }else {
+                this.showGettingStrated = true;
+              }
+            });
           }
+          this.$root.$emit('application-loaded');
         });
-      }
     },
     hideGettingStarted(){
       gettingStartedService.saveGettingStartedSettings().then((response) => {
