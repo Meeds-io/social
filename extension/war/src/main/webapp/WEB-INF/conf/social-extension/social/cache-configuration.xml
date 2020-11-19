@@ -173,18 +173,22 @@
                     <name>social.ActivitiesCountCache</name>
                     <description></description>
                     <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
+                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.ActivitiesCountCache.strategy:LIRS}</string></field>
                         <field name="name"><string>social.ActivitiesCountCache</string></field>
                         <field name="maxSize"><int>${exo.cache.social.ActivitiesCountCache.MaxNodes:20000}</int></field>
                         <field name="liveTime"><long>${exo.cache.social.ActivitiesCountCache.TimeToLive:86400}</long></field>
+                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.ActivitiesCountCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
                 <object-param>
                     <name>social.ActivitiesCache</name>
                     <description></description>
                     <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
+                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.ActivitiesCache.strategy:LIRS}</string></field>
                         <field name="name"><string>social.ActivitiesCache</string></field>
                         <field name="maxSize"><int>${exo.cache.social.ActivitiesCache.MaxNodes:20000}</int></field>
                         <field name="liveTime"><long>${exo.cache.social.ActivitiesCache.TimeToLive:86400}</long></field>
+                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.ActivitiesCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
 
