@@ -194,7 +194,7 @@ export default {
     },
     renderMenuItem (item, escape) {
       return `
-        <div class="item">${escape(item.value)}</div>
+        <div class="item" title="${escape(item.value)}" rel="tooltip" data-placement="bottom">${escape(item.value)}</div>
       `;
     },
     goToSelectGroups() {
