@@ -48,7 +48,7 @@ export default {
   data () {
     return {
       gettingStratedSteps: [],
-      showGettingStrated: true
+      showGettingStrated: false
     };
   },computed: {
     showButtonClose : function () {
@@ -60,28 +60,37 @@ export default {
   },
   methods : {
     initGettingStarted() {
+      if (localStorage.getItem('gettingStarted') && this.showButtonClose){
+        const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
+        if (data.user === eXo.env.portal.userName && data.gettingStartedStatus === true){
+          this.showGettingStrated = false;
+          return;
+        }else {
+          this.showGettingStrated = true;
+          this.getGettingStartedSteps();
+        }
+      }else if (this.showButtonClose){
+        gettingStartedService.getGettingStartedSettings().then((resp) =>{
+          if (resp && resp.value){
+            this.showGettingStrated = false;
+            return;
+          }else {
+            this.showGettingStrated = true;
+            this.getGettingStartedSteps();
+          }
+        });
+      }else {
+        this.showGettingStrated = true;
+        this.getGettingStartedSteps();
+      }
+    },
+    getGettingStartedSteps(){
       gettingStartedService.getGettingStartedSteps()
         .then(data => {
           this.gettingStratedSteps = data;
           return this.$nextTick();
         })
         .then(() => {
-          if (localStorage.getItem('gettingStarted') && this.showButtonClose){
-            const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
-            if (data.user === eXo.env.portal.userName && data.gettingStartedStatus === true){
-              this.showGettingStrated = false;
-              return;
-            }
-          }else if (this.showButtonClose){
-            gettingStartedService.getGettingStartedSettings().then((resp) =>{
-              if (resp && resp.value){
-                this.showGettingStrated = false;
-                return;
-              }else {
-                this.showGettingStrated = true;
-              }
-            });
-          }
           this.$root.$emit('application-loaded');
         });
     },
