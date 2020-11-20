@@ -1146,6 +1146,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         try { // NOSONAR
           userImportResultEntity.incrementProcessed();
           if (StringUtils.isBlank(userCSVLine)) {
+            userCSVLine = reader.readLine();
             continue;
           }
 
