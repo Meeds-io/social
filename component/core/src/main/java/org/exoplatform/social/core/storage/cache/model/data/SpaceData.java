@@ -47,6 +47,7 @@ public class SpaceData implements CacheData<Space> {
   private final Long avatarLastUpdated;
   private final Long bannerLastUpdated;
   private final Long createdTime;
+  private final Long lastUpdatedTime;
 
   private final String[] members;
   private final String[] redactors;
@@ -79,6 +80,7 @@ public class SpaceData implements CacheData<Space> {
     invitedUser = space.getInvitedUsers();
     createdTime = space.getCreatedTime();
 
+    lastUpdatedTime = space.getLastUpdatedTime();
   }
 
   public Space build() {
@@ -106,6 +108,7 @@ public class SpaceData implements CacheData<Space> {
     space.setPendingUsers(pendingUser);
     space.setInvitedUsers(invitedUser);
     space.setCreatedTime(createdTime);
+    space.setLastUpdatedTime(lastUpdatedTime);
 
     return space;
 
