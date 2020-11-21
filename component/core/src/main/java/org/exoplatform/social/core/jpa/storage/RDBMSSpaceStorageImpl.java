@@ -473,6 +473,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
 
     EntityConverterUtils.buildFrom(space, entity);
+    entity.setUpdatedDate(new Date());
     spaceDAO.update(entity);
 
     // change profile of space
@@ -496,6 +497,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       EntityConverterUtils.buildFrom(space, entity);
 
       //
+      entity.setUpdatedDate(new Date());
       spaceDAO.create(entity);
       space.setId(String.valueOf(entity.getId()));
     } else {
@@ -505,6 +507,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       if (entity != null) {
         EntityConverterUtils.buildFrom(space, entity);
         //
+        entity.setUpdatedDate(new Date());
         spaceDAO.update(entity);
       } else {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
@@ -602,6 +605,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     space.setMembers(membersList.toArray(new String[] {}));
     space.setRedactors(redactors);
     space.setManagers(managers);
+    space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
     return space;
   }
 
@@ -688,6 +692,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     space.setGroupId(entity.getGroupId());
     space.setUrl(entity.getUrl());
     space.setCreatedTime(entity.getCreatedDate().getTime());
+    space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
 
     Date lastUpdated = entity.getAvatarLastUpdated();
     if (lastUpdated != null) {

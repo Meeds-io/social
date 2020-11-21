@@ -80,7 +80,8 @@ public class Space {
 
   /** Created time. */
   private long createdTime;
-
+ /** Last Updated time */
+  private long lastUpdatedTime;
   /**
    * The pretty name of space.
    *
@@ -181,7 +182,15 @@ public class Space {
   public final static String LOW_PRIORITY = "3";
   
   public static final String CREATOR = "space_creator";
-  
+
+  public void setLastUpdatedTime(long lastUpdatedTime) {
+    this.lastUpdatedTime = lastUpdatedTime;
+  }
+
+  public long getLastUpdatedTime() {
+    return lastUpdatedTime;
+  }
+
   /** Types of updating of space. */
   public static enum                UpdatedField 
                                       {

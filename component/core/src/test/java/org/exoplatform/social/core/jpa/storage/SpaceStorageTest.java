@@ -1690,6 +1690,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 //    identityStorage.saveProfile(profile);
 
     //
+    long lastUpdatedTime = space.getLastUpdatedTime();
     Space spaceForUpdate = spaceStorage.getSpaceById(space.getId());
     spaceStorage.saveSpace(spaceForUpdate, false);
     persist();
@@ -1698,6 +1699,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     Space got = spaceStorage.getSpaceById(spaceForUpdate.getId());
 
     assertNotNull("avatar URL should not be null", got.getAvatarUrl());
+    assertTrue(got.getLastUpdatedTime() >= lastUpdatedTime);
   }
 
   /**

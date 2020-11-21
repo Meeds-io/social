@@ -25,6 +25,8 @@ import org.json.JSONObject;
 public class BaseEntity implements Serializable {
   private static final long serialVersionUID = -7245526640639649852L;
   private DataEntity dataEntity = new DataEntity();
+  private long lastUpdatedTime;
+
   public BaseEntity() {
   }
 
@@ -85,4 +87,12 @@ public class BaseEntity implements Serializable {
   public JSONObject toJSONObject() {
     return new JSONObject(this);
   }
+
+    public void setLastUpdatedTime(long lastUpdatedTime) {
+        this.lastUpdatedTime = lastUpdatedTime;
+    }
+
+    public long getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
 }

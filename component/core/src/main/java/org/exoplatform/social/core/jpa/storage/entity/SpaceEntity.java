@@ -117,6 +117,10 @@ public class SpaceEntity implements Serializable {
   @Column(name = "CREATED_DATE", nullable = false)
   private Date              createdDate      = new Date();
 
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "UPDATED_DATE", nullable = false)
+  private Date              updatedDate      = new Date();
+
   public Long getId() {
     return id;
   }
@@ -219,6 +223,14 @@ public class SpaceEntity implements Serializable {
 
   public void setCreatedDate(Date createdDate) {
     this.createdDate = createdDate;
+  }
+
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
   }
 
   public String getTemplate() {

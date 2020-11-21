@@ -92,8 +92,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
 
-  // 3 days
-  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
+  // 7 days
+  private static final int          CACHE_IN_SECONDS            = 7 * 86400;
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
@@ -197,11 +197,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     
     EntityTag eTag = null;
-    if (collectionSpace != null) {
-      eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
-    }
-    //
-    Response.ResponseBuilder builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
+    eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
@@ -277,6 +275,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getSpaceById(@Context UriInfo uriInfo,
+                               @Context Request request,
                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
     
@@ -285,7 +284,22 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    EntityTag eTag;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   /**
@@ -307,6 +321,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response getSpaceByPrettyName(@Context UriInfo uriInfo,
+                                       @Context Request request,
                                        @ApiParam(value = "Space id", required = true) @PathParam(
                                          "prettyName"
                                        ) String prettyName,
@@ -321,10 +336,22 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    EntityTag eTag;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   /**
@@ -346,6 +373,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response getSpaceByDisplayName(@Context UriInfo uriInfo,
+                                        @Context Request request,
                                         @ApiParam(value = "Space id", required = true) @PathParam(
                                           "displayName"
                                         ) String displayName,
@@ -360,10 +388,22 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    EntityTag eTag = null;
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
   }
 
   @GET
