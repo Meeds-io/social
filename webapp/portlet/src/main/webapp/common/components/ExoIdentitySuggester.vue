@@ -80,6 +80,12 @@ export default {
         return false;
       },
     },
+    items: {
+      type: Array,
+      default: function() {
+        return [];
+      },
+    },
     labels: {
       type: Object,
       default: () => ({
@@ -152,7 +158,6 @@ export default {
   },
   data() {
     return {
-      items: [],
       id: `AutoComplete${parseInt(Math.random() * 10000)
         .toString()
         .toString()}`,

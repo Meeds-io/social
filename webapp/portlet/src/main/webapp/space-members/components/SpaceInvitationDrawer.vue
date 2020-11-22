@@ -11,7 +11,7 @@
         v-if="!invitationSent"
         ref="form3"
         :disabled="savingSpace || spaceSaved"
-        @keypress="checkEternal($event)"
+        @keypress="checkExternalInvitation($event)"
         @submit="inviteUsers">
         <exo-identity-suggester
           ref="autoFocusInput3"
@@ -21,6 +21,7 @@
           :search-options="{
             spaceURL: spacePrettyName,
           }"
+          :items="users"
           name="inviteMembers"
           type-of-relations="user_to_invite"
           class="ma-4"
@@ -40,22 +41,33 @@
       >
         {{ this.$t('peopleList.label.successfulInvitation') }}
       </v-alert>
-      <v-list v-if="externalUsers.length > 0" class="ma-4 rounded" style="background-color: #F6F8FA" subheader>
+      <v-alert v-if="alreadyExistAlert" outlined text class="ma-4 pa-2 text-center caption alreadyExistAlert" v-html="alreadyExistAlert"/>
+      <v-list v-if="externalInvitedUsers.length > 0" class="ma-4 rounded externalList" subheader>
         <v-list-item
-          v-for="user in externalUsers"
+          v-for="user in externalInvitedUsers"
           :key="user"
         >
-          <v-list-item-avatar>
-            <v-img
-              :src="defaultAvatar"
-            ></v-img>
-          </v-list-item-avatar>
+          <v-badge
+            bottom
+            bordered
+            color="white"
+            offset-x="35"
+            offset-y="25"
+            class="externalBadge pa-0"
+          >
+            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
+            <v-list-item-avatar class="ml-0">
+              <v-img
+                :src="defaultAvatar"
+              ></v-img>
+            </v-list-item-avatar>
+          </v-badge>
           <v-list-item-content>
-            <v-list-item-title v-text="user"></v-list-item-title>
+            <v-list-item-title class="externalUserEmail" v-text="user"></v-list-item-title>
+            <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
           </v-list-item-content>
-
-          <v-btn icon @click="removeEternal(user)">
-            <v-icon color="#BE4141">
+          <v-btn icon @click="removeExternalInvitation(user)">
+            <v-icon>
               mdi-close-circle
             </v-icon>
           </v-btn>
@@ -88,18 +100,20 @@ const IDLE_TIME = 2000;
 
 export default {
   data: () => ({
+    users:[],
     savingSpace: false,
     spaceSaved: false,
     error: null,
     spacePrettyName: eXo.env.portal.spaceName,
     invitedMembers: [],
-    isExternalUser: false,
-    externalUsers: [],
-    invitationSent:false
+    includeExternalUser: false,
+    externalInvitedUsers: [],
+    invitationSent:false,
+    alreadyExistAlert :''
   }),
   computed: {
     saveButtonDisabled() {
-      return this.savingSpace || this.spaceSaved || !this.invitedMembers || !this.invitedMembers.length && !this.isExternalUser;
+      return this.savingSpace || this.spaceSaved || !this.invitedMembers || !this.invitedMembers.length && !this.includeExternalUser;
     },
     suggesterLabels() {
       return {
@@ -124,9 +138,11 @@ export default {
     open() {
       this.savingSpace = false;
       this.spaceSaved = false;
+      this.includeExternalUser = false;
       this.error = null;
       this.spacePrettyName = eXo.env.portal.spaceName;
       this.invitedMembers = [];
+      this.externalInvitedUsers = [];
       this.$refs.spaceInvitationDrawer.open();
     },
     cancel() {
@@ -146,12 +162,12 @@ export default {
       this.$spaceService.updateSpace({
         id: eXo.env.portal.spaceId,
         invitedMembers: this.invitedMembers,
-        externalInvitedUsers:this.externalUsers
+        externalInvitedUsers:this.externalInvitedUsers
       })
         .then(() => {
           this.spaceSaved = true;
           this.$emit('refresh');
-          this.externalUsers = [];
+          this.externalInvitedUsers = [];
           this.invitationSent = true;
 
           window.setTimeout(() => {
@@ -166,7 +182,7 @@ export default {
         })
         .finally(() => this.savingSpace = false);
     },
-    checkEternal(event) {
+    checkExternalInvitation(event) {
       const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/;
       // eslint-disable-next-line eqeqeq
       if(event.keyCode == '32'){ // Press space
@@ -174,8 +190,29 @@ export default {
         const words = input.value.split(' ');
         const email = words[words.length - 1];
         if (reg.test(email)) {
-          this.isExternalUser = true;
-          this.externalUsers.push(email);
+          this.$userService.getUserByEmail(email)
+            .then(user => {
+              if (user.id !== 'null') {
+                this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
+                  if (data.isMember === 'true') {
+                    input.blur();
+                    this.alreadyExistAlert = `${email} ${this.$t('peopleList.label.alreadyMember')}`;
+                    setTimeout(() => this.alreadyExistAlert ='', 3000);
+                  } else {
+                    this.users.push(user);
+                    const indexOfuser = this.invitedMembers.findIndex(u => u.remoteId === user.remoteId);
+                    if (indexOfuser === -1) {
+                      setTimeout(() => this.invitedMembers.push(user), 0);
+                    }
+                  }
+                });
+              } else {
+                this.includeExternalUser = true;
+                if (this.externalInvitedUsers.indexOf(email) === -1) {
+                  this.externalInvitedUsers.push(email);
+                }
+              }
+            });
           input.value = '';
         }
       }
@@ -184,10 +221,10 @@ export default {
         event.preventDefault();
       }
     },
-    removeEternal(user) {
-      const index = this.externalUsers.indexOf(user);
+    removeExternalInvitation(user) {
+      const index = this.externalInvitedUsers.indexOf(user);
       if (index > -1) {
-        this.externalUsers.splice(index, 1);
+        this.externalInvitedUsers.splice(index, 1);
       }
     },
   },

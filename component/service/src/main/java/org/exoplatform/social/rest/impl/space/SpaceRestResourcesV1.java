@@ -697,6 +697,39 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
 
+  /**
+   * Checks if is space member.
+   *
+   * @param uriInfo the uri info
+   * @param id      the space id
+   * @param userId  the user id
+   * @return the response
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("{id}/users/{userId}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "check if user is a member of a specific space or not",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This Checks if user is a member of a specific spacer o not.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response isSpaceMember(@Context UriInfo uriInfo,
+                                @Context Request request,
+                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
+                                @ApiParam(value = "User id", required = true) @PathParam("userId") String userId) {
+    Space space = spaceService.getSpaceById(id);
+    if (space == null) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    boolean isMember = spaceService.isMember(space, userId);
+
+    return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
+  }
+
   @GET
   @Path("{id}/navigations")
   @RolesAllowed("users")

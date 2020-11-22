@@ -71,6 +71,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
 
@@ -368,7 +369,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
   @GET
   @Path("{id}")
   @RolesAllowed("users")
@@ -391,6 +392,41 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("email/{email}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Gets a specific user by user email",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 404, message = "Resource not found"),
+          @ApiResponse(code = 500, message = "Internal server error due to data encoding"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response getUserByEmail(@Context UriInfo uriInfo,
+                                 @ApiParam(value = "User email", required = true) @PathParam("email") String email) throws JSONException {
+    User user = getUserByEmail(email);
+    if (user == null) {
+      return Response.ok().entity("{\"id\":\"" + null + "\"}").build();
+    }
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+
+    JSONObject jsonProfile = new JSONObject();
+    jsonProfile.put("avatarUrl", identity.getProfile().getAvatarUrl());
+    jsonProfile.put("fullName", identity.getProfile().getFullName());
+
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("id", identity.getProfile().getIdentity().toString());
+    jsonObject.put("profile", jsonProfile);
+    jsonObject.put("providerId", identity.getProviderId());
+    jsonObject.put("remoteId", identity.getRemoteId());
+
+    return Response.ok(jsonObject.toString()).build();
+
   }
   
   @GET
