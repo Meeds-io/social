@@ -34,15 +34,13 @@
       </form>
       <v-alert
         v-else
-        class="ma-4"
+        class="ma-4 pa-3 successfulInvitation"
         outlined
         text
-        color="green"
       >
         {{ this.$t('peopleList.label.successfulInvitation') }}
       </v-alert>
-      <v-alert v-if="alreadyExistAlert" outlined text class="ma-4 pa-2 text-center caption alreadyExistAlert" v-html="alreadyExistAlert"/>
-      <v-list v-if="externalInvitedUsers.length > 0" class="ma-4 rounded externalList" subheader>
+      <v-list v-if="externalInvitedUsers.length > 0" class="mx-4 rounded externalList" subheader>
         <v-list-item
           v-for="user in externalInvitedUsers"
           :key="user"
@@ -51,8 +49,8 @@
             bottom
             bordered
             color="white"
-            offset-x="35"
-            offset-y="25"
+            offset-x="33"
+            offset-y="26"
             class="externalBadge pa-0"
           >
             <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
@@ -73,6 +71,33 @@
           </v-btn>
         </v-list-item>
       </v-list>
+      <v-list v-if="externalInvitationsSent.length > 0" class="mx-4 mt-0 rounded externalList" subheader>
+        <v-list-item
+          v-for="invitation in externalInvitationsSent"
+          :key="invitation"
+        >
+          <v-badge
+            bottom
+            bordered
+            color="white"
+            offset-x="33"
+            offset-y="26"
+            class="externalBadge pa-0"
+          >
+            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
+            <v-list-item-avatar class="ml-0">
+              <v-img
+                :src="defaultAvatar"
+              ></v-img>
+            </v-list-item-avatar>
+          </v-badge>
+          <v-list-item-content>
+            <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail"></v-list-item-title>
+            <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+      <v-alert v-if="alreadyExistAlert" outlined text class="ma-4 mb-0 pa-2 text-center caption alreadyExistAlert" v-html="alreadyExistAlert"/>
     </template>
 
     <template slot="footer">
@@ -109,7 +134,8 @@ export default {
     includeExternalUser: false,
     externalInvitedUsers: [],
     invitationSent:false,
-    alreadyExistAlert :''
+    alreadyExistAlert :'',
+    externalInvitationsSent:[],
   }),
   computed: {
     saveButtonDisabled() {
@@ -144,6 +170,10 @@ export default {
       this.invitedMembers = [];
       this.externalInvitedUsers = [];
       this.$refs.spaceInvitationDrawer.open();
+      this.$spaceService.getSpaceExternalInvitations(eXo.env.portal.spaceId)
+        .then(invitations => {
+          this.externalInvitationsSent = invitations;
+        });
     },
     cancel() {
       this.$refs.spaceInvitationDrawer.close();
@@ -196,7 +226,7 @@ export default {
                 this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
                   if (data.isMember === 'true') {
                     input.blur();
-                    this.alreadyExistAlert = `${email} ${this.$t('peopleList.label.alreadyMember')}`;
+                    this.alreadyExistAlert = `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`;
                     setTimeout(() => this.alreadyExistAlert ='', 3000);
                   } else {
                     this.users.push(user);

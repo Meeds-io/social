@@ -24,6 +24,19 @@ export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
   });
 }
 
+export function getSpaceExternalInvitations(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/externalInvitations`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function isSpaceMember(spaceId, userId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users/${userId}`, {
     method: 'GET',

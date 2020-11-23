@@ -45,6 +45,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
@@ -1322,6 +1323,33 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     cc.setMaxAge(86400);
     builder.cacheControl(cc);
     return builder.cacheControl(cc).build();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @GET
+  @Path("{id}/externalInvitations")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Gets external invitations of a specific space",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This returns a list of external invitations if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response getSpaceExternalInvitations(@Context UriInfo uriInfo,
+                                              @ApiParam(value = "Space id", required = true) @PathParam("id") String id) {
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    //
+    Space space = spaceService.getSpaceById(id);
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceService.getExternalSpaceInvitations(id);
+    return EntityBuilder.getResponseBuilder(externalSpaceInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {
