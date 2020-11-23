@@ -26,6 +26,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -1575,6 +1576,16 @@ public class CachedSpaceStorage implements SpaceStorage {
   @Override
   public List<Space> getPendingSpaceRequestsToManage(String userId, int offset, int limit) {
     return storage.getPendingSpaceRequestsToManage(userId, offset, limit);
+  }
+
+  @Override
+  public List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String spaceId) {
+    return storage.getExternalSpaceInvitations(spaceId);
+  }
+
+  @Override
+  public void AddExternalSpaceInvitation(String spaceId, String email) {
+    storage.AddExternalSpaceInvitation(spaceId, email);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {

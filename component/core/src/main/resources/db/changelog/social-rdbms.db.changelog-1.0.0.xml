@@ -734,4 +734,18 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-74">
+      <createTable tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
+          <column name="INVITATION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+              <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACES_EXTERNAL_INVITATIONS"/>
+          </column>
+          <column name="SPACE_ID" type="NVARCHAR(200)">
+              <constraints nullable="false"/>
+          </column>
+          <column name="USER_EMAIL" type="NVARCHAR(200)">
+              <constraints nullable="false"/>
+          </column>
+      </createTable>
+  </changeSet>
+
 </databaseChangeLog>

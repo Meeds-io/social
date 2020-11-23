@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.storage.api;
 
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
@@ -684,6 +685,22 @@ public interface SpaceStorage {
    * @throws SpaceStorageException
    */
   public List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
+
+  /**
+   * @param spaceId
+   * @return
+   * @throws SpaceStorageException
+   */
+  public List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String spaceId) throws SpaceStorageException;
+
+  /**
+   * Saves a new external invitation in space
+   *
+   * @param spaceId
+   * @param email
+   * @throws SpaceStorageException
+   */
+  public void AddExternalSpaceInvitation(String spaceId, String email) throws SpaceStorageException;
 
   /**
    * @param username username used to retrieve user spaces

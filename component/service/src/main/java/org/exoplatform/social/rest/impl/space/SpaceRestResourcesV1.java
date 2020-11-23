@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
@@ -40,7 +39,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -590,6 +588,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       }
       for (String email : model.getExternalInvitedUsers()) {
         passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, email, locale, space.getDisplayName(), url);
+        spaceService.AddExternalSpaceInvitation(space.getId(), email);
       }
     }
 
