@@ -22,6 +22,7 @@
   String removeConnectionLabel = StringEscapeUtils.escapeJavaScript(_ctx.appRes("UserProfilePopup.label.RemoveConnection"));
   String ignoreLabel = StringEscapeUtils.escapeJavaScript(_ctx.appRes("UserProfilePopup.label.Ignore"));
   String disabledLabel = StringEscapeUtils.escapeJavaScript(_ctx.appRes("UserProfilePopup.label.Disabled"));
+  String externalLabel = StringEscapeUtils.escapeJavaScript(_ctx.appRes("UserProfilePopup.label.External"));
 
 
   String membersLabel = StringEscapeUtils.escapeJavaScript(_ctx.appRes("UIActivity.label.Members"));
@@ -38,7 +39,8 @@
     CancelRequest: '${cancelRequestLabel}',
     RemoveConnection: '${removeConnectionLabel}',
     Ignore: '${ignoreLabel}',
-    Disabled: '${disabledLabel}'
+    Disabled: '${disabledLabel}',
+    External: '${externalLabel}'
   } """
 
   String spaceLabels = """ {

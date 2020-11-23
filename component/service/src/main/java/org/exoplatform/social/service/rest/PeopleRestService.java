@@ -729,6 +729,9 @@ public class PeopleRestService implements ResourceContainer{
       peopleInfo.setEnable(identity.isEnable());
       Profile userProfile = identity.getProfile();
       String avatarURL = userProfile.getAvatarUrl();
+      if (userProfile.getProperty(Profile.EXTERNAL) != null) {
+        peopleInfo.setExternal((String) userProfile.getProperty(Profile.EXTERNAL));
+      }
       if (avatarURL == null) {
         avatarURL = LinkProvider.PROFILE_DEFAULT_AVATAR_URL;
       }
