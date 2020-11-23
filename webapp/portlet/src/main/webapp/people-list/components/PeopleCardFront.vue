@@ -92,7 +92,7 @@
         :title="user.fullname"
         :class="(!user.enabled || user.deleted) && 'text-sub-title' || 'text-color'"
         class="userFullname text-truncate font-weight-bold d-block">
-        {{ user.fullname }}
+        {{ user.external == 'true' ? user.fullname + ' ' + $t('peopleList.label.external') : user.fullname }}
       </a>
       <v-card-subtitle class="userPositionLabel text-truncate py-0">
         {{ user.position || '&nbsp;' }}
