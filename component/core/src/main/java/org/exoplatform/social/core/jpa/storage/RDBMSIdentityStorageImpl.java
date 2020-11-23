@@ -313,7 +313,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     Date created = profile.getCreatedTime() <= 0 ? new Date() : new Date(profile.getCreatedTime());
     identityEntity.setCreatedDate(created);
     Date lastUpdatedDate = profile.getLastUpdatedDate() <= 0 ? new Date() : new Date(profile.getLastUpdatedDate());
-    identityEntity.setCreatedDate(lastUpdatedDate);
+    identityEntity.setLastUpdatedDate(lastUpdatedDate);
   }
   /**
    * Saves identity.

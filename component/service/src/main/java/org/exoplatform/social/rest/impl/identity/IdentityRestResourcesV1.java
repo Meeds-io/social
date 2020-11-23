@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,11 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 public class IdentityRestResourcesV1 implements IdentityRestResources {
 
   private IdentityManager identityManager;
+
+  // 7 days
+  private static final int          CACHE_IN_SECONDS            = 7 * 86400;
+
+  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
   
   public IdentityRestResourcesV1(IdentityManager identityManager) {
     this.identityManager = identityManager;
@@ -173,16 +179,21 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     }
     
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    EntityTag eTag = new EntityTag(String.valueOf(profileInfo.getProfile().getLastUpdatedTime()));
+    Long lastUpdateDate = identity.getProfile().getLastUpdatedDate();
+    EntityTag eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
     }
     CacheControl cc = new CacheControl();
-    cc.setMaxAge(86400);
     builder.cacheControl(cc);
-    return builder.cacheControl(cc).build();
+    builder.lastModified(new Date(lastUpdateDate));
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+    return builder.build();
+
   }
 
   @GET

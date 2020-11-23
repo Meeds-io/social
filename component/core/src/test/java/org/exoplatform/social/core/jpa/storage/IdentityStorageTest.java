@@ -79,12 +79,14 @@ public class IdentityStorageTest extends AbstractCoreTest {
     final String updatedRemoteId = "identity-updated";
 
     tobeSavedIdentity.setRemoteId(updatedRemoteId);
+    long checkTime = System.currentTimeMillis();
 
     identityStorage.saveIdentity(tobeSavedIdentity);
 
     Identity gotIdentity = identityStorage.findIdentityById(tobeSavedIdentity.getId());
 
     assertEquals(updatedRemoteId, gotIdentity.getRemoteId());
+    assertTrue(gotIdentity.getProfile().getLastUpdatedDate() >= checkTime);
     tearDownIdentityList.add(gotIdentity);
     
   }
@@ -267,15 +269,19 @@ public class IdentityStorageTest extends AbstractCoreTest {
     Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, userName);
     identityStorage.saveIdentity(tobeSavedIdentity);
     tearDownIdentityList.add(tobeSavedIdentity);
+    long lastUpdated = tobeSavedIdentity.getProfile().getLastUpdatedDate();
+    assertTrue(lastUpdated > 0);
 
     Profile tobeSavedProfile = tobeSavedIdentity.getProfile();
 
     tobeSavedProfile.setProperty(Profile.USERNAME, userName);
     tobeSavedProfile.setProperty(Profile.FIRST_NAME, firstName);
     tobeSavedProfile.setProperty(Profile.LAST_NAME, lastName);
+    sleep(1);
 
     assertTrue(tobeSavedProfile.hasChanged());
     identityStorage.saveProfile(tobeSavedProfile);
+    assertTrue(tobeSavedProfile.getLastUpdatedDate() > lastUpdated);
     assertFalse(tobeSavedProfile.hasChanged());
 
     assertNotNull(tobeSavedProfile.getId());
@@ -616,18 +622,22 @@ public class IdentityStorageTest extends AbstractCoreTest {
     String userName = "userIdentity1";
     Identity identity = populateIdentity(userName, true);
     assertNotNull("Identity must not be null", identity);
-    assertEquals("Identity status must be " + identity.isDeleted(), false, identity.isDeleted());
+    assertFalse("Identity status must be " + identity.isDeleted(), identity.isDeleted());
     identity.setDeleted(true);
+    long lastUpdatedDate = identity.getProfile().getLastUpdatedDate();
+    sleep(1);
     identityStorage.updateIdentity(identity);
     Identity updatedIdentity = identityStorage.findIdentity(providerId, userName);
-    assertEquals("Identity status must be " + updatedIdentity.isDeleted(), true, updatedIdentity.isDeleted());
+    assertTrue("Identity status must be " + updatedIdentity.isDeleted(), updatedIdentity.isDeleted());
+    assertTrue("LastUpdatedDate should not be equal to previous value " + updatedIdentity.getProfile().getLastUpdatedDate() + " > " + lastUpdatedDate, updatedIdentity.getProfile().getLastUpdatedDate() > lastUpdatedDate);
     identity.setProviderId(newProviderId);
     identity.setDeleted(false);
     identityStorage.updateIdentity(identity);
     updatedIdentity = identityStorage.findIdentity(newProviderId, userName);
     tearDownIdentityList.add(updatedIdentity);
-    assertEquals("Identity status must be " + updatedIdentity.isDeleted(), false, updatedIdentity.isDeleted());
+    assertFalse("Identity status must be " + updatedIdentity.isDeleted(), updatedIdentity.isDeleted());
     assertEquals("Identity provider id must be " + updatedIdentity.getProviderId(), newProviderId, updatedIdentity.getProviderId());
+    assertTrue("LastUpdatedDate should not be equal to previous value", updatedIdentity.getProfile().getLastUpdatedDate() > lastUpdatedDate);
   }
   
   /**
@@ -949,15 +959,19 @@ public class IdentityStorageTest extends AbstractCoreTest {
     Profile profile = identity.getProfile();
     profile.setProperty(Profile.GENDER, "male");
     profile.setProperty(Profile.POSITION, "developer");
+    long lastUpdatedDate = profile.getLastUpdatedDate();
+    sleep(1);
     identityStorage.updateProfile(profile);
-
     identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
     assertNotNull(identity);
     assertNotNull(identity.getProfile());
     assertEquals("male", identity.getProfile().getGender());
     assertEquals("developer", identity.getProfile().getPosition());
+    assertTrue("LastUpdatedDate should not be equal to previous value" + identity.getProfile().getLastUpdatedDate() + " > " + lastUpdatedDate, identity.getProfile().getLastUpdatedDate() > lastUpdatedDate);
 
     profile.setProperty(Profile.POSITION, null);
+    lastUpdatedDate = profile.getLastUpdatedDate();
+    sleep(1);
     identityStorage.updateProfile(profile);
 
     identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
@@ -965,6 +979,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(identity.getProfile());
     assertEquals("male", identity.getProfile().getGender());
     assertEquals(null, identity.getProfile().getPosition());
+    assertTrue("LastUpdatedDate should not be equal to previous value", identity.getProfile().getLastUpdatedDate() > lastUpdatedDate);
   }
   
   /**
