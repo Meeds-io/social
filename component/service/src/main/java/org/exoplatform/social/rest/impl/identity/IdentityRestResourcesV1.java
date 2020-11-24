@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,13 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 public class IdentityRestResourcesV1 implements IdentityRestResources {
 
   private IdentityManager identityManager;
+
+  private static final CacheControl CACHE_CONTROL = new CacheControl();
+
+  // 7 days
+  private static final int CACHE_IN_SECONDS = 7 * 86400;
+
+  private static final int CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
   
   public IdentityRestResourcesV1(IdentityManager identityManager) {
     this.identityManager = identityManager;
@@ -168,13 +176,30 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    
+    EntityTag eTag;
+    Long lastUpdatedDate = profileInfo.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdatedDate.hashCode()));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(identity.getLastUpdatedTime() > 0 ? new Date(identity.getLastUpdatedTime()) : new Date());
+    if (lastUpdatedDate > 0) {
+      builder.expires(new Date(lastUpdatedDate + CACHE_IN_MILLI_SECONDS));
+    }
+    
+    return builder.build();
   }
 
   @GET
@@ -212,7 +237,24 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    EntityTag eTag;
+    Long lastUpdatedDate = profileInfo.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdatedDate.hashCode()));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(identity.getLastUpdatedTime() > 0 ? new Date(identity.getLastUpdatedTime()) : new Date());
+    if (lastUpdatedDate > 0) {
+      builder.expires(new Date(lastUpdatedDate + CACHE_IN_MILLI_SECONDS));
+    }
+
+    return builder.build();
   }
 
   /**
