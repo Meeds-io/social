@@ -216,7 +216,15 @@ export default {
   },
   methods: {
     init() {
-      this.items = this.value && (this.value.length && this.value || [this.value]) || [];
+      if(this.value && this.value.length) {
+        this.value.forEach(item => {
+          if( item.profile ) {
+            this.items = this.value;
+          }
+        });
+      } else if(this.value && this.value.profile){
+        this.items = this.value;
+      }
     },
     emitSelectedValue(value) {
       this.$emit('input', value);
@@ -254,7 +262,7 @@ export default {
           this.value = null;
         }
       }
-      this.$emit('removeValue');
+      this.$emit('removeValue',item);
     },
   },
 };
