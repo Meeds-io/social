@@ -80,8 +80,9 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response getIdentities(@Context UriInfo uriInfo,
-                                @ApiParam(value = "Provider type: space or organization", required = false, defaultValue="organization") @QueryParam("type") String type,
+  public Response getIdentities(@Context UriInfo uriInfo, 
+                                @Context Request request,
+                                @ApiParam(value = "Provider type: space or organization", required = false, defaultValue = "organization") @QueryParam("type") String type,
                                 @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                 @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                                 @ApiParam(value = "Returning the number of identities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -162,6 +163,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getIdentityById(@Context UriInfo uriInfo,
+                                  @Context Request request,
                                   @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
@@ -192,6 +194,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   )
   @Produces(MediaType.APPLICATION_JSON)
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                     @Context Request request,
                                                    @ApiParam(
                                                        value = "Identity provider id which can be of type 'space' or 'organization' for example",
                                                        required = true
@@ -428,6 +431,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getRelationshipsOfIdentity(@Context UriInfo uriInfo,
+                                             @Context Request request,
                                              @ApiParam(value = "The given identity id", required = true) @PathParam("id") String id,
                                              @ApiParam(value = "The other identity id to get the relationship with the given one") @QueryParam("with") String with,
                                              @ApiParam(value = "Returning the number of relationships or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,

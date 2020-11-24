@@ -18,20 +18,14 @@
 package org.exoplatform.social.rest.api;
 
 import io.swagger.annotations.ApiParam;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import org.exoplatform.social.rest.entity.IdentityEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 public interface IdentityRestResources extends SocialRest {
 
@@ -44,6 +38,7 @@ public interface IdentityRestResources extends SocialRest {
    */
   @GET
   public abstract Response getIdentities(@Context UriInfo uriInfo,
+                                         @Context Request request,
                                          @QueryParam("type") String type,
                                          @QueryParam("offset") int offset,
                                          @QueryParam("limit") int limit,
@@ -61,7 +56,7 @@ public interface IdentityRestResources extends SocialRest {
   public abstract Response createIdentities(@Context UriInfo uriInfo,
                                             @QueryParam("remoteId") String remoteId,
                                             @QueryParam("providerId") String providerId,
-                                            @QueryParam("expand") String expand ) throws Exception;
+                                            @QueryParam("expand") String expand) throws Exception;
 
   /**
    * Process to return an identity in json format
@@ -73,6 +68,7 @@ public interface IdentityRestResources extends SocialRest {
   @GET
   @Path("{id}")
   public abstract Response getIdentityById(@Context UriInfo uriInfo,
+                                           @Context Request request,
                                            @PathParam("id") String id,
                                            @QueryParam("expand") String expand) throws Exception;
   
@@ -89,9 +85,10 @@ public interface IdentityRestResources extends SocialRest {
   @GET
   @Path("{providerId}/{remoteId}")
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
-                                                   @PathParam("providerId") String providerId,
-                                                   @PathParam("remoteId") String remoteId,
-                                                   @QueryParam("expand") String expand);
+                                                     @Context Request request,
+                                                     @PathParam("providerId") String providerId,
+                                                     @PathParam("remoteId") String remoteId,
+                                                     @QueryParam("expand") String expand);
 
   /**
    * Process to update an identity by id
@@ -130,6 +127,7 @@ public interface IdentityRestResources extends SocialRest {
   @GET
   @Path("{id}/relationships")
   public abstract Response getRelationshipsOfIdentity(@Context UriInfo uriInfo,
+                                                      @Context Request request,
                                                       @PathParam("id") String id,
                                                       @QueryParam("with") String with,
                                                       @QueryParam("returnSize") boolean returnSize,
