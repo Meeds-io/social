@@ -40,7 +40,8 @@
       >
         {{ this.$t('peopleList.label.successfulInvitation') }}
       </v-alert>
-      <v-list v-if="externalInvitedUsers.length > 0" class="mx-4 rounded externalList" subheader>
+      <v-list class="mx-4 rounded externalList" subheader>
+        <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
         <v-list-item
           v-for="user in externalInvitedUsers"
           :key="user"
@@ -97,7 +98,6 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-      <v-alert v-if="alreadyExistAlert" outlined text class="ma-4 mb-0 pa-2 text-center caption alreadyExistAlert" v-html="alreadyExistAlert"/>
     </template>
 
     <template slot="footer">
@@ -121,7 +121,7 @@
   </exo-drawer>
 </template>
 <script>
-const IDLE_TIME = 2000;
+const IDLE_TIME = 3000;
 
 export default {
   data: () => ({
