@@ -1526,7 +1526,24 @@ public interface SpaceService {
    * @param spaceId
    * @param email
    */
-  default void AddExternalSpaceInvitation(String spaceId, String email) {
+  default void addExternalSpaceInvitation(String spaceId, String email) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param email
+   * @return a list of spaces ids by external email
+   */
+  default List<String> getSpaceIdsByExternalEmail(String email) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * delete external invitations
+   *
+   * @param email
+   */
+  default void deleteExternalUserInvitations(String email) {
     throw new UnsupportedOperationException();
   }
 

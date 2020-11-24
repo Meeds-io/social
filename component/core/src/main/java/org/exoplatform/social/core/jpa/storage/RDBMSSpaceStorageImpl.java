@@ -558,11 +558,19 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceExternalInvitationDAO.getExternalSpaceInvitations(spaceId);
   }
 
-  public void AddExternalSpaceInvitation(String spaceId, String email) {
+  public void addExternalSpaceInvitation(String spaceId, String email) {
     SpaceExternalInvitationEntity externalInvitation = new SpaceExternalInvitationEntity();
     externalInvitation.setSpaceId(spaceId);
     externalInvitation.setUserEmail(email);
     spaceExternalInvitationDAO.create(externalInvitation);
+  }
+
+  public List<String> getSpaceIdsByExternalEmail(String email) {
+    return spaceExternalInvitationDAO.getSpaceIdsByExternalEmail(email);
+  }
+
+  public void deleteExternalUserInvitations(String email) {
+    spaceExternalInvitationDAO.deleteExternalUserInvitations(email);
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {

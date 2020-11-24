@@ -589,7 +589,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       }
       for (String email : model.getExternalInvitedUsers()) {
         passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, email, locale, space.getDisplayName(), url);
-        spaceService.AddExternalSpaceInvitation(space.getId(), email);
+        spaceService.addExternalSpaceInvitation(space.getId(), email);
       }
     }
 

@@ -700,7 +700,23 @@ public interface SpaceStorage {
    * @param email
    * @throws SpaceStorageException
    */
-  public void AddExternalSpaceInvitation(String spaceId, String email) throws SpaceStorageException;
+  public void addExternalSpaceInvitation(String spaceId, String email) throws SpaceStorageException;
+
+  /**
+   * get the list of spaces ids by external email
+   *
+   * @param email
+   * @throws SpaceStorageException
+   */
+  public List<String> getSpaceIdsByExternalEmail(String email) throws SpaceStorageException;
+
+  /**
+   * Delete external invitations
+   *
+   * @param email
+   * @throws SpaceStorageException
+   */
+  public void deleteExternalUserInvitations(String email) throws SpaceStorageException;
 
   /**
    * @param username username used to retrieve user spaces

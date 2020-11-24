@@ -1701,8 +1701,18 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void AddExternalSpaceInvitation(String spaceId, String email) {
-    spaceStorage.AddExternalSpaceInvitation(spaceId, email);
+  public void addExternalSpaceInvitation(String spaceId, String email) {
+    spaceStorage.addExternalSpaceInvitation(spaceId, email);
+  }
+
+  @Override
+  public List<String> getSpaceIdsByExternalEmail(String email) {
+    return spaceStorage.getSpaceIdsByExternalEmail(email);
+  }
+
+  @Override
+  public void deleteExternalUserInvitations(String email) {
+    spaceStorage.deleteExternalUserInvitations(email);
   }
 
   /**

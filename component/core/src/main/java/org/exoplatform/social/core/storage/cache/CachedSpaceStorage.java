@@ -1584,8 +1584,18 @@ public class CachedSpaceStorage implements SpaceStorage {
   }
 
   @Override
-  public void AddExternalSpaceInvitation(String spaceId, String email) {
-    storage.AddExternalSpaceInvitation(spaceId, email);
+  public void addExternalSpaceInvitation(String spaceId, String email) {
+    storage.addExternalSpaceInvitation(spaceId, email);
+  }
+
+  @Override
+  public List<String> getSpaceIdsByExternalEmail(String email) {
+    return storage.getSpaceIdsByExternalEmail(email);
+  }
+
+  @Override
+  public void deleteExternalUserInvitations(String email) {
+    storage.deleteExternalUserInvitations(email);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {

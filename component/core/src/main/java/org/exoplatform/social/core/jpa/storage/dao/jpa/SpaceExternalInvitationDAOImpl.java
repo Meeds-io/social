@@ -17,6 +17,21 @@ public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExter
     }
 
     @Override
+    public List<String> getSpaceIdsByExternalEmail(String email) {
+        TypedQuery<String> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.getSpaceIdsByExternalEmail", String.class);
+        query.setParameter("userEmail", email);
+        return query.getResultList();
+    }
+
+    @Override
+    public void deleteExternalUserInvitations(String email) {
+        getEntityManager().getTransaction().begin();
+        getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteExternalUserInvitations")
+                .setParameter("userEmail", email)
+                .executeUpdate();
+    }
+
+    @Override
     @ExoTransactional
     public SpaceExternalInvitationEntity create(SpaceExternalInvitationEntity entity) {
         return super.create(entity);
