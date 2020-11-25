@@ -16,6 +16,13 @@
  */
 package org.exoplatform.social.core.space;
 
+import org.gatein.pc.api.*;
+import org.gatein.pc.api.info.MetaInfo;
+import org.gatein.pc.api.info.PortletInfo;
+import org.mockito.Mockito;
+
+import org.exoplatform.application.registry.Application;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.user.UserNode;
@@ -124,6 +131,34 @@ public class SpaceUtilsTest extends AbstractCoreTest {
                  "ÿÄÅÆÐËÖØÞÜ"
                  ));
     */
+  }
+  
+  public void testGetAppFromPortalContainer() throws Exception {
+    String appId = "appId";
+    String appName = "app";
+    String contentId = appName + "/" + appId;
+
+    PortletInvoker portletInvoker = Mockito.mock(PortletInvoker.class);
+    Portlet portlet = Mockito.mock(Portlet.class);
+    PortletContext portletContext = Mockito.mock(PortletContext.class);
+    PortletInfo portletInfo = Mockito.mock(PortletInfo.class);
+    MetaInfo metaInfo = Mockito.mock(MetaInfo.class);
+
+    Mockito.when(portletContext.getId()).thenReturn(contentId);
+    Mockito.when(portletInfo.getApplicationName()).thenReturn(appName);
+    Mockito.when(portletInfo.getName()).thenReturn(contentId);
+    Mockito.when(portletInfo.getMeta()).thenReturn(metaInfo);
+    Mockito.when(portlet.getContext()).thenReturn(portletContext);
+    Mockito.when(portlet.getInfo()).thenReturn(portletInfo);
+
+    Mockito.when(portletInvoker.getPortlets()).thenReturn(Collections.singleton(portlet));
+
+    ExoContainerContext.getCurrentContainer().registerComponentInstance(PortletInvoker.class, portletInvoker);
+    Application application = SpaceUtils.getAppFromPortalContainer("appId");
+    assertNull(application);
+
+    application = SpaceUtils.getAppFromPortalContainer(contentId.replace('/', '_'));
+    assertNotNull(application);
   }
   
   public void testIsInstalledApp() {
