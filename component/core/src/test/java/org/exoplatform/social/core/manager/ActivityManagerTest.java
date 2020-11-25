@@ -424,7 +424,11 @@ public class ActivityManagerTest extends AbstractCoreTest {
    */
   public void testGetParentActivity() {
     populateActivityMass(demoIdentity, 1);
-    ExoSocialActivity demoActivity = activityManager.getActivitiesWithListAccess(demoIdentity).load(0, 1)[0];
+    RealtimeListAccess<ExoSocialActivity> activitiesWithListAccess = activityManager.getActivitiesWithListAccess(demoIdentity);
+    assertNotNull(activitiesWithListAccess);
+    assertTrue(activitiesWithListAccess.getSize() > 0);
+
+    ExoSocialActivity demoActivity = activitiesWithListAccess.load(0, 1)[0];
     assertNotNull("demoActivity must be false", demoActivity);
     assertNull(activityManager.getParentActivity(demoActivity));
 
