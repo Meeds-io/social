@@ -124,6 +124,12 @@
 const IDLE_TIME = 3000;
 
 export default {
+  props: {
+    isExternalFeatureEnabled: {
+      type: Boolean,
+      default: true,
+    }
+  },
   data: () => ({
     users:[],
     savingSpace: false,
@@ -237,9 +243,12 @@ export default {
                   }
                 });
               } else {
-                this.includeExternalUser = true;
-                if (this.externalInvitedUsers.indexOf(email) === -1) {
-                  this.externalInvitedUsers.push(email);
+                if (this.isExternalFeatureEnabled) {
+                  this.includeExternalUser = true;
+
+                  if (this.externalInvitedUsers.indexOf(email) === -1) {
+                    this.externalInvitedUsers.push(email);
+                  }
                 }
               }
             });

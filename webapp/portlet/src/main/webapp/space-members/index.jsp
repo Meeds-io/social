@@ -2,6 +2,7 @@
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
+<%@page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%
   Object filter = request.getAttribute("filter");
   if (filter == null) {
@@ -19,6 +20,8 @@
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
     isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
   }
+
+  boolean isExternalFeatureEnabled=CommonsUtils.isFeatureActive("externalUsers");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -27,7 +30,7 @@
     <v-cacheable-dom-app cache-id="peopleListApplication_<%=spaceId%>"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/MembersPortlet'],
-          app => app.init('<%=filter%>', <%=isManager%>)
+          app => app.init('<%=filter%>', <%=isManager%>, <%=isExternalFeatureEnabled%>)
       );
     </script>
   </div>
