@@ -734,7 +734,7 @@
     </addColumn>
   </changeSet>
 
-  <changeSet author="social" id="1.0.0-74">
+  <changeSet author="social" id="1.0.0-75">
       <createTable tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
           <column name="INVITATION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
               <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACES_EXTERNAL_INVITATIONS"/>
