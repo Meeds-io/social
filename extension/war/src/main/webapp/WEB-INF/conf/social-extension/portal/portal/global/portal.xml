@@ -2,7 +2,7 @@
 <portal-config>
     <portal-name>global</portal-name>
     <locale>en</locale>
-    <access-permissions>*:/platform/users</access-permissions>
+    <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
     <edit-permission>*:/platform/administrators</edit-permission>
     <properties>
         <entry key="sessionAlive">onDemand</entry>
