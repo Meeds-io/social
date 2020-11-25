@@ -79,6 +79,8 @@ public class ProfileEntity extends BaseEntity {
   public static final String COUNTRY          = "country";
 
   public static final String CITY             = "city";
+  
+  public static final String EXTERNAL         = "external";
 
   public ProfileEntity() {
   }
@@ -457,6 +459,15 @@ public class ProfileEntity extends BaseEntity {
 
   public String isEnabled() {
     return getString(ENABLED);
+  }
+  
+  public ProfileEntity setIsExternal(String isExternal) {
+    setProperty(EXTERNAL, isExternal);
+    return this;
+  }
+
+  public String isExternal() {
+    return getString(EXTERNAL);
   }
 
   public static String getFieldName(String name) {

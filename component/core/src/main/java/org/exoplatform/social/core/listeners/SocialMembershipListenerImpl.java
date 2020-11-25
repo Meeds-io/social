@@ -25,6 +25,10 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -40,7 +44,9 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
  * @since Jan 11, 2012
  */
 public class SocialMembershipListenerImpl extends MembershipEventListener {
-
+  
+  private static final String PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
+  
   public SocialMembershipListenerImpl() {
     
   }
@@ -49,7 +55,6 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   public void postDelete(Membership m) throws Exception {
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
       OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
-
       UserACL acl =  CommonsUtils.getService(UserACL.class);
       
       //only handles these memberships have types likes 'manager' 
@@ -74,7 +79,19 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
 
         SpaceUtils.refreshNavigation();
       }
-    } else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
+    } 
+    //only trigger when the Organization service removes membership from Externals group
+    else if (m.getGroupId().equals(PLATFORM_EXTERNALS_GROUP)) {
+      // Set "external" social profile property to "false"
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
+      Profile profile = identity.getProfile();
+      if (profile != null) {
+        profile.setProperty(Profile.EXTERNAL, "false");
+        identityManager.updateProfile(profile);
+      }
+    }
+    else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();
     }
   }
@@ -119,7 +136,19 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         SpaceUtils.refreshNavigation();
       }
 
-    } else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
+    }
+    //only trigger when the Organization service adds new membership to Externals group
+    else if (m.getGroupId().equals(PLATFORM_EXTERNALS_GROUP)) {
+      // Set "external" social profile property to "true"
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
+      Profile profile = identity.getProfile();
+      if (profile != null) {
+        profile.setProperty(Profile.EXTERNAL, "true");
+        identityManager.updateProfile(profile);
+      }
+    }
+    else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();
     }
   }

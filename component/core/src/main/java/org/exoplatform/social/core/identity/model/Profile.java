@@ -119,6 +119,9 @@ public class Profile {
 
   /** CITY. */
   public static final String CITY                     = "city";
+  
+  /** EXTERNAL. */
+  public static final String EXTERNAL                 = "external";
 
   /**
    * An optional url for this profile
