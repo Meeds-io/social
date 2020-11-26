@@ -3,6 +3,8 @@
   import org.exoplatform.social.core.service.LinkProvider;
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.webui.Utils;
+  import org.exoplatform.social.core.identity.model.Profile;
+  
   def activity = uicomponent.getActivity();
   def ownerName,externalFlag , ownerUri = "#", spaceSourceURI, spaceName, spaceImageSource, ownerAvatar,activityPostedTime, activityPostedTimeInSpace, activityUpdatedTime, absolutePostedTime;
   def ownerIdentity = uicomponent.ownerIdentity;
@@ -60,7 +62,7 @@
     <%  if (uicomponent.isUserActivity() && uicomponent.isSpaceStreamOwner() && !uicomponent.isUISpaceActivitiesDisplay()) {%>
     <div class="ownerName">
       <a  href="$ownerUri">$ownerName</a>
-      <%  if (ownerIdentity.profile.getProperty("external") != null && ownerIdentity.profile.getProperty("external") == 'true') { %>
+      <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
          <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
       <% } %>
     </div>
@@ -73,7 +75,7 @@
     else{%>
       <div class="owner">
         <a  href="$ownerUri">$ownerName</a>
-        <%  if (ownerIdentity.profile.getProperty("external") != null && ownerIdentity.profile.getProperty("external") == 'true') { %>
+        <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
           <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
         <% } %>
       </div>
