@@ -219,6 +219,7 @@
                  var labels = opts.labels;
                  var isDeleted = json.deleted;
                  var isEnable = json.enable;
+                 var external = json.external;
 
                  if (currentViewerId != ownerUserId && !isDeleted) {
 
@@ -286,6 +287,10 @@
                  var tdProfile = $("<td/>",{
                      "id": "profileName"
                  });
+                 var externalTag = $("<span/>",{
+                     "class":"externalFlagClass",
+                     "text":" (" + labels.External +")"
+                 });
                  var fullName = json.fullName;
                  if (!isEnable){
                      fullName=fullName + " (" + labels.Disabled +")";
@@ -295,6 +300,9 @@
                      "href":json.profileUrl,
                      "text":fullName
                  });
+                 if (external === "true"){
+                   aProfile.append(externalTag);
+                 }
 
                  tdProfile.append(aProfile);
 

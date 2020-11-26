@@ -19,6 +19,7 @@ package org.exoplatform.social.service.rest;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -29,6 +30,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -54,6 +56,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
+
 import java.util.*;
 
 /**
@@ -155,7 +158,6 @@ public class PeopleRestService implements ResourceContainer{
     identityFilter.setPosition("");
     identityFilter.setSkills("");
     Space currentSpace = getSpaceService().getSpaceByUrl(spaceURL);
-    ExoSocialActivity currentActivity = getActivityManager().getActivity(activityId);
 
     List<Identity> excludedIdentityList = identityFilter.getExcludedIdentityList();
     if (excludedIdentityList == null) {
@@ -406,10 +408,11 @@ public class PeopleRestService implements ResourceContainer{
 
       }
       
-      // add space members in the suggestion list when mentioning in a comment in a space Activity Stream
-      if (currentSpace != null) {
+      // add space members in the suggestion list when mentioning in a comment in a space Activity Stream or in main Activity Stream
+      if (currentSpace != null || getActivityManager().getActivity(activityId).getActivityStream().getType().equals(Type.SPACE)) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
+          spaceURL = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spaceURL;
           userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser);
         }
       }
@@ -729,6 +732,9 @@ public class PeopleRestService implements ResourceContainer{
       peopleInfo.setEnable(identity.isEnable());
       Profile userProfile = identity.getProfile();
       String avatarURL = userProfile.getAvatarUrl();
+      if (userProfile.getProperty(Profile.EXTERNAL) != null) {
+        peopleInfo.setExternal((String) userProfile.getProperty(Profile.EXTERNAL));
+      }
       if (avatarURL == null) {
         avatarURL = LinkProvider.PROFILE_DEFAULT_AVATAR_URL;
       }
