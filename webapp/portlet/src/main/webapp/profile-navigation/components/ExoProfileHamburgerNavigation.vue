@@ -8,7 +8,7 @@
           <v-img :src="avatar" eager />
         </v-list-item-avatar>
         <v-list-item-content class="py-0 accountTitleLabel">
-          <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }}</v-list-item-title>
+          <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }} <span v-if="external" class="externalFlagClass">{{ $t('menu.profile.external') }}</span></v-list-item-title>
           <v-list-item-subtitle class="font-italic caption">{{ position }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -34,6 +34,9 @@ export default {
     },
     position() {
       return this.profile && this.profile.position || '';
+    },
+    external() {
+      return this.profile && this.profile.dataEntity && this.profile.dataEntity.external === 'true' ;
     },
   },
   created() {
