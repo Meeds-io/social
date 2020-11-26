@@ -691,7 +691,7 @@ public interface SpaceStorage {
    * @return
    * @throws SpaceStorageException
    */
-  public List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String spaceId) throws SpaceStorageException;
+  public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) throws SpaceStorageException;
 
   /**
    * Saves a new external invitation in space
@@ -708,7 +708,7 @@ public interface SpaceStorage {
    * @param email
    * @throws SpaceStorageException
    */
-  public List<String> getSpaceIdsByExternalEmail(String email) throws SpaceStorageException;
+  public List<String> findExternalInvitationsSpacesByEmail(String email) throws SpaceStorageException;
 
   /**
    * Delete external invitations
@@ -716,7 +716,7 @@ public interface SpaceStorage {
    * @param email
    * @throws SpaceStorageException
    */
-  public void deleteExternalUserInvitations(String email) throws SpaceStorageException;
+  public void deleteUserExternalInvitations(String email) throws SpaceStorageException;
 
   /**
    * @param username username used to retrieve user spaces

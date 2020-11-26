@@ -587,9 +587,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);
       }
-      for (String email : model.getExternalInvitedUsers()) {
-        passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, email, locale, space.getDisplayName(), url);
-        spaceService.addExternalSpaceInvitation(space.getId(), email);
+      for (String externalInvitedUser : model.getExternalInvitedUsers()) {
+        passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, externalInvitedUser, locale, space.getDisplayName(), url);
+        spaceService.addExternalSpaceInvitation(space.getId(), externalInvitedUser);
       }
     }
 
@@ -698,7 +698,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   }
 
   /**
-   * Checks if is space member.
+   * Checks if is the given userId is a space member.
    *
    * @param uriInfo the uri info
    * @param id      the space id
@@ -709,7 +709,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("{id}/users/{userId}")
   @RolesAllowed("users")
-  @ApiOperation(value = "check if user is a member of a specific space or not",
+  @ApiOperation(value = "Checks if the given user is a member of a specific space or not",
           httpMethod = "GET",
           response = Response.class,
           notes = "This Checks if user is a member of a specific spacer o not.")
@@ -722,7 +722,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                 @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                 @ApiParam(value = "User id", required = true) @PathParam("userId") String userId) {
     Space space = spaceService.getSpaceById(id);
-    if (space == null) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     boolean isMember = spaceService.isMember(space, userId);
@@ -1348,8 +1349,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceService.getExternalSpaceInvitations(id);
-    return EntityBuilder.getResponseBuilder(externalSpaceInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
+    List<SpaceExternalInvitationEntity> spaceExternalInvitations = spaceService.getSpaceExternalInvitations(id);
+    return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {

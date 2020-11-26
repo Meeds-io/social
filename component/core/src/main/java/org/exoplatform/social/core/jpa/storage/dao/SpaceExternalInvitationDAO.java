@@ -8,23 +8,23 @@ import java.util.List;
 public interface SpaceExternalInvitationDAO extends GenericDAO<SpaceExternalInvitationEntity, Long> {
 
     /**
-     * get the list of external invitations by space Id
+     * find the list of space external invitations by space Id
      *
      * @param SpaceId the space Id
      */
-    List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String SpaceId);
+    List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String SpaceId);
 
     /**
-     * get the list of spaces ids by external email
+     * find the list of external invitations spaces by email
      *
      * @param email
      */
-    List<String> getSpaceIdsByExternalEmail(String email);
+    List<String> findExternalInvitationsSpacesByEmail(String email);
 
     /**
-     * delete external invitations
+     * delete space external invitations by email
      *
      * @param email
      */
-    void deleteExternalUserInvitations(String email);
+    void deleteUserExternalInvitations(String email);
 }

@@ -10,30 +10,24 @@ import java.util.List;
 
 public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExternalInvitationEntity, Long> implements SpaceExternalInvitationDAO {
     @Override
-    public List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String spaceId) {
-        TypedQuery<SpaceExternalInvitationEntity> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.getExternalSpaceInvitations", SpaceExternalInvitationEntity.class);
+    public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
+        TypedQuery<SpaceExternalInvitationEntity> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.getSpaceExternalInvitations", SpaceExternalInvitationEntity.class);
         query.setParameter("spaceId", spaceId);
         return query.getResultList();
     }
 
     @Override
-    public List<String> getSpaceIdsByExternalEmail(String email) {
-        TypedQuery<String> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.getSpaceIdsByExternalEmail", String.class);
-        query.setParameter("userEmail", email);
+    public List<String> findExternalInvitationsSpacesByEmail(String email) {
+        TypedQuery<String> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.findExternalInvitationsSpacesByEmail", String.class);
+        query.setParameter("email", email);
         return query.getResultList();
     }
 
     @Override
-    public void deleteExternalUserInvitations(String email) {
+    public void deleteUserExternalInvitations(String email) {
         getEntityManager().getTransaction().begin();
-        getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteExternalUserInvitations")
-                .setParameter("userEmail", email)
+        getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteUserExternalInvitations")
+                .setParameter("email", email)
                 .executeUpdate();
-    }
-
-    @Override
-    @ExoTransactional
-    public SpaceExternalInvitationEntity create(SpaceExternalInvitationEntity entity) {
-        return super.create(entity);
     }
 }

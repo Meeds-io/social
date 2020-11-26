@@ -147,17 +147,16 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         identityManager.updateProfile(profile);
       }
       OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      SpaceService spaceService = container.getComponentInstanceOfType(SpaceService.class);
+      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
       User user = orgService.getUserHandler().findUserByName(m.getUserName());
 
-      List<String> spacesToJoin = spaceService.getSpaceIdsByExternalEmail(user.getEmail());
+      List<String> spacesToJoin = spaceService.findExternalInvitationsSpacesByEmail(user.getEmail());
 
       for (String spaceId : spacesToJoin) {
         Space space = spaceService.getSpaceById(spaceId);
         spaceService.addMember(space, user.getUserName());
       }
-      spaceService.deleteExternalUserInvitations(user.getEmail());
+      spaceService.deleteUserExternalInvitations(user.getEmail());
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();

@@ -420,7 +420,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     jsonProfile.put("fullName", identity.getProfile().getFullName());
 
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("id", identity.getProfile().getIdentity().toString());
+    jsonObject.put("id", identity.toString());
     jsonObject.put("profile", jsonProfile);
     jsonObject.put("providerId", identity.getProviderId());
     jsonObject.put("remoteId", identity.getRemoteId());

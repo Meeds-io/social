@@ -29,9 +29,9 @@ import org.exoplatform.services.log.Log;
 @ExoEntity
 @Table(name = "SOC_SPACES_EXTERNAL_INVITATIONS")
 @NamedQueries({
-        @NamedQuery(name = "SocSpaceExternalInvitations.getExternalSpaceInvitations", query = "SELECT invit FROM SocSpaceExternalInvitations invit WHERE invit.spaceId = :spaceId"),
-        @NamedQuery(name = "SocSpaceExternalInvitations.getSpaceIdsByExternalEmail", query = "SELECT invit.spaceId FROM SocSpaceExternalInvitations invit WHERE invit.userEmail = :userEmail"),
-        @NamedQuery(name = "SocSpaceExternalInvitations.deleteExternalUserInvitations", query = "DELETE FROM SocSpaceExternalInvitations invit WHERE invit.userEmail = :userEmail")
+        @NamedQuery(name = "SocSpaceExternalInvitations.getSpaceExternalInvitations", query = "SELECT invit FROM SocSpaceExternalInvitations invit WHERE invit.spaceId = :spaceId"),
+        @NamedQuery(name = "SocSpaceExternalInvitations.findExternalInvitationsSpacesByEmail", query = "SELECT invit.spaceId FROM SocSpaceExternalInvitations invit WHERE invit.userEmail = :email"),
+        @NamedQuery(name = "SocSpaceExternalInvitations.deleteUserExternalInvitations", query = "DELETE FROM SocSpaceExternalInvitations invit WHERE invit.userEmail = :email")
 })
 public class SpaceExternalInvitationEntity implements Serializable {
 

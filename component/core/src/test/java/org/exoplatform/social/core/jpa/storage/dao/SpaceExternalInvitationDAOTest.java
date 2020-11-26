@@ -41,7 +41,7 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         super.tearDown();
     }
 
-    public void testGetExternalSpaceInvitations() {
+    public void testGetSpaceExternalInvitations() {
         SpaceExternalInvitationEntity spaceExternalInvitationEntity = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity.setSpaceId("1");
         spaceExternalInvitationEntity.setUserEmail("user@user.com");
@@ -52,21 +52,21 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity1);
         toDeleteIdentities.add(spaceExternalInvitationEntity1);
         //When
-        List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceExternalInvitationDAO.getExternalSpaceInvitations("1");
+        List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceExternalInvitationDAO.getSpaceExternalInvitations("1");
 
         //Then
         assertEquals(2, externalSpaceInvitations.size());
 
-        spaceExternalInvitationDAO.deleteExternalUserInvitations("user@user.com");
+        spaceExternalInvitationDAO.deleteUserExternalInvitations("user@user.com");
 
         //When
-        List<SpaceExternalInvitationEntity> externalSpaceInvitations1 = spaceExternalInvitationDAO.getExternalSpaceInvitations("1");
+        List<SpaceExternalInvitationEntity> externalSpaceInvitations1 = spaceExternalInvitationDAO.getSpaceExternalInvitations("1");
 
         //Then
         assertEquals(1, externalSpaceInvitations1.size());
     }
 
-    public void testGetSpaceIdsByExternalEmail() {
+    public void testFindExternalInvitationsSpacesByEmail() {
         SpaceExternalInvitationEntity spaceExternalInvitationEntity = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity.setSpaceId("2");
         spaceExternalInvitationEntity.setUserEmail("user2@user2.com");
@@ -81,15 +81,15 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity2);
 
         //When
-        List<String> spaceIds = spaceExternalInvitationDAO.getSpaceIdsByExternalEmail("user2@user2.com");
+        List<String> spaceIds = spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail("user2@user2.com");
 
         //Then
         assertEquals(3, spaceIds.size());
 
-        spaceExternalInvitationDAO.deleteExternalUserInvitations("user2@user2.com");
+        spaceExternalInvitationDAO.deleteUserExternalInvitations("user2@user2.com");
 
         //When
-        List<String> spaceIds1 = spaceExternalInvitationDAO.getSpaceIdsByExternalEmail("user2@user2.com");
+        List<String> spaceIds1 = spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail("user2@user2.com");
 
         //Then
         assertEquals(0, spaceIds1.size());

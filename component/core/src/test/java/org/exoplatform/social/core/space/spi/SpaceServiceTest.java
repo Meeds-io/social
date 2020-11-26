@@ -3157,32 +3157,28 @@ public class SpaceServiceTest extends AbstractCoreTest {
   }
 
   public void testExternalSpaceInvitations() {
-    spaceService.addExternalSpaceInvitation("1", "user@user.com");
-    spaceService.addExternalSpaceInvitation("1", "user1@user1.com");
-    spaceService.addExternalSpaceInvitation("2", "user@user.com");
-    spaceService.addExternalSpaceInvitation("3", "user2@user2.com");
-    spaceService.addExternalSpaceInvitation("3", "user3@user3.com");
+    spaceService.addExternalSpaceInvitation("5", "external@external.com");
+    spaceService.addExternalSpaceInvitation("5", "external1@external1.com");
+    spaceService.addExternalSpaceInvitation("6", "external@external.com");
+    spaceService.addExternalSpaceInvitation("7", "external2@external2.com");
+    spaceService.addExternalSpaceInvitation("7", "external3@external3.com");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.getExternalSpaceInvitations("1");
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.getSpaceExternalInvitations("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(2, spaceExternalInvitationEntities.size());
 
-    List<String> spaceIds = spaceService.getSpaceIdsByExternalEmail("user@user.com");
+    List<String> spaceIds = spaceService.findExternalInvitationsSpacesByEmail("external@external.com");
     assertNotNull(spaceIds);
     assertEquals(2, spaceExternalInvitationEntities.size());
 
-    spaceService.deleteExternalUserInvitations("user@user.com");
+    spaceService.deleteUserExternalInvitations("external@external.com");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.getExternalSpaceInvitations("1");
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.getSpaceExternalInvitations("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(1, spaceExternalInvitationEntities1.size());
 
-    spaceService.deleteExternalUserInvitations("user1@user1.com");
-
-    spaceService.deleteExternalUserInvitations("user2@user2.com");
-
-    List<String> spaceIds2 = spaceService.getSpaceIdsByExternalEmail("user2@user2.com");
-    assertEquals(0, spaceIds2.size());
+    List<String> spaceIds2 = spaceService.findExternalInvitationsSpacesByEmail("external2@external2.com");
+    assertEquals(1, spaceIds2.size());
 
   }
 

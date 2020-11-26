@@ -49,12 +49,11 @@
           <v-badge
             bottom
             bordered
-            color="white"
             offset-x="33"
             offset-y="26"
             class="externalBadge pa-0"
           >
-            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
+            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon class="helpIcon">mdi-help</v-icon></span>
             <v-list-item-avatar class="ml-0">
               <v-img
                 :src="defaultAvatar"
@@ -198,7 +197,7 @@ export default {
       this.$spaceService.updateSpace({
         id: eXo.env.portal.spaceId,
         invitedMembers: this.invitedMembers,
-        externalInvitedUsers:this.externalInvitedUsers
+        externalInvitedUsers: this.externalInvitedUsers
       })
         .then(() => {
           this.spaceSaved = true;

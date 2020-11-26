@@ -1696,8 +1696,8 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public List<SpaceExternalInvitationEntity> getExternalSpaceInvitations(String spaceId) {
-    return spaceStorage.getExternalSpaceInvitations(spaceId);
+  public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
+    return spaceStorage.getSpaceExternalInvitations(spaceId);
   }
 
   @Override
@@ -1706,13 +1706,13 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public List<String> getSpaceIdsByExternalEmail(String email) {
-    return spaceStorage.getSpaceIdsByExternalEmail(email);
+  public List<String> findExternalInvitationsSpacesByEmail(String email) {
+    return spaceStorage.findExternalInvitationsSpacesByEmail(email);
   }
 
   @Override
-  public void deleteExternalUserInvitations(String email) {
-    spaceStorage.deleteExternalUserInvitations(email);
+  public void deleteUserExternalInvitations(String email) {
+    spaceStorage.deleteUserExternalInvitations(email);
   }
 
   /**
