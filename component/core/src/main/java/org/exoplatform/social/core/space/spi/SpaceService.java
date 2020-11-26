@@ -22,6 +22,7 @@ import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -1509,6 +1510,40 @@ public interface SpaceService {
    * @return {@link List} of {@link Application} that can be instantiated in spaces
    */
   default List<Application> getSpacesApplications() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return a list of external invitations in space
+   */
+  default List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Add an external invitation to space
+   *
+   * @param spaceId
+   * @param email
+   */
+  default void saveSpaceExternalInvitation(String spaceId, String email) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param email
+   * @return a list of spaces ids by external email
+   */
+  default List<String> findExternalInvitationsSpacesByEmail(String email) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * delete external invitations
+   *
+   * @param email
+   */
+  default void deleteExternalUserInvitations(String email) {
     throw new UnsupportedOperationException();
   }
 

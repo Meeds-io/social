@@ -58,6 +58,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
@@ -1692,6 +1693,26 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public ListAccess<Space> getPendingSpaceRequestsToManage(String remoteId) {
     return new SpaceListAccess(this.spaceStorage, remoteId, SpaceListAccess.Type.PENDING_REQUESTS);
+  }
+
+  @Override
+  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    return spaceStorage.findSpaceExternalInvitationsBySpaceId(spaceId);
+  }
+
+  @Override
+  public void saveSpaceExternalInvitation(String spaceId, String email) {
+    spaceStorage.saveSpaceExternalInvitation(spaceId, email);
+  }
+
+  @Override
+  public List<String> findExternalInvitationsSpacesByEmail(String email) {
+    return spaceStorage.findExternalInvitationsSpacesByEmail(email);
+  }
+
+  @Override
+  public void deleteExternalUserInvitations(String email) {
+    spaceStorage.deleteExternalUserInvitations(email);
   }
 
   /**

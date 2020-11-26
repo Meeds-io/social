@@ -28,7 +28,7 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 const appId = 'peopleListApplication';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
-export function init(filter, isManager) {
+export function init(filter, isManager, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
@@ -41,6 +41,7 @@ export function init(filter, isManager) {
                   v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   :is-manager="${isManager}"
+                  :is-external-feature-enabled="${isExternalFeatureEnabled}"
                   filter="${filter || 'member'}"
                   space-id="${eXo.env.portal.spaceId}"
                   class="singlePageApplication" />`,

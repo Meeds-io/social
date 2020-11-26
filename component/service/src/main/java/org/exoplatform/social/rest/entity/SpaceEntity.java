@@ -277,4 +277,12 @@ public class SpaceEntity extends BaseEntity {
     return (List<Identity>) getProperty("invitedMembers");
   }
 
+  public SpaceEntity setExternalInvitedUsers(List<String> externalInvitedUsers) {
+    setProperty("externalInvitedUsers", externalInvitedUsers);
+    return this;
+  }
+  public List<String> getExternalInvitedUsers() {
+    return (List<String>) getProperty("externalInvitedUsers");
+  }
+
 }

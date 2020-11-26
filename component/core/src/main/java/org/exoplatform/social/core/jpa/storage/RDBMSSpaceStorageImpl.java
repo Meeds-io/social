@@ -33,6 +33,7 @@ import org.exoplatform.social.core.jpa.search.XSpaceFilter;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.query.SpaceQueryBuilder;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.service.LinkProvider;
@@ -60,16 +61,20 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   private ActivityDAO         activityDAO;
 
+  private SpaceExternalInvitationDAO spaceExternalInvitationDAO;
+
   public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO,
                                SpaceMemberDAO spaceMemberDAO,
                                RDBMSIdentityStorageImpl identityStorage,
                                IdentityDAO identityDAO,
-                               ActivityDAO activityDAO) {
+                               ActivityDAO activityDAO,
+                               SpaceExternalInvitationDAO spaceExternalInvitationDAO) {
     this.spaceDAO = spaceDAO;
     this.identityStorage = identityStorage;
     this.spaceMemberDAO = spaceMemberDAO;
     this.identityDAO = identityDAO;
     this.activityDAO = activityDAO;
+    this.spaceExternalInvitationDAO = spaceExternalInvitationDAO;
   }
 
   @Override
@@ -547,6 +552,25 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   @Override
   public int countPendingSpaceRequestsToManage(String username) {
     return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
+  }
+
+  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    return spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId);
+  }
+
+  public void saveSpaceExternalInvitation(String spaceId, String email) {
+    SpaceExternalInvitationEntity spaceExternalInvitation = new SpaceExternalInvitationEntity();
+    spaceExternalInvitation.setSpaceId(spaceId);
+    spaceExternalInvitation.setUserEmail(email);
+    spaceExternalInvitationDAO.create(spaceExternalInvitation);
+  }
+
+  public List<String> findExternalInvitationsSpacesByEmail(String email) {
+    return spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail(email);
+  }
+
+  public void deleteExternalUserInvitations(String email) {
+    spaceExternalInvitationDAO.deleteExternalUserInvitations(email);
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {

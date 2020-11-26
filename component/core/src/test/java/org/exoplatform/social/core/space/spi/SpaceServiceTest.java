@@ -40,6 +40,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceException;
@@ -3153,6 +3154,32 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setRegistration(Space.OPEN);
     spaceService.inviteIdentities(space, Collections.singletonList(superManagerIdentity));
     assertTrue(spaceService.isInvitedUser(space, username));
+  }
+
+  public void testExternalSpaceInvitations() {
+    spaceService.saveSpaceExternalInvitation("5", "external@external.com");
+    spaceService.saveSpaceExternalInvitation("5", "external1@external1.com");
+    spaceService.saveSpaceExternalInvitation("6", "external@external.com");
+    spaceService.saveSpaceExternalInvitation("7", "external2@external2.com");
+    spaceService.saveSpaceExternalInvitation("7", "external3@external3.com");
+
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.findSpaceExternalInvitationsBySpaceId("5");
+    assertNotNull(spaceExternalInvitationEntities);
+    assertEquals(2, spaceExternalInvitationEntities.size());
+
+    List<String> spaceIds = spaceService.findExternalInvitationsSpacesByEmail("external@external.com");
+    assertNotNull(spaceIds);
+    assertEquals(2, spaceExternalInvitationEntities.size());
+
+    spaceService.deleteExternalUserInvitations("external@external.com");
+
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.findSpaceExternalInvitationsBySpaceId("5");
+    assertNotNull(spaceExternalInvitationEntities);
+    assertEquals(1, spaceExternalInvitationEntities1.size());
+
+    List<String> spaceIds2 = spaceService.findExternalInvitationsSpacesByEmail("external2@external2.com");
+    assertEquals(1, spaceIds2.size());
+
   }
 
 

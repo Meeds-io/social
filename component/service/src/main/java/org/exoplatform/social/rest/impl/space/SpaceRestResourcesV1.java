@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
@@ -33,21 +32,20 @@ import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
@@ -69,6 +67,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
 import io.swagger.annotations.*;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Api(tags = VersionResources.VERSION_ONE + "/social/spaces", value = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -572,6 +571,29 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
     }
 
+    if (model.getExternalInvitedUsers() != null) {
+      String uri = uriInfo.getBaseUri().toString()
+              .substring(0, uriInfo.getBaseUri().toString()
+                      .lastIndexOf("/"));
+      StringBuilder url = new StringBuilder(uri);
+
+      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+      String currentSiteName = CommonsUtils.getCurrentSite().getName();
+      Locale locale = null;
+      try {
+        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+        locale = new Locale(currentSiteLocale);
+      } catch (Exception e) {
+        LOG.error("Failure to retrieve portal config", e);
+      }
+      for (String externalInvitedUser : model.getExternalInvitedUsers()) {
+        passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, externalInvitedUser, locale, space.getDisplayName(), url);
+        spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser);
+      }
+    }
+
+
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     spaceService.updateSpace(space, model.getInvitedMembers());
@@ -673,6 +695,40 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
     return EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
+  }
+
+  /**
+   * Checks if is the given userId is a space member.
+   *
+   * @param uriInfo the uri info
+   * @param id      the space id
+   * @param userId  the user id
+   * @return the response
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("{id}/users/{userId}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Checks if the given user is a member of a specific space or not",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This Checks if user is a member of a specific spacer o not.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response isSpaceMember(@Context UriInfo uriInfo,
+                                @Context Request request,
+                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
+                                @ApiParam(value = "User id", required = true) @PathParam("userId") String userId) {
+    Space space = spaceService.getSpaceById(id);
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    boolean isMember = spaceService.isMember(space, userId);
+
+    return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
   }
 
   @GET
@@ -1268,6 +1324,33 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     cc.setMaxAge(86400);
     builder.cacheControl(cc);
     return builder.cacheControl(cc).build();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @GET
+  @Path("{id}/externalInvitations")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Gets external invitations of a specific space",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This returns a list of external invitations if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response getSpaceExternalInvitations(@Context UriInfo uriInfo,
+                                              @ApiParam(value = "Space id", required = true) @PathParam("id") String id) {
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    //
+    Space space = spaceService.getSpaceById(id);
+    if (space == null ||  (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    List<SpaceExternalInvitationEntity> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
+    return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {

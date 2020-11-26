@@ -20,10 +20,7 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipEventListener;
-import org.exoplatform.services.organization.MembershipTypeHandler;
-import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -33,6 +30,8 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+
+import java.util.List;
 
 /**
  * SocialMembershipListenerImpl is registered to OrganizationService to handle membership operation associated
@@ -147,6 +146,17 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         profile.setProperty(Profile.EXTERNAL, "true");
         identityManager.updateProfile(profile);
       }
+      OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
+      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+      User user = orgService.getUserHandler().findUserByName(m.getUserName());
+
+      List<String> spacesToJoin = spaceService.findExternalInvitationsSpacesByEmail(user.getEmail());
+
+      for (String spaceId : spacesToJoin) {
+        Space space = spaceService.getSpaceById(spaceId);
+        spaceService.addMember(space, user.getUserName());
+      }
+      spaceService.deleteExternalUserInvitations(user.getEmail());
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();

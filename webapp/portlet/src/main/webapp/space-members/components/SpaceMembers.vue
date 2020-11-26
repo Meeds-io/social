@@ -25,6 +25,7 @@
 
     <space-invitation-drawer
       ref="spaceInvitationDrawer"
+      :is-external-feature-enabled="isExternalFeatureEnabled"
       @refresh="refreshInvited" />
   </v-app>
 </template>
@@ -44,6 +45,10 @@ export default {
     filter: {
       type: String,
       default: null,
+    },
+    isExternalFeatureEnabled: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => ({

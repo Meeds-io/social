@@ -88,6 +88,11 @@
         <key>org.exoplatform.social.core.jpa.storage.dao.ActivityDAO</key>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ActivityDAOImpl</type>
     </component>
+
+    <component>
+        <key>org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO</key>
+        <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceExternalInvitationDAOImpl</type>
+    </component>
     
     <component>
         <key>org.exoplatform.social.core.jpa.storage.dao.IdentityDAO</key>
