@@ -3,8 +3,10 @@
   import org.exoplatform.social.core.service.LinkProvider;
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.webui.Utils;
+  import org.exoplatform.social.core.identity.model.Profile;
+  
   def activity = uicomponent.getActivity();
-  def ownerName, ownerUri = "#", spaceSourceURI, spaceName, spaceImageSource, ownerAvatar,activityPostedTime, activityPostedTimeInSpace, activityUpdatedTime, absolutePostedTime;
+  def ownerName,externalFlag , ownerUri = "#", spaceSourceURI, spaceName, spaceImageSource, ownerAvatar,activityPostedTime, activityPostedTimeInSpace, activityUpdatedTime, absolutePostedTime;
   def ownerIdentity = uicomponent.ownerIdentity;
   def spaceID;
   def streamOwner = activity.getStreamOwner();
@@ -13,6 +15,7 @@
   activityUpdatedTime =uicomponent.getRelativeTimeLabel(_ctx,activity.updated.getTime());
   activityUpdatedTime =	_ctx.appRes("UIActivity.label.EditedFrom").replace("{0}",activityUpdatedTime);
   absolutePostedTime = uicomponent.getAbsolutePostedTime(activity.postedTime);
+  externalFlag = _ctx.appRes("UIActivity.label.External");
 
   if (uicomponent.isUserActivity()) {
       ownerUri = LinkProvider.getUserProfileUri(ownerIdentity.getRemoteId());
@@ -59,16 +62,22 @@
     <%  if (uicomponent.isUserActivity() && uicomponent.isSpaceStreamOwner() && !uicomponent.isUISpaceActivitiesDisplay()) {%>
     <div class="ownerName">
       <a  href="$ownerUri">$ownerName</a>
+      <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
+         <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
+      <% } %>
     </div>
     <div class="spaceName">
       <a class="space-avatar" href="$spaceSourceURI" space-data="$spaceID"><span class="uiIconArrowRightMini uiIconLightGray"></span>
         <img  class="avatarMini" alt="$spaceName" src="$spaceImageSource"/>&nbsp;$spaceName
       </a>
     </div>
-    <%}
+<%}
     else{%>
       <div class="owner">
         <a  href="$ownerUri">$ownerName</a>
+        <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
+          <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
+        <% } %>
       </div>
     <%}%>
   	</div>
