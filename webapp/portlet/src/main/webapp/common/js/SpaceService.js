@@ -24,7 +24,7 @@ export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
   });
 }
 
-export function getSpaceExternalInvitations(spaceId) {
+export function findSpaceExternalInvitationsBySpaceId(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/externalInvitations`, {
     method: 'GET',
     credentials: 'include',

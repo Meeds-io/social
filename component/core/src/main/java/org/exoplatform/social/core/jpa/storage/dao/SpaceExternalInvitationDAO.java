@@ -12,7 +12,7 @@ public interface SpaceExternalInvitationDAO extends GenericDAO<SpaceExternalInvi
      *
      * @param SpaceId the space Id
      */
-    List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String SpaceId);
+    List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String SpaceId);
 
     /**
      * find the list of external invitations spaces by email
@@ -26,5 +26,5 @@ public interface SpaceExternalInvitationDAO extends GenericDAO<SpaceExternalInvi
      *
      * @param email
      */
-    void deleteUserExternalInvitations(String email);
+    void deleteExternalUserInvitations(String email);
 }

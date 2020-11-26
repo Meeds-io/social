@@ -589,7 +589,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       }
       for (String externalInvitedUser : model.getExternalInvitedUsers()) {
         passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, externalInvitedUser, locale, space.getDisplayName(), url);
-        spaceService.addExternalSpaceInvitation(space.getId(), externalInvitedUser);
+        spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser);
       }
     }
 
@@ -723,7 +723,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                 @ApiParam(value = "User id", required = true) @PathParam("userId") String userId) {
     Space space = spaceService.getSpaceById(id);
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     boolean isMember = spaceService.isMember(space, userId);
@@ -1346,10 +1346,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null ||  (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    List<SpaceExternalInvitationEntity> spaceExternalInvitations = spaceService.getSpaceExternalInvitations(id);
+    List<SpaceExternalInvitationEntity> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
     return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
   }
 

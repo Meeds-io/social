@@ -175,7 +175,7 @@ export default {
       this.invitedMembers = [];
       this.externalInvitedUsers = [];
       this.$refs.spaceInvitationDrawer.open();
-      this.$spaceService.getSpaceExternalInvitations(eXo.env.portal.spaceId)
+      this.$spaceService.findSpaceExternalInvitationsBySpaceId(eXo.env.portal.spaceId)
         .then(invitations => {
           this.externalInvitationsSent = invitations;
         });

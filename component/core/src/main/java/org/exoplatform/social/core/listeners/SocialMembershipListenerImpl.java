@@ -156,7 +156,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         Space space = spaceService.getSpaceById(spaceId);
         spaceService.addMember(space, user.getUserName());
       }
-      spaceService.deleteUserExternalInvitations(user.getEmail());
+      spaceService.deleteExternalUserInvitations(user.getEmail());
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();

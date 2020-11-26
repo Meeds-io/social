@@ -10,8 +10,8 @@ import java.util.List;
 
 public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExternalInvitationEntity, Long> implements SpaceExternalInvitationDAO {
     @Override
-    public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
-        TypedQuery<SpaceExternalInvitationEntity> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.getSpaceExternalInvitations", SpaceExternalInvitationEntity.class);
+    public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+        TypedQuery<SpaceExternalInvitationEntity> query = getEntityManager().createNamedQuery("SocSpaceExternalInvitations.findSpaceExternalInvitationsBySpaceId", SpaceExternalInvitationEntity.class);
         query.setParameter("spaceId", spaceId);
         return query.getResultList();
     }
@@ -24,9 +24,9 @@ public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExter
     }
 
     @Override
-    public void deleteUserExternalInvitations(String email) {
+    public void deleteExternalUserInvitations(String email) {
         getEntityManager().getTransaction().begin();
-        getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteUserExternalInvitations")
+        getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteExternalUserInvitations")
                 .setParameter("email", email)
                 .executeUpdate();
     }

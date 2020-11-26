@@ -1516,7 +1516,7 @@ public interface SpaceService {
   /**
    * @return a list of external invitations in space
    */
-  default List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
+  default List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
     throw new UnsupportedOperationException();
   }
 
@@ -1526,7 +1526,7 @@ public interface SpaceService {
    * @param spaceId
    * @param email
    */
-  default void addExternalSpaceInvitation(String spaceId, String email) {
+  default void saveSpaceExternalInvitation(String spaceId, String email) {
     throw new UnsupportedOperationException();
   }
 
@@ -1543,7 +1543,7 @@ public interface SpaceService {
    *
    * @param email
    */
-  default void deleteUserExternalInvitations(String email) {
+  default void deleteExternalUserInvitations(String email) {
     throw new UnsupportedOperationException();
   }
 

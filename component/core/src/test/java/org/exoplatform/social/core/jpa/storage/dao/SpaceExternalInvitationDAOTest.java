@@ -41,7 +41,7 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         super.tearDown();
     }
 
-    public void testGetSpaceExternalInvitations() {
+    public void testFindSpaceExternalInvitationsBySpaceId() {
         SpaceExternalInvitationEntity spaceExternalInvitationEntity = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity.setSpaceId("1");
         spaceExternalInvitationEntity.setUserEmail("user@user.com");
@@ -52,15 +52,15 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity1);
         toDeleteIdentities.add(spaceExternalInvitationEntity1);
         //When
-        List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceExternalInvitationDAO.getSpaceExternalInvitations("1");
+        List<SpaceExternalInvitationEntity> externalSpaceInvitations = spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId("1");
 
         //Then
         assertEquals(2, externalSpaceInvitations.size());
 
-        spaceExternalInvitationDAO.deleteUserExternalInvitations("user@user.com");
+        spaceExternalInvitationDAO.deleteExternalUserInvitations("user@user.com");
 
         //When
-        List<SpaceExternalInvitationEntity> externalSpaceInvitations1 = spaceExternalInvitationDAO.getSpaceExternalInvitations("1");
+        List<SpaceExternalInvitationEntity> externalSpaceInvitations1 = spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId("1");
 
         //Then
         assertEquals(1, externalSpaceInvitations1.size());
@@ -86,7 +86,7 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         //Then
         assertEquals(3, spaceIds.size());
 
-        spaceExternalInvitationDAO.deleteUserExternalInvitations("user2@user2.com");
+        spaceExternalInvitationDAO.deleteExternalUserInvitations("user2@user2.com");
 
         //When
         List<String> spaceIds1 = spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail("user2@user2.com");

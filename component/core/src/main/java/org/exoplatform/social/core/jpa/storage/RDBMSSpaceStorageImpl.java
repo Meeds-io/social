@@ -554,11 +554,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
   }
 
-  public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
-    return spaceExternalInvitationDAO.getSpaceExternalInvitations(spaceId);
+  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    return spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId);
   }
 
-  public void addExternalSpaceInvitation(String spaceId, String email) {
+  public void saveSpaceExternalInvitation(String spaceId, String email) {
     SpaceExternalInvitationEntity spaceExternalInvitation = new SpaceExternalInvitationEntity();
     spaceExternalInvitation.setSpaceId(spaceId);
     spaceExternalInvitation.setUserEmail(email);
@@ -569,8 +569,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail(email);
   }
 
-  public void deleteUserExternalInvitations(String email) {
-    spaceExternalInvitationDAO.deleteUserExternalInvitations(email);
+  public void deleteExternalUserInvitations(String email) {
+    spaceExternalInvitationDAO.deleteExternalUserInvitations(email);
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {

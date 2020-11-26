@@ -1579,13 +1579,13 @@ public class CachedSpaceStorage implements SpaceStorage {
   }
 
   @Override
-  public List<SpaceExternalInvitationEntity> getSpaceExternalInvitations(String spaceId) {
-    return storage.getSpaceExternalInvitations(spaceId);
+  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    return storage.findSpaceExternalInvitationsBySpaceId(spaceId);
   }
 
   @Override
-  public void addExternalSpaceInvitation(String spaceId, String email) {
-    storage.addExternalSpaceInvitation(spaceId, email);
+  public void saveSpaceExternalInvitation(String spaceId, String email) {
+    storage.saveSpaceExternalInvitation(spaceId, email);
   }
 
   @Override
@@ -1594,8 +1594,8 @@ public class CachedSpaceStorage implements SpaceStorage {
   }
 
   @Override
-  public void deleteUserExternalInvitations(String email) {
-    storage.deleteUserExternalInvitations(email);
+  public void deleteExternalUserInvitations(String email) {
+    storage.deleteExternalUserInvitations(email);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {

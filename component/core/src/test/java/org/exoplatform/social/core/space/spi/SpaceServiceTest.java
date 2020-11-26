@@ -3157,13 +3157,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
   }
 
   public void testExternalSpaceInvitations() {
-    spaceService.addExternalSpaceInvitation("5", "external@external.com");
-    spaceService.addExternalSpaceInvitation("5", "external1@external1.com");
-    spaceService.addExternalSpaceInvitation("6", "external@external.com");
-    spaceService.addExternalSpaceInvitation("7", "external2@external2.com");
-    spaceService.addExternalSpaceInvitation("7", "external3@external3.com");
+    spaceService.saveSpaceExternalInvitation("5", "external@external.com");
+    spaceService.saveSpaceExternalInvitation("5", "external1@external1.com");
+    spaceService.saveSpaceExternalInvitation("6", "external@external.com");
+    spaceService.saveSpaceExternalInvitation("7", "external2@external2.com");
+    spaceService.saveSpaceExternalInvitation("7", "external3@external3.com");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.getSpaceExternalInvitations("5");
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.findSpaceExternalInvitationsBySpaceId("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(2, spaceExternalInvitationEntities.size());
 
@@ -3171,9 +3171,9 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotNull(spaceIds);
     assertEquals(2, spaceExternalInvitationEntities.size());
 
-    spaceService.deleteUserExternalInvitations("external@external.com");
+    spaceService.deleteExternalUserInvitations("external@external.com");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.getSpaceExternalInvitations("5");
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.findSpaceExternalInvitationsBySpaceId("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(1, spaceExternalInvitationEntities1.size());
 
