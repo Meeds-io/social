@@ -259,7 +259,7 @@
           <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
           <container id="profile-before-contact-information-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
             <name>profile-before-contact-information-container</name>
-            <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
+            <access-permissions>*:/platform/users</access-permissions>
             <factory-id>addonContainer</factory-id>
           </container>
           <container id="profile-contact-information-container" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
@@ -277,7 +277,7 @@
           </container>
           <container id="profile-after-contact-information-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
             <name>profile-after-contact-information-container</name>
-            <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
+            <access-permissions>*:/platform/users</access-permissions>
             <factory-id>addonContainer</factory-id>
           </container>
         </container>
