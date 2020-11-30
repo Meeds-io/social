@@ -262,6 +262,13 @@ public class IdentityManagerImpl implements IdentityManager {
                                            Profile.GENDER,
                                            Profile.CONTACT_PHONES,
                                            Profile.CONTACT_IMS,
+                                           Profile.TEAM,
+                                           Profile.DEPARTMENT,
+                                           Profile.LOCATION,
+                                           Profile.COMPANY,
+                                           Profile.PROFESSION,
+                                           Profile.COUNTRY,
+                                           Profile.CITY,
                                            Profile.CONTACT_URLS)) {
         list.add(Profile.UpdateType.CONTACT);
       }

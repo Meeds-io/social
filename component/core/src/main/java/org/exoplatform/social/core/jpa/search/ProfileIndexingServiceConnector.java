@@ -217,6 +217,12 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     Profile profile = identity.getProfile();
 
     Map<String, String> fields = new HashMap<String, String>();
+    String phones = "";
+    if (profile.getPhones() != null && profile.getPhones().size() > 0) {
+      for (int i = 0; i < profile.getPhones().size(); i++) {
+        phones = phones + " " + profile.getPhones().get(i).get("value");
+      }
+    }
     fields.put("name", removeAccents(profile.getFullName()));
     fields.put("firstName", removeAccents((String) profile.getProperty(Profile.FIRST_NAME)));
     fields.put("lastName", removeAccents((String) profile.getProperty(Profile.LAST_NAME)));
@@ -224,7 +230,15 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
-    fields.put("email", profile.getEmail());
+    fields.put("email", removeAccents(profile.getEmail()));
+    fields.put("city", removeAccents(profile.getCity()));
+    fields.put("country", removeAccents(profile.getCountry()));
+    fields.put("profession", removeAccents(profile.getProfession()));
+    fields.put("company", removeAccents(profile.getCompany()));
+    fields.put("location", removeAccents(profile.getLocation()));
+    fields.put("department", removeAccents(profile.getDepartment()));
+    fields.put("team", removeAccents(profile.getTeam()));
+    fields.put("phones", phones);
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections

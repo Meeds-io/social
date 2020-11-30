@@ -358,9 +358,7 @@ public class ProfileSearchConnector {
       }
       if (keys.length > 1) {
         // We will not search on username because it doesn't contain a space character
-        if (filter.isSearchEmail()) {
-          esExp.append("(");
-        }
+        esExp.append("(");
         esExp.append("(");
         for (int i = 0; i < keys.length; i++) {
           if (i != 0 ) {
@@ -369,29 +367,60 @@ public class ProfileSearchConnector {
           esExp.append(" name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
         }
         esExp.append(")");
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR ( ");
-          for (int i = 0; i < keys.length; i++) {
-            if (i != 0 ) {
-              esExp.append(" AND ") ;
-            }
-            esExp.append(" email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
+        esExp.append(" OR ( ");
+        for (int i = 0; i < keys.length; i++) {
+          if (i != 0 ) {
+            esExp.append(" AND ") ;
           }
-          esExp.append(") )");
+          esExp.append(" email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
         }
+          esExp.append(") )");
       } else if (StringUtils.isNotBlank(newInputName)) {
         esExp.append("name:").append(removeAccents(newInputName));
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(removeAccents(newInputName));
-        }
+        esExp.append(" OR email:").append(removeAccents(newInputName));
         esExp.append(" OR userName:").append(removeAccents(newInputName));
       } else {
         esExp.append("( name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        }
+        esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
         esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR).append(")");
       }
+    }
+    if (StringUtils.isNotBlank(inputName)) {
+      inputName = inputName.startsWith("\"") && inputName.endsWith("\"") ? inputName.replace("\"", "") : inputName;
+      //phones
+      if (esExp.length() > 0) {
+        esExp.append(" OR ");
+      }
+      //
+      esExp.append("phones:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //team
+      esExp.append(" OR ");
+      esExp.append("team:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //department
+      esExp.append(" OR ");
+      esExp.append("department:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //location
+      esExp.append(" OR ");
+      esExp.append("location:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //company
+      esExp.append(" OR ");
+      esExp.append("company:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //profession
+      esExp.append(" OR ");
+      esExp.append("profession:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //country
+      esExp.append(" OR ");
+      esExp.append("country:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+
+      //city
+      esExp.append(" OR ");
+      esExp.append("city:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
     }
 
     //skills
