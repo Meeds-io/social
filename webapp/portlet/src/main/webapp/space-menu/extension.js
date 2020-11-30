@@ -3,3 +3,9 @@ function getExtensionsByType(type) {
 }
 
 export const spaceMenuActionComponents = getExtensionsByType('action-component');
+
+function getExtensionsByTypeCallButton(type) {
+  return extensionRegistry.loadExtensions('space-title-action-components', type);
+}
+
+export const spaceMenuCallActionComponents = getExtensionsByTypeCallButton('action-component');
