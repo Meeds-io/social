@@ -37,6 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -187,7 +188,11 @@ public class EntityBuilder {
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     try {
-      userEntity.setIsInternal(isInternal(userEntity.getUsername()));
+      OrganizationService organizationService = getOrganizationService();
+      User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
+      if (user != null) {
+        userEntity.setIsInternal(user.isInternalStore());
+      }
     } catch (Exception e) {
       LOG.warn("Error while checking internal store user", e);
     }
@@ -944,11 +949,6 @@ public class EntityBuilder {
 
   private static String createLinkHeader(String uri, int offset, int limit, String rel) {
     return "<" + uri + "?offset="+ offset + "&limit="+ limit + ">; rel=\"" + rel + "\"";
-  }
-
-  private static boolean isInternal(String userId) throws  Exception {
-    OrganizationService organizationService = getOrganizationService();
-    return organizationService.getUserHandler().findUserByName(userId).isInternalStore();
   }
 
   /**
