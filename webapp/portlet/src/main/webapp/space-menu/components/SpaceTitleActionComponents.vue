@@ -2,7 +2,7 @@
   <v-app class="white">
     <div class="space-title-action-components">
       <div
-        v-for="action in spaceMenuCallActionComponents"
+        v-for="action in spaceTitleActionComponents"
         v-if="action.enabled"
         :key="action.key"
         :class="`${action.appClass} ${action.typeClass}`"
@@ -23,7 +23,7 @@
   </v-app>
 </template>
 <script>
-import { spaceMenuCallActionComponents } from '../extension.js';
+import { spaceTitleActionComponents } from '../extension.js';
 export default {
   props: {
     navigations: {
@@ -33,7 +33,7 @@ export default {
   },
   data() {
     return {
-      spaceMenuCallActionComponents: spaceMenuCallActionComponents,
+      spaceTitleActionComponents: spaceTitleActionComponents,
       isMounted: null,
       resolveMounting: null
     };
