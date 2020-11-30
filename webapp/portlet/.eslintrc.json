@@ -64,6 +64,7 @@
         "no-undefined": ["error"],
         "no-unmodified-loop-condition": ["error"],
         "no-unused-expressions": ["error"],
+        "no-unused-vars": ["off"],
         "no-useless-computed-key": ["error"],
         "no-useless-concat": ["error"],
         "no-var": ["error"],
