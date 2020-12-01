@@ -17,14 +17,7 @@
 package org.exoplatform.social.core.space.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +29,7 @@ import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -50,6 +44,7 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
@@ -58,9 +53,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
@@ -79,6 +74,8 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 /**
  * {@link org.exoplatform.social.core.space.spi.SpaceService} implementation.
@@ -1696,13 +1693,30 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
-    return spaceStorage.findSpaceExternalInvitationsBySpaceId(spaceId);
+  public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    List<SpaceExternalInvitation> spaceExternalInvitations = spaceStorage.findSpaceExternalInvitationsBySpaceId(spaceId);
+    return spaceExternalInvitations;
   }
 
   @Override
-  public void saveSpaceExternalInvitation(String spaceId, String email) {
-    spaceStorage.saveSpaceExternalInvitation(spaceId, email);
+  public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
+    spaceStorage.saveSpaceExternalInvitation(spaceId, email, tokenId);
+  }
+
+  @Override
+  public SpaceExternalInvitation getSpaceExternalInvitationById(String invitationId)  {
+    return  spaceStorage.findSpaceExternalInvitationById(invitationId);
+  }
+
+  @Override
+  public void deleteSpaceExternalInvitation(String invitationId) {
+    SpaceExternalInvitation spaceExternalInvitation = spaceStorage.findSpaceExternalInvitationById(invitationId);
+    spaceStorage.deleteSpaceExternalInvitation(spaceExternalInvitation);
+    // Delete the token from store
+    RemindPasswordTokenService remindPasswordTokenService = CommonsUtils.getService(RemindPasswordTokenService.class);
+    if (remindPasswordTokenService != null) {
+      remindPasswordTokenService.deleteToken(spaceExternalInvitation.getTokenID(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
+    }
   }
 
   @Override

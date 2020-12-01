@@ -24,6 +24,7 @@ import javax.persistence.Tuple;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -36,6 +37,7 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -43,6 +45,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.web.security.Token;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
@@ -554,15 +558,32 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
   }
 
-  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
-    return spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId);
+  public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId);
+    List<SpaceExternalInvitation> spaceExternalInvitations = new ArrayList<>();
+    for (SpaceExternalInvitationEntity spaceExternalInvitationEntity : spaceExternalInvitationEntities) {
+      SpaceExternalInvitation spaceExternalInvitation = fillSpaceExternalInvitationFromEntity(spaceExternalInvitationEntity);
+      spaceExternalInvitations.add(spaceExternalInvitation);
+    }
+    return spaceExternalInvitations;
   }
 
-  public void saveSpaceExternalInvitation(String spaceId, String email) {
+  public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
     SpaceExternalInvitationEntity spaceExternalInvitation = new SpaceExternalInvitationEntity();
     spaceExternalInvitation.setSpaceId(spaceId);
     spaceExternalInvitation.setUserEmail(email);
+    spaceExternalInvitation.setTokenID(tokenId);
     spaceExternalInvitationDAO.create(spaceExternalInvitation);
+  }
+
+    public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
+    SpaceExternalInvitationEntity spaceExternalInvitationEntity = spaceExternalInvitationDAO.find(Long.parseLong(invitationId));
+    return fillSpaceExternalInvitationFromEntity(spaceExternalInvitationEntity);
+  }
+
+  public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) {
+    SpaceExternalInvitationEntity spaceExternalInvitationEntity = spaceExternalInvitationDAO.find(spaceExternalInvitation.getInvitationId());
+    spaceExternalInvitationDAO.delete(spaceExternalInvitationEntity);
   }
 
   public List<String> findExternalInvitationsSpacesByEmail(String email) {
@@ -729,6 +750,25 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
     space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
     return space;
+  }
+
+  private SpaceExternalInvitation fillSpaceExternalInvitationFromEntity(SpaceExternalInvitationEntity spaceExternalInvitationEntity) {
+    SpaceExternalInvitation spaceExternalInvitation = new SpaceExternalInvitation();
+    spaceExternalInvitation.setInvitationId(spaceExternalInvitationEntity.getInvitationId());
+    spaceExternalInvitation.setSpaceId(spaceExternalInvitationEntity.getSpaceId());
+    spaceExternalInvitation.setUserEmail(spaceExternalInvitationEntity.getUserEmail());
+    spaceExternalInvitation.setTokenID(spaceExternalInvitationEntity.getTokenID());
+    RemindPasswordTokenService remindPasswordTokenService = CommonsUtils.getService(RemindPasswordTokenService.class);
+    Token token = null;
+    if (remindPasswordTokenService != null) {
+      token = remindPasswordTokenService.getToken(spaceExternalInvitationEntity.getTokenID(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
+    }
+    if (token == null || token.isExpired()) {
+      spaceExternalInvitation.setExpired(true);
+    } else {
+      spaceExternalInvitation.setExpired(false);
+    }
+    return spaceExternalInvitation;
   }
 
   public void setIdentityStorage(IdentityStorage identityStorage) {

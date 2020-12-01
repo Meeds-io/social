@@ -16,10 +16,7 @@
  */
 package org.exoplatform.social.core.space.spi;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -43,6 +40,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceListAccess;
@@ -114,6 +112,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
   private Identity                      member2;
 
   private Identity                      member3;
+
 
   @Override
   public void setUp() throws Exception {
@@ -3157,13 +3156,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
   }
 
   public void testExternalSpaceInvitations() {
-    spaceService.saveSpaceExternalInvitation("5", "external@external.com");
-    spaceService.saveSpaceExternalInvitation("5", "external1@external1.com");
-    spaceService.saveSpaceExternalInvitation("6", "external@external.com");
-    spaceService.saveSpaceExternalInvitation("7", "external2@external2.com");
-    spaceService.saveSpaceExternalInvitation("7", "external3@external3.com");
+    spaceService.saveSpaceExternalInvitation("5", "external@external.com","test");
+    spaceService.saveSpaceExternalInvitation("5", "external1@external1.com","test");
+    spaceService.saveSpaceExternalInvitation("6", "external@external.com","test");
+    spaceService.saveSpaceExternalInvitation("7", "external2@external2.com","test");
+    spaceService.saveSpaceExternalInvitation("7", "external3@external3.com","test");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceService.findSpaceExternalInvitationsBySpaceId("5");
+    List<SpaceExternalInvitation> spaceExternalInvitationEntities = spaceService.findSpaceExternalInvitationsBySpaceId("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(2, spaceExternalInvitationEntities.size());
 
@@ -3173,12 +3172,36 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     spaceService.deleteExternalUserInvitations("external@external.com");
 
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities1 = spaceService.findSpaceExternalInvitationsBySpaceId("5");
+    List<SpaceExternalInvitation> spaceExternalInvitationEntities1 = spaceService.findSpaceExternalInvitationsBySpaceId("5");
     assertNotNull(spaceExternalInvitationEntities);
     assertEquals(1, spaceExternalInvitationEntities1.size());
 
     List<String> spaceIds2 = spaceService.findExternalInvitationsSpacesByEmail("external2@external2.com");
     assertEquals(1, spaceIds2.size());
+
+  }
+
+  public void testDeleteSpaceExternalInvitation() {
+    spaceService.saveSpaceExternalInvitation("8", "external@external.com","token");
+    spaceService.saveSpaceExternalInvitation("8", "external1@external1.com","token1");
+    spaceService.saveSpaceExternalInvitation("8", "external2@external2.com","token2");
+
+    List<SpaceExternalInvitation> spaceExternalInvitationEntities = spaceService.findSpaceExternalInvitationsBySpaceId("8");
+    assertNotNull(spaceExternalInvitationEntities);
+    assertEquals(3, spaceExternalInvitationEntities.size());
+
+    spaceService.deleteSpaceExternalInvitation(spaceExternalInvitationEntities.get(0).getInvitationId().toString());
+
+    List<SpaceExternalInvitation> spaceExternalInvitationEntities1 = spaceService.findSpaceExternalInvitationsBySpaceId("8");
+    assertNotNull(spaceExternalInvitationEntities1);
+    assertEquals(2, spaceExternalInvitationEntities1.size());
+
+    spaceService.deleteSpaceExternalInvitation(spaceExternalInvitationEntities1.get(0).getInvitationId().toString());
+    spaceService.deleteSpaceExternalInvitation(spaceExternalInvitationEntities1.get(1).getInvitationId().toString());
+
+    List<SpaceExternalInvitation> spaceExternalInvitationEntities2 = spaceService.findSpaceExternalInvitationsBySpaceId("8");
+    assertNotNull(spaceExternalInvitationEntities2);
+    assertEquals(0, spaceExternalInvitationEntities2.size());
 
   }
 

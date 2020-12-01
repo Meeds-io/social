@@ -37,6 +37,17 @@ export function findSpaceExternalInvitationsBySpaceId(spaceId) {
   });
 }
 
+export function cancelExternalInvitation(spaceId, invitationId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/externalInvitations/${invitationId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function isSpaceMember(spaceId, userId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users/${userId}`, {
     method: 'GET',

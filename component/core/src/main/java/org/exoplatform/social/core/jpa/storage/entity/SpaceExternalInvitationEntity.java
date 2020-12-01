@@ -43,7 +43,7 @@ public class SpaceExternalInvitationEntity implements Serializable {
     @SequenceGenerator(name = "SEQ_INVITATION_ID", sequenceName = "SEQ_INVITATION_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_INVITATION_ID")
     @Column(name = "INVITATION_ID")
-    private String            invitationId;
+    private Long            invitationId;
 
     @Column(name = "SPACE_ID", nullable = false)
     private String            spaceId;
@@ -51,11 +51,14 @@ public class SpaceExternalInvitationEntity implements Serializable {
     @Column(name = "USER_EMAIL", nullable = false)
     private String           userEmail;
 
-    public String getInvitationId() {
+    @Column(name = "TOKEN_ID", nullable = false)
+    private String           tokenID;
+
+    public Long getInvitationId() {
         return invitationId;
     }
 
-    public void setInvitationId(String invitationId) {
+    public void setInvitationId(Long invitationId) {
         this.invitationId = invitationId;
     }
 
@@ -73,5 +76,13 @@ public class SpaceExternalInvitationEntity implements Serializable {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public String getTokenID() {
+        return tokenID;
+    }
+
+    public void setTokenID(String tokenID) {
+        this.tokenID = tokenID;
     }
 }

@@ -18,7 +18,7 @@
 package org.exoplatform.social.core.storage.api;
 
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
@@ -691,7 +691,7 @@ public interface SpaceStorage {
    * @return
    * @throws SpaceStorageException
    */
-  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) throws SpaceStorageException;
+  public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) throws SpaceStorageException;
 
   /**
    * Saves a new external invitation in space
@@ -700,7 +700,23 @@ public interface SpaceStorage {
    * @param email
    * @throws SpaceStorageException
    */
-  public void saveSpaceExternalInvitation(String spaceId, String email) throws SpaceStorageException;
+  public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) throws SpaceStorageException;
+
+  /**
+   * Get an external invitation by invitation id
+   *
+   * @param invitationId
+   * @throws SpaceStorageException
+   */
+  public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) throws SpaceStorageException;
+
+  /**
+   * Delete an external invitation from a space
+   *
+   * @param spaceExternalInvitation
+   * @throws SpaceStorageException
+   */
+  public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) throws SpaceStorageException;
 
   /**
    * get the list of spaces ids by external email
