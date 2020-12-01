@@ -33,9 +33,7 @@ import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -271,4 +269,119 @@ public class SearchTestIT extends BaseESTest {
     assertEquals(1, peopleSearchConnector.search(searchContext, "Його", null, 0, 10, null, null).size());
     assertEquals(1, peopleSearchConnector.search(searchContext, "увінчаний", null, 0, 10, null, null).size());
   }
+
+  public void testSearchPeopleWithUserInformation() throws Exception {
+    //Given
+    demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo");
+    List<Map<String, String>> phones = new ArrayList<Map<String, String>>();
+    Map<String, String> phone1 = new HashMap<String, String>();
+    phone1.put("Home", "00000000");
+    phones.add(phone1);
+    Profile profile = demoIdentity.getProfile();
+    profile.setListUpdateTypes(Arrays.asList(UpdateType.ABOUT_ME));
+    profile.setProperty(Profile.POSITION, "CEO");
+    profile.setProperty(Profile.CITY, "Tunis");
+    profile.setProperty(Profile.COUNTRY, "Tunisia");
+    profile.setProperty(Profile.PROFESSION, "Developer");
+    profile.setProperty(Profile.COMPANY, "eXo");
+    profile.setProperty(Profile.DEPARTMENT, "Technical department");
+    profile.setProperty(Profile.TEAM, "DEV SQUAD");
+    profile.setProperty(Profile.CONTACT_PHONES, phones);
+    identityManager.updateProfile(profile);
+    reindexProfileById(demoIdentity.getId());
+    //search by city
+    ProfileFilter filterCity = new ProfileFilter();
+    filterCity.setName("Tunis");
+    //search by country
+    ProfileFilter filterCountry = new ProfileFilter();
+    filterCountry.setName("Tunisia");
+    //search by profession
+    ProfileFilter filterProfession = new ProfileFilter();
+    filterProfession.setName("Developer");
+    //search by company
+    ProfileFilter filterCompany = new ProfileFilter();
+    filterCompany.setName("eXo");
+    //search by department
+    ProfileFilter filterDepartment = new ProfileFilter();
+    filterDepartment.setName("Technical department");
+    //search by team
+    ProfileFilter filterTeam = new ProfileFilter();
+    filterTeam.setName("DEV SQUAD");
+    //search by phone
+    ProfileFilter filterPhones = new ProfileFilter();
+    filterPhones.setName("00000000");
+
+    //When
+    List<Identity> resultsCity = searchConnector.search(rootIdentity, filterCity, null, 0, 10);
+    List<Identity> resultsCountry = searchConnector.search(rootIdentity, filterCountry, null, 0, 10);
+    List<Identity> resultsProfession = searchConnector.search(rootIdentity, filterProfession, null, 0, 10);
+    List<Identity> resultsCompany = searchConnector.search(rootIdentity, filterCompany, null, 0, 10);
+    List<Identity> resultsDepartment = searchConnector.search(rootIdentity, filterDepartment, null, 0, 10);
+    List<Identity> resultsTeam = searchConnector.search(rootIdentity, filterTeam, null, 0, 10);
+    List<Identity> resultsPhones = searchConnector.search(rootIdentity, filterPhones, null, 0, 10);
+
+    //Then
+    assertEquals(1, resultsCity.size());
+    assertEquals(1, resultsCountry.size());
+    assertEquals(1, resultsProfession.size());
+    assertEquals(1, resultsCompany.size());
+    assertEquals(1, resultsDepartment.size());
+    assertEquals(1, resultsTeam.size());
+    assertEquals(1, resultsPhones.size());
+  }
+
+  public void testSearchPeopleWithOutUserInformation() throws Exception {
+    //Given
+    johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Profile profile = johnIdentity.getProfile();
+    profile.setListUpdateTypes(Arrays.asList(UpdateType.ABOUT_ME));
+    profile.setProperty(Profile.POSITION, "CEO");
+    identityManager.updateProfile(profile);
+    reindexProfileById(johnIdentity.getId());
+    //search by position
+    ProfileFilter filterPosition = new ProfileFilter();
+    filterPosition.setName("Tunis");
+    //search by city
+    ProfileFilter filterCity = new ProfileFilter();
+    filterCity.setName("Tunis");
+    //search by country
+    ProfileFilter filterCountry = new ProfileFilter();
+    filterCountry.setName("Tunisia");
+    //search by profession
+    ProfileFilter filterProfession = new ProfileFilter();
+    filterProfession.setName("Developer");
+    //search by company
+    ProfileFilter filterCompany = new ProfileFilter();
+    filterCompany.setName("eXo");
+    //search by department
+    ProfileFilter filterDepartment = new ProfileFilter();
+    filterDepartment.setName("Technical department");
+    //search by team
+    ProfileFilter filterTeam = new ProfileFilter();
+    filterTeam.setName("DEV SQUAD");
+    //search by phone
+    ProfileFilter filterPhones = new ProfileFilter();
+    filterPhones.setName("00000000");
+
+    //When
+    List<Identity> resultsPosition = searchConnector.search(rootIdentity, filterPosition, null, 0, 10);
+    List<Identity> resultsCity = searchConnector.search(rootIdentity, filterCity, null, 0, 10);
+    List<Identity> resultsCountry = searchConnector.search(rootIdentity, filterCountry, null, 0, 10);
+    List<Identity> resultsProfession = searchConnector.search(rootIdentity, filterProfession, null, 0, 10);
+    List<Identity> resultsCompany = searchConnector.search(rootIdentity, filterCompany, null, 0, 10);
+    List<Identity> resultsDepartment = searchConnector.search(rootIdentity, filterDepartment, null, 0, 10);
+    List<Identity> resultsTeam = searchConnector.search(rootIdentity, filterTeam, null, 0, 10);
+    List<Identity> resultsPhones = searchConnector.search(rootIdentity, filterPhones, null, 0, 10);
+
+    //Then
+    assertEquals(1, resultsPosition.size());
+    assertEquals(0, resultsCity.size());
+    assertEquals(0, resultsCountry.size());
+    assertEquals(0, resultsProfession.size());
+    assertEquals(0, resultsCompany.size());
+    assertEquals(0, resultsDepartment.size());
+    assertEquals(0, resultsTeam.size());
+    assertEquals(0, resultsPhones.size());
+  }
+
 }

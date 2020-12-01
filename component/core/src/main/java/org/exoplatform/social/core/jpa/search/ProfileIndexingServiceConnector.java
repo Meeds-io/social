@@ -231,14 +231,30 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
     fields.put("email", removeAccents(profile.getEmail()));
-    fields.put("city", removeAccents(profile.getCity()));
-    fields.put("country", removeAccents(profile.getCountry()));
-    fields.put("profession", removeAccents(profile.getProfession()));
-    fields.put("company", removeAccents(profile.getCompany()));
-    fields.put("location", removeAccents(profile.getLocation()));
-    fields.put("department", removeAccents(profile.getDepartment()));
-    fields.put("team", removeAccents(profile.getTeam()));
-    fields.put("phones", phones);
+    if (StringUtils.isNotBlank(profile.getCity())) {
+      fields.put("city", removeAccents(profile.getCity()));
+    }
+    if (StringUtils.isNotBlank(profile.getCountry())) {
+      fields.put("country", removeAccents(profile.getCountry()));
+    }
+    if (StringUtils.isNotBlank(profile.getProfession())) {
+      fields.put("profession", removeAccents(profile.getProfession()));
+    }
+    if (StringUtils.isNotBlank(profile.getCompany())) {
+      fields.put("company", removeAccents(profile.getCompany()));
+    }
+    if (StringUtils.isNotBlank(profile.getLocation())) {
+      fields.put("location", removeAccents(profile.getLocation()));
+    }
+    if (StringUtils.isNotBlank(profile.getDepartment())) {
+      fields.put("department", removeAccents(profile.getDepartment()));
+    }
+    if (StringUtils.isNotBlank(profile.getTeam())) {
+      fields.put("team", removeAccents(profile.getTeam()));
+    }
+    if (StringUtils.isNotBlank(phones)) {
+      fields.put("phones", phones);
+    }
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections
