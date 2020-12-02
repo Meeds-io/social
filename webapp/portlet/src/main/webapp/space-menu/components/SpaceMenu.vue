@@ -47,7 +47,6 @@
 </template>
 
 <script>
-import {spaceMenuActionComponents} from '../extension.js';
 
 export default {
   props: {
@@ -59,13 +58,6 @@ export default {
       type: String,
       default: null,
     },
-  },
-  data() {
-    return {
-      spaceMenuActionComponents: spaceMenuActionComponents,
-      isMounted: null,
-      resolveMounting: null
-    };
   },
   computed: {
     isMobile() {
@@ -92,31 +84,14 @@ export default {
         })
         .then(() => this.$root.$emit('application-loaded'));
     });
-
-    const thevue = this;
-    this.isMounted = new Promise(function(resolve) {
-      thevue.resolveMounting = resolve;
-    });
+    // const thevue = this;
+    // this.isMounted = new Promise(function(resolve) {
+    //   thevue.resolveMounting = resolve;
+    // });
   },
   mounted() {
     this.$root.$emit('application-loaded');
-    this.resolveMounting();
+    // this.resolveMounting();
   },
-  methods: {
-    initTitleActionComponent(action) {
-      if (action.init && !action.isStartedInit && action.enabled) {
-        action.isStartedInit = true;
-        this.isMounted.then(() => {
-          let container = this.$refs[action.key];
-          if (container && container.length > 0) {
-            container = container[0];
-            action.init(container, eXo.env.portal.spaceName);
-          } else {
-            console.error(`Error initialization of the ${action.key} action component: empty container`);
-          }
-        });
-      }
-    }
-  }
 };
 </script>

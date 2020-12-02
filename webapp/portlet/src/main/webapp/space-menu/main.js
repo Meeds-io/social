@@ -41,9 +41,6 @@ export function init(settings) {
   }).$mount(appElement);
 
   new Vue({
-    mounted() {
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-    },
     template: `<space-title-action-components v-cacheable="{cacheId: '${cachedIdActions}'}" id="${appIdAction}" />`,
     vuetify,
   }).$mount(appIdAction);
