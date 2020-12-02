@@ -65,6 +65,8 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
 
   private IdentityManager identityManager;
 
+  private static final CacheControl CACHE_CONTROL = new CacheControl();
+
   // 7 days
   private static final int          CACHE_IN_SECONDS            = 7 * 86400;
 
@@ -173,7 +175,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -186,8 +188,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
     }
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
+    builder.cacheControl(CACHE_CONTROL);
     builder.lastModified(new Date(lastUpdateDate));
     if (lastUpdateDate > 0) {
       builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
@@ -213,6 +214,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   )
   @Produces(MediaType.APPLICATION_JSON)
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                     @Context Request request,
                                                    @ApiParam(
                                                        value = "Identity provider id which can be of type 'space' or 'organization' for example",
                                                        required = true
@@ -230,7 +232,24 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    
+    EntityTag eTag;
+    Long lastUpdatedDate = profileInfo.getLastUpdatedTime();
+    eTag = new EntityTag(String.valueOf(lastUpdatedDate.hashCode()));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(identity.getLastUpdatedTime() > 0 ? new Date(identity.getLastUpdatedTime()) : new Date());
+    if (lastUpdatedDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+
+    return builder.build();
   }
 
   /**
@@ -256,7 +275,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
                                         @Context Request request,
                                         @ApiParam(value = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
   
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -312,7 +331,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
                                         @Context Request request,
                                         @ApiParam(value = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
 
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -365,7 +384,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
                                      @ApiParam(value = "Updated profile object.", required = false) ProfileEntity model) throws Exception {
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -421,14 +440,14 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     }
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, false);
+    Identity identity = identityManager.getIdentity(id);
     
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     //delete identity
     identityManager.hardDeleteIdentity(identity);
-    identity = identityManager.getIdentity(id, true);
+    identity = identityManager.getIdentity(id);
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
 
     return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -460,7 +479,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -468,7 +487,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     
     if (with != null && with.length() > 0) {
-      Identity withUser = identityManager.getIdentity(with, true);
+      Identity withUser = identityManager.getIdentity(with);
       if (withUser == null) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
