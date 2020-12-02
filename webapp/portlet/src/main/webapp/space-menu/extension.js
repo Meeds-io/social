@@ -8,4 +8,4 @@ function getSpaceTitleExtensionsByType(type) {
   return extensionRegistry.loadExtensions('space-title-action-components', type);
 }
 
-export const spaceTitleActionComponents = getExtensionsByTypeCallButton('action-component');
+export const spaceTitleActionComponents = getSpaceTitleExtensionsByType('action-component');
