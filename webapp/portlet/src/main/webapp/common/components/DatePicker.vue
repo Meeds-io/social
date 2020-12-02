@@ -34,6 +34,7 @@
         :type="periodType"
         :locale="lang"
         :min="minDate"
+        :max="maxDate"
         class="border-box-sizing"
         @input="menu = false" />
     </v-menu>
@@ -63,6 +64,12 @@ export default {
       },
     },
     minValue: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    maxValue: {
       type: String,
       default: function() {
         return null;
@@ -126,6 +133,10 @@ export default {
         };
       },
     },
+    defaultValue: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     id: `DatePicker${parseInt(Math.random() * 10000)
@@ -143,6 +154,14 @@ export default {
     minDate() {
       if (this.minValue) {
         const dateObj = this.$dateUtil.getDateObjectFromString(this.minValue, true);
+        return this.$dateUtil.getISODate(dateObj);
+      } else {
+        return null;
+      }
+    },
+    maxDate() {
+      if (this.maxValue) {
+        const dateObj = this.$dateUtil.getDateObjectFromString(this.maxValue, true);
         return this.$dateUtil.getISODate(dateObj);
       } else {
         return null;
@@ -203,7 +222,11 @@ export default {
         const dateObj = this.$dateUtil.getDateObjectFromString(String(this.value).trim(), true);
         this.date = this.$dateUtil.getISODate(dateObj);
       } else {
-        this.date = this.$dateUtil.getISODate(new Date());
+        if( this.defaultValue ) {
+          this.date = this.$dateUtil.getISODate(new Date());
+        } else {
+          this.date = null;
+        }
       }
     },
   },
