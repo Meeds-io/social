@@ -383,15 +383,32 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getUserById(@Context UriInfo uriInfo,
+                              @Context Request request,
                               @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-    //
+    
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    
+    ProfileEntity profileEntity = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+    Long lastUpdateDate = identity.getProfile().getLastUpdatedDate();
+    EntityTag eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(profileEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      builder.tag(eTag);
+    }
+
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(new Date(lastUpdateDate));
+    if (lastUpdateDate > 0) {
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    }
+
+    return builder.build();
   }
 
   @GET

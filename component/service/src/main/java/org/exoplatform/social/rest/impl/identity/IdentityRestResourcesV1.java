@@ -68,9 +68,9 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   private static final CacheControl CACHE_CONTROL = new CacheControl();
 
   // 7 days
-  private static final int          CACHE_IN_SECONDS            = 7 * 86400;
+  private static final int CACHE_IN_SECONDS = 7 * 86400;
 
-  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+  private static final int CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
   
   public IdentityRestResourcesV1(IdentityManager identityManager) {
     this.identityManager = identityManager;
@@ -184,17 +184,19 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     Long lastUpdateDate = identity.getProfile().getLastUpdatedDate();
     EntityTag eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
     }
+
     builder.cacheControl(CACHE_CONTROL);
     builder.lastModified(new Date(lastUpdateDate));
     if (lastUpdateDate > 0) {
       builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
     }
+    
     return builder.build();
-
   }
 
   @GET
@@ -232,7 +234,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    
+
     EntityTag eTag;
     Long lastUpdatedDate = profileInfo.getLastUpdatedTime();
     eTag = new EntityTag(String.valueOf(lastUpdatedDate.hashCode()));
@@ -244,7 +246,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     }
 
     builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(identity.getLastUpdatedTime() > 0 ? new Date(identity.getLastUpdatedTime()) : new Date());
+    builder.lastModified(identity.getProfile().getLastUpdatedDate() > 0 ? new Date(identity.getProfile().getLastUpdatedDate()) : new Date());
     if (lastUpdatedDate > 0) {
       builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
     }
@@ -479,7 +481,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id);
+    Identity identity = identityManager.getIdentity(id, true);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -487,7 +489,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     
     if (with != null && with.length() > 0) {
-      Identity withUser = identityManager.getIdentity(with);
+      Identity withUser = identityManager.getIdentity(with, true);
       if (withUser == null) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }

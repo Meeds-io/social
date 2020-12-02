@@ -132,7 +132,6 @@ public class EntityBuilder {
     identityEntity.setGlobalId(identity.getGlobalId());
     identityEntity.setRemoteId(identity.getRemoteId());
     identityEntity.setDeleted(identity.isDeleted());
-    identityEntity.setLastUpdatedTime(identity.getLastUpdatedTime());
     if (OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
       identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, ""));//
     } else if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {

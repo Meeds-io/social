@@ -48,9 +48,6 @@ public class Identity implements Cloneable {
 
   /** The global id. */
   GlobalId globalId;
-  
-  /** Last Updated time */
-  private long lastUpdatedTime;
 
   public Identity() {
   }
@@ -230,14 +227,6 @@ public class Identity implements Cloneable {
   @Override
   public String toString() {
     return getGlobalId().toString();
-  }
-
-  public long getLastUpdatedTime() {
-    return lastUpdatedTime;
-  }
-
-  public void setLastUpdatedTime(long lastUpdatedTime) {
-    this.lastUpdatedTime = lastUpdatedTime;
   }
 
   /**

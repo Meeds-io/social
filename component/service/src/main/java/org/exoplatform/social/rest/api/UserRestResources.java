@@ -25,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -69,6 +70,7 @@ public interface UserRestResources extends SocialRest {
   @GET
   @Path("{id}")
   public abstract Response getUserById(@Context UriInfo uriInfo,
+                                       @Context Request request,
                                        @PathParam("id") String id,
                                        @QueryParam("expand") String expand) throws Exception;
 
