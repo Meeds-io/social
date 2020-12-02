@@ -17,7 +17,7 @@
         </div>
         <div v-else-if="action.element" v-html="action.element.outerHTML"></div>
         <div v-else-if="action.html" v-html="action.html"></div>
-        {{ initTitleActionComponent(action) }}
+        {{ initTitleActionComponents }}
       </div>
     </div>
   </v-app>
@@ -25,12 +25,6 @@
 <script>
 import { spaceTitleActionComponents } from '../extension.js';
 export default {
-  props: {
-    navigations: {
-      type: Array,
-      default: () => []
-    }
-  },
   data() {
     return {
       spaceTitleActionComponents: spaceTitleActionComponents,
@@ -38,37 +32,20 @@ export default {
       resolveMounting: null
     };
   },
+  computed: {
+    initTitleActionComponents() {
+      let components;
+      spaceTitleActionComponents.map(action => components = this.initTitleActionComponent(action));
+      return components;
+    }
+  },
   created() {
-    document.addEventListener('refreshSpaceNavigations', () => {
-      this.$spaceService
-        .getSpaceNavigations(eXo.env.portal.spaceId)
-        .then(data => {
-          // Compute URI of nodes of old navigation
-          if (data && data.length) {
-            data.forEach(nav => {
-              const oldNav = this.navigations.find(
-                oldNav => oldNav.id === nav.id
-              );
-              if (oldNav) {
-                nav.uri = oldNav.uri;
-              } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
-                nav.uri = nav.uri.split('/')[1];
-              }
-            });
-            this.navigations = data;
-          }
-          return this.$nextTick();
-        })
-        .then(() => this.$root.$emit('application-loaded'));
-    });
-
     const thevue = this;
     this.isMounted = new Promise(function(resolve) {
       thevue.resolveMounting = resolve;
     });
   },
   mounted() {
-    this.$root.$emit('application-loaded');
     this.resolveMounting();
   },
   methods: {
