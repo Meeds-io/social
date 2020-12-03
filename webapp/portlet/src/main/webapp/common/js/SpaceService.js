@@ -37,7 +37,7 @@ export function findSpaceExternalInvitationsBySpaceId(spaceId) {
   });
 }
 
-export function cancelExternalInvitation(spaceId, invitationId) {
+export function declineExternalInvitation(spaceId, invitationId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/externalInvitations/${invitationId}`, {
     method: 'DELETE',
     credentials: 'include',

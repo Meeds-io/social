@@ -20,7 +20,7 @@ public class SpaceExternalInvitation {
     /**
      * The token id.
      */
-    private String tokenID;
+    private String tokenId;
 
     /**
      * is expired token.
@@ -51,12 +51,12 @@ public class SpaceExternalInvitation {
         this.userEmail = userEmail;
     }
 
-    public String getTokenID() {
-        return tokenID;
+    public String getTokenId() {
+        return tokenId;
     }
 
-    public void setTokenID(String tokenID) {
-        this.tokenID = tokenID;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 
     public boolean isExpired() {

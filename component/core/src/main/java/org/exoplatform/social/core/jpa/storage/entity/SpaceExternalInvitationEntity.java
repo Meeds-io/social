@@ -52,7 +52,7 @@ public class SpaceExternalInvitationEntity implements Serializable {
     private String           userEmail;
 
     @Column(name = "TOKEN_ID", nullable = false)
-    private String           tokenID;
+    private String           tokenId;
 
     public Long getInvitationId() {
         return invitationId;
@@ -78,11 +78,11 @@ public class SpaceExternalInvitationEntity implements Serializable {
         this.userEmail = userEmail;
     }
 
-    public String getTokenID() {
-        return tokenID;
+    public String getTokenId() {
+        return tokenId;
     }
 
-    public void setTokenID(String tokenID) {
-        this.tokenID = tokenID;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 }

@@ -572,7 +572,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     SpaceExternalInvitationEntity spaceExternalInvitation = new SpaceExternalInvitationEntity();
     spaceExternalInvitation.setSpaceId(spaceId);
     spaceExternalInvitation.setUserEmail(email);
-    spaceExternalInvitation.setTokenID(tokenId);
+    spaceExternalInvitation.setTokenId(tokenId);
     spaceExternalInvitationDAO.create(spaceExternalInvitation);
   }
 
@@ -757,17 +757,13 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     spaceExternalInvitation.setInvitationId(spaceExternalInvitationEntity.getInvitationId());
     spaceExternalInvitation.setSpaceId(spaceExternalInvitationEntity.getSpaceId());
     spaceExternalInvitation.setUserEmail(spaceExternalInvitationEntity.getUserEmail());
-    spaceExternalInvitation.setTokenID(spaceExternalInvitationEntity.getTokenID());
+    spaceExternalInvitation.setTokenId(spaceExternalInvitationEntity.getTokenId());
     RemindPasswordTokenService remindPasswordTokenService = CommonsUtils.getService(RemindPasswordTokenService.class);
     Token token = null;
     if (remindPasswordTokenService != null) {
-      token = remindPasswordTokenService.getToken(spaceExternalInvitationEntity.getTokenID(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
+      token = remindPasswordTokenService.getToken(spaceExternalInvitationEntity.getTokenId(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
     }
-    if (token == null || token.isExpired()) {
-      spaceExternalInvitation.setExpired(true);
-    } else {
-      spaceExternalInvitation.setExpired(false);
-    }
+    spaceExternalInvitation.setExpired(token == null || token.isExpired());
     return spaceExternalInvitation;
   }
 

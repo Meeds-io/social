@@ -44,7 +44,6 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
@@ -74,7 +73,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
-import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 /**
@@ -1715,7 +1713,7 @@ public class SpaceServiceImpl implements SpaceService {
     // Delete the token from store
     RemindPasswordTokenService remindPasswordTokenService = CommonsUtils.getService(RemindPasswordTokenService.class);
     if (remindPasswordTokenService != null) {
-      remindPasswordTokenService.deleteToken(spaceExternalInvitation.getTokenID(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
+      remindPasswordTokenService.deleteToken(spaceExternalInvitation.getTokenId(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
     }
   }
 

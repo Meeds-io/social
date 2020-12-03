@@ -280,7 +280,7 @@ export default {
     },
     declineInvitation(invitation) {
       this.externalInvitationsSent.splice(this.externalInvitationsSent.indexOf(invitation),1);
-      this.$spaceService.cancelExternalInvitation(eXo.env.portal.spaceId, invitation.invitationId);
+      this.$spaceService.declineExternalInvitation(eXo.env.portal.spaceId, invitation.invitationId);
     }
   },
 };

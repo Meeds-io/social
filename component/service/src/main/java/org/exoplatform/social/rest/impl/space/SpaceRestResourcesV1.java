@@ -1362,7 +1362,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @Path("externalInvitations/{invitationId}")
   @RolesAllowed("users")
   @ApiOperation(value = "Delete a specific external invitation from a specific space",
-          httpMethod = "GET",
+          httpMethod = "DELETE",
           response = Response.class,
           notes = "This Delete a specific external invitation from a specific space if the authenticated user is a member or manager of the space or a spaces super manager.")
   @ApiResponses(value = {
