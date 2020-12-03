@@ -65,6 +65,7 @@
               <%= logoTitle%>
             </div>
           </a>
+          <a id="SpaceTitleActionComponnetsContainer"></a>
         </div>
       </div>
     </div>
