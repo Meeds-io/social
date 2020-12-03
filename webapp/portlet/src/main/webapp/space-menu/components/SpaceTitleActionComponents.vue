@@ -27,8 +27,9 @@ export default {
     initTitleActionComponent(action) {
       if (action.init && !action.isStartedInit && action.enabled) {
         action.isStartedInit = true;
-        const container = this.$refs[action.key][0];
-        if (container) {
+        let container = this.$refs[action.key];
+        if (container && container.length > 0) {
+          container = container[0];
           action.init(container, eXo.env.portal.spaceName);
         } else {
           console.error(
