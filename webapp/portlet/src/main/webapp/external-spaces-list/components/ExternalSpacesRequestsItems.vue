@@ -95,7 +95,7 @@ export default {
                 throw new Error ('Error when getting space');
               }
             }).then((data) => {
-              spaceRequest.avatar = data.avatarUrl || data.avatarUrl || `/portal/rest/v1/social/spaces/${spaceRequest.id.split(':')[0]}/avatar`;
+              spaceRequest.avatar = data.avatarUrl || `/portal/rest/v1/social/spaces/${spaceRequest.id.split(':')[0]}/avatar`;
               spaceRequest.displayName = data.displayName;
               this.spacesRequests.splice(i, 0, spaceRequest);
             });

@@ -25,16 +25,10 @@
           {{ space.displayName }}
         </a>
       </v-list-item-title>
-      <v-list-item-subtitle>
-        <template>
-          <span class="alreadyMemberClass">{{ $t('externalSpacesList.label.alreadyMember') }}</span>
-        </template>
-      </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
 <script>
-const randomMax = 10000;
 
 export default {
   props: {

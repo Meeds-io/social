@@ -14,7 +14,7 @@
               class="flex">
               <v-card-title class="external-spaces-list-title subtitle-1 text-uppercase pb-2">
                 <span class="title">
-                  {{ $t(`externalSpacesList.title.yourSpaces`) }}
+                  {{ $t('externalSpacesList.title.yourSpaces') }}
                 </span>
               </v-card-title>
               <v-list dense>
@@ -44,7 +44,6 @@ export default {
   },
   created() {
     this.getExternalSpacesList();
-    this.$root.$emit('application-loaded');
   },
   methods : {
     getExternalSpacesList() {
