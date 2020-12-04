@@ -42,12 +42,14 @@
       </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
         <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
+        <v-alert v-if="alreadyInvitedAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyInvitedAlert"/>
         <v-list-item
           v-for="user in externalInvitedUsers"
           :key="user"
         >
           <v-badge
             bottom
+            color="white"
             bordered
             offset-x="33"
             offset-y="26"
@@ -64,7 +66,7 @@
             <v-list-item-title class="externalUserEmail" v-text="user"></v-list-item-title>
             <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn icon @click="removeExternalInvitation(user)">
+          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="removeExternalInvitation(user)">
             <v-icon>
               mdi-close-circle
             </v-icon>
@@ -93,8 +95,14 @@
           </v-badge>
           <v-list-item-content>
             <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail"></v-list-item-title>
-            <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="!invitation.expired" class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
+            <v-list-item-subtitle v-exo-tooltip.bottom.body="$t('peopleList.label.invitationExpiredToolTip')" v-else class="subExpired">{{ $t('peopleList.label.invitationExpired') }}</v-list-item-subtitle>
           </v-list-item-content>
+          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="declineInvitation(invitation)">
+            <v-icon>
+              mdi-close-circle
+            </v-icon>
+          </v-btn>
         </v-list-item>
       </v-list>
     </template>
@@ -140,6 +148,7 @@ export default {
     externalInvitedUsers: [],
     invitationSent:false,
     alreadyExistAlert :'',
+    alreadyInvitedAlert :'',
     externalInvitationsSent:[],
   }),
   computed: {
@@ -244,8 +253,12 @@ export default {
               } else {
                 if (this.isExternalFeatureEnabled) {
                   this.includeExternalUser = true;
-
-                  if (this.externalInvitedUsers.indexOf(email) === -1) {
+                  const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
+                  if (user) {
+                    input.blur();
+                    this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
+                    setTimeout(() => this.alreadyInvitedAlert ='', 3000);
+                  } else if (this.externalInvitedUsers.indexOf(email) === -1) {
                     this.externalInvitedUsers.push(email);
                   }
                 }
@@ -265,6 +278,10 @@ export default {
         this.externalInvitedUsers.splice(index, 1);
       }
     },
+    declineInvitation(invitation) {
+      this.externalInvitationsSent.splice(this.externalInvitationsSent.indexOf(invitation),1);
+      this.$spaceService.declineExternalInvitation(eXo.env.portal.spaceId, invitation.invitationId);
+    }
   },
 };
 </script>
