@@ -2,6 +2,7 @@
   <v-layout
     row
     wrap
+    pa-1 pb-1
     mx-0>
     <v-flex
       xs12>
@@ -32,6 +33,7 @@
                 class="transparent"
                 dark>
                 <v-btn
+                  v-exo-tooltip.bottom.body="$t('externalSpacesList.tooltip.AcceptToJoin')"
                   text
                   icon
                   small
@@ -41,6 +43,7 @@
                   <v-icon color="green" size="20">mdi-checkbox-marked-circle</v-icon>
                 </v-btn>
                 <v-btn
+                  v-exo-tooltip.bottom.body="$t('externalSpacesList.tooltip.DeclineInvitation')"
                   text
                   icon
                   small

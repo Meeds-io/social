@@ -1,5 +1,5 @@
 <template>
-  <v-list-item class="pa-0 pb-4">
+  <v-list-item :href="url" class="pa-1 pb-1">
     <v-list-item-avatar
       :href="url"
       class="my-0 ps-4"
@@ -16,11 +16,9 @@
     </v-list-item-avatar>
     <v-list-item-content
       :id="id"
-      :href="url"
       class="pa-0">
       <v-list-item-title>
         <a
-          :href="url"
           class="text-color text-truncate spaceTitle">
           {{ space.displayName }}
         </a>
