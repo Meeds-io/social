@@ -310,7 +310,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-      //
+      if(RestUtils.isMemberOfExternalGroup(identity.getRemoteId())) continue;
       profileInfos.add(profileInfo.getDataEntity());
     }
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);

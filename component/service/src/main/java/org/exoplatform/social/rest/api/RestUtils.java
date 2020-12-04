@@ -19,11 +19,7 @@ package org.exoplatform.social.rest.api;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -36,9 +32,13 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -55,6 +55,8 @@ public class RestUtils {
   public static final String SUPPORT_TYPE   = "json";
 
   public static final String ADMIN_GROUP    = "/platform/administrators";
+
+  public static final String EXTERNAL_GROUP    = "/platform/externals";
 
   private static IdentityManager identityManager;
 
@@ -123,6 +125,15 @@ public class RestUtils {
    */
   public static boolean isMemberOfAdminGroup() {
     return ConversationState.getCurrent().getIdentity().isMemberOf(ADMIN_GROUP);
+  }
+
+  /**
+   * Check if the user is a member of the external group
+   *
+   * @return
+   */
+  public static boolean isMemberOfExternalGroup(String userId) throws Exception{
+    return getIdentity(userId).isMemberOf(EXTERNAL_GROUP);
   }
   
   /** 
@@ -257,5 +268,21 @@ public class RestUtils {
       identityManager = ExoContainerContext.getService(IdentityManager.class);
     }
     return identityManager;
+  }
+
+  private static org.exoplatform.services.security.Identity getIdentity(String userId) throws Exception {
+    IdentityRegistry identityRegistry = CommonsUtils.getService(IdentityRegistry.class);
+    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+    org.exoplatform.services.security.Identity identity = identityRegistry.getIdentity(userId);
+    if (identity == null) {
+      Collection<Membership> memberships = new ArrayList<>();
+      memberships = organizationService.getMembershipHandler().findMembershipsByUser(userId);
+      List<MembershipEntry> entries = new ArrayList<>();
+      for (Membership membership : memberships) {
+        entries.add(new MembershipEntry(membership.getGroupId(), membership.getMembershipType()));
+      }
+      identity = new org.exoplatform.services.security.Identity(userId, entries);
+    }
+    return identity;
   }
 }
