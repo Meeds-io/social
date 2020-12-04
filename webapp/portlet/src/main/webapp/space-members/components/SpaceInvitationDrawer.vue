@@ -11,8 +11,7 @@
         v-if="!invitationSent"
         ref="form3"
         :disabled="savingSpace || spaceSaved"
-        @keypress="checkExternalInvitation($event)"
-        @submit="inviteUsers">
+        @keypress="checkExternalInvitation($event)">
         <exo-identity-suggester
           ref="autoFocusInput3"
           v-model="invitedMembers"
@@ -227,49 +226,57 @@ export default {
         .finally(() => this.savingSpace = false);
     },
     checkExternalInvitation(event) {
-      const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/;
+      const self = this;
+      $('form').on('focusout', function(event) {
+        setTimeout(function() {
+          if (!event.delegateTarget.contains(document.activeElement)) {
+            self.getExternalEmail();
+          }
+        }, 1);
+      });
       // eslint-disable-next-line eqeqeq
-      if(event.keyCode == '32'){ // Press space
-        const input = $(`#${this.$refs.autoFocusInput3.id} input`)[0];
-        const words = input.value.split(' ');
-        const email = words[words.length - 1];
-        if (reg.test(email)) {
-          this.$userService.getUserByEmail(email)
-            .then(user => {
-              if (user.id !== 'null') {
-                this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
-                  if (data.isMember === 'true') {
-                    input.blur();
-                    this.alreadyExistAlert = `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`;
-                    setTimeout(() => this.alreadyExistAlert ='', 3000);
-                  } else {
-                    this.users.push(user);
-                    const indexOfuser = this.invitedMembers.findIndex(u => u.remoteId === user.remoteId);
-                    if (indexOfuser === -1) {
-                      setTimeout(() => this.invitedMembers.push(user), 0);
-                    }
-                  }
-                });
-              } else {
-                if (this.isExternalFeatureEnabled) {
-                  this.includeExternalUser = true;
-                  const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
-                  if (user) {
-                    input.blur();
-                    this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
-                    setTimeout(() => this.alreadyInvitedAlert ='', 3000);
-                  } else if (this.externalInvitedUsers.indexOf(email) === -1) {
-                    this.externalInvitedUsers.push(email);
+      if(event.keyCode == '32' || event.key == 'Enter'){
+        event.preventDefault();
+        this.getExternalEmail();
+      }
+    },
+    getExternalEmail() {
+      const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/;
+      const input = this.$refs.autoFocusInput3.searchTerm;
+      const words = input!== null ? input.split(' ') : '';
+      const email = words[words.length - 1];
+      if (reg.test(email)) {
+        this.$userService.getUserByEmail(email)
+          .then(user => {
+            if (user.id !== 'null') {
+              this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
+                if (data.isMember === 'true') {
+                    $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
+                  this.alreadyExistAlert = `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`;
+                  setTimeout(() => this.alreadyExistAlert ='', 3000);
+                } else {
+                  this.users.push(user);
+                  const indexOfuser = this.invitedMembers.findIndex(u => u.remoteId === user.remoteId);
+                  if (indexOfuser === -1) {
+                    setTimeout(() => this.invitedMembers.push(user), 0);
                   }
                 }
-              }
-            });
-          input.value = '';
-        }
-      }
-      // eslint-disable-next-line eqeqeq
-      if (event.keyCode == '13') {
-        event.preventDefault();
+              });
+            } else {
+                if (this.isExternalFeatureEnabled) {
+                    this.includeExternalUser = true;
+                    const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
+                    if (user) {
+                        $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
+                        this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
+                        setTimeout(() => this.alreadyInvitedAlert ='', 3000);
+                    } else if (this.externalInvitedUsers.indexOf(email) === -1) {
+                        this.externalInvitedUsers.push(email);
+                    }
+                }
+            }
+          });
+        this.$refs.autoFocusInput3.searchTerm = null;
       }
     },
     removeExternalInvitation(user) {
