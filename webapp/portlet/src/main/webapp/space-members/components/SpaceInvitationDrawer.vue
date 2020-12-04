@@ -66,7 +66,7 @@
             <v-list-item-title class="externalUserEmail" v-text="user"></v-list-item-title>
             <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn :title="$t('peopleList.label.clickToDecline')" icon @click="removeExternalInvitation(user)">
+          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="removeExternalInvitation(user)">
             <v-icon>
               mdi-close-circle
             </v-icon>
@@ -96,9 +96,9 @@
           <v-list-item-content>
             <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail"></v-list-item-title>
             <v-list-item-subtitle v-if="!invitation.expired" class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
-            <v-list-item-subtitle v-else :title="$t('peopleList.label.invitationExpiredToolTip')" class="subExpired">{{ $t('peopleList.label.invitationExpired') }}</v-list-item-subtitle>
+            <v-list-item-subtitle v-else v-exo-tooltip.bottom.body="$t('peopleList.label.invitationExpiredToolTip')" class="subExpired">{{ $t('peopleList.label.invitationExpired') }}</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn :title="$t('peopleList.label.clickToDecline')" icon @click="declineInvitation(invitation)">
+          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="declineInvitation(invitation)">
             <v-icon>
               mdi-close-circle
             </v-icon>
