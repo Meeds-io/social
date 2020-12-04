@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-app>
+    <v-app v-if="isShown">
       <v-flex d-flex xs12 sm12>
         <v-layout
           row
@@ -41,6 +41,11 @@ export default {
     return {
       spacesList: [],
     };
+  },
+  computed: {
+    isShown() {
+      return this.spacesList && this.spacesList.length > 0;
+    }
   },
   created() {
     this.getExternalSpacesList();
