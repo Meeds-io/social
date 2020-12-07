@@ -17,12 +17,13 @@
 package org.exoplatform.social.core.space.spi;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -1516,7 +1517,7 @@ public interface SpaceService {
   /**
    * @return a list of external invitations in space
    */
-  default List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+  default List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
     throw new UnsupportedOperationException();
   }
 
@@ -1525,8 +1526,27 @@ public interface SpaceService {
    *
    * @param spaceId
    * @param email
+   * @param tokenId
    */
-  default void saveSpaceExternalInvitation(String spaceId, String email) {
+  default void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Gets a Space external invitation by its Id.
+   *
+   * @param invitationId
+   */
+  default SpaceExternalInvitation getSpaceExternalInvitationById(String invitationId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * delete an external invitation from a space
+   *
+   * @param invitationId
+   */
+  default void deleteSpaceExternalInvitation(String invitationId) {
     throw new UnsupportedOperationException();
   }
 

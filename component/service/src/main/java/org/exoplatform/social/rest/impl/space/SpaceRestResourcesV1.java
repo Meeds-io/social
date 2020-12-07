@@ -50,6 +50,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
@@ -588,8 +589,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         LOG.error("Failure to retrieve portal config", e);
       }
       for (String externalInvitedUser : model.getExternalInvitedUsers()) {
-        passwordRecoveryService.sendEmailForExternalUser(authenticatedUser, externalInvitedUser, locale, space.getDisplayName(), url);
-        spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser);
+        String tokenId = passwordRecoveryService.sendExternalRegisterEmail(authenticatedUser, externalInvitedUser, locale, space.getDisplayName(), url);
+        spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser, tokenId);
       }
     }
 
@@ -1349,8 +1350,50 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null ||  (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    List<SpaceExternalInvitationEntity> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
+    List<SpaceExternalInvitation> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
     return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @DELETE
+  @Path("externalInvitations/{invitationId}")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Delete a specific external invitation from a specific space",
+          httpMethod = "DELETE",
+          response = Response.class,
+          notes = "This Delete a specific external invitation from a specific space if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response declineExternalInvitations(@Context UriInfo uriInfo,
+                                             @ApiParam(value = "invitation id", required = true) @PathParam("invitationId") String invitationId) {
+
+    SpaceExternalInvitation spaceExternalInvitation = spaceService.getSpaceExternalInvitationById(invitationId);
+    if (spaceExternalInvitation == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    Space space = spaceService.getSpaceById(spaceExternalInvitation.getSpaceId());
+    if (space == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    try {
+      spaceService.deleteSpaceExternalInvitation(invitationId);
+    } catch (Exception e) {
+      LOG.error("Unknown error occurred while deleting invitation", e);
+      return Response.serverError().build();
+    }
+    return Response.noContent().build();
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {
