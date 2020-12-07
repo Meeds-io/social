@@ -251,7 +251,7 @@ export default {
             if (user.id !== 'null') {
               this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
                 if (data.isMember === 'true') {
-                    $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
+                  $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
                   this.alreadyExistAlert = `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`;
                   setTimeout(() => this.alreadyExistAlert ='', 3000);
                 } else {
@@ -263,17 +263,17 @@ export default {
                 }
               });
             } else {
-                if (this.isExternalFeatureEnabled) {
-                    this.includeExternalUser = true;
-                    const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
-                    if (user) {
-                        $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
-                        this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
-                        setTimeout(() => this.alreadyInvitedAlert ='', 3000);
-                    } else if (this.externalInvitedUsers.indexOf(email) === -1) {
-                        this.externalInvitedUsers.push(email);
-                    }
+              if (this.isExternalFeatureEnabled) {
+                this.includeExternalUser = true;
+                const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
+                if (user) {
+                  $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
+                  this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
+                  setTimeout(() => this.alreadyInvitedAlert ='', 3000);
+                } else if (this.externalInvitedUsers.indexOf(email) === -1) {
+                  this.externalInvitedUsers.push(email);
                 }
+              }
             }
           });
         this.$refs.autoFocusInput3.searchTerm = null;
