@@ -133,7 +133,8 @@ public class RestUtils {
    * @return
    */
   public static boolean isMemberOfExternalGroup(String userId) throws Exception{
-    return getIdentity(userId).isMemberOf(EXTERNAL_GROUP);
+    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+    return organizationService.getMembershipHandler().findMembershipsByUserAndGroup(userId, EXTERNAL_GROUP).size() > 0;
   }
   
   /** 
@@ -270,19 +271,4 @@ public class RestUtils {
     return identityManager;
   }
 
-  private static org.exoplatform.services.security.Identity getIdentity(String userId) throws Exception {
-    IdentityRegistry identityRegistry = CommonsUtils.getService(IdentityRegistry.class);
-    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
-    org.exoplatform.services.security.Identity identity = identityRegistry.getIdentity(userId);
-    if (identity == null) {
-      Collection<Membership> memberships = new ArrayList<>();
-      memberships = organizationService.getMembershipHandler().findMembershipsByUser(userId);
-      List<MembershipEntry> entries = new ArrayList<>();
-      for (Membership membership : memberships) {
-        entries.add(new MembershipEntry(membership.getGroupId(), membership.getMembershipType()));
-      }
-      identity = new org.exoplatform.services.security.Identity(userId, entries);
-    }
-    return identity;
-  }
 }
