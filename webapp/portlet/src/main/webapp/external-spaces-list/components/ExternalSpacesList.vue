@@ -40,15 +40,20 @@ export default {
   data () {
     return {
       spacesList: [],
+      spacesRequestsSize: 0,
     };
   },
   computed: {
     isShown() {
-      return this.spacesList && this.spacesList.length > 0;
+      return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
     }
   },
   created() {
     this.getExternalSpacesList();
+    externalSpacesListService.getExternalSpacesRequests().then(
+      (data) => {
+        this.spacesRequestsSize = data.spacesMemberships.length;
+      });
   },
   methods : {
     getExternalSpacesList() {
