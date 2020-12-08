@@ -110,16 +110,10 @@ export default {
       });
     },
     clearCache(){
-      caches.keys().then(function(cacheNames) {
-        return Promise.all(
-          cacheNames.filter(function(cacheName) {
-            return cacheName === 'portal-pwa-resources-dom';
-          }).map((cacheName) => {
-            caches.open(cacheName).then(function(cache) {
-              return cache.delete('/dom-cache?id=GettingStartedPortlet');
-            });
-          })
-        );
+      caches.open('portal-pwa-resources-dom').then(function(cache) {
+        cache.delete('/dom-cache?id=GettingStartedPortlet').then(function() {
+          console.debug('cache deleted');
+        });
       });
     }
   }
