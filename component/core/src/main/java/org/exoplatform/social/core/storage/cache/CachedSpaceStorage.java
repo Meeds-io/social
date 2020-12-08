@@ -26,7 +26,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -1579,13 +1579,23 @@ public class CachedSpaceStorage implements SpaceStorage {
   }
 
   @Override
-  public List<SpaceExternalInvitationEntity> findSpaceExternalInvitationsBySpaceId(String spaceId) {
+  public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
     return storage.findSpaceExternalInvitationsBySpaceId(spaceId);
   }
 
   @Override
-  public void saveSpaceExternalInvitation(String spaceId, String email) {
-    storage.saveSpaceExternalInvitation(spaceId, email);
+  public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
+    storage.saveSpaceExternalInvitation(spaceId, email, tokenId);
+  }
+
+  @Override
+  public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
+    return storage.findSpaceExternalInvitationById(invitationId);
+  }
+
+  @Override
+  public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) {
+    storage.deleteSpaceExternalInvitation(spaceExternalInvitation);
   }
 
   @Override

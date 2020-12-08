@@ -45,9 +45,11 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         SpaceExternalInvitationEntity spaceExternalInvitationEntity = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity.setSpaceId("1");
         spaceExternalInvitationEntity.setUserEmail("user@user.com");
+        spaceExternalInvitationEntity.setTokenId("token");
         SpaceExternalInvitationEntity spaceExternalInvitationEntity1 = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity1.setSpaceId("1");
         spaceExternalInvitationEntity1.setUserEmail("user1@user1.com");
+        spaceExternalInvitationEntity1.setTokenId("token1");
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity);
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity1);
         toDeleteIdentities.add(spaceExternalInvitationEntity1);
@@ -70,12 +72,15 @@ public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
         SpaceExternalInvitationEntity spaceExternalInvitationEntity = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity.setSpaceId("2");
         spaceExternalInvitationEntity.setUserEmail("user2@user2.com");
+        spaceExternalInvitationEntity.setTokenId("token");
         SpaceExternalInvitationEntity spaceExternalInvitationEntity1 = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity1.setSpaceId("3");
         spaceExternalInvitationEntity1.setUserEmail("user2@user2.com");
+        spaceExternalInvitationEntity1.setTokenId("token1");
         SpaceExternalInvitationEntity spaceExternalInvitationEntity2 = new SpaceExternalInvitationEntity();
         spaceExternalInvitationEntity2.setSpaceId("4");
         spaceExternalInvitationEntity2.setUserEmail("user2@user2.com");
+        spaceExternalInvitationEntity2.setTokenId("token2");
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity);
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity1);
         spaceExternalInvitationDAO.create(spaceExternalInvitationEntity2);

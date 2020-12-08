@@ -748,4 +748,12 @@
       </createTable>
   </changeSet>
 
+  <changeSet id="1.0.0-76" author="social">
+      <addColumn tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
+          <column name="TOKEN_ID" type="NVARCHAR(200)">
+              <constraints nullable="false"/>
+          </column>
+        </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
