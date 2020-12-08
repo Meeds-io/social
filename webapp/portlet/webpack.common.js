@@ -12,6 +12,7 @@ let config = {
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
     topBarNotification: './src/main/webapp/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/getting-started/main.js',
+    externalSpacesList: './src/main/webapp/external-spaces-list/main.js',
     spacesListComponents: './src/main/webapp/spaces-list/initComponents.js',
     spacesList: './src/main/webapp/spaces-list/main.js',
     spacesOverview: './src/main/webapp/spaces-overview/main.js',
