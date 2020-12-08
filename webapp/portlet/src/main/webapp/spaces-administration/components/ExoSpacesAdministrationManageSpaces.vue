@@ -1,36 +1,11 @@
 <template>
   <div class="manageSpaces">
-    <v-row class="col-12">
-      <v-col class="pa-0 col-4">
-        <v-list class="pt-0">
-          <v-list-item>
-            <v-list-item-content class="pt-0">
-              <v-list-item-title class="mb-1 text-color">
-                {{ $t('social.spaces.administration.manageSpaces.inviteNewExternal') }}
-              </v-list-item-title>
-              <v-list-item-subtitle class="text-sub-title text-capitalize font-italic">
-                <div>
-                  {{ $t('social.spaces.administration.manageSpaces.toDisableExternal') }}
-                </div>
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="ExternalFeatureEnabled"
-                @change="saveExternalFeatureStatus(!ExternalFeatureEnabled)"/>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
-      </v-col>
-      <v-col class="pa-0">
-        <div class="uiSearchInput">
-          <input v-model="searchText" :placeholder="$t('social.spaces.administration.manageSpaces.search')" class="showInputSearch" type="text" @keyup.enter="searchSpaces()"/>
-          <a v-exo-tooltip.bottom.body="Search" class="advancedSearch" href="#">
-            <i class="uiIconPLF24x24Search" @click="searchSpaces()"></i>
-          </a>
-        </div>
-      </v-col>
-    </v-row>
+    <div class="uiSearchInput">
+      <input v-model="searchText" :placeholder="$t('social.spaces.administration.manageSpaces.search')" class="showInputSearch" type="text" @keyup.enter="searchSpaces()"/>
+      <a v-exo-tooltip.bottom.body="Search" class="advancedSearch" href="#">
+        <i class="uiIconPLF24x24Search" @click="searchSpaces()"></i>
+      </a>
+    </div>
     <table class="uiGrid table table-hover table-striped">
       <tr>          
         <th>
@@ -187,8 +162,7 @@ export default {
       bindingsLoading: true,
       binding: {},
       groupPrettyName: '',
-      avatar : spacesConstants.DEFAULT_SPACE_AVATAR,
-      ExternalFeatureEnabled: true
+      avatar : spacesConstants.DEFAULT_SPACE_AVATAR
     };
   },
   computed: {
@@ -243,9 +217,6 @@ export default {
   },
   created() {
     this.initSpaces();
-    spacesAdministrationServices.isExternalFeatureActive().then(status => {
-      this.ExternalFeatureEnabled = status !== null ? status.value === 'true' : true;
-    });
   },
 
   methods: {
@@ -342,9 +313,6 @@ export default {
     },
     forceRerender() {
       this.groupBindingDrawerKey += 1;
-    },
-    saveExternalFeatureStatus(status) {
-      spacesAdministrationServices.saveExternalFeatureStatus(status);
     }
   }
 };

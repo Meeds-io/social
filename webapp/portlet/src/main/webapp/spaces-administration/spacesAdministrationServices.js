@@ -123,16 +123,14 @@ export function saveExternalFeatureStatus(status) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      value: !status,
+      value: status,
     }),
   }).then((resp) => {
     if (resp && resp.ok) {
       return resp;
     } else {
-      throw new Error('Error setting External Feature settings');
+      throw new Error('Error when setting External Feature settings');
     }
-  }).then(resp => {
-    return resp;
   });
 }
 export function isExternalFeatureActive() {
@@ -149,9 +147,7 @@ export function isExternalFeatureActive() {
     } else if (resp && resp.status === 404) {
       return null;
     } else {
-      throw new Error('Error External Feature settings');
+      throw new Error('Error when getting External Feature settings');
     }
-  }).then(resp => {
-    return resp;
   });
 }
