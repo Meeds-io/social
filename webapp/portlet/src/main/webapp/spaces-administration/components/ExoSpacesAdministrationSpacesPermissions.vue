@@ -1,24 +1,27 @@
 <template>
   <div class="spacesPermissions">
-    <v-col class="pa-0 col-4">
+    <v-col class="pa-0" cols="12"
+           md="4">
       <v-list class="pt-0">
         <v-list-item class="pl-0">
           <v-list-item-content class="pt-0">
             <v-list-item-title class="mb-0 title">
-              <v-row class="col-12">
+              <v-row no-gutters class="col-12">
                 <v-col class="col-8 pb-0 pt-5">
-                  <h5 class="title font-weight-bold ma-0">{{ $t('social.spaces.administration.permissions.inviteNewExternal') }}</h5>
+                  <h4 class="font-weight-bold ma-0">{{ $t('social.spaces.administration.permissions.inviteNewExternal') }}</h4>
                 </v-col>
-                <v-col class="col-2 inviteExternalSwitcher">
+                <v-col class="col-4">
                   <v-switch
-                    v-model="externalFeatureEnabled"
-                    class="mt-5"
+                    v-if="statusLoaded"      
+                    v-model="externalFeatureEnabled"      
+                    class="float-right mt-3"
+                    dense
                     @change="saveExternalFeatureStatus(externalFeatureEnabled)"/>
                 </v-col>
               </v-row>
             </v-list-item-title>
             <v-list-item-subtitle class="text-sub-title font-italic">
-              {{ $t('social.spaces.administration.permissions.toDisableExternal') }}
+              {{ $t('social.spaces.administration.permissions.enableDisableExternal') }}
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -114,7 +117,8 @@ export default {
       spacesAdministratorsEditMode: false,
       displayNoAssignmentCreators: false,
       displayNoAssignmentAdministrators: false,
-      externalFeatureEnabled: true
+      externalFeatureEnabled: null,
+      statusLoaded: false,
     };
   },
   created() {
@@ -122,6 +126,7 @@ export default {
     this.getSettingValueSpacesAdministrators();
     spacesAdministrationServices.isExternalFeatureActive().then(status => {
       this.externalFeatureEnabled = status !== null ? status.value === 'true' : true;
+      this.statusLoaded = true;
     });
   },
   methods: {
