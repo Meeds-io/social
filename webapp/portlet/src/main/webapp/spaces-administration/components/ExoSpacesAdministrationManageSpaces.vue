@@ -216,7 +216,7 @@ export default {
     },
   },
   created() {
-    this.initSpaces();
+    this.initSpaces();	
   },
 
   methods: {

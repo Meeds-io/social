@@ -348,11 +348,5 @@ export default {
   }
 };
 </script>
-<style>
-  .inviteExternalTitle {
-
-  }
-</style>
-
 
 
