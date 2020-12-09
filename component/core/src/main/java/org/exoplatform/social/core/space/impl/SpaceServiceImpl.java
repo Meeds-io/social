@@ -883,7 +883,7 @@ public class SpaceServiceImpl implements SpaceService {
     Optional<ApplicationCategory> chatApplicationCategory;
     try {
       chatApplicationCategory = applicationRegistryService.detectPortletsFromWars().stream().filter(appCategory -> appCategory.getName().equals("chat")).findFirst();
-    } catch (PortletInvokerException e) {
+    } catch (PortletInvokerException | NullPointerException e) {
       LOG.error("Error occurred when trying to import portlets to check for Chat Application's presence: ", e);
       chatApplicationCategory = null;
     }
