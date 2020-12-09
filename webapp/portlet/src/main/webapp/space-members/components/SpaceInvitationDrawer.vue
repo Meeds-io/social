@@ -235,8 +235,12 @@ export default {
         }, 1);
       });
       // eslint-disable-next-line eqeqeq
-      if(event.keyCode == '32' || event.key == 'Enter'){
+      if (event.key == 'Enter') {
         event.preventDefault();
+        this.getExternalEmail();
+      }
+      // eslint-disable-next-line eqeqeq
+      if (event.keyCode == '32') {
         this.getExternalEmail();
       }
     },
@@ -262,6 +266,7 @@ export default {
                   }
                 }
               });
+              this.$refs.autoFocusInput3.searchTerm = null;
             } else {
               if (this.isExternalFeatureEnabled) {
                 this.includeExternalUser = true;
@@ -273,10 +278,10 @@ export default {
                 } else if (this.externalInvitedUsers.indexOf(email) === -1) {
                   this.externalInvitedUsers.push(email);
                 }
+                this.$refs.autoFocusInput3.searchTerm = null;
               }
             }
           });
-        this.$refs.autoFocusInput3.searchTerm = null;
       }
     },
     removeExternalInvitation(user) {

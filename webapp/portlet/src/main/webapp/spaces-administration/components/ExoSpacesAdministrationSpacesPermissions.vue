@@ -1,5 +1,32 @@
 <template>
   <div class="spacesPermissions">
+    <v-col class="pa-0" cols="12"
+           md="4">
+      <v-list class="pt-0">
+        <v-list-item class="pl-0">
+          <v-list-item-content class="pt-0">
+            <v-list-item-title class="mb-0 title">
+              <v-row no-gutters class="col-12">
+                <v-col class="col-8 pb-0 pt-5">
+                  <h4 class="font-weight-bold ma-0">{{ $t('social.spaces.administration.permissions.inviteNewExternal') }}</h4>
+                </v-col>
+                <v-col class="col-4">
+                  <v-switch
+                    v-if="externalFeatureStatusLoaded"      
+                    v-model="externalFeatureEnabled"      
+                    class="float-right mt-3"
+                    dense
+                    @change="saveExternalFeatureStatus(externalFeatureEnabled)"/>
+                </v-col>
+              </v-row>
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-sub-title font-italic">
+              {{ $t('social.spaces.administration.permissions.enableDisableExternal') }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-col>
     <table class="uiGrid table table-hover table-striped">
       <tr>          
         <th>
@@ -89,12 +116,15 @@ export default {
       spacesCreatorsEditMode: false,
       spacesAdministratorsEditMode: false,
       displayNoAssignmentCreators: false,
-      displayNoAssignmentAdministrators: false
+      displayNoAssignmentAdministrators: false,
+      externalFeatureEnabled: null,
+      externalFeatureStatusLoaded: false,
     };
   },
   created() {
     this.getSettingValueCreateSpace();
     this.getSettingValueSpacesAdministrators();
+    this.getExternalFeatureStatus();
   },
   methods: {
     initSuggesterSpacesCreators() {
@@ -313,10 +343,18 @@ export default {
         this.spacesAdministratorsEditMode = true;
       }
       this.getSettingValueSpacesAdministrators();
+    },
+    saveExternalFeatureStatus(status) {
+      spacesAdministrationServices.saveExternalFeatureStatus(status);
+    },
+    getExternalFeatureStatus() {
+      spacesAdministrationServices.isExternalFeatureActive().then(status => {
+        this.externalFeatureEnabled = status !== null ? status.value === 'true' : true;
+        this.externalFeatureStatusLoaded = true;
+      });
     }
   }
 };
 </script>
-
 
 
