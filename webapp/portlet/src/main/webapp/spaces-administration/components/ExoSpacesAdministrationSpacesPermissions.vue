@@ -12,7 +12,7 @@
                 </v-col>
                 <v-col class="col-4">
                   <v-switch
-                    v-if="statusLoaded"      
+                    v-if="externalFeatureStatusLoaded"      
                     v-model="externalFeatureEnabled"      
                     class="float-right mt-3"
                     dense
@@ -118,16 +118,13 @@ export default {
       displayNoAssignmentCreators: false,
       displayNoAssignmentAdministrators: false,
       externalFeatureEnabled: null,
-      statusLoaded: false,
+      externalFeatureStatusLoaded: false,
     };
   },
   created() {
     this.getSettingValueCreateSpace();
     this.getSettingValueSpacesAdministrators();
-    spacesAdministrationServices.isExternalFeatureActive().then(status => {
-      this.externalFeatureEnabled = status !== null ? status.value === 'true' : true;
-      this.statusLoaded = true;
-    });
+    this.getExternalFeatureStatus();
   },
   methods: {
     initSuggesterSpacesCreators() {
@@ -349,6 +346,12 @@ export default {
     },
     saveExternalFeatureStatus(status) {
       spacesAdministrationServices.saveExternalFeatureStatus(status);
+    },
+    getExternalFeatureStatus() {
+      spacesAdministrationServices.isExternalFeatureActive().then(status => {
+        this.externalFeatureEnabled = status !== null ? status.value === 'true' : true;
+        this.externalFeatureStatusLoaded = true;
+      });
     }
   }
 };
