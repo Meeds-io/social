@@ -15,8 +15,8 @@
               <v-card-title class="getting-started-title subtitle-1 text-uppercase pb-0">
                 <span class="title">
                   {{ $t('locale.portlet.gettingStarted.title') }}
+                  <a v-show="showButtonClose" :title="$t('locale.portlet.gettingStarted.button.close')" class="btClose" href="#" rel="tooltip" data-placement="bottom" @click="hideGettingStarted">x</a>
                 </span>
-                <a v-if="showButtonClose" :title="$t('locale.portlet.gettingStarted.button.close')" href="#" rel="tooltip" data-placement="bottom" @click="hideGettingStarted">x</a>
               </v-card-title>
               <v-list dense class="getting-started-list">
                 <v-list-item v-for="(step, index) in gettingStratedSteps" :key="index" class="getting-started-list-item">
@@ -63,6 +63,7 @@ export default {
       if (localStorage.getItem('gettingStarted') && this.showButtonClose){
         const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
         if (data.user === eXo.env.portal.userName && data.gettingStartedStatus === true){
+          this.clearCache();
           this.showGettingStrated = false;
           return;
         }else {
@@ -72,6 +73,7 @@ export default {
       }else if (this.showButtonClose){
         gettingStartedService.getGettingStartedSettings().then((resp) =>{
           if (resp && resp.value){
+            this.clearCache();
             this.showGettingStrated = false;
             return;
           }else {
@@ -97,6 +99,7 @@ export default {
     hideGettingStarted(){
       gettingStartedService.saveGettingStartedSettings().then((response) => {
         if (response){
+          this.clearCache();
           const gettingStarted = {
             user : eXo.env.portal.userName,
             gettingStartedStatus: true
@@ -104,6 +107,13 @@ export default {
           localStorage.setItem('gettingStarted',JSON.stringify(gettingStarted));
           this.showGettingStrated = false;
         }
+      });
+    },
+    clearCache(){
+      caches.open('portal-pwa-resources-dom').then(function(cache) {
+        cache.delete('/dom-cache?id=GettingStartedPortlet').then(function() {
+          console.debug('cache deleted');
+        });
       });
     }
   }
