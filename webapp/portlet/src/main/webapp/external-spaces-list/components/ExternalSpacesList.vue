@@ -48,6 +48,9 @@ export default {
       return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
     }
   },
+  mounted() {
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  },
   created() {
     this.getExternalSpacesList();
     externalSpacesListService.getExternalSpacesRequests().then(
