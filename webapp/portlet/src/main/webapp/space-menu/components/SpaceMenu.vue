@@ -84,14 +84,9 @@ export default {
         })
         .then(() => this.$root.$emit('application-loaded'));
     });
-    // const thevue = this;
-    // this.isMounted = new Promise(function(resolve) {
-    //   thevue.resolveMounting = resolve;
-    // });
   },
   mounted() {
     this.$root.$emit('application-loaded');
-    // this.resolveMounting();
   },
 };
 </script>
