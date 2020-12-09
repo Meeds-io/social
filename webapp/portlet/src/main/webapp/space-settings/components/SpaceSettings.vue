@@ -30,6 +30,10 @@ export default {
     displaySpaceChatSetting: true,
   }),
   created() {
+    this.$spaceService.getSpaceApplicationsChoices()
+      .then(data => {
+        this.displaySpaceChatSetting = data.some(app => app.applicationName === 'ChatApplication');
+      });
     document.addEventListener('hideSettingsApps', () => this.displaySpaceChatSetting = false);
     document.addEventListener('showSettingsApps', () => this.displaySpaceChatSetting = true);
     console.log('Check if spaceChatEnabled');
@@ -39,6 +43,7 @@ export default {
   },
   methods: {
     enableDisableChat() {
+      //Todo
       console.log(`${this.spaceChatEnabled ? 'Enable' : 'Disable'} space chat !`);
     }
   }
