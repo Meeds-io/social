@@ -2,7 +2,19 @@
   <v-app class="transparent" flat>
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
-    <v-card v-if="displaySpaceChatSetting && !loading" class="border-radius" flat>
+    <v-card v-if="loading" class="border-radius" flat>
+      <v-list>
+        <v-list-item>
+          <v-list-item-content>
+            <v-skeleton-loader type="list-item-two-line"/>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-skeleton-loader type="avatar" />
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </v-card>
+    <v-card v-else-if="displaySpaceChatSetting && !loading" class="border-radius" flat>
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -41,7 +53,7 @@ export default {
             this.userSettings = userSettings;
             this.$spaceService.isRoomEnabled(this.userSettings, this.spaceId)
               .then(value => {
-                this.spaceChatEnabled = value;
+                this.spaceChatEnabled = value === 'true';
               })
               .finally(() => {
                 this.loading = false;
