@@ -165,7 +165,6 @@ public class PeopleRestService implements ResourceContainer{
     }
     IdentityNameList nameList = new IdentityNameList();
     Identity currentIdentity = Util.getViewerIdentity(currentUser);
-    boolean isExternal = currentIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (currentIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
     identityFilter.setViewerIdentity(currentIdentity);
 
     Identity[] result;
@@ -304,7 +303,7 @@ public class PeopleRestService implements ResourceContainer{
       if (currentSpace != null) {
         String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
         for (String spaceMember : spaceMembers) {
-          Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
+          Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember);
           if (identity.isEnable() && !identity.isDeleted()) {
             Option opt = new Option();
             String fullName = identity.getProfile().getFullName();
@@ -359,21 +358,23 @@ public class PeopleRestService implements ResourceContainer{
         }
       }
       remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0 && !isExternal) {
+      if (remain > 0 && !isExternal(currentIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
-          Option opt = new Option();
-          String fullName = id.getProfile().getFullName();
-          String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
-          opt.setType("user");
-          opt.setValue(userName);
-          opt.setText(fullName);
-          opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
-          excludedIdentityList.add(id);
-          opt.setOrder(4);
-          nameList.addOption(opt);
+          if (!isExternal(id.getId())) {
+            Option opt = new Option();
+            String fullName = id.getProfile().getFullName();
+            String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
+            opt.setType("user");
+            opt.setValue(userName);
+            opt.setText(fullName);
+            opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
+            excludedIdentityList.add(id);
+            opt.setOrder(4);
+            nameList.addOption(opt);
+          }
         }
       }
     } else if (MENTION_ACTIVITY_STREAM.equals(typeOfRelation)) {
@@ -392,7 +393,7 @@ public class PeopleRestService implements ResourceContainer{
   
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0) {
+        if (remain > 0 && !isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -445,7 +446,7 @@ public class PeopleRestService implements ResourceContainer{
 
         // finally add others in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0) {
+        if (remain > 0 && !isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -517,6 +518,10 @@ public class PeopleRestService implements ResourceContainer{
     List<Identity> listAccess = getIdentityManager().getIdentityStorage().getIdentitiesForMentions(OrganizationIdentityProvider.NAME, identityFilter, null, 0L, remain, false);
     identityFilter.setExcludedIdentityList(excludedIdentityList);
     Identity[] identitiesList = listAccess.toArray(new Identity[0]);
+    // Exclude external users from other users
+    identitiesList = Arrays.stream(identitiesList)
+            .filter(identity -> !isExternal(identity.getId()))
+            .toArray(Identity[]::new);
     userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false);
     return userInfos;
   }
@@ -583,6 +588,11 @@ public class PeopleRestService implements ResourceContainer{
       opt.setOrder(order);
       options.addOption(opt);
     }
+  }
+
+  private boolean isExternal(String id) {
+    Identity userIdentity = getIdentityManager().getIdentity(id);
+    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
   }
 
   /**
