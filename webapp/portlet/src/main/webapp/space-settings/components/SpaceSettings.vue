@@ -2,7 +2,7 @@
   <v-app class="transparent" flat>
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
-    <v-card v-if="displaySpaceChatSetting" class="border-radius" flat>
+    <v-card v-if="displaySpaceChatSetting && !loading" class="border-radius" flat>
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -27,24 +27,36 @@ export default {
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
     spaceChatEnabled: false,
-    displaySpaceChatSetting: true,
+    displaySpaceChatSetting: false,
+    loading: true,
+    userSettings: {},
   }),
   created() {
     this.$spaceService.getSpaceApplicationsChoices()
       .then(data => {
-        this.displaySpaceChatSetting = data.some(app => app.applicationName === 'ChatApplication');
+        this.displaySpaceChatSetting = data.some(app => app.displayName.includes('Chat Application'));        
+        //check if chat enabled
+        this.$spaceService.getUserSettings()
+          .then(userSettings => {
+            this.userSettings = userSettings;
+            this.$spaceService.isRoomEnabled(this.userSettings, this.spaceId)
+              .then(value => {
+                this.spaceChatEnabled = value;
+              })
+              .finally(() => {
+                this.loading = false;
+              });
+          });
       });
     document.addEventListener('hideSettingsApps', () => this.displaySpaceChatSetting = false);
     document.addEventListener('showSettingsApps', () => this.displaySpaceChatSetting = true);
-    console.log('Check if spaceChatEnabled');
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   methods: {
     enableDisableChat() {
-      //Todo
-      console.log(`${this.spaceChatEnabled ? 'Enable' : 'Disable'} space chat !`);
+      this.$spaceService.updateRoomEnabled(this.userSettings, this.spaceId, this.spaceChatEnabled);
     }
   }
 };
