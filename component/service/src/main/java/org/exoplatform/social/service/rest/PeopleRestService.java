@@ -358,12 +358,12 @@ public class PeopleRestService implements ResourceContainer{
         }
       }
       remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0 && !isExternal(currentIdentity.getId())) {
+      if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
-          if (!isExternal(id.getId())) {
+          if (!Util.isExternal(id.getId())) {
             Option opt = new Option();
             String fullName = id.getProfile().getFullName();
             String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
@@ -393,7 +393,7 @@ public class PeopleRestService implements ResourceContainer{
   
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0 && !isExternal(currentIdentity.getId())) {
+        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -446,7 +446,7 @@ public class PeopleRestService implements ResourceContainer{
 
         // finally add others in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0 && !isExternal(currentIdentity.getId())) {
+        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -520,7 +520,7 @@ public class PeopleRestService implements ResourceContainer{
     Identity[] identitiesList = listAccess.toArray(new Identity[0]);
     // Exclude external users from other users
     identitiesList = Arrays.stream(identitiesList)
-            .filter(identity -> !isExternal(identity.getId()))
+            .filter(identity -> !Util.isExternal(identity.getId()))
             .toArray(Identity[]::new);
     userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false);
     return userInfos;
@@ -588,11 +588,6 @@ public class PeopleRestService implements ResourceContainer{
       opt.setOrder(order);
       options.addOption(opt);
     }
-  }
-
-  private boolean isExternal(String id) {
-    Identity userIdentity = getIdentityManager().getIdentity(id);
-    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
   }
 
   /**
