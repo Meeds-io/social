@@ -237,7 +237,6 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    spaceChatEnabled: true,
   }),
   computed: {
     spaceAvatarUrl() {
@@ -253,11 +252,7 @@ export default {
       if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => {
-        console.log('extension: ', extension);
-        extension.enabled(this.space);
-        console.log('extension ENABLED: ', extension.enabled(this.space) === true);
-      });
+      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
     },
     canUseActionsMenu() {
       return this.space && (this.space.canEdit || this.enabledProfileActionExtensions.length);
@@ -275,10 +270,7 @@ export default {
     this.$spaceService.getUserSettings()
       .then(userSettings => {
         this.$spaceService.isRoomEnabled(userSettings, this.space.id)
-          .then(value => {
-            Vue.set(this.space, 'isChatEnabled', value === 'true');
-            console.log('***Value: ',this.space.isChatEnabled);
-          });
+          .then(value => Vue.set(this.space, 'isChatEnabled', value === 'true'));
       });
     $(document).on('mousedown', () => {
       if (this.displayActionMenu) {
