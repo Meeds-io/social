@@ -683,8 +683,17 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     if (profileFilter.getViewerIdentity() != null) {
       identity = profileFilter.getViewerIdentity();
     }
+    List<Identity> list = new ArrayList<>() ;
     if (OrganizationIdentityProvider.NAME.equals(providerId)) {
-      return getProfileSearchConnector().search(identity, profileFilter, type, offset, limit);
+      for (Identity userIdentity : getProfileSearchConnector().search(identity, profileFilter, type, offset, limit)) {
+        try {
+          if(isMemberOfExternalGroup(userIdentity.getRemoteId())) continue;
+        } catch (Exception e) {
+
+        }
+        list.add(userIdentity);
+      }
+      return list;
     } else {
       throw new IllegalStateException("Can't search identities with provider id = " + providerId);
     }
@@ -1154,5 +1163,16 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   @Override
   public void setImageUploadLimit(int imageUploadLimit) {
     this.imageUploadLimit = imageUploadLimit;
+  }
+
+
+  /**
+   * Check if the user is a member of the external group
+   *
+   * @return
+   */
+  public static boolean isMemberOfExternalGroup(String userId) throws Exception{
+    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+    return organizationService.getMembershipHandler().findMembershipsByUserAndGroup(userId, "/platform/externals").size() > 0;
   }
 }

@@ -345,9 +345,9 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     // HHH-10495
     StringBuilder queryStringBuilder = null;
     if (isOrcaleDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT to_char(identity_1.remote_id), identity_1.identity_id \n");
+      queryStringBuilder = new StringBuilder("SELECT DISTINCT to_char(identity_1.remote_id), identity_1.identity_id \n");
     } else if (isMSSQLDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+      queryStringBuilder = new StringBuilder("SELECT DISTINCT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
     } else {
       queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id \n");
     }
@@ -362,10 +362,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
     queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
     queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
-    queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-    queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-    queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-    queryStringBuilder.append("   AND properties_tmp.value = ").append(dbBoolTrue).append(") \n");
       queryStringBuilder.append("       AND identity_prop_first_char.name = '").append(firstCharacterFieldName).append("' \n");
       queryStringBuilder.append("       AND (lower(identity_prop_first_char.value) like '" + Character.toLowerCase(firstCharacter)
           + "%')\n");
