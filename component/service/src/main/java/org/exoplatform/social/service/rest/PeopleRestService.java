@@ -304,7 +304,7 @@ public class PeopleRestService implements ResourceContainer{
         String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
         for (String spaceMember : spaceMembers) {
           Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember);
-          if (identity.isEnable() && !identity.isDeleted()) {
+          if (identity.isEnable() && !identity.isDeleted() && !identity.getRemoteId().equals(currentIdentity.getRemoteId())) {
             Option opt = new Option();
             String fullName = identity.getProfile().getFullName();
             String userName = (String) identity.getProfile().getProperty(Profile.USERNAME);
@@ -337,27 +337,9 @@ public class PeopleRestService implements ResourceContainer{
           nameList.addOption(opt);
         }
       }
-
-      List<Space> exclusions = new ArrayList<Space>();
-      // Includes spaces the current user is member.
+      
+      // add others in the suggestion
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0) {
-        SpaceFilter spaceFilter = new SpaceFilter();
-        spaceFilter.setSpaceNameSearchCondition(name);
-        ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
-        Space[] spaces = list.load(0, (int) remain);
-        for (Space s : spaces) {
-          Option opt = new Option();
-          opt.setType("space");
-          opt.setValue(SPACE_PREFIX + s.getPrettyName());
-          opt.setText(s.getDisplayName());
-          opt.setAvatarUrl(s.getAvatarUrl());
-          opt.setOrder(2);
-          nameList.addOption(opt);
-          exclusions.add(s);
-        }
-      }
-      remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
@@ -375,6 +357,26 @@ public class PeopleRestService implements ResourceContainer{
             opt.setOrder(4);
             nameList.addOption(opt);
           }
+        }
+      }
+      
+      // Includes spaces the current user is member.
+      List<Space> exclusions = new ArrayList<Space>();
+      remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
+      if (remain > 0) {
+        SpaceFilter spaceFilter = new SpaceFilter();
+        spaceFilter.setSpaceNameSearchCondition(name);
+        ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
+        Space[] spaces = list.load(0, (int) remain);
+        for (Space s : spaces) {
+          Option opt = new Option();
+          opt.setType("space");
+          opt.setValue(SPACE_PREFIX + s.getPrettyName());
+          opt.setText(s.getDisplayName());
+          opt.setAvatarUrl(s.getAvatarUrl());
+          opt.setOrder(2);
+          nameList.addOption(opt);
+          exclusions.add(s);
         }
       }
     } else if (MENTION_ACTIVITY_STREAM.equals(typeOfRelation)) {
