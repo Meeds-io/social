@@ -710,7 +710,12 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     ListAccess<IdentityEntity> list = getIdentityDAO().findIdentities(xFilter);
 
     try {
-      return list.getSize();
+      int listCount = 0;
+      for(IdentityEntity identityEntity : list.load(-1, -1)){
+        if(identityEntity.getProperties().get("external") != null  && identityEntity.getProperties().get("external").equals("true")) continue;
+        listCount ++;
+      }
+      return listCount;
     } catch (Exception e) {
       return 0;
     }
