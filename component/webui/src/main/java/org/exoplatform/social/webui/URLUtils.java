@@ -61,7 +61,7 @@ public class URLUtils {
     String currentUserName = route.localArgs.get("streamOwnerId");
     org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
     boolean isExternalViewer = viewerIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (viewerIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
-    if (isExternalViewer && !isProfileAccessible(currentUserName , pcontext.getRemoteUser())) {
+    if (isExternalViewer && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
       return null;
     }
     ExoContainer container = ExoContainerContext.getCurrentContainer();
@@ -105,9 +105,12 @@ public class URLUtils {
     List<Identity> viewerFriends = null;
     try {
       viewerFriends = Utils.getViewerFriends();
+      // check if target user in viewer Friends 
       boolean isFriend = viewerFriends.stream().anyMatch(value -> value.getRemoteId().equals(currentUserName));
+      // Gets a list access containing all spaces witch a viewer is member
       ListAccess<Space> memberSpacesListAccess = Utils.getSpaceService().getMemberSpaces(externalUserId);
       Space[] spaces = memberSpacesListAccess.load(0, memberSpacesListAccess.getSize());
+      // check if target user is member of these spaces
       boolean isMemberSpaces = Arrays.stream(spaces).anyMatch(space -> Utils.getSpaceService().isMember(space, currentUserName));
 
       return isFriend || isMemberSpaces;
