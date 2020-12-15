@@ -33,6 +33,7 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.space.SpaceAccessType;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -48,6 +49,8 @@ public class SpaceAccessApplicationLifecycle extends BaseComponentPlugin impleme
   private static final Log LOG = ExoLogger.getLogger(SpaceAccessApplicationLifecycle.class);
 
   private static final String KEEP_SPACE_ACCESS_SESSION_DATA_KEY = "social.accessed.space.data.keep";
+
+  private static final String EXTERNAL_STERAM = "external-stream";
   
   @Override
   public void onInit(Application app) throws Exception {
@@ -132,7 +135,15 @@ public class SpaceAccessApplicationLifecycle extends BaseComponentPlugin impleme
 
   
   private void processSpaceAccess(PortalRequestContext pcontext, String remoteId, Space space) throws IOException {
-    //
+
+    org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
+    boolean isExternalViewer = viewerIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (viewerIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+    if (isExternalViewer && !Utils.getSpaceService().isMember(space, viewerIdentity.getRemoteId())) {
+      String url = Utils.getURI(EXTERNAL_STERAM);
+      pcontext.sendRedirect(url);
+      return;
+    }
+    
     boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(remoteId, space);
     if (gotStatus) {
       sendRedirect(pcontext, SpaceAccessType.SPACE_NOT_FOUND, null);

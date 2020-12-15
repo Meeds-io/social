@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.webui;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
@@ -27,8 +28,13 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Processes url and returns the some type of result base on url.
@@ -53,6 +59,11 @@ public class URLUtils {
     }
     
     String currentUserName = route.localArgs.get("streamOwnerId");
+    org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
+    boolean isExternalViewer = viewerIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (viewerIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+    if (isExternalViewer && !isProfileAccessible(currentUserName , pcontext.getRemoteUser())) {
+      return null;
+    }
     ExoContainer container = ExoContainerContext.getCurrentContainer();
     IdentityManager idm = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
 
@@ -89,6 +100,21 @@ public class URLUtils {
     
     return isRoot ? selectedUserNode.getName() : prevParent.getName();  
   }
-  
-  
+
+  private static boolean isProfileAccessible(String currentUserName, String externalUserId) {
+    List<Identity> viewerFriends = null;
+    try {
+      viewerFriends = Utils.getViewerFriends();
+      boolean isFriend = viewerFriends.stream().anyMatch(value -> value.getRemoteId().equals(currentUserName));
+      ListAccess<Space> memberSpacesListAccess = Utils.getSpaceService().getMemberSpaces(externalUserId);
+      Space[] spaces = memberSpacesListAccess.load(0, memberSpacesListAccess.getSize());
+      boolean isMemberSpaces = Arrays.stream(spaces).anyMatch(space -> Utils.getSpaceService().isMember(space, currentUserName));
+
+      return isFriend || isMemberSpaces;
+
+    } catch (Exception e) {
+      LOG.error("Error when getting viewer connections " + e);
+    }
+    return false;
+  }
 }
