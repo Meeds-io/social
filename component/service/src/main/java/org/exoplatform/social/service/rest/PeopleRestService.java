@@ -333,7 +333,7 @@ public class PeopleRestService implements ResourceContainer{
           opt.setText(fullName + " (" + userName + ")");
           opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
           excludedIdentityList.add(id);
-          opt.setOrder(1);
+          opt.setOrder(2);
           nameList.addOption(opt);
         }
       }
@@ -354,7 +354,7 @@ public class PeopleRestService implements ResourceContainer{
             opt.setText(fullName);
             opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
             excludedIdentityList.add(id);
-            opt.setOrder(4);
+            opt.setOrder(3);
             nameList.addOption(opt);
           }
         }
@@ -368,13 +368,13 @@ public class PeopleRestService implements ResourceContainer{
         spaceFilter.setSpaceNameSearchCondition(name);
         ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
         Space[] spaces = list.load(0, (int) remain);
-        for (Space s : spaces) {
+        for (Space s : spaces) {  
           Option opt = new Option();
           opt.setType("space");
           opt.setValue(SPACE_PREFIX + s.getPrettyName());
           opt.setText(s.getDisplayName());
           opt.setAvatarUrl(s.getAvatarUrl());
-          opt.setOrder(2);
+          opt.setOrder(4);
           nameList.addOption(opt);
           exclusions.add(s);
         }
