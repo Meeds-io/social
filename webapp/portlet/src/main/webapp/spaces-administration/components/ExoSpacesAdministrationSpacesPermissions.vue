@@ -349,7 +349,7 @@ export default {
     },
     getExternalFeatureStatus() {
       spacesAdministrationServices.isExternalFeatureActive().then(status => {
-        this.externalFeatureEnabled = status !== null ? status.value === 'true' : true;
+        this.externalFeatureEnabled = status.value;
         this.externalFeatureStatusLoaded = true;
       });
     }
