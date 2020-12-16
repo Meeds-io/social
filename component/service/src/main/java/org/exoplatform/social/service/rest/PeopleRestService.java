@@ -20,10 +20,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -50,6 +52,7 @@ import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList.Option;
 import org.exoplatform.social.service.rest.api.models.PeopleInfo;
+import org.exoplatform.web.controller.QualifiedName;
 import org.exoplatform.webui.utils.TimeConvertUtils;
 
 import javax.annotation.security.RolesAllowed;
@@ -108,6 +111,8 @@ public class PeopleRestService implements ResourceContainer{
   /** Number of user names is added to suggest list. */
   private static final long SUGGEST_LIMIT = 20;
 
+  private static final QualifiedName LANG = QualifiedName.create("gtn", "lang");
+
   /** Number of default limit activities. */
   private static final String DEFAULT_ACTIVITY = "DEFAULT_ACTIVITY";
   private static final String LINK_ACTIVITY = "LINK_ACTIVITY";
@@ -150,7 +155,15 @@ public class PeopleRestService implements ResourceContainer{
                     @PathParam("format") String format) throws Exception {
     String[] mediaTypes = new String[] { "json", "xml" };
     MediaType mediaType = Util.getMediaType(format, mediaTypes);
-
+    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    String currentSiteName = CommonsUtils.getCurrentSite().getName();
+    Locale locale = null;
+    try {
+      String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+      locale = new Locale(currentSiteLocale);
+    } catch (Exception e) {
+      LOG.error("Failure to retrieve portal config", e);
+    }
     ProfileFilter identityFilter = new ProfileFilter();
 
     identityFilter.setName(name);
@@ -183,7 +196,7 @@ public class PeopleRestService implements ResourceContainer{
     } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
       List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false).load(0, (int)SUGGEST_LIMIT));
       Space space = getSpaceService().getSpaceByUrl(spaceURL);
-      addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 0);
+      addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 0, locale);
     } else if (USER_TO_INVITE.equals(typeOfRelation)) {
       Space space = getSpaceService().getSpaceByUrl(spaceURL);
 
@@ -206,8 +219,9 @@ public class PeopleRestService implements ResourceContainer{
             opt.setOrder(1);
             if (identity != null) {
               Profile p = identity.getProfile();
+              String fullName = RestUtils.isMemberOfExternalGroup(identity.getRemoteId()) ? p.getFullName() + " " + RestUtils.getResourceBundleLabel(locale, "external.label.tag") + " (" + (String) p.getProperty(Profile.USERNAME) + ")" : p.getFullName() + " (" + (String) p.getProperty(Profile.USERNAME) + ")";
               opt.setValue((String) p.getProperty(Profile.USERNAME));
-              opt.setText(p.getFullName() + " (" + (String) p.getProperty(Profile.USERNAME) + ")");
+              opt.setText(fullName);
               opt.setAvatarUrl(p.getAvatarUrl());
             } else {
               opt.setValue(item);
@@ -227,7 +241,7 @@ public class PeopleRestService implements ResourceContainer{
         int size = connections.getSize();
         Identity[] identities = connections.load(0, size < SUGGEST_LIMIT ? size : (int)SUGGEST_LIMIT);
         for (Identity id : identities) {
-          addSpaceOrUserToList(Arrays.asList(id), nameList, space, typeOfRelation, 1);
+          addSpaceOrUserToList(Arrays.asList(id), nameList, space, typeOfRelation, 1, locale);
           excludedIdentityList.add(id);
         }
       }
@@ -239,7 +253,7 @@ public class PeopleRestService implements ResourceContainer{
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
-        addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 2);
+        addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 2, locale);
       }
 
       remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
@@ -345,7 +359,7 @@ public class PeopleRestService implements ResourceContainer{
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
           Option opt = new Option();
-          String fullName = id.getProfile().getFullName();
+          String fullName = RestUtils.isMemberOfExternalGroup(id.getRemoteId()) ? id.getProfile().getFullName() + " " + RestUtils.getResourceBundleLabel(locale, "external.label.tag") : id.getProfile().getFullName();
           String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
           opt.setType("user");
           opt.setValue(userName);
@@ -361,21 +375,22 @@ public class PeopleRestService implements ResourceContainer{
 
       // first add space members in the suggestion list when mentioning in a space Activity Stream
       if (currentSpace != null) {
-        userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser);
+        userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser, locale);
       }
       else {
         // then add connections in the suggestions
         long remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
+          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain, locale);
         }
   
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, locale);
         }
       }
+
       return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
 
     } else if (MENTION_COMMENT.equals(typeOfRelation)) {
@@ -389,23 +404,22 @@ public class PeopleRestService implements ResourceContainer{
 
         // first add the author in the suggestion
         String authorId = activity.getPosterId();
-        userInfos = addUsernameToInfosList(authorId, identityFilter, userInfos, currentUser, true);
+        userInfos = addUsernameToInfosList(authorId, identityFilter, userInfos, currentUser, true, locale);
 
         // then add the commented users in the suggestion list
-        userInfos = addCommentedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser);
+        userInfos = addCommentedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser, locale);
 
         // add the mentioned users in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addMentionedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser);
+          userInfos = addMentionedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser, locale);
         }
 
         // add the liked users in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addLikedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser);
+          userInfos = addLikedUsers(activity, identityFilter, excludedIdentityList, userInfos, currentUser, locale);
         }
-
       }
       
       // add space members in the suggestion list when mentioning in a comment in a space Activity Stream or in main Activity Stream
@@ -413,22 +427,23 @@ public class PeopleRestService implements ResourceContainer{
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
           spaceURL = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spaceURL;
-          userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser);
+          userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser, locale);
         }
       }
       else {
         // add the connections in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain);
+          userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain, locale);
         }
 
         // finally add others in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
+          userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, locale);
         }
       }
+
       return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
 
     } else { // Identities that match the keywords.
@@ -439,14 +454,14 @@ public class PeopleRestService implements ResourceContainer{
     return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
   }
 
-  private LinkedHashSet<UserInfo> addUsersToUserInfosList(Identity[] identities, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId,  boolean filterByName) {
+  private LinkedHashSet<UserInfo> addUsersToUserInfosList(Identity[] identities, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId,  boolean filterByName, Locale locale) {
     for (Identity identity : identities) {
-      userInfos = addUserToInfosList(identity, identityFilter, userInfos, currentUserId, filterByName);
+      userInfos = addUserToInfosList(identity, identityFilter, userInfos, currentUserId, filterByName, locale);
     }
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addUserToInfosList(Identity userIdentity, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId, boolean filterByName) {
+  private LinkedHashSet<UserInfo> addUserToInfosList(Identity userIdentity, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId, boolean filterByName, Locale locale) {
     if (!userIdentity.getProviderId().equals(OrganizationIdentityProvider.NAME)) {
       LOG.warn("Cannot add Identity to suggestion list. Identity with id '"+ userIdentity.getRemoteId() + "' is not of type 'user'");
       return userInfos;
@@ -465,14 +480,22 @@ public class PeopleRestService implements ResourceContainer{
     if (!isAnonymous) {
       user.setId(userIdentity.getRemoteId());
     }
-    user.setName(userIdentity.getProfile() == null ? null : userIdentity.getProfile().getFullName());
+    StringBuilder externalName = new StringBuilder();
+    externalName = externalName.append(userIdentity.getProfile().getFullName()).append(" ").append(RestUtils.getResourceBundleLabel(locale, "external.label.tag")) ;
+    String fullName = null;
+    try {
+       fullName = RestUtils.isMemberOfExternalGroup(userIdentity.getRemoteId()) ? externalName.toString() : userIdentity.getProfile().getFullName() ;
+    } catch (Exception e) {
+      LOG.error("Error when checking external user", e);
+    }
+    user.setName(userIdentity.getProfile() == null ? null : fullName);
     user.setAvatar(userIdentity.getProfile() == null ? null : userIdentity.getProfile().getAvatarUrl());
     user.setType("contact");
     userInfos.add(user);
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addUsernameToInfosList(String userId, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId, boolean filterByName) {
+  private LinkedHashSet<UserInfo> addUsernameToInfosList(String userId, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId, boolean filterByName, Locale locale) {
     Identity userIdentity = getIdentityManager().getIdentity(userId, false);
     if (userIdentity == null) {
       userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, false);
@@ -481,69 +504,76 @@ public class PeopleRestService implements ResourceContainer{
       LOG.warn("Cannot find user identity with username = " + userId);
       return userInfos;
     }
-    return addUserToInfosList(userIdentity, identityFilter, userInfos, currentUserId, filterByName);
+    return addUserToInfosList(userIdentity, identityFilter, userInfos, currentUserId, filterByName, locale);
   }
 
-  private LinkedHashSet<UserInfo> addUserConnections (Identity currentIdentity, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser, long remain) throws Exception {
+  private LinkedHashSet<UserInfo> addUserConnections (Identity currentIdentity, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser, long remain, Locale locale) throws Exception {
     ListAccess<Identity> connections = getRelationshipManager().getConnectionsByFilter(currentIdentity, identityFilter);
     if (connections != null && connections.getSize() > 0) {
       Identity[] identities = connections.load(0, (int) remain);
-      userInfos = addUsersToUserInfosList(identities, identityFilter, userInfos, currentUser, false);
+      userInfos = addUsersToUserInfosList(identities, identityFilter, userInfos, currentUser, false, locale);
     }
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addOtherUsers (ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser, long remain) throws Exception {
+  private LinkedHashSet<UserInfo> addOtherUsers (ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser, long remain, Locale locale) throws Exception {
     List<Identity> listAccess = getIdentityManager().getIdentityStorage().getIdentitiesForMentions(OrganizationIdentityProvider.NAME, identityFilter, null, 0L, remain, false);
     identityFilter.setExcludedIdentityList(excludedIdentityList);
     Identity[] identitiesList = listAccess.toArray(new Identity[0]);
-    userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false);
+    userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false , locale);
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addSpaceMembers (String spaceURL, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser) {
+  private LinkedHashSet<UserInfo> addSpaceMembers (String spaceURL, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
     String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
     for (String spaceMember : spaceMembers) {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
       if (identity.isEnable() && !identity.isDeleted()) {
-        userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true);
+        userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true, locale);
       }
     }
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addCommentedUsers (ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser) {
+  private LinkedHashSet<UserInfo> addCommentedUsers (ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
     String[] commentedUsers = activity.getCommentedIds();
     for (String commentedUser : commentedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
-      userInfos = addUsernameToInfosList(commentedUser, identityFilter, userInfos, currentUser, true);
+      userInfos = addUsernameToInfosList(commentedUser, identityFilter, userInfos, currentUser, true, locale);
     }
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addMentionedUsers(ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser) {
+  private LinkedHashSet<UserInfo> addMentionedUsers(ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
     String[] mentionedUsers = activity.getMentionedIds();
     for (String mentionedUser : mentionedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
-      userInfos = addUsernameToInfosList(mentionedUser, identityFilter, userInfos, currentUser, true);
+      userInfos = addUsernameToInfosList(mentionedUser, identityFilter, userInfos, currentUser, true, locale);
     }
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addLikedUsers(ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser) {
+  private LinkedHashSet<UserInfo> addLikedUsers(ExoSocialActivity activity, ProfileFilter identityFilter, List<Identity> excludedIdentityList, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
     String[] likedUsers = activity.getLikeIdentityIds();
     for (String likedUser : likedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
-      userInfos = addUsernameToInfosList(likedUser, identityFilter, userInfos, currentUser, true);
+      userInfos = addUsernameToInfosList(likedUser, identityFilter, userInfos, currentUser, true, locale);
     }
     return userInfos;
   }
 
   private void addSpaceOrUserToList(List<Identity> identities, IdentityNameList options,
-                                   Space space, String typeOfRelation, int order) throws SpaceException {
+                                   Space space, String typeOfRelation, int order, Locale locale) throws SpaceException {
     SpaceService spaceSrv = getSpaceService(); 
     for (Identity identity : identities) {
       String fullName = identity.getProfile().getFullName();
+      StringBuilder externalName = new StringBuilder();
+      externalName = externalName.append(fullName).append(" ").append(RestUtils.getResourceBundleLabel(locale, "external.label.tag")) ;
+      try {
+        fullName = RestUtils.isMemberOfExternalGroup(identity.getRemoteId()) ? externalName.toString() : fullName;
+      } catch (Exception e) {
+        LOG.error("Error when checking external user", e);
+      }
       String userName = identity.getRemoteId();
       Option opt = new Option();
       if (SPACE_MEMBER.equals(typeOfRelation) && spaceSrv.isMember(space, userName)) {

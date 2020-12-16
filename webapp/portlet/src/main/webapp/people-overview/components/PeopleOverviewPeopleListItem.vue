@@ -22,7 +22,7 @@
       class="pa-0">
       <v-list-item-title>
         <a :href="url" class="text-color">
-          {{ user.fullname }}
+          {{ user.external === 'true' ? user.fullname + " " + $t('peopleOverview.label.external') : user.fullname }}
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>

@@ -18,13 +18,8 @@ package org.exoplatform.social.service.rest;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.core.MediaType;
@@ -32,6 +27,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
@@ -83,6 +81,8 @@ public class RestUtils {
   public static final String SUPPORT_TYPE            = "json";
 
   public static final String ADMIN_GROUP             = "/platform/administrators";
+
+  public static final String EXTERNAL_GROUP    = "/platform/externals";
   
   /**
    * Get a hash map from an identity in order to build a json object for the rest service
@@ -428,6 +428,34 @@ public class RestUtils {
     }
 
     return currentIdentity.getUserId();
+  }
+
+
+  /**
+   * Check if the user is a member of the external group
+   *
+   * @return
+   */
+  public static boolean isMemberOfExternalGroup(String userId) throws Exception{
+    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+    return organizationService.getMembershipHandler().findMembershipsByUserAndGroup(userId, EXTERNAL_GROUP).size() > 0;
+  }
+
+  public static String getResourceBundleLabel(Locale locale, String label) {
+    ResourceBundle resourceBundle = RestUtils.getSharedResourceBundle(locale);
+    return resourceBundle.getString(label);
+  }
+
+  public static ResourceBundle getSharedResourceBundle(Locale locale) {
+    return getResourceBundleService().getResourceBundle(getSharedResources(), locale);
+  }
+
+  public static ResourceBundleService getResourceBundleService() {
+    return ExoContainerContext.getService(ResourceBundleService.class);
+  }
+
+  public static String[] getSharedResources() {
+    return getResourceBundleService().getSharedResourceBundleNames();
   }
 
   /**
