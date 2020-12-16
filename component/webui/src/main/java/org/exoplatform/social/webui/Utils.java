@@ -40,6 +40,7 @@ import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -890,5 +891,15 @@ public class Utils {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
     GroupSpaceBindingService groupSpaceBindingService = container.getComponentInstanceOfType(GroupSpaceBindingService.class);
     return groupSpaceBindingService.countUserBindings(spaceId,username)>0;
+  }
+
+  /**
+   * Check if the user is external
+   *
+   * @param userIdentity
+   * @return true if the user is external
+   */
+  public static boolean isExternal(Identity userIdentity) {
+    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
   }
 }

@@ -60,8 +60,7 @@ public class URLUtils {
     
     String currentUserName = route.localArgs.get("streamOwnerId");
     org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
-    boolean isExternalViewer = viewerIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (viewerIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
-    if (isExternalViewer && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
+    if (Utils.isExternal(viewerIdentity) && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
       return null;
     }
     ExoContainer container = ExoContainerContext.getCurrentContainer();

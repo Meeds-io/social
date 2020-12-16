@@ -137,8 +137,7 @@ public class SpaceAccessApplicationLifecycle extends BaseComponentPlugin impleme
   private void processSpaceAccess(PortalRequestContext pcontext, String remoteId, Space space) throws IOException {
 
     org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
-    boolean isExternalViewer = viewerIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (viewerIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
-    if (isExternalViewer && !Utils.getSpaceService().isMember(space, viewerIdentity.getRemoteId())) {
+    if (Utils.isExternal(viewerIdentity) && !Utils.getSpaceService().isMember(space, viewerIdentity.getRemoteId())) {
       String url = Utils.getURI(EXTERNAL_STERAM);
       pcontext.sendRedirect(url);
       return;
