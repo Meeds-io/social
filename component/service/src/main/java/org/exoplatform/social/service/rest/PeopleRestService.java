@@ -299,8 +299,27 @@ public class PeopleRestService implements ResourceContainer{
 
         return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
       }
+      // Search in member of space first
+      if (currentSpace != null) {
+        String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
+        for (String spaceMember : spaceMembers) {
+          Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember);
+          if (identity.isEnable() && !identity.isDeleted() && !identity.getRemoteId().equals(currentIdentity.getRemoteId())) {
+            Option opt = new Option();
+            String fullName = identity.getProfile().getFullName();
+            String userName = (String) identity.getProfile().getProperty(Profile.USERNAME);
+            opt.setType("user");
+            opt.setValue(userName);
+            opt.setText(fullName + " (" + userName + ")");
+            opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
+            excludedIdentityList.add(identity);
+            opt.setOrder(1);
+            nameList.addOption(opt);
+          }
+        }
+      }
 
-      // Search in connections first
+      // Search in connections
       ListAccess<Identity> connections = getRelationshipManager().getConnectionsByFilter(currentIdentity, identityFilter);
       if (connections != null && connections.getSize() > 0) {
         int size = connections.getSize();
@@ -314,46 +333,50 @@ public class PeopleRestService implements ResourceContainer{
           opt.setText(fullName + " (" + userName + ")");
           opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
           excludedIdentityList.add(id);
-          opt.setOrder(1);
+          opt.setOrder(2);
           nameList.addOption(opt);
         }
       }
-
-      List<Space> exclusions = new ArrayList<Space>();
-      // Includes spaces the current user is member.
+      
+      // add others in the suggestion
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
+      if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
+        identityFilter.setExcludedIdentityList(excludedIdentityList);
+        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
+        List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
+        for (Identity id : identities) {
+          if (!Util.isExternal(id.getId())) {
+            Option opt = new Option();
+            String fullName = id.getProfile().getFullName();
+            String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
+            opt.setType("user");
+            opt.setValue(userName);
+            opt.setText(fullName);
+            opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
+            excludedIdentityList.add(id);
+            opt.setOrder(3);
+            nameList.addOption(opt);
+          }
+        }
+      }
+      
+      // Includes spaces the current user is member.
+      List<Space> exclusions = new ArrayList<Space>();
+      remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0) {
         SpaceFilter spaceFilter = new SpaceFilter();
         spaceFilter.setSpaceNameSearchCondition(name);
         ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
         Space[] spaces = list.load(0, (int) remain);
-        for (Space s : spaces) {
+        for (Space s : spaces) {  
           Option opt = new Option();
           opt.setType("space");
           opt.setValue(SPACE_PREFIX + s.getPrettyName());
           opt.setText(s.getDisplayName());
           opt.setAvatarUrl(s.getAvatarUrl());
-          opt.setOrder(2);
-          nameList.addOption(opt);
-          exclusions.add(s);
-        }
-      }
-      remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0) {
-        identityFilter.setExcludedIdentityList(excludedIdentityList);
-        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
-        List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
-        for (Identity id : identities) {
-          Option opt = new Option();
-          String fullName = id.getProfile().getFullName();
-          String userName = (String) id.getProfile().getProperty(Profile.USERNAME);
-          opt.setType("user");
-          opt.setValue(userName);
-          opt.setText(fullName);
-          opt.setAvatarUrl(id.getProfile() == null ? null : id.getProfile().getAvatarUrl());
-          excludedIdentityList.add(id);
           opt.setOrder(4);
           nameList.addOption(opt);
+          exclusions.add(s);
         }
       }
     } else if (MENTION_ACTIVITY_STREAM.equals(typeOfRelation)) {
@@ -372,7 +395,7 @@ public class PeopleRestService implements ResourceContainer{
   
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0) {
+        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -425,7 +448,7 @@ public class PeopleRestService implements ResourceContainer{
 
         // finally add others in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0) {
+        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain);
         }
       }
@@ -497,6 +520,10 @@ public class PeopleRestService implements ResourceContainer{
     List<Identity> listAccess = getIdentityManager().getIdentityStorage().getIdentitiesForMentions(OrganizationIdentityProvider.NAME, identityFilter, null, 0L, remain, false);
     identityFilter.setExcludedIdentityList(excludedIdentityList);
     Identity[] identitiesList = listAccess.toArray(new Identity[0]);
+    // Exclude external users from other users
+    identitiesList = Arrays.stream(identitiesList)
+            .filter(identity -> !Util.isExternal(identity.getId()))
+            .toArray(Identity[]::new);
     userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false);
     return userInfos;
   }
