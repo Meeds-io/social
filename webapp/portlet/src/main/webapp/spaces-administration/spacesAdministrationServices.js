@@ -115,37 +115,26 @@ export function getReport(spaceId, action, groupId, groupBindingId) {
 }
 
 export function saveExternalFeatureStatus(status) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/GLOBAL/GLOBAL/exo:externalUsers`, {
-    method: 'PUT',
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/management/featureservice/changeFeatureActivation?featureName=externalUsers&isActive=${status}`, {
+    method: 'POST',
     credentials: 'include',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      value: status,
-    }),
-  }).then((resp) => {
-    if (resp && resp.ok) {
-      return resp;
-    } else {
-      throw new Error('Error when setting External Feature settings');
-    }
   });
 }
 export function isExternalFeatureActive() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/GLOBAL/GLOBAL/exo:externalUsers`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/management/featureservice/isActiveFeature?featureName=externalUsers`, {
     method: 'GET',
     credentials: 'include',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-  }).then((resp) => {
-    if (resp && resp.ok) {
+  }).then(resp => {
+    if(resp && resp.ok) {
       return resp.json();
-    } else if (resp && resp.status === 404) {
-      return null;
     } else {
       throw new Error('Error when getting External Feature settings');
     }
