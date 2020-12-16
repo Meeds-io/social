@@ -673,4 +673,14 @@ public final class Util {
   public static boolean isAnonymous() {
     return IdentityConstants.ANONIM.equals(ConversationState.getCurrent().getIdentity().getUserId());
   }
+
+  /**
+   * Check if the user is external
+   *
+   * @return true if the user is external
+   */
+  public static boolean isExternal(String userId) {
+    Identity userIdentity = getIdentityManager(PortalContainer.getCurrentPortalContainerName()).getIdentity(userId);
+    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+  }
 }

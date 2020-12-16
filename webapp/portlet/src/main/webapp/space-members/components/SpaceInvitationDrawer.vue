@@ -25,7 +25,6 @@
           type-of-relations="user_to_invite"
           class="ma-4"
           include-users
-          include-spaces
           multiple />
         <v-alert v-if="error" type="error">
           {{ error }}
