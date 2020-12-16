@@ -74,7 +74,6 @@ import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
-import org.gatein.pc.api.PortletInvokerException;
 
 /**
  * {@link org.exoplatform.social.core.space.spi.SpaceService} implementation.
@@ -878,21 +877,7 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public List<Application> getSpacesApplications() {
     ApplicationCategory category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
-    List<Application> applicationList = category == null || category.getApplications() == null ? Collections.emptyList() : category.getApplications();
-    
-    Optional<ApplicationCategory> chatApplicationCategory;
-    try {
-      chatApplicationCategory = applicationRegistryService.detectPortletsFromWars().stream().filter(appCategory -> appCategory.getName().equals("chat")).findFirst();
-    } catch (PortletInvokerException | NullPointerException e) {
-      LOG.error("Error occurred when trying to import portlets to check for Chat Application's presence: ", e);
-      chatApplicationCategory = null;
-    }
-    // add Chat Application if present to the returned applications
-    if (chatApplicationCategory != null && chatApplicationCategory.isPresent()) {
-      applicationList.add(chatApplicationCategory.get().getApplications().get(0));
-    }
-    
-    return applicationList;
+    return category == null || category.getApplications() == null ? Collections.emptyList() : category.getApplications();
   }
 
   @Override

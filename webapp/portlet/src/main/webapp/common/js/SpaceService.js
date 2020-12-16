@@ -531,32 +531,3 @@ export function ignoreSuggestion(item) {
     }
   });
 }
-
-export function updateRoomEnabled(userSettings, spaceId, enabled) {
-  const data = {
-    user: userSettings.username,
-    spaceId: spaceId,
-    enabled: enabled,
-  };
-
-  return fetch('/chatServer/updateRoomEnabled', {
-    headers: {
-      'Authorization': `Bearer ${userSettings.token}`,
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    },
-    method: 'post',
-    body: decodeURI($.param(data))
-  });
-}
-
-export function isRoomEnabled(userSettings, spaceId) {
-  return fetch(`/chatServer/isRoomEnabled?user=${userSettings.username}&spaceId=${spaceId}`, {
-    headers: {
-      'Authorization': `Bearer ${userSettings.token}`
-    }}).then(resp =>  resp.text());
-}
-
-export function getUserSettings() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/chat/api/1.0/user/settings`, {credentials: 'include'})
-    .then(resp => resp.json());
-}

@@ -56,13 +56,7 @@ export default {
   },
   created() {
     this.$spaceService.getSpaceApplicationsChoices()
-      .then(data => {
-        this.applications = data;
-        // Remove Chat Application
-        if (this.applications.some(app => app.applicationName === 'ChatApplication')) {
-          this.applications.pop();
-        }
-      });
+      .then(data => this.applications = data);
   },
   methods: {
     open() {
