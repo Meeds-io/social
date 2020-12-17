@@ -267,7 +267,15 @@ export default {
       }
     },
   },
-  created() {    
+  created() {
+    // init isChaEnabled
+    const chatExtension = this.profileActionExtensions.slice().filter(extension => extension.title === this.$t('exoplatform.chat.open.chat'))[0];
+    if (chatExtension) {
+      chatExtension.enabled(this.space).then(value => {
+        this.isChatEnabled = value;
+      });
+    }
+    
     $(document).on('mousedown', () => {
       if (this.displayActionMenu) {
         window.setTimeout(() => {
