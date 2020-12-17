@@ -36,7 +36,11 @@
         :min="minDate"
         :max="maxDate"
         class="border-box-sizing"
-        @input="menu = false" />
+        @input="menu = false">
+        <template v-if="$slots.footer">
+          <slot name="footer"></slot>
+        </template>
+      </v-date-picker>
     </v-menu>
   </v-flex>
 </template>
