@@ -237,6 +237,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
+    isChatEnabled: false,
   }),
   computed: {
     spaceAvatarUrl() {
@@ -252,7 +253,7 @@ export default {
       if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
+      return this.profileActionExtensions.slice().filter(extension => this.isEnabledExtension(extension));
     },
     canUseActionsMenu() {
       return this.space && (this.space.canEdit || this.enabledProfileActionExtensions.length);
@@ -266,12 +267,7 @@ export default {
       }
     },
   },
-  created() {
-    this.$spaceService.getUserSettings()
-      .then(userSettings => {
-        this.$spaceService.isRoomEnabled(userSettings, this.space.id)
-          .then(value => Vue.set(this.space, 'isChatEnabled', value === 'true'));
-      });
+  created() {    
     $(document).on('mousedown', () => {
       if (this.displayActionMenu) {
         window.setTimeout(() => {
@@ -407,6 +403,10 @@ export default {
       this.confirmTitle = '';
       this.confirmMessage = '';
       this.okMethod = null;
+    },
+    isEnabledExtension(extension) {
+      const isChatExtension = extension.title === this.$t('exoplatform.chat.open.chat');
+      return !isChatExtension && extension.enabled(this.space) || isChatExtension && this.isChatEnabled;
     },
   },
 };
