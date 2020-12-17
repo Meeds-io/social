@@ -50,6 +50,7 @@
     <!-- **************************************** -->
     <org.exoplatform.commons.version>6.2.x-maintenance-SNAPSHOT</org.exoplatform.commons.version>
 
+
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
   </properties>
