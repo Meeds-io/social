@@ -12,12 +12,13 @@
   if(StringUtils.isNotEmpty(System.getProperty("user.status.ping.frequency"))) {
     frequency = Integer.parseInt(System.getProperty("user.status.ping.frequency"));
   }
-  jsManager.require("SHARED/presence", "presence").addScripts("presence.sendPing(" + frequency + ");");
-
   Space space = SpaceUtils.getSpaceByContext();
   TimeZone timezone = Utils.getViewerTimezone();
 %>
 <script type="text/javascript">
+     require(['SHARED/presence'], function(presence) {
+       presence.sendPing("<%= frequency %>");
+     });
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
      eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
      eXo.env.portal.spaceDisplayName = "<%=space == null ? "" : space.getDisplayName()%>" ;
