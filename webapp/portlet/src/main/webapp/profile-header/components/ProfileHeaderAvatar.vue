@@ -2,7 +2,7 @@
   <v-avatar
     :class="owner && hover && 'profileHeaderAvatarHoverEdit'"
     :size="size"
-    class="align-start flex-grow-0 ml-3 my-3 profileHeaderAvatar">
+    class="align-start flex-grow-0 ms-3 my-3 profileHeaderAvatar">
     <v-img
       :lazy-src="(avatarData || user && user.avatar) || ''" 
       :src="(avatarData || user && user.avatar) || ''" 

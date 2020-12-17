@@ -4,7 +4,7 @@
       <v-btn
         class="btn btn-primary my-auto addNewGroupButton"
         @click="$root.$emit('addNewGroup')">
-        <i class="uiIconGroup uiIconWhite mr-md-3"></i>
+        <i class="uiIconGroup uiIconWhite me-md-3"></i>
         <span class="d-none d-sm-inline">
           {{ $t('GroupsManagement.addGroup') }}
         </span>

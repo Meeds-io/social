@@ -20,7 +20,7 @@
                   icon
                   @click="openSecurityDetail">
                   <v-icon size="24" class="text-sub-title">
-                    fa-caret-right
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
                   </v-icon>
                 </v-btn>
               </span>

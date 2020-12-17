@@ -7,7 +7,7 @@
         tile>
         <i :class="applicationIcon"></i>
       </v-avatar>
-      <div class="flex-grow-1 SpaceApplicationCardBody">
+      <div class="flex-grow-1 SpaceApplicationCardBody text-truncate">
         <div
           :title="applicationName"
           class="text-truncate subtitle-1 px-1 pt-4 text-color SpaceApplicationCardTitle">

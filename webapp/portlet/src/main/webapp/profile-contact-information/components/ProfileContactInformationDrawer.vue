@@ -29,7 +29,7 @@
           </v-alert>
         </v-card-text>
         <v-card-text class="d-flex fullnameLabels text-color pb-2">
-          <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold mr-3">
+          <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">
             {{ $t('profileContactInformation.firstName') }}*
           </div>
           <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
@@ -37,7 +37,7 @@
           </div>
         </v-card-text>
         <v-card-text class="d-flex fullnameFields py-0">
-          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.firstName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold mr-3">
+          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.firstName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold me-3">
             <input
               v-model="userToSave.firstname"
               :disabled="saving || !userToSave.isInternal"
@@ -174,7 +174,7 @@
         <v-spacer />
         <v-btn
           :disabled="saving"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           {{ $t('profileContactInformation.button.cancel') }}
         </v-btn>

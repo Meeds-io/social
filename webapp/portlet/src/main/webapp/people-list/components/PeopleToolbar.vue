@@ -1,6 +1,6 @@
 <template>
   <v-toolbar id="peopleListToolbar" flat>
-    <div class="showingPeopleText text-sub-title ml-3 d-none d-sm-flex">
+    <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <v-spacer class="d-none d-sm-flex" />
@@ -9,12 +9,12 @@
         v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 mr-3 my-auto"></v-text-field>
+        class="inputPeopleFilter pa-0 me-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectPeopleFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectPeopleFilter my-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="peopleFilter in peopleFilters"
           :key="peopleFilter.value"
@@ -51,13 +51,13 @@
             @click="filterToChange = peopleFilter.value">
             <v-list-item-title class="align-center d-flex">
               <v-icon v-if="filterToChange === peopleFilter.value">fa-check</v-icon>
-              <span v-else class="mr-6"></span>
+              <span v-else class="me-6"></span>
               <v-spacer />
               <div>
                 {{ peopleFilter.text }}
               </div>
               <v-spacer />
-              <span class="mr-6"></span>
+              <span class="me-6"></span>
             </v-list-item-title>
           </v-list-item>
         </v-list>

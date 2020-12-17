@@ -11,10 +11,7 @@ if (extensionRegistry) {
 }
 
 Vue.use(Vuetify);
-const vuetify = new Vuetify({
-  dark: true,
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 

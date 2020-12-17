@@ -4,7 +4,7 @@
       <v-btn
         class="btn btn-primary addNewMembershipTypeButton"
         @click="$root.$emit('addNewMembershipType')">
-        <i class="uiIconSocSimplePlus uiIconWhite mr-md-3"></i>
+        <i class="uiIconSocSimplePlus uiIconWhite me-md-3"></i>
         <span class="d-none d-sm-inline">
           {{ $t('MembershipTypesManagement.addMembershipType') }}
         </span>
@@ -16,7 +16,7 @@
         v-model="keyword"
         :placeholder="$t('MembershipTypesManagement.filterBy')"
         prepend-inner-icon="fa-filter"
-        class="inputMembershipTypeFilter pa-0 mr-3 my-auto" />
+        class="inputMembershipTypeFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
   </v-toolbar>
 </template>

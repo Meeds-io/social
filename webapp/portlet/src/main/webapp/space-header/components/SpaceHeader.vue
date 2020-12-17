@@ -16,7 +16,7 @@
           <v-layout>
             <v-flex class="d-flex spaceHeaderTitle">
               <div class="flex-grow-1"></div>
-              <div class="d-flex flex-grow-0 justify-end pr-4">
+              <div class="d-flex flex-grow-0 justify-end pe-4">
                 <exo-confirm-dialog
                   ref="errorUploadDialog"
                   :message="errorMessage"

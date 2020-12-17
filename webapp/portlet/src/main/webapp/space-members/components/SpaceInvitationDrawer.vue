@@ -55,7 +55,7 @@
             class="externalBadge pa-0"
           >
             <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon class="helpIcon">mdi-help</v-icon></span>
-            <v-list-item-avatar class="ml-0">
+            <v-list-item-avatar class="ms-0">
               <v-img
                 :src="defaultAvatar"
               ></v-img>
@@ -86,7 +86,7 @@
             class="externalBadge pa-0"
           >
             <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
-            <v-list-item-avatar class="ml-0">
+            <v-list-item-avatar class="ms-0">
               <v-img
                 :src="defaultAvatar"
               ></v-img>
@@ -111,7 +111,7 @@
         <v-spacer />
         <v-btn
           :disabled="savingSpace || spaceSaved"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           {{ $t('peopleList.label.cancel') }}
         </v-btn>
