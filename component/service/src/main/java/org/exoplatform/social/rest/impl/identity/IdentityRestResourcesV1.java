@@ -92,7 +92,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       
       IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
       String providerId = (type != null && type.equals("space")) ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
-      ListAccess<Identity> listAccess = identityManager.getIdentitiesByProfileFilter(providerId, new ProfileFilter(), true);
+      ListAccess<Identity> listAccess = identityManager.getIdentitiesByProfileFilter(providerId, new ProfileFilter(), true, false);
       Identity[] identities = listAccess.load(offset, limit);
       List<DataEntity> identityEntities = new ArrayList<DataEntity>();
       for (Identity identity : identities) {

@@ -181,7 +181,7 @@ public class PeopleRestService implements ResourceContainer{
       result = listAccess.load(0, (int)SUGGEST_LIMIT);
       nameList.addToNameList(result);
     } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
-      List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false).load(0, (int)SUGGEST_LIMIT));
+      List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false, false).load(0, (int) SUGGEST_LIMIT));
       Space space = getSpaceService().getSpaceByUrl(spaceURL);
       addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 0);
     } else if (USER_TO_INVITE.equals(typeOfRelation)) {
@@ -237,7 +237,7 @@ public class PeopleRestService implements ResourceContainer{
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
-        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
+        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 2);
       }
@@ -342,7 +342,7 @@ public class PeopleRestService implements ResourceContainer{
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
-        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
+        ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
           if (!Util.isExternal(id.getId())) {
@@ -615,7 +615,7 @@ public class PeopleRestService implements ResourceContainer{
     
     filter.setName(query);
     List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(
-                                  OrganizationIdentityProvider.NAME, filter, false).load(0, (int)SUGGEST_LIMIT));
+            OrganizationIdentityProvider.NAME, filter, false, false).load(0, (int) SUGGEST_LIMIT));
     
     List<UserInfo> userInfos = new ArrayList<PeopleRestService.UserInfo>(identities.size());
     UserInfo userInfo;

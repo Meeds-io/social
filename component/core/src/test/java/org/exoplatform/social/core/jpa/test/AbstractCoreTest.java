@@ -267,7 +267,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   }
 
   protected void deleteAllIdentitiesWithActivities() throws Exception {
-    ListAccess<org.exoplatform.social.core.identity.model.Identity> organizationIdentities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, new ProfileFilter(), false);
+    ListAccess<org.exoplatform.social.core.identity.model.Identity> organizationIdentities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, new ProfileFilter(), false, false);
     Arrays.stream(organizationIdentities.load(0, organizationIdentities.getSize()))
             .forEach(identity -> {
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesWithListAccess(identity);
@@ -276,7 +276,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
               identityManager.deleteIdentity(identity);
             });
 
-    ListAccess<Identity> spaceIdentities = identityManager.getIdentitiesByProfileFilter(SpaceIdentityProvider.NAME, new ProfileFilter(), false);
+    ListAccess<Identity> spaceIdentities = identityManager.getIdentitiesByProfileFilter(SpaceIdentityProvider.NAME, new ProfileFilter(), false, false);
     Arrays.stream(spaceIdentities.load(0, spaceIdentities.getSize()))
             .forEach(identity -> {
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesOfSpaceWithListAccess(identity);
@@ -295,7 +295,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected void deleteAllRelationships() throws Exception {
     RelationshipManager relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     IdentityManager identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    ListAccess<org.exoplatform.social.core.identity.model.Identity> identities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, new ProfileFilter(), true);
+    ListAccess<org.exoplatform.social.core.identity.model.Identity> identities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, new ProfileFilter(), true, false);
     for(org.exoplatform.social.core.identity.model.Identity identity : identities.load(0, identities.getSize())) {
       ListAccess<Identity> relationships = relationshipManager.getAllWithListAccess(identity);
       Arrays.stream(relationships.load(0, relationships.getSize()))

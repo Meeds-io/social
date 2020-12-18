@@ -280,7 +280,7 @@ public class UIDisplayProfileList extends UIContainer {
     ProfileFilter filter = uiProfileUserSearch.getProfileFilter();
 
     ListAccess<Identity> listAccess = Utils.getIdentityManager().getIdentitiesByProfileFilter(lastOwner.getProviderId(), filter,
-                                                                                              false);
+                                                                                              false, false);
     Identity[] identities = listAccess.load(index, length);
 
     setPeopleNum(listAccess.getSize());

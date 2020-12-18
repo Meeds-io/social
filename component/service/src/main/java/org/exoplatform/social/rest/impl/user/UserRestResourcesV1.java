@@ -247,7 +247,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   @GET
-  @RolesAllowed("users")
+  @RolesAllowed("administrators")
   @ApiOperation(value = "Gets all users",
                 httpMethod = "GET",
                 response = Response.class,
@@ -301,9 +301,86 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
-      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
+      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false, false);
       identities = list.load(offset, limit);
       if(returnSize) {
+        totalSize = list.getSize();
+      }
+    }
+    List<DataEntity> profileInfos = new ArrayList<DataEntity>();
+    for (Identity identity : identities) {
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      //
+      profileInfos.add(profileInfo.getDataEntity());
+    }
+    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+    if (returnSize) {
+      collectionUser.setSize(totalSize);
+    }
+
+    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+  @GET
+  @RolesAllowed("users")
+  @Path("people")
+  @ApiOperation(value = "Gets users except externals",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
+                  + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
+                  + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
+                  + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored")
+  @ApiResponses(value = {
+          @ApiResponse (code = 200, message = "Request fulfilled"),
+          @ApiResponse (code = 404, message = "Resource not found"),
+          @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
+          @ApiResponse (code = 400, message = "Invalid query input") })
+  public Response getPeople(@Context UriInfo uriInfo,
+                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
+                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
+                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
+                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
+                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
+                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                            @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+
+    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+
+    Identity[] identities;
+    int totalSize = 0;
+
+    if (StringUtils.isNotBlank(status) && ONLINE.equals(status)) {
+      String userId;
+      try {
+        userId = ConversationState.getCurrent().getIdentity().getUserId();
+      } catch (Exception e) {
+        return Response.status(HTTPStatus.UNAUTHORIZED).build();
+      }
+      if (StringUtils.isBlank(userId)) {
+        return Response.status(HTTPStatus.UNAUTHORIZED).build();
+      }
+      Space space = null;
+      if (StringUtils.isNotBlank(spaceId)) {
+        space = spaceService.getSpaceById(spaceId);
+        if (space != null) {
+          identities = getOnlineIdentitiesOfSpace(userId, space, limit);
+        } else {
+          return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
+        }
+      } else {
+        identities = getOnlineIdentities(userId, limit);
+      }
+    } else {
+      ProfileFilter filter = new ProfileFilter();
+      filter.setName(q == null || q.isEmpty() ? "" : q);
+      filter.setPosition(q == null || q.isEmpty() ? "" : q);
+      filter.setSkills(q == null || q.isEmpty() ? "" : q);
+      ListAccess<Identity> list = null;
+      list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false, true);
+      identities = list.load(offset, limit);
+      if (returnSize) {
         totalSize = list.getSize();
       }
     }

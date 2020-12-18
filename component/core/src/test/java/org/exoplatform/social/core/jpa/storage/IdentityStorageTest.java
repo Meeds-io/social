@@ -441,40 +441,40 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     String sortField = SortBy.FULLNAME.getFieldName();
     String fieldName = Profile.FULL_NAME;
-    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.LAST_NAME;
     sortField = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.FIRST_NAME;
     sortField = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacter = 'f';
     firstCharacterFieldName = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, offset, limit,false);
     assertTrue("Returned result should be empty", result.isEmpty());
   }
 

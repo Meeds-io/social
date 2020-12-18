@@ -52,6 +52,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
   /** The type */
   Type type;
   
+  boolean excludeExternal;
+  
   /**
    * The Profile list access Type Enum.
    */
@@ -75,11 +77,12 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
    * @param forceLoadProfile True then force to load profile.
    */
   public ProfileFilterListAccess(IdentityStorage identityStorage, String providerId, ProfileFilter profileFilter,
-                                 boolean forceLoadProfile) {
+                                 boolean forceLoadProfile , boolean excludeExternal) {
     this.identityStorage = identityStorage;
     this.profileFilter = profileFilter;
     this.providerId = providerId;
     this.forceLoadProfile = forceLoadProfile;
+    this.excludeExternal = excludeExternal;
   }
   
   /**
@@ -155,7 +158,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      sortFieldName,
                                                      sortDirection,
                                                      offset,
-                                                     usedLimit);
+                                                     usedLimit,
+                                                     excludeExternal);
         }
       } else {
         String firstCharFieldName = profileFilter.getFirstCharFieldName();

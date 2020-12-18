@@ -182,7 +182,7 @@ public interface IdentityManager {
    * @since 1.2.0-GA
    */
   ListAccess<Identity> getIdentitiesByProfileFilter(String providerId, ProfileFilter profileFilter,
-                                                  boolean isProfileLoaded);
+                                                  boolean isProfileLoaded, boolean excludeExternal);
   
   /**
    * Gets a list access which contains identities matching with the Unified Search condition.

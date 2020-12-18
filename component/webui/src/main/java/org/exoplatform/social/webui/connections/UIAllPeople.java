@@ -278,7 +278,7 @@ public class UIAllPeople extends UIContainer {
     ProfileFilter filter = uiProfileUserSearch.getProfileFilter();
 
     ListAccess<Identity> listAccess = Utils.getIdentityManager().getIdentitiesByProfileFilter(lastOwner.getProviderId(), filter,
-                                                                                              false);
+                                                                                              false, false);
     Identity[] identities = listAccess.load(index, length);
     setPeopleNum(identities.length < PEOPLE_PER_PAGE? identities.length : listAccess.getSize());
     //

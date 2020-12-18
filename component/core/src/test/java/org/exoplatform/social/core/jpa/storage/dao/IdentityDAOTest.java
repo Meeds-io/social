@@ -181,7 +181,8 @@ public class IdentityDAOTest extends BaseCoreTest {
                                                                         null,
                                                                         null,
                                                                         0,
-                                                                        Integer.MAX_VALUE);
+                                                                        Integer.MAX_VALUE,
+                                                                        false);
     assertTrue(identitiesList.size() >= 20);
     Iterator<String> iterator = identitiesList.iterator();
     while (iterator.hasNext()) {

@@ -435,14 +435,14 @@ public class IdentityManagerTest extends AbstractCoreTest {
     // Test order by last name
     pf.setFirstCharacterOfName('D');
     pf.setSorting(new Sorting(SortBy.FULLNAME, OrderBy.ASC));
-    idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false);
+    idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false, false);
     assertNotNull(idsListAccess);
     assertEquals(2, idsListAccess.getSize());
     assertEquals("Alain Dupond", idsListAccess.load(0, 20)[0].getProfile().getFullName());
     assertEquals("Bob Dupond", idsListAccess.load(0, 20)[1].getProfile().getFullName());
 
     pf = new ProfileFilter();
-    idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false);
+    idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false, false);
     assertNotNull(idsListAccess);
     assertEquals(3, idsListAccess.getSize());
     assertEquals("Alain Dupond", idsListAccess.load(0, 20)[0].getProfile().getFullName());

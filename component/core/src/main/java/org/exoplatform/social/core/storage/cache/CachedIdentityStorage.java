@@ -702,7 +702,8 @@ public class CachedIdentityStorage implements IdentityStorage {
                                       String sortField,
                                       String sortDirection,
                                       long offset,
-                                      long limit) {
+                                      long limit,
+                                      boolean excludeExternal) {
     ProfileFilter profileFilter = null;
     if (firstCharacter > 0 || StringUtils.isNotBlank(sortField)) {
       profileFilter = new ProfileFilter();
@@ -724,7 +725,8 @@ public class CachedIdentityStorage implements IdentityStorage {
                                                    sortField,
                                                    sortDirection,
                                                    offset,
-                                                   limit);
+                                                   limit,
+                                                   excludeExternal);
         return buildIds(got);
       }
     }, listKey);
@@ -738,7 +740,7 @@ public class CachedIdentityStorage implements IdentityStorage {
    */
   @Override
   public List<Identity> getIdentities(String providerId, long offset, long limit) {
-    return this.getIdentities(providerId, null, '\u0000', null, null, offset, limit);
+    return this.getIdentities(providerId, null, '\u0000', null, null, offset, limit, false);
   }
 
   @Override

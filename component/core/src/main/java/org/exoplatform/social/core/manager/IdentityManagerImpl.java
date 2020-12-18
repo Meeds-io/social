@@ -165,7 +165,7 @@ public class IdentityManagerImpl implements IdentityManager {
    * {@inheritDoc}
    */
   public ListAccess<Identity> getIdentitiesByProfileFilter(String providerId, ProfileFilter profileFilter,
-                                                           boolean forceLoadProfile) {
+                                                           boolean forceLoadProfile, boolean excludeExternal) {
     if (profileFilter == null) {
       profileFilter = new ProfileFilter();
     }
@@ -175,7 +175,7 @@ public class IdentityManagerImpl implements IdentityManager {
     if (StringUtils.isBlank(profileFilter.getFirstCharFieldName())) {
       profileFilter.setFirstCharFieldName(this.firstCharacterFiltering);
     }
-    return (new ProfileFilterListAccess(identityStorage, providerId, profileFilter, forceLoadProfile));
+    return (new ProfileFilterListAccess(identityStorage, providerId, profileFilter, forceLoadProfile, excludeExternal));
   }
 
   
@@ -347,14 +347,14 @@ public class IdentityManagerImpl implements IdentityManager {
    * {@inheritDoc}
    */
   public List<Identity> getIdentities(String providerId, boolean loadProfile) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, new ProfileFilter(), loadProfile).load(OFFSET, LIMIT));
+    return Arrays.asList(getIdentitiesByProfileFilter(providerId, new ProfileFilter(), loadProfile, false).load(OFFSET, LIMIT));
   }
 
   /**
    * {@inheritDoc}
    */
   public List<Identity> getIdentitiesByProfileFilter(String providerId, ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load(OFFSET, LIMIT));
+    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false, false).load(OFFSET, LIMIT));
   }
   
   /**
@@ -372,14 +372,14 @@ public class IdentityManagerImpl implements IdentityManager {
                                                      ProfileFilter profileFilter,
                                                      long offset,
                                                      long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load((int)offset, (int)limit));
+    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false, false).load((int) offset, (int) limit));
   }
 
   /**
    * {@inheritDoc}
    */
   public List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load(OFFSET, LIMIT));
+    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false, false).load(OFFSET, LIMIT));
   }
 
   /**
@@ -388,14 +388,14 @@ public class IdentityManagerImpl implements IdentityManager {
   public List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter,
                                                      long offset,
                                                      long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load((int) offset, (int)limit));
+    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false, false).load((int) offset, (int)limit));
   }
 
   /**
    * {@inheritDoc}
    */
   public List<Identity> getIdentitiesFilterByAlphaBet(String providerId, ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load(OFFSET, LIMIT));
+    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false, false).load(OFFSET, LIMIT));
   }
 
   /**
@@ -405,14 +405,14 @@ public class IdentityManagerImpl implements IdentityManager {
                                                       ProfileFilter profileFilter,
                                                       long offset,
                                                       long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load((int)offset, (int)limit));
+    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false, false).load((int)offset, (int)limit));
   }
 
   /**
    * {@inheritDoc}
    */
   public List<Identity> getIdentitiesFilterByAlphaBet(ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load(OFFSET, LIMIT));
+    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false, false).load(OFFSET, LIMIT));
   }
 
   /**

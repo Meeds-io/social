@@ -107,7 +107,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection);
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
@@ -141,8 +141,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection);
+  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, long offset, long limit, boolean excludeExternal) {
+    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection , excludeExternal);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
   }
 
@@ -336,7 +336,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
                                                 String firstCharacterFieldName,
                                                 char firstCharacter,
                                                 String sortField,
-                                                String sortDirection) {
+                                                String sortDirection,
+                                                boolean excludeExternals) {
     // Oracle and MSSQL support only 1/0 for boolean, Postgresql supports only
     // TRUE/FALSE, MySQL supports both
     String dbBoolFalse = isOrcaleDialect() || isMSSQLDialect() ? "0" : "FALSE";
@@ -344,14 +345,31 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     // Oracle Dialect in Hibernate 4 is not registering NVARCHAR correctly, see
     // HHH-10495
     StringBuilder queryStringBuilder = null;
-    if (isOrcaleDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT to_char(identity_1.remote_id), identity_1.identity_id \n");
-    } else if (isMSSQLDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+    if (excludeExternals) {
+      if (isOrcaleDialect()) {
+        queryStringBuilder = new StringBuilder("SELECT DISTINCT to_char(identity_1.remote_id), identity_1.identity_id, identity_prop.value \n");
+      } else if (isMSSQLDialect()) {
+        queryStringBuilder = new StringBuilder("SELECT DISTINCT try_convert(varchar(200), identity_1.remote_id, identity_prop.value) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+      } else {
+        queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id, identity_prop.value \n");
+      }
+      queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_1 \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_1.identity_id \n");
+      queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+      queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
+      queryStringBuilder.append("   AND properties_tmp.value = ").append(dbBoolTrue).append(") \n");
     } else {
-      queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
+      if (isOrcaleDialect()) {
+        queryStringBuilder = new StringBuilder("SELECT to_char(identity_1.remote_id), identity_1.identity_id \n");
+      } else if (isMSSQLDialect()) {
+        queryStringBuilder = new StringBuilder("SELECT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+      } else {
+        queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
+      }
+      queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     }
-    queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
       queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
