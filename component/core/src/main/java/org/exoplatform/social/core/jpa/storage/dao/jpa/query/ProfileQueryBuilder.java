@@ -69,6 +69,10 @@ public class ProfileQueryBuilder {
     List<Predicate> predicates = new ArrayList<>();
 
     if (filter != null) {
+      if (filter.isExcludeExternal()) {
+        //TODO
+      }
+      
       if (filter.isForceLoadProfile()) {
         //TODO: profile is now always EAGER load
 //        Fetch<IdentityEntity,ProfileEntity> fetch = identity.fetch(IdentityEntity_.profile, JoinType.INNER);

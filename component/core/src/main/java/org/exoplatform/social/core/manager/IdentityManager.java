@@ -177,6 +177,7 @@ public interface IdentityManager {
    * @param providerId Id of the provider.
    * @param profileFilter The filter.
    * @param isProfileLoaded Is profile loaded or not.
+   * @param excludeExternal exclude external users or not.
    * @return The identities.
    * @LevelAPI Platform 
    * @since 1.2.0-GA
@@ -293,7 +294,7 @@ public interface IdentityManager {
    * @throws Exception the exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesByProfileFilter(String providerId, ProfileFilter profileFilter) throws Exception;
 
@@ -308,7 +309,7 @@ public interface IdentityManager {
    * @throws Exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesByProfileFilter(String providerId,
                                               ProfileFilter profileFilter,
@@ -323,7 +324,7 @@ public interface IdentityManager {
    * @throws Exception the exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter) throws Exception;
 
@@ -337,7 +338,7 @@ public interface IdentityManager {
    * @throws Exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter, long offset, long limit) throws Exception;
 
@@ -350,7 +351,7 @@ public interface IdentityManager {
    * @throws Exception the exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesFilterByAlphaBet(String providerId, ProfileFilter profileFilter) throws Exception;
 
@@ -365,7 +366,7 @@ public interface IdentityManager {
    * @throws Exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesFilterByAlphaBet(String providerId,
                                                ProfileFilter profileFilter,
@@ -380,7 +381,7 @@ public interface IdentityManager {
    * @throws Exception the exception
    * @LevelAPI Provisional
    * @deprecated Use {@link #getIdentitiesByProfileFilter(String, org.exoplatform.social.core.profile.ProfileFilter,
-   * boolean)} instead. Will be removed by 4.0.x.
+   * boolean, boolean)} instead. Will be removed by 4.0.x.
    */
   List<Identity> getIdentitiesFilterByAlphaBet(ProfileFilter profileFilter) throws Exception;
 

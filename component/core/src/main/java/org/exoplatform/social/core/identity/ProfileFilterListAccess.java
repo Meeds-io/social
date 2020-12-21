@@ -205,7 +205,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       size = identityStorage.getIdentitiesByFirstCharacterOfNameCount(providerId, profileFilter);
     } else if (profileFilter.isEmpty()) {
       if(profileFilter.getViewerIdentity() == null) {
-        size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
+        size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter, excludeExternal);
       } else {
         size = identityStorage.countIdentitiesWithRelationships(profileFilter.getViewerIdentity().getId());
         // Remove Count of viewer identity

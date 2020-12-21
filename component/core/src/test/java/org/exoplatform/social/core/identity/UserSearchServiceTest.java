@@ -45,7 +45,7 @@ public class UserSearchServiceTest extends TestCase {
     Identity identity = new Identity(OrganizationIdentityProvider.NAME, userId);
     List<Identity> identities = Collections.singletonList(identity);
 
-    when(identityStorageMock.getIdentitiesByProfileFilterCount(eq(OrganizationIdentityProvider.NAME), any())).thenReturn(1);
+    when(identityStorageMock.getIdentitiesByProfileFilterCount(eq(OrganizationIdentityProvider.NAME), any(), anyBoolean())).thenReturn(1);
     when(identityStorageMock.getIdentitiesForMentionsCount(eq(OrganizationIdentityProvider.NAME), any(), any())).thenReturn(1);
 
     when(identityStorageMock.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME),
@@ -88,7 +88,7 @@ public class UserSearchServiceTest extends TestCase {
                                                                     anyLong(),
                                                                     anyLong(),
                                                                     anyBoolean());
-    verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilterCount(anyString(), any());
+    verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilterCount(anyString(), any(), anyBoolean());
     verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilter(anyString(), any(), anyLong(), anyLong(), anyBoolean());
 
     try {
@@ -104,7 +104,7 @@ public class UserSearchServiceTest extends TestCase {
       fail("failed to test search method on UserSearchService, cause = " + e.getMessage());
       return;
     }
-    verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilterCount(anyString(), any());
+    verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilterCount(anyString(), any(), anyBoolean());
     verify(identityStorageMock, atLeast(1)).getIdentitiesByProfileFilter(anyString(), any(), anyLong(), anyLong(), anyBoolean());
   }
 }

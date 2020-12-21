@@ -461,7 +461,7 @@ public class CachedIdentityStorage implements IdentityStorage {
   /**
    * {@inheritDoc}
    */
-  public int getIdentitiesByProfileFilterCount(final String providerId, final ProfileFilter profileFilter)
+  public int getIdentitiesByProfileFilterCount(final String providerId, final ProfileFilter profileFilter, boolean isExcludeExternal)
       throws IdentityStorageException {
 
     //
@@ -472,7 +472,7 @@ public class CachedIdentityStorage implements IdentityStorage {
         new ServiceContext<IntegerData>() {
 
           public IntegerData execute() {
-            return new IntegerData(storage.getIdentitiesByProfileFilterCount(providerId, profileFilter));
+            return new IntegerData(storage.getIdentitiesByProfileFilterCount(providerId, profileFilter, isExcludeExternal));
           }
         },
         key)

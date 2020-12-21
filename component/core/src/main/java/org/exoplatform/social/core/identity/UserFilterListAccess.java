@@ -93,7 +93,7 @@ public class UserFilterListAccess implements ListAccess<User> {
   public int getSize() throws Exception {
     int size = 0;
     if (profileFilter.isEmpty()) {
-      size = identityStorage.getIdentitiesByProfileFilterCount(OrganizationIdentityProvider.NAME, profileFilter);
+      size = identityStorage.getIdentitiesByProfileFilterCount(OrganizationIdentityProvider.NAME, profileFilter, false);
     } else {
       size = identityStorage.getIdentitiesForMentionsCount(OrganizationIdentityProvider.NAME, profileFilter, null);
     }

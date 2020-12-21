@@ -212,7 +212,7 @@ public interface IdentityStorage {
    * @throws IdentityStorageException
    * @since 1.2.0-GA
    */
-  public int getIdentitiesByProfileFilterCount(final String providerId, final ProfileFilter profileFilter)
+  public int getIdentitiesByProfileFilterCount(final String providerId, final ProfileFilter profileFilter, boolean isExcludeExternal)
       throws IdentityStorageException;
 
   /**

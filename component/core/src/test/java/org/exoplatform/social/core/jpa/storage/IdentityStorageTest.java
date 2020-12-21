@@ -546,27 +546,27 @@ public class IdentityStorageTest extends AbstractCoreTest {
     populateData();
 
     ProfileFilter pf = new ProfileFilter();
-    int idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf);
+    int idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf, false);
     assertEquals(5, idsCount);
     
     pf.setPosition("developer");
     pf.setName("FirstName");
-    
-    idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf);
+
+    idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf, false);
     assertEquals(5, idsCount);
     
     pf.setName("LastN");
-    idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf);
+    idsCount = identityStorage.getIdentitiesByProfileFilterCount("organization", pf, false);
     assertEquals(5, idsCount);
     
     //disable username1
     Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, "username1");
     identityStorage.processEnabledIdentity(identity, false);
-    assertEquals(4, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    assertEquals(4, identityStorage.getIdentitiesByProfileFilterCount("organization", pf, false));
     
     //enable username1
     identityStorage.processEnabledIdentity(identity, true);
-    assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf, false));
   }
   
   /**

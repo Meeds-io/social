@@ -38,6 +38,7 @@ public class ExtendProfileFilter extends ProfileFilter {
 
   private boolean excludeDeleted = true;
   private boolean excludeDisabled = true;
+  private boolean excludeExternal = false;
   private List<Long> identityIds = null;
   private String providerId = null;
   private boolean forceLoadProfile = false;
@@ -101,6 +102,10 @@ public class ExtendProfileFilter extends ProfileFilter {
   public void setExcludeDisabled(boolean excludeDisabled) {
     this.excludeDisabled = excludeDisabled;
   }
+
+  public boolean isExcludeExternal() { return excludeExternal; }
+
+  public void setExcludeExternal(boolean excludeExternal) { this.excludeExternal = excludeExternal; }
 
   public ProfileFilter getDelegate() {
     return delegate;
