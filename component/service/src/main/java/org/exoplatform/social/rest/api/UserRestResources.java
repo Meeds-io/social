@@ -49,6 +49,7 @@ public interface UserRestResources extends SocialRest {
                                     @QueryParam("q") String q,
                                     @QueryParam("status") String status,
                                     @QueryParam("spaceId") String spaceId,
+                                    @QueryParam("excludeExternal") boolean excludeExternal,
                                     @QueryParam("offset") int offset,
                                     @QueryParam("limit") int limit,
                                     @QueryParam("returnSize") boolean returnSize,

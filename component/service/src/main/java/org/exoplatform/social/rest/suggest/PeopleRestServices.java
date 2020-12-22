@@ -8,6 +8,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import org.exoplatform.social.service.rest.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -255,10 +256,10 @@ public class PeopleRestServices implements ResourceContainer {
       }
       for (Entry<Identity, Integer> suggestion : suggestions.entrySet()) {
         Identity id = suggestion.getKey();
-
-        if (id.getRemoteId().equals(userACL.getSuperUser())) continue;
-        JSONObject json = new JSONObject();
         Profile socialProfile = id.getProfile();
+        boolean isExternal = socialProfile.getProperty(Profile.EXTERNAL) != null && (socialProfile.getProperty(Profile.EXTERNAL)).equals("true");
+        if ((id.getRemoteId().equals(userACL.getSuperUser())) || isExternal) continue;
+        JSONObject json = new JSONObject();
         String avatar = socialProfile.getAvatarUrl();
         if (avatar == null) {
           avatar = DEFAULT_AVATAR;

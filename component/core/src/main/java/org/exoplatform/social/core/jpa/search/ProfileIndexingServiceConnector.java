@@ -215,6 +215,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 
     Identity identity = identityManager.getIdentity(id, true);
     Profile profile = identity.getProfile();
+    boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
 
     Map<String, String> fields = new HashMap<String, String>();
     fields.put("name", removeAccents(profile.getFullName()));
@@ -225,6 +226,9 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
     fields.put("email", profile.getEmail());
+    if (isExternal) {
+      fields.put("external", "true");
+    }
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections

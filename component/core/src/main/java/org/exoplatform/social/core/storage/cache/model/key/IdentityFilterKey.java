@@ -50,6 +50,7 @@ public class IdentityFilterKey implements CacheKey {
   private List<String> onlineRemoteIds;
   private String all;
   private Sorting sorting;
+  private boolean excludeExternal;
   
   /**
    * Constructor for case using remoteId as key.
@@ -67,6 +68,7 @@ public class IdentityFilterKey implements CacheKey {
       this.skills = filter.getSkills();
       this.firstChar = filter.getFirstCharacterOfName();
       this.firstCharFieldName = filter.getFirstCharFieldName();
+      this.excludeExternal = filter.isExcludeExternal();
 
       List<IdentityKey> keys = new ArrayList<IdentityKey>();
       for (Identity i : filter.getExcludedIdentityList()) {
@@ -132,6 +134,7 @@ public class IdentityFilterKey implements CacheKey {
     if (remoteId != null ? !remoteId.equals(that.remoteId) : that.remoteId != null) return false;
     if (skills != null ? !skills.equals(that.skills) : that.skills != null) return false;
     if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
+    if (excludeExternal != that.excludeExternal) return false;
 
     return true;
   }
@@ -150,6 +153,7 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (onlineRemoteIds != null ? onlineRemoteIds.hashCode() : 0);
     result = 31 * result + (all != null ? all.hashCode() : 0);
     result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
+    result = 31 * result + Boolean.hashCode(excludeExternal);
     return result;
   }
 
