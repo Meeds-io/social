@@ -22,7 +22,7 @@
       class="pa-0">
       <v-list-item-title>
         <a :href="url" class="text-color">
-          {{ user.fullname }}
+          {{ user.external === 'true' ? user.fullname + " " + "(" + $t('peopleOverview.label.profile.external') + ")" : user.fullname }}
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>
@@ -120,6 +120,7 @@ export default {
         Confirm: this.$t('peopleOverview.label.profile.Confirm'),
         Connect: this.$t('peopleOverview.label.profile.Connect'),
         Ignore: this.$t('peopleOverview.label.profile.Ignore'),
+        External: this.$t('peopleOverview.label.profile.external'),
         RemoveConnection: this.$t('peopleOverview.label.profile.RemoveConnection'),
         StatusTitle: this.$t('peopleOverview.label.profile.StatusTitle'),
       };

@@ -2,10 +2,12 @@ package org.exoplatform.social.service.rest.api.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.service.rest.Util;
 
 /**
  * UserNameList class
@@ -36,9 +38,12 @@ public class IdentityNameList {
     options.add(opt);
   }
 
-  public void addToNameList(Identity ...identities) {
+  public void addToNameList(Locale locale, Identity... identities) {
     for (Identity identity : identities) {
       String fullName = identity.getProfile().getFullName();
+      if (Util.isExternal(identity.getId())) {
+        fullName += " " + "(" + Util.getResourceBundleLabel(locale, "external.label.tag") + ")";
+      }
       Option opt = new Option();
       opt.setType("user");
       opt.setText(fullName);
