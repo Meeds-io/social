@@ -38,11 +38,19 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
     typeOfRelation: typeOfRelation || 'mention_activity_stream',
     currentUser: eXo.env.portal.userName,
   };
-  if (searchOptions) {
+
+  let params = null;
+  let url = null;
+  if (searchOptions && !searchOptions.projectId) {
     Object.assign(options, searchOptions);
+    params = $.param(options);
+    url = '/portal/rest/social/people/suggest.json?'.concat(params);
+  } else {
+    params = searchOptions.projectId;
+    url = '/portal/rest/projects/projectParticipants/'.concat(params);
   }
-  const params = $.param(options);
-  return fetch(`/portal/rest/social/people/suggest.json?${params}`, {credentials: 'include'})
+
+  return fetch(url, {credentials: 'include'})
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       if (data) {
