@@ -291,8 +291,12 @@ public class PeopleRestService implements ResourceContainer{
             opt.setOrder(1);
             if (identity != null) {
               Profile p = identity.getProfile();
+              String fullName = p.getFullName();
+              if (Util.isExternal(identity.getId())) {
+                fullName += " " + "(" + Util.getResourceBundleLabel(request.getLocale(), "external.label.tag") + ")";
+              }
               opt.setValue((String) p.getProperty(Profile.USERNAME));
-              opt.setText(p.getFullName());
+              opt.setText(fullName);
               opt.setAvatarUrl(p.getAvatarUrl());
             } else {
               opt.setValue(item);
@@ -313,6 +317,9 @@ public class PeopleRestService implements ResourceContainer{
           if (identity.isEnable() && !identity.isDeleted() && !identity.getRemoteId().equals(currentIdentity.getRemoteId())) {
             Option opt = new Option();
             String fullName = identity.getProfile().getFullName();
+            if (Util.isExternal(identity.getId())) {
+              fullName += " " + "(" + Util.getResourceBundleLabel(request.getLocale(), "external.label.tag") + ")";
+            }
             String userName = (String) identity.getProfile().getProperty(Profile.USERNAME);
             opt.setType("user");
             opt.setValue(userName);
