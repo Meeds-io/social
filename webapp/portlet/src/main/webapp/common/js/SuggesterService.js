@@ -41,13 +41,12 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
 
   let params = null;
   let url = null;
-  if (searchOptions && !searchOptions.projectId) {
+  if (searchOptions && !searchOptions.searchUrl) {
     Object.assign(options, searchOptions);
     params = $.param(options);
     url = '/portal/rest/social/people/suggest.json?'.concat(params);
   } else {
-    params = searchOptions.projectId;
-    url = '/portal/rest/projects/projectParticipants/'.concat(params);
+    url = searchOptions.searchUrl.concat(filter);
   }
 
   return fetch(url, {credentials: 'include'})
