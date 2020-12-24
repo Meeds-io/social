@@ -197,6 +197,17 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
+    if (filter.isExcludeExternal()) {
+      esSubQuery.append("      \"must_not\": [\n");
+      esSubQuery.append("        {\n");
+      esSubQuery.append("          \"exists\" : {\n");
+      esSubQuery.append("             \"field\" : \"external\"");
+      esSubQuery.append("          }\n");
+      esSubQuery.append("        }\n");
+      esSubQuery.append("      ]\n");
+      subQueryEmpty = false;
+      appendCommar = true;
+    }
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {

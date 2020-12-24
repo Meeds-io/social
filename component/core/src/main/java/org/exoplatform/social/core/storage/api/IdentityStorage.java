@@ -216,6 +216,17 @@ public interface IdentityStorage {
       throws IdentityStorageException;
 
   /**
+   * Counts the number of internal identities.
+   *
+   * @param providerId Id of Provider.
+   * @return Number of internal identities.
+   * @throws IdentityStorageException
+   * @since 1.2.0-GA
+   */
+  public int getInternalIdentitiesCount(final String providerId)
+          throws IdentityStorageException;
+
+  /**
    * Counts the number of identities that match the first character of name.
    *
    * @param providerId
@@ -412,7 +423,7 @@ public interface IdentityStorage {
    * @param limit
    * @return
    */
-  default public List<Identity> getIdentities(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, long offset, long limit) {
+  default public List<Identity> getIdentities(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, long offset, long limit) {
     throw new UnsupportedOperationException("This operation is not supported using current implementation of service IdentityStorage");
   }
 
