@@ -87,7 +87,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
       Profile profile = identity.getProfile();
       if (profile != null) {
         profile.setProperty(Profile.EXTERNAL, "false");
-        identityManager.updateProfile(profile);
+        identityManager.updateProfile(profile, true);
       }
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {

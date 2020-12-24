@@ -221,7 +221,6 @@ public interface IdentityStorage {
    * @param providerId Id of Provider.
    * @return Number of internal identities.
    * @throws IdentityStorageException
-   * @since 1.2.0-GA
    */
   public int getInternalIdentitiesCount(final String providerId)
           throws IdentityStorageException;
