@@ -147,7 +147,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           String firstCharFieldName = profileFilter.getFirstCharFieldName();
           char firstCharacter = profileFilter.getFirstCharacterOfName();
           Sorting sorting = profileFilter.getSorting();
-          Boolean excludeExternal = profileFilter.isExcludeExternal();
+          boolean excludeExternal = profileFilter.isExcludeExternal();
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           identities = identityStorage.getIdentities(providerId,
@@ -202,12 +202,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
     if (profileFilter.getFirstCharacterOfName() != EMPTY_CHARACTER) {
       size = identityStorage.getIdentitiesByFirstCharacterOfNameCount(providerId, profileFilter);
     } else if (profileFilter.isEmpty()) {
-      if(profileFilter.getViewerIdentity() == null) {
-        if (profileFilter.isExcludeExternal()) {
-          size = identityStorage.getInternalIdentitiesCount(providerId);
-        } else {
-          size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
-        }
+      if (profileFilter.getViewerIdentity() == null) {
+        size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
       } else {
         size = identityStorage.countIdentitiesWithRelationships(profileFilter.getViewerIdentity().getId());
         // Remove Count of viewer identity

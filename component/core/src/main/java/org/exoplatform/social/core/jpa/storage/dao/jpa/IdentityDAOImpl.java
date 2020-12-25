@@ -344,16 +344,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     // TRUE/FALSE, MySQL supports both
     String dbBoolFalse = isOrcaleDialect() || isMSSQLDialect() ? "0" : "FALSE";
     String dbBoolTrue = isOrcaleDialect() || isMSSQLDialect() ? "1" : "TRUE";
-    // Oracle Dialect in Hibernate 4 is not registering NVARCHAR correctly, see
-    // HHH-10495
-    StringBuilder queryStringBuilder = null;
-    if (isOrcaleDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT to_char(identity_1.remote_id))\n");
-    } else if (isMSSQLDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT try_convert(varchar(200), identity_1.remote_id)) as remote_id  \n");
-    } else {
-      queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
-    }
+  
+    StringBuilder queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
     queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_1 \n");
     queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_1.identity_id \n");

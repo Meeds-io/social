@@ -264,7 +264,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
-                           @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") Boolean excludeExternal,
+                           @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") boolean excludeExternal,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -279,8 +279,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (StringUtils.isBlank(userId)) {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
-    
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && (excludeExternal == null || excludeExternal)) {
+
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && excludeExternal) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     
@@ -307,7 +307,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
-      filter.setExcludeExternal(excludeExternal != null);
+      filter.setExcludeExternal(excludeExternal);
       ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
       identities = list.load(offset, limit);
       if(returnSize) {

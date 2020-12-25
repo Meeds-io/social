@@ -216,16 +216,6 @@ public interface IdentityStorage {
       throws IdentityStorageException;
 
   /**
-   * Counts the number of internal identities.
-   *
-   * @param providerId Id of Provider.
-   * @return Number of internal identities.
-   * @throws IdentityStorageException
-   */
-  public int getInternalIdentitiesCount(final String providerId)
-          throws IdentityStorageException;
-
-  /**
    * Counts the number of identities that match the first character of name.
    *
    * @param providerId

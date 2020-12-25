@@ -705,20 +705,18 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    ExtendProfileFilter xFilter = new ExtendProfileFilter(profileFilter);
-    xFilter.setProviderId(providerId);
-    ListAccess<IdentityEntity> list = getIdentityDAO().findIdentities(xFilter);
-
-    try {
-      return list.getSize();
-    } catch (Exception e) {
-      return 0;
+    if (profileFilter.isExcludeExternal()) {
+      return getIdentityDAO().getAllIdsCountByProvider(providerId);
+    } else {
+      ExtendProfileFilter xFilter = new ExtendProfileFilter(profileFilter);
+      xFilter.setProviderId(providerId);
+      ListAccess<IdentityEntity> list = getIdentityDAO().findIdentities(xFilter);
+      try {
+        return list.getSize();
+      } catch (Exception e) {
+        return 0;
+      }
     }
-  }
-
-  @Override
-  public int getInternalIdentitiesCount(String providerId) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId);
   }
 
   @Override

@@ -480,11 +480,6 @@ public class CachedIdentityStorage implements IdentityStorage {
 
   }
 
-  @Override
-  public int getInternalIdentitiesCount(String providerId) throws IdentityStorageException {
-    return storage.getInternalIdentitiesCount(providerId);
-  }
-
   /**
    * {@inheritDoc}
    */
