@@ -237,7 +237,6 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    isChatEnabled: false,
   }),
   computed: {
     spaceAvatarUrl() {
@@ -253,7 +252,7 @@ export default {
       if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => this.isEnabledExtension(extension));
+      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space) === true);
     },
     canUseActionsMenu() {
       return this.space && (this.space.canEdit || this.enabledProfileActionExtensions.length);
@@ -267,15 +266,23 @@ export default {
       }
     },
   },
-  created() {
-    // init isChaEnabled
-    const chatExtension = this.profileActionExtensions.slice().filter(extension => extension.title === this.$t('exoplatform.chat.open.chat'))[0];
-    if (chatExtension) {
-      chatExtension.enabled(this.space).then(value => {
-        this.isChatEnabled = value;
-      });
+  watch: {
+    enabledProfileActionExtensions: {
+      // immediate option to trigger the callback immediately with watched property initialisation
+      immediate: true,
+      handler() {
+        // watch extensions that have an enabled() async function
+        this.asyncFilter(this.profileActionExtensions, extension => extension.enabled(this.space)).then(extensions => {
+          extensions.forEach(extension => {
+            if (!this.enabledProfileActionExtensions.some(enabledExtension => enabledExtension.name === extension.name)) {
+              this.enabledProfileActionExtensions.push(extension);
+            }
+          });
+        }); 
+      }
     }
-    
+  },
+  created() {
     $(document).on('mousedown', () => {
       if (this.displayActionMenu) {
         window.setTimeout(() => {
@@ -412,9 +419,9 @@ export default {
       this.confirmMessage = '';
       this.okMethod = null;
     },
-    isEnabledExtension(extension) {
-      const isChatExtension = extension.title === this.$t('exoplatform.chat.open.chat');
-      return !isChatExtension && extension.enabled(this.space) || isChatExtension && this.isChatEnabled;
+    async asyncFilter(array, predicate) {
+      const results = await Promise.all(array.map(predicate));
+      return array.filter((value, index) => results[index]);
     },
   },
 };
