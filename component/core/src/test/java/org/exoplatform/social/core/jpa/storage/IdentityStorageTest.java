@@ -417,7 +417,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
   public void testGetIdentitiesSorted() throws Exception {
     final int total = 10;
     String remoteIdPrefix = "username";
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < 7; i++) {
       String remoteId = remoteIdPrefix + i;
       Identity identity = new Identity(OrganizationIdentityProvider.NAME, remoteId + i);
       identityStorage.saveIdentity(identity);
@@ -427,6 +427,21 @@ public class IdentityStorageTest extends AbstractCoreTest {
       profile.setProperty(Profile.FIRST_NAME, "FirstName" + i);
       profile.setProperty(Profile.LAST_NAME, "LastName" + i);
       profile.setProperty(Profile.FULL_NAME, "FirstName" + i + " " + "LastName" + i);
+      identityStorage.saveProfile(profile);
+      identity.setProfile(profile);
+    }
+
+    for (int i = 7; i < total; i++) {
+      String remoteId = remoteIdPrefix + i;
+      Identity identity = new Identity(OrganizationIdentityProvider.NAME, remoteId + i);
+      identityStorage.saveIdentity(identity);
+      tearDownIdentityList.add(identity);
+
+      Profile profile = new Profile(identity);
+      profile.setProperty(Profile.FIRST_NAME, "FirstName" + i);
+      profile.setProperty(Profile.LAST_NAME, "LastName" + i);
+      profile.setProperty(Profile.FULL_NAME, "FirstName" + i + " " + "LastName" + i);
+      profile.setProperty(Profile.EXTERNAL, "TRUE");
       identityStorage.saveProfile(profile);
       identity.setProfile(profile);
     }
@@ -476,6 +491,15 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, offset, limit);
     assertTrue("Returned result should be empty", result.isEmpty());
+
+    // exclude externals users
+    sortField = SortBy.FULLNAME.getFieldName();
+    fieldName = Profile.FULL_NAME;
+    firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, offset, limit);
+    assertTrue("Returned result count is not consistent", result.size() == 7);
+    assertSorted(remoteIdPrefix, fieldName, result);
+    
   }
 
   @MaxQueryNumber(99)

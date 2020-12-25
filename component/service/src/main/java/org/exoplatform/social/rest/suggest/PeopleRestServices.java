@@ -256,10 +256,10 @@ public class PeopleRestServices implements ResourceContainer {
       }
       for (Entry<Identity, Integer> suggestion : suggestions.entrySet()) {
         Identity id = suggestion.getKey();
-        boolean isExternal = id.getProfile().getProperty(Profile.EXTERNAL) != null && (id.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+        Profile socialProfile = id.getProfile();
+        boolean isExternal = socialProfile.getProperty(Profile.EXTERNAL) != null && (socialProfile.getProperty(Profile.EXTERNAL)).equals("true");
         if ((id.getRemoteId().equals(userACL.getSuperUser())) || isExternal) continue;
         JSONObject json = new JSONObject();
-        Profile socialProfile = id.getProfile();
         String avatar = socialProfile.getAvatarUrl();
         if (avatar == null) {
           avatar = DEFAULT_AVATAR;
