@@ -29,6 +29,11 @@ export default {
     document.addEventListener('hideSettingsApps', () => this.displaySpaceExternalSettings = false);
     document.addEventListener('showSettingsApps', () => this.displaySpaceExternalSettings = true);
   },
+  destroyed() {
+    document.removeEventListener('chat-external-updated');
+    document.removeEventListener('hideSettingsApps');
+    document.removeEventListener('showSettingsApps');
+  },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
