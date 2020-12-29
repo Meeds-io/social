@@ -61,12 +61,14 @@ public class IdentityStorageTest extends AbstractCoreTest {
     final String updatedRemoteId = "identity-updated";
 
     tobeSavedIdentity.setRemoteId(updatedRemoteId);
+    long checkTime = System.currentTimeMillis();
 
     identityStorage.saveIdentity(tobeSavedIdentity);
 
     Identity gotIdentity = identityStorage.findIdentityById(tobeSavedIdentity.getId());
 
     assertEquals(updatedRemoteId, gotIdentity.getRemoteId());
+    assertTrue(gotIdentity.getProfile().getLastUpdatedDate() >= checkTime);
     tearDownIdentityList.add(gotIdentity);
 
   }
@@ -169,7 +171,8 @@ public class IdentityStorageTest extends AbstractCoreTest {
     final String lastName = "LastName";
     Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, userName);
     identityStorage.saveIdentity(tobeSavedIdentity);
-
+    long lastUpdated = tobeSavedIdentity.getProfile().getLastUpdatedDate();
+    assertTrue(lastUpdated > 0);
     Profile tobeSavedProfile = tobeSavedIdentity.getProfile();
 
     tobeSavedProfile.setProperty(Profile.USERNAME, userName);
@@ -178,6 +181,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     assertTrue(tobeSavedProfile.hasChanged());
     identityStorage.saveProfile(tobeSavedProfile);
+    assertTrue(tobeSavedProfile.getLastUpdatedDate() > lastUpdated);
     assertFalse(tobeSavedProfile.hasChanged());
 
     assertNotNull(tobeSavedProfile.getId());

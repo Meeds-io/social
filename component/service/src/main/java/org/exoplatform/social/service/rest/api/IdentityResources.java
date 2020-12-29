@@ -23,10 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -72,7 +69,7 @@ public class IdentityResources implements ResourceContainer {
    * @return a response object
    * @LevelAPI Platform
    * @anchor IdentityResources.getIdentityById
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link IdentityRestResourcesV1#getIdentityById(org.exoplatform.social.rest.impl.identity.UriInfo, String, String)} 
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link IdentityRestResourcesV1#getIdentityById(org.exoplatform.social.rest.impl.identity.UriInfo, Request, String, String)}
    */
   @GET
   @Path("{identityId}.{format}")

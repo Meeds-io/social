@@ -60,6 +60,8 @@ public class ProfileData implements CacheData<Profile> {
   
   private Long createdTime;
 
+  private Long lastUpdatedTime;
+
   public ProfileData(final Profile profile) {
     if(profile == null) {
       this.data = Collections.unmodifiableMap(new HashMap<>());
@@ -76,6 +78,7 @@ public class ProfileData implements CacheData<Profile> {
       this.avatarLastUpdated = profile.getAvatarLastUpdated();
       this.bannerLastUpdated = profile.getBannerLastUpdated();
       this.createdTime = profile.getCreatedTime();
+      this.lastUpdatedTime = profile.getLastUpdatedDate();
     }
   }
 
@@ -112,6 +115,7 @@ public class ProfileData implements CacheData<Profile> {
     profile.setAvatarLastUpdated(avatarLastUpdated);
     profile.setBannerLastUpdated(bannerLastUpdated);
     profile.setCreatedTime(createdTime);
+    profile.setLastUpdatedDate(lastUpdatedTime);
     for(String key : data.keySet()) {
       profile.setProperty(key, data.get(key));
     }

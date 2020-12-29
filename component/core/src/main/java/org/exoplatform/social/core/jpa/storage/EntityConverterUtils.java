@@ -180,6 +180,7 @@ public class EntityConverterUtils {
     }
 
     p.setCreatedTime(entity.getCreatedDate().getTime());
+    p.setLastUpdatedDate(entity.getLastUpdatedDate().getTime());
     p.setLastLoaded(System.currentTimeMillis());
   }
 

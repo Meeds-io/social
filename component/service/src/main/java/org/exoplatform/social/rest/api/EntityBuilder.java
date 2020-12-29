@@ -212,6 +212,7 @@ public class EntityBuilder {
     userEntity.setProfession((String) profile.getProperty(profile.PROFESSION));
     userEntity.setCountry((String) profile.getProperty(profile.COUNTRY));
     userEntity.setCity((String) profile.getProperty(profile.CITY));
+    userEntity.setLastUpdatedTime(profile.getLastUpdatedDate());
 
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
