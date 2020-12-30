@@ -16,30 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
@@ -84,6 +61,17 @@ import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Created by The eXo Platform SAS
@@ -371,6 +359,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     }
 
     EntityConverterUtils.mapToEntity(identity, entity);
+    entity.setUpdatedDate(new Date());
     entity = getIdentityDAO().update(entity);
 
     return EntityConverterUtils.convertToIdentity(entity, true);
@@ -536,6 +525,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_UPDATE_PROFILE, "Profile does not exist on RDBMS");
     } else {
       mapToProfileEntity(profile, entity);
+      entity.setUpdatedDate(new Date());
       identityDAO.update(entity);
     }    
   }
