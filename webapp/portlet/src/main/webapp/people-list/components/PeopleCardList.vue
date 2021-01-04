@@ -177,7 +177,7 @@ export default {
           users = users.slice(0, this.limitToFetch);
           this.users = users;
           this.peopleCount = data && data.size && data.size || 0;
-          if (this.peopleCount > 0 && this.filter === 'all') {
+          if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
             this.peopleCount = this.peopleCount - 1;
           }
           this.hasPeople = this.hasPeople || this.peopleCount > 0;
