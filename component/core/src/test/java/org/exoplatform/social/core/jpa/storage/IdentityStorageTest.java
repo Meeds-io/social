@@ -441,7 +441,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
       profile.setProperty(Profile.FIRST_NAME, "FirstName" + i);
       profile.setProperty(Profile.LAST_NAME, "LastName" + i);
       profile.setProperty(Profile.FULL_NAME, "FirstName" + i + " " + "LastName" + i);
-      profile.setProperty(Profile.EXTERNAL, "TRUE");
+      profile.setProperty(Profile.EXTERNAL, "true");
       identityStorage.saveProfile(profile);
       identity.setProfile(profile);
     }
