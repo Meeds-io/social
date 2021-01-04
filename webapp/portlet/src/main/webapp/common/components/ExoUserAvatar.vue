@@ -12,7 +12,7 @@
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
-          {{ fullname }}
+          {{ isExternal ? externalFullName : fullname }}
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
           <slot name="subTitle"></slot>
@@ -87,7 +87,21 @@ export default {
       id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
+      isExternal : false,
     };
+  },
+  computed: {
+    externalFullName() {
+      return this.fullname.concat(' (').concat(this.$t('external.tag')).concat(')');
+    },
+  },
+  created() {
+    this.$userService.getUser(this.username)
+      .then(user => {
+        if(user.external === 'true'){
+          this.isExternal = true;
+        }
+      });
   },
   mounted() {
     if (this.username && this.tiptip) {
@@ -99,6 +113,7 @@ export default {
           Ignore: this.$t('spacesList.label.profile.Ignore'),
           RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
           StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
+          External: this.$t('spacesList.label.profile.External'),
         };
       }
       // TODO disable tiptip because of high CPU usage using its code
