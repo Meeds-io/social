@@ -376,7 +376,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
       queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
       queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-      queryStringBuilder.append("   AND properties_tmp.value = 'TRUE') \n");
+      queryStringBuilder.append("   AND properties_tmp.value = TRUE ) \n");
     } else {
       queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
@@ -394,8 +394,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("       AND identity_prop.name = '").append(sortField).append("' \n");
     }
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
-    queryStringBuilder.append(" AND identity_1.deleted = 'FALSE' \n");
-    queryStringBuilder.append(" AND identity_1.enabled = 'TRUE' \n");
+    queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
+    queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + sortDirection);
