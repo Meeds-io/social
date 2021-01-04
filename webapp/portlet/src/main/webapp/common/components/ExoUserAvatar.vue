@@ -92,15 +92,13 @@ export default {
   },
   computed: {
     externalFullName() {
-      return this.fullname.concat(' (').concat(this.$t('external.tag')).concat(')');
+      return this.fullname.concat(' (').concat(this.$t('userAvatar.external.label')).concat(')');
     },
   },
   created() {
     this.$userService.getUser(this.username)
       .then(user => {
-        if(user.external === 'true'){
-          this.isExternal = true;
-        }
+        this.isExternal = user.external === 'true';
       });
   },
   mounted() {
