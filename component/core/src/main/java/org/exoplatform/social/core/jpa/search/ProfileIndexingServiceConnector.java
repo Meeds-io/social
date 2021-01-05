@@ -226,9 +226,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
     fields.put("email", profile.getEmail());
-    if (isExternal) {
-      fields.put("external", "true");
-    }
+    fields.put("external", String.valueOf(isExternal));
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections

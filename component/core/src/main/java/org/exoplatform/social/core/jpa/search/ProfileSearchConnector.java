@@ -198,13 +198,23 @@ public class ProfileSearchConnector {
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
     if (filter.isExcludeExternal()) {
-      esSubQuery.append("      \"must_not\": [\n");
-      esSubQuery.append("        {\n");
-      esSubQuery.append("          \"exists\" : {\n");
-      esSubQuery.append("             \"field\" : \"external\"");
-      esSubQuery.append("          }\n");
-      esSubQuery.append("        }\n");
-      esSubQuery.append("      ]\n");
+      // Get users have external = false or have no external field
+      esSubQuery.append("    \"should\": [\n");
+      esSubQuery.append("                  {\n");
+      esSubQuery.append("                    \"term\": {\n");
+      esSubQuery.append("                      \"external\": false\n");
+      esSubQuery.append("                    }\n");
+      esSubQuery.append("                  },\n");
+      esSubQuery.append("                  {\n");
+      esSubQuery.append("                    \"bool\": {\n");
+      esSubQuery.append("                      \"must_not\": {\n");
+      esSubQuery.append("                        \"exists\": {\n");
+      esSubQuery.append("                          \"field\": \"external\"\n");
+      esSubQuery.append("                        }\n");
+      esSubQuery.append("                      }\n");
+      esSubQuery.append("                    }\n");
+      esSubQuery.append("                  }\n");
+      esSubQuery.append("                  ]\n");
       subQueryEmpty = false;
       appendCommar = true;
     }

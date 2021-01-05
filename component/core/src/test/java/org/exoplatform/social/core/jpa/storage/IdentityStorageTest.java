@@ -591,6 +591,28 @@ public class IdentityStorageTest extends AbstractCoreTest {
     //enable username1
     identityStorage.processEnabledIdentity(identity, true);
     assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+
+    //add external identity
+    Identity externalIdentity = new Identity("organization", "username6");
+    identityStorage.saveIdentity(externalIdentity);
+    tearDownIdentityList.add(externalIdentity);
+
+    Profile profile = new Profile(externalIdentity);
+    profile.setProperty(Profile.FIRST_NAME, "FirstName6");
+    profile.setProperty(Profile.LAST_NAME, "LastName6");
+    profile.setProperty(Profile.FULL_NAME, "FirstName6 LastName6");
+    profile.setProperty(Profile.EXTERNAL, "true");
+    profile.setProperty("position", "developer");
+    profile.setProperty("gender", "male");
+    identity.setProfile(profile);
+    identityStorage.saveProfile(profile);
+
+    assertEquals(6, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+
+    // exclude externals
+    pf.setExcludeExternal(true);
+
+    assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
   }
   
   /**
