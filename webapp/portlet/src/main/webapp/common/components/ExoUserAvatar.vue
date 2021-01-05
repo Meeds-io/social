@@ -12,7 +12,8 @@
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
-          {{ isExternal ? externalFullName : fullname }}
+          {{ fullname }}
+          <span v-if="isExternal" class="grey--text">{{ externalTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
           <slot name="subTitle"></slot>
@@ -88,11 +89,12 @@ export default {
         .toString()
         .toString()}`,
       isExternal : false,
+      defaultTag : '',
     };
   },
   computed: {
-    externalFullName() {
-      return this.fullname.concat(' (').concat(this.$t('userAvatar.external.label')).concat(')');
+    externalTag() {
+      return this.defaultTag.concat(' (').concat(this.$t('userAvatar.external.label')).concat(')');
     },
   },
   created() {
