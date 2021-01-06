@@ -63,7 +63,7 @@
     <div class="ownerName">
       <a  href="$ownerUri">$ownerName</a>
       <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
-         <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
+         <a href="$ownerUri" class="externalFlagClass">($externalFlag)</a>
       <% } %>
     </div>
     <div class="spaceName">
@@ -76,7 +76,7 @@
       <div class="owner">
         <a  href="$ownerUri">$ownerName</a>
         <%  if (ownerIdentity.profile.getProperty(Profile.EXTERNAL) != null && ownerIdentity.profile.getProperty(Profile.EXTERNAL) == 'true') { %>
-          <a href="$ownerUri" class="externalFlagClass">$externalFlag</a>
+          <a href="$ownerUri" class="externalFlagClass">($externalFlag)</a>
         <% } %>
       </div>
     <%}%>
