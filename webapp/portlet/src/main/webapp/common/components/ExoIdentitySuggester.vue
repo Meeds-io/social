@@ -54,7 +54,7 @@
             <v-img :src="item.profile.avatarUrl"></v-img>
           </v-avatar>
           <span class="text-truncate">
-            {{ item.profile.fullName }}
+            {{ item.profile.external ? item.profile.fullName.concat(' (').concat($t('userAvatar.external.label')).concat(')') : item.profile.fullName }}
           </span>
         </v-chip>
       </template>
