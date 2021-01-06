@@ -126,7 +126,7 @@ def commentId = it.parentCommentId == null ? it.id : it.parentCommentId;
 <div class="author">
 <a href="$commenterProfileUri">$commenterFullName</a>
 <% if(id.profile != null && id.profile.getProperty("external") != null && id.profile.getProperty("external").equals("true")) { %>
-<a class="externalTagClass" href="$commenterProfileUri">${external}</a>
+<a class="externalTagClass" href="$commenterProfileUri">(${external})</a>
 <% } %>
 					</div>
 <div class="contentComment" id="${activity.id}-${commentCounter}">
