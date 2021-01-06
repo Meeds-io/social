@@ -147,7 +147,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public int getAllIdsCountByProvider(String providerId) {
+  public int getInternalIdsCountByProvider(String providerId) {
     Query query = getIdentitiesQueryCount(providerId);
     return ((Number) query.getSingleResult()).intValue();
   }

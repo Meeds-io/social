@@ -79,6 +79,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param providerId
    * @return
    */
-  int getAllIdsCountByProvider(String providerId);
+  int getInternalIdsCountByProvider(String providerId);
 
 }
