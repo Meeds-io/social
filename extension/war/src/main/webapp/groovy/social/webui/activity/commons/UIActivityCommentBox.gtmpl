@@ -12,6 +12,7 @@
   def labelComment = _ctx.appRes("UIActivity.label.Comment");
   def labelCancel = _ctx.appRes("UIActivity.label.Cancel");
   def labelUpdate = _ctx.appRes("UIActivity.label.Update");
+  def external = _ctx.appRes("UIActivity.label.External");
   def labelEdit = _ctx.appRes("UIActivity.label.Edit");
   def labelDelete = _ctx.appRes("UIActivity.label.Delete");
   def labelViewAllReplies = _ctx.appRes("UIActivity.label.ViewAllReplies");
@@ -70,6 +71,7 @@ commentContentClass = "";
 
 def id = Utils.getIdentityManager().getIdentity(it.userId);
 commenterFullName = StringEscapeUtils.escapeHtml(id.profile.fullName);
+
 commenterProfileUri = LinkProvider.getUserProfileUri(id.getRemoteId());
 def commentParentClass = it.parentCommentId == null ? "CommentBlock" : (subCommentClass + " subCommentBlock");
 if(it.parentCommentId == null) {
@@ -123,6 +125,9 @@ def commentId = it.parentCommentId == null ? it.id : it.parentCommentId;
 <div class="authorCommentContainer clearfix">
 <div class="author">
 <a href="$commenterProfileUri">$commenterFullName</a>
+<% if(id.profile != null && id.profile.getProperty("external") != null && id.profile.getProperty("external").equals("true")) { %>
+<a class="externalTagClass" href="$commenterProfileUri">(${external})</a>
+<% } %>
 					</div>
 <div class="contentComment" id="${activity.id}-${commentCounter}">
 $commentMessage
