@@ -68,6 +68,8 @@ public class ProfileFilter implements Cloneable {
   private Sorting sorting;
 
   private String firstCharFieldName = null;
+  
+  private boolean excludeExternal = false; 
 
   public ProfileFilter() {
     this.name = "";
@@ -274,6 +276,19 @@ public class ProfileFilter implements Cloneable {
 
   public void setFirstCharFieldName(String firstCharField) {
     this.firstCharFieldName = firstCharField;
+  }
+  /**
+   * @return the excludeExternal
+   */
+  public boolean isExcludeExternal() {
+    return excludeExternal;
+  }
+
+  /**
+   * @param excludeExternal the excludeExternal to set
+   */
+  public void setExcludeExternal(boolean excludeExternal) {
+    this.excludeExternal = excludeExternal;
   }
 
   public boolean isEmpty() {
