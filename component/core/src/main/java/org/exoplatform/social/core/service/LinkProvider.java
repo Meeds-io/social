@@ -18,15 +18,21 @@ package org.exoplatform.social.core.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.localization.LocaleContextInfoUtils;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.LocaleContextInfo;
+import org.exoplatform.services.resources.LocalePolicy;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -146,7 +152,7 @@ public class LinkProvider {
   public static String getProfileLink(final String username, final String portalOwner) {
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
     Validate.notNull(identity, "Identity must not be null.");
-
+    String lang = getCurrentUserLanguage(username);
     //
     String configured_domain_url = null;
     try {
@@ -155,9 +161,13 @@ public class LinkProvider {
       configured_domain_url = null;
     }
 
-    return new StringBuilder("<a href=\"").append((configured_domain_url != null) ? configured_domain_url : "")
+    StringBuilder profileLink =  new StringBuilder("<a href=\"").append((configured_domain_url != null) ? configured_domain_url : "")
                 .append(buildProfileUri(identity.getRemoteId(), null, portalOwner)).append("\" target=\"_parent\">")
-                .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName())).append("</a>").toString();
+                .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName()));
+    if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
+      profileLink = profileLink.append("<span \" class=\"externalTagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
+    }
+    return profileLink.append("</a>").toString();
   }
 
   /**
@@ -451,5 +461,36 @@ public class LinkProvider {
           + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API + "/users";
     }
     return baseURLSocialUserRest;
+  }
+
+  /**
+   * Gets platform language of current user. In case of any errors return null.
+   *
+   * @return the platform language
+   */
+  public static String getCurrentUserLanguage(String userId) {
+    try {
+      LocaleContextInfo localeCtx = LocaleContextInfoUtils.buildLocaleContextInfo(userId);
+      LocalePolicy localePolicy = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(LocalePolicy.class);
+      String lang = null;
+      if(localePolicy != null) {
+        Locale locale = localePolicy.determineLocale(localeCtx);
+        lang = locale.toString();
+      }
+      return lang;
+    } catch (Exception e) {
+      LOG.error("Error searching user " + userId, e);
+      return null;
+    }
+  }
+
+  /**
+   * Gets the resource bundle label.
+   *
+   * @return the label
+   */
+  public static String getResourceBundleLabel(Locale locale, String label) {
+    ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
+    return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
   }
 }
