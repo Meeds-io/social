@@ -147,8 +147,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public int getInternalIdsCountByProvider(String providerId) {
-    Query query = getIdentitiesQueryCount(providerId);
+  public int getAllIdsCountByProvider(String providerId, boolean excludeExternal) {
+    Query query = getIdentitiesQueryCount(providerId, excludeExternal);
     return ((Number) query.getSingleResult()).intValue();
   }
   
@@ -339,16 +339,18 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
   }
 
-  private Query getIdentitiesQueryCount(String providerId) {
+  private Query getIdentitiesQueryCount(String providerId, boolean excludeExternal) {
 
     StringBuilder queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
     queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
-    queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_1 \n");
-    queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_1.identity_id \n");
-    queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-    queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-    queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-    queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
+    if (excludeExternal) {
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_1 \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_1.identity_id \n");
+      queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+      queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
+      queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
+    } 
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
     queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
     queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");

@@ -74,11 +74,12 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
   List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, long offset, long limit);
 
   /**
-   * Count internal identities by providerId
+   * Count identities by providerId
    *
    * @param providerId
+   * @param excludeExternal
    * @return
    */
-  int getInternalIdsCountByProvider(String providerId);
+  int getAllIdsCountByProvider(String providerId, boolean excludeExternal);
 
 }
