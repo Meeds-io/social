@@ -23,6 +23,8 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.rest.impl.EnvironmentContext;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
@@ -680,7 +683,11 @@ public final class Util {
    * @return true if the user is external
    */
   public static boolean isExternal(String userId) {
-    Identity userIdentity = getIdentityManager(PortalContainer.getCurrentPortalContainerName()).getIdentity(userId);
-    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+    Identity userIdentity =  getIdentityManager(PortalContainer.getCurrentPortalContainerName()).getIdentity(userId);
+    return userIdentity.getProfile() != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL).equals("true"); }
+
+  public static String getResourceBundleLabel(Locale locale, String label) {
+    ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
+    return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
   }
 }
