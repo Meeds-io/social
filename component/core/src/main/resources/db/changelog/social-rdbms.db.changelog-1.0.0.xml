@@ -755,5 +755,9 @@
           </column>
         </addColumn>
   </changeSet>
+  
+  <changeSet author="task" id="1.0.0-77" dbms="oracle,postgresql">
+      <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>
+  </changeSet>
 
 </databaseChangeLog>
