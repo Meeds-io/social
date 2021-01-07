@@ -107,7 +107,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection);
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
@@ -141,10 +141,17 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection);
+  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
   }
+
+  @Override
+  public int getAllIdsCountByProvider(String providerId, boolean excludeExternal) {
+    Query query = getIdentitiesQueryCount(providerId, excludeExternal);
+    return ((Number) query.getSingleResult()).intValue();
+  }
+  
 
   @Override
   @ExoTransactional
@@ -332,26 +339,46 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
   }
 
+  private Query getIdentitiesQueryCount(String providerId, boolean excludeExternal) {
+
+    StringBuilder queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
+    queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
+    if (excludeExternal) {
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_1 \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_1.identity_id \n");
+      queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+      queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
+      queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
+    } 
+    queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
+    queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
+    queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
+
+    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
+  }
+
+
   private Query getIdentitiesQuerySortedByField(String providerId,
                                                 String firstCharacterFieldName,
                                                 char firstCharacter,
                                                 String sortField,
-                                                String sortDirection) {
-    // Oracle and MSSQL support only 1/0 for boolean, Postgresql supports only
-    // TRUE/FALSE, MySQL supports both
-    String dbBoolFalse = isOrcaleDialect() || isMSSQLDialect() ? "0" : "FALSE";
-    String dbBoolTrue = isOrcaleDialect() || isMSSQLDialect() ? "1" : "TRUE";
-    // Oracle Dialect in Hibernate 4 is not registering NVARCHAR correctly, see
-    // HHH-10495
+                                                String sortDirection,
+                                                boolean excludeExternal) {
     StringBuilder queryStringBuilder = null;
-    if (isOrcaleDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT to_char(identity_1.remote_id), identity_1.identity_id \n");
-    } else if (isMSSQLDialect()) {
-      queryStringBuilder = new StringBuilder("SELECT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+    if (excludeExternal) {
+      queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id, identity_prop.value \n");
+      queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+      queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+      queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
+      queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
     } else {
       queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
+      queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     }
-    queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
       queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
@@ -365,8 +392,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("       AND identity_prop.name = '").append(sortField).append("' \n");
     }
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
-    queryStringBuilder.append(" AND identity_1.deleted = ").append(dbBoolFalse).append(" \n");
-    queryStringBuilder.append(" AND identity_1.enabled = ").append(dbBoolTrue).append(" \n");
+    queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
+    queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + sortDirection);
