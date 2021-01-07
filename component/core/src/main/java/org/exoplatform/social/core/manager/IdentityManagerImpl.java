@@ -16,18 +16,16 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.*;
+import org.exoplatform.social.core.identity.IdentityProvider;
+import org.exoplatform.social.core.identity.IdentityProviderPlugin;
+import org.exoplatform.social.core.identity.ProfileFilterListAccess;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -38,6 +36,10 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.webui.exception.MessageException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Class IdentityManagerImpl implements IdentityManager without caching.
@@ -263,6 +265,7 @@ public class IdentityManagerImpl implements IdentityManager {
                                            Profile.CONTACT_PHONES,
                                            Profile.CONTACT_IMS,
                                            Profile.CONTACT_URLS,
+                                           Profile.AVATAR,
                                            Profile.EXTERNAL)) {
         list.add(Profile.UpdateType.CONTACT);
       }
