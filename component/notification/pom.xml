@@ -150,6 +150,12 @@
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.exoplatform.ecms</groupId>
+          <artifactId>ecms-social-integration</artifactId>
+          <version>6.2.x-maintenance-SNAPSHOT</version>
+          <scope>provided</scope>
+      </dependency>
   </dependencies>
   <build>
     <plugins>

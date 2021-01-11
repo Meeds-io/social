@@ -33,6 +33,7 @@ import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.activity.model.ActivityPluginType;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -43,6 +44,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPlugin;
+import org.exoplatform.wcm.notification.plugin.FileActivityChildPlugin;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -385,6 +387,8 @@ public class SocialNotificationUtils {
     BaseNotificationPlugin child = pluginContainer.getPlugin(childKey);
     if (child == null || (child instanceof AbstractNotificationChildPlugin) == false) {
       child = pluginContainer.getPlugin(new PluginKey(DefaultActivityChildPlugin.ID));
+    }else if(activity.getType().equals(ActivityPluginType.FILE.getName())){
+      child =pluginContainer.getPlugin(new PluginKey(FileActivityChildPlugin.ID));
     }
     context.put("ACTIVITY", ((AbstractNotificationChildPlugin) child).makeContent(ctx));
 
