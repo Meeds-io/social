@@ -280,13 +280,14 @@ public static final String RESOURCE_URL = "social/notifications";
           }
         } else if (activityType.equals(ActivityPluginType.POLL.getName())) {
           return CommonsUtils.getCurrentDomain() + templateParams.get("Link");
-        } else if (activityType.equals(ActivityPluginType.FILE.getName())
-                || activityType.equals(ActivityPluginType.SHARE_FILE.getName())
+        } else if ( activityType.equals(ActivityPluginType.SHARE_FILE.getName())
                 || activityType.equals(ActivityPluginType.CONTENT.getName())) {
           String contenLink = templateParams.get("contenLink");
           String[] contentLinks = contenLink.split("\\|@\\|");
           if(contentLinks.length > 1) {
             contenLink = contentLinks[0];
+          }else if (activityType.equals(ActivityPluginType.FILE.getName())){
+            return LinkProviderUtils.getRedirectUrl("view_full_activity", activity.getId());
           }
           return CommonsUtils.getCurrentDomain() + contenLink;
         } else if (activity.isComment() && (activityType.contains("answer:"))) {

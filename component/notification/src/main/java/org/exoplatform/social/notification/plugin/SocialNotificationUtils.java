@@ -43,6 +43,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPlugin;
+import org.exoplatform.wcm.notification.plugin.FileActivityChildPlugin;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -385,6 +386,8 @@ public class SocialNotificationUtils {
     BaseNotificationPlugin child = pluginContainer.getPlugin(childKey);
     if (child == null || (child instanceof AbstractNotificationChildPlugin) == false) {
       child = pluginContainer.getPlugin(new PluginKey(DefaultActivityChildPlugin.ID));
+    }else if(activity.getType().equals("files:spaces")){
+      child = pluginContainer.getPlugin(new PluginKey(FileActivityChildPlugin.ID));
     }
     context.put("ACTIVITY", ((AbstractNotificationChildPlugin) child).makeContent(ctx));
 
