@@ -22,7 +22,8 @@
       class="pa-0">
       <v-list-item-title>
         <a :href="url" class="text-color">
-          {{ user.external === 'true' ? user.fullname + " " + "(" + $t('peopleOverview.label.profile.external') + ")" : user.fullname }}
+          {{ user.fullname }}
+          <span v-if="user.external === 'true'" class="externalTagClass">{{ "(" + $t('peopleOverview.label.profile.external') + ")" }}</span>
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>
