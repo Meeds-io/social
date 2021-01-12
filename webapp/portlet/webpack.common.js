@@ -42,7 +42,8 @@ let config = {
     peopleSearchResultCard: './src/main/webapp/search-people/main.js',
     spaceSearchResultCard: './src/main/webapp/search-space/main.js',
     activitySearchResultCard: './src/main/webapp/search-activity/main.js',
-    activityReactions: './src/main/webapp/activity-reactions/main.js'
+    activityReactions: './src/main/webapp/activity-reactions/main.js',
+    dlpQuarantine : './src/main/webapp/dlp-quarantine/main.js'
   },
   module: {
     rules: [
