@@ -35,6 +35,12 @@
   
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
+      <groupId>org.exoplatform.ecms</groupId>
+      <artifactId>ecms-social-integration</artifactId>
+      <version>6.2.x-maintenance-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-common</artifactId>
     </dependency>
