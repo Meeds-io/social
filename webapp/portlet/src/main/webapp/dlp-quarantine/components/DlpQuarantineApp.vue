@@ -30,6 +30,17 @@
         :items="documents"
         :items-per-page="5"
         class="px-5">
+        <template slot="item.detectionDate" slot-scope="{ item }">
+          <span>{{ new Date(item.detectionDate).toLocaleString() }}</span>
+        </template>
+        <template slot="item.authorFullName" slot-scope="{ item }">
+          <a
+            :href="dlpItemOwnerLink(item.author)"
+            class="text-decoration-underline"
+            target="_blank">
+            {{ item.authorFullName }}
+          </a>
+        </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
@@ -62,58 +73,47 @@ import * as dlpAdministrationServices from '../dlpAdministrationServices';
 export default {
   data () {
     return {
-      headers: [
-        {
-          text: this.$t && this.$t('documents.dlp.quarantine.content'),
-          align: 'center',
-          sortable: false,
-          value: 'content',
-        },
-        { text: this.$t && this.$t('documents.dlp.quarantine.keywordDetected'),
-          align: 'center',
-          sortable: false,
-          value: 'keyword'
-        },
-        { text: this.$t && this.$t('documents.dlp.quarantine.createdDate'),
-          align: 'center',
-          sortable: false,
-          value: 'date'
-        },
-        { text: this.$t && this.$t('documents.dlp.quarantine.author'),
-          align: 'center',
-          sortable: false,
-          value: 'author'
-        },
-        { text: this.$t && this.$t('documents.dlp.quarantine.actions'),
-          align: 'center',
-          sortable: false,
-          value: 'actions'
-        },
-      ],
-      documents: [
-        {
-          content: 'Lorem Ipsum',
-          keyword: 'test',
-          date: '2 Apr 2020 08:19:03',
-          author: 'test User',
-        },
-        {
-          content: 'Lorem Ipsum',
-          keyword: 'test2',
-          date: '2 Apr 2020 08:19:03',
-          author: 'test User2',
-        },
-      ],
-      totalSize : 5,
+      documents: [],
       dlpFeatureEnabled: null,
       dlpFeatureStatusLoaded: false,
     };
+  },
+  computed: {
+    headers() {
+      return [        {
+        text: this.$t && this.$t('documents.dlp.quarantine.content'),
+        align: 'center',
+        sortable: false,
+        value: 'title',
+      },
+      { text: this.$t && this.$t('documents.dlp.quarantine.keywordDetected'),
+        align: 'center',
+        sortable: false,
+        value: 'keywords'
+      },
+      { text: this.$t && this.$t('documents.dlp.quarantine.createdDate'),
+        align: 'center',
+        sortable: false,
+        value: 'detectionDate'
+      },
+      { text: this.$t && this.$t('documents.dlp.quarantine.author'),
+        align: 'center',
+        sortable: false,
+        value: 'authorFullName'
+      },
+      { text: this.$t && this.$t('documents.dlp.quarantine.actions'),
+        align: 'center',
+        sortable: false,
+        value: 'actions'
+      },];
+    },
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   created() {
     this.getDlpFeatureStatus();
+    this.retrieveDlpPositiveItems();
   },
   methods: {
     saveDlpFeatureStatus(status) {
@@ -124,7 +124,15 @@ export default {
         this.dlpFeatureEnabled = status.value;
         this.dlpFeatureStatusLoaded = true;
       });
-    }
+    },
+    retrieveDlpPositiveItems()  {
+      dlpAdministrationServices.getDlpPositiveItems().then(data => {
+        this.documents = data;
+      });
+    },
+    dlpItemOwnerLink(username) {
+      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${username}`;
+    },
   },
 };
 </script>

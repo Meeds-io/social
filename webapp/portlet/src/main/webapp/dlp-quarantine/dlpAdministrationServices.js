@@ -25,3 +25,16 @@ export function isDlpFeatureActive() {
     }
   });
 }
+
+export function getDlpPositiveItems() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error retrieving list of dlp positive items');
+    }
+  });
+} 
