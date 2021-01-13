@@ -1524,4 +1524,29 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+      <description xml:lang="EN">Dlp Quarantine portlet</description>
+      <portlet-name>dlpQuarantine</portlet-name>
+    <display-name xml:lang="EN">Dlp Quarantine portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/dlp-quarantine/dlpQuarantine.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.dlpQuarantine.dlpQuarantine</resource-bundle>
+    <portlet-info>
+      <title>Dlp Quarantine portlet for eXo Platform</title>
+      <short-title>dlp-quarantine</short-title>
+      <keywords>dlp-quarantine</keywords>
+    </portlet-info>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
 </portlet-app>

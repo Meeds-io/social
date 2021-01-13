@@ -52,5 +52,10 @@
       <label>#{administration.notification}</label>
       <page-reference>group::/platform/administrators::notification</page-reference>
     </node>
+    <node>
+      <name>dlp-quarantine</name>
+      <label>#{administration.dlpQuarantine}</label>
+      <page-reference>group::/platform/administrators::dlp-quarantine</page-reference>
+    </node>
   </page-nodes>
 </node-navigation>
