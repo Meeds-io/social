@@ -13,6 +13,7 @@
 
     <div class="spaceToolbarIcons px-2">
       <v-btn
+        :title="$t('spaceList.label.openSpaceInfo')"
         icon
         small
         class="spaceInfoIcon d-flex"
@@ -23,6 +24,7 @@
       <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"
+          :title="$t('spaceList.label.openSpaceActionMenu')"
           icon
           text
           class="spaceActionIcon spaceEditIcon d-none"
@@ -30,6 +32,7 @@
           <i class="uiIcon uiIconEdit" />
         </v-btn>
         <v-btn
+          :title="$t('spaceList.label.openSpaceMenu')"
           icon
           text
           class="spaceMenuIcon d-block"
