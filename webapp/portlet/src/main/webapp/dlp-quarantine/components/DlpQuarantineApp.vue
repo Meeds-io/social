@@ -28,7 +28,10 @@
       <v-data-table
         :headers="headers"
         :items="documents"
-        :items-per-page="5"
+        :loading="loading"
+        :options.sync="options"
+        :server-items-length="totalSize"
+        :footer-props="{ itemsPerPageOptions }"
         class="px-5">
         <template slot="item.detectionDate" slot-scope="{ item }">
           <span>{{ new Date(item.detectionDate).toLocaleString() }}</span>
@@ -74,6 +77,13 @@ export default {
   data () {
     return {
       documents: [],
+      loading: true,
+      totalSize: 0,
+      itemsPerPageOptions: [20, 50, 100],
+      options: {
+        page: 1,
+        itemsPerPage: 20,
+      },
       dlpFeatureEnabled: null,
       dlpFeatureStatusLoaded: false,
     };
@@ -108,8 +118,10 @@ export default {
       },];
     },
   },
-  mounted() {
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  watch: {
+    options() {
+      this.retrieveDlpPositiveItems();
+    },
   },
   created() {
     this.getDlpFeatureStatus();
@@ -126,8 +138,19 @@ export default {
       });
     },
     retrieveDlpPositiveItems()  {
-      dlpAdministrationServices.getDlpPositiveItems().then(data => {
-        this.documents = data;
+      const page = this.options && this.options.page;
+      let itemsPerPage = this.options && this.options.itemsPerPage;
+      if (itemsPerPage <= 0) {
+        itemsPerPage = this.totalSize || 20;
+      }
+      const offset = (page - 1) * itemsPerPage;
+      this.loading = true;
+      dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
+        this.documents = data.dlpPositiveItems;
+        this.totalSize = data.size;
+      }).then(() =>{
+        this.loading = false;
+        this.$root.$emit('application-loaded');
       });
     },
     dlpItemOwnerLink(username) {
