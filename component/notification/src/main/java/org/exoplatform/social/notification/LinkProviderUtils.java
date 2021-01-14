@@ -289,7 +289,7 @@ public static final String RESOURCE_URL = "social/notifications";
           }
           return CommonsUtils.getCurrentDomain() + contenLink;
         }else if (activityType.equals(ActivityPluginType.FILE.getName())){
-          return LinkProviderUtils.getRedirectUrl("view_full_activity", activity.getId());
+          return null;
         } else if (activity.isComment() && (activityType.contains("answer:"))) {
           return Utils.getActivityManager().getParentActivity(activity).getTemplateParams().get("Link");
         } else if (activity.isComment()) {
