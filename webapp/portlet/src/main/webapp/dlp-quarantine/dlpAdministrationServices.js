@@ -27,7 +27,7 @@ export function isDlpFeatureActive() {
 }
 
 export function getDlpPositiveItems(offset, itemsPerPage) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items?offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items?offset=${offset || 0}&limit=${itemsPerPage}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {

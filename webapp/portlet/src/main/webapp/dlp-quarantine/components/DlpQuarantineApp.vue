@@ -1,6 +1,6 @@
 <template>
   <v-app id="dlpQuarantine">
-    <div class="py4 px-2">
+    <v-card class="my-4 mx-2" flat>
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -32,9 +32,19 @@
         :options.sync="options"
         :server-items-length="totalSize"
         :footer-props="{ itemsPerPageOptions }"
-        class="px-5">
+        class="px-5 data-table-light-border">
         <template slot="item.detectionDate" slot-scope="{ item }">
-          <span>{{ new Date(item.detectionDate).toLocaleString() }}</span>
+          <div class="d-flex justify-center">
+            <date-format
+              :value="item.detectionDate"
+              :format="fullDateFormat"
+              class="mr-1" />
+            <date-format
+              :value="item.detectionDate"
+              :format="dateTimeFormat"
+              class="mr-1" />
+          </div>
+
         </template>
         <template slot="item.authorFullName" slot-scope="{ item }">
           <a
@@ -67,7 +77,7 @@
           </v-btn>
         </template>
       </v-data-table>
-    </div>
+    </v-card>
   </v-app>
 </template>
 
@@ -86,6 +96,16 @@ export default {
       },
       dlpFeatureEnabled: null,
       dlpFeatureStatusLoaded: false,
+      fullDateFormat: {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      },
+      dateTimeFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }
     };
   },
   computed: {
@@ -146,7 +166,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
-        this.documents = data.dlpPositiveItems;
+        this.documents = data.entities;
         this.totalSize = data.size;
       }).then(() =>{
         this.loading = false;
