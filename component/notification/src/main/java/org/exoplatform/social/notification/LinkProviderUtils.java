@@ -280,8 +280,7 @@ public static final String RESOURCE_URL = "social/notifications";
           }
         } else if (activityType.equals(ActivityPluginType.POLL.getName())) {
           return CommonsUtils.getCurrentDomain() + templateParams.get("Link");
-        } else if (activityType.equals(ActivityPluginType.FILE.getName())
-                || activityType.equals(ActivityPluginType.SHARE_FILE.getName())
+        } else if ( activityType.equals(ActivityPluginType.SHARE_FILE.getName())
                 || activityType.equals(ActivityPluginType.CONTENT.getName())) {
           String contenLink = templateParams.get("contenLink");
           String[] contentLinks = contenLink.split("\\|@\\|");
@@ -289,6 +288,8 @@ public static final String RESOURCE_URL = "social/notifications";
             contenLink = contentLinks[0];
           }
           return CommonsUtils.getCurrentDomain() + contenLink;
+        }else if (activityType.equals(ActivityPluginType.FILE.getName())){
+          return null;
         } else if (activity.isComment() && (activityType.contains("answer:"))) {
           return Utils.getActivityManager().getParentActivity(activity).getTemplateParams().get("Link");
         } else if (activity.isComment()) {
