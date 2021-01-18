@@ -47,12 +47,7 @@
 
         </template>
         <template slot="item.authorFullName" slot-scope="{ item }">
-          <a
-            :href="dlpItemOwnerLink(item.author)"
-            class="text-decoration-underline"
-            target="_blank">
-            {{ item.authorFullName }}
-          </a>
+          <dlp-author-full-name :username="item.author"></dlp-author-full-name>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
@@ -172,9 +167,6 @@ export default {
         this.loading = false;
         this.$root.$emit('application-loaded');
       });
-    },
-    dlpItemOwnerLink(username) {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${username}`;
     },
   },
 };
