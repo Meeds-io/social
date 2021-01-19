@@ -62,6 +62,7 @@
         "no-template-curly-in-string": ["error"],
         "no-throw-literal": ["error"],
         "no-undefined": ["error"],
+        "no-undef": "off",
         "no-unmodified-loop-condition": ["error"],
         "no-unused-expressions": ["error"],
         "no-unused-vars": ["off"],

@@ -372,6 +372,9 @@
       <module>commonVueComponents</module>
     </depends>
     <depends>
+      <module>documentPreview</module>
+    </depends>
+    <depends>
       <module>extensionRegistry</module>
     </depends>
   </module>

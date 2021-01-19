@@ -53,7 +53,8 @@
           <v-btn
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
             icon
-            text>
+            text
+            @click.prevent="openPreview(item.refernece, item.title, item.downloadUrl)">
             <i class="uiIconWatch"></i>
           </v-btn>
           <v-btn
@@ -150,6 +151,20 @@ export default {
       dlpAdministrationServices.isDlpFeatureActive().then(status => {
         this.dlpFeatureEnabled = status.value;
         this.dlpFeatureStatusLoaded = true;
+      });
+    },
+    openPreview(docId, title, downloadUrl) {
+      documentPreview.init({
+        doc: {
+          id: docId,
+          repository: 'repository',
+          workspace: 'collaboration',
+          path: '/Security',
+          title: title,
+          downloadUrl: downloadUrl,
+          size: 'size',
+        },
+        showComments: false
       });
     },
     retrieveDlpPositiveItems()  {
