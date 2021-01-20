@@ -165,7 +165,6 @@ export default {
         this.totalSize = data.size;
       }).then(() =>{
         this.loading = false;
-        this.$root.$emit('application-loaded');
       });
     },
   },

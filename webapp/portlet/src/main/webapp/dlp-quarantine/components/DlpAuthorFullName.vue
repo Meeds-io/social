@@ -29,6 +29,8 @@ export default {
     this.$userService.getUser(this.username)
       .then(user => {
         this.authorFullName = user.fullname;
+      }).then(() =>{
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       });
   },
 };
