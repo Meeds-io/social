@@ -54,7 +54,7 @@
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
             icon
             text
-            @click.prevent="openPreview(item.refernece, item.title, item.downloadUrl)">
+            @click.prevent="openPreview(item.reference, item.title, item.downloadUrl)">
             <i class="uiIconWatch"></i>
           </v-btn>
           <v-btn
