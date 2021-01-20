@@ -25,6 +25,13 @@
         </v-list-item>
         <v-divider class="mx-5"/>
       </v-list>
+      <exo-confirm-dialog
+        ref="deleteConfirmDialog"
+        :message="deleteConfirmMessage"
+        :title="$t('documents.dlp.title.confirmDelete')"
+        :ok-label="$t('documents.dlp.button.ok')"
+        :cancel-label="$t('documents.dlp.button.cancel')"
+        @ok="deleteDlpPositiveDocumentConfirm()" />
       <v-data-table
         :headers="headers"
         :items="documents"
@@ -44,19 +51,11 @@
               :format="dateTimeFormat"
               class="mr-1" />
           </div>
-
         </template>
         <template slot="item.authorFullName" slot-scope="{ item }">
           <dlp-author-full-name :username="item.author"></dlp-author-full-name>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
-          <exo-confirm-dialog
-            ref="deleteConfirmDialog"
-            :message="deleteConfirmMessage"
-            :title="$t('documents.dlp.title.confirmDelete')"
-            :ok-label="$t('documents.dlp.button.ok')"
-            :cancel-label="$t('documents.dlp.button.cancel')"
-            @ok="deleteDlpPositiveDocumentConfirm(item.id)" />
           <v-btn
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
             icon
@@ -92,6 +91,7 @@ export default {
       documents: [],
       loading: true,
       totalSize: 0,
+      selectedItem: null,
       deleteConfirmMessage: null,
       itemsPerPageOptions: [20, 50, 100],
       options: {
@@ -155,9 +155,9 @@ export default {
     saveDlpFeatureStatus(status) {
       dlpAdministrationServices.saveDlpFeatureStatus(status);
     },
-    deleteDlpPositiveDocumentConfirm(documentId) {
+    deleteDlpPositiveDocumentConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/${documentId}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/${this.selectedItem}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -178,9 +178,10 @@ export default {
         }, 5000);
       }).finally(() => this.loading = false);
     },
-    deleteDlpPositiveDocument() {
+    deleteDlpPositiveDocument(documentId) {
       this.deleteConfirmMessage = this.$t('documents.dlp.message.confirmDelete');
       this.$refs.deleteConfirmDialog.open();
+      this.selectedItem = documentId;
     },
     getDlpFeatureStatus() {
       dlpAdministrationServices.isDlpFeatureActive().then(status => {
