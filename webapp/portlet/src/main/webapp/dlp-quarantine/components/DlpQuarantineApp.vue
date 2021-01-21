@@ -52,8 +52,13 @@
               class="mr-1" />
           </div>
         </template>
-        <template slot="item.authorFullName" slot-scope="{ item }">
-          <dlp-author-full-name :username="item.author"></dlp-author-full-name>
+        <template slot="item.authorDisplayName" slot-scope="{ item }">
+          <a
+            :href="dlpItemOwnerLink(item.author)"
+            class="text-decoration-underline"
+            target="_blank">
+            {{ item.authorDisplayName }}
+          </a>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
@@ -133,7 +138,7 @@ export default {
       { text: this.$t && this.$t('documents.dlp.quarantine.author'),
         align: 'center',
         sortable: false,
-        value: 'authorFullName'
+        value: 'authorDisplayName'
       },
       { text: this.$t && this.$t('documents.dlp.quarantine.actions'),
         align: 'center',
@@ -205,6 +210,9 @@ export default {
         this.$root.$emit('application-loaded');
       });
     },
+    dlpItemOwnerLink(username) {
+      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${username}`;
+    }
   },
 };
 </script>
