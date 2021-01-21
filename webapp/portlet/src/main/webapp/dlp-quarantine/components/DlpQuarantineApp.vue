@@ -26,12 +26,19 @@
         <v-divider class="mx-5"/>
       </v-list>
       <exo-confirm-dialog
+        ref="restoreConfirmDialog"
+        :message="restoreConfirmMessage"
+        :title="$t('items.dlp.title.confirmRestore')"
+        :ok-label="$t('items.dlp.button.ok')"
+        :cancel-label="$t('items.dlp.button.cancel')"
+        @ok="restoreDlpPositiveItemConfirm()" />
+      <exo-confirm-dialog
         ref="deleteConfirmDialog"
         :message="deleteConfirmMessage"
-        :title="$t('documents.dlp.title.confirmDelete')"
-        :ok-label="$t('documents.dlp.button.ok')"
-        :cancel-label="$t('documents.dlp.button.cancel')"
-        @ok="deleteDlpPositiveDocumentConfirm()" />
+        :title="$t('items.dlp.title.confirmDelete')"
+        :ok-label="$t('items.dlp.button.ok')"
+        :cancel-label="$t('items.dlp.button.cancel')"
+        @ok="deleteDlpPositiveItemConfirm()" />
       <v-data-table
         :headers="headers"
         :items="documents"
@@ -63,7 +70,7 @@
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.open')"
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.previewDownload')"
             :href="item.itemUrl"
             target="_blank"
             icon
@@ -71,18 +78,19 @@
             <i class="uiIconWatch"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.validate')"
-            primary
-            icon
-            text>
-            <i class="uiIconValidate"></i>
-          </v-btn>
-          <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.delete')"
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.validate')"
             primary
             icon
             text
-            @click="deleteDlpPositiveDocument(item.id)">
+            @click.prevent="restoreDlpPositiveItem(item.id)">
+            <i class="uiIconValidate"></i>
+          </v-btn>
+          <v-btn
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.delete')"
+            primary
+            icon
+            text
+            @click="deleteDlpPositiveItem(item.id)">
             <i class="uiIconTrash"></i>
           </v-btn>
         </template>
@@ -98,8 +106,10 @@ export default {
     return {
       documents: [],
       loading: true,
+      restoreConfirmMessage: null,
       totalSize: 0,
-      selectedItem: null,
+      selectedDeleteItem: null,
+      selectedRestoreItem: null,
       deleteConfirmMessage: null,
       itemsPerPageOptions: [20, 50, 100],
       options: {
@@ -150,7 +160,7 @@ export default {
       },];
     },
     externalTag() {
-      return `(${this.$t('item.dlp.external.label')})`;
+      return `(${this.$t('items.dlp.external.label')})`;
     },
   },
   watch: {
@@ -166,9 +176,9 @@ export default {
     saveDlpFeatureStatus(status) {
       dlpAdministrationServices.saveDlpFeatureStatus(status);
     },
-    deleteDlpPositiveDocumentConfirm() {
+    deleteDlpPositiveItemConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/${this.selectedItem}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/${this.selectedDeleteItem}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -178,7 +188,7 @@ export default {
               throw new Error(error);
             });
           } else {
-            throw new Error(this.$t('documents.dlp.error.UnknownServerError'));
+            throw new Error(this.$t('items.dlp.error.UnknownServerError'));
           }
         }
         return this.retrieveDlpPositiveItems();
@@ -189,16 +199,44 @@ export default {
         }, 5000);
       }).finally(() => this.loading = false);
     },
-    deleteDlpPositiveDocument(documentId) {
-      this.deleteConfirmMessage = this.$t('documents.dlp.message.confirmDelete');
+    deleteDlpPositiveItem(itemId) {
+      this.deleteConfirmMessage = this.$t('items.dlp.message.confirmDelete');
       this.$refs.deleteConfirmDialog.open();
-      this.selectedItem = documentId;
+      this.selectedDeleteItem = itemId;
     },
     getDlpFeatureStatus() {
       dlpAdministrationServices.isDlpFeatureActive().then(status => {
         this.dlpFeatureEnabled = status.value;
         this.dlpFeatureStatusLoaded = true;
       });
+    },
+    restoreDlpPositiveItemConfirm() {
+      this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/restore/${this.selectedRestoreItem}`, {
+        method: 'PUT',
+        credentials: 'include',
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          if (resp && resp.status === 400) {
+            return resp.text().then(error => {
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('items.dlp.error.UnknownServerError'));
+          }
+        }
+        return this.retrieveDlpPositiveItems();
+      }).catch(error => {
+        error = error.message || String(error);
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
+      }).finally(() => this.loading = false);
+    },
+    restoreDlpPositiveItem(itemId) {
+      this.restoreConfirmMessage = this.$t('items.dlp.message.confirmRestore');
+      this.$refs.restoreConfirmDialog.open();
+      this.selectedRestoreItem = itemId;
     },
     retrieveDlpPositiveItems()  {
       const page = this.options && this.options.page;
