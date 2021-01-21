@@ -1,9 +1,7 @@
 import DlpQuarantineApp from './components/DlpQuarantineApp.vue';
-import DlpAuthorFullName from './components/DlpAuthorFullName.vue';
 
 const components = {
-  'dlp-quarantine-app': DlpQuarantineApp,
-  'dlp-author-full-name': DlpAuthorFullName,
+  'dlp-quarantine-app': DlpQuarantineApp
 };
 
 for (const key in components) {
