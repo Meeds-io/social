@@ -544,7 +544,13 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       }
       
     }
-    NodeContext<NodeContext<?>> childNodeCtx = nodeCtx.add(null, pageName);
+    NodeContext<NodeContext<?>> childNodeCtx = null;
+    try {
+      childNodeCtx = nodeCtx.add(null, pageName);
+    }catch (Exception e){
+      LOG.debug("Tree t={} already in the map",pageName);
+      childNodeCtx = nodeCtx.get(pageName);
+    }
     Builder nodeStateBuilder = new NodeState.Builder()
         .icon(spaceApplication.getIcon())
         .pageRef(PageKey.parse(page.getPageId()));
