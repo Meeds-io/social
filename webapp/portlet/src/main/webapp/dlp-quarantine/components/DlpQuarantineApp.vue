@@ -25,6 +25,13 @@
         </v-list-item>
         <v-divider class="mx-5"/>
       </v-list>
+      <exo-confirm-dialog
+        ref="deleteConfirmDialog"
+        :message="deleteConfirmMessage"
+        :title="$t('documents.dlp.title.confirmDelete')"
+        :ok-label="$t('documents.dlp.button.ok')"
+        :cancel-label="$t('documents.dlp.button.cancel')"
+        @ok="deleteDlpPositiveDocumentConfirm()" />
       <v-data-table
         :headers="headers"
         :items="documents"
@@ -44,7 +51,6 @@
               :format="dateTimeFormat"
               class="mr-1" />
           </div>
-
         </template>
         <template slot="item.authorFullName" slot-scope="{ item }">
           <dlp-author-full-name :username="item.author"></dlp-author-full-name>
@@ -67,7 +73,8 @@
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.deleteDoc')"
             primary
             icon
-            text>
+            text
+            @click="deleteDlpPositiveDocument(item.id)">
             <i class="uiIconTrash"></i>
           </v-btn>
         </template>
@@ -84,6 +91,8 @@ export default {
       documents: [],
       loading: true,
       totalSize: 0,
+      selectedItem: null,
+      deleteConfirmMessage: null,
       itemsPerPageOptions: [20, 50, 100],
       options: {
         page: 1,
@@ -145,6 +154,34 @@ export default {
   methods: {
     saveDlpFeatureStatus(status) {
       dlpAdministrationServices.saveDlpFeatureStatus(status);
+    },
+    deleteDlpPositiveDocumentConfirm() {
+      this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/item/${this.selectedItem}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          if (resp && resp.status === 400) {
+            return resp.text().then(error => {
+              throw new Error(error);
+            });
+          } else {
+            throw new Error(this.$t('documents.dlp.error.UnknownServerError'));
+          }
+        }
+        return this.retrieveDlpPositiveItems();
+      }).catch(error => {
+        error = error.message || String(error);
+        window.setTimeout(() => {
+          this.error = null;
+        }, 5000);
+      }).finally(() => this.loading = false);
+    },
+    deleteDlpPositiveDocument(documentId) {
+      this.deleteConfirmMessage = this.$t('documents.dlp.message.confirmDelete');
+      this.$refs.deleteConfirmDialog.open();
+      this.selectedItem = documentId;
     },
     getDlpFeatureStatus() {
       dlpAdministrationServices.isDlpFeatureActive().then(status => {
