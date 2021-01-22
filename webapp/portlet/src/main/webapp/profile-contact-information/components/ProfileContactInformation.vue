@@ -144,10 +144,6 @@
 <script>
 export default {
   props: {
-    user: {
-      type: Object,
-      default: () => null,
-    },
     uploadLimit: {
       type: Number,
       default: () => 0,
@@ -155,7 +151,12 @@ export default {
   },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    user: null,
   }),
+  created() {
+    return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
+      .then(user => this.refresh(user));
+  },
   mounted() {
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
@@ -168,11 +169,15 @@ export default {
         this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }
     });
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+
+    if (this.user) {
+      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    }
   },
   methods: {
     refresh(user) {
       this.user = user;
+      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     },
     editContactInformation() {
       this.$refs.contactInformationEdit.open();
