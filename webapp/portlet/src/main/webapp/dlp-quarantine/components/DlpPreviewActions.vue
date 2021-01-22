@@ -1,0 +1,36 @@
+
+<template>
+  <v-btn
+    v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
+    :href="dlpItemUrl"
+    target="_blank"
+    icon
+    text>
+    <i class="uiIconWatch"></i>
+  </v-btn>
+</template>
+
+<script>
+import * as dlpAdministrationServices from '../dlpAdministrationServices';
+export default {
+  props: {
+    item: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  data () {
+    return { itemUrl : ''};
+  },
+  computed: {
+    dlpItemUrl() {
+      return `${this.itemUrl}`;
+    }
+  },
+  created() {
+    dlpAdministrationServices.getDlpPositiveItemUrl(this.item.reference).then(data => {
+      this.itemUrl = data.dlpPositiveItemUrl;
+    });
+  },
+};
+</script>

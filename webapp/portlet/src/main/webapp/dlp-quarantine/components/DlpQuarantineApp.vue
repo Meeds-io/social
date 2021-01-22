@@ -61,13 +61,7 @@
           </a>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
-          <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
-            icon
-            text
-            @click.prevent="openPreview(item.reference, item.title, item.downloadUrl)">
-            <i class="uiIconWatch"></i>
-          </v-btn>
+          <dlp-preview-actions :item="item"/>
           <v-btn
             v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.validateDoc')"
             primary
@@ -193,20 +187,6 @@ export default {
       dlpAdministrationServices.isDlpFeatureActive().then(status => {
         this.dlpFeatureEnabled = status.value;
         this.dlpFeatureStatusLoaded = true;
-      });
-    },
-    openPreview(docId, title, downloadUrl) {
-      documentPreview.init({
-        doc: {
-          id: docId,
-          repository: 'repository',
-          workspace: 'collaboration',
-          path: '/Security',
-          title: title,
-          downloadUrl: downloadUrl,
-          size: 'size',
-        },
-        showComments: false
       });
     },
     retrieveDlpPositiveItems()  {
