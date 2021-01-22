@@ -60,16 +60,10 @@
 </template>
 
 <script>
-
 export default {
-  props: {
-    aboutMe: {
-      type: String,
-      default: () => '',
-    },
-  },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    aboutMe: null,
     error: null,
     saving: null,
     modifyingAboutMe: null,
@@ -80,8 +74,14 @@ export default {
       return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.aboutMeTextLength;
     }
   },
+  created() {
+    this.$userService.getUser(eXo.env.portal.userName)
+      .then(user => this.refresh(user && user.aboutMe || ''));
+  },
   mounted() {
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    if (this.aboutMe) {
+      this.$root.$emit('application-loaded');
+    }
   },
   methods: {
     refresh(aboutMe) {
