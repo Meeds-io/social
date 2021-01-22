@@ -430,7 +430,7 @@
       <adapter>
         (function() {
         <include>/javascript/autolinker.min.js</include>
-        Vue.directive('autolinker',(el, binding)=>el.innerHTML =  Autolinker.link(binding.value, binding.arg));
+        Vue.directive('autolinker',(el, binding)=>el.innerHTML =  Autolinker.link(binding.value, {sanitizeHtml: true}));
         })();
       </adapter>
     </script>
