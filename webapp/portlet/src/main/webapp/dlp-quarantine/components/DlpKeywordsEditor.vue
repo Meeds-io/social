@@ -5,7 +5,7 @@
         <extended-textarea
           v-model="keywords"
           :max-length="keywordsTextLength"
-          :placeholder="$t('documents.dlp.editKeyword.placeholder')"
+          :placeholder="$t('items.dlp.editKeyword.placeholder')"
           class="py-0"
           type="text"
         />
@@ -15,12 +15,12 @@
         <v-btn
           class="btn mr-2"
           @click="keywordsEdit = false;getDlpKeywords()">
-          {{ $t('documents.dlp.editKeyword.cancel') }}
+          {{ $t('items.dlp.editKeyword.cancel') }}
         </v-btn>
         <v-btn
           class="btn btn-primary"
           @click="saveDlpKeywords">
-          {{ $t('documents.dlp.editKeyword.save') }}
+          {{ $t('items.dlp.editKeyword.save') }}
         </v-btn>
       </v-card-actions>
     </v-card>
