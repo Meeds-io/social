@@ -61,7 +61,14 @@
           </a>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
-          <dlp-preview-actions :item="item"/>
+          <v-btn
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.open')"
+            :href="item.itemUrl"
+            target="_blank"
+            icon
+            text>
+            <i class="uiIconWatch"></i>
+          </v-btn>
           <v-btn
             v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.validate')"
             primary

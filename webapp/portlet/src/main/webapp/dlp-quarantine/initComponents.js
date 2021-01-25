@@ -1,9 +1,7 @@
 import DlpQuarantineApp from './components/DlpQuarantineApp.vue';
-import DlpPreviewActions from './components/DlpPreviewActions.vue';
 
 const components = {
-  'dlp-quarantine-app': DlpQuarantineApp,
-  'dlp-preview-actions': DlpPreviewActions,
+  'dlp-quarantine-app': DlpQuarantineApp
 };
 
 for (const key in components) {

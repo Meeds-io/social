@@ -38,16 +38,3 @@ export function getDlpPositiveItems(offset, itemsPerPage) {
     }
   });
 }
-
-export function getDlpPositiveItemUrl(itemId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/itemUrl/${itemId}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then((resp) => {
-    if (resp && resp.ok) {
-      return resp.json();
-    } else {
-      throw new Error('Error when getting dlp positive items url');
-    }
-  });
-}
