@@ -28,19 +28,16 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.${appId}-${lang}.json`;
 
-export function init(user, uploadLimit) {
+export function init(uploadLimit) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     new Vue({
-      data: () => ({
-        user: user,
-      }),
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :user="user" :upload-limit="${uploadLimit}" />`,
+      template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :upload-limit="${uploadLimit}" />`,
       i18n,
       vuetify,
     }).$mount(appElement);
