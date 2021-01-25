@@ -49,12 +49,7 @@ export default {
   },
   methods: {
     retrieveUserInformation() {
-      fetch(this.IDENTITY_REST_API_URI, {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(data => data && data.ok && data.json())
-        .then(data => this.profile = data && data.profile);
+      this.$identityService.getIdentityById(eXo.env.portal.userIdentityId).then(data => this.profile = data && data.profile);
     },
   },
 };
