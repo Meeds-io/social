@@ -63,14 +63,14 @@
         <template slot="item.actions" slot-scope="{ item }">
           <dlp-preview-actions :item="item"/>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.validateDoc')"
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.validate')"
             primary
             icon
             text>
             <i class="uiIconValidate"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.deleteDoc')"
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.delete')"
             primary
             icon
             text

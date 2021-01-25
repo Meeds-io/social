@@ -1,7 +1,7 @@
 
 <template>
   <v-btn
-    v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
+    v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.open')"
     :href="dlpItemUrl"
     target="_blank"
     icon
