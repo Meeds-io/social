@@ -43,14 +43,9 @@
 
 <script>
 export default {
-  props: {
-    experiences: {
-      type: Array,
-      default: () => null,
-    },
-  },
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    experiences: null,
     error: null,
     saving: null,
     workExperiencesDrawerKey: 0,
@@ -60,9 +55,13 @@ export default {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
+  created() {
+    this.refresh();
+  },
   mounted() {
-    this.setExperiences(this.experiences);
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    if (this.experiences) {
+      this.$root.$emit('application-loaded');
+    }
   },
   methods: {
     refresh() {
