@@ -38,3 +38,16 @@ export function getDlpPositiveItems(offset, itemsPerPage) {
     }
   });
 } 
+
+export function getDlpKeywords() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/keywords`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.text();
+    } else {
+      throw new Error('Error retrieving dlp keywords');
+    }
+  });
+} 

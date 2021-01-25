@@ -23,6 +23,7 @@
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
+        <dlp-keywords-editor></dlp-keywords-editor>
         <v-divider class="mx-5"/>
       </v-list>
       <exo-confirm-dialog
