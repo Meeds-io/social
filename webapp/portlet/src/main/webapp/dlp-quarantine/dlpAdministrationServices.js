@@ -37,4 +37,4 @@ export function getDlpPositiveItems(offset, itemsPerPage) {
       throw new Error('Error retrieving list of dlp positive items');
     }
   });
-}
+} 
