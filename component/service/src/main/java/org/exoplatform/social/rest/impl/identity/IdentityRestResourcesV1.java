@@ -108,44 +108,6 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
    	  return EntityBuilder.getResponse(new CollectionEntity(new ArrayList<DataEntity>(), EntityBuilder.IDENTITIES_TYPE, offset, limit), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
 	}
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @POST
-  @RolesAllowed("users")
-  @ApiOperation(value = "Creates an identity",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the identity if the authenticated user is in the group /platform/administrators")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response createIdentities(@Context UriInfo uriInfo,
-                                   @ApiParam(value = "Remote id of the identity", required = true) @QueryParam("remoteId") String remoteId,
-                                   @ApiParam(value = "Provider type: space or organization", required = true) @QueryParam("providerId") String providerId,
-                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-    
-    if (!RestUtils.isMemberOfAdminGroup()) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    if ((! providerId.equals(SpaceIdentityProvider.NAME) && ! providerId.equals(OrganizationIdentityProvider.NAME))) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    //check if user already exist
-    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId, true);
-    if (identity == null) {
-      identity = new Identity(providerId, remoteId);
-      identityManager.updateIdentity(identity);
-      identityManager.getProfile(identity);
-    } else if (identity.isDeleted()) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
-    }
-    IdentityEntity identityInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(identityInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
   
   /**
    * {@inheritDoc}
@@ -323,38 +285,6 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     builder.cacheControl(cc);
     return builder.cacheControl(cc).build();
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @PUT
-  @Path("{id}")
-  @RolesAllowed("users")
-  @ApiOperation(value = "Updates an identity by id",
-                httpMethod = "PUT",
-                response = Response.class,
-                notes = "This updates the identity if the authenticated user has permissions to view the object linked to this identity.")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response updateIdentityById(@Context UriInfo uriInfo,
-                                     @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
-                                     @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                     @ApiParam(value = "Updated profile object.", required = false) ProfileEntity model) throws Exception {
-    
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
-    if (identity == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    
-    identityManager.updateProfile(fillProfileFromEntity(model, identity));
-    
-    IdentityEntity identityInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    
-    return EntityBuilder.getResponse(identityInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
   
   private Profile fillProfileFromEntity(ProfileEntity model, Identity identity) {
     Profile profile = identity.getProfile();
@@ -375,42 +305,6 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       profile.setProperty(key, value);
     }
     return profile;
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  @DELETE
-  @Path("{id}")
-  @RolesAllowed("users")
-  @ApiOperation(value = "Deletes an identity by id",
-                httpMethod = "DELETE",
-                response = Response.class,
-                notes = "This deletes the identity if the authenticated user has permissions to view the object linked to this identity.")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response deleteIdentityById(@Context UriInfo uriInfo,
-                                     @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
-                                     @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-
-    if (! RestUtils.isMemberOfAdminGroup()) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, false);
-    
-    if (identity == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    //delete identity
-    identityManager.hardDeleteIdentity(identity);
-    identity = identityManager.getIdentity(id, true);
-    IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
   /**

@@ -2,10 +2,14 @@ package org.exoplatform.social.rest.impl.users;
 
 import org.apache.commons.lang3.StringUtils;
 import org.gatein.common.io.IOTools;
+import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
@@ -33,6 +37,11 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,24 +51,32 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.MultivaluedMap;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
-  
-  private ActivityManager activityManager;
-  private IdentityManager identityManager;
-  private UserACL userACL;
+
+  private ActivityManager     activityManager;
+
+  private IdentityManager     identityManager;
+
+  private UserACL             userACL;
+
   private RelationshipManager relationshipManager;
-  private SpaceService spaceService;
-  private UserStateService userStateService;
+
+  private SpaceService        spaceService;
+
+  private UserStateService    userStateService;
 
   private MockUploadService   uploadService;
 
-  private Identity rootIdentity;
-  private Identity johnIdentity;
-  private Identity maryIdentity;
-  private Identity demoIdentity;
+  private Identity            rootIdentity;
+
+  private Identity            johnIdentity;
+
+  private Identity            maryIdentity;
+
+  private Identity            demoIdentity;
 
   public void setUp() throws Exception {
     super.setUp();
-    
+
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
@@ -100,7 +117,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   public void testGetAllUsersWithExtraFields() throws Exception {
     Space spaceTest = getSpaceInstance(700, "root");
     spaceTest.getId();
-    spaceTest.setMembers(new String[] {"mary", "john", "demo"});
+    spaceTest.setMembers(new String[] { "mary", "john", "demo" });
     spaceService.updateSpace(spaceTest);
 
     relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
@@ -117,7 +134,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     relationshipManager.confirm(johnIdentity, demoIdentity);
 
     startSessionAs("root");
-    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&expand=all,connectionsCount,spacesCount,connectionsInCommonCount,relationshipStatus"), "", null, null);
+    ContainerResponse response =
+                               service("GET",
+                                       getURLResource("users?limit=5&offset=0&expand=all,connectionsCount,spacesCount,connectionsInCommonCount,relationshipStatus"),
+                                       "",
+                                       null,
+                                       null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
@@ -158,13 +180,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
     long date = new Date().getTime();
     UserStateModel userModel =
-            new UserStateModel("john",
-                    date,
-                    UserStateService.DEFAULT_STATUS);
+                             new UserStateModel("john",
+                                                date,
+                                                UserStateService.DEFAULT_STATUS);
     UserStateModel userModel2 =
-            new UserStateModel("mary",
-                    date,
-                    UserStateService.DEFAULT_STATUS);
+                              new UserStateModel("mary",
+                                                 date,
+                                                 UserStateService.DEFAULT_STATUS);
     userStateService.save(userModel);
     userStateService.save(userModel2);
     userStateService.ping(userModel.getUserId());
@@ -180,22 +202,22 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
     long date = new Date().getTime();
     UserStateModel userModel =
-            new UserStateModel("john",
-                    date,
-                    UserStateService.DEFAULT_STATUS);
+                             new UserStateModel("john",
+                                                date,
+                                                UserStateService.DEFAULT_STATUS);
     UserStateModel userModel2 =
-            new UserStateModel("mary",
-                    date,
-                    UserStateService.DEFAULT_STATUS);
+                              new UserStateModel("mary",
+                                                 date,
+                                                 UserStateService.DEFAULT_STATUS);
     userStateService.save(userModel);
     userStateService.save(userModel2);
     userStateService.ping(userModel.getUserId());
     userStateService.ping(userModel2.getUserId());
     Space spaceTest = getSpaceInstance(0, "root");
     String spaceId = spaceTest.getId();
-    spaceTest.setMembers(new String[] {"john"});
+    spaceTest.setMembers(new String[] { "john" });
     spaceService.updateSpace(spaceTest);
-    ContainerResponse response = service("GET", getURLResource("users?status=online&spaceId="+spaceId), "", null, null);
+    ContainerResponse response = service("GET", getURLResource("users?status=online&spaceId=" + spaceId), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
@@ -254,7 +276,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("GET", getURLResource("users/connections/pending?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
+
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
     ProfileEntity userEntity = getBaseEntity(collections.getEntities().get(0), ProfileEntity.class);
@@ -270,12 +292,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     rootActivity.setTitle("root activity");
     activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
 
-    //wait to make sure the order of activities
+    // wait to make sure the order of activities
     Thread.sleep(10);
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-    
+
     ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
     maryActivity.setTitle("mary activity");
     activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
@@ -286,15 +308,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("GET", getURLResource("users/root/activities?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
+
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    //must return one activity of root and one of demo
+    // must return one activity of root and one of demo
     assertEquals(2, collections.getEntities().size());
     ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("demo activity", activityEntity.getTitle());
     activityEntity = getBaseEntity(collections.getEntities().get(1), ActivityEntity.class);
     assertEquals("root activity", activityEntity.getTitle());
-    
+
     activityManager.deleteActivity(maryActivity);
     activityManager.deleteActivity(demoActivity);
     activityManager.deleteActivity(rootActivity);
@@ -306,7 +328,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     getSpaceInstance(2, "demo");
     getSpaceInstance(3, "demo");
     getSpaceInstance(4, "mary");
-    
+
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users/root/spaces?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
@@ -348,10 +370,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, collections.getEntities().size());
   }
 
-
   public void testGetCommonSpaces() throws Exception {
-    Space spaceTest =  getSpaceInstance(0, "root");
-    Space spaceTest1 =  getSpaceInstance(1, "demo");
+    Space spaceTest = getSpaceInstance(0, "root");
+    Space spaceTest1 = getSpaceInstance(1, "demo");
 
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
@@ -360,7 +381,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
 
-    spaceTest.setMembers(new String[] {"john"});
+    spaceTest.setMembers(new String[] { "john" });
     spaceService.updateSpace(spaceTest);
     response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
@@ -375,7 +396,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
-    spaceTest1.setMembers(new String[] {"john", "root"});
+    spaceTest1.setMembers(new String[] { "john", "root" });
     spaceService.updateSpace(spaceTest1);
 
     response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
@@ -413,7 +434,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
     ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
     assertNotNull(response);
-    assertEquals(String.valueOf(response.getEntity()) ,204, response.getStatus());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     assertNotNull(identity);
@@ -421,7 +442,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     response = service("PATCH", getURLResource("users/john/"), "", headers, formData);
     assertNotNull(response);
-    assertEquals("User root shouldn't be able to modify john attributes" ,401, response.getStatus());
+    assertEquals("User root shouldn't be able to modify john attributes", 401, response.getStatus());
   }
 
   public void testUpdateProfileAvatar() throws Exception {
@@ -484,7 +505,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String uploadId = "users-empty.csv";
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
-    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    ContainerResponse response = service("POST",
+                                         getURLResource("users/csv"),
+                                         "",
+                                         headers,
+                                         ("uploadId=" + uploadId + "&sync=true").getBytes());
     assertNotNull(response);
 
     assertEquals(404, response.getStatus());
@@ -503,7 +528,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -516,7 +541,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     UploadResource uploadResource = uploadService.getUploadResource(uploadId);
     assertNotNull(uploadResource);
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&clean=true").getBytes());
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&clean=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -536,7 +561,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -619,7 +644,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("john");
     ContainerResponse response = getResponse("PATCH", getURLResource("users/john/profile"), input.toString());
     assertNotNull(response);
-    assertEquals(String.valueOf(response.getEntity()) ,204, response.getStatus());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     assertNotNull(identity);
@@ -645,6 +670,130 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(url, urls.get(0).get("value"));
   }
 
+  public void testUpdateUserFieldsWithValidators() throws Exception {
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+
+    String johnEmail = "john@platform.com";
+    startSessionAs("john");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         headers,
+                                         ("name=" + ProfileEntity.EMAIL + "&value=" + johnEmail).getBytes());
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    String user = "demo";
+    startSessionAs(user);
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       headers,
+                       ("name=" + ProfileEntity.FIRSTNAME + "&value=t").getBytes());
+    assertNotNull(response);
+    assertEquals("demo shouldn't be allowed to update john fields. Response content: " + response.getEntity(),
+                 401,
+                 response.getStatus());
+
+    response = service("PATCH",
+                       getURLResource("users/" + user),
+                       "",
+                       headers,
+                       ("name=" + ProfileEntity.EMAIL + "&value=WRONG_FROMAT").getBytes());
+    assertNotNull(response);
+    assertEquals("Email format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+
+    response = service("PATCH",
+                       getURLResource("users/" + user),
+                       "",
+                       headers,
+                       ("name=" + ProfileEntity.EMAIL + "&value=" + johnEmail).getBytes());
+    assertNotNull(response);
+    assertEquals("Email already exists return HTTP 401 code. Response content: " + response.getEntity(),
+                 401,
+                 response.getStatus());
+
+    response = service("PATCH",
+                       getURLResource("users/" + user),
+                       "",
+                       headers,
+                       ("name=" + ProfileEntity.FIRSTNAME + "&value=D").getBytes());
+    assertNotNull(response);
+    assertEquals("FIRST name format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+
+    response = service("PATCH",
+                       getURLResource("users/" + user),
+                       "",
+                       headers,
+                       ("name=" + ProfileEntity.LASTNAME + "&value=T").getBytes());
+    assertNotNull(response);
+    assertEquals("LAST name format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+  }
+
+  public void testUpdateUserFieldWithValidators() throws Exception {
+    String johnEmail = "john@platform.com";
+    startSessionAs("john");
+    JSONObject johnData = new JSONObject();
+    johnData.put(ProfileEntity.EMAIL, johnEmail);
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile", johnData.toString());
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.USERNAME, "demo");
+    data.put(ProfileEntity.FIRSTNAME, "Demo");
+    data.put(ProfileEntity.LASTNAME, "Test");
+    data.put(ProfileEntity.EMAIL, "demo@test.com");
+
+    String user = "demo";
+    startSessionAs(user);
+    response = getResponse("PATCH", "/v1/social/users/john/profile", data.toString());
+    assertNotNull(response);
+    assertEquals("demo shouldn't be allowed to update john fields. Response content: " + response.getEntity(),
+                 401,
+                 response.getStatus());
+    data.put(ProfileEntity.USERNAME, user);
+
+    data.put(ProfileEntity.EMAIL, "WRONG_FORMAT");
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    assertNotNull(response);
+    assertEquals("Email format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+
+    startSessionAs(user);
+    data.put(ProfileEntity.EMAIL, johnEmail);
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    assertNotNull(response);
+    assertEquals("Email already exists return HTTP 401 code. Response content: " + response.getEntity(),
+                 401,
+                 response.getStatus());
+    data.put(ProfileEntity.EMAIL, "demo@test.com");
+
+    data.put(ProfileEntity.FIRSTNAME, "d");
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    assertNotNull(response);
+    assertEquals("FIRST name format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+    data.put(ProfileEntity.FIRSTNAME, "Demo");
+
+    data.put(ProfileEntity.LASTNAME, "t");
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    assertNotNull(response);
+    assertEquals("LAST name format validation should return HTTP 400 code. Response content: " + response.getEntity(),
+                 400,
+                 response.getStatus());
+    data.put(ProfileEntity.LASTNAME, "Test");
+  }
+
   private Space getSpaceInstance(int number, String creator) throws Exception {
     Space space = new Space();
     space.setDisplayName("my space " + number);
@@ -656,8 +805,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
-    String[] managers = new String[] {creator};
-    String[] members = new String[] {creator};
+    String[] managers = new String[] { creator };
+    String[] members = new String[] { creator };
     space.setManagers(managers);
     space.setMembers(members);
     space.setUrl(space.getPrettyName());

@@ -51,19 +51,6 @@ public interface IdentityRestResources extends SocialRest {
                                          @QueryParam("expand") String expand) throws Exception;
 
   /**
-   * Process to create an identity
-   * 
-   * @param uriInfo
-   * @return
-   * @throws Exception
-   */
-  @POST
-  public abstract Response createIdentities(@Context UriInfo uriInfo,
-                                            @QueryParam("remoteId") String remoteId,
-                                            @QueryParam("providerId") String providerId,
-                                            @QueryParam("expand") String expand ) throws Exception;
-
-  /**
    * Process to return an identity in json format
    * 
    * @param uriInfo
@@ -92,33 +79,6 @@ public interface IdentityRestResources extends SocialRest {
                                                    @PathParam("providerId") String providerId,
                                                    @PathParam("remoteId") String remoteId,
                                                    @QueryParam("expand") String expand);
-
-  /**
-   * Process to update an identity by id
-   * 
-   * @param uriInfo
-   * @return
-   * @throws Exception
-   */
-  @PUT
-  @Path("{id}")
-  public abstract Response updateIdentityById(@Context UriInfo uriInfo,
-                                              @PathParam("id") String id,
-                                              @QueryParam("expand") String expand,
-                                              @ApiParam(value = "Updated profile object.", required = false) ProfileEntity model) throws Exception;
-
-  /**
-   * Process to delete an identity
-   * 
-   * @param uriInfo
-   * @return
-   * @throws Exception
-   */
-  @DELETE
-  @Path("{id}")
-  public abstract Response deleteIdentityById(@Context UriInfo uriInfo,
-                                              @PathParam("id") String id,
-                                              @QueryParam("expand") String expand) throws Exception;
 
   /**
    * Process to return all relationships of an identity in json format
