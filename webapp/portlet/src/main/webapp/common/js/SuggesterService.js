@@ -25,6 +25,7 @@ function searchSpaces(filter, items) {
           providerId: 'space',
           profile: {
             fullName: item.displayName,
+            originalName: item.shortName,
             avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/spaces/${item.prettyName}/avatar`,
           },
         });
@@ -108,6 +109,7 @@ export function convertSuggesterItemToIdentity(suggesterIdentity) {
     identity.profile = {
       avatar: profile.avatarUrl,
       fullname: profile.fullName,
+      originalName: profile.originalName,
     };
   }
   return identity;
