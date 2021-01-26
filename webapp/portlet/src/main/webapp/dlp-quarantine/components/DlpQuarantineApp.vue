@@ -59,6 +59,7 @@
             target="_blank">
             {{ item.authorDisplayName }}
           </a>
+          <span v-if="item.isExternal" class="externalTagClass">{{ externalTag }}</span>
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
@@ -147,6 +148,9 @@ export default {
         sortable: false,
         value: 'actions'
       },];
+    },
+    externalTag() {
+      return `(${this.$t('item.dlp.external.label')})`;
     },
   },
   watch: {
