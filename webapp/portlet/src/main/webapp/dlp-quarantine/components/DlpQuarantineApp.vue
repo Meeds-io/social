@@ -150,7 +150,7 @@ export default {
       },];
     },
     externalTag() {
-      return `(${this.$t('items.dlp.external.label')})`;
+      return `(${this.$t('item.dlp.external.label')})`;
     },
   },
   watch: {
