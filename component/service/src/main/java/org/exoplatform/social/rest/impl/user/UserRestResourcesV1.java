@@ -361,7 +361,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (identity != null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    if(getUserByEmail(model.getEmail()) != null) {
+    if(isEmailAlreadyExists(model.getUsername(), model.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     
@@ -590,7 +590,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       @ApiResponse(code = 500, message = "Internal server error due to data encoding"),
       @ApiResponse(code = 403, message = "Unothorized to modify user profile"),
       @ApiResponse(code = 400, message = "Invalid query input") })
-  public Response updateUserProfileAttribute(@ApiParam(value = "User name", required = true) @PathParam("id") String username,
+  public Response updateUserProfileAttribute(@Context HttpServletRequest request,
+                                             @ApiParam(value = "User name", required = true) @PathParam("id") String username,
                                              @ApiParam(value = "User profile attribute name", required = true) @FormParam("name") String name,
                                              @ApiParam(value = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
     if (StringUtils.isBlank(name)) {
@@ -607,11 +608,42 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(Status.UNAUTHORIZED).build();
     }
 
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
     try {
       String fieldName = ProfileEntity.getFieldName(name);
+      if (Profile.FIRST_NAME.equals(fieldName)) {
+        String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, value);
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+        }
+      }
+      if (Profile.LAST_NAME.equals(fieldName)) {
+        String errorMessage = LASTNAME_VALIDATOR.validate(locale, value);
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+        }
+      }
+      if (Profile.EMAIL.equals(fieldName)) {
+        String errorMessage = EMAIL_VALIDATOR.validate(locale, value);
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+        }
+        // Check if mail address is already used
+        Query query = new Query();
+        query.setEmail(value);
+        ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
+        int usersLength = users.getSize();
+        if (usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username))) {
+          return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+        }
+      }
       updateProfileField(profile, fieldName, value, true);
+    } catch (IllegalAccessException e) {
+      LOG.error("User {} is not allowed to update attribute {}", currentUser, name);
+      return Response.status(Status.UNAUTHORIZED).build();
     } catch (IdentityStorageException e) {
       return Response.serverError().entity(e.getMessageKey()).build();
     } catch (Exception e) {
@@ -641,47 +673,48 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(Status.BAD_REQUEST).entity("Use profile entity is mandatory").build();
     }
 
+    String currentUser = getCurrentUser();
+    if (!StringUtils.equals(currentUser, username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
 
     String firstName = profileEntity.getFirstname();
     String lastName = profileEntity.getLastname();
     String email = profileEntity.getEmail();
 
-    if (StringUtils.isNotBlank(firstName)) {
+    if (firstName != null) {
       String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, firstName);
       if (StringUtils.isNotBlank(errorMessage)) {
         return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
       }
     }
-    if (StringUtils.isNotBlank(lastName)) {
+    if (lastName != null) {
       String errorMessage = LASTNAME_VALIDATOR.validate(locale, lastName);
       if (StringUtils.isNotBlank(errorMessage)) {
         return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
       }
     }
-    if (StringUtils.isNoneBlank(email)) {
+    if (email != null) {
       String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
       if (StringUtils.isNotBlank(errorMessage)) {
         return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
       }
       // Check if mail address is already used
-      Query query = new Query();
-      query.setEmail(email);
-      ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
-      if (users.getSize() > 0 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username)) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:ALREADY_EXISTS").build();
+      if (isEmailAlreadyExists(username, email)) {
+        return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
       }
     }
 
-
-    String currentUser = getCurrentUser();
-    if (!StringUtils.equals(currentUser, username)) {
+    try {
+      saveProfile(username, profileEntity);
+    } catch (IllegalAccessException e) {
+      LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
-    }
-
-    String errorMessage = saveProfile(username, profileEntity);
-    if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.ok(errorMessage).build();
+    } catch (Exception e) {
+      LOG.error("Error updating user {} attributes", currentUser, e);
+      return Response.serverError().build();
     }
     return Response.noContent().build();
   }
@@ -740,8 +773,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (!ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-    if(getUserByEmail(model.getEmail()) != null && 
-        !user.getUserName().equals(getUserByEmail(model.getEmail()).getUserName())) {
+    if(isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     
@@ -1249,8 +1281,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
     else {
-      existingUser = getUserByEmail(user.getEmail());
-      if (existingUser != null) {
+      if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
         userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
         return userName;
       }
@@ -1314,7 +1345,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     String warnMessage = null;
     try {
-      warnMessage = saveProfile(userName, profileEntity);
+      saveProfile(userName, profileEntity);
+    } catch (IdentityStorageException e) {
+      warnMessage = e.getMessageKey();
     } catch (Exception e) {
       warnMessage = "CREATE_USER_PROFILE_ERROR:" + e.getMessage();
     }
@@ -1334,6 +1367,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       errorMessage = userFieldValidator.validate(locale, fieldValue);
     }
     return errorMessage;
+  }
+
+  private boolean isEmailAlreadyExists(String username, String email) throws Exception {
+    Query query = new Query();
+    query.setEmail(email);
+    ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
+    int usersLength = users.getSize();
+    boolean emailAlreadyExists = usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username));
+    return emailAlreadyExists;
   }
 
   /**
@@ -1373,25 +1415,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             activity.getPosterId());
   }
 
-  private String saveProfile(String username, ProfileEntity profileEntity) {
+  private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
 
-    try {
-      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
-      for (Entry<String, Object> entry : profileEntries) {
-        String name = entry.getKey();
-        Object value = entry.getValue();
-        String fieldName = ProfileEntity.getFieldName(name);
-        updateProfileField(profile, fieldName, value, false);
-      }
-      identityManager.updateProfile(profile, true);
-    } catch (IdentityStorageException e) {
-      return e.getMessageKey();
-    } catch (Exception e) {
-      return "Can't update profile entities, error = " + e.getMessage();
+    Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+    for (Entry<String, Object> entry : profileEntries) {
+      String name = entry.getKey();
+      Object value = entry.getValue();
+      String fieldName = ProfileEntity.getFieldName(name);
+      updateProfileField(profile, fieldName, value, false);
     }
-    return null;
+    identityManager.updateProfile(profile, true);
   }
 
   private void fillUserFromModel(User user, UserEntity model) {
@@ -1541,7 +1576,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                   String name,
                                   Object value,
                                   boolean save) throws Exception {
-    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+    if (Profile.EXTERNAL.equals(name)) {
+      throw new IllegalAccessException("Not allowed to update EXTERNAL field");
+    } else if (Profile.USERNAME.equals(name)) {
+      throw new IllegalAccessException("Not allowed to update USERNAME field");
+    } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
       UploadResource uploadResource = uploadService.getUploadResource(value.toString());
       if (uploadResource == null) {
         throw new IllegalStateException("No uploaded resource found with uploadId = " + value);

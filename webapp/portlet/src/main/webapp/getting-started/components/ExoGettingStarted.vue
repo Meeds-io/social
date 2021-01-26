@@ -111,9 +111,7 @@ export default {
     },
     clearCache(){
       caches.open('portal-pwa-resources-dom').then(function(cache) {
-        cache.delete('/dom-cache?id=GettingStartedPortlet').then(function() {
-          console.debug('cache deleted');
-        });
+        cache.delete('/dom-cache?id=GettingStartedPortlet');
       });
     }
   }
