@@ -62,20 +62,22 @@
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.previewDownload')"
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.open')"
+            :href="item.itemUrl"
+            target="_blank"
             icon
             text>
             <i class="uiIconWatch"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.validateDoc')"
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.validate')"
             primary
             icon
             text>
             <i class="uiIconValidate"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('documents.dlp.quarantine.deleteDoc')"
+            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.delete')"
             primary
             icon
             text
