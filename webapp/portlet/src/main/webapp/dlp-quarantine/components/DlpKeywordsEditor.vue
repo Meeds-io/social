@@ -35,7 +35,8 @@
     <exo-drawer
       ref="keywordsDrawer"
       class="keywordsDrawer"
-      right>
+      right
+      @closed="CleanInput">
       <template slot="title">
         {{ $t('items.dlp.editKeyword.title') }}
       </template>
@@ -45,7 +46,7 @@
             <input
               ref="InputKeyword"
               :placeholder="$t('items.dlp.editKeyword.placeholder')"
-              class="ignore-vuetify-classes InputKeyword"
+              class="ignore-vuetify-classes inputKeyword"
               @keyup.enter="AddKeyword"
             />
           </v-card-text>
@@ -158,15 +159,16 @@ export default {
       this.getDlpKeywords();
     },
     saveDlpKeywords() {
-      this.$settingService.setSettingValue('GLOBAL', 'DLP', 'GLOBAL', 'DlpKeywords', 'exo:dlpKeywords', this.modifyingKeywords.join());
-      this.$refs.InputKeyword.value = '';
+      this.$settingService.setSettingValue('GLOBAL', null , 'APPLICATION', 'DlpKeywords', 'exo:dlpKeywords', this.modifyingKeywords.join());
       this.$refs.keywordsDrawer.close();
       this.keywords = this.modifyingKeywords;
     },
     cancel() {
-      this.$refs.InputKeyword.value = '';
       this.$refs.keywordsDrawer.close();
     },
+    CleanInput() {
+      this.$refs.InputKeyword.value = '';
+    }
   }
 };
 </script>
