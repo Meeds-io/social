@@ -7,7 +7,7 @@
             <v-list-item-title class="title mb-0">
               <v-row no-gutters class="col-4">
                 <v-col class="col-4 pb-0 pt-5">
-                  <h4 class="font-weight-bold ma-0">{{ $t('documents.dlp.quarantine.label') }}</h4>
+                  <h4 class="font-weight-bold ma-0">{{ $t('items.dlp.quarantine.label') }}</h4>
                 </v-col>
                 <v-col class="col-4">
                   <v-switch
@@ -19,7 +19,7 @@
               </v-row>
             </v-list-item-title>
             <v-list-item-subtitle class="text-sub-title font-italic">
-              {{ $t('documents.dlp.quarantine.enableDisable') }}
+              {{ $t('items.dlp.quarantine.enableDisable') }}
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -41,7 +41,7 @@
         @ok="deleteDlpPositiveItemConfirm()" />
       <v-data-table
         :headers="headers"
-        :items="documents"
+        :items="items"
         :loading="loading"
         :options.sync="options"
         :server-items-length="totalSize"
@@ -104,7 +104,7 @@ import * as dlpAdministrationServices from '../dlpAdministrationServices';
 export default {
   data () {
     return {
-      documents: [],
+      items: [],
       loading: true,
       restoreConfirmMessage: null,
       totalSize: 0,
@@ -133,27 +133,27 @@ export default {
   computed: {
     headers() {
       return [        {
-        text: this.$t && this.$t('documents.dlp.quarantine.content'),
+        text: this.$t && this.$t('items.dlp.quarantine.content'),
         align: 'center',
         sortable: false,
         value: 'title',
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.keywordDetected'),
+      { text: this.$t && this.$t('items.dlp.quarantine.keywordDetected'),
         align: 'center',
         sortable: false,
         value: 'keywords'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.createdDate'),
+      { text: this.$t && this.$t('items.dlp.quarantine.createdDate'),
         align: 'center',
         sortable: false,
         value: 'detectionDate'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.author'),
+      { text: this.$t && this.$t('items.dlp.quarantine.author'),
         align: 'center',
         sortable: false,
         value: 'authorDisplayName'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.actions'),
+      { text: this.$t && this.$t('items.dlp.quarantine.actions'),
         align: 'center',
         sortable: false,
         value: 'actions'
@@ -247,7 +247,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
-        this.documents = data.entities;
+        this.items = data.entities;
         this.totalSize = data.size;
       }).then(() =>{
         this.loading = false;
