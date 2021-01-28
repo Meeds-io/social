@@ -75,7 +75,7 @@ export default {
     }
   },
   created() {
-    this.$userService.getUser(eXo.env.portal.userName)
+    this.$userService.getUser(eXo.env.portal.profileOwner)
       .then(user => this.refresh(user && user.aboutMe || ''));
   },
   mounted() {
@@ -97,7 +97,7 @@ export default {
       this.error = null;
       this.saving = true;
       this.$refs.aboutMeDrawer.startLoading();
-      return this.$userService.updateProfileField(eXo.env.portal.userName, 'aboutMe', this.modifyingAboutMe)
+      return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
         .then(() => this.refresh(this.modifyingAboutMe))
         .catch(error => {
           console.warn('Error saving about me section', error); // eslint-disable-line no-console
