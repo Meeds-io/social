@@ -19,7 +19,7 @@ export default {
   }),
   created() {
     // get external components
-    document.addEventListener('chat-external-updated', () => {
+    document.addEventListener('component-SpaceSettings-external-component-space-chat-setting-updated', () => {
       if (extensionRegistry) {
         const components = extensionRegistry.loadComponents('SpaceSettings-external-component').map(component => component.componentOptions.componentImpl);
         this.spaceExternalSettings.push(...components);
