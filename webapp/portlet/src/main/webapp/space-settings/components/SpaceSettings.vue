@@ -19,9 +19,9 @@ export default {
   }),
   created() {
     // get external components
-    document.addEventListener('component-SpaceSettings-external-component-space-chat-setting-updated', () => {
+    document.addEventListener('component-external-space-settings-updated', () => {
       if (extensionRegistry) {
-        const components = extensionRegistry.loadComponents('SpaceSettings-external-component').map(component => component.componentOptions.componentImpl);
+        const components = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
         this.spaceExternalSettings.push(...components);
       }
     });
