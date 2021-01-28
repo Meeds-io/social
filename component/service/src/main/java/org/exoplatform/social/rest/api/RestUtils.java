@@ -176,9 +176,11 @@ public class RestUtils {
    * @return true if user not authenticated
    */
   public static boolean isAnonymous() {
-    return IdentityConstants.ANONIM.equals(ConversationState.getCurrent().getIdentity().getUserId());
+    return ConversationState.getCurrent() == null
+        || ConversationState.getCurrent().getIdentity() == null
+        || IdentityConstants.ANONIM.equals(ConversationState.getCurrent().getIdentity().getUserId());
   }
-  
+
   public static String getPathParam(UriInfo uriInfo, String name) {
     return uriInfo.getPathParameters().getFirst(name);
   }
@@ -241,15 +243,15 @@ public class RestUtils {
   }
 
   public static final Identity getUserIdentity(String user) {
-    return getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    return isAnonymous() ? null : getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
   }
 
   public static final Identity getCurrentUserIdentity() {
-    return getUserIdentity(getCurrentUser());
+    return isAnonymous() ? null : getUserIdentity(getCurrentUser());
   }
 
   public static final String getCurrentUser() {
-    return ConversationState.getCurrent().getIdentity().getUserId();
+    return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }
 
   public static IdentityManager getIdentityManager() {
