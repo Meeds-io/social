@@ -10,7 +10,7 @@
           <span class="pr-1 text-capitalize">
             {{ getLabel(`profileContactInformation.phone.${phone.phoneType}`, phone.phoneType) }}:
           </span>
-          {{ phone.phoneNumber }}
+          <span v-autolinker="phone.phoneNumber"></span>
         </div>
       </div>
     </v-flex>

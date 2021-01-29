@@ -35,7 +35,7 @@
           {{ $t('profileContactInformation.email') }}
         </div>
         <div :title="user.email" class="align-end flex-grow-1 text-truncate text-end">
-          {{ user.email }}
+          <span v-autolinker="user.email"></span>
         </div>
       </v-flex>
       <v-divider v-if="user.position" class="my-4" />
@@ -64,8 +64,10 @@
           <div class="align-start text-no-wrap font-weight-bold mr-3">
             {{ $t('profileContactInformation.location') }}
           </div>
-          <div :title="user.location" class="align-end flex-grow-1 text-truncate text-end">
-            {{ user.location }}
+          <div
+            v-autolinker="user.location"
+            :title="user.location"
+            class="align-end flex-grow-1 text-truncate text-end">
           </div>
         </v-flex>
       </template>

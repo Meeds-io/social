@@ -20,7 +20,7 @@
     <v-card
       class="border-box-sizing"
       flat>
-      <p v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
+      <p v-autolinker="aboutMe" v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4"></p>
       <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
     <exo-drawer
