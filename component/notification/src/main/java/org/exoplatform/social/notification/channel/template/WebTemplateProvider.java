@@ -53,6 +53,8 @@ import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
 import org.exoplatform.webui.utils.TimeConvertUtils;
 
+import javax.ws.rs.core.SecurityContext;
+
 /**
  * Created by The eXo Platform SAS
  * Author : eXoPlatform
@@ -840,8 +842,11 @@ public class WebTemplateProvider extends TemplateProvider {
       String language = getLanguage(notification);
       TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
 
+
       String status = notification.getValueOwnerParameter("status");
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
+      String sender = notification.getValueOwnerParameter(SocialNotificationUtils.SENDER.getKey());
+
       Space space = Utils.getSpaceService().getSpaceById(spaceId);
       if (space == null) {
         return null;
@@ -854,6 +859,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("SPACE", space.getDisplayName());
+      templateContext.put("SENDER_NAME", sender);
       templateContext.put("SPACE_URL", LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")));
       templateContext.put("SPACE_AVATAR", space.getAvatarUrl() != null ? space.getAvatarUrl() : LinkProvider.SPACE_DEFAULT_AVATAR_URL);
       templateContext.put("ACCEPT_SPACE_INVITATION_ACTION_URL", LinkProviderUtils.getWebNotificationRestUrl(ACCEPT_SPACE_INVITATION, space.getId(), notification.getTo(), notification.getId(), MESSAGE_JSON_FILE_NAME));
@@ -1044,6 +1050,10 @@ public class WebTemplateProvider extends TemplateProvider {
     protected boolean makeDigest(NotificationContext ctx, Writer writer) {
       return false;
     }
-
   }
 }
+
+
+
+
+

@@ -22,6 +22,8 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.space.model.Space;
 
+
+
 public class SpaceInvitationPlugin extends BaseNotificationPlugin {
   
   private static final String ACCEPT_SPACE_INVITATION = "social/intranet-notification/acceptInvitationToJoinSpace";
@@ -41,11 +43,13 @@ public class SpaceInvitationPlugin extends BaseNotificationPlugin {
 
   @Override
   public NotificationInfo makeNotification(NotificationContext ctx) {
+
     Space space = ctx.value(SocialNotificationUtils.SPACE);
     String userId = ctx.value(SocialNotificationUtils.REMOTE_ID);
-    
+    String senderName = ctx.value(SocialNotificationUtils.SENDER);
     return NotificationInfo.instance().key(getId())
-           .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
+            .with(SocialNotificationUtils.SENDER.getKey(), senderName)
+            .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
            .to(userId).end();
   }
