@@ -1,36 +1,36 @@
 <template>
   <v-app>
     <v-card-text>
-      <v-row no-gutters>
-        <div class="my-auto mr-6">
-          <h4 class="font-weight-bold ma-0">keywords</h4>
-        </div>
-        <div>
-          <v-chip-group
-            active-class="primary--text"
-            column
-          >
+      <div>
+        <v-chip-group
+          active-class="primary--text"
+          column
+        >
+          <v-row no-gutters>
+            <div class="my-auto col-1">
+              <h4 class="font-weight-bold ma-0">{{ $t('items.dlp.editKeyword.keywords') }}</h4>
+            </div>
             <v-chip
               v-for="keyword in keywords"
               :key="keyword"
               outlined
-              class="my-0"
+              class="my-1"
             >
               {{ keyword }}
             </v-chip>
-          </v-chip-group>
-        </div>
-        <div class="my-auto">     
-          <v-btn
-            icon
-            outlined
-            small
-            @click="editKeywords">
-            <i v-if="keywords.length" class="uiIconEdit uiIconLightBlue pb-2" />
-            <i v-else class="uiIconSocSimplePlus uiIconLightBlue" />
-          </v-btn>
-        </div>
-      </v-row>
+            <div class="my-auto">
+              <v-btn
+                icon
+                outlined
+                small
+                @click="editKeywords">
+                <i v-if="keywords.length" class="uiIconEdit uiIconLightBlue pb-2" />
+                <i v-else class="uiIconSocSimplePlus uiIconLightBlue" />
+              </v-btn>
+            </div>
+          </v-row>
+        </v-chip-group>
+      </div>
     </v-card-text>
     <exo-drawer
       ref="keywordsDrawer"
@@ -60,7 +60,7 @@
                 :key="keyword"
                 close
                 outlined
-                class="my-0"
+                class="my-1"
                 @click:close="removeKeyword(keyword)"
               >
                 {{ keyword }}
@@ -78,14 +78,11 @@
         <div class="d-flex">
           <v-spacer />
           <v-btn
-            :disabled="saving"
             class="btn mr-2"
             @click="cancel">
             {{ $t('items.dlp.editKeyword.cancel') }}
           </v-btn>
           <v-btn
-            :disabled="saving"
-            :loading="saving"
             class="btn btn-primary"
             @click="saveDlpKeywords">
             {{ $t('items.dlp.editKeyword.save') }}
@@ -107,7 +104,6 @@ export default {
       modifyingKeywords : [],
       keywordTextLength : 100,
       showEditBtn : false, 
-      saving : null,
       error : null,
     };
   },
@@ -122,7 +118,7 @@ export default {
   methods : {
     getDlpKeywords() {
       getDlpKeywords().then(keywords => {
-        if (keywords !== '') {
+        if (keywords) {
           this.keywords = keywords.split(',');
           this.modifyingKeywords = keywords.split(',');
         }
