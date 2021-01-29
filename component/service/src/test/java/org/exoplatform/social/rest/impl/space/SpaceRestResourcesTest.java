@@ -19,9 +19,11 @@ import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -246,6 +248,150 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals("Благодійність", space.getDisplayName());
     assertEquals("blagodijnist", space.getPrettyName());
     assertEquals("blagodijnist", space.getUrl());
+  }
+
+  public void testGetSpaceAvatarForAnonymous() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceAvatar(user, space.getId());
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getAvatarUrl());
+
+    String avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + space.getPrettyName() + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    space.setVisibility(Space.HIDDEN);
+    space = spaceService.updateSpace(space);
+    avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+
+    response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+  }
+
+  public void testGetSpaceAvatarForAuthentiticatedUser() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceAvatar(user, space.getId());
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getAvatarUrl());
+
+    startSessionAs("mary");
+
+    String avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + space.getPrettyName() + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    space.setVisibility(Space.HIDDEN);
+    space = spaceService.updateSpace(space);
+    avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+
+    response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    startSessionAs(user);
+
+    response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testGetSpaceBannerForAnonymous() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceBanner(user, space.getId());
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getBannerUrl());
+
+    String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + space.getPrettyName() + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    space.setVisibility(Space.HIDDEN);
+    space = spaceService.updateSpace(space);
+    bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+
+    response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+  }
+
+  public void testGetSpaceBannerForAuthentiticatedUser() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceBanner(user, space.getId());
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getBannerUrl());
+
+    startSessionAs("mary");
+
+    String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + space.getPrettyName() + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    space.setVisibility(Space.HIDDEN);
+    space = spaceService.updateSpace(space);
+    bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+
+    response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    startSessionAs(user);
+
+    response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
   }
 
   public void testGetSpaceById() throws Exception {
@@ -561,5 +707,35 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
     return listAccess.loadAsList(0, 10);
+  }
+
+  private void uploadSpaceBanner(String user, String spaceId) throws Exception {
+    startSessionAs(user);
+    String uploadId = "testtest";
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "banner.png", "image/png");
+    String input = "{\"id\":\"" + spaceId + "\",\"bannerId\":\"" + uploadId + "\"}";
+    // root try to update demo activity
+    ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    endSession();
+  }
+
+  private void uploadSpaceAvatar(String user, String spaceId) throws Exception {
+    startSessionAs(user);
+    String uploadId = "testtest";
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "avatar.png", "image/png");
+    String input = "{\"id\":\"" + spaceId + "\",\"avatarId\":\"" + uploadId + "\"}";
+    // root try to update demo activity
+    ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    endSession();
   }
 }

@@ -147,4 +147,6 @@
     </component-plugin>
   </external-component-plugins>
 
+  <import>jar:/conf/tokenservice-configuration.xml</import>
+
 </configuration>

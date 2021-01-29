@@ -7,7 +7,7 @@
             <v-list-item-title class="title mb-0">
               <v-row no-gutters class="col-4">
                 <v-col class="col-3 pb-0 pt-5">
-                  <h4 class="font-weight-bold ma-0">{{ $t('documents.dlp.quarantine.label') }}</h4>
+                  <h4 class="font-weight-bold ma-0">{{ $t('items.dlp.quarantine.label') }}</h4>
                 </v-col>
                 <v-col class="col-1">
                   <v-switch
@@ -19,7 +19,7 @@
               </v-row>
             </v-list-item-title>
             <v-list-item-subtitle class="text-sub-title font-italic">
-              {{ $t('documents.dlp.quarantine.enableDisable') }}
+              {{ $t('items.dlp.quarantine.enableDisable') }}
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -29,13 +29,13 @@
       <exo-confirm-dialog
         ref="deleteConfirmDialog"
         :message="deleteConfirmMessage"
-        :title="$t('documents.dlp.title.confirmDelete')"
-        :ok-label="$t('documents.dlp.button.ok')"
-        :cancel-label="$t('documents.dlp.button.cancel')"
+        :title="$t('items.dlp.title.confirmDelete')"
+        :ok-label="$t('items.dlp.button.ok')"
+        :cancel-label="$t('items.dlp.button.cancel')"
         @ok="deleteDlpPositiveDocumentConfirm()" />
       <v-data-table
         :headers="headers"
-        :items="documents"
+        :items="items"
         :loading="loading"
         :options.sync="options"
         :server-items-length="totalSize"
@@ -64,7 +64,7 @@
         </template>
         <template slot="item.actions" slot-scope="{ item }">
           <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.open')"
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.open')"
             :href="item.itemUrl"
             target="_blank"
             icon
@@ -72,14 +72,14 @@
             <i class="uiIconWatch"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.validate')"
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.validate')"
             primary
             icon
             text>
             <i class="uiIconValidate"></i>
           </v-btn>
           <v-btn
-            v-exo-tooltip.bottom.body="$t('item.dlp.quarantine.delete')"
+            v-exo-tooltip.bottom.body="$t('items.dlp.quarantine.delete')"
             primary
             icon
             text
@@ -97,7 +97,7 @@ import * as dlpAdministrationServices from '../dlpAdministrationServices';
 export default {
   data () {
     return {
-      documents: [],
+      items: [],
       loading: true,
       totalSize: 0,
       selectedItem: null,
@@ -124,34 +124,34 @@ export default {
   computed: {
     headers() {
       return [        {
-        text: this.$t && this.$t('documents.dlp.quarantine.content'),
+        text: this.$t && this.$t('items.dlp.quarantine.content'),
         align: 'center',
         sortable: false,
         value: 'title',
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.keywordDetected'),
+      { text: this.$t && this.$t('items.dlp.quarantine.keywordDetected'),
         align: 'center',
         sortable: false,
         value: 'keywords'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.createdDate'),
+      { text: this.$t && this.$t('items.dlp.quarantine.createdDate'),
         align: 'center',
         sortable: false,
         value: 'detectionDate'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.author'),
+      { text: this.$t && this.$t('items.dlp.quarantine.author'),
         align: 'center',
         sortable: false,
         value: 'authorDisplayName'
       },
-      { text: this.$t && this.$t('documents.dlp.quarantine.actions'),
+      { text: this.$t && this.$t('items.dlp.quarantine.actions'),
         align: 'center',
         sortable: false,
         value: 'actions'
       },];
     },
     externalTag() {
-      return `(${this.$t('item.dlp.external.label')})`;
+      return `(${this.$t('items.dlp.external.label')})`;
     },
   },
   watch: {
@@ -179,7 +179,7 @@ export default {
               throw new Error(error);
             });
           } else {
-            throw new Error(this.$t('documents.dlp.error.UnknownServerError'));
+            throw new Error(this.$t('items.dlp.error.UnknownServerError'));
           }
         }
         return this.retrieveDlpPositiveItems();
@@ -191,7 +191,7 @@ export default {
       }).finally(() => this.loading = false);
     },
     deleteDlpPositiveDocument(documentId) {
-      this.deleteConfirmMessage = this.$t('documents.dlp.message.confirmDelete');
+      this.deleteConfirmMessage = this.$t('items.dlp.message.confirmDelete');
       this.$refs.deleteConfirmDialog.open();
       this.selectedItem = documentId;
     },
@@ -210,7 +210,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
-        this.documents = data.entities;
+        this.items = data.entities;
         this.totalSize = data.size;
       }).then(() =>{
         this.loading = false;

@@ -24,6 +24,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -408,7 +409,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   @GET
   @Path("{id}/avatar")
-  @RolesAllowed("users")
   @ApiOperation(value = "Gets a space avatar by pretty name",
           httpMethod = "GET",
           response = Response.class,
@@ -421,17 +421,33 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceAvatarById(@Context UriInfo uriInfo,
                                      @Context Request request,
                                      @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                     @ApiParam(value = "Space pretty name", required = true) @PathParam("id") String id) throws IOException {
+                                     @ApiParam(value = "Space pretty name", required = true) @PathParam("id") String id,
+                                     @ApiParam(
+                                         value = "A mandatory valid token that is used to authorize anonymous request",
+                                         required = false
+                                     ) @QueryParam("r") String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Response.ResponseBuilder builder = null;
     Long lastUpdated = null;
     if (!isDefault) {
-      String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-      
+      if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
+                                                                          SpaceIdentityProvider.NAME,
+                                                                          id,
+                                                                          AvatarAttachment.TYPE,
+                                                                          lastModified)) {
+        LOG.warn("An anonymous user attempts to access avatar of space {} without a valid access token", id);
+        return Response.status(Status.NOT_FOUND).build();
+      }
+
+      String authenticatedUser = RestUtils.getCurrentUser();
       Space space = spaceService.getSpaceByPrettyName(id);
-      if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      if (space == null
+          || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
+          || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
+              && !spaceService.isMember(space, authenticatedUser)
+              && !spaceService.isSuperManager(authenticatedUser))) {
+        return Response.status(Status.NOT_FOUND).build();
       }
       Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
       //
@@ -472,7 +488,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   @GET
   @Path("{id}/banner")
-  @RolesAllowed("users")
   @ApiOperation(
       value = "Gets a space banner by id",
       httpMethod = "GET",
@@ -486,17 +501,33 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceBannerById(@Context UriInfo uriInfo,
                                      @Context Request request,
                                      @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                     @ApiParam(value = "Space id", required = true) @PathParam("id") String id) throws IOException {
+                                     @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
+                                     @ApiParam(
+                                       value = "A mandatory valid token that is used to authorize anonymous request",
+                                       required = false
+                                     ) @QueryParam("r") String token) throws IOException {
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     if (isDefault) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+      return Response.status(Status.NOT_FOUND).build();
     }
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
+                                                                        SpaceIdentityProvider.NAME,
+                                                                        id,
+                                                                        BannerAttachment.TYPE,
+                                                                        lastModified)) {
+      LOG.warn("An anonymous user attempts to access banner of space {} without a valid access token", id);
+      return Response.status(Status.NOT_FOUND).build();
+    }
 
+    String authenticatedUser = RestUtils.getCurrentUser();
     Space space = spaceService.getSpaceByPrettyName(id);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    if (space == null
+        || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
+        || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
+            && !spaceService.isMember(space, authenticatedUser)
+            && !spaceService.isSuperManager(authenticatedUser))) {
+      return Response.status(Status.NOT_FOUND).build();
     }
     Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
     //
@@ -1402,9 +1433,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                       .getPortalContext()
                                       .getResourceAsStream("/skin/images/avatar/DefaultSpaceAvatar.png");
       if (is == null) {
-        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        defaultSpaceAvatar = new byte[] {};
+      } else {
+        defaultSpaceAvatar = IOUtil.getStreamContentAsBytes(is);
       }
-      defaultSpaceAvatar = IOUtil.getStreamContentAsBytes(is);
     }
     return Response.ok(new ByteArrayInputStream(defaultSpaceAvatar), "image/png");
   }
