@@ -20,7 +20,7 @@
     <v-card
       class="border-box-sizing"
       flat>
-      <p v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4" v-text="aboutMe"></p>
+      <p v-autolinker="aboutMe" v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4"></p>
       <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
     <exo-drawer
@@ -75,7 +75,7 @@ export default {
     }
   },
   created() {
-    this.$userService.getUser(eXo.env.portal.userName)
+    this.$userService.getUser(eXo.env.portal.profileOwner)
       .then(user => this.refresh(user && user.aboutMe || ''));
   },
   mounted() {
@@ -97,7 +97,7 @@ export default {
       this.error = null;
       this.saving = true;
       this.$refs.aboutMeDrawer.startLoading();
-      return this.$userService.updateProfileField(eXo.env.portal.userName, 'aboutMe', this.modifyingAboutMe)
+      return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
         .then(() => this.refresh(this.modifyingAboutMe))
         .catch(error => {
           console.warn('Error saving about me section', error); // eslint-disable-line no-console
