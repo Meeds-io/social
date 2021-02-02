@@ -724,9 +724,6 @@
                 <value>
                   <string>Instantly</string>
                 </value>
-                <value>
-                  <string>daily</string>
-                </value>
               </collection>
             </field>
             <field name="groupId">
@@ -764,9 +761,6 @@
               <collection type="java.util.ArrayList">
                 <value>
                   <string>Instantly</string>
-                </value>
-                <value>
-                  <string>daily</string>
                 </value>
               </collection>
             </field>
