@@ -39,8 +39,8 @@ export default {
             return this.$nextTick();
           })
           .then(() => {
-            this.initPopup();
             this.$root.$emit('application-loaded');
+            this.initPopup();
           });
       }
     },
@@ -65,6 +65,7 @@ export default {
           maxWidth: '240px'
         });
       });
+    //  $( 'li' ).css( 'border', '1px solid red' );
     }
   }
 };
