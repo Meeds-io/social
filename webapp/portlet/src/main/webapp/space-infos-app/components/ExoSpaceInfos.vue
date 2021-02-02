@@ -65,7 +65,6 @@ export default {
           maxWidth: '240px'
         });
       });
-    //  $( 'li' ).css( 'border', '1px solid red' );
     }
   }
 };
