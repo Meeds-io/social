@@ -1,15 +1,16 @@
 package org.exoplatform.social.rest.impl.users;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
+
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.apache.commons.lang3.StringUtils;
-import org.gatein.common.io.IOTools;
 import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.IOUtil;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
@@ -19,36 +20,19 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.MultivaluedMap;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
 
@@ -238,6 +222,94 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
     assertEquals("john", userEntity.getUsername());
+  }
+
+  public void testGetUserAvatarForAnonymous() throws Exception {
+    String user = "john";
+
+    uploadUserAvatar(user);
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String avatarUrl = identity.getProfile().getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + user + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testGetUserAvatarForAuthentiticatedUser() throws Exception {
+    String user = "john";
+
+    uploadUserAvatar(user);
+
+    startSessionAs("mary");
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String avatarUrl = identity.getProfile().getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + user + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testGetUserBannerForAnonymous() throws Exception {
+    String user = "john";
+
+    uploadUserBanner(user);
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String bannerUrl = identity.getProfile().getBannerUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + user + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testGetUserBannerForAuthentiticatedUser() throws Exception {
+    String user = "john";
+
+    uploadUserBanner(user);
+
+    startSessionAs("mary");
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String bannerUrl = identity.getProfile().getBannerUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + user + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
   }
 
   public void testGetConnectionsOfUser() throws Exception {
@@ -812,5 +884,33 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     space.setUrl(space.getPrettyName());
     this.spaceService.createSpace(space, creator);
     return space;
+  }
+
+  private void uploadUserBanner(String user) throws Exception {
+    startSessionAs(user);
+    String uploadId = "testtest";
+    byte[] formData = ("name=banner&value=" + uploadId).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "banner.png", "image/png");
+    ContainerResponse response = service("PATCH", getURLResource("users/" + user), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    endSession();
+  }
+
+  private void uploadUserAvatar(String user) throws Exception {
+    startSessionAs(user);
+    String uploadId = "testtest";
+    byte[] formData = ("name=avatar&value=" + uploadId).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    URL resource = getClass().getClassLoader().getResource("blank.gif");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "avatar.png", "image/png");
+    ContainerResponse response = service("PATCH", getURLResource("users/" + user), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    endSession();
   }
 }

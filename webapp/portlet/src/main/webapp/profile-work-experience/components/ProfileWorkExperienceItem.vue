@@ -35,8 +35,8 @@
         </template>
         <template v-else>
           <h6
-            class="paragraph text-color font-weight-light pb-1 mt-0"
-            v-text="experience.description">
+            v-autolinker="experience.description"
+            class="paragraph text-color font-weight-light pb-1 mt-0">
           </h6>
           <div class="text-color font-weight-bold">
             {{ $t('profileWorkExperiences.appliedSkills') }} : {{ experience.skills }}

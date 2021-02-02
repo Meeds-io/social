@@ -20,8 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.*;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
@@ -42,6 +41,8 @@ import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.web.application.RequestContext;
+import org.exoplatform.web.security.codec.CodecInitializer;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
@@ -401,13 +402,26 @@ public class LinkProvider {
       lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
     }
 
+    String lastModifiedString = String.valueOf(lastModifiedDate);
+    String token = generateAttachmentToken(providerId, remoteId, type, lastModifiedString);
+    if (StringUtils.isNotBlank(token)) {
+      try {
+        token = URLEncoder.encode(token, "UTF8");
+      } catch (UnsupportedEncodingException e) {
+        LOG.warn("Error encoding token", e);
+        token = StringUtils.EMPTY;
+      }
+    }
+
     if (providerId.equals(OrganizationIdentityProvider.NAME)) {
       return new StringBuilder(getBaseURLSocialUserRest()).append("/")
                                                           .append(remoteId)
                                                           .append("/")
                                                           .append(type)
                                                           .append("?lastModified=")
-                                                          .append(String.valueOf(lastModifiedDate))
+                                                          .append(lastModifiedString)
+                                                          .append("&r=")
+                                                          .append(token)
                                                           .toString();
     } else if (providerId.equals(SpaceIdentityProvider.NAME)) {
       return new StringBuilder(getBaseURLSocialSpaceRest()).append("/")
@@ -415,10 +429,46 @@ public class LinkProvider {
                                                            .append("/")
                                                            .append(type)
                                                            .append("?lastModified=")
-                                                           .append(String.valueOf(lastModifiedDate))
+                                                           .append(lastModifiedString)
+                                                           .append("&r=")
+                                                           .append(token)
                                                            .toString();
     }
     return null;
+  }
+
+  public static String generateAttachmentToken(String providerId,
+                                               String remoteId,
+                                               String attachmentType,
+                                               String lastModifiedDate) {
+    String token = null;
+    CodecInitializer codecInitializer = ExoContainerContext.getService(CodecInitializer.class);
+    if (codecInitializer == null) {
+      LOG.debug("Can't find an instance of CodecInitializer, an empty token will be generated");
+      token = StringUtils.EMPTY;
+    } else {
+      try {
+        String tokenPlain = attachmentType + ":" + providerId + ":" + remoteId + ":" + lastModifiedDate;
+        token = codecInitializer.getCodec().encode(tokenPlain);
+      } catch (TokenServiceInitializationException e) {
+        LOG.warn("Error generating token of {} for identity '{}:{}'. An empty token will be used", attachmentType, remoteId, e);
+        token = StringUtils.EMPTY;
+      }
+    }
+    return token;
+  }
+
+  public static boolean isAttachmentTokenValid(String token,
+                                               String providerId,
+                                               String remoteId,
+                                               String attachmentType,
+                                               String lastModifiedDate) {
+    if (StringUtils.isBlank(token)) {
+      LOG.warn("An empty token is used for {} for identity '{}:{}'", attachmentType, remoteId);
+      return false;
+    }
+    String validToken = generateAttachmentToken(providerId, remoteId, attachmentType, lastModifiedDate);
+    return StringUtils.equals(validToken, token);
   }
 
   /**

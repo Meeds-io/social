@@ -6,10 +6,10 @@
           <v-list-item-content>
             <v-list-item-title class="title mb-0">
               <v-row no-gutters class="col-4">
-                <v-col class="col-4 pb-0 pt-5">
+                <v-col class="col-3 pb-0 pt-5">
                   <h4 class="font-weight-bold ma-0">{{ $t('items.dlp.quarantine.label') }}</h4>
                 </v-col>
-                <v-col class="col-4">
+                <v-col class="col-1">
                   <v-switch
                     v-if="dlpFeatureStatusLoaded"
                     v-model="dlpFeatureEnabled"
@@ -23,6 +23,7 @@
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
+        <dlp-keywords-editor></dlp-keywords-editor>
         <v-divider class="mx-5"/>
       </v-list>
       <exo-confirm-dialog
