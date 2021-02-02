@@ -308,6 +308,15 @@ public class LinkProvider {
   public static String getUserNotificationSettingUri(final String remoteId) {
     return getBaseUri(null, null) + "/notifications" + ROUTE_DELIMITER + remoteId;
   }
+
+  /**
+   * Gets the link of quarantine page
+   *
+   * @return
+   */
+  public static String getQuarantinePageUri() {
+    return "/" + getPortalName(null) + "/g/:platform:administrators/dlp-quarantine";
+  }
   
   /**
    * Gets the link of all spaces page
