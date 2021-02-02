@@ -423,19 +423,4 @@
       <as>jQuery</as>
     </depends>
   </module>
-  <module>
-    <name>autoLinkerVue</name>
-    <script>
-      <minify>false</minify>
-      <adapter>
-        (function() {
-        <include>/javascript/autolinker.min.js</include>
-        Vue.directive('autolinker',(el, binding)=>el.innerHTML =  Autolinker.link(binding.value, {sanitizeHtml: true}));
-        })();
-      </adapter>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-  </module>
 </gatein-resources>
