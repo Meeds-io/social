@@ -53,7 +53,6 @@ import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
 import org.exoplatform.webui.utils.TimeConvertUtils;
 
-import javax.ws.rs.core.SecurityContext;
 
 /**
  * Created by The eXo Platform SAS

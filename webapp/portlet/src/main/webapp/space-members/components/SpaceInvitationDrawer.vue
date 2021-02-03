@@ -4,7 +4,7 @@
     right
     class="spaceInvitationDrawer">
     <template slot="title">
-      {{ this.$t('peopleList.title.usersToInvite') }}
+      {{ $t('peopleList.title.usersToInvite') }}
     </template>
     <template slot="content">
       <form
@@ -36,9 +36,7 @@
         outlined
         text
       >
-        <div v-if="invitedUser">
-          {{ invitedUser }} {{ this.$t('peopleList.label.successfulInvitation') }}
-        </div>
+        {{ this.$t('peopleList.label.successfulInvitation') }}
       </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
         <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
@@ -65,7 +63,7 @@
           <v-list-item-content>
             <v-list-item-title class="externalUserEmail" v-text="user"></v-list-item-title>
             <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
-          </v-list-item-content>g
+          </v-list-item-content>
           <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="removeExternalInvitation(user)">
             <v-icon>
               mdi-close-circle
@@ -164,16 +162,6 @@ export default {
     defaultAvatar() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
     },
-
-    invitedUser() {
-      if ( this.invitedMembers.length === 1){
-        return this.invitedMembers[0].remoteId;
-      }
-      else
-      {
-        return 0;
-      }
-    }
   },
   watch: {
     savingSpace() {
