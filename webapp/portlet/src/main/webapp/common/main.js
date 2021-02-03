@@ -7,6 +7,7 @@ import * as uploadService from './js/UploadService.js';
 import * as identityService from './js/IdentityService.js';
 import * as dateUtil from './js/DateUtil.js';
 import * as settingService from './js/SettingService.js';
+import * as featureService from './js/FeatureService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -41,4 +42,7 @@ window.Object.defineProperty(Vue.prototype, '$dateUtil', {
 });
 window.Object.defineProperty(Vue.prototype, '$settingService', {
   value: settingService,
+});
+window.Object.defineProperty(Vue.prototype, '$featureService', {
+  value: featureService,
 });
