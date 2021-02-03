@@ -36,7 +36,7 @@
         outlined
         text
       >
-        {{ $t('peopleList.label.successfulInvitation', {0: invitedUser}) }}
+        {{ $t('peopleList.label.successfulInvitation', {0: invitedUserFullName}) }}
       </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
         <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
@@ -163,8 +163,11 @@ export default {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
     },
     invitedUser() {
-      return this.invitedMembers.length === 1 ? this.invitedMembers[0].profile.fullName : 'users';
-    }
+      return this.invitedMembers.length === 1 && this.invitedMembers[0] && this.invitedMembers[0].profile;
+    },
+    invitedUserFullName() {
+      return this.invitedUser && this.invitedUser.fullName || 'users';
+    },
   },
   watch: {
     savingSpace() {
