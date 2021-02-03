@@ -78,7 +78,9 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "war:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "war:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
-    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl")})
+    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
+    @TemplateConfig(pluginId = DlpAdminDetectedItemPlugin.ID, template = "war:/notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
+    @TemplateConfig(pluginId = DlpUserDetectedItemPlugin.ID, template = "war:/notification/templates/DlpUserDetectedItemPlugin.gtmpl")})
 public class MailTemplateProvider extends TemplateProvider {
 
   private static final Log LOG = ExoLogger.getLogger(MailTemplateProvider.class);
@@ -1112,6 +1114,62 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
+    /** Defines the template builder for DlpAdminDetectedItemPlugin*/
+    private AbstractTemplateBuilder dlpAdminDetectedItem = new AbstractTemplateBuilder() {
+        @Override
+        protected MessageInfo makeMessage(NotificationContext ctx) {
+            MessageInfo messageInfo = new MessageInfo();
+
+            NotificationInfo notification = ctx.getNotificationInfo();
+
+            String language = getLanguage(notification);
+            TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+            SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+            templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
+            templateContext.put("DLP_PAGE_URL", LinkProviderUtils.getQuarantineRedirectURL());
+            String subject = TemplateUtils.processSubject(templateContext);
+            String body = TemplateUtils.processGroovy(templateContext);
+            //binding the exception throws by processing template
+            ctx.setException(templateContext.getException());
+
+            return messageInfo.subject(subject).body(body).end();
+        }
+
+        @Override
+        protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+            return false;
+        }
+    };
+
+    /** Defines the template builder for DlpUserDetectedItemPlugin*/
+    private AbstractTemplateBuilder dlpUserDetectedItem = new AbstractTemplateBuilder() {
+        @Override
+        protected MessageInfo makeMessage(NotificationContext ctx) {
+            MessageInfo messageInfo = new MessageInfo();
+
+            NotificationInfo notification = ctx.getNotificationInfo();
+
+            String language = getLanguage(notification);
+            TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+            SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+            templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
+            templateContext.put("ITEM_AUTHOR", notification.getValueOwnerParameter("itemAuthor"));
+            String subject = TemplateUtils.processSubject(templateContext);
+            String body = TemplateUtils.processGroovy(templateContext);
+            //binding the exception throws by processing template
+            ctx.setException(templateContext.getException());
+
+            return messageInfo.subject(subject).body(body).end();
+        }
+
+        @Override
+        protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+            return false;
+        }
+
+    };
   protected ExoSocialActivity getI18N(ExoSocialActivity activity,Locale locale) {
 
     I18NActivityProcessor i18NActivityProcessor =(I18NActivityProcessor) PortalContainer.getInstance().getComponentInstanceOfType(I18NActivityProcessor.class);
@@ -1136,6 +1194,8 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(RelationshipReceivedRequestPlugin.ID), relationshipReceived);
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
+    this.templateBuilders.put(PluginKey.key(DlpAdminDetectedItemPlugin.ID), dlpAdminDetectedItem);
+    this.templateBuilders.put(PluginKey.key(DlpUserDetectedItemPlugin.ID), dlpUserDetectedItem);
   }
 
 }

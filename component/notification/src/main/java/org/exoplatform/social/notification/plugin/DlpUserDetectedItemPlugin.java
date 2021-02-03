@@ -48,6 +48,7 @@ public class DlpUserDetectedItemPlugin extends BaseNotificationPlugin {
             dlpPositiveItem = dlpPositiveItemService.getDlpPositiveItemById(dlpItemId);
             return NotificationInfo.instance().key(getId())
                     .with("itemTitle", dlpPositiveItem.getTitle())
+                    .with("itemAuthor", dlpPositiveItem.getAuthorDisplayName())
                     .to(dlpPositiveItem.getAuthor());
         } catch (Exception e) {
             ctx.setException(e);
