@@ -4,7 +4,7 @@
       <i class="uiIconFolderPrivate" style="font-size: 30px;"></i>
     </div> 
     <div class="media-body">
-        <div class="contentSmall" data-link="">
+        <div class="contentSmall" data-link="javascript:void(0)">
         <%
         String message = _ctx.appRes("Notification.intranet.message.DlpUserDetectedItemPlugin", ""+ITEM_TITLE);
         %>
