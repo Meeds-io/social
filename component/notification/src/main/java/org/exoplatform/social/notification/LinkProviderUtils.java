@@ -310,10 +310,10 @@ public static final String RESOURCE_URL = "social/notifications";
   /**
    * Get the Redirect quarantine page url
    *
-   * @return url http://localhost:8080/portal/login?initialURI=/portal/g/:platform:administrators/dlp-quarantine
+   * @return url http://localhost:8080/portal/g/:platform:administrators/dlp-quarantine
    */
   public static String getQuarantineRedirectURL() {
     String portal = PortalContainer.getCurrentPortalContainerName();
-    return new StringBuffer(CommonsUtils.getCurrentDomain()).append("/").append(portal).append(LOGIN_INITIALURI).append(portal).append("/").append("g/:platform:administrators/dlp-quarantine").toString();
+    return new StringBuffer(CommonsUtils.getCurrentDomain()).append("/").append(portal).append("/").append("g/:platform:administrators/dlp-quarantine").toString();
   }
 }
