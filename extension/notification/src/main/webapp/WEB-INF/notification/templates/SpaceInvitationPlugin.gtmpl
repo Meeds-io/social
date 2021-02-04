@@ -32,10 +32,12 @@
                                             <td  valign="top">
                                                 <p style="margin:0 0 12px; color: #333333; line-height: 20px; font-size:13px; font-family: HelveticaNeue,Helvetica,Arial,sans-serif;">
                                                     <%
+                                                     String sender = "<a target=\"_blank\" style=\"color: #2f5e92; text-decoration: none; font-weight: bold; font-size:13px; font-family: HelveticaNeue,Helvetica,Arial,sans-serif;\" href=\"#\">" + _ctx.escapeHTML(SENDER_NAME) + "</a>";
                                                      String spaceUrl = "<a target=\"_blank\" style=\"color: #2f5e92; text-decoration: none; font-weight: bold; font-size:13px; font-family: HelveticaNeue,Helvetica,Arial,sans-serif;\" href=\""+ SPACE_URL + "\">" + _ctx.escapeHTML(SPACE) + "</a>";
                                                     %>
-                                                       <%=_ctx.appRes("Notification.message.SpaceInvitationPlugin", spaceUrl)%>
-                                                 </p>
+                                                    <%=_ctx.appRes("Notification.intranet.message.SpaceInvitationPlugin",sender)%>
+                                                   <div class="sendertest"><%= SENDER_NAME %></div>
+                                                </p>h
                                                 <div>
                                                     <a target="_blank" style="
                                                         display: inline-block;
