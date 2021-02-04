@@ -177,7 +177,6 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     space3.setEditor(rootIdentity.getRemoteId());
     space4.setEditor(rootIdentity.getRemoteId());
     space5.setEditor(rootIdentity.getRemoteId());
-
     spaceService.addInvitedUser(space1, demoIdentity.getRemoteId());
     spaceService.addInvitedUser(space2, demoIdentity.getRemoteId());
     spaceService.addInvitedUser(space3, demoIdentity.getRemoteId());

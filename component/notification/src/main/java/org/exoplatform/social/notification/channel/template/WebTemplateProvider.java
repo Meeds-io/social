@@ -840,7 +840,6 @@ public class WebTemplateProvider extends TemplateProvider {
       String language = getLanguage(notification);
       TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
 
-
       String status = notification.getValueOwnerParameter("status");
       String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
       String sender = notification.getValueOwnerParameter(SocialNotificationUtils.SENDER.getKey());
@@ -1050,8 +1049,3 @@ public class WebTemplateProvider extends TemplateProvider {
     }
   }
 }
-
-
-
-
-

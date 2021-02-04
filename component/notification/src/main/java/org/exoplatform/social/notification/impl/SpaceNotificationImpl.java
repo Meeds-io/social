@@ -29,9 +29,13 @@ import org.exoplatform.commons.notification.net.WebNotificationSender;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.RequestJoinSpacePlugin;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 import org.exoplatform.social.notification.plugin.SpaceInvitationPlugin;
@@ -108,16 +112,21 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
 
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {}
-  
+
   @Override
   public void addInvitedUser(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
     String userId = event.getTarget();
-    String SenderName = space.getEditor();
+    String senderRemoteId = space.getEditor();
+    Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, senderRemoteId, false);
 
-    NotificationContext ctx = NotificationContextImpl.cloneInstance().append(SocialNotificationUtils.REMOTE_ID, userId)
-                                                             .append(SocialNotificationUtils.SPACE, space).append(SocialNotificationUtils.SENDER, SenderName);
-    
+
+    String senderName = identity.getProfile().getFullName();
+    NotificationContext ctx = NotificationContextImpl.cloneInstance()
+            .append(SocialNotificationUtils.REMOTE_ID, userId)
+            .append(SocialNotificationUtils.SPACE, space)
+            .append(SocialNotificationUtils.SENDER, senderName);
+
     ctx.getNotificationExecutor().with(ctx.makeCommand(PluginKey.key(SpaceInvitationPlugin.ID))).execute(ctx);
   }
   

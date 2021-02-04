@@ -161,7 +161,7 @@ export default {
     },
     defaultAvatar() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-    },
+    }
   },
   watch: {
     savingSpace() {
