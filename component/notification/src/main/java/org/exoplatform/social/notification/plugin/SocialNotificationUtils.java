@@ -71,7 +71,9 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<Relationship> RELATIONSHIP = new ArgumentLiteral<Relationship>(Relationship.class, "relationship");
   
   public final static ArgumentLiteral<String> RELATIONSHIP_ID = new ArgumentLiteral<String>(String.class, "relationshipId");
-  
+
+  public final static ArgumentLiteral<Long> DLP_DETECTED_ITEM_ID = new ArgumentLiteral<>(Long.class, "dlp_detected_item_id");
+
   public static final String EMPTY_STR = "";
 
   public static final String SPACE_STR     = " ";
