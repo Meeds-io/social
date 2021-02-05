@@ -41,11 +41,13 @@ public class SpaceInvitationPlugin extends BaseNotificationPlugin {
 
   @Override
   public NotificationInfo makeNotification(NotificationContext ctx) {
+
     Space space = ctx.value(SocialNotificationUtils.SPACE);
     String userId = ctx.value(SocialNotificationUtils.REMOTE_ID);
-    
+    String senderName = ctx.value(SocialNotificationUtils.SENDER);
     return NotificationInfo.instance().key(getId())
-           .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
+            .with(SocialNotificationUtils.SENDER.getKey(), senderName)
+            .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
            .to(userId).end();
   }
