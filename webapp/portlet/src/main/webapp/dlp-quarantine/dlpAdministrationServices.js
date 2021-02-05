@@ -65,3 +65,58 @@ export function setDlpKeywords(keywords) {
     }
   });
 } 
+
+export function getDlpPermissions() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/permissions`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error retrieving dlp permissions');
+    }
+  });
+}
+
+export async function getPermissionsData(query) {
+  try {
+    const response = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/identity/search/${query}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'GET'
+    });
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(error => {
+        throw new Error(error.errorCode);
+      });
+    }
+  } catch (e) {
+    throw new Error('Unable to get permissions');
+  }
+}
+
+export function saveDlpPermissions(newPermissions) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/save/permissions`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: newPermissions,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}

@@ -80,12 +80,12 @@
           <v-btn
             class="btn mr-2"
             @click="cancel">
-            {{ $t('items.dlp.editKeyword.cancel') }}
+            {{ $t('items.dlp.button.cancel') }}
           </v-btn>
           <v-btn
             class="btn btn-primary"
             @click="saveDlpKeywords">
-            {{ $t('items.dlp.editKeyword.save') }}
+            {{ $t('items.dlp.button.save') }}
           </v-btn>
         </div>
       </template>
