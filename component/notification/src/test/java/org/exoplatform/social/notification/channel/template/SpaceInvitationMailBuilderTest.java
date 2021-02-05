@@ -73,7 +73,8 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
   public void testSimpleCase() throws Exception {
     //
     Space space = getSpaceInstance(1);
-    
+    space.setEditor(rootIdentity.getRemoteId());
+
     //Invite user to join space
     spaceService.addInvitedUser(space, maryIdentity.getRemoteId());
     assertMadeMailDigestNotifications(1);
@@ -94,6 +95,7 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     turnOFF(getPlugin());
     //
     Space space = getSpaceInstance(1);
+    space.setEditor(rootIdentity.getRemoteId());
     //Invite user to join space
     spaceService.addInvitedUser(space, maryIdentity.getRemoteId());
     assertMadeMailDigestNotifications(0);
@@ -103,7 +105,9 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     
     //Make more invitations
     Space space2 = getSpaceInstance(2);
+    space2.setEditor(rootIdentity.getRemoteId());
     Space space3 = getSpaceInstance(3);
+    space3.setEditor(rootIdentity.getRemoteId());
     spaceService.addInvitedUser(space2, maryIdentity.getRemoteId());
     spaceService.addInvitedUser(space3, maryIdentity.getRemoteId());
     
@@ -131,6 +135,7 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     
     //Make invitation
     Space space1 = getSpaceInstance(1);
+    space1.setEditor(rootIdentity.getRemoteId());
     spaceService.addInvitedUser(space1, maryIdentity.getRemoteId());
     assertMadeMailDigestNotifications(0);
     
@@ -138,7 +143,9 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     turnFeatureOn();
     
     Space space2 = getSpaceInstance(2);
-    Space space3 = getSpaceInstance(3); 
+    space2.setEditor(rootIdentity.getRemoteId());
+    Space space3 = getSpaceInstance(3);
+    space3.setEditor(rootIdentity.getRemoteId());
     spaceService.addInvitedUser(space2, maryIdentity.getRemoteId());
     spaceService.addInvitedUser(space3, maryIdentity.getRemoteId());
     //assert Digest message
@@ -165,6 +172,11 @@ public class SpaceInvitationMailBuilderTest extends AbstractPluginTest {
     Space space3 = getSpaceInstance(3);
     Space space4 = getSpaceInstance(4);
     Space space5 = getSpaceInstance(5);
+    space1.setEditor(rootIdentity.getRemoteId());
+    space2.setEditor(rootIdentity.getRemoteId());
+    space3.setEditor(rootIdentity.getRemoteId());
+    space4.setEditor(rootIdentity.getRemoteId());
+    space5.setEditor(rootIdentity.getRemoteId());
     spaceService.addInvitedUser(space1, demoIdentity.getRemoteId());
     spaceService.addInvitedUser(space2, demoIdentity.getRemoteId());
     spaceService.addInvitedUser(space3, demoIdentity.getRemoteId());
