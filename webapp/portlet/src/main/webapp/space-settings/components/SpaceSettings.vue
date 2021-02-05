@@ -18,12 +18,9 @@ export default {
     spaceExternalSettings: []
   }),
   created() {
-    // get external components
-    document.addEventListener('component-external-space-settings-updated', () => {
-      if (extensionRegistry) {
-        const components = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
-        this.spaceExternalSettings.push(...components);
-      }
+    // add external components
+    document.addEventListener('external-components-loaded', e => {
+      this.spaceExternalSettings.push(...e.detail);
     });
     
     document.addEventListener('hideSettingsApps', () => this.displaySpaceExternalSettings = false);
