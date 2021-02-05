@@ -166,7 +166,7 @@ export default {
       return this.invitedMembers.length === 1 && this.invitedMembers[0] && this.invitedMembers[0].profile;
     },
     invitedUserFullName() {
-      return this.invitedUser && this.invitedUser.fullName || 'users';
+      return this.invitedUser && this.invitedUser.fullName || this.$t('peopleList.label.users');
     },
   },
   watch: {
