@@ -335,7 +335,7 @@ public class RDBMSRelationshipStorageImpl implements RelationshipStorage {
        // We check if the current connection is not already part of the connections of the identity
        // for which we seek some suggestions
        if (!relationIdLevel1.contains(ids) && !ids.equals(identity) && !ids.isDeleted()
-            && getRelationship(ids, identity) == null) {
+            && ids.isEnable() && getRelationship(ids, identity) == null) {
          Integer commonIdentities = suggestedIdentities.get(ids);
          if (commonIdentities == null) {
            commonIdentities = new Integer(1);
