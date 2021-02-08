@@ -57,7 +57,10 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
         data = data.options || data;
         if (data && data.length) {
           data.forEach((item) => {
-            const username = item.value || item.id  && item.id.indexOf('@') === 0 && item.id.substring(1);
+            let username = item.value || item.id;
+            if (item.id && item.id.indexOf('@') === 0){
+              username = item.id.substring(1);
+            }
             items.push({
               id: `organization:${username}`,
               remoteId: username,
