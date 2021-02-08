@@ -6,6 +6,7 @@
           <exo-user-avatar
             v-for="liker in likersToDisplay"
             :key="liker.id"
+            :username="liker.likerId"
             :title="liker.personLikeFullName"
             :avatar-url="liker.personLikeAvatarImageSource"
             :url="liker.personLikeProfileUri"
