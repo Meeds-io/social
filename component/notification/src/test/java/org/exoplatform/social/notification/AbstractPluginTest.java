@@ -371,6 +371,8 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     instantly.add(SpaceInvitationPlugin.ID);
     instantly.add(RelationshipReceivedRequestPlugin.ID);
     instantly.add(PostActivitySpaceStreamPlugin.ID);
+    instantly.add(DlpUserDetectedItemPlugin.ID);
+    instantly.add(DlpAdminDetectedItemPlugin.ID);
 
     List<String> daily = new ArrayList<String>();
     daily.add(PostActivityPlugin.ID);
@@ -413,6 +415,8 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     webNotifs.add(SpaceInvitationPlugin.ID);
     webNotifs.add(RelationshipReceivedRequestPlugin.ID);
     webNotifs.add(PostActivitySpaceStreamPlugin.ID);
+    webNotifs.add(DlpUserDetectedItemPlugin.ID);
+    webNotifs.add(DlpAdminDetectedItemPlugin.ID);
     
     // root
     saveSetting(instantly, daily, weekly, webNotifs, rootIdentity.getRemoteId());
