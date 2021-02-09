@@ -255,7 +255,7 @@ export default {
       if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
+      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space) === true);
     },
     canUseActionsMenu() {
       return this.space && (this.space.canEdit || this.enabledProfileActionExtensions.length);
@@ -268,6 +268,22 @@ export default {
         return '#';
       }
     },
+  },
+  watch: {
+    enabledProfileActionExtensions: {
+      // immediate option to trigger the callback immediately with watched property initialisation
+      immediate: true,
+      handler() {
+        // watch extensions that have an enabled() async function
+        this.asyncFilter(this.profileActionExtensions, extension => extension.enabled(this.space)).then(extensions => {
+          extensions.forEach(extension => {
+            if (!this.enabledProfileActionExtensions.some(enabledExtension => enabledExtension.name === extension.name)) {
+              this.enabledProfileActionExtensions.push(extension);
+            }
+          });
+        }); 
+      }
+    }
   },
   created() {
     $(document).on('mousedown', () => {
@@ -405,6 +421,10 @@ export default {
       this.confirmTitle = '';
       this.confirmMessage = '';
       this.okMethod = null;
+    },
+    async asyncFilter(array, predicate) {
+      const results = await Promise.all(array.map(predicate));
+      return array.filter((value, index) => results[index]);
     },
   },
 };
