@@ -282,25 +282,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    EntityTag eTag;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
-
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
-    }
-
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-    }
-    return builder.build();
+    return getSpaceEntityResponse(space, uriInfo, request, expand, authenticatedUser);
   }
 
   /**
@@ -333,26 +315,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceByPrettyName(prettyName);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
-        && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    EntityTag eTag;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
-
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
-    }
-
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-    }
-    return builder.build();
+    return getSpaceEntityResponse(space, uriInfo, request, expand, authenticatedUser);
   }
 
   /**
@@ -382,29 +345,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             value = "Asking for a full representation of a specific subresource, ex: members or managers",
                                             required = false
                                         ) @QueryParam("expand") String expand) throws Exception {
-
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceByDisplayName(displayName);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
-        && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    EntityTag eTag = null;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
-
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
-    }
-
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-    }
-    return builder.build();
+    return getSpaceEntityResponse(space, uriInfo, request, expand, authenticatedUser);
   }
 
   @GET
@@ -1165,6 +1108,33 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     logMetrics(activity, space);
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+  private Response getSpaceEntityResponse(Space space,
+                                          UriInfo uriInfo,
+                                          Request request,
+                                          String expand,
+                                          String authenticatedUser) {
+    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isSuperManager(authenticatedUser)
+        && !spaceService.isMember(space, authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    Long lastUpdateDate = space.getLastUpdatedTime();
+    EntityTag eTag = new EntityTag(String.valueOf(lastUpdateDate));
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = EntityBuilder.getResponseBuilder(
+                                                 EntityBuilder.buildEntityFromSpace(space,
+                                                                                    authenticatedUser,
+                                                                                    uriInfo.getPath(),
+                                                                                    expand),
+                                                 uriInfo,
+                                                 RestUtils.getJsonMediaType(),
+                                                 Response.Status.OK);
+      builder.tag(eTag);
+    }
+    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
+    return builder.build();
   }
 
   /**
