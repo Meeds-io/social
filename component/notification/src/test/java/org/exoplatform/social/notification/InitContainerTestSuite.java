@@ -36,10 +36,8 @@ import org.junit.runners.Suite.SuiteClasses;
   EditCommentMailBuilderTest.class,
   EditActivityWebBuilderTest.class,
   EditCommentWebBuilderTest.class,
-  DlpUserDetectedItemWebBuilderTest.class,
-  DlpUserDetectedItemMailBuilderTest.class,
-  DlpAdminDetectedItemMailBuilderTest.class,
-  DlpAdminDetectedItemWebBuilderTest.class      
+  DlpUserRestoredItemWebBuilderTest.class,
+  DlpUserRestoredItemMailBuilderTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

@@ -5,7 +5,7 @@
                 <!-- begin top-->
                 <tr bgcolor="#f5f5f5" >
                     <td height="44" valign="middle" align="center" bgcolor="#d6d6d6" style="color: #476a98; border-bottom: 1px solid #ccc;">
-                        <h2 style="margin: 0;padding: 0; font-size: 16px;font-family: 'Helvetica', 'Arial', sans-serif;"><%=_ctx.appRes("Notification.title.DlpDetectedItemPlugin")%></h2>
+                        <h2 style="margin: 0;padding: 0; font-size: 16px;font-family: 'Helvetica', 'Arial', sans-serif;"><%=_ctx.appRes("Notification.title.DlpUserRestoredItemPlugin")%></h2>
                     </td>
                 </tr>
                 <!--end top-->
@@ -16,8 +16,8 @@
                         <table width="90%" cellpadding="0" cellspacing="0" >
                             <tr>
                                 <td align="left" style="line-height: 18px;font-size: 14px;color:#333;font-family: 'Helvetica', 'Arial', sans-serif;">
-                                    <p style="margin: 0 0 10px 0;line-height: 40px;font-size: 17px;text-transform: capitalize"><%=_ctx.appRes("Notification.mail.DlpDetectedItemPlugin.Hello")%> $ITEM_AUTHOR ,</p>
-                                    <p style="margin: 0 0 30px 0;line-height:22px"><%=_ctx.appRes("Notification.intranet.message.DlpUserDetectedItemPlugin", ""+ITEM_TITLE)%></p>
+                                    <p style="margin: 0 0 10px 0;line-height: 40px;font-size: 17px;text-transform: capitalize"><%=_ctx.appRes("Notification.mail.DlpDetectedItemPlugin.Hello")%>,</p>
+                                    <p style="margin: 0 0 30px 0;line-height:22px"><%=_ctx.appRes("Notification.intranet.message.DlpUserRestoredItemPlugin", ""+ITEM_TITLE)%></p>
                                 </td>
                             </tr>
                         </table>

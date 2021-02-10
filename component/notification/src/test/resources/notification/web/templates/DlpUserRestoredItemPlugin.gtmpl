@@ -6,7 +6,7 @@
     <div class="media-body">
         <div class="contentSmall" data-link="javascript:void(0)">
         <%
-        String message = _ctx.appRes("Notification.intranet.message.DlpUserDetectedItemPlugin", ""+ITEM_TITLE);
+        String message = _ctx.appRes("Notification.intranet.message.DlpUserRestoredItemPlugin", ""+ITEM_TITLE);
         %>
           <div class="status"><%= message %></div>
           <div class="lastUpdatedTime">$LAST_UPDATED_TIME</div>
