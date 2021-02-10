@@ -116,7 +116,7 @@ export async function getPermissionsData(query) {
       });
     }
   } catch (e) {
-    throw new Error('Unable to get permissions');
+    throw new Error('Unable to get permissions data');
   }
 }
 
@@ -131,7 +131,7 @@ export function saveDlpPermissions(newPermissions) {
     body: newPermissions,
   }).then(resp => {
     if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
+      throw new Error('Unable to save dlp permissions');
     } else {
       return resp.json();
     }
