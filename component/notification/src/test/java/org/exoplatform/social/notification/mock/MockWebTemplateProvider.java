@@ -19,7 +19,8 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "classpath:/notification/web/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "classpath:/notification/web/templates/RelationshipReceivedRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "classpath:/notification/web/templates/RequestJoinSpacePlugin.gtmpl"),
-    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "classpath:/notification/web/templates/SpaceInvitationPlugin.gtmpl")})
+    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "classpath:/notification/web/templates/SpaceInvitationPlugin.gtmpl"),
+    @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "classpath:/notification/web/templates/DlpUserRestoredItemPlugin.gtmpl")})
 public class MockWebTemplateProvider extends WebTemplateProvider {
 
   public MockWebTemplateProvider(InitParams initParams) {

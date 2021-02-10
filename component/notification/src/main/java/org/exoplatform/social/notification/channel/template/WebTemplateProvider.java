@@ -77,7 +77,8 @@ import org.exoplatform.webui.utils.TimeConvertUtils;
        @TemplateConfig( pluginId=RequestJoinSpacePlugin.ID, template="war:/intranet-notification/templates/RequestJoinSpacePlugin.gtmpl"),
        @TemplateConfig( pluginId=SpaceInvitationPlugin.ID, template="war:/intranet-notification/templates/SpaceInvitationPlugin.gtmpl"),
        @TemplateConfig( pluginId= DlpUserDetectedItemPlugin.ID, template="war:/intranet-notification/templates/DlpUserDetectedItemPlugin.gtmpl"),
-       @TemplateConfig( pluginId= DlpAdminDetectedItemPlugin.ID, template="war:/intranet-notification/templates/DlpAdminDetectedItemPlugin.gtmpl")
+       @TemplateConfig( pluginId= DlpAdminDetectedItemPlugin.ID, template="war:/intranet-notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
+       @TemplateConfig( pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/intranet-notification/templates/DlpUserRestoredItemPlugin.gtmpl")
    }
 )
 public class WebTemplateProvider extends TemplateProvider {
@@ -947,7 +948,41 @@ public class WebTemplateProvider extends TemplateProvider {
 
 
   };
-  
+
+  /**
+   * Defines the template builder for DlpUserRestoredItemPlugin
+   */
+  private AbstractTemplateBuilder dlpUserRestoredItem = new AbstractTemplateBuilder() {
+
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+
+      TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
+
+      templateContext.put("isIntranet", "true");
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(notification.getLastModifiedDate());
+      templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
+      templateContext.put("NOTIFICATION_ID", notification.getId());
+      templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
+      templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
+      //
+      String body = TemplateUtils.processGroovy(templateContext);
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+      MessageInfo messageInfo = new MessageInfo();
+      return messageInfo.body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      return false;
+    }
+  };
+    
   public WebTemplateProvider(InitParams initParams) {
     super(initParams);
     this.templateBuilders.put(PluginKey.key(ActivityCommentPlugin.ID), comment);
@@ -965,6 +1000,7 @@ public class WebTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
     this.templateBuilders.put(PluginKey.key(DlpUserDetectedItemPlugin.ID), dlpUserDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpAdminDetectedItemPlugin.ID), dlpAdminDetectedItem);
+    this.templateBuilders.put(PluginKey.key(DlpUserRestoredItemPlugin.ID), dlpUserRestoredItem);
   }
 
   /**
