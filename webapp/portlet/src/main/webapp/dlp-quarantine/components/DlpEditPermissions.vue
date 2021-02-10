@@ -16,11 +16,12 @@
               outlined
               class="my-1"
             >
-              {{ permission.displayName }}
+              {{ permission.groupName }}
             </v-chip>
 
             <div class="my-auto">
               <v-btn
+                v-if="isAdmin"
                 icon
                 outlined
                 small
@@ -63,7 +64,7 @@
               attach
               dense
               dark
-              item-text="displayName"
+              item-text="groupName"
               item-value="id"
               @input="selectionChange"
               @change="clearSearch"
@@ -80,7 +81,7 @@
                     small
                     class="chip--select-multi"
                     @click:close="removeSelection(data.item)">
-                    {{ data.item.displayName }}
+                    {{ data.item.groupName }}
                   </v-chip>
                 </v-chip-group>
               </template>
@@ -90,7 +91,7 @@
                 class="permissionsItem">
                 <v-list-tile-avatar><img :src="item.avatarUrl" class="permissionsItemAvatar"></v-list-tile-avatar>
                 <v-list-tile-content class="permissionsItemName">
-                  <v-list-tile-title v-html="parent.genFilteredText(item.displayName)" />
+                  <v-list-tile-title v-html="parent.genFilteredText(item.groupName)" />
                 </v-list-tile-content>
               </template>
             </v-autocomplete>
@@ -109,7 +110,7 @@
               class="my-1"
               @click:close="removeSelection(permission)"
             >
-              {{ permission.displayName }}
+              {{ permission.groupName }}
             </v-chip>
           </v-chip-group>
         </v-card-text>
@@ -139,7 +140,7 @@
 </template>
 
 <script>
-import {getPermissionsData, getDlpPermissions, saveDlpPermissions} from '../dlpAdministrationServices';
+import {checkIsAdminMemberGroup, getPermissionsData, getDlpPermissions, saveDlpPermissions} from '../dlpAdministrationServices';
 
 export default {
         
@@ -148,6 +149,7 @@ export default {
       selectedItems: [],
       permissions: [],
       searchLoading: false,
+      isAdmin: false,
       searchResults: [],
       savedPermissions: [],
       existingPermissions: [],
@@ -162,14 +164,17 @@ export default {
   },
   created() {
     this.getDlpPermissions();
+    checkIsAdminMemberGroup().then(data => {
+      this.isAdmin = data.isAdmin && data.isAdmin === 'true';
+    });
   },
   methods : {
     async querySelections(query) {
       this.searchLoading = true;
       try {
         const data = await getPermissionsData(`${query}`);
-        this.searchResults = data.identities.filter(
-          ({ displayName }) => (displayName || '').toLowerCase().indexOf((query || '').toLowerCase()) > -1
+        this.searchResults = data.entities.filter(
+          ({ groupName }) => (groupName || '').toLowerCase().indexOf((query || '').toLowerCase()) > -1
         ).filter(el => !this.existingPermissions.map(item => item.id).includes(el.id));
         this.searchLoading = false;
       } catch (err) {

@@ -83,9 +83,26 @@ export function getDlpPermissions() {
   });
 }
 
+export function checkIsAdminMemberGroup() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/permissions/isAdministrator`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error checking is admin member group');
+    }
+  });
+}
+
 export async function getPermissionsData(query) {
   try {
-    const response = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/identity/search/${query}`, {
+    const response = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?q=${query}`, {
       headers: {
         'Content-Type': 'application/json'
       },
