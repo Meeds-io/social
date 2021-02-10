@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import {getDlpKeywords} from '../dlpAdministrationServices';
+import {getDlpKeywords, setDlpKeywords} from '../dlpAdministrationServices';
 export default {
         
   data () {
@@ -155,7 +155,7 @@ export default {
       this.getDlpKeywords();
     },
     saveDlpKeywords() {
-      this.$settingService.setSettingValue('GLOBAL', null , 'APPLICATION', 'DlpKeywords', 'exo:dlpKeywords', this.modifyingKeywords.join());
+      setDlpKeywords(this.modifyingKeywords.join());
       this.$refs.keywordsDrawer.close();
       this.keywords = this.modifyingKeywords;
     },

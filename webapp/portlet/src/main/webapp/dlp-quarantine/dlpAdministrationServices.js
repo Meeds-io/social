@@ -50,4 +50,18 @@ export function getDlpKeywords() {
       throw new Error('Error retrieving dlp keywords');
     }
   });
+}
+
+export function setDlpKeywords(keywords) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/dlp/items/keywords`, {
+    method: 'POST',
+    credentials: 'include',
+    body: keywords
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error setting dlp keywords', resp);
+    } else {
+      return resp.json();
+    }
+  });
 } 
