@@ -36,6 +36,10 @@ import org.junit.runners.Suite.SuiteClasses;
   EditCommentMailBuilderTest.class,
   EditActivityWebBuilderTest.class,
   EditCommentWebBuilderTest.class,
+  DlpUserDetectedItemWebBuilderTest.class,
+  DlpUserDetectedItemMailBuilderTest.class,
+  DlpAdminDetectedItemWebBuilderTest.class,
+  DlpAdminDetectedItemMailBuilderTest.class,
   DlpUserRestoredItemWebBuilderTest.class,
   DlpUserRestoredItemMailBuilderTest.class
 })
