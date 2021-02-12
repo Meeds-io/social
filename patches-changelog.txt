@@ -2,4 +2,6 @@
 
    # 6.0.4 Patches changelog: 
 
+* 2021-02-12: Patch-6.0.4:1, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
 
+  -  https://github.com/Meeds-io/social/commit/1fd00569e6d4491a6c8b899b2b105aa44b292ce6
