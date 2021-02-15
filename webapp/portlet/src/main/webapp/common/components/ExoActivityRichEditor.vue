@@ -52,9 +52,6 @@ export default {
         if (val === '') {
           this.initCKEditor();
         } else {
-          // reinitialize CKEditor instance
-          CKEDITOR.instances[this.ckEditorType].destroy(true);
-          this.initCKEditor();
           CKEDITOR.instances[this.ckEditorType].setData(val);
         }
       }
