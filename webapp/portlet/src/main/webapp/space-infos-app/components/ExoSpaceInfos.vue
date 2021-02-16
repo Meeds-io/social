@@ -39,8 +39,8 @@ export default {
             return this.$nextTick();
           })
           .then(() => {
-            this.initPopup();
             this.$root.$emit('application-loaded');
+            this.initPopup();
           });
       }
     },
