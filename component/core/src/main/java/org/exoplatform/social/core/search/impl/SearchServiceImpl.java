@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.portal.config.UserACL;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -38,6 +40,8 @@ public class SearchServiceImpl implements SearchService, Startable {
   private static final Scope   SEARCH_CONNECTORS_SCOPE        = Scope.APPLICATION.id("connectors");
 
   private static final String  SEARCH_CONNECTORS_STATUS_PARAM = "enabledSearchConnectors";
+
+  private static final String  PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
 
   private SettingService       settingService;
 
@@ -76,8 +80,10 @@ public class SearchServiceImpl implements SearchService, Startable {
 
   @Override
   public Set<SearchConnector> getEnabledConnectors() {
+    UserACL userACL = CommonsUtils.getService(UserACL.class);
+    boolean isExternalUser = userACL.isUserInGroup(PLATFORM_EXTERNALS_GROUP);
     return Collections.unmodifiableSet(connectors.stream()
-                                                 .filter(SearchConnector::isEnabled)
+                                                 .filter(c -> c.isEnabled() && !((c.getName().equals("people") || c.getName().equals("space")) && isExternalUser))
                                                  .map(SearchConnector::clone)
                                                  .collect(Collectors.toSet()));
   }
