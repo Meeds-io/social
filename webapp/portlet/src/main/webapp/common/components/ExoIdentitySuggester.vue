@@ -184,7 +184,7 @@ export default {
     searchTerm(value) {
       if (value && value.length) {
         window.setTimeout(() => {
-          if (this.previousSearchTerm === this.searchTerm) {
+          if (!this.previousSearchTerm || this.previousSearchTerm === this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
 
