@@ -46,21 +46,20 @@ export default {
       this.$emit('input', val);
     },
     value(val) {
-      if (!CKEDITOR.instances[this.ckEditorType]) {
-        this.initCKEditor();
-      }
-      let editorData = null;
-      try {
-        editorData = CKEDITOR.instances[this.ckEditorType].getData();
-      } catch (e) {
-        // When CKEditor not initialized yet
-      }
-      if (val !== editorData) {
-        //Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
-        // the suggester (which writes its settings in body attribute) doesn't
-        // find its settings anymore when using '.setData' after initializing.
-        // Thus, we destroy the ckEditor instance before setting new data.
-        this.initCKEditorData(val || '');
+      // watch value to reset the editor value if the value has been updated by the component parent
+      const editorData = CKEDITOR.instances[this.ckEditorType].getData();
+      if (editorData != null && val !== editorData) {
+        if (val === '') {
+          this.initCKEditor();
+        } else {
+          //Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
+          // the suggester (which writes its settings in body attribute) doesn't
+          // find its settings anymore when using '.setData' after initializing.
+          // Thus, we destroy the ckEditor instance before setting new data.
+          CKEDITOR.instances[this.ckEditorType].destroy(true);
+          this.initCKEditor();
+          this.initCKEditorData(val);
+        }
       }
     }
   },
@@ -68,15 +67,11 @@ export default {
     this.initCKEditor(true);
   },
   methods: {
-    initCKEditor: function (reset) {
-      if (CKEDITOR.instances[this.ckEditorType] && CKEDITOR.instances[this.ckEditorType].destroy && !this.ckEditorType.includes('editActivity')) {
-        if (reset) {
-          CKEDITOR.instances[this.ckEditorType].destroy(true);
-        } else {
-          return;
-        }
-      }
+    initCKEditor: function () {
       CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+      if (CKEDITOR.instances[this.ckEditorType] && CKEDITOR.instances[this.ckEditorType].destroy && !this.ckEditorType.includes('editActivity')) {
+        CKEDITOR.instances[this.ckEditorType].destroy(true);
+      }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
@@ -135,20 +130,14 @@ export default {
               return $('<span/>', {
                 class:'atwho-inserted',
                 html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-              }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+              }).attr('data-atwho-at-query',`@${  $(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
                 .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
                 .attr('contenteditable','false');
             });
           });
-        message = tempdiv.html();
+        message = `${tempdiv.html()  }&nbsp;`;
       }
-      try {
-        if (CKEDITOR.instances[this.ckEditorType]) {
-          CKEDITOR.instances[this.ckEditorType].setData(message);
-        }
-      } catch (e) {
-        // When CKEditor not initialized or is detroying
-      }
+      CKEDITOR.instances[this.ckEditorType].setData(message);
     },
     unload: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
