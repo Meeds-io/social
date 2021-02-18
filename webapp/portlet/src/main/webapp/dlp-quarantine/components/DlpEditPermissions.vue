@@ -175,7 +175,8 @@ export default {
         const data = await getPermissionsData(`${query}`);
         this.searchResults = data.entities.filter(
           ({ groupName }) => (groupName || '').toLowerCase().indexOf((query || '').toLowerCase()) > -1
-        ).filter(el => !this.existingPermissions.map(item => item.id).includes(el.id));
+        ).filter(el =>  el.id !== '/spaces' && !(el.parentId !== null && el.parentId === '/spaces'))
+          .filter(el => !this.existingPermissions.map(item => item.id).includes(el.id));
         this.searchLoading = false;
       } catch (err) {
         this.error = err.message;
