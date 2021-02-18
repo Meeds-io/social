@@ -52,7 +52,13 @@ export default {
         if (val === '') {
           this.initCKEditor();
         } else {
-          CKEDITOR.instances[this.ckEditorType].setData(val);
+          //Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
+          // the suggester (which writes its settings in body attribute) doesn't
+          // find its settings anymore when using '.setData' after initializing.
+          // Thus, we destroy the ckEditor instance before setting new data.
+          CKEDITOR.instances[this.ckEditorType].destroy(true);
+          this.initCKEditor();
+          this.initCKEditorData(val);
         }
       }
     }
@@ -63,9 +69,10 @@ export default {
   methods: {
     initCKEditor: function () {
       CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
-      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined' && !this.ckEditorType.includes('editActivity')) {
+      if (CKEDITOR.instances[this.ckEditorType] && CKEDITOR.instances[this.ckEditorType].destroy && !this.ckEditorType.includes('editActivity')) {
         CKEDITOR.instances[this.ckEditorType].destroy(true);
       }
+      CKEDITOR.dtd.$removeEmpty['i'] = false;
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
@@ -91,6 +98,13 @@ export default {
         on: {
           instanceReady: function () {
             self.editorReady = true;
+            $(CKEDITOR.instances[self.ckEditorType].document.$)
+              .find('.atwho-inserted')
+              .each(function() {
+                $(this).on('click', '.remove', function() {
+                  $(this).closest('[data-atwho-at-query]').remove();
+                });
+              });
           },
           change: function (evt) {
             const newData = evt.editor.getData();
@@ -106,6 +120,24 @@ export default {
           }
         }
       });
+    },
+    initCKEditorData: function(message) {
+      if (message) {
+        const tempdiv = $('<div class=\'temp\'/>').html(message);
+        tempdiv.find('a[href*="/profile"]')
+          .each(function() {
+            $(this).replaceWith(function() {
+              return $('<span/>', {
+                class:'atwho-inserted',
+                html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+              }).attr('data-atwho-at-query',`@${  $(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+                .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+                .attr('contenteditable','false');
+            });
+          });
+        message = `${tempdiv.html()  }&nbsp;`;
+      }
+      CKEDITOR.instances[this.ckEditorType].setData(message);
     },
     setFocus: function() {
       CKEDITOR.instances[this.ckEditorType].focus();
