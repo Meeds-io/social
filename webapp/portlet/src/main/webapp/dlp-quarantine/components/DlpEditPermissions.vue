@@ -21,6 +21,7 @@
 
             <div class="my-auto">
               <v-btn
+                v-exo-tooltip.bottom.body="$t('items.dlp.edit.permissions.tooltip')"
                 v-if="isAdmin"
                 icon
                 outlined
@@ -37,7 +38,7 @@
       ref="EditPermissionsDrawer"
       class="EditPermissionsDrawer"
       right
-      @closed="CleanInput">
+      @closed="cleanInput">
       <template slot="title">
         {{ $t('items.dlp.edit.permissions.title') }}
       </template>
@@ -91,7 +92,7 @@
                 class="permissionsItem">
                 <v-list-tile-avatar><img :src="item.avatarUrl" class="permissionsItemAvatar"></v-list-tile-avatar>
                 <v-list-tile-content class="permissionsItemName">
-                  <v-list-tile-title v-html="parent.genFilteredText(item.groupName)" />
+                  <v-list-tile-title v-sanitized-html="parent.genFilteredText(item.groupName)" />
                 </v-list-tile-content>
               </template>
             </v-autocomplete>
@@ -143,7 +144,6 @@
 import {checkIsAdminMemberGroup, getPermissionsData, getDlpPermissions, saveDlpPermissions} from '../dlpAdministrationServices';
 
 export default {
-        
   data () {
     return {
       selectedItems: [],
@@ -175,7 +175,8 @@ export default {
         const data = await getPermissionsData(`${query}`);
         this.searchResults = data.entities.filter(
           ({ groupName }) => (groupName || '').toLowerCase().indexOf((query || '').toLowerCase()) > -1
-        ).filter(el => !this.existingPermissions.map(item => item.id).includes(el.id));
+        ).filter(el =>  el.id !== '/spaces' && !(el.parentId !== null && el.parentId === '/spaces'))
+          .filter(el => !this.existingPermissions.map(item => item.id).includes(el.id));
         this.searchLoading = false;
       } catch (err) {
         this.error = err.message;
@@ -194,6 +195,10 @@ export default {
     },
     cancel() {
       this.$refs.EditPermissionsDrawer.close();
+      this.searchResults = '';
+      this.searchFiled = '';
+      this.selectedItems = this.permissions;
+      this.error = null;
     },
     selectionChange(selection) {
       this.searchFiled = '';
@@ -205,6 +210,12 @@ export default {
       saveDlpPermissions(this.selectedItems.map(item => item.id).join());
       this.$refs.EditPermissionsDrawer.close();
       this.permissions = this.selectedItems;
+      this.searchResults = '';
+    },
+    cleanInput() {
+      this.searchResults = '';
+      this.searchFiled = '';
+      this.error = null;
     },
   }
 };
