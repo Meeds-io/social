@@ -59,6 +59,8 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
         Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
         Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
         receivers.remove(parentCommentUserPosterId);
+        Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId());
+        receivers.remove( Utils.getUserId(comment.getPosterId()));
       }
     } else {
       // Send notification to all others users who have comment on this activity
@@ -66,6 +68,8 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
       Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
       Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
       Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId());
+      receivers.remove( Utils.getUserId(comment.getPosterId()));
+
     }
     //
     return NotificationInfo.instance()
