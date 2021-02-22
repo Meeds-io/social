@@ -47,7 +47,13 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
     params = $.param(options);
     url = '/portal/rest/social/people/suggest.json?'.concat(params);
   } else {
-    url = searchOptions.searchUrl.concat(filter);
+    if (searchOptions.options) {
+      params = $.param(searchOptions.options);
+      url = searchOptions.searchUrl.concat(`${filter}?${params}`);
+    } else {
+      url = searchOptions.searchUrl.concat(filter);
+    }
+
   }
 
   return fetch(url, {credentials: 'include'})
