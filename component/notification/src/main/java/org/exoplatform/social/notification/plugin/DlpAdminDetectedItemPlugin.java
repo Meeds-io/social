@@ -106,7 +106,6 @@ public class DlpAdminDetectedItemPlugin extends BaseNotificationPlugin {
             try {
                 ListAccess<User> membersAccess = organizationService.getUserHandler().findUsersByGroupId(permission);
                 int totalGroupMembersSize = adminMembersAccess.getSize();
-                if((permission.equals("/platform") || permission.equals("/organization")) && totalGroupMembersSize == 1) continue;
                 User[] membersUsers = membersAccess.load(0, totalGroupMembersSize);
                 List<String> members = Arrays.stream(membersUsers)
                                              .map(User::getUserName)
