@@ -22,7 +22,11 @@ import java.util.Locale;
 
 import org.apache.commons.lang.*;
 
+import org.exoplatform.commons.dlp.connector.DlpServiceConnector;
+import org.exoplatform.commons.dlp.dto.RestoredDlpItem;
+import org.exoplatform.commons.dlp.processor.DlpOperationProcessor;
 import org.exoplatform.commons.dlp.service.DlpPermissionsService;
+import org.exoplatform.commons.dlp.service.RestoredDlpItemService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -84,6 +88,8 @@ public class LinkProvider {
   private static String        baseURLSocialUserRest;
 
   private static String        baseURLSocialSpaceRest;
+
+  public static final String TYPE = "file";
 
   public LinkProvider() {
   }
@@ -318,6 +324,16 @@ public class LinkProvider {
   public static String getQuarantinePageUri(String username) {
     DlpPermissionsService dlpPermissionsService = CommonsUtils.getService(DlpPermissionsService.class);
     return "/" + getPortalName(null) + dlpPermissionsService.getDlpQuarantinePageUrl(username);
+  }
+
+  /**
+   * Gets the link of restored dlp file
+   * @return
+   */
+  public static String getDlpRestoredUri(String reference) {
+    DlpOperationProcessor dlpOperationProcessor = CommonsUtils.getService(DlpOperationProcessor.class);
+    DlpServiceConnector dlpServiceConnector = (DlpServiceConnector) dlpOperationProcessor.getConnectors().get(TYPE);
+    return dlpServiceConnector != null ?  "/" + dlpServiceConnector.getItemUrl(reference) : new String();
   }
   
   /**

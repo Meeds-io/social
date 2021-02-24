@@ -1183,8 +1183,9 @@ public class MailTemplateProvider extends TemplateProvider {
             String language = getLanguage(notification);
             TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
             SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
-
             templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
+            templateContext.put("ITEM_URL", LinkProviderUtils.getDlpRestoredUrl(notification.getValueOwnerParameter("itemReference")));
+
             String subject = TemplateUtils.processSubject(templateContext);
             String body = TemplateUtils.processGroovy(templateContext);
             //binding the exception throws by processing template

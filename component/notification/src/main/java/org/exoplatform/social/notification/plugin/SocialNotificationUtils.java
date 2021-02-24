@@ -75,7 +75,9 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<Long> DLP_DETECTED_ITEM_ID = new ArgumentLiteral<>(Long.class, "dlp_detected_item_id");
   
   public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_TITLE = new ArgumentLiteral<>(String.class, "dlp_restored_item_title");
-  
+
+  public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_REFERENCE = new ArgumentLiteral<>(String.class, "dlp_restored_item_reference");
+
   public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_AUTHOR = new ArgumentLiteral<>(String.class, "dlp_restored_item_author");
 
   public static final String EMPTY_STR = "";

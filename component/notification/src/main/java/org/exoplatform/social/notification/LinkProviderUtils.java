@@ -39,6 +39,8 @@ public static final String RESOURCE_URL = "social/notifications";
   
   public static final String PRIVATE_PATH = "/private";
 
+  private static final String COLLABORATION_WS = "collaboration";
+
   public static final String LOGIN_INITIALURI = "/login?initialURI=/";
 
   private static final Log LOG = ExoLogger.getLogger(LinkProviderUtils.class);
@@ -317,5 +319,14 @@ public static final String RESOURCE_URL = "social/notifications";
     DlpPermissionsService dlpPermissionsService = CommonsUtils.getService(DlpPermissionsService.class);
     String portal = PortalContainer.getCurrentPortalContainerName();
     return CommonsUtils.getCurrentDomain() + "/" + portal + dlpPermissionsService.getDlpQuarantinePageUrl(username);
+  }
+
+  /**
+   * Get the Redirect restored item url
+   *
+   * @return the Redirect restored item url
+   */
+  public static String getDlpRestoredUrl(String reference) {
+    return getBasePrivateRestUrl() + "/documents/view/" + COLLABORATION_WS + "/" + reference;
   }
 }
