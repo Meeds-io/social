@@ -150,8 +150,14 @@ export default {
         // When CKEditor not initialized or is detroying
       }
     },
+    unload: function() {
+      if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].status = 'not-ready';
+      }
+    },
     setFocus: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].status = 'ready';
         CKEDITOR.instances[this.ckEditorType].focus();
       }
     },

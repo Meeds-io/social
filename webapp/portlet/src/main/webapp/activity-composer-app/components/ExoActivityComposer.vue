@@ -310,6 +310,7 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
+      this.$refs[this.ckEditorId].unload();
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);
