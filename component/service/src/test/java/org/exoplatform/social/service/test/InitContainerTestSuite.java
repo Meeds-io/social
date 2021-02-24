@@ -31,7 +31,6 @@ import org.exoplatform.social.service.rest.ActivitiesRestServiceTest;
 import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
 import org.exoplatform.social.service.rest.IdentityRestServiceTest;
 import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
-import org.exoplatform.social.service.rest.LinkShareRestServiceTest;
 import org.exoplatform.social.service.rest.NotificationsRestServiceTest;
 import org.exoplatform.social.service.rest.RestCheckerTest;
 import org.exoplatform.social.service.rest.SecurityManagerTest;
@@ -56,7 +55,6 @@ import org.junit.runners.Suite.SuiteClasses;
   VersionResourcesTest.class,
   ActivitiesRestServiceTest.class,
   IdentityRestServiceTest.class,
-  LinkShareRestServiceTest.class,
   //PeopleRestServiceTest.class,  //skipped until add integration test
   RestCheckerTest.class,
   SecurityManagerTest.class,
