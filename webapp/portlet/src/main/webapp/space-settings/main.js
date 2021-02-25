@@ -30,13 +30,6 @@ const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 export function init(maxUploadSize) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
-    // get external components
-    document.addEventListener('component-external-space-settings-updated', () => {
-      if (extensionRegistry) {
-        const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
-        document.dispatchEvent(new CustomEvent('external-components-loaded', { detail: externalComponents }));
-      }
-    });
     
     appElement.id = appId;
 
