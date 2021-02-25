@@ -24,33 +24,13 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_objects_1_6 http://www.gatein.org/xml/ns/gatein_objects_1_6"
   xmlns="http://www.gatein.org/xml/ns/gatein_objects_1_6">
-  <priority>2</priority>
+  <priority>3</priority>
 
   <page-nodes>
     <node>
-      <name>usersManagement</name>
-      <label>#{administration.usersManagement}</label>
-      <page-reference>group::/platform/administrators::usersManagement</page-reference>
-    </node>
-    <node>
-      <name>groupsManagement</name>
-      <label>#{administration.groupsManagement}</label>
-      <page-reference>group::/platform/administrators::groupsManagement</page-reference>
-    </node>
-    <node>
-      <name>membershipsManagement</name>
-      <label>#{administration.membershipsManagement}</label>
-      <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
-    </node>
-    <node>
-      <name>branding</name>
-      <label>#{administration.Branding}</label>
-      <page-reference>group::/platform/administrators::branding</page-reference>
-    </node>
-    <node>
-      <name>notification</name>
-      <label>#{administration.notification}</label>
-      <page-reference>group::/platform/administrators::notification</page-reference>
+      <name>dlp-quarantine</name>
+      <label>#{administration.dlpQuarantine}</label>
+      <page-reference>group::/platform/dlp::dlp-quarantine</page-reference>
     </node>
   </page-nodes>
 </node-navigation>
