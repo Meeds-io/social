@@ -19,9 +19,8 @@ export default {
   }),
   created() {
     // add external components
-    document.addEventListener('external-components-loaded', e => {
-      this.spaceExternalSettings.push(...e.detail);
-    });
+    const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
+    this.spaceExternalSettings.push(...externalComponents);
     
     document.addEventListener('hideSettingsApps', () => this.displaySpaceExternalSettings = false);
     document.addEventListener('showSettingsApps', () => this.displaySpaceExternalSettings = true);
