@@ -153,6 +153,9 @@
                 <value>
                   <string>/platform/users</string>
                 </value>
+                <value>
+                  <string>/platform/dlp</string>
+                </value>
               </collection>
             </field>
             <field name="ownerType">
