@@ -23,7 +23,6 @@
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <dlp-edit-permissions></dlp-edit-permissions>
         <dlp-keywords-editor></dlp-keywords-editor>
         <v-divider class="mx-5"/>
       </v-list>
