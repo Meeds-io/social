@@ -1128,7 +1128,7 @@ public class MailTemplateProvider extends TemplateProvider {
             SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
 
             templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
-            templateContext.put("DLP_PAGE_URL", LinkProviderUtils.getQuarantineRedirectURL());
+            templateContext.put("DLP_PAGE_URL", LinkProviderUtils.getQuarantineRedirectURL(notification.getTo()));
             String subject = TemplateUtils.processSubject(templateContext);
             String body = TemplateUtils.processGroovy(templateContext);
             //binding the exception throws by processing template

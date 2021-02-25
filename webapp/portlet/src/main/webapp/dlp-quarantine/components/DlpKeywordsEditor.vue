@@ -128,18 +128,13 @@ export default {
       const input = this.$refs.InputKeyword.value;
       if (input !== '') {
         const index = this.modifyingKeywords.indexOf(input);
-        if (input.split(' ').length > 1) {
-          this.error = this.$t('items.dlp.editKeyword.formatError');
-          window.setTimeout(() => {
-            this.error = null;
-          }, 5000);
-        } else if (index > -1) {
+        if (index > -1) {
           this.error = this.$t('items.dlp.editKeyword.alreadyAdded');
           window.setTimeout(() => {
             this.error = null;
           }, 5000);
         } else {
-          this.modifyingKeywords.push(this.$refs.InputKeyword.value);
+          this.modifyingKeywords.push(this.$refs.InputKeyword.value.trim());
           this.$refs.InputKeyword.value = '';
         }
       }
