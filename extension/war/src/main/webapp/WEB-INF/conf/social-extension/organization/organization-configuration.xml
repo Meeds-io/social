@@ -70,10 +70,10 @@
 											<string>/platform</string>
 										</field>
 										<field  name="description">
-											<string>the /platform/dlp group</string>
+											<string></string>
 										</field>
 										<field  name="label">
-											<string>Dlp</string>
+											<string>Data Protection</string>
 										</field>
 									</object>
 								</value>

@@ -6,7 +6,7 @@
   <page>
     <name>dlp-quarantine</name>
     <title>Dlp Quarantine</title>
-    <access-permissions>member:/platform/dlp</access-permissions>
+    <access-permissions>*:/platform/dlp</access-permissions>
     <edit-permission>manager:/platform/dlp</edit-permission>
     <show-max-window>false</show-max-window>
     <portlet-application>
