@@ -107,6 +107,12 @@ export default {
         return false;
       },
     },
+    onlyRedactor: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
     disabled: {
       type: Boolean,
       default: function() {
@@ -194,6 +200,7 @@ export default {
               this.searchOptions,
               this.includeUsers,
               this.includeSpaces,
+              this.onlyRedactor,
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;

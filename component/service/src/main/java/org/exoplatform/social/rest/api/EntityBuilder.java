@@ -160,7 +160,7 @@ public class EntityBuilder {
     String userId = profile.getIdentity().getRemoteId();
     entity.setIsSpacesManager(spaceService.isSuperManager(userId));
     entity.setIsManager(spaceService.isManager(space, userId));
-    entity.setIsSpaceRedactor(SpaceUtils.isUserHasMembershipTypesInGroup(userId, space.getGroupId(), REDACTOR_MEMBERSHIP));
+    entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
@@ -378,10 +378,15 @@ public class EntityBuilder {
           identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
         }
         spaceEntity.setIdentity(identity);
-        spaceEntity.setHasBindings(space.hasBindings());
         spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
         spaceEntity.setApplications(getSpaceApplications(space));
   
+        boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
+        spaceEntity.setHasBindings(hasBindings);
+        if (hasBindings) {
+          spaceEntity.setIsUserBound(groupSpaceBindingService.countUserBindings(space.getId(), userId) > 0);
+        }
+
         LinkEntity managers;
         if(RestProperties.MANAGERS.equals(expand)) {
           managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
@@ -409,6 +414,7 @@ public class EntityBuilder {
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
       spaceEntity.setCanEdit(spaceService.isSuperManager(userId) || isManager);
       spaceEntity.setIsManager(isManager);
+      spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
     }
 
     spaceEntity.setDisplayName(space.getDisplayName());
@@ -422,8 +428,9 @@ public class EntityBuilder {
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
-    spaceEntity.setMembersCount(space.getMembers().length);
-    spaceEntity.setManagersCount(space.getManagers().length);
+    spaceEntity.setMembersCount(space.getMembers() == null ? 0 : space.getMembers().length);
+    spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
+    spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
     return spaceEntity;
   }
   
