@@ -160,7 +160,7 @@ public class EntityBuilder {
     String userId = profile.getIdentity().getRemoteId();
     entity.setIsSpacesManager(spaceService.isSuperManager(userId));
     entity.setIsManager(spaceService.isManager(space, userId));
-    entity.setIsSpaceRedactor(SpaceUtils.isUserHasMembershipTypesInGroup(userId, space.getGroupId(), REDACTOR_MEMBERSHIP));
+    entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
