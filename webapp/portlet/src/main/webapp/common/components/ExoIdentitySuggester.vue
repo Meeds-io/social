@@ -107,6 +107,12 @@ export default {
         return false;
       },
     },
+    noRedactorSpace: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
     onlyRedactor: {
       type: Boolean,
       default: function() {
@@ -201,6 +207,7 @@ export default {
               this.includeUsers,
               this.includeSpaces,
               this.onlyRedactor,
+              this.noRedactorSpace,
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
