@@ -456,8 +456,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       entity.setStatus(Status.IGNORED);
       spaceMemberDAO.create(entity);
     } else {
-      entity.setStatus(Status.IGNORED);
-      spaceMemberDAO.update(entity);
+      spaceMemberDAO.delete(entity);
     }
   }
 

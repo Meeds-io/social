@@ -259,6 +259,9 @@ export default {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => this.closeMessageComposer())
           .then(() => this.refreshCurrentActivity())
+          .then(() => {
+            this.resetComposer();
+          })
           .catch(error => {
             // eslint-disable-next-line no-console
             console.error(`Error when updating the activity: ${error}`);
@@ -301,6 +304,7 @@ export default {
       });
       this.attachments = [];
       this.showErrorMessage = false;
+      this.message = '';
     },
     refreshActivityStream() {
       const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
@@ -310,7 +314,7 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
-      this.message = '';
+      this.$refs[this.ckEditorId].unload();
     },
     executeAction(action) {
       executeExtensionAction(action, this.$refs[action.key]);

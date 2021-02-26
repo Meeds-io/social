@@ -46,26 +46,38 @@ export default {
       this.$emit('input', val);
     },
     value(val) {
-      // watch value to reset the editor value if the value has been updated by the component parent
-      const editorData = CKEDITOR.instances[this.ckEditorType].getData();
-      if (editorData != null && val !== editorData) {
-        if (val === '') {
-          this.initCKEditor();
-        } else {
-          CKEDITOR.instances[this.ckEditorType].setData(val);
-        }
+      if (!CKEDITOR.instances[this.ckEditorType]) {
+        this.initCKEditor();
+      }
+      let editorData = null;
+      try {
+        editorData = CKEDITOR.instances[this.ckEditorType].getData();
+      } catch (e) {
+        // When CKEditor not initialized yet
+      }
+      if (val !== editorData) {
+        //Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
+        // the suggester (which writes its settings in body attribute) doesn't
+        // find its settings anymore when using '.setData' after initializing.
+        // Thus, we destroy the ckEditor instance before setting new data.
+        this.initCKEditorData(val || '');
       }
     }
   },
   mounted() {
-    this.initCKEditor();
+    this.initCKEditor(true);
   },
   methods: {
-    initCKEditor: function () {
-      CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
-      if (typeof CKEDITOR.instances[this.ckEditorType] !== 'undefined' && !this.ckEditorType.includes('editActivity')) {
-        CKEDITOR.instances[this.ckEditorType].destroy(true);
+    initCKEditor: function (reset) {
+      if (CKEDITOR.instances[this.ckEditorType] && CKEDITOR.instances[this.ckEditorType].destroy && !this.ckEditorType.includes('editActivity')) {
+        if (reset) {
+          CKEDITOR.instances[this.ckEditorType].destroy(true);
+        } else {
+          return;
+        }
       }
+      CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+      CKEDITOR.dtd.$removeEmpty['i'] = false;
       let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
@@ -91,6 +103,13 @@ export default {
         on: {
           instanceReady: function () {
             self.editorReady = true;
+            $(CKEDITOR.instances[self.ckEditorType].document.$)
+              .find('.atwho-inserted')
+              .each(function() {
+                $(this).on('click', '.remove', function() {
+                  $(this).closest('[data-atwho-at-query]').remove();
+                });
+              });
           },
           change: function (evt) {
             const newData = evt.editor.getData();
@@ -107,8 +126,40 @@ export default {
         }
       });
     },
+    initCKEditorData: function(message) {
+      if (message) {
+        const tempdiv = $('<div class=\'temp\'/>').html(message);
+        tempdiv.find('a[href*="/profile"]')
+          .each(function() {
+            $(this).replaceWith(function() {
+              return $('<span/>', {
+                class:'atwho-inserted',
+                html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+              }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+                .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+                .attr('contenteditable','false');
+            });
+          });
+        message = tempdiv.html();
+      }
+      try {
+        if (CKEDITOR.instances[this.ckEditorType]) {
+          CKEDITOR.instances[this.ckEditorType].setData(message);
+        }
+      } catch (e) {
+        // When CKEditor not initialized or is detroying
+      }
+    },
+    unload: function() {
+      if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].status = 'not-ready';
+      }
+    },
     setFocus: function() {
-      CKEDITOR.instances[this.ckEditorType].focus();
+      if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].status = 'ready';
+        CKEDITOR.instances[this.ckEditorType].focus();
+      }
     },
     getMessage: function() {
       const newData = CKEDITOR.instances[this.ckEditorType].getData();
