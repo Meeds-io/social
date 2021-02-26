@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorSpace, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor)
+    searchSpaces(filter, result, onlyRedactor, noRedactorSpace)
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -13,7 +13,7 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
   }
 }
 
-function searchSpaces(filter, items, excludeNonRedactor) {
+function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace) {
   const formData = new FormData();
   formData.append('filterType', 'member');
   formData.append('limit', '20');
@@ -24,7 +24,7 @@ function searchSpaces(filter, items, excludeNonRedactor) {
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-        if (!excludeNonRedactor || item.isRedactor || !item.redactorsCount) {
+        if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount)) {
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
