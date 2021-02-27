@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang.*;
 
-import org.exoplatform.commons.dlp.service.DlpPermissionsService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -316,8 +315,7 @@ public class LinkProvider {
    * @return
    */
   public static String getQuarantinePageUri(String username) {
-    DlpPermissionsService dlpPermissionsService = CommonsUtils.getService(DlpPermissionsService.class);
-    return "/" + getPortalName(null) + dlpPermissionsService.getDlpQuarantinePageUrl(username);
+    return "/" + getPortalName(null) + "/g/:platform:dlp/dlp-quarantine";
   }
   
   /**
