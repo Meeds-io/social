@@ -178,16 +178,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     List<DataEntity> spaceInfos = new ArrayList<>();
-    GroupSpaceBindingService spaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
     if (limit > 0) {
       for (Space space : listAccess.load(offset, limit)) {
-        space.setHasBindings(spaceBindingService.isBoundSpace(space.getId()));
-        
         SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-        if (space.hasBindings()) {
-          spaceInfo.setIsUserBound(spaceBindingService.countUserBindings(space.getId(), authenticatedUser) > 0);
-        }
-        //
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
     }

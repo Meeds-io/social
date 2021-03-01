@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorSpace, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result)
+    searchSpaces(filter, result, onlyRedactor, noRedactorSpace)
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -13,22 +13,29 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
   }
 }
 
-function searchSpaces(filter, items) {
-  const params = $.param({fields: ['id', 'prettyName', 'displayName', 'avatarUrl'], keyword: filter});
-  return fetch(`/portal/rest/space/user/searchSpace?${params}`, {credentials: 'include'})
+function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace) {
+  const formData = new FormData();
+  formData.append('filterType', 'member');
+  formData.append('limit', '20');
+  formData.append('q', filter);
+  const params = new URLSearchParams(formData).toString();
+
+  return fetch(`/portal/rest/v1/social/spaces?${params}`, {credentials: 'include'})
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
-      data.forEach((item) => {
-        items.push({
-          id: `space:${item.prettyName}`,
-          remoteId: item.prettyName,
-          providerId: 'space',
-          profile: {
-            fullName: item.displayName,
-            originalName: item.shortName,
-            avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/spaces/${item.prettyName}/avatar`,
-          },
-        });
+      data.spaces.forEach((item) => {
+        if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount)) {
+          items.push({
+            id: `space:${item.prettyName}`,
+            remoteId: item.prettyName,
+            providerId: 'space',
+            profile: {
+              fullName: item.displayName,
+              originalName: item.shortName,
+              avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/spaces/${item.prettyName}/avatar`,
+            },
+          });
+        }
       });
     });
 }

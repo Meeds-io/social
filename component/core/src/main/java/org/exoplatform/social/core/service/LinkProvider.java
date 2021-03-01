@@ -322,8 +322,7 @@ public class LinkProvider {
    * @return
    */
   public static String getQuarantinePageUri(String username) {
-    DlpPermissionsService dlpPermissionsService = CommonsUtils.getService(DlpPermissionsService.class);
-    return "/" + getPortalName(null) + dlpPermissionsService.getDlpQuarantinePageUrl(username);
+    return "/" + getPortalName(null) + "/g/:platform:dlp/dlp-quarantine";
   }
 
   /**
