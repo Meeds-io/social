@@ -33,7 +33,8 @@ public class PositiveItemDlpListener extends Listener<DlpPositiveItemService, Ob
         } else if (DLP_RESTORE_ITEM_EVENT.equals(event.getEventName())) {
             NotificationContext ctx = NotificationContextImpl.cloneInstance()
                                          .append(SocialNotificationUtils.DLP_RESTORED_ITEM_TITLE, ((DlpPositiveItemEntity) event.getData()).getTitle())
-                                         .append(SocialNotificationUtils.DLP_RESTORED_ITEM_AUTHOR, ((DlpPositiveItemEntity) event.getData()).getAuthor());
+                                         .append(SocialNotificationUtils.DLP_RESTORED_ITEM_AUTHOR, ((DlpPositiveItemEntity) event.getData()).getAuthor())
+                                         .append(SocialNotificationUtils.DLP_RESTORED_ITEM_REFERENCE, ((DlpPositiveItemEntity) event.getData()).getReference());
             ctx.getNotificationExecutor().with(ctx.makeCommand(PluginKey.key(DlpUserRestoredItemPlugin.ID)))
                                          .execute(ctx);
         }
