@@ -972,7 +972,8 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("ITEM_TITLE", notification.getValueOwnerParameter("itemTitle"));
-      //
+      templateContext.put("ITEM_URL", LinkProvider.getDlpRestoredUri(notification.getValueOwnerParameter("itemReference")));
+
       String body = TemplateUtils.processGroovy(templateContext);
       //binding the exception throws by processing template
       ctx.setException(templateContext.getException());

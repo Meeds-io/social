@@ -39,8 +39,10 @@ public class DlpUserRestoredItemPlugin extends BaseNotificationPlugin {
     public NotificationInfo makeNotification(NotificationContext ctx) {
         String dlpItemTitle = ctx.value(SocialNotificationUtils.DLP_RESTORED_ITEM_TITLE);
         String dlpItemAuthor = ctx.value(SocialNotificationUtils.DLP_RESTORED_ITEM_AUTHOR);
+        String dlpItemReference = ctx.value(SocialNotificationUtils.DLP_RESTORED_ITEM_REFERENCE);
         return NotificationInfo.instance().key(getId())
                 .with("itemTitle", dlpItemTitle)
+                .with("itemReference", dlpItemReference)
                 .to(dlpItemAuthor);
     }
 
