@@ -1,6 +1,5 @@
 package org.exoplatform.social.notification;
 
-import org.exoplatform.commons.dlp.service.DlpPermissionsService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
@@ -314,8 +313,7 @@ public static final String RESOURCE_URL = "social/notifications";
    * @return the quarantine page url
    */
   public static String getQuarantineRedirectURL(String username) {
-    DlpPermissionsService dlpPermissionsService = CommonsUtils.getService(DlpPermissionsService.class);
     String portal = PortalContainer.getCurrentPortalContainerName();
-    return CommonsUtils.getCurrentDomain() + "/" + portal + dlpPermissionsService.getDlpQuarantinePageUrl(username);
+    return new StringBuffer(CommonsUtils.getCurrentDomain()).append("/").append(portal).append("/").append("g/:platform:dlp/dlp-quarantine").toString();
   }
 }

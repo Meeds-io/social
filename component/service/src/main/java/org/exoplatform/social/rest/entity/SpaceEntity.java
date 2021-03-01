@@ -178,6 +178,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("isManager");
   }
 
+  public SpaceEntity setIsRedactor(boolean isRedactor) {
+    setProperty("isRedactor", isRedactor);
+    return this;
+  }
+
+  public Boolean getIsRedactor() {
+    return (Boolean) getProperty("isRedactor");
+  }
+
   public SpaceEntity setCanEdit(boolean canEdit) {
     setProperty("canEdit", canEdit);
     return this;
@@ -203,6 +212,15 @@ public class SpaceEntity extends BaseEntity {
 
   public Integer getManagersCount() {
     return (Integer) getProperty("managersCount");
+  }
+
+  public SpaceEntity setRedactorsCount(int redactorsCount) {
+    setProperty("redactorsCount", redactorsCount);
+    return this;
+  }
+
+  public Integer getRedactorsCount() {
+    return (Integer) getProperty("redactorsCount");
   }
 
   public SpaceEntity setIsMember(boolean isMember) {
