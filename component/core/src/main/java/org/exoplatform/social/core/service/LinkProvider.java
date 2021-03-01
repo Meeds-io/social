@@ -23,10 +23,7 @@ import java.util.Locale;
 import org.apache.commons.lang.*;
 
 import org.exoplatform.commons.dlp.connector.DlpServiceConnector;
-import org.exoplatform.commons.dlp.dto.RestoredDlpItem;
 import org.exoplatform.commons.dlp.processor.DlpOperationProcessor;
-import org.exoplatform.commons.dlp.service.DlpPermissionsService;
-import org.exoplatform.commons.dlp.service.RestoredDlpItemService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
