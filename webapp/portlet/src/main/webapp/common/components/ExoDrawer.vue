@@ -6,7 +6,7 @@
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
-    temporary
+    :temporary="temporaryDrawer"
     touchless
     height="100%"
     max-height="100%"
@@ -74,6 +74,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    temporary: {
+      type: Boolean,
+      default: () => true,
+    },
     confirmCloseLabels: {
       type: Object,
       default: () => ({
@@ -89,13 +93,17 @@ export default {
     drawer: false,
     loading: false,
   }),
+  computed : {
+    temporaryDrawer() {
+      return this.temporary && !this.confirmClose;
+    }
+  },
   watch: {
     drawer() {
       if (this.drawer) {
         if (!this.initialized) {
           this.initialized = true;
         }
-
         $('body').addClass(this.bodyClasses);
         this.$emit('opened');
       } else {
@@ -104,7 +112,6 @@ export default {
         }, 200);
         this.$emit('closed');
       }
-
       this.$nextTick().then(() => {
         $('.v-overlay').off('click').on('click', () => {
           this.close();
