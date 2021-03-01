@@ -20,10 +20,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -226,6 +228,10 @@ public class PeopleRestService implements ResourceContainer{
 
         return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
       }
+      
+      // exclude super admin from suggested users
+      UserACL userACL =  CommonsUtils.getService(UserACL.class);
+      excludedIdentityList.add(Util.getUserIdentity(userACL.getSuperUser(), false));
 
       // Search in connections first
       ListAccess<Identity> connections = getRelationshipManager().getConnectionsByFilter(currentIdentity, identityFilter);
