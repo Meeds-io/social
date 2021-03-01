@@ -107,6 +107,7 @@ export default {
     return {
       items: [],
       loading: true,
+      featureName: 'dlp',
       restoreConfirmMessage: null,
       totalSize: 0,
       selectedDeleteItem: null,
@@ -175,7 +176,7 @@ export default {
   },
   methods: {
     saveDlpFeatureStatus(status) {
-      dlpAdministrationServices.saveDlpFeatureStatus(status);
+      dlpAdministrationServices.changeFeatureActivation(status);
     },
     deleteDlpPositiveItemConfirm() {
       this.loading = true;
@@ -206,8 +207,8 @@ export default {
       this.selectedDeleteItem = itemId;
     },
     getDlpFeatureStatus() {
-      dlpAdministrationServices.isDlpFeatureActive().then(status => {
-        this.dlpFeatureEnabled = status.value;
+      this.$featureService.isFeatureEnabled(this.featureName).then(status => {
+        this.dlpFeatureEnabled = status;
         this.dlpFeatureStatusLoaded = true;
       });
     },
