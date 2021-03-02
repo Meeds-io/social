@@ -47,6 +47,7 @@
               ref="InputKeyword"
               :placeholder="$t('items.dlp.editKeyword.placeholder')"
               class="ignore-vuetify-classes inputKeyword"
+              maxlength="50"
               @keyup.enter="AddKeyword"
             />
           </v-card-text>
@@ -128,7 +129,14 @@ export default {
       const input = this.$refs.InputKeyword.value;
       if (input !== '') {
         const index = this.modifyingKeywords.indexOf(input);
-        if (index > -1) {
+        const words = input.trim().split(/\s+/);
+        const num_words = words.length;
+        if(num_words>3){
+          this.error = this.$t('items.dlp.editKeyword.maxWordsAllowed');
+          window.setTimeout(() => {
+            this.error = null;
+          }, 5000);
+        } else if (index > -1) {
           this.error = this.$t('items.dlp.editKeyword.alreadyAdded');
           window.setTimeout(() => {
             this.error = null;
