@@ -303,4 +303,13 @@ public class SpaceEntity extends BaseEntity {
     return (List<String>) getProperty("externalInvitedUsers");
   }
 
+  public SpaceEntity setIsSuperUser(boolean isSuperUser) {
+    setProperty("isSuperUser", isSuperUser);
+    return this;
+  }
+
+  public Boolean getIsSuperUser() {
+    return (Boolean) getProperty("isSuperUser");
+  }
+
 }

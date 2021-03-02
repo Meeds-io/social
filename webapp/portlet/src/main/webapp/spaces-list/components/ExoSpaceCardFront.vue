@@ -112,7 +112,7 @@
         :cancel-label="okMethod && $t('spacesList.label.cancel')"
         @ok="okConfirmDialog"
         @dialog-closed="closeConfirmDialog" />
-      <template v-if="userName !== 'root'">
+      <template v-if="!space.isSuperUser">
         <v-btn
           v-if="space.isMember"
           :loading="sendingAction"
@@ -242,7 +242,6 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    userName: eXo.env.portal.userName,
   }),
   computed: {
     spaceAvatarUrl() {
