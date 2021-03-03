@@ -19,11 +19,11 @@ package org.exoplatform.social.notification.plugin;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
-import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.dlp.dto.DlpPositiveItem;
 import org.exoplatform.commons.dlp.service.DlpPositiveItemService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
@@ -38,21 +38,19 @@ public class DlpAdminDetectedItemPlugin extends BaseNotificationPlugin {
 
     public static final String ID = "DlpAdminDetectedItemPlugin";
 
-    public static final String DLP_GROUP = "/platform/dlp";
-
     private static final Log LOGGER = ExoLogger.getExoLogger(DlpAdminDetectedItemPlugin.class);
 
     private DlpPositiveItemService dlpPositiveItemService;
     
     private OrganizationService organizationService;
 
-    private SettingService settingService;
+    private UserACL userACL;
 
-    public DlpAdminDetectedItemPlugin(InitParams initParams, DlpPositiveItemService dlpPositiveItemService, OrganizationService organizationService, SettingService settingService) {
+    public DlpAdminDetectedItemPlugin(InitParams initParams, DlpPositiveItemService dlpPositiveItemService, OrganizationService organizationService, UserACL userACL) {
         super(initParams);
         this.dlpPositiveItemService = dlpPositiveItemService;
         this.organizationService = organizationService;
-        this.settingService = settingService;
+        this.userACL = userACL;
     }
 
     @Override
@@ -85,7 +83,7 @@ public class DlpAdminDetectedItemPlugin extends BaseNotificationPlugin {
         // Get DLP members group
         List<String> members = new ArrayList<>();
         try {
-            ListAccess<User> dlpMembersAccess = organizationService.getUserHandler().findUsersByGroupId(DLP_GROUP);
+            ListAccess<User> dlpMembersAccess = organizationService.getUserHandler().findUsersByGroupId(userACL.getDlpGroups());
             int totalAdminGroupMembersSize = dlpMembersAccess.getSize();
             User[] users = dlpMembersAccess.load(0, totalAdminGroupMembersSize);
             return Arrays.stream(users)
