@@ -60,13 +60,27 @@ export default {
 
       this.$spaceService.getSpaceApplications(this.spaceId)
         .then(applications => {
-          this.applications = applications;
+          this.applications = applications.map(app => ({
+            applicationName: app.applicationName,
+            contentId: app.contentId,
+            description: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.description`),
+            displayName: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.title`),
+            id: app.id(),
+            removable: app.removable,
+          }));
         });
     },
     openDetail() {
       this.$spaceService.getSpaceApplications(this.spaceId)
         .then(applications => {
-          this.applications = applications;
+          this.applications = applications.map(app => ({
+            applicationName: app.applicationName,
+            contentId: app.contentId,
+            description: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.description`),
+            displayName: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.title`),
+            id: app.id,
+            removable: app.removable,
+          }));
 
           document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
           this.displayDetails = true;
