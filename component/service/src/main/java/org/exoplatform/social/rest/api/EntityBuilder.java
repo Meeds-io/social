@@ -197,10 +197,9 @@ public class EntityBuilder {
         if (isExternal && user.getLastLoginTime().equals(user.getCreatedDate())) {
           userEntity.setLastConnexion("neverConnected");
         } else if (user.getLastLoginTime().equals(user.getCreatedDate())) {
-          userEntity.setLastConnexion("invitedToJoin");
+          userEntity.setLastConnexion("neverEnrolled");
         } else {
-          String lastLogin = TimeConvertUtils.getFormatDate(user.getLastLoginTime(), "dd/MM/yyyy HH:mm");
-          userEntity.setLastConnexion(lastLogin);
+          userEntity.setLastConnexion(String.valueOf(user.getLastLoginTime().getTime()));
         }
       }
     } catch (Exception e) {

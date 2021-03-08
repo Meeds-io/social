@@ -29,6 +29,21 @@
       :no-results-text="$t('UsersManagement.noResultsFound')"
       :no-data-text="$t('UsersManagement.noData')"
       class="data-table-light-border">
+      <template slot="item.lastConnexion" slot-scope="{ item }">
+        <div v-if="typeof item.lastConnexion == 'number'">
+          <date-format
+            :value="item.lastConnexion"
+            :format="fullDateFormat"
+            class="mr-1" />
+          <date-format
+            :value="item.lastConnexion"
+            :format="dateTimeFormat"
+            class="mr-1" />
+        </div>
+        <div v-else>
+          {{ item.lastConnexion }}
+        </div>
+      </template>
       <template slot="item.actions" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
@@ -80,6 +95,15 @@ export default {
     initialized: false,
     loading: true,
     error: null,
+    fullDateFormat: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
+    dateTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+    }
   }),
   computed: {
     filteredUsers() {
@@ -228,6 +252,8 @@ export default {
           user.lastName = user.lastName || user.lastname || '';
           if (['invitedToJoin', 'neverConnected', 'neverEnrolled'].indexOf(user.lastConnexion) >= 0) {
             user.lastConnexion = this.$t(`UsersManagement.lastConnexion.${user.lastConnexion}`);
+          } else {
+            user.lastConnexion = Number(user.lastConnexion);
           }
         });
         this.users = entities;
