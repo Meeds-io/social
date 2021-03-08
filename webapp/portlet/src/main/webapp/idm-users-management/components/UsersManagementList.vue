@@ -250,8 +250,10 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
-          if (['invitedToJoin', 'neverConnected', 'neverEnrolled'].indexOf(user.lastConnexion) >= 0) {
-            user.lastConnexion = this.$t(`UsersManagement.lastConnexion.${user.lastConnexion}`);
+          if (user.lastConnexion == null && user.external) {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+          } else if (user.lastConnexion == null) {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
           } else {
             user.lastConnexion = Number(user.lastConnexion);
           }

@@ -188,15 +188,12 @@ public class EntityBuilder {
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     try {
-      boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
       OrganizationService organizationService = getOrganizationService();
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
       if (user != null) {
         userEntity.setIsInternal(user.isInternalStore());
-        if (isExternal && user.getLastLoginTime().equals(user.getCreatedDate())) {
-          userEntity.setLastConnexion("neverConnected");
-        } else if (user.getLastLoginTime().equals(user.getCreatedDate())) {
-          userEntity.setLastConnexion("neverEnrolled");
+        if (user.getLastLoginTime().equals(user.getCreatedDate())) {
+          userEntity.setLastConnexion(null);
         } else {
           userEntity.setLastConnexion(String.valueOf(user.getLastLoginTime().getTime()));
         }
