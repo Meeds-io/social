@@ -480,15 +480,6 @@ public class ProfileEntity extends BaseEntity {
   public static String getLastConnexion() {
     return LAST_CONNEXION;
   }
-
-  public ProfileEntity setIsOnboardUser(String isOnboardUser) {
-    setProperty(ONBOARD_USER, isOnboardUser);
-    return this;
-  }
-
-  public static String isOnboardUser() {
-    return ONBOARD_USER;
-  }
   
   public static String getFieldName(String name) {
     if (StringUtils.equals(FIRSTNAME, name)) {
