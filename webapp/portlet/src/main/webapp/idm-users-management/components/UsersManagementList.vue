@@ -35,10 +35,6 @@
             :value="item.lastConnexion"
             :format="fullDateFormat"
             class="mr-1" />
-          <date-format
-            :value="item.lastConnexion"
-            :format="dateTimeFormat"
-            class="mr-1" />
         </div>
         <div v-else>
           {{ item.lastConnexion }}
@@ -99,8 +95,6 @@ export default {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
-    },
-    dateTimeFormat: {
       hour: '2-digit',
       minute: '2-digit',
     }
@@ -250,12 +244,12 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
-          if (user.lastConnexion == null && user.external) {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
-          } else if (user.lastConnexion == null) {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
-          } else {
+          if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
+          } else if (user.external === 'true') {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+          } else {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
           }
         });
         this.users = entities;

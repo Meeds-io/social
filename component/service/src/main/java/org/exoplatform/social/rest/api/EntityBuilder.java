@@ -192,9 +192,7 @@ public class EntityBuilder {
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
       if (user != null) {
         userEntity.setIsInternal(user.isInternalStore());
-        if (user.getLastLoginTime().equals(user.getCreatedDate())) {
-          userEntity.setLastConnexion(null);
-        } else {
+        if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
           userEntity.setLastConnexion(String.valueOf(user.getLastLoginTime().getTime()));
         }
       }
