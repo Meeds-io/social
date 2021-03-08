@@ -116,6 +116,11 @@ export default {
         align: 'center',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        value: 'lastConnexion',
+        align: 'center',
+        sortable: false,
+      }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'statusLabel',
         align: 'center',
@@ -221,6 +226,9 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
+          if (['invitedToJoin', 'neverConnected', 'neverEnrolled'].indexOf(user.lastConnexion) >= 0) {
+            user.lastConnexion = this.$t(`UsersManagement.lastConnexion.${user.lastConnexion}`);
+          }
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;

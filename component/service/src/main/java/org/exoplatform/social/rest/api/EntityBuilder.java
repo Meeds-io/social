@@ -60,6 +60,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
+import org.exoplatform.webui.utils.TimeConvertUtils;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
@@ -188,13 +189,22 @@ public class EntityBuilder {
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     try {
+      boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
       OrganizationService organizationService = getOrganizationService();
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
       if (user != null) {
         userEntity.setIsInternal(user.isInternalStore());
+        if (isExternal && user.getLastLoginTime().equals(user.getCreatedDate())) {
+          userEntity.setLastConnexion("neverConnected");
+        } else if (user.getLastLoginTime().equals(user.getCreatedDate())) {
+          userEntity.setLastConnexion("invitedToJoin");
+        } else {
+          String lastLogin = TimeConvertUtils.getFormatDate(user.getLastLoginTime(), "dd/MM/yyyy HH:mm");
+          userEntity.setLastConnexion(lastLogin);
+        }
       }
     } catch (Exception e) {
-      LOG.warn("Error while checking internal store user", e);
+      LOG.warn("Error when searching user " + userEntity.getUsername(), e);
     }
     buildPhoneEntities(profile, userEntity);
     buildImEntities(profile, userEntity);
