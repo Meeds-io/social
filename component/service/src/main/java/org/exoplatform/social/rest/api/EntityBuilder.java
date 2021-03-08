@@ -60,7 +60,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.webui.utils.TimeConvertUtils;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
