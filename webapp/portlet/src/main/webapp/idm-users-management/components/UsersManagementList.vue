@@ -19,7 +19,7 @@
       </v-alert>
     </v-card-text>
     <v-data-table
-      :headers="headers"
+      :headers="isSuperUser ? superUserHeaders : headers"
       :items="filteredUsers"
       :loading="loading"
       :options.sync="options"
@@ -40,15 +40,29 @@
           {{ item.lastConnexion }}
         </div>
       </template>
-      <template slot="item.actions" slot-scope="{ item }">
+      <template slot="item.enabled" slot-scope="{ item }">
+        <div>
+          <label class="switch">
+            <input
+              v-model="item.enabled"
+              type="checkbox"
+              @click ="saveUserStatus(item)">
+            <div class="slider round"><span class="absolute-activate">{{ $t(`UsersManagement.button.activated`) }}</span></div>
+            <span class="absolute-deactivated">{{ $t(`UsersManagement.button.deactivated`) }}</span>
+          </label>
+        </div>
+      </template>
+      <template slot="item.role" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
           primary
           icon
           text
           @click="$root.$emit('openUserMemberships', item)">
-          <i class="uiIconUserCheck"></i>
+          <i class="uiIconGroup"></i>
         </v-btn>
+      </template>
+      <template slot="item.edit" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.editUser')"
           primary
@@ -57,13 +71,15 @@
           @click="$root.$emit('editUser', item)">
           <i class="uiIconEdit"></i>
         </v-btn>
+      </template>
+      <template slot="item.delete" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.deleteUser')"
           primary
           icon
           text
           @click="deleteUser(item)">
-          <i class="uiIconTrash"></i>
+          <i class="uiIconTrash trashIconColor"></i>
         </v-btn>
       </template>
     </v-data-table>
@@ -78,6 +94,7 @@ export default {
     startTypingKeywordTimeout: 0,
     itemsPerPageOptions: [20, 50, 100],
     users: [],
+    user: null,
     currentUser: eXo.env.portal.userName,
     selectedUser: null,
     deleteConfirmMessage: null,
@@ -89,6 +106,7 @@ export default {
     },
     totalSize: 0,
     initialized: false,
+    isSuperUser: false,
     loading: true,
     error: null,
     fullDateFormat: {
@@ -141,12 +159,60 @@ export default {
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
-        value: 'statusLabel',
+        value: 'enabled',
         align: 'center',
         sortable: false,
       }, {
-        text: this.$t && this.$t('UsersManagement.actions'),
-        value: 'actions',
+        text: this.$t && this.$t('UsersManagement.role'),
+        value: 'role',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.edit'),
+        value: 'edit',
+        align: 'center',
+        sortable: false,
+      }];
+    },
+    superUserHeaders() {
+      return [{
+        text: this.$t && this.$t('UsersManagement.userName'),
+        value: 'userName',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.firstName'),
+        value: 'firstName',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.lastName'),
+        value: 'lastName',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.email'),
+        value: 'email',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.status'),
+        value: 'enabled',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.role'),
+        value: 'role',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.edit'),
+        value: 'edit',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.delete'),
+        value: 'delete',
         align: 'center',
         sortable: false,
       }];
@@ -174,6 +240,10 @@ export default {
     },
   },
   created() {
+    this.$userService.checkIsSuperUser().then(
+      (data) => {
+        this.isSuperUser = data.isSuperUser === 'true';
+      });
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
   },
@@ -241,7 +311,7 @@ export default {
       }).then(data => {
         const entities = data.entities || data.users;
         entities.forEach(user => {
-          user.statusLabel = user.enabled ? this.$t('UsersManagement.status.enabled') : this.$t('UsersManagement.status.disabled');
+          user.enabled = user.enabled ;
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
@@ -273,6 +343,47 @@ export default {
           this.waitForEndTyping();
         }
       }, this.endTypingKeywordTimeout);
+    },
+    saveUserStatus(user) {
+      this.error = null;
+      this.user = {
+        userName: user.userName,
+        enabled: !user.enabled,
+      };
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/saveUserStatus`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.user),
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          if (resp.status === 400) {
+            return resp.text().then(error => {
+              error = error.message || String(error);
+              const errorI18NKey = `UsersManagement.error.${error}`;
+              const errorI18N = this.$t(errorI18NKey, {0: user.fullname});
+              if (errorI18N !== errorI18NKey) {
+                error = errorI18N;
+              }
+              this.error = error;
+              window.setTimeout(() => {
+                this.error = null;
+              }, 5000);
+            });
+          } else {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
+        }
+      })        .finally(() => {
+        if (!this.initialized) {
+          this.$root.$emit('application-loaded');
+        }
+        this.searchUsers();
+        this.loading = false;
+        this.initialized = true;
+      });
     },
   },
 };
