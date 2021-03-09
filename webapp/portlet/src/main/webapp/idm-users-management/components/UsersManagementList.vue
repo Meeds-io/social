@@ -36,7 +36,7 @@
             :format="fullDateFormat"
             class="grey--text mr-1" />
         </div>
-        <div v-else>
+        <div v-else class="grey--text">
           {{ item.lastConnexion }}
         </div>
       </template>
