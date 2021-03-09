@@ -34,7 +34,7 @@
           <date-format
             :value="item.lastConnexion"
             :format="fullDateFormat"
-            class="mr-1" />
+            class="grey--text mr-1" />
         </div>
         <div v-else>
           {{ item.lastConnexion }}
@@ -137,6 +137,7 @@ export default {
         text: this.$t && this.$t('UsersManagement.lastConnexion'),
         value: 'lastConnexion',
         align: 'center',
+        width: '20%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
