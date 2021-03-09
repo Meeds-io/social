@@ -51,6 +51,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
+import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionServiceConnector;
 import org.exoplatform.webui.utils.TimeConvertUtils;
 
 /**
@@ -78,7 +79,8 @@ import org.exoplatform.webui.utils.TimeConvertUtils;
        @TemplateConfig( pluginId=SpaceInvitationPlugin.ID, template="war:/intranet-notification/templates/SpaceInvitationPlugin.gtmpl"),
        @TemplateConfig( pluginId= DlpUserDetectedItemPlugin.ID, template="war:/intranet-notification/templates/DlpUserDetectedItemPlugin.gtmpl"),
        @TemplateConfig( pluginId= DlpAdminDetectedItemPlugin.ID, template="war:/intranet-notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
-       @TemplateConfig( pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/intranet-notification/templates/DlpUserRestoredItemPlugin.gtmpl")
+       @TemplateConfig( pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/intranet-notification/templates/DlpUserRestoredItemPlugin.gtmpl"),
+       @TemplateConfig( pluginId = MalwareDetectionPlugin.ID, template = "war:/intranet-notification/templates/MalwareDetectionPlugin.gtmpl")
    }
 )
 public class WebTemplateProvider extends TemplateProvider {
@@ -986,6 +988,43 @@ public class WebTemplateProvider extends TemplateProvider {
       return false;
     }
   };
+  
+  /**
+   * Defines the template builder for MalwareDetectionPlugin
+   */
+  private AbstractTemplateBuilder malwareDetection = new AbstractTemplateBuilder() {
+
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+
+      TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
+
+      templateContext.put("isIntranet", "true");
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(notification.getLastModifiedDate());
+      templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
+      templateContext.put("NOTIFICATION_ID", notification.getId());
+      templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
+      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionServiceConnector.INFECTED_ITEM_NAME));
+      
+      //
+      String body = TemplateUtils.processGroovy(templateContext);
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+      MessageInfo messageInfo = new MessageInfo();
+      return messageInfo.body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      return false;
+    }
+
+
+  };
     
   public WebTemplateProvider(InitParams initParams) {
     super(initParams);
@@ -1005,6 +1044,7 @@ public class WebTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(DlpUserDetectedItemPlugin.ID), dlpUserDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpAdminDetectedItemPlugin.ID), dlpAdminDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpUserRestoredItemPlugin.ID), dlpUserRestoredItem);
+    this.templateBuilders.put(PluginKey.key(MalwareDetectionPlugin.ID), malwareDetection);
   }
 
   /**
