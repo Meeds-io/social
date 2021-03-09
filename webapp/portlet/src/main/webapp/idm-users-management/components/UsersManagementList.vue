@@ -47,8 +47,8 @@
               v-model="item.enabled"
               type="checkbox"
               @click ="saveUserStatus(item)">
-            <div class="slider round"><span class="absolute-activate">{{ $t(`UsersManagement.button.activated`) }}</span></div>
-            <span class="absolute-deactivated">{{ $t(`UsersManagement.button.deactivated`) }}</span>
+            <div class="slider round"><span class="absolute-activate">{{ $t(`UsersManagement.button.enabled`) }}</span></div>
+            <span class="absolute-deactivated">{{ $t(`UsersManagement.button.disabled`) }}</span>
           </label>
         </div>
       </template>
@@ -161,16 +161,19 @@ export default {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
+        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
+        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
+        width: '10%',
         sortable: false,
       }];
     },
@@ -199,21 +202,25 @@ export default {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
+        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
+        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
+        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.delete'),
         value: 'delete',
         align: 'center',
+        width: '10%',
         sortable: false,
       }];
     },
