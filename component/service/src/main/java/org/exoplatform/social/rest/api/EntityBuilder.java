@@ -197,7 +197,7 @@ public class EntityBuilder {
         }
       }
     } catch (Exception e) {
-      LOG.warn("Error when searching user " + userEntity.getUsername(), e);
+      LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
     }
     buildPhoneEntities(profile, userEntity);
     buildImEntities(profile, userEntity);
