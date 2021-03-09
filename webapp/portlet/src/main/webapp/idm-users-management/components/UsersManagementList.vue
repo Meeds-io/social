@@ -240,7 +240,7 @@ export default {
     },
   },
   created() {
-    this.$userService.checkIsSuperUser().then(
+    this.$userService.isSuperUser().then(
       (data) => {
         this.isSuperUser = data.isSuperUser === 'true';
       });
@@ -348,9 +348,12 @@ export default {
       this.error = null;
       this.user = {
         userName: user.userName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
         enabled: !user.enabled,
       };
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/saveUserStatus`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
         method: 'PUT',
         credentials: 'include',
         headers: {

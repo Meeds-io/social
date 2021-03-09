@@ -11,8 +11,8 @@ export function getUser(username, expand) {
   });
 }
 
-export function checkIsSuperUser() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/checkIsSuperUser`, {
+export function isSuperUser() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSuperUser`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
