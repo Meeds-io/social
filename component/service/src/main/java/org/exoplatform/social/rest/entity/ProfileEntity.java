@@ -81,6 +81,8 @@ public class ProfileEntity extends BaseEntity {
   public static final String CITY             = "city";
   
   public static final String EXTERNAL         = "external";
+  
+  public static final String LAST_CONNEXION   = "lastConnexion";
 
   public ProfileEntity() {
   }
@@ -470,6 +472,15 @@ public class ProfileEntity extends BaseEntity {
     return getString(EXTERNAL);
   }
 
+  public ProfileEntity setLastConnexion(String lastConnexion) {
+    setProperty(LAST_CONNEXION, lastConnexion);
+    return this; 
+  }
+  
+  public static String getLastConnexion() {
+    return LAST_CONNEXION;
+  }
+  
   public static String getFieldName(String name) {
     if (StringUtils.equals(FIRSTNAME, name)) {
       return Profile.FIRST_NAME;

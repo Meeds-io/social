@@ -11,6 +11,19 @@ export function getUser(username, expand) {
   });
 }
 
+export function isSuperUser() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSuperUser`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getUserByEmail(email) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/email/${email}`, {
     method: 'GET',
