@@ -817,8 +817,29 @@
             <description>Remove user space binding when user is deleted</description>
         </component-plugin>
     </external-component-plugins>
-    
-    
+
+    <external-component-plugins>
+        <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.new</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Add new external store user listener.</description>
+        </component-plugin>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.deleted</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Delete external store user listener.</description>
+        </component-plugin>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.modified</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Edit external store user listener.</description>
+        </component-plugin>
+    </external-component-plugins>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
         <component-plugin profiles="all">

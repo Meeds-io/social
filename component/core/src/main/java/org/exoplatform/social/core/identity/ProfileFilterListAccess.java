@@ -148,6 +148,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           char firstCharacter = profileFilter.getFirstCharacterOfName();
           Sorting sorting = profileFilter.getSorting();
           boolean excludeExternal = profileFilter.isExcludeExternal();
+          boolean isEnabled = profileFilter.isEnabled();
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           identities = identityStorage.getIdentities(providerId,
@@ -156,6 +157,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      sortFieldName,
                                                      sortDirection,
                                                      excludeExternal,
+                                                     isEnabled,
                                                      offset,
                                                      usedLimit);
         }

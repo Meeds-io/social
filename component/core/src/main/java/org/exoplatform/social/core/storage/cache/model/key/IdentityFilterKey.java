@@ -51,7 +51,8 @@ public class IdentityFilterKey implements CacheKey {
   private String all;
   private Sorting sorting;
   private boolean excludeExternal;
-  
+  private boolean isEnabled;
+
   /**
    * Constructor for case using remoteId as key.
    * @param providerId
@@ -69,6 +70,7 @@ public class IdentityFilterKey implements CacheKey {
       this.firstChar = filter.getFirstCharacterOfName();
       this.firstCharFieldName = filter.getFirstCharFieldName();
       this.excludeExternal = filter.isExcludeExternal();
+      this.isEnabled = filter.isEnabled();
 
       List<IdentityKey> keys = new ArrayList<IdentityKey>();
       for (Identity i : filter.getExcludedIdentityList()) {
@@ -135,6 +137,7 @@ public class IdentityFilterKey implements CacheKey {
     if (skills != null ? !skills.equals(that.skills) : that.skills != null) return false;
     if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
     if (excludeExternal != that.excludeExternal) return false;
+    if (isEnabled != that.isEnabled) return true;
 
     return true;
   }
@@ -154,6 +157,7 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (all != null ? all.hashCode() : 0);
     result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
     result = 31 * result + Boolean.hashCode(excludeExternal);
+    result = 31 * result + Boolean.hashCode(isEnabled);
     return result;
   }
 

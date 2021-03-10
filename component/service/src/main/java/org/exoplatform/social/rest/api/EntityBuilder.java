@@ -38,6 +38,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -190,9 +191,12 @@ public class EntityBuilder {
     if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
       userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
+    if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
+      userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
+    }
     try {
       OrganizationService organizationService = getOrganizationService();
-      User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
+      User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername(), UserStatus.ANY);
       if (user != null) {
         userEntity.setIsInternal(user.isInternalStore());
         if (!user.getLastLoginTime().equals(user.getCreatedDate())) {

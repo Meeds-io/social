@@ -88,6 +88,25 @@
           </label>
         </div>
       </template>
+      <template slot="item.isInternal" slot-scope="{ item }">
+        <div v-if="item.isInternal">
+          <v-btn
+            primary
+            icon
+            text>
+            <i class="uiIconSoupCan"><span class="internalIconClass">eXo</span></i>
+          </v-btn>
+        </div>
+        <div v-else>
+          <v-btn
+            :title="synchronizedTitle(item.synchronizedDate)"
+            primary
+            icon
+            text>
+            <i class="uiIconManageApplication"><span class="synchronizedIconClass">SYNC</span></i>
+          </v-btn>
+        </div>
+      </template>
       <template slot="item.role" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
@@ -136,10 +155,12 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    lang: eXo.env.portal.language,
     options: {
       page: 1,
       itemsPerPage: 20,
     },
+    synchronizedDate: 0,
     totalSize: 0,
     initialized: false,
     isSuperUser: false,
@@ -203,6 +224,11 @@ export default {
         align: 'center',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.source'),
+        value: 'isInternal',
+        align: 'center',
+        sortable: false,
+      }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
@@ -245,9 +271,14 @@ export default {
         value: 'enrollmentDate',
         align: 'center',
         sortable: false,
-      },{
+      }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.source'),
+        value: 'isInternal',
         align: 'center',
         sortable: false,
       }, {
@@ -302,6 +333,9 @@ export default {
       this.keyword = keyword;
       this.filter = filter;
     },
+    synchronizedTitle(synchronizedDate) {
+      return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
+    },
     deleteUser(user) {
       if (this.currentUser === user.userName) {
         this.$refs.currentUserWarningDialog.open();
@@ -348,8 +382,8 @@ export default {
       }
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
-      const uri = this.filter === 'ENABLED' ? 'social/users':'users';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/${uri}?q=${this.keyword || ''}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      const isEnabled = this.filter === 'ENABLED' ? 'true':'false';
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isEnabled=${isEnabled}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -366,6 +400,9 @@ export default {
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
           user.email = user.email || user.email || '';
+          if (user.synchronizedDate) {
+            user.synchronizedDate = Number(user.synchronizedDate);
+          }
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
             if (user.enrollmentDate != null) {
@@ -456,7 +493,7 @@ export default {
       });
     },
     formatDate(time) {
-      return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, eXo.env.portal.language);
+      return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
     },
     sendOnBoardingEmail(username) {
       this.loading = true;
