@@ -68,6 +68,10 @@
       <artifactId>commons-dlp</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-mfa</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.exoplatform.gatein.portal</groupId>
       <artifactId>exo.portal.component.file-storage</artifactId>
     </dependency>
