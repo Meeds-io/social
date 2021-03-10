@@ -108,21 +108,6 @@
             maxlength="2000" />
         </v-card-text>
 
-        <v-card-text class="d-flex flex-column statusLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div class="d-flex statusField">
-            <span class="mt-1">{{ $t('UsersManagement.status') }}</span>
-            <v-switch v-model="user.enabled" class="mt-0 ml-4" />
-          </div>
-          <div class="d-flex text-sub-title caption">
-            <template v-if="user.enabled">
-              {{ $t('UsersManagement.status.enabledDescription') }}
-            </template>
-            <template v-else>
-              {{ $t('UsersManagement.status.disabledDescription') }}
-            </template>
-          </div>
-        </v-card-text>
-
       </v-form>
     </template>
     <template slot="footer">
