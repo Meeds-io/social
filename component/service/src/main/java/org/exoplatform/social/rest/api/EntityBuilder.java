@@ -192,9 +192,12 @@ public class EntityBuilder {
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
       if (user != null) {
         userEntity.setIsInternal(user.isInternalStore());
+        if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
+          userEntity.setLastConnexion(String.valueOf(user.getLastLoginTime().getTime()));
+        }
       }
     } catch (Exception e) {
-      LOG.warn("Error while checking internal store user", e);
+      LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
     }
     buildPhoneEntities(profile, userEntity);
     buildImEntities(profile, userEntity);

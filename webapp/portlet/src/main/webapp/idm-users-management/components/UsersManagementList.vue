@@ -29,6 +29,17 @@
       :no-results-text="$t('UsersManagement.noResultsFound')"
       :no-data-text="$t('UsersManagement.noData')"
       class="data-table-light-border">
+      <template slot="item.lastConnexion" slot-scope="{ item }">
+        <div v-if="typeof item.lastConnexion == 'number'">
+          <date-format
+            :value="item.lastConnexion"
+            :format="fullDateFormat"
+            class="grey--text mr-1" />
+        </div>
+        <div v-else class="grey--text">
+          {{ item.lastConnexion }}
+        </div>
+      </template>
       <template slot="item.actions" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
@@ -80,6 +91,13 @@ export default {
     initialized: false,
     loading: true,
     error: null,
+    fullDateFormat: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }
   }),
   computed: {
     filteredUsers() {
@@ -114,6 +132,12 @@ export default {
         text: this.$t && this.$t('UsersManagement.email'),
         value: 'email',
         align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        value: 'lastConnexion',
+        align: 'center',
+        width: '20%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
@@ -221,6 +245,13 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
+          if (user.lastConnexion) {
+            user.lastConnexion = Number(user.lastConnexion);
+          } else if (user.external === 'true') {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+          } else {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
+          }
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;
