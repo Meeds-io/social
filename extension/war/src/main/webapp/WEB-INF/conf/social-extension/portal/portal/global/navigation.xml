@@ -187,6 +187,13 @@
       <visibility>SYSTEM</visibility>
       <page-reference>portal::global::space-access</page-reference>
     </node>
+    
+    <node>
+      <name>mfa-access</name>
+      <label>#{portal.global.mfaAccess}</label>
+      <visibility>SYSTEM</visibility>
+      <page-reference>portal::global::mfa-access</page-reference>
+    </node>
 
     <node>
       <name>search</name>
