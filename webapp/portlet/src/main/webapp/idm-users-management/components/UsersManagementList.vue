@@ -322,13 +322,7 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
-          if (user.lastConnexion) {
-            user.lastConnexion = Number(user.lastConnexion);
-          } else if (user.external === 'true') {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
-          } else {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
-          }
+          user.email = user.email || user.email || '';
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;
