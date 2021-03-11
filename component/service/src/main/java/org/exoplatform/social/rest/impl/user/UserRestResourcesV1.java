@@ -1377,6 +1377,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       }
     }
+    //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
+    if (onboardUser) {
+      sendOnBoardingEmail(user, url);
+    }
     
     // Delete imported User object properties
     userObject.remove("userName");
@@ -1387,10 +1391,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("groups");
 
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
-    //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
-    if (onboardUser) {
-      sendOnBoardingEmail(user, url);
-    }
     String warnMessage = null;
     try {
       saveProfile(userName, profileEntity);
@@ -1464,7 +1464,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
-    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
 
     Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
