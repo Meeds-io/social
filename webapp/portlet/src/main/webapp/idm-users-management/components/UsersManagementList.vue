@@ -107,6 +107,9 @@
           </v-btn>
         </div>
       </template>
+      <template slot="item.external" slot-scope="{ item }">
+        {{ item && item.external === 'true' ? $t(`UsersManagement.type.external`) : $t(`UsersManagement.type.internal`) }}
+      </template>
       <template slot="item.role" slot-scope="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
@@ -229,6 +232,11 @@ export default {
         align: 'center',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.type'),
+        value: 'external',
+        align: 'center',
+        sortable: false,
+      }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
@@ -279,6 +287,11 @@ export default {
       }, {
         text: this.$t && this.$t('UsersManagement.source'),
         value: 'isInternal',
+        align: 'center',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.type'),
+        value: 'external',
         align: 'center',
         sortable: false,
       }, {
