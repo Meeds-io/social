@@ -1341,7 +1341,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
-    if (existingUser != null) {
+    if (existingUser != null && !userObject.isNull("password")) {
+      user.setPassword(existingUser.getPassword());
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
