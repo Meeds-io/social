@@ -40,6 +40,42 @@
           {{ item.lastConnexion }}
         </div>
       </template>
+      <template slot="item.enrollmentDate" slot-scope="{ item }">
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-if="item.enrollmentStatus === 'invitationAccepted'" class="d-inline">
+          <v-badge
+            bottom
+            color="white"
+            flat
+            class="mailBadge"
+            offset-x="10"
+            offset-y="12"
+          >
+            <span slot="badge"><v-icon color="green" size="14">mdi-check-circle</v-icon></span>
+            <v-icon size="22" color="primary">mdi-email</v-icon>
+            
+          </v-badge>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'reInviteToJoin'" class="d-inline">
+          <v-badge
+            bottom
+            color="white"
+            flat
+            class="mailBadge"
+            offset-x="10"
+            offset-y="12"
+          >
+            <span slot="badge"><v-icon color="red" size="14">mdi-help-circle</v-icon></span>
+            <v-icon size="22" color="primary">mdi-email</v-icon>
+
+          </v-badge>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'inviteToJoin'" class="d-inline">
+          <v-icon size="22" color="primary">mdi-email</v-icon>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline">
+          <v-icon size="22">mdi-email</v-icon>
+        </div>
+      </template>
       <template slot="item.enabled" slot-scope="{ item }">
         <div>
           <label class="switch">
@@ -158,6 +194,11 @@ export default {
         width: '20%',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.enrollment'),
+        value: 'enrollmentDate',
+        align: 'center',
+        sortable: false,
+      }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
@@ -199,6 +240,17 @@ export default {
         align: 'center',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        value: 'lastConnexion',
+        align: 'center',
+        width: '15%',
+        sortable: false,
+      },{
+        text: this.$t && this.$t('UsersManagement.enrollment'),
+        value: 'enrollmentDate',
+        align: 'center',
+        sortable: false,
+      },{
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
@@ -324,10 +376,26 @@ export default {
           user.lastName = user.lastName || user.lastname || '';
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
+            if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'invitationAccepted';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
+            } else {
+              user.enrollmentStatus = 'alreadyConnected';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
+            }
           } else if (user.external === 'true') {
             user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.enrollmentStatus = 'cannotBeEnrolled';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+          }else if (user.enrollmentDate != null) {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.invitedToJoin');
+            user.enrollmentStatus = 'reInviteToJoin';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
           } else {
             user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
+            user.enrollmentStatus = 'inviteToJoin';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.inviteToJoin');
+
           }
         });
         this.users = entities;
@@ -395,6 +463,9 @@ export default {
         this.initialized = true;
       });
     },
+    formatDate(time) {
+      return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, eXo.env.portal.language);
+    }
   },
 };
 </script>

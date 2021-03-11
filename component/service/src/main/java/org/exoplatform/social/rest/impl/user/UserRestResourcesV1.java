@@ -33,17 +33,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -1365,6 +1356,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       }
     }
+    
+    // Delete imported User object properties
+    userObject.remove("userName");
+    userObject.remove("firstName");
+    userObject.remove("lastName");
+    userObject.remove("password");
+    userObject.remove("email");
+    userObject.remove("groups");
+
+    ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
       PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
@@ -1377,17 +1378,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         LOG.error("Failure to retrieve portal config", e);
       }
       passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+      if (profileEntity != null) {
+        profileEntity.setEnrollmentDate(String.valueOf(Calendar.getInstance().getTimeInMillis()));
+      }
     }
-    
-    // Delete imported User object properties
-    userObject.remove("userName");
-    userObject.remove("firstName");
-    userObject.remove("lastName");
-    userObject.remove("password");
-    userObject.remove("email");
-    userObject.remove("groups");
-
-    ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     String warnMessage = null;
     try {
       saveProfile(userName, profileEntity);
@@ -1461,7 +1455,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
-    Identity userIdentity = getUserIdentity(username);
+    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     Profile profile = userIdentity.getProfile();
 
     Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
