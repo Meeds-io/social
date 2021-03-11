@@ -1377,8 +1377,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);
       }
-      passwordRecoveryService.sendOnboardingEmail(user, locale, url);
-      if (profileEntity != null) {
+      boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+      if (profileEntity != null && onBoardingEmailSent) {
         profileEntity.setEnrollmentDate(String.valueOf(Calendar.getInstance().getTimeInMillis()));
       }
     }
