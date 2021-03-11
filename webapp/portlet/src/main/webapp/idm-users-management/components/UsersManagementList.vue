@@ -61,16 +61,16 @@
             color="white"
             flat
             class="mailBadge"
-            offset-x="10"
-            offset-y="12"
+            offset-x="17"
+            offset-y="19"
           >
             <span slot="badge"><v-icon color="red" size="14">mdi-help-circle</v-icon></span>
-            <v-icon size="22" color="primary">mdi-email</v-icon>
+            <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
 
           </v-badge>
         </div>
         <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'inviteToJoin'" class="d-inline">
-          <v-icon size="22" color="primary">mdi-email</v-icon>
+          <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
         </div>
         <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline">
           <v-icon size="22">mdi-email</v-icon>
@@ -465,6 +465,26 @@ export default {
     },
     formatDate(time) {
       return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, eXo.env.portal.language);
+    },
+    sendOnBoardingEmail(username) {
+      this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onBoarding/${username}`, {
+        method: 'GET',
+        credentials: 'include',
+      }).then((resp) => {
+        if (resp && resp.ok) {
+          return resp.json();
+        } else {
+          throw new Error('Error sending onBoarding email');
+        }
+      }).finally(() => {
+        if (!this.initialized) {
+          this.$root.$emit('application-loaded');
+        }
+        this.searchUsers();
+        this.loading = false;
+        this.initialized = true;
+      });
     }
   },
 };

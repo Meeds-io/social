@@ -820,6 +820,27 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   @GET
+  @Path("onBoarding/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Send onBoarding email to a specific user", 
+                httpMethod = "GET", 
+                response = Response.class, 
+                notes = "This send onBoarding email to a specific user.")
+  public Response sendOnBoardingEmail(@Context UriInfo uriInfo,
+                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(id);
+    if (user == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    String uri = uriInfo.getBaseUri().toString().substring(0, uriInfo.getBaseUri().toString().lastIndexOf("/"));
+    StringBuilder url = new StringBuilder(uri);
+    sendOnBoardingEmail((UserImpl) user, url);
+    return Response.noContent().build();
+  }
+  
+  @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
   @ApiOperation(value = "Gets connections of a specific user",
@@ -1368,19 +1389,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
-      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
-      String currentSiteName = CommonsUtils.getCurrentSite().getName();
-      try {
-        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
-        locale = new Locale(currentSiteLocale);
-      } catch (Exception e) {
-        LOG.error("Failure to retrieve portal config", e);
-      }
-      boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
-      if (profileEntity != null && onBoardingEmailSent) {
-        profileEntity.setEnrollmentDate(String.valueOf(Calendar.getInstance().getTimeInMillis()));
-      }
+      sendOnBoardingEmail(user, url);
     }
     String warnMessage = null;
     try {
@@ -1587,6 +1596,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     builder.tag(eTag);
     return builder;
+  }
+
+  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
+    PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    String currentSiteName = CommonsUtils.getCurrentSite().getName();
+    String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+    Locale locale = new Locale(currentSiteLocale);
+    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+    if (onBoardingEmailSent) {
+      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+      Profile profile = userIdentity.getProfile();
+      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+    }
   }
 
   private void updateProfileField(Profile profile,
