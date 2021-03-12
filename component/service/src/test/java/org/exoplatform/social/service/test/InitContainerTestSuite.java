@@ -27,6 +27,7 @@ import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResou
 import org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRestResourcesTest;
 import org.exoplatform.social.rest.impl.userrelationship.UsersRelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.users.UserRestResourcesTest;
+import org.exoplatform.social.service.malwareDetection.MalwareDetectionServiceTest;
 import org.exoplatform.social.service.rest.ActivitiesRestServiceTest;
 import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
 import org.exoplatform.social.service.rest.IdentityRestServiceTest;
@@ -40,6 +41,7 @@ import org.exoplatform.social.service.rest.api.ActivityResourcesTest;
 import org.exoplatform.social.service.rest.api.ActivityStreamResourcesTest;
 import org.exoplatform.social.service.rest.api.IdentityResourcesTest;
 import org.exoplatform.social.service.rest.api.VersionResourcesTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -70,7 +72,8 @@ import org.junit.runners.Suite.SuiteClasses;
   SpacesAdministrationRestResourcesTest.class,
   UsersRelationshipsRestResourcesTest.class,
   UserRestResourcesTest.class,
-  GroupSpaceBindingRestServiceTest.class
+  GroupSpaceBindingRestServiceTest.class,
+  MalwareDetectionServiceTest.class
   })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
