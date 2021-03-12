@@ -468,8 +468,8 @@ export default {
     },
     sendOnBoardingEmail(username) {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onBoarding/${username}`, {
-        method: 'GET',
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onboard/${username}`, {
+        method: 'PATCH',
         credentials: 'include',
       }).then((resp) => {
         if (resp && resp.ok) {

@@ -819,12 +819,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
-  @GET
-  @Path("onBoarding/{id}")
+  @PATCH
+  @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")
   @ApiOperation(value = "Send onBoarding email to a specific user", 
-                httpMethod = "GET", 
+                httpMethod = "PATCH", 
                 response = Response.class, 
                 notes = "This send onBoarding email to a specific user.")
   public Response sendOnBoardingEmail(@Context UriInfo uriInfo,
@@ -837,7 +837,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     String uri = uriInfo.getBaseUri().toString().substring(0, uriInfo.getBaseUri().toString().lastIndexOf("/"));
     StringBuilder url = new StringBuilder(uri);
     sendOnBoardingEmail((UserImpl) user, url);
-    return Response.noContent().build();
+    return Response.ok().build();
   }
   
   @GET
