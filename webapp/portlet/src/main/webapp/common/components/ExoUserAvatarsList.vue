@@ -32,11 +32,10 @@ export default {
       type: Number,
       default: () => 0,
     },
-  },
-  data() {
-    return {
-      iconSize: 37,
-    };
+    iconSize: {
+      type: Number,
+      default: () => 37,
+    },
   },
   computed: {
     usersToDisplay() {
