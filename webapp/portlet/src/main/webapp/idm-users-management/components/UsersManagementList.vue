@@ -323,6 +323,13 @@ export default {
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
           user.email = user.email || user.email || '';
+          if (user.lastConnexion) {
+            user.lastConnexion = Number(user.lastConnexion);
+          } else if (user.external === 'true') {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+          } else {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
+          }
         });
         this.users = entities;
         this.totalSize = data && data.size || 0;
