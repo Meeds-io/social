@@ -827,15 +827,21 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                 httpMethod = "PATCH", 
                 response = Response.class, 
                 notes = "This send onBoarding email to a specific user.")
-  public Response sendOnBoardingEmail(@Context UriInfo uriInfo,
+  public Response sendOnBoardingEmail(@Context HttpServletRequest request,
                                       @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    String uri = uriInfo.getBaseUri().toString().substring(0, uriInfo.getBaseUri().toString().lastIndexOf("/"));
-    StringBuilder url = new StringBuilder(uri);
+    StringBuilder url = new StringBuilder();
+    url.append(request.getScheme()).append("://").append(request.getServerName());
+    if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+      url.append(':').append(request.getServerPort());
+    }
+    PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
+    url.append(container.getPortalContext().getContextPath());
+
     sendOnBoardingEmail((UserImpl) user, url);
     return Response.ok().build();
   }
