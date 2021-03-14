@@ -374,6 +374,7 @@ export default {
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
+          user.email = user.email || user.email || '';
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
             if (user.enrollmentDate != null) {
