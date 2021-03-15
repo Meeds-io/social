@@ -191,7 +191,6 @@ export default {
         text: this.$t && this.$t('UsersManagement.lastConnexion'),
         value: 'lastConnexion',
         align: 'center',
-        width: '20%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.enrollment'),
@@ -202,19 +201,16 @@ export default {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
-        width: '10%',
         sortable: false,
       }];
     },
@@ -243,7 +239,6 @@ export default {
         text: this.$t && this.$t('UsersManagement.lastConnexion'),
         value: 'lastConnexion',
         align: 'center',
-        width: '15%',
         sortable: false,
       },{
         text: this.$t && this.$t('UsersManagement.enrollment'),
@@ -254,25 +249,21 @@ export default {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.delete'),
         value: 'delete',
         align: 'center',
-        width: '10%',
         sortable: false,
       }];
     },
