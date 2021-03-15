@@ -58,6 +58,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
+import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionItemConnector;
 
 /**
  * Created by The eXo Platform SAS
@@ -81,7 +82,9 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpAdminDetectedItemPlugin.ID, template = "war:/notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpUserDetectedItemPlugin.ID, template = "war:/notification/templates/DlpUserDetectedItemPlugin.gtmpl"),
-    @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/notification/templates/DlpUserRestoredItemPlugin.gtmpl")})
+    @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/notification/templates/DlpUserRestoredItemPlugin.gtmpl"),
+    @TemplateConfig(pluginId = MalwareDetectionPlugin.ID, template = "war:/notification/templates/MalwareDetectionPlugin.gtmpl")})
+
 public class MailTemplateProvider extends TemplateProvider {
 
   private static final Log LOG = ExoLogger.getLogger(MailTemplateProvider.class);
@@ -1200,6 +1203,34 @@ public class MailTemplateProvider extends TemplateProvider {
         }
 
     };
+    
+  /** Defines the template builder for MalwareDetectionPlugin*/
+  private AbstractTemplateBuilder malwareDetection = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      MessageInfo messageInfo = new MessageInfo();
+
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionItemConnector.INFECTED_ITEM_NAME));
+
+      String subject = TemplateUtils.processSubject(templateContext);
+      String body = TemplateUtils.processGroovy(templateContext);
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+
+      return messageInfo.subject(subject).body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      return false;
+    }
+  };
+  
   protected ExoSocialActivity getI18N(ExoSocialActivity activity,Locale locale) {
 
     I18NActivityProcessor i18NActivityProcessor =(I18NActivityProcessor) PortalContainer.getInstance().getComponentInstanceOfType(I18NActivityProcessor.class);
@@ -1227,6 +1258,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(DlpAdminDetectedItemPlugin.ID), dlpAdminDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpUserDetectedItemPlugin.ID), dlpUserDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpUserRestoredItemPlugin.ID), dlpUserRestoredItem);
+    this.templateBuilders.put(PluginKey.key(MalwareDetectionPlugin.ID), malwareDetection);
   }
 
 }

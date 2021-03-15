@@ -34,7 +34,7 @@ export default {
       return this.settings && this.settings.groupsLabels && this.settings.groupsLabels[this.group.groupId];
     },
     manageNotification() {
-      return this.group && this.group.pluginInfos && this.group.pluginInfos.length && this.group.groupId !== 'quarantine';
+      return this.group && this.group.pluginInfos && this.group.pluginInfos.length && this.group.groupId !== 'quarantine' && this.group.groupId !== 'malwareDetection';
     },
   },
   methods: {
