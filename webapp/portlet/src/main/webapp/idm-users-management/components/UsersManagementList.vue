@@ -47,10 +47,10 @@
             color="white"
             flat
             class="mailBadge"
-            offset-x="10"
+            offset-x="8"
             offset-y="12"
           >
-            <span slot="badge"><v-icon color="green" size="14">mdi-check-circle</v-icon></span>
+            <span slot="badge"><v-icon class="successColor mt-n1 mr-0" size="14">mdi-check-circle</v-icon></span>
             <v-icon size="22" color="primary">mdi-email</v-icon>
             
           </v-badge>
@@ -61,10 +61,10 @@
             color="white"
             flat
             class="mailBadge"
-            offset-x="17"
+            offset-x="15"
             offset-y="19"
           >
-            <span slot="badge"><v-icon color="red" size="14">mdi-help-circle</v-icon></span>
+            <span slot="badge"><v-icon class="errorColor mt-n1 mr-0" size="14">mdi-help-circle</v-icon></span>
             <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
 
           </v-badge>
@@ -72,8 +72,8 @@
         <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'inviteToJoin'" class="d-inline">
           <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
         </div>
-        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline">
-          <v-icon size="22">mdi-email</v-icon>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline mailBadge">
+          <v-icon class="disabled" size="22">mdi-email</v-icon>
         </div>
       </template>
       <template slot="item.enabled" slot-scope="{ item }">
