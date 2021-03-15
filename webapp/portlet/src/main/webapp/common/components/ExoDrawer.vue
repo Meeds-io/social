@@ -6,7 +6,7 @@
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
-    :temporary="temporaryDrawer"
+    :temporary="temporary"
     touchless
     height="100%"
     max-height="100%"
@@ -93,11 +93,6 @@ export default {
     drawer: false,
     loading: false,
   }),
-  computed : {
-    temporaryDrawer() {
-      return this.temporary && !this.confirmClose;
-    }
-  },
   watch: {
     drawer() {
       if (this.drawer) {
