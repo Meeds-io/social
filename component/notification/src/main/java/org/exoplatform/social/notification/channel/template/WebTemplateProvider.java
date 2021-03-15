@@ -51,7 +51,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
-import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionServiceConnector;
+import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionItemConnector;
 import org.exoplatform.webui.utils.TimeConvertUtils;
 
 /**
@@ -1008,7 +1008,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionServiceConnector.INFECTED_ITEM_NAME));
+      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionItemConnector.INFECTED_ITEM_NAME));
       
       //
       String body = TemplateUtils.processGroovy(templateContext);

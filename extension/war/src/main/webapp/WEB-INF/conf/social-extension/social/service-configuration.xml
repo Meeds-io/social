@@ -161,14 +161,14 @@
   </external-component-plugins>
 <!-- Social request/response filter -->
 
-<!-- Malware Detection Service Connector -->
+<!-- Malware Detection Files Connector -->
   <external-component-plugins>
     <target-component>org.exoplatform.social.service.malwareDetection.MalwareDetectionService</target-component>
     <component-plugin>
-      <name>MalwareDetectionServiceConnector</name>
+      <name>MalwareDetectionFilesConnector</name>
       <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.service.malwareDetection.connector.FileMalwareDetectionServiceConnector</type>
-      <description>File Malware Detection Service Connector</description>
+      <type>org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionFilesConnector</type>
+      <description>Malware Detection Files Connector</description>
       <init-params>
         <properties-param>
           <name>constructor.params</name>
@@ -178,5 +178,5 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-<!-- Malware Detection Service Connector -->
+<!-- Malware Detection Files Connector -->
 </configuration>

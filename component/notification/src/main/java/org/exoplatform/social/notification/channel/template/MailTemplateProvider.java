@@ -58,7 +58,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
-import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionServiceConnector;
+import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionItemConnector;
 
 /**
  * Created by The eXo Platform SAS
@@ -1215,7 +1215,7 @@ public class MailTemplateProvider extends TemplateProvider {
       String language = getLanguage(notification);
       TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
       SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
-      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionServiceConnector.INFECTED_ITEM_NAME));
+      templateContext.put("INFECTED_ITEM_NAME", notification.getValueOwnerParameter(MalwareDetectionItemConnector.INFECTED_ITEM_NAME));
 
       String subject = TemplateUtils.processSubject(templateContext);
       String body = TemplateUtils.processGroovy(templateContext);
