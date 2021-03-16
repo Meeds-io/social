@@ -187,6 +187,9 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
+    if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
+      userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
+    }
     try {
       OrganizationService organizationService = getOrganizationService();
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername());
