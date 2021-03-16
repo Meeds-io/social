@@ -63,8 +63,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private Identity            demoIdentity;
 
-  private UserRestResourcesV1 userRestResourcesV1;
-
   public void setUp() throws Exception {
     super.setUp();
 
@@ -77,7 +75,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
-    organizationService= getContainer().getComponentInstanceOfType(OrganizationService.class);
+    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
