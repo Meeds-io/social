@@ -99,7 +99,7 @@
         </div>
         <div v-else>
           <v-btn
-            :title="synchronizedTitle(item.synchronizedDate)"
+            v-exo-tooltip.bottom.body="synchronizedTitle(item.synchronizedDate)"
             primary
             icon
             text>
