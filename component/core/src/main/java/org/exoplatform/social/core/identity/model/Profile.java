@@ -123,6 +123,9 @@ public class Profile {
   /** EXTERNAL. */
   public static final String EXTERNAL                 = "external";
 
+  /** ENROLLMENT DATE. */
+  public static final String ENROLLMENT_DATE          = "enrollmentDate";
+
   /**
    * An optional url for this profile
    */

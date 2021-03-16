@@ -40,6 +40,42 @@
           {{ item.lastConnexion }}
         </div>
       </template>
+      <template slot="item.enrollmentDate" slot-scope="{ item }">
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-if="item.enrollmentStatus === 'invitationAccepted'" class="d-inline">
+          <v-badge
+            bottom
+            color="white"
+            flat
+            class="mailBadge"
+            offset-x="8"
+            offset-y="12"
+          >
+            <span slot="badge"><v-icon class="successColor mt-n1 mr-0" size="14">mdi-check-circle</v-icon></span>
+            <v-icon size="22" color="primary">mdi-email</v-icon>
+            
+          </v-badge>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'reInviteToJoin'" class="d-inline">
+          <v-badge
+            bottom
+            color="white"
+            flat
+            class="mailBadge"
+            offset-x="15"
+            offset-y="19"
+          >
+            <span slot="badge"><v-icon class="errorColor mt-n1 mr-0" size="14">mdi-help-circle</v-icon></span>
+            <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
+
+          </v-badge>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'inviteToJoin'" class="d-inline">
+          <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
+        </div>
+        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline mailBadge">
+          <v-icon class="disabled" size="22">mdi-email</v-icon>
+        </div>
+      </template>
       <template slot="item.enabled" slot-scope="{ item }">
         <div>
           <label class="switch">
@@ -155,25 +191,26 @@ export default {
         text: this.$t && this.$t('UsersManagement.lastConnexion'),
         value: 'lastConnexion',
         align: 'center',
-        width: '20%',
+        sortable: false,
+      }, {
+        text: this.$t && this.$t('UsersManagement.enrollment'),
+        value: 'enrollmentDate',
+        align: 'center',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
-        width: '10%',
         sortable: false,
       }];
     },
@@ -199,28 +236,34 @@ export default {
         align: 'center',
         sortable: false,
       }, {
+        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        value: 'lastConnexion',
+        align: 'center',
+        sortable: false,
+      },{
+        text: this.$t && this.$t('UsersManagement.enrollment'),
+        value: 'enrollmentDate',
+        align: 'center',
+        sortable: false,
+      },{
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
-        width: '10%',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.delete'),
         value: 'delete',
         align: 'center',
-        width: '10%',
         sortable: false,
       }];
     },
@@ -325,10 +368,26 @@ export default {
           user.email = user.email || user.email || '';
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
+            if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'invitationAccepted';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
+            } else {
+              user.enrollmentStatus = 'alreadyConnected';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
+            }
           } else if (user.external === 'true') {
             user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.enrollmentStatus = 'cannotBeEnrolled';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+          }else if (user.enrollmentDate != null) {
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.invitedToJoin');
+            user.enrollmentStatus = 'reInviteToJoin';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
           } else {
             user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
+            user.enrollmentStatus = 'inviteToJoin';
+            user.enrollmentDetails= this.$t('UsersManagement.enrollment.inviteToJoin');
+
           }
         });
         this.users = entities;
@@ -396,6 +455,29 @@ export default {
         this.initialized = true;
       });
     },
+    formatDate(time) {
+      return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, eXo.env.portal.language);
+    },
+    sendOnBoardingEmail(username) {
+      this.loading = true;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onboard/${username}`, {
+        method: 'PATCH',
+        credentials: 'include',
+      }).then((resp) => {
+        if (resp && resp.ok) {
+          return resp.json();
+        } else {
+          throw new Error('Error sending onBoarding email');
+        }
+      }).finally(() => {
+        if (!this.initialized) {
+          this.$root.$emit('application-loaded');
+        }
+        this.searchUsers();
+        this.loading = false;
+        this.initialized = true;
+      });
+    }
   },
 };
 </script>

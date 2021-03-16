@@ -83,6 +83,8 @@ public class ProfileEntity extends BaseEntity {
   public static final String EXTERNAL         = "external";
   
   public static final String LAST_CONNEXION   = "lastConnexion";
+  
+  public static final String ENROLLMENT_DATE   = "enrollmentDate";
 
   public ProfileEntity() {
   }
@@ -479,6 +481,15 @@ public class ProfileEntity extends BaseEntity {
   
   public static String getLastConnexion() {
     return LAST_CONNEXION;
+  }
+
+  public ProfileEntity setEnrollmentDate(String enrollmentDate) {
+    setProperty(ENROLLMENT_DATE, enrollmentDate);
+    return this;
+  }
+
+  public static String getEnrollmentDate() {
+    return ENROLLMENT_DATE;
   }
   
   public static String getFieldName(String name) {
