@@ -71,6 +71,8 @@ public class ProfileFilter implements Cloneable {
   
   private boolean excludeExternal = false; 
 
+  private boolean isEnabled = true;
+
   public ProfileFilter() {
     this.name = "";
     this.position = "";
@@ -289,6 +291,20 @@ public class ProfileFilter implements Cloneable {
    */
   public void setExcludeExternal(boolean excludeExternal) {
     this.excludeExternal = excludeExternal;
+  }
+
+  /**
+   * @return the isEnabled
+   */
+  public boolean isEnabled() {
+    return isEnabled;
+  }
+
+  /**
+   * @param isEnabled the enabled to set
+   */
+  public void setEnabled(boolean isEnabled) {
+    this.isEnabled = isEnabled;
   }
 
   public boolean isEmpty() {

@@ -107,7 +107,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false);
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
@@ -141,14 +141,14 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal);
+  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, boolean IsEnabled, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal, IsEnabled);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
   }
 
   @Override
-  public int getAllIdsCountByProvider(String providerId, boolean excludeExternal) {
-    Query query = getIdentitiesQueryCount(providerId, excludeExternal);
+  public int getAllIdsCountByProvider(String providerId, boolean excludeExternal, boolean IsEnabled) {
+    Query query = getIdentitiesQueryCount(providerId, excludeExternal, IsEnabled);
     return ((Number) query.getSingleResult()).intValue();
   }
   
@@ -339,7 +339,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
   }
 
-  private Query getIdentitiesQueryCount(String providerId, boolean excludeExternal) {
+  private Query getIdentitiesQueryCount(String providerId, boolean excludeExternal, boolean IsEnabled) {
 
     StringBuilder queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
     queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
@@ -353,7 +353,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     } 
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
     queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
-    queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
+    queryStringBuilder.append(" AND identity_1.enabled = \n").append(IsEnabled).append(" \n");
 
     return getEntityManager().createNativeQuery(queryStringBuilder.toString());
   }
@@ -364,7 +364,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
                                                 char firstCharacter,
                                                 String sortField,
                                                 String sortDirection,
-                                                boolean excludeExternal) {
+                                                boolean excludeExternal,
+                                                boolean IsEnabled) {
     StringBuilder queryStringBuilder = null;
     if (excludeExternal) {
       queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id ");
@@ -403,7 +404,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
     queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
-    queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
+    queryStringBuilder.append(" AND identity_1.enabled = ").append(IsEnabled).append(" \n");
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" ORDER BY prop_order_field " + sortDirection);

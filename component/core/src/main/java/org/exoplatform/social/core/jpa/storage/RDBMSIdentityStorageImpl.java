@@ -705,7 +705,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.isExcludeExternal());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.isExcludeExternal(), profileFilter.isEnabled());
   }
 
   @Override
@@ -895,9 +895,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       String sortField,
                                       String sortDirection,
                                       boolean excludeExternal,
+                                      boolean IsEnabled,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal, IsEnabled, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -911,7 +912,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
-    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, false, offset, limit);
+    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, false,true, offset, limit);
   }
 
   @Override
