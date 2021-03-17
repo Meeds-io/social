@@ -847,6 +847,57 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     sendOnBoardingEmail((UserImpl) user, url);
     return Response.ok().build();
   }
+
+  @POST
+  @Path("multiSelection/{action}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Onboard, enable ou disable a specific users", httpMethod = "POST", response = Response.class, notes = "This will enroll, enable ou disable a specific users.")
+  public Response multiSelectionAction(@Context HttpServletRequest request,
+                                       @ApiParam(value = "Action", required = true) @PathParam("action") String action,
+                                       @ApiParam(value = "User List", required = true) List<String> users) throws Exception {
+
+    switch (action) {
+    case "onboard":
+      StringBuilder url = new StringBuilder();
+      url.append(request.getScheme()).append("://").append(request.getServerName());
+      if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+        url.append(':').append(request.getServerPort());
+      }
+      PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
+      url.append(container.getPortalContext().getContextPath());
+      for (String username : users) {
+        UserHandler userHandler = organizationService.getUserHandler();
+        User user = userHandler.findUserByName(username);
+        if (user == null) {
+          throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        sendOnBoardingEmail((UserImpl) user, url);
+      }
+      break;
+    case "enable":
+      for (String username : users) {
+        organizationService.getUserHandler().setEnabled(username, true, true);
+      }
+      break;
+    case "disable":
+      for (String username : users) {
+        UserHandler userHandler = organizationService.getUserHandler();
+        User user = userHandler.findUserByName(username);
+        String currentUsername = ConversationState.getCurrent().getIdentity().getUserId();
+        if (StringUtils.equals(currentUsername, user.getUserName())) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("SelfDisable").build();
+        }
+        if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("DisableSuperUser").build();
+        }
+
+        organizationService.getUserHandler().setEnabled(username, false, true);
+      }
+      break;
+    }
+    return Response.ok().build();
+  }
   
   @GET
   @Path("{id}/connections")

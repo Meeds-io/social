@@ -145,7 +145,12 @@
     </v-data-table>
     <v-alert
       v-if="selectedUsersUpdated"
+      border="left"
+      class="userUpdated"
       type="info"
+      close-icon="mdi-close"
+      colored-border
+      color="primary"
       dismissible
     >
       {{ selectedUsersUpdated }}
@@ -305,36 +310,37 @@ export default {
       this.filter = filter;
     },
     multiSelectAction(action) {
+      const selectedUsers = [];
+      let msg ='';
       if (this.selectedUsers.length > 0) {
-        this.searchUsers();
-        switch (action) {
-        case 'enrol':
-          for (let i = 0; i < this.selectedUsers.length; i++) {
-            if (!this.selectedUsers[i].lastConnexion) {
-              this.sendOnBoardingEmail(this.selectedUsers[i].username);
-              this.selectedUsersUpdated = this.$t('UsersManagement.selection.mailSent');
-            }
-          }
-          break;
-        case 'enable':
-          for (let i = 0; i < this.selectedUsers.length; i++) {
-            if (!this.selectedUsers[i].enabled) {
-              this.saveUserStatus(this.selectedUsers[i]);
-              this.selectedUsersUpdated = this.$t('UsersManagement.selection.usersEnabled');
-            }
-          }
-          break;
-        case 'disable':
-          for (let i = 0; i < this.selectedUsers.length; i++) {
-            if (this.selectedUsers[i].enabled) {
-              this.saveUserStatus(this.selectedUsers[i]);
-              this.selectedUsersUpdated = this.$t('UsersManagement.selection.usersDisabled');
-            }
-          }
-          break;
+        for (let i = 0; i < this.selectedUsers.length; i++) {
+          selectedUsers.push(this.selectedUsers[i].userName);
         }
-        this.selectedUsers = [];
-        setTimeout(() => this.selectedUsersUpdated = '', 3000);
+        this.loading = true;
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/multiSelection/${action}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          method: 'POST',
+          body: JSON.stringify(selectedUsers),
+        }).then((resp) => {
+          if (!resp || !resp.ok) {
+            throw new Error('Error when updating users');
+          } else {
+            msg = this.$t(`UsersManagement.selection.success.${  action}`);
+          }
+        }).finally(() => {
+          if (!this.initialized) {
+            this.$root.$emit('application-loaded');
+          }
+          this.searchUsers();
+          this.loading = false;
+          this.selectedUsers = [];
+          this.initialized = true;
+          this.selectedUsersUpdated = msg;
+          setTimeout(() => this.selectedUsersUpdated = '', 3000);
+        });
       }
     },
     synchronizedTitle(synchronizedDate) {

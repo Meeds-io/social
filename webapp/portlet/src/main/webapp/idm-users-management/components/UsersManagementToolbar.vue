@@ -19,15 +19,15 @@
           <users-management-import-csv-button />
         </div>
       </div>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="mx-1" @click="multiSelectAction('enrol')">
+      <v-btn :disabled="!usersSelected" outlined color="primary" class="mx-1 multiSelect" @click="multiSelectAction('onboard')">
         <i class="uiIconInviteUser mr-2"></i>
         {{ $t('UsersManagement.selection.onboard') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" @click="multiSelectAction('enable')">
+      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('enable')">
         <i class="uiIconValidateUser mr-2"></i>
         {{ $t('UsersManagement.selection.enable') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" @click="multiSelectAction('disable')">
+      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('disable')">
         <i class="uiIconRejectUser mr-2"></i>
         {{ $t('UsersManagement.selection.disable') }}
       </v-btn>
