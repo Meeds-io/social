@@ -121,14 +121,15 @@
         </v-btn>
       </template>
       <template slot="item.edit" slot-scope="{ item }">
-        <v-btn
-          :title="$t('UsersManagement.button.editUser')"
-          primary
-          icon
-          text
-          @click="$root.$emit('editUser', item)">
-          <i class="uiIconEdit"></i>
-        </v-btn>
+        <span v-exo-tooltip.bottom.body="item.isInternal ? $t('UsersManagement.button.editUser') : $t('UsersManagement.tooltip.editSynchronzedUser')">
+          <v-btn
+            :disabled="!item.isInternal"
+            icon
+            text
+            @click="$root.$emit('editUser', item)">
+            <i :class="!item.isInternal ? 'uiDiseabledIconEdit' : 'uiIconEdit'" class="uiIconEdit"></i>
+          </v-btn>
+        </span>
       </template>
       <template slot="item.delete" slot-scope="{ item }">
         <v-btn
