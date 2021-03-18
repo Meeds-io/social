@@ -91,7 +91,7 @@
         </div>
       </template>
       <template slot="item.isInternal" slot-scope="{ item }">
-        <div v-if="item.isInternal">
+        <div v-if="item.isInternal" class="displayedIconClass">
           <v-btn
             v-exo-tooltip.bottom.body="createdTitle(item.createdDate)"
             primary
@@ -100,7 +100,7 @@
             <i class="uiIconSoupCan"><span class="internalIconClass">eXo</span></i>
           </v-btn>
         </div>
-        <div v-else>
+        <div v-else class="displayedIconClass">
           <v-btn
             v-exo-tooltip.bottom.body="synchronizedTitle(item.synchronizedDate)"
             primary
@@ -202,7 +202,7 @@ export default {
         return this.users.slice();
       } else {
         return this.users.slice()
-          .filter(user => 
+          .filter(user =>
             user.userName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
             || user.firstName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
             || user.lastName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
@@ -214,61 +214,80 @@ export default {
         text: this.$t && this.$t('UsersManagement.userName'),
         value: 'userName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.firstName'),
         value: 'firstName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.lastName'),
         value: 'lastName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.email'),
         value: 'email',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.lastConnexion'),
         value: 'lastConnexion',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       },{
         text: this.$t && this.$t('UsersManagement.enrollment'),
         value: 'enrollmentDate',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.source'),
         value: 'isInternal',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.type'),
         value: 'external',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
+        width: '60px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
+        width: '60px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.delete'),
         value: 'delete',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
         show : this.isSuperUser
       }].filter(x => x.show == null || x.show === true);
