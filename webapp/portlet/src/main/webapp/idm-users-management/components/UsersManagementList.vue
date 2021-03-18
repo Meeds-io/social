@@ -317,18 +317,9 @@ export default {
           selectedUsers.push(this.selectedUsers[i].userName);
         }
         this.loading = true;
-        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/multiSelection/${action}`, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include',
-          method: 'POST',
-          body: JSON.stringify(selectedUsers),
-        }).then((resp) => {
-          if (!resp || !resp.ok) {
-            throw new Error('Error when updating users');
-          } else {
-            msg = this.$t(`UsersManagement.selection.success.${  action}`);
+        this.$userService.multiSelectAction(action, selectedUsers).then(data => {
+          if (data.length > 0) {
+            msg = this.$t(`UsersManagement.selection.success.${  action}`, {0 : data.length });
           }
         }).finally(() => {
           if (!this.initialized) {
