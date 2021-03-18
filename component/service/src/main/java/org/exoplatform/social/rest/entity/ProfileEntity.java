@@ -81,8 +81,12 @@ public class ProfileEntity extends BaseEntity {
   public static final String CITY             = "city";
   
   public static final String EXTERNAL         = "external";
-  
+
   public static final String LAST_CONNEXION   = "lastConnexion";
+  
+  public static final String ENROLLMENT_DATE   = "enrollmentDate";
+
+  public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
 
   public ProfileEntity() {
   }
@@ -462,7 +466,7 @@ public class ProfileEntity extends BaseEntity {
   public String isEnabled() {
     return getString(ENABLED);
   }
-  
+
   public ProfileEntity setIsExternal(String isExternal) {
     setProperty(EXTERNAL, isExternal);
     return this;
@@ -474,13 +478,29 @@ public class ProfileEntity extends BaseEntity {
 
   public ProfileEntity setLastConnexion(String lastConnexion) {
     setProperty(LAST_CONNEXION, lastConnexion);
-    return this; 
+    return this;
   }
-  
+
   public static String getLastConnexion() {
     return LAST_CONNEXION;
   }
-  
+
+  public ProfileEntity setEnrollmentDate(String enrollmentDate) {
+    setProperty(ENROLLMENT_DATE, enrollmentDate);
+    return this;
+  }
+
+  public static String getEnrollmentDate() {
+    return ENROLLMENT_DATE;
+  }
+
+  public ProfileEntity setSynchronizedDate(String synchronizedDate) {
+    setProperty(SYNCHRONIZED_DATE, synchronizedDate);
+    return this;
+  }
+
+  public static String getSynchronizedDate() { return SYNCHRONIZED_DATE; }
+
   public static String getFieldName(String name) {
     if (StringUtils.equals(FIRSTNAME, name)) {
       return Profile.FIRST_NAME;

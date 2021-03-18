@@ -33,17 +33,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -264,6 +255,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") boolean excludeExternal,
+                           @ApiParam(value = "Is enabled user", required = false, defaultValue = "true") @QueryParam("isEnabled") String isEnabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -307,6 +299,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setExcludeExternal(excludeExternal);
+      filter.setEnabled(isEnabled == null ? true : Boolean.valueOf(isEnabled));
       ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
       identities = list.load(offset, limit);
       if(returnSize) {
@@ -828,6 +821,33 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  @PATCH
+  @Path("onboard/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Send onBoarding email to a specific user", 
+                httpMethod = "PATCH", 
+                response = Response.class, 
+                notes = "This send onBoarding email to a specific user.")
+  public Response sendOnBoardingEmail(@Context HttpServletRequest request,
+                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(id);
+    if (user == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    StringBuilder url = new StringBuilder();
+    url.append(request.getScheme()).append("://").append(request.getServerName());
+    if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+      url.append(':').append(request.getServerPort());
+    }
+    PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
+    url.append(container.getPortalContext().getContextPath());
+
+    sendOnBoardingEmail((UserImpl) user, url);
+    return Response.ok().build();
+  }
+  
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
@@ -1367,16 +1387,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
-      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
-      String currentSiteName = CommonsUtils.getCurrentSite().getName();
-      try {
-        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
-        locale = new Locale(currentSiteLocale);
-      } catch (Exception e) {
-        LOG.error("Failure to retrieve portal config", e);
-      }
-      passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+      sendOnBoardingEmail(user, url);
     }
     
     // Delete imported User object properties
@@ -1593,6 +1604,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     builder.tag(eTag);
     return builder;
+  }
+
+  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
+    PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    String currentSiteName = CommonsUtils.getCurrentSite().getName();
+    String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+    Locale locale = new Locale(currentSiteLocale);
+    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+    if (onBoardingEmailSent) {
+      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+      Profile profile = userIdentity.getProfile();
+      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+    }
   }
 
   private void updateProfileField(Profile profile,
