@@ -34,10 +34,16 @@
       @update:search-input="searchTerm = $event">
       <template slot="no-data">
         <v-list-item class="pa-0">
-          <v-list-item-title v-if="displaySearchPlaceHolder" class="px-2">
+          <v-list-item-title
+            v-if="displaySearchPlaceHolder"
+            :style="menuItemStyle"
+            class="px-2">
             {{ labels.searchPlaceholder }}
           </v-list-item-title>
-          <v-list-item-title v-else-if="labels.noDataLabel" class="px-2">
+          <v-list-item-title
+            v-else-if="labels.noDataLabel"
+            :style="menuItemStyle"
+            class="px-2">
             {{ labels.noDataLabel }}
           </v-list-item-title>
         </v-list-item>
@@ -65,7 +71,10 @@
           size="20">
           <v-img :src="data.item.profile.avatarUrl"></v-img>
         </v-list-item-avatar>
-        <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="data.item.profile.fullName" />
+        <v-list-item-title
+          :style="menuItemStyle"
+          class="text-truncate identitySuggestionMenuItemText"
+          v-text="data.item.profile.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
@@ -155,6 +164,12 @@ export default {
         return null;
       },
     },
+    width: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     typeOfRelations: {
       type: String,
       default: function() {
@@ -185,6 +200,9 @@ export default {
     },
     hideNoData() {
       return !this.labels.noDataLabel && !this.labels.searchPlaceholder;
+    },
+    menuItemStyle() {
+      return this.width && `width:${this.width}px;max-width:${this.width}px;min-width:${this.width}px;` || '';
     },
   },
   watch: {
