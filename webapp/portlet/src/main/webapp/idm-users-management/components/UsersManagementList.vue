@@ -91,6 +91,7 @@
       <template slot="item.isInternal" slot-scope="{ item }">
         <div v-if="item.isInternal">
           <v-btn
+            v-exo-tooltip.bottom.body="createdTitle(item.createdDate)"
             primary
             icon
             text>
@@ -165,6 +166,7 @@ export default {
       itemsPerPage: 20,
     },
     synchronizedDate: 0,
+    createdDate: 0,
     totalSize: 0,
     initialized: false,
     isSuperUser: false,
@@ -350,6 +352,9 @@ export default {
     synchronizedTitle(synchronizedDate) {
       return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
     },
+    createdTitle(createdDate) {
+      return this.$t('UsersManagement.source.createdUser', {0: this.formatDate(createdDate)});
+    },
     deleteUser(user) {
       if (this.currentUser === user.userName) {
         this.$refs.currentUserWarningDialog.open();
@@ -416,6 +421,9 @@ export default {
           user.email = user.email || user.email || '';
           if (user.synchronizedDate) {
             user.synchronizedDate = Number(user.synchronizedDate);
+          }
+          if (user.createdDate) {
+            user.createdDate = Number(user.createdDate);
           }
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
