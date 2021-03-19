@@ -24,6 +24,8 @@ import java.util.Map;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -114,7 +116,6 @@ public class ProfileSearchConnector {
   private List<Identity> buildResult(String jsonResponse) {
 
     LOG.debug("Search Query response from ES : {} ", jsonResponse);
-
     List<Identity> results = new ArrayList<Identity>();
     JSONParser parser = new JSONParser();
 
@@ -145,6 +146,7 @@ public class ProfileSearchConnector {
       identity = new Identity(OrganizationIdentityProvider.NAME, userName);
       identity.setId(identityId);
       p = new Profile(identity);
+      Profile profile = getIdentityProfile(userName);
       p.setId(identityId);
       p.setAvatarUrl(avatarUrl);
       p.setUrl(LinkProvider.getProfileUri(userName));
@@ -154,10 +156,21 @@ public class ProfileSearchConnector {
       p.setProperty(Profile.POSITION, position);
       p.setProperty(Profile.EMAIL, email);
       p.setProperty(Profile.USERNAME, userName);
+      if( (String) profile.getProperty(Profile.SYNCHRONIZED_DATE) != null && !((String) profile.getProperty(Profile.SYNCHRONIZED_DATE)).isEmpty()){
+        p.setProperty(Profile.SYNCHRONIZED_DATE, (String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
+      }
+      if( (String) profile.getProperty(Profile.ENROLLMENT_DATE) != null && !((String) profile.getProperty(Profile.ENROLLMENT_DATE)).isEmpty()){
+        p.setProperty(Profile.ENROLLMENT_DATE, (String) profile.getProperty(Profile.ENROLLMENT_DATE));
+      }
       identity.setProfile(p);
       results.add(identity);
     }
     return results;
+  }
+
+  private Profile getIdentityProfile(String userName) {
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName).getProfile();
   }
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
