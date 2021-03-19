@@ -433,19 +433,18 @@ export default {
               user.enrollmentStatus = 'alreadyConnected';
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
-          } else if (user.external === 'true') {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
-            user.enrollmentStatus = 'cannotBeEnrolled';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-          }else if (user.enrollmentDate != null) {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.invitedToJoin');
-            user.enrollmentStatus = 'reInviteToJoin';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
           } else {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverEnrolled');
-            user.enrollmentStatus = 'inviteToJoin';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.inviteToJoin');
-
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+            if (user.external === 'true') {
+              user.enrollmentStatus = 'cannotBeEnrolled';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+            } else if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'reInviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
+            } else {
+              user.enrollmentStatus = 'inviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
+            }
           }
         });
         this.users = entities;
