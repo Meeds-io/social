@@ -856,15 +856,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         UserHandler userHandler = organizationService.getUserHandler();
         User user = userHandler.findUserByName(username);
         if (user == null) {
+          LOG.debug("Cannot find user by username {}", username);
           continue;
         }
         Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
         if (Util.isExternal(identity.getId())) {
-          LOG.info("A external user Cannot be enrolled.");
+          LOG.debug("A external user with username {} Cannot be enrolled.", username);
           continue;
         }
         if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
-          LOG.info("The {} user already logged in.", username);
+          LOG.debug("The {} user already logged in.", username);
           continue;
         }
         sendOnBoardingEmail((UserImpl) user, url);
@@ -874,8 +875,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     case "enable":
       for (String username : users) {
         UserHandler userHandler = organizationService.getUserHandler();
-        User user = userHandler.findUserByName(username);
-        if (user != null) {
+        User user = userHandler.findUserByName(username, UserStatus.DISABLED);
+        if (user == null) {
+          LOG.debug("Cannot find disabled user by username {}", username);
           continue;
         }
         organizationService.getUserHandler().setEnabled(username, true, true);
@@ -885,17 +887,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     case "disable":
       for (String username : users) {
         UserHandler userHandler = organizationService.getUserHandler();
-        User user = userHandler.findUserByName(username);
+        User user = userHandler.findUserByName(username, UserStatus.ENABLED);
         if (user == null) {
+          LOG.debug("Cannot find enabled user by username {}", username);
           continue;
         }
         String currentUsername = ConversationState.getCurrent().getIdentity().getUserId();
         if (StringUtils.equals(currentUsername, user.getUserName())) {
-          LOG.info("A user cannot suspend his own account.");
+          LOG.warn("You cannot suspend your own account.");
           continue;
         }
         if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
-          LOG.info("You cannot suspend the superuser account {}.", username);
+          LOG.warn("You cannot suspend the superuser account {}.", username);
           continue;
         }
         organizationService.getUserHandler().setEnabled(username, false, true);
