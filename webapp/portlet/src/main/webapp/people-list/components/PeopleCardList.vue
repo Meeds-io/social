@@ -86,7 +86,8 @@ export default {
     },
   },
   data: () => ({
-    profileActionExtensions: [],
+    profileExtensions: [],
+    spaceMemberExtensions: [],
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
@@ -102,6 +103,11 @@ export default {
     originalLimitToFetch: 0,
   }),
   computed: {
+    profileActionExtensions() {
+      const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
+      profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
+      return profileActionExtensions;
+    },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
     },
@@ -140,6 +146,7 @@ export default {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     // To refresh menu when a new extension is ready to be used
+    document.addEventListener('space-member-extension-updated', this.refreshExtensions);
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
 
     // To broadcast event about current page supporting profile extensions
@@ -149,8 +156,8 @@ export default {
   },
   methods: {
     refreshExtensions() {
-      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-      this.profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
+      this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
     },
     searchPeople() {
       this.loadingPeople = true;

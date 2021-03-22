@@ -41,7 +41,8 @@
       class="mx-auto"
       show-arrows
       center-active
-      slider-size="4">
+      slider-size="4"
+      @change="$root.$emit('application-cache')">
       <v-tab
         v-for="nav in navigations"
         :key="nav.id"

@@ -38,8 +38,6 @@ Vue.directive('cacheable', {
     const mountApplication = function() {
       const cachedAppElement = document.querySelector(`#UIPortalApplication #${appId}`);
       if (cachedAppElement) {
-        // eslint-disable-next-line no-console
-        console.debug(`Replace application ${appId} with real content`);
         cachedAppElement.parentElement.replaceChild(vnode.componentInstance.$root.$el, cachedAppElement);
       } else {
         // eslint-disable-next-line no-console
