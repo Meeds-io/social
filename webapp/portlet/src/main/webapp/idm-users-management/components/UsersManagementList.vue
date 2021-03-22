@@ -322,7 +322,7 @@ export default {
         this.loading = true;
         this.$userService.multiSelectAction(action, selectedUsers).then(data => {
           if (data.length > 0) {
-            msg = this.$t(`UsersManagement.selection.success.${  action}`, {0 : data.length });
+            msg = this.$t(`UsersManagement.selection.success.${  action}`);
           }
         }).finally(() => {
           if (!this.initialized) {
