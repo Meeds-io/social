@@ -319,6 +319,7 @@ export default {
         for (let i = 0; i < this.selectedUsers.length; i++) {
           selectedUsers.push(this.selectedUsers[i].userName);
         }
+        this.selectedUsers = [];
         this.loading = true;
         this.$userService.multiSelectAction(action, selectedUsers).then(data => {
           if (data.length > 0) {
@@ -330,7 +331,6 @@ export default {
           }
           this.searchUsers();
           this.loading = false;
-          this.selectedUsers = [];
           this.initialized = true;
           this.selectedUsersUpdated = msg;
           setTimeout(() => this.selectedUsersUpdated = '', 3000);
