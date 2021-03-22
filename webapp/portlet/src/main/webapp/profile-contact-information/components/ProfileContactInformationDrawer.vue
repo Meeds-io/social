@@ -37,19 +37,19 @@
           </div>
         </v-card-text>
         <v-card-text class="d-flex fullnameFields py-0">
-          <div class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold mr-3">
+          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.firstName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold mr-3">
             <input
               v-model="userToSave.firstname"
-              :disabled="saving"
+              :disabled="saving || !userToSave.isInternal"
               type="text"
               class="ignore-vuetify-classes"
               maxlength="2000"
               required />
           </div>
-          <div class="align-end flex-grow-0 text-no-wrap text-left font-weight-bold">
+          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.lastName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-end flex-grow-0 text-no-wrap text-left font-weight-bold">
             <input
               v-model="userToSave.lastname"
-              :disabled="saving"
+              :disabled="saving || !userToSave.isInternal"
               type="text"
               class="ignore-vuetify-classes"
               maxlength="2000"
@@ -59,10 +59,10 @@
         <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.email') }}*
         </v-card-text>
-        <v-card-text class="d-flex emailField py-0">
+        <v-card-text v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.email') : $t('profileContactInformation.synchronizedUser.tooltip')" class="d-flex emailField py-0">
           <input
             v-model="userToSave.email"
-            :disabled="saving"
+            :disabled="saving || userToSave.isInternal"
             type="email"
             class="ignore-vuetify-classes"
             maxlength="2000"
