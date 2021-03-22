@@ -93,6 +93,7 @@
       <template slot="item.isInternal" slot-scope="{ item }">
         <div v-if="item.isInternal">
           <v-btn
+            v-exo-tooltip.bottom.body="createdTitle(item.createdDate)"
             primary
             icon
             text>
@@ -123,14 +124,15 @@
         </v-btn>
       </template>
       <template slot="item.edit" slot-scope="{ item }">
-        <v-btn
-          :title="$t('UsersManagement.button.editUser')"
-          primary
-          icon
-          text
-          @click="$root.$emit('editUser', item)">
-          <i class="uiIconEdit"></i>
-        </v-btn>
+        <span v-exo-tooltip.bottom.body="item.isInternal ? $t('UsersManagement.button.editUser') : $t('UsersManagement.tooltip.editSynchronzedUser')">
+          <v-btn
+            :disabled="!item.isInternal"
+            icon
+            text
+            @click="$root.$emit('editUser', item)">
+            <i :class="!item.isInternal ? 'uiDiseabledIconEdit' : 'uiIconEdit'" class="uiIconEdit"></i>
+          </v-btn>
+        </span>
       </template>
       <template slot="item.delete" slot-scope="{ item }">
         <v-btn
@@ -180,6 +182,7 @@ export default {
       itemsPerPage: 20,
     },
     synchronizedDate: 0,
+    createdDate: 0,
     totalSize: 0,
     initialized: false,
     isSuperUser: false,
@@ -337,6 +340,9 @@ export default {
     synchronizedTitle(synchronizedDate) {
       return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
     },
+    createdTitle(createdDate) {
+      return this.$t('UsersManagement.source.createdUser', {0: this.formatDate(createdDate)});
+    },
     deleteUser(user) {
       if (this.currentUser === user.userName) {
         this.$refs.currentUserWarningDialog.open();
@@ -404,6 +410,9 @@ export default {
           if (user.synchronizedDate) {
             user.synchronizedDate = Number(user.synchronizedDate);
           }
+          if (user.createdDate) {
+            user.createdDate = Number(user.createdDate);
+          }
           if (user.lastConnexion) {
             user.lastConnexion = Number(user.lastConnexion);
             if (user.enrollmentDate != null) {
@@ -413,19 +422,18 @@ export default {
               user.enrollmentStatus = 'alreadyConnected';
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
-          } else if (user.external === 'true') {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
-            user.enrollmentStatus = 'cannotBeEnrolled';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-          }else if (user.enrollmentDate != null) {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.invitedToJoin');
-            user.enrollmentStatus = 'reInviteToJoin';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
           } else {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverEnrolled');
-            user.enrollmentStatus = 'inviteToJoin';
-            user.enrollmentDetails= this.$t('UsersManagement.enrollment.inviteToJoin');
-
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+            if (user.external === 'true') {
+              user.enrollmentStatus = 'cannotBeEnrolled';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+            } else if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'reInviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
+            } else {
+              user.enrollmentStatus = 'inviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
+            }
           }
         });
         this.users = entities;

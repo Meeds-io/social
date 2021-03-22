@@ -88,6 +88,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
 
+  public static final String CREATED_DATE   = "createdDate";
+
   public ProfileEntity() {
   }
 
@@ -483,6 +485,15 @@ public class ProfileEntity extends BaseEntity {
 
   public static String getLastConnexion() {
     return LAST_CONNEXION;
+  }
+
+  public ProfileEntity setCreatedDate(String createdDate) {
+    setProperty(CREATED_DATE, createdDate);
+    return this;
+  }
+
+  public static String getCreatedDate() {
+    return CREATED_DATE;
   }
 
   public ProfileEntity setEnrollmentDate(String enrollmentDate) {

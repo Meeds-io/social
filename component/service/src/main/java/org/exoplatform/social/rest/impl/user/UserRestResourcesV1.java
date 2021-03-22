@@ -1396,7 +1396,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
-    if (existingUser != null) {
+    if (existingUser != null ) {
+      if(LOG.isDebugEnabled()){
+        LOG.debug("Skipping password update for: {}",userName);
+      }
+      // skipping password overwrite from csvLine
+      user.setPassword(null);
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
