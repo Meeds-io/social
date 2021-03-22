@@ -76,7 +76,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
 
    
-    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);    rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
+    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);    
+    rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
     demoIdentity = new Identity(OrganizationIdentityProvider.NAME, "demo");
