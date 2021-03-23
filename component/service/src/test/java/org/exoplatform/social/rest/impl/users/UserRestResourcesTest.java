@@ -1,5 +1,8 @@
 package org.exoplatform.social.rest.impl.users;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import org.apache.commons.lang3.StringUtils;
 import org.gatein.common.io.IOTools;
 
@@ -10,6 +13,7 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -48,6 +52,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private UserACL userACL;
   private RelationshipManager relationshipManager;
   private SpaceService spaceService;
+  private OrganizationService organizationService;
   private UserStateService userStateService;
 
   private MockUploadService   uploadService;
@@ -70,6 +75,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
 
+   
+    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);    
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
@@ -503,7 +510,16 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
-    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
+   
+    uploadId = "users-update.csv";
+    resource = getClass().getClassLoader().getResource("users-update.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    uploadId = "users.csv";    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
@@ -511,10 +527,45 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     UserImportResultEntity importResultEntity = (UserImportResultEntity) response.getEntity();
     assertEquals(4, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+
+    BufferedReader reader = new BufferedReader(new FileReader(uploadResource.getStoreLocation()));
+    reader.readLine();
+    String User = reader.readLine();
+    List<String> userNames = new ArrayList<>();
+    List<String> passWords = new ArrayList<>();
+
+    while (User!= null){
+    List<String> userProperties = Arrays.asList(User.split(","));
+     userNames.add(userProperties.get(0));
+     passWords.add(userProperties.get(3));
+     User = reader.readLine();
+    }
+
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    
+    uploadId = "users-update.csv";
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(4, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
     assertNull(importResultEntity.getErrorMessages());
     assertNull(importResultEntity.getWarnMessages());
 
-    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    for(int i=0;i<(userNames.size());i++) {
+    boolean result = organizationService.getUserHandler().authenticate(userNames.get(i), passWords.get(i));
+    assertTrue(result);
+    }
+
+    uploadId = "users.csv";
+    uploadResource = uploadService.getUploadResource(uploadId);
     assertNotNull(uploadResource);
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&clean=true").getBytes());
     assertNotNull(response);
