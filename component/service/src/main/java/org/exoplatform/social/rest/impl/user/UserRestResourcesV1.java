@@ -1413,7 +1413,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, errorMessage);
       return userName;
     }
+    String status = userObject.getString("status").toLowerCase();
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
+    boolean statusUser = !userObject.isNull("status") && status.equals("false");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null ) {
@@ -1490,6 +1492,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (warnMessage != null) {
       userImportResultEntity.addWarnMessage(userName, warnMessage);
     }
+    if (statusUser) {
+      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(status), true);
+    }
     return userName;
   }
 
@@ -1553,6 +1558,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
     Identity userIdentity = getUserIdentity(username);
+    if(userIdentity == null) {
+      userIdentity =  identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    }
     Profile profile = userIdentity.getProfile();
 
     Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
