@@ -856,16 +856,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         UserHandler userHandler = organizationService.getUserHandler();
         User user = userHandler.findUserByName(username);
         if (user == null) {
-          LOG.debug("Cannot find user by username {}", username);
+          LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
           continue;
         }
         Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
         if (Util.isExternal(identity.getId())) {
-          LOG.debug("A external user with username {} Cannot be enrolled.", username);
+          LOG.warn("User {} is external, he cannot be enrolled.", username);
           continue;
         }
         if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
-          LOG.debug("The {} user already logged in.", username);
+          LOG.warn("User {} is already logged in, he cannot be enrolled", username);
           continue;
         }
         sendOnBoardingEmail((UserImpl) user, url);
@@ -877,7 +877,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         UserHandler userHandler = organizationService.getUserHandler();
         User user = userHandler.findUserByName(username, UserStatus.DISABLED);
         if (user == null) {
-          LOG.debug("Cannot find disabled user by username {}", username);
+          LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
           continue;
         }
         organizationService.getUserHandler().setEnabled(username, true, true);
@@ -889,16 +889,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         UserHandler userHandler = organizationService.getUserHandler();
         User user = userHandler.findUserByName(username, UserStatus.ENABLED);
         if (user == null) {
-          LOG.debug("Cannot find enabled user by username {}", username);
+          LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
           continue;
         }
         String currentUsername = ConversationState.getCurrent().getIdentity().getUserId();
         if (StringUtils.equals(currentUsername, user.getUserName())) {
-          LOG.warn("You cannot suspend your own account.");
+          LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
           continue;
         }
         if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
-          LOG.warn("You cannot suspend the superuser account {}.", username);
+          LOG.warn("Try to suspend superuser account {}. Not allowed", username);
           continue;
         }
         organizationService.getUserHandler().setEnabled(username, false, true);
