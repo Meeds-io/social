@@ -62,7 +62,7 @@
         <v-card-text v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.email') : $t('profileContactInformation.synchronizedUser.tooltip')" class="d-flex emailField py-0">
           <input
             v-model="userToSave.email"
-            :disabled="saving || userToSave.isInternal"
+            :disabled="saving || !userToSave.isInternal"
             type="email"
             class="ignore-vuetify-classes"
             maxlength="2000"
