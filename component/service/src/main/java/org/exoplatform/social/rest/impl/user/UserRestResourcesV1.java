@@ -61,6 +61,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -297,11 +298,30 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setExcludeExternal(excludeExternal);
-      filter.setEnabled(isEnabled == null ? true : Boolean.valueOf(isEnabled));
-      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
-      identities = list.load(offset, limit);
-      if(returnSize) {
-        totalSize = list.getSize();
+      filter.setEnabled(isEnabled == null || Boolean.parseBoolean(isEnabled));
+      if (!Boolean.parseBoolean(isEnabled) && q != null && !q.isEmpty()) {
+        User[] users;
+        UserSearchService userSearchService = CommonsUtils.getService(UserSearchService.class);
+        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        totalSize = usersListAccess.getSize();
+        int limitToFetch = limit;
+        if (totalSize < (offset + limitToFetch)) {
+          limitToFetch = totalSize - offset;
+        }
+        if (limitToFetch <= 0) {
+          users = new User[0];
+        } else {
+          users = usersListAccess.load(offset, limitToFetch);
+        }
+        identities = Arrays.stream(users)
+                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                           .toArray(Identity[]::new);
+      } else {
+        ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
+        identities = list.load(offset, limit);
+        if(returnSize) {
+          totalSize = list.getSize();
+        }
       }
     }
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
