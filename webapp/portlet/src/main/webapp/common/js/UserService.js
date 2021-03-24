@@ -335,3 +335,21 @@ export function cleanImportUsers(uploadId) {
     return data;
   });
 }
+
+export function multiSelectAction(action, selectedUsers) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/bulk/${action}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'PATCH',
+    body: JSON.stringify(selectedUsers),
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error when updating users');
+    } else {
+      return resp.json();
+    }
+  });
+}
+

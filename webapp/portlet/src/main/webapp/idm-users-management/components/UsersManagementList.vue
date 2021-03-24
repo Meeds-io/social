@@ -19,8 +19,9 @@
       </v-alert>
     </v-card-text>
     <v-data-table
-      :headers="isSuperUser ? superUserHeaders : headers"
+      :headers="headers"
       :items="filteredUsers"
+      v-model="selectedUsers"
       :loading="loading"
       :options.sync="options"
       :server-items-length="totalSize"
@@ -28,16 +29,17 @@
       :loading-text="$t('UsersManagement.loadingResults')"
       :no-results-text="$t('UsersManagement.noResultsFound')"
       :no-data-text="$t('UsersManagement.noData')"
+      show-select
       class="data-table-light-border">
       <template slot="item.lastConnexion" slot-scope="{ item }">
-        <div v-if="typeof item.lastConnexion == 'number'">
+        <div v-if="item.lastConnexion">
           <date-format
             :value="item.lastConnexion"
             :format="fullDateFormat"
             class="grey--text mr-1" />
         </div>
         <div v-else class="grey--text">
-          {{ item.lastConnexion }}
+          {{ item.connexionStatus }}
         </div>
       </template>
       <template slot="item.enrollmentDate" slot-scope="{ item }">
@@ -143,6 +145,18 @@
         </v-btn>
       </template>
     </v-data-table>
+    <v-alert
+      v-if="selectedUsersUpdated"
+      border="left"
+      class="userUpdated"
+      type="info"
+      close-icon="mdi-close"
+      colored-border
+      color="primary"
+      dismissible
+    >
+      {{ selectedUsersUpdated }}
+    </v-alert>
   </div>
 </template>
 
@@ -157,6 +171,8 @@ export default {
     user: null,
     currentUser: eXo.env.portal.userName,
     selectedUser: null,
+    selectedUsers: [],
+    selectedUsersUpdated: '',
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
@@ -219,64 +235,6 @@ export default {
         value: 'lastConnexion',
         align: 'center',
         sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.enrollment'),
-        value: 'enrollmentDate',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.status'),
-        value: 'enabled',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.source'),
-        value: 'isInternal',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.type'),
-        value: 'external',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.role'),
-        value: 'role',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.edit'),
-        value: 'edit',
-        align: 'center',
-        sortable: false,
-      }];
-    },
-    superUserHeaders() {
-      return [{
-        text: this.$t && this.$t('UsersManagement.userName'),
-        value: 'userName',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.firstName'),
-        value: 'firstName',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.lastName'),
-        value: 'lastName',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.email'),
-        value: 'email',
-        align: 'center',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.lastConnexion'),
-        value: 'lastConnexion',
-        align: 'center',
-        sortable: false,
       },{
         text: this.$t && this.$t('UsersManagement.enrollment'),
         value: 'enrollmentDate',
@@ -312,7 +270,8 @@ export default {
         value: 'delete',
         align: 'center',
         sortable: false,
-      }];
+        show : this.isSuperUser
+      }].filter(x => x.show == null || x.show === true);
     },
   },
   watch: {
@@ -322,6 +281,9 @@ export default {
     filter() {
       this.options.page = 1;
       this.searchUsers();
+    },
+    selectedUsers(selectedUsers) {
+      document.dispatchEvent( new CustomEvent('multiSelect', {detail: {usersSelected: selectedUsers.length > 0}}));
     },
     keyword() {
       this.options.page = 1;
@@ -343,11 +305,37 @@ export default {
       });
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
+    this.$root.$on('multiSelectAction', this.multiSelectAction);
   },
   methods: {
     updateSearchTerms(keyword, filter) {
       this.keyword = keyword;
       this.filter = filter;
+    },
+    multiSelectAction(action) {
+      const selectedUsers = [];
+      let msg ='';
+      if (this.selectedUsers.length > 0) {
+        for (let i = 0; i < this.selectedUsers.length; i++) {
+          selectedUsers.push(this.selectedUsers[i].userName);
+        }
+        this.selectedUsers = [];
+        this.loading = true;
+        this.$userService.multiSelectAction(action, selectedUsers).then(data => {
+          if (data.length > 0) {
+            msg = this.$t(`UsersManagement.selection.success.${  action}`);
+          }
+        }).finally(() => {
+          if (!this.initialized) {
+            this.$root.$emit('application-loaded');
+          }
+          this.searchUsers();
+          this.loading = false;
+          this.initialized = true;
+          this.selectedUsersUpdated = msg;
+          setTimeout(() => this.selectedUsersUpdated = '', 3000);
+        });
+      }
     },
     synchronizedTitle(synchronizedDate) {
       return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
