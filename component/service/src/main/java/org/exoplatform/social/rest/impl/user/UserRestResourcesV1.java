@@ -312,9 +312,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           users = new User[0];
         } else {
           users = usersListAccess.load(offset, limitToFetch);
-          if (!returnSize) {
-            totalSize = 0;
-          }
         }
         identities = Arrays.stream(users)
                            .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
