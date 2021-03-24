@@ -679,12 +679,18 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                                  long offset,
                                                  long limit,
                                                  boolean forceLoadOrReloadProfile) throws IdentityStorageException {
-    Identity identity = null;
+    Identity viewerIdentity = null;
     if (profileFilter.getViewerIdentity() != null) {
-      identity = profileFilter.getViewerIdentity();
+      viewerIdentity = profileFilter.getViewerIdentity();
     }
     if (OrganizationIdentityProvider.NAME.equals(providerId)) {
-      return getProfileSearchConnector().search(identity, profileFilter, type, offset, limit);
+      List<Identity> identities = getProfileSearchConnector().search(viewerIdentity, profileFilter, type, offset, limit);
+      if (forceLoadOrReloadProfile) {
+        for (Identity identity : identities) {
+          identity.setProfile(loadProfile(identity.getProfile()));
+        }
+      }
+      return identities;
     } else {
       throw new IllegalStateException("Can't search identities with provider id = " + providerId);
     }
