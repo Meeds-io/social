@@ -9,6 +9,7 @@ import java.util.*;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.UserStatus;
 import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.IOUtil;
@@ -614,6 +615,14 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
     uploadId = "users.csv";
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
@@ -657,6 +666,33 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     for(int i=0;i<(userNames.size());i++) {
     boolean result = organizationService.getUserHandler().authenticate(userNames.get(i), passWords.get(i));
     assertTrue(result);
+    }
+
+    // Test import enabled or disabled users
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(2, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    boolean result = false;
+    for (int i = 0; i < (userNames.size()); i++) {
+      String userEnabled = organizationService.getUserHandler().findUserByName(userNames.get(i), UserStatus.ENABLED).getUserName();
+      if (StringUtils.isNotBlank(userEnabled)) {
+        result = organizationService.getUserHandler().authenticate(userNames.get(i), passWords.get(i));
+        assertTrue(result);
+      } else {
+        result = organizationService.getUserHandler().authenticate(userNames.get(i), passWords.get(i));
+        assertFalse(result);
+      }
     }
 
     uploadId = "users.csv";

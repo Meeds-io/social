@@ -1474,6 +1474,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (onboardUser) {
       sendOnBoardingEmail(user, url);
     }
+
+    if (enabledUser) {
+      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
+    }
     
     // Delete imported User object properties
     userObject.remove("userName");
@@ -1495,9 +1499,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     if (warnMessage != null) {
       userImportResultEntity.addWarnMessage(userName, warnMessage);
-    }
-    if (enabledUser) {
-      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
     }
     return userName;
   }
