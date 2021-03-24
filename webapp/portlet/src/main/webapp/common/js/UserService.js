@@ -307,7 +307,7 @@ export function checkImportUsersProgress(uploadId) {
       return resp.json();
     }
   }).then(data => {
-    if (data && typeof data === 'string') {
+    if (typeof data === 'string') {
       throw new Error(data);
     }
     return data;

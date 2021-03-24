@@ -1413,9 +1413,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, errorMessage);
       return userName;
     }
-    String status = userObject.getString("status").toLowerCase();
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
-    boolean statusUser = !userObject.isNull("status") && status.equals("false");
+    boolean enabledUser = !userObject.isNull("enabled") && userObject.getString("enabled").toLowerCase().equals("false");
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null ) {
@@ -1442,29 +1441,33 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     if (!userObject.isNull("groups")) {
       String groups = userObject.getString("groups");
-      List<String> groupsList = Arrays.asList(groups.split(";"));
-      for (String groupMembershipExpression : groupsList) {
-        String membershipType =
-                              groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
-                                                                      : SpaceUtils.MEMBER;
-        String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
-                                                                 : groupMembershipExpression;
-        Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
-        if (groupObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
-          continue;
+      if (StringUtils.isNotBlank(groups)) {
+        List<String> groupsList = Arrays.asList(groups.split(";"));
+        for (String groupMembershipExpression : groupsList) {
+          String membershipType =
+                  groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
+                          : SpaceUtils.MEMBER;
+          String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
+                  : groupMembershipExpression;
+          Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
+          if (groupObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
+            continue;
+          }
+          MembershipType membershipTypeObject =
+                  organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
+          if (membershipTypeObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
+            continue;
+          }
+          try {
+            organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
+          } catch (Exception e) {
+            userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
+          }
         }
-        MembershipType membershipTypeObject =
-                                            organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
-        if (membershipTypeObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
-          continue;
-        }
-        try {
-          organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
-        } catch (Exception e) {
-          userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
-        }
+      } else {
+        userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:");
       }
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
@@ -1479,6 +1482,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("password");
     userObject.remove("email");
     userObject.remove("groups");
+    userObject.remove("enabled");
 
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     String warnMessage = null;
@@ -1492,8 +1496,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (warnMessage != null) {
       userImportResultEntity.addWarnMessage(userName, warnMessage);
     }
-    if (statusUser) {
-      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(status), true);
+    if (enabledUser) {
+      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
     }
     return userName;
   }
