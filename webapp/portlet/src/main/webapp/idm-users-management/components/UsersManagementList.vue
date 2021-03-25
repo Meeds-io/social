@@ -423,7 +423,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
