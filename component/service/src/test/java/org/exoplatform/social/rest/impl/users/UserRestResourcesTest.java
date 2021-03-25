@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.gatein.common.io.IOTools;
 
 import org.exoplatform.commons.utils.IOUtil;
@@ -518,6 +521,14 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
+    
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
 
     uploadId = "users.csv";    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId+"&progress=true").getBytes());
     assertNotNull(response);
@@ -560,9 +571,65 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(importResultEntity.getWarnMessages());
 
     for(int i=0;i<(userNames.size());i++) {
-    boolean result = organizationService.getUserHandler().authenticate(userNames.get(i), passWords.get(i));
-    assertTrue(result);
+    String userEnabled = organizationService.getUserHandler().findUserByName(userNames.get(i), UserStatus.ANY).getUserName();
+      boolean result = organizationService.getUserHandler().authenticate(userEnabled, passWords.get(i));
+      assertTrue(result);
     }
+
+    // Test import enabled or disabled users
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(2, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    String  userEnabled = organizationService.getUserHandler().findUserByName("usera", UserStatus.ANY).getUserName();
+    boolean result = organizationService.getUserHandler().authenticate(userEnabled, "successuser11");
+    assertTrue(result);
+    String  userDisabled = organizationService.getUserHandler().findUserByName("userb", UserStatus.DISABLED).getUserName();
+    try {
+      organizationService.getUserHandler().authenticate(userDisabled, "successuser22");
+      fail("disabled user");
+    } catch (Exception e1) {
+      // Expected
+    }
+    
+    uploadId = "users-update-status.csv";
+    resource = getClass().getClassLoader().getResource("users-update-status.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update-status.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    // Test update status
+    uploadId = "users-update-status.csv";
+    resource = getClass().getClassLoader().getResource("users-update-status.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update-status.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(2, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    // Status after update
+    boolean userStatusUpdated1 = organizationService.getUserHandler().findUserByName("usera", UserStatus.DISABLED).isEnabled();
+    boolean userStatusUpdated2 = organizationService.getUserHandler().findUserByName("userb", UserStatus.ENABLED).isEnabled();
+    assertFalse(userStatusUpdated1);
+    assertTrue(userStatusUpdated2);
 
     uploadId = "users.csv";
     uploadResource = uploadService.getUploadResource(uploadId);
