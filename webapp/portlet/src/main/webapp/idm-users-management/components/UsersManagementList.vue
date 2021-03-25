@@ -338,7 +338,11 @@ export default {
       }
     },
     synchronizedTitle(synchronizedDate) {
-      return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
+      if (synchronizedDate) {
+        return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
+      } else {
+        return this.$t('UsersManagement.source.synchronized.notProvided');
+      }
     },
     createdTitle(createdDate) {
       return this.$t('UsersManagement.source.createdUser', {0: this.formatDate(createdDate)});
