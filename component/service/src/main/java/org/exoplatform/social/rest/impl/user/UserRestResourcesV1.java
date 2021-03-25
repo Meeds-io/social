@@ -1328,7 +1328,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (sync) {
       importUsers(fileLocation, userImportResultEntity, locale, url);
     } else {
-      importUsersAsync(fileLocation, userImportResultEntity, locale, url);
+      importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
     }
     return null;
   }
@@ -1336,8 +1336,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private void importUsersAsync(String fileLocation,
                                 UserImportResultEntity userImportResultEntity,
                                 Locale locale,
-                                StringBuilder url) {
-    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale, url));
+                                StringBuilder url,
+                                ConversationState currentState) {
+    importExecutorService.execute(() -> {
+      ConversationState.setCurrent(currentState);
+      this.importUsers(fileLocation, userImportResultEntity, locale, url);
+    });
   }
 
   private void importUsers(String fileLocation,
@@ -1566,9 +1570,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
     Identity userIdentity = getUserIdentity(username);
-    if(userIdentity == null) {
-      userIdentity =  identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-    }
     Profile profile = userIdentity.getProfile();
 
     Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
