@@ -1414,7 +1414,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return userName;
     }
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
-    boolean enabledUser = !userObject.isNull("enabled") && userObject.getString("enabled").toLowerCase().equals("false");
+    boolean userStatus = !userObject.isNull("enabled") && ( "true".equalsIgnoreCase(userObject.getString("enabled")) ||"false".equalsIgnoreCase(userObject.getString("enabled")));
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null ) {
@@ -1423,6 +1423,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       // skipping password overwrite from csvLine
       user.setPassword(null);
+      if (userStatus) {
+        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
+      }
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
@@ -1475,10 +1478,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       sendOnBoardingEmail(user, url);
     }
 
-    if (enabledUser) {
+    if (userStatus) {
       organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
     }
-    
+
     // Delete imported User object properties
     userObject.remove("userName");
     userObject.remove("firstName");
