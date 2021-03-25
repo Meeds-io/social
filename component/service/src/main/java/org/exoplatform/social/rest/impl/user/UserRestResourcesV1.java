@@ -61,6 +61,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -188,6 +189,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private UserStateService userStateService;
 
   private SpaceService spaceService;
+  
+  private UserSearchService userSearchService;
 
   public static enum ACTIVITY_STREAM_TYPE {
     all, owner, connections, spaces
@@ -211,7 +214,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              RelationshipManager relationshipManager,
                              UserStateService userStateService,
                              SpaceService spaceService,
-                             UploadService uploadService) {
+                             UploadService uploadService,
+                             UserSearchService userSearchService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -219,6 +223,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.userStateService = userStateService;
     this.spaceService = spaceService;
     this.uploadService = uploadService;
+    this.userSearchService = userSearchService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
@@ -253,7 +258,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") boolean excludeExternal,
-                           @ApiParam(value = "Is enabled user", required = false, defaultValue = "true") @QueryParam("isEnabled") String isEnabled,
+                           @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -297,11 +302,29 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setExcludeExternal(excludeExternal);
-      filter.setEnabled(isEnabled == null ? true : Boolean.valueOf(isEnabled));
-      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
-      identities = list.load(offset, limit);
-      if(returnSize) {
-        totalSize = list.getSize();
+      filter.setEnabled(!isDisabled);
+      if (isDisabled && q != null && !q.isEmpty()) {
+        User[] users;
+        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        totalSize = usersListAccess.getSize();
+        int limitToFetch = limit;
+        if (totalSize < (offset + limitToFetch)) {
+          limitToFetch = totalSize - offset;
+        }
+        if (limitToFetch <= 0) {
+          users = new User[0];
+        } else {
+          users = usersListAccess.load(offset, limitToFetch);
+        }
+        identities = Arrays.stream(users)
+                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                           .toArray(Identity[]::new);
+      } else {
+        ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
+        identities = list.load(offset, limit);
+        if(returnSize) {
+          totalSize = list.getSize();
+        }
       }
     }
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();

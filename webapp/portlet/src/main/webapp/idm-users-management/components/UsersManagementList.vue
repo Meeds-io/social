@@ -393,8 +393,8 @@ export default {
       }
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
-      const isEnabled = this.filter === 'ENABLED' ? 'true':'false';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isEnabled=${isEnabled}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
