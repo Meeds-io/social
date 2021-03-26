@@ -103,9 +103,9 @@ export default {
   methods: {
     open() {
       this.emailChannel = this.settings && this.settings.emailChannel;
+      const pluginActiveChannels = this.group && this.group.pluginInfos[0] && this.group.pluginInfos[0].allChannelActive || [];
       const digestChoice = this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.emailChannel && choice.pluginId === this.plugin.type);
       this.digest = digestChoice && digestChoice.value;
-
       this.listChannelOptions = this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.active && choice.channelActive && choice.pluginId === this.plugin.type) || [];
       this.channels = {};
       this.settings.channels.forEach(channelId => {
@@ -113,7 +113,7 @@ export default {
           this.listChannelOptions.push({
             channelId: channelId,
             active: false,
-            channelActive: this.settings.channelStatus[channelId],
+            channelActive: this.settings.channelStatus[channelId] && pluginActiveChannels.includes(channelId),
           });
         }
         this.channels[channelId] = false;
