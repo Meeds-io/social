@@ -144,7 +144,9 @@ export default {
     watchProgress() {
       if (this.uploadId && !this.finished) {
         return this.$userService.checkImportUsersProgress(this.uploadId)
-          .then(result => this.progress = result)
+          .then(result => {
+            window.setTimeout(() => this.progress = result,200);
+          })
           .then(() => this.$nextTick())
           .catch(error => {
             if (String(error).indexOf('SyntaxError') < 0) {

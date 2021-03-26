@@ -1,0 +1,3 @@
+userName,firstName,lastName,password,email,groups,enabled,aboutMe,timeZone,company,position
+usera,usera,usera,successuser11,usera@example.com,*:/platform/users;member:/platform/administrators,true,aboutMe2,timeZone2,company2,position2
+userb,userb,userb,successuser22,userb@example.com,*:/platform/users;member:/platform/administrators,false,aboutMe2,timeZone2,company2,position2
