@@ -39,7 +39,7 @@
             class="grey--text mr-1" />
         </div>
         <div v-else class="grey--text">
-          {{ item.connexionStatus }}
+          {{ item.connectionStatus }}
         </div>
       </template>
       <template slot="item.enrollmentDate" slot-scope="{ item }">
@@ -427,7 +427,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.connectionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
