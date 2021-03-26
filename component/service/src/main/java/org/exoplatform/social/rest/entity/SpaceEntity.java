@@ -187,6 +187,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("isRedactor");
   }
 
+  public SpaceEntity setCreatedTime(String creationTime) {
+    setProperty("createdTime", creationTime);
+    return this;
+  }
+
+  public String getCreatedTime() {
+    return (String) getProperty("createdTime");
+  }
+
   public SpaceEntity setCanEdit(boolean canEdit) {
     setProperty("canEdit", canEdit);
     return this;
