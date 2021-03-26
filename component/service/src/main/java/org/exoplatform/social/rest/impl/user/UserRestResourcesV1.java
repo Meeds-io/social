@@ -61,7 +61,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -298,30 +297,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setExcludeExternal(excludeExternal);
-      filter.setEnabled(isEnabled == null || Boolean.parseBoolean(isEnabled));
-      if (!Boolean.parseBoolean(isEnabled) && q != null && !q.isEmpty()) {
-        User[] users;
-        UserSearchService userSearchService = CommonsUtils.getService(UserSearchService.class);
-        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
-        totalSize = usersListAccess.getSize();
-        int limitToFetch = limit;
-        if (totalSize < (offset + limitToFetch)) {
-          limitToFetch = totalSize - offset;
-        }
-        if (limitToFetch <= 0) {
-          users = new User[0];
-        } else {
-          users = usersListAccess.load(offset, limitToFetch);
-        }
-        identities = Arrays.stream(users)
-                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
-                           .toArray(Identity[]::new);
-      } else {
-        ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
-        identities = list.load(offset, limit);
-        if(returnSize) {
-          totalSize = list.getSize();
-        }
+      filter.setEnabled(isEnabled == null ? true : Boolean.valueOf(isEnabled));
+      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
+      identities = list.load(offset, limit);
+      if(returnSize) {
+        totalSize = list.getSize();
       }
     }
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
@@ -1328,7 +1308,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (sync) {
       importUsers(fileLocation, userImportResultEntity, locale, url);
     } else {
-      importUsersAsync(fileLocation, userImportResultEntity, locale, url);
+      importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
     }
     return null;
   }
@@ -1336,8 +1316,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private void importUsersAsync(String fileLocation,
                                 UserImportResultEntity userImportResultEntity,
                                 Locale locale,
-                                StringBuilder url) {
-    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale, url));
+                                StringBuilder url,
+                                ConversationState currentState) {
+    importExecutorService.execute(() -> {
+      ConversationState.setCurrent(currentState);
+      this.importUsers(fileLocation, userImportResultEntity, locale, url);
+    });
   }
 
   private void importUsers(String fileLocation,
@@ -1414,6 +1398,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return userName;
     }
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
+    boolean userStatus = !userObject.isNull("enabled") && ( "true".equalsIgnoreCase(userObject.getString("enabled")) ||"false".equalsIgnoreCase(userObject.getString("enabled")));
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
     if (existingUser != null ) {
@@ -1422,6 +1407,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       // skipping password overwrite from csvLine
       user.setPassword(null);
+      if (userStatus) {
+        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
+      }
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
@@ -1440,36 +1428,44 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     if (!userObject.isNull("groups")) {
       String groups = userObject.getString("groups");
-      List<String> groupsList = Arrays.asList(groups.split(";"));
-      for (String groupMembershipExpression : groupsList) {
-        String membershipType =
-                              groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
-                                                                      : SpaceUtils.MEMBER;
-        String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
-                                                                 : groupMembershipExpression;
-        Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
-        if (groupObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
-          continue;
+      if (StringUtils.isNotBlank(groups)) {
+        List<String> groupsList = Arrays.asList(groups.split(";"));
+        for (String groupMembershipExpression : groupsList) {
+          String membershipType =
+                  groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
+                          : SpaceUtils.MEMBER;
+          String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
+                  : groupMembershipExpression;
+          Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
+          if (groupObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
+            continue;
+          }
+          MembershipType membershipTypeObject =
+                  organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
+          if (membershipTypeObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
+            continue;
+          }
+          try {
+            organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
+          } catch (Exception e) {
+            userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
+          }
         }
-        MembershipType membershipTypeObject =
-                                            organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
-        if (membershipTypeObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
-          continue;
-        }
-        try {
-          organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
-        } catch (Exception e) {
-          userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
-        }
+      } else {
+        userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:");
       }
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
       sendOnBoardingEmail(user, url);
     }
-    
+
+    if (userStatus) {
+      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
+    }
+
     // Delete imported User object properties
     userObject.remove("userName");
     userObject.remove("firstName");
@@ -1477,6 +1473,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("password");
     userObject.remove("email");
     userObject.remove("groups");
+    userObject.remove("enabled");
 
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     String warnMessage = null;

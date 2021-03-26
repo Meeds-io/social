@@ -338,7 +338,11 @@ export default {
       }
     },
     synchronizedTitle(synchronizedDate) {
-      return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
+      if (synchronizedDate) {
+        return this.$t('UsersManagement.source.synchronized', {0: this.formatDate(synchronizedDate)});
+      } else {
+        return this.$t('UsersManagement.source.synchronized.notProvided');
+      }
     },
     createdTitle(createdDate) {
       return this.$t('UsersManagement.source.createdUser', {0: this.formatDate(createdDate)});
@@ -423,7 +427,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
