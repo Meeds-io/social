@@ -3,12 +3,10 @@
 <%@ page import="org.exoplatform.web.login.recovery.PasswordRecoveryService" %>
 
 <%
-  PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
   boolean ssoEnabled = SSOUtils.isSSOEnabled();
-  boolean allowChangeExternalPassword = passwordRecoveryService.allowChangePassword(request.getRemoteUser());
 %>
 
-<% if (!ssoEnabled && allowChangeExternalPassword) { %>
+<% if (!ssoEnabled) { %>
   <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
