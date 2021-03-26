@@ -32,9 +32,9 @@
       show-select
       class="data-table-light-border">
       <template slot="item.lastConnexion" slot-scope="{ item }">
-        <div v-if="item.lastConnexion">
+        <div v-if="item.lastLoginTime">
           <date-format
-            :value="item.lastConnexion"
+            :value="item.lastLoginTime"
             :format="fullDateFormat"
             class="grey--text mr-1" />
         </div>
@@ -417,8 +417,8 @@ export default {
           if (user.createdDate) {
             user.createdDate = Number(user.createdDate);
           }
-          if (user.lastConnexion) {
-            user.lastConnexion = Number(user.lastConnexion);
+          if (user.lastLoginTime) {
+            user.lastLoginTime = Number(user.lastLoginTime);
             if (user.enrollmentDate != null) {
               user.enrollmentStatus = 'invitationAccepted';
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
@@ -427,7 +427,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.lastConnexion = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.connexionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
