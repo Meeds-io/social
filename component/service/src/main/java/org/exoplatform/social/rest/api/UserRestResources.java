@@ -41,7 +41,8 @@ public interface UserRestResources extends SocialRest {
    * @param q value that an user's name match
    * @param status filter only online users
    * @param spaceId filter only space members
-   * @param isEnabled enabled users
+   * @param excludeExternal exclude external users
+   * @param isDisabled only disabled users
    * @return List of users in json format.
    * @throws Exception
    */
