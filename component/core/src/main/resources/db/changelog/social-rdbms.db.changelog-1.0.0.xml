@@ -756,6 +756,17 @@
         </addColumn>
   </changeSet>
   
+  <changeSet author="social" id="1.0.0-77">
+      <createTable tableName="SOC_MALWARE_DETECTION">
+          <column name="MALWARE_DETECTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+              <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_MALWARE_DETECTION_INFECTED_ITEMS"/>
+          </column>
+          <column name="INFECTED_ITEM_ID" type="NVARCHAR(200)">
+              <constraints nullable="false"/>
+          </column>
+      </createTable>
+  </changeSet>
+  
   <changeSet author="social" id="1.0.0-77" dbms="oracle,postgresql">
       <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>
   </changeSet>
