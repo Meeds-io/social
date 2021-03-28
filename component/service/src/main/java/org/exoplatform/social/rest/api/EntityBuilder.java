@@ -201,7 +201,7 @@ public class EntityBuilder {
         userEntity.setIsInternal(user.isInternalStore());
         userEntity.setCreatedDate(String.valueOf(user.getCreatedDate().getTime()));
         if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
-          userEntity.setLastConnexion(String.valueOf(user.getLastLoginTime().getTime()));
+          userEntity.setLastLoginTime(String.valueOf(user.getLastLoginTime().getTime()));
         }
       }
     } catch (Exception e) {
