@@ -9,9 +9,10 @@ import java.util.*;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.IOUtil;
@@ -20,7 +21,6 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -40,6 +40,10 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class UserRestResourcesTest extends AbstractResourceTest {
 
   private ActivityManager     activityManager;
@@ -57,6 +61,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private UserStateService    userStateService;
 
   private MockUploadService   uploadService;
+
+  private UserSearchService   userSearchService;
 
   private Identity            rootIdentity;
 
@@ -79,6 +85,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
+    userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
@@ -104,6 +111,108 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(4, collections.getEntities().size());
+  }
+
+  public void testSearchUsers() throws Exception {
+
+    startSessionAs("root");
+    //when
+    ContainerResponse response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+    //then
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
+    //when
+    organizationService.getUserHandler().setEnabled("mary", false, false);
+    response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    //then
+    organizationService.getUserHandler().setEnabled("mary", true, false);
+    response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+    
+    // test when isDisabled false
+    removeResource(UserRestResourcesV1.class);
+    identityManager = mock(IdentityManager.class);
+    
+    ListAccess<Identity> identityListAccess = new ListAccess<Identity>() {
+      public Identity[] load(int index, int length) {
+        List<Identity> identities = new ArrayList();
+        identities.add(maryIdentity);
+        Identity[] result = new Identity[identities.size()];
+        return identities.toArray(result);
+      }
+
+      public int getSize() {
+        return 1;
+      }
+    };
+
+    when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
+
+    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(
+            userACL,
+            organizationService,
+            identityManager,
+            relationshipManager,
+            userStateService,
+            spaceService,
+            uploadService,
+            userSearchService);
+    registry(userRestResources);
+
+    //when
+    response = service("GET", getURLResource("users?q=mar&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    //when
+    response = service("GET", getURLResource("users?q=mar&isDisabled=false&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+  }
+   
+  public void testGetDisabledUsers() throws Exception {
+    startSessionAs("root");
+    //when
+    maryIdentity.setEnable(false);
+    johnIdentity.setEnable(false);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+    
+    //when
+    maryIdentity.setEnable(true);
+    johnIdentity.setEnable(true);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
   }
 
   public void testGetAllUsersWithExtraFields() throws Exception {
@@ -725,6 +834,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     boolean userStatusUpdated2 = organizationService.getUserHandler().findUserByName("userb", UserStatus.ENABLED).isEnabled();
     assertFalse(userStatusUpdated1);
     assertTrue(userStatusUpdated2);
+    organizationService.getUserHandler().setEnabled("usera", true, true);
 
     uploadId = "users.csv";
     uploadResource = uploadService.getUploadResource(uploadId);

@@ -41,7 +41,8 @@ public interface UserRestResources extends SocialRest {
    * @param q value that an user's name match
    * @param status filter only online users
    * @param spaceId filter only space members
-   * @param isEnabled enabled users
+   * @param excludeExternal exclude external users
+   * @param isDisabled only disabled users
    * @return List of users in json format.
    * @throws Exception
    */
@@ -51,7 +52,7 @@ public interface UserRestResources extends SocialRest {
                                     @QueryParam("status") String status,
                                     @QueryParam("spaceId") String spaceId,
                                     @QueryParam("excludeExternal") boolean excludeExternal,
-                                    @QueryParam("isEnabled") String isEnabled,
+                                    @QueryParam("isDisabled") boolean isDisabled,
                                     @QueryParam("offset") int offset,
                                     @QueryParam("limit") int limit,
                                     @QueryParam("returnSize") boolean returnSize,
