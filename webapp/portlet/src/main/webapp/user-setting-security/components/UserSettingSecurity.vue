@@ -13,14 +13,17 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn
-                small
-                icon
-                @click="openSecurityDetail">
-                <v-icon size="24" class="text-sub-title">
-                  fa-caret-right
-                </v-icon>
-              </v-btn>
+              <span v-exo-tooltip.bottom.body="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
+                <v-btn
+                  :disabled="!allowedToChangePassword"
+                  small
+                  icon
+                  @click="openSecurityDetail">
+                  <v-icon size="24" class="text-sub-title">
+                    fa-caret-right
+                  </v-icon>
+                </v-btn>
+              </span>
             </v-list-item-action>
           </v-list-item>
         </v-list>
@@ -36,6 +39,7 @@ export default {
       .toString()
       .toString()}`,
     displayed: true,
+    allowedToChangePassword: false,
     displayDetails: false,
   }),
   watch: {
@@ -49,6 +53,10 @@ export default {
         this.displayed = false;
       }
     });
+    this.$userService.isSynchronizedUserAllowedToChangePassword().then(
+      (data) => {
+        this.allowedToChangePassword = data.isSynchronizedUserAllowedToChangePassword === 'true';
+      });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   mounted() {
