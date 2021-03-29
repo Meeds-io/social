@@ -142,6 +142,7 @@ public class ProfileSearchConnector {
       String lastName = (String) hitSource.get("lastName");
       String avatarUrl = (String) hitSource.get("avatarUrl");
       String email = (String) hitSource.get("email");
+      String external = (String) hitSource.get("external");
       String identityId = (String) ((JSONObject) jsonHit).get("_id");
       identity = new Identity(OrganizationIdentityProvider.NAME, userName);
       identity.setId(identityId);
@@ -156,6 +157,9 @@ public class ProfileSearchConnector {
       p.setProperty(Profile.POSITION, position);
       p.setProperty(Profile.EMAIL, email);
       p.setProperty(Profile.USERNAME, userName);
+      if (external != null) {
+        p.setProperty(Profile.EXTERNAL, external);
+      }
       if( (String) profile.getProperty(Profile.SYNCHRONIZED_DATE) != null && !((String) profile.getProperty(Profile.SYNCHRONIZED_DATE)).isEmpty()){
         p.setProperty(Profile.SYNCHRONIZED_DATE, (String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
       }
