@@ -176,6 +176,9 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    connectionStatus: null,
+    userType: null,
+    enrollmentStatus: [],
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -325,6 +328,7 @@ export default {
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
     this.$root.$on('multiSelectAction', this.multiSelectAction);
+    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   methods: {
     updateSearchTerms(keyword, filter) {
@@ -546,6 +550,12 @@ export default {
         this.loading = false;
         this.initialized = true;
       });
+    },
+    applyAdvancedFilter(connectionStatus, userType, enrollmentStatus) {
+      this.connectionStatus= connectionStatus;
+      this.userType= userType;
+      this.enrollmentStatus= enrollmentStatus;
+      this.searchUsers();
     }
   },
 };

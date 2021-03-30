@@ -5,6 +5,7 @@
       <users-management-list />
       <users-management-user-form-drawer />
       <users-management-user-membership-drawer />
+      <users-management-filter-drawer />
     </v-card>
   </v-app>
 </template>

@@ -52,6 +52,12 @@
         </option>
       </select>
     </v-scale-transition>
+    <v-btn min-width="auto" outlined @click="$root.$emit('advancedFilter', connectionStatus, userType, enrollmentStatus)">
+      <i class="uiSettingsIcon"></i>
+      <div v-if="numberOfFilters > 0" class="pb-1">
+        ({{ numberOfFilters }})
+      </div>
+    </v-btn>
   </v-toolbar>
 </template>
 
@@ -62,6 +68,10 @@ export default {
     initialized: false,
     keyword: null,
     usersSelected: false,
+    numberOfFilters: 0,
+    connectionStatus: null,
+    userType: null,
+    enrollmentStatus: []
   }),
   watch: {
     keyword() {
@@ -73,6 +83,7 @@ export default {
   },
   created() {
     document.addEventListener('multiSelect', this.updateSelectedUsers);
+    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   updated() {
     // Workaround to hide DropDown Menu on initialization
@@ -86,6 +97,12 @@ export default {
     multiSelectAction(action) {
       this.$root.$emit('multiSelectAction', action);
     },
+    applyAdvancedFilter(connectionStatus, userType, enrollmentStatus) {
+      this.connectionStatus = connectionStatus;
+      this.userType = userType;
+      this.enrollmentStatus = enrollmentStatus;
+      this.numberOfFilters = enrollmentStatus.length + (userType != null) + (connectionStatus != null);
+    }
   }
 };
 </script>
