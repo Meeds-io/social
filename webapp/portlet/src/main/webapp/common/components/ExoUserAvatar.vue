@@ -3,17 +3,17 @@
     <a
       :id="id"
       :href="url"
-      class="flex-nowrap flex-shrink-0 d-flex">
+      class="flex-nowrap flex-shrink-0 d-flex text-truncate container--fluid">
       <v-avatar
         :size="size"
         :class="avatarClass"
         class="pull-left my-auto">
         <img :src="avatarUrl" :alt="title"/>
       </v-avatar>
-      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column">
+      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column text-truncate">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
           {{ fullname }}
-          <span v-if="isExternal" class="grey--text">{{ externalTag }} </span>
+          <span v-if="isExternal" class="muted">{{ externalTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
           <slot name="subTitle"></slot>
@@ -38,6 +38,14 @@ export default {
     fullname: {
       type: String,
       default: () => null,
+    },
+    external: {
+      type: Boolean,
+      default: false,
+    },
+    retrieveExtraInformation: {
+      type: Boolean,
+      default: true,
     },
     boldTitle: {
       type: Boolean,
@@ -89,19 +97,27 @@ export default {
         .toString()
         .toString()}`,
       isExternal : false,
-      defaultTag : '',
     };
   },
   computed: {
     externalTag() {
-      return this.defaultTag.concat(' (').concat(this.$t('userAvatar.external.label')).concat(')');
+      return `( ${this.$t('userAvatar.external.label')} )`;
+    },
+  },
+  watch: {
+    external() {
+      this.isExternal = this.external && Boolean(this.external) || false;
     },
   },
   created() {
-    this.$userService.getUser(this.username)
-      .then(user => {
-        this.isExternal = user.external === 'true';
-      });
+    if (this.retrieveExtraInformation) {
+      this.$userService.getUser(this.username)
+        .then(user => {
+          this.isExternal = user.external === 'true';
+        });
+    } else {
+      this.isExternal = this.external;
+    }
   },
   mounted() {
     if (this.username && this.tiptip) {
