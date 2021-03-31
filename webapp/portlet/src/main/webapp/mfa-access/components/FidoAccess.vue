@@ -88,30 +88,36 @@ export default {
         fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/fido/startAuthentication`, {
           method: 'GET',
           credentials: 'include',
-        }).then(resp => resp && resp.ok && resp.json())
-          .then(options => {
-            console.log(options);
+        }).then(resp => {
+          if (resp && resp.ok) {
+            resp.json().then(options => {
+              console.log(options);
 
-            const requestOptions = {};
-            requestOptions.challenge = this.strToBin(options.challenge);
+              const requestOptions = {};
+              requestOptions.challenge = this.strToBin(options.challenge);
 
-            if ('rpId' in options) {
-              requestOptions.rpId = options.rpId;
-            }
-            if ('allowCredentials' in options) {
-              requestOptions.allowCredentials = this.credentialListConversion(options.allowCredentials);
-            }
-            console.log('sending assertion request:');
-            console.log(requestOptions);
-            navigator.credentials.get({
-              'publicKey': requestOptions
-            }).then(assertion => {
-              this.finishAuthentication(assertion);
-            }).catch((err) => {
-              this.changeScreen('error');
-              console.error('Unable to get credentials', err);
+              if ('rpId' in options) {
+                requestOptions.rpId = options.rpId;
+              }
+              if ('allowCredentials' in options) {
+                requestOptions.allowCredentials = this.credentialListConversion(options.allowCredentials);
+              }
+              console.log('sending assertion request:');
+              console.log(requestOptions);
+              navigator.credentials.get({
+                'publicKey': requestOptions
+              }).then(assertion => {
+                this.finishAuthentication(assertion);
+              }).catch((err) => {
+                this.changeScreen('error');
+                console.error('Unable to get credentials', err);
+              });
             });
-          });
+          } else {
+            this.changeScreen('error');
+            console.error('Error when starting authentication');
+          }
+        });
       } else {
         this.changeScreen('error');
         console.error('WebAuthn is not available on this browser');
@@ -175,46 +181,51 @@ export default {
         fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/fido/startRegistration`, {
           method: 'GET',
           credentials: 'include',
-        }).then(resp => resp && resp.ok && resp.json())
-          .then(options => {
-            console.log(options);
+        }).then(resp => {
+          if (resp && resp.ok) {
+            resp.json().then(options => {
+              console.log(options);
+              const makeCredentialOptions = {};
+              makeCredentialOptions.rp = options.rp;
+              makeCredentialOptions.user = options.user;
+              makeCredentialOptions.user.id = this.strToBin(options.user.id);
+              makeCredentialOptions.challenge = this.strToBin(options.challenge);
+              makeCredentialOptions.pubKeyCredParams = options.pubKeyCredParams;
 
-            const makeCredentialOptions = {};
-            makeCredentialOptions.rp = options.rp;
-            makeCredentialOptions.user = options.user;
-            makeCredentialOptions.user.id = this.strToBin(options.user.id);
-            makeCredentialOptions.challenge = this.strToBin(options.challenge);
-            makeCredentialOptions.pubKeyCredParams = options.pubKeyCredParams;
+              if ('authenticatorSelection' in options) {
+                makeCredentialOptions.authenticatorSelection = options.authenticatorSelection;
+              }
+              if ('attestation' in options) {
+                makeCredentialOptions.attestation = options.attestation;
+              }
+              if ('excludeCredentials' in options) {
+                makeCredentialOptions.excludeCredentials = this.credentialListConversion(options.excludeCredentials);
+              }
 
-            if ('authenticatorSelection' in options) {
-              makeCredentialOptions.authenticatorSelection = options.authenticatorSelection;
-            }
-            if ('attestation' in options) {
-              makeCredentialOptions.attestation = options.attestation;
-            }
-            if ('excludeCredentials' in options) {
-              makeCredentialOptions.excludeCredentials = this.credentialListConversion(options.excludeCredentials);
-            }
+              console.log('sending attestation request:');
+              console.log(makeCredentialOptions);
+              if (makeCredentialOptions.excludeCredentials.length>0) {
+                //at least one authenticator is registred
+                //so we should make authentication instead of register
+                this.startAuthentication();
+              } else {
 
-            console.log('sending attestation request:');
-            console.log(makeCredentialOptions);
-            if (makeCredentialOptions.excludeCredentials.length>0) {
-              //at least one authenticator is registred
-              //so we should make authentication instead of register
-              this.startAuthentication();
-            } else {
-
-              this.changeScreen('register');
-              navigator.credentials.create({
-                'publicKey': makeCredentialOptions
-              }).then(attestation => {
-                this.finishRegistration(attestation);
-              }).catch((err) => {
-                this.changeScreen('error');
-                console.error('Unable to create credentials', err);
-              });
-            }
-          });
+                this.changeScreen('register');
+                navigator.credentials.create({
+                  'publicKey': makeCredentialOptions
+                }).then(attestation => {
+                  this.finishRegistration(attestation);
+                }).catch((err) => {
+                  this.changeScreen('error');
+                  console.error('Unable to create credentials', err);
+                });
+              }
+            });
+          } else {
+            this.changeScreen('error');
+            console.error('Error when starting registration');
+          }
+        });
       } else {
         this.changeScreen('error');
         console.error('WebAuthn is not available on this browser');
