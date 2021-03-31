@@ -234,45 +234,43 @@
                                         if (jqXHR.readyState === 4) {
                                           managerData = $.parseJSON(jqXHR.responseText);
                                         }
-                                        var membershipRestUrl = opts.membershipRestUrl.replace('{0}', window.encodeURI(spaceData.displayName));
-                                        window.profileXHR = $.ajax({
-                                          type: "GET",
-                                          cache: false,
-                                          url: membershipRestUrl,
-                                          complete: function(jqXHR) {
-                                            if (jqXHR.readyState === 4) {
-                                              membership = $.parseJSON(jqXHR.responseText);
-                                            }
-                                            var rolesArray = {
-                                              roles: []
-                                            };
-                                            if (membership) {
-                                              for (var i = 0; i < membership.spacesMemberships.length; i++) {
-                                                rolesArray.roles.push(membership.spacesMemberships[i].role);
-                                              }
-                                            }
-
-                                            if(!spaceData.avatarUrl){
-
-                                              spaceData.avatarUrl= opts.defaultAvatarUrl;
-                                            }
-                                            if(membersData){
-                                              spaceData.member = membersData.size;
-                                            } else {
-                                              spaceData.member =0;
-                                            }
-                                            if(managerData){
-                                              spaceData.manager = managerData.size;
-                                            }else {
-                                              spaceData.manager =0;
-                                            }
-
-                                            spaceData.membership = rolesArray;
-
-                                            buildPopup(spaceData, spaceUrl);
-                                            putToCache(spaceId, spaceData);
+                                        var rolesArray = {
+                                          roles: []
+                                        };
+                                        var currentUser = membersData.users.find(user => {
+                                          return user.username === eXo.env.portal.userName
+                                        })
+                                        if(currentUser){
+                                          if (currentUser.isManager){
+                                            rolesArray.roles.push("manager");
                                           }
-                                        });
+                                          if (currentUser.isMember){
+                                            rolesArray.roles.push("member");
+                                          }
+                                        }
+                                        if(!spaceData.avatarUrl){
+                                          spaceData.avatarUrl= opts.defaultAvatarUrl;
+                                        }
+                                        if(membersData){
+                                          spaceData.member = membersData.size;
+                                        } else {
+                                          spaceData.member =0;
+                                        }
+                                        if(membersData){
+                                          spaceData.member = membersData.size;
+                                        } else {
+                                          spaceData.member =0;
+                                        }
+                                        if(managerData){
+                                          spaceData.manager = managerData.size;
+                                        }else {
+                                          spaceData.manager =0;
+                                        }
+                                        spaceData.membership = rolesArray;
+
+                                        buildPopup(spaceData, spaceUrl);
+                                        putToCache(spaceId, spaceData);
+
                                       }
                                     });
                                   }
