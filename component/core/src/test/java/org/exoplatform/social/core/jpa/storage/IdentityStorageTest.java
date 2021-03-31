@@ -492,7 +492,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result should be empty", result.isEmpty());
 
-    // exclude externals users
+    // filter users by type 
     sortField = SortBy.FULLNAME.getFieldName();
     fieldName = Profile.FULL_NAME;
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
@@ -613,7 +613,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     assertEquals(6, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
-    // exclude externals
+    // get internal users
     pf.setUserType("internal");
 
     assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));

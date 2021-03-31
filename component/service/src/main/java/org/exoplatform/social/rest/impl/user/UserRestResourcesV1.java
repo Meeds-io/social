@@ -151,8 +151,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private static final String INTERNAL              = "internal";
   
-  private static final String EXTERNAL              = "external";
-
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
