@@ -456,48 +456,52 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     String sortField = SortBy.FULLNAME.getFieldName();
     String fieldName = Profile.FULL_NAME;
-    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.LAST_NAME;
     sortField = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.FIRST_NAME;
     sortField = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacter = 'f';
     firstCharacterFieldName = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, false, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
     assertTrue("Returned result should be empty", result.isEmpty());
 
     // exclude externals users
     sortField = SortBy.FULLNAME.getFieldName();
     fieldName = Profile.FULL_NAME;
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, true, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "internal", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 7);
+    assertSorted(remoteIdPrefix, fieldName, result);
+
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "external", offset, limit);
+    assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
     
   }
@@ -610,7 +614,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(6, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
     // exclude externals
-    pf.setExcludeExternal(true);
+    pf.setUserType("internal");
 
     assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
   }

@@ -214,7 +214,7 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
-    if (filter.isExcludeExternal()) {
+    if (filter.getUserType() != null && filter.getUserType().equals("internal")) {
       // Get users have external = false or have no external field
       esSubQuery.append("    \"should\": [\n");
       esSubQuery.append("                  {\n");

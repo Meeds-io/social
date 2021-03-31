@@ -50,7 +50,7 @@ public class IdentityFilterKey implements CacheKey {
   private List<String> onlineRemoteIds;
   private String all;
   private Sorting sorting;
-  private boolean excludeExternal;
+  private String userType;
   private boolean isEnabled;
 
   /**
@@ -69,7 +69,7 @@ public class IdentityFilterKey implements CacheKey {
       this.skills = filter.getSkills();
       this.firstChar = filter.getFirstCharacterOfName();
       this.firstCharFieldName = filter.getFirstCharFieldName();
-      this.excludeExternal = filter.isExcludeExternal();
+      this.userType = filter.getUserType();
       this.isEnabled = filter.isEnabled();
 
       List<IdentityKey> keys = new ArrayList<IdentityKey>();
@@ -136,7 +136,7 @@ public class IdentityFilterKey implements CacheKey {
     if (remoteId != null ? !remoteId.equals(that.remoteId) : that.remoteId != null) return false;
     if (skills != null ? !skills.equals(that.skills) : that.skills != null) return false;
     if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
-    if (excludeExternal != that.excludeExternal) return false;
+    if (userType != null ? !userType.equals(that.userType) : that.userType != null) return false;
     if (isEnabled != that.isEnabled) return true;
 
     return true;
@@ -156,7 +156,7 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (onlineRemoteIds != null ? onlineRemoteIds.hashCode() : 0);
     result = 31 * result + (all != null ? all.hashCode() : 0);
     result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
-    result = 31 * result + Boolean.hashCode(excludeExternal);
+    result = 31 * result + (userType != null ? userType.hashCode() : 0);
     result = 31 * result + Boolean.hashCode(isEnabled);
     return result;
   }

@@ -82,7 +82,7 @@
           class="pl-0"
           color="primary"
           text
-          @click="initialize">
+          @click="resetFilter">
           <v-icon class="pr-1">mdi-reload</v-icon>
           {{ $t('UsersManagement.filter.reset') }}
         </v-btn>
@@ -136,7 +136,7 @@ export default {
       this.$root.$emit('applyAdvancedFilter', this.connectionStatus, this.userType, this.enrollmentStatus);
       this.$refs.usersFilterDrawer.close();
     },
-    initialize() {
+    resetFilter() {
       this.connectionStatus = null;
       this.userType = null;
       this.enrollmentStatus = [];
