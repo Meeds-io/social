@@ -864,19 +864,25 @@
 	<external-component-plugins>
         <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
         <component-plugin>
-            <name>AddCronJob</name>
-            <set-method>addCronJob</set-method>
-            <type>org.exoplatform.services.scheduler.CronJob</type>
+            <name>MalwareDetectionJob</name>
+            <set-method>addPeriodJob</set-method>
+            <type>org.exoplatform.services.scheduler.PeriodJob</type>
             <description>Job to process malware detection</description>
             <init-params>
                 <properties-param>
-                    <name>cronjob.info</name>
+                    <name>job.info</name>
                     <description>Configuration for malware detection job</description>
+                    <!-- Start exceution: a minute after server startup -->
+                    <property name="startTime" value="+60000" />
+                    <!-- REPEAT_INDEFINITELY -->
+					<property name="endTime" value="" />
                     <property name="jobName" value="MalwareDetectionJob"/>
                     <property name="groupName" value="MalwareDetection"/>
                     <property name="job" value="org.exoplatform.social.service.malwareDetection.job.MalwareDetectionJob"/>
-                    <property name="expression" value="${exo.social.MalwareDetectionJob.expression:0 0/30 * * * ?}"/>
+                    <!-- REPEAT_INDEFINITELY -->
+                    <property name="repeatCount" value="0" />
                     <!-- Runs every 30 minutes -->
+                    <property name="period" value="${exo.social.MalwareDetectionJob.period:1800000}"/>
                 </properties-param>
             </init-params>
         </component-plugin>
