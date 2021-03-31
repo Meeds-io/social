@@ -3,11 +3,13 @@
     <v-container class="pa-0">
       <div align="center"
            justify="center">
-        <h class="font-weight-bold grey--text titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
+        <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
         <div class="font-weight-medium infoClass">{{ $t('mfa.fido.access.info') }}</div>
         <template v-if="screen === 'initial'">
-          <div class="otpAccessBlock usbIcon"></div>
-          <div class="font-italic">{{ $t('mfa.fido.access.confirm') }}</div>
+          <div class="otpAccessBlock usbIcon">
+            <i class="uiIconLock lockIconColor"></i>
+          </div>
+          <div class="font-italic messageClass">{{ $t('mfa.fido.access.confirm') }}</div>
         </template>
         <template v-if="screen === 'register'">
           <div class="progressCircularBlock">
@@ -18,7 +20,13 @@
               indeterminate
             ></v-progress-circular>
           </div>
-          <div class="font-italic">{{ $t('mfa.fido.access.save') }}</div>
+          <div class="font-italic messageClass">{{ $t('mfa.fido.access.save') }}</div>
+        </template>
+        <template v-if="screen === 'success'">
+          <div class="otpAccessBlock usbIcon">
+            <i class="uiIconSuccess successIconColor"></i>
+          </div>
+          <div class="font-italic messageClass">{{ $t('mfa.fido.access.save') }}</div>
         </template>
         <template v-if="screen === 'authenticate'">
           <div class="progressCircularBlock">
@@ -29,11 +37,13 @@
               indeterminate
             ></v-progress-circular>
           </div>
-          <div class="font-italic">{{ $t('mfa.fido.access.check') }}</div>
+          <div class="font-italic messageClass">{{ $t('mfa.fido.access.check') }}</div>
         </template>
         <template v-if="screen === 'error'">
-          <div class="otpAccessBlock usbIcon"></div>
-          <div class="font-italic">{{ $t('mfa.fido.access.echec') }}</div>
+          <div class="otpAccessBlock usbIcon">
+            <i class="uiIconCloseCircled closeCircledIconColor"></i>
+          </div>
+          <div class="font-italic messageClass">{{ $t('mfa.fido.access.echec') }}</div>
         </template>
       </div>
     </v-container>
@@ -169,6 +179,7 @@ export default {
       }).then(resp => {
         if (resp && resp.ok) {
           console.log('Authentication success');
+          this.changeScreen('success');
           window.location.href=this.getQueryParam('initialUri');
         } else {
           this.changeScreen('error');
@@ -222,7 +233,7 @@ export default {
               }
             });
           } else {
-            this.changeScreen('error');
+            this.changeScreen('success');
             console.error('Error when starting registration');
           }
         });
