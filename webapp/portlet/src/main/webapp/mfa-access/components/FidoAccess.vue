@@ -233,7 +233,6 @@ export default {
               }
             });
           } else {
-            this.changeScreen('success');
             console.error('Error when starting registration');
           }
         });
@@ -281,6 +280,7 @@ export default {
       }).then(resp => {
         if (resp && resp.ok) {
           console.log('Registration success');
+          this.changeScreen('success');
           window.location.href=this.getQueryParam('initialUri');
         } else {
           this.changeScreen('error');
