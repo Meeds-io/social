@@ -52,7 +52,7 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-btn min-width="auto" outlined @click="$root.$emit('advancedFilter', connectionStatus, userType, enrollmentStatus)">
+    <v-btn v-if="filter === 'ENABLED'" min-width="auto" outlined @click="$root.$emit('advancedFilter', userType)">
       <i class="uiSettingsIcon"></i>
       <div v-if="numberOfFilters > 0" class="pb-1">
         ({{ numberOfFilters }})
@@ -69,9 +69,7 @@ export default {
     keyword: null,
     usersSelected: false,
     numberOfFilters: 0,
-    connectionStatus: null,
     userType: null,
-    enrollmentStatus: []
   }),
   watch: {
     keyword() {
@@ -97,11 +95,9 @@ export default {
     multiSelectAction(action) {
       this.$root.$emit('multiSelectAction', action);
     },
-    applyAdvancedFilter(connectionStatus, userType, enrollmentStatus) {
-      this.connectionStatus = connectionStatus;
+    applyAdvancedFilter(userType) {
       this.userType = userType;
-      this.enrollmentStatus = enrollmentStatus;
-      this.numberOfFilters = enrollmentStatus.length + (userType != null) + (connectionStatus != null);
+      this.numberOfFilters = userType != null ? 1 : 0;
     }
   }
 };
