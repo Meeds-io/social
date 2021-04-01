@@ -91,6 +91,7 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+    userType: 'internal',
     initialized: false,
     hasPeople: false,
     offset: 0,
@@ -168,7 +169,7 @@ export default {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users 
-      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId)
+      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter === 'all' ? this.userType : this.filter, this.spaceId)
         .then(data => {
           let users = data && data.users || [];
           if (this.filter === 'all') {
