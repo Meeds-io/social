@@ -179,7 +179,6 @@ export default {
       }).then(resp => {
         if (resp && resp.ok) {
           console.log('Authentication success');
-          this.changeScreen('success');
           window.location.href=this.getQueryParam('initialUri');
         } else {
           this.changeScreen('error');
