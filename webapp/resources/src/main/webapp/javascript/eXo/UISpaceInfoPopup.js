@@ -240,32 +240,19 @@
                                         var currentUser = membersData.users.find(user => {
                                           return user.username === eXo.env.portal.userName
                                         })
-                                        if(currentUser){
-                                          if (currentUser.isManager){
-                                            rolesArray.roles.push("manager");
-                                          }
-                                          if (currentUser.isMember){
-                                            rolesArray.roles.push("member");
-                                          }
+                                        if (currentUser.isManager){
+                                          rolesArray.roles.push("manager");
                                         }
+                                        if (currentUser.isMember){
+                                          rolesArray.roles.push("member");
+                                        }
+
                                         if(!spaceData.avatarUrl){
                                           spaceData.avatarUrl= opts.defaultAvatarUrl;
                                         }
-                                        if(membersData){
-                                          spaceData.member = membersData.size;
-                                        } else {
-                                          spaceData.member =0;
-                                        }
-                                        if(membersData){
-                                          spaceData.member = membersData.size;
-                                        } else {
-                                          spaceData.member =0;
-                                        }
-                                        if(managerData){
-                                          spaceData.manager = managerData.size;
-                                        }else {
-                                          spaceData.manager =0;
-                                        }
+
+                                        spaceData.member = membersData.size;
+                                        spaceData.manager = managerData.size;
                                         spaceData.membership = rolesArray;
 
                                         buildPopup(spaceData, spaceUrl);
