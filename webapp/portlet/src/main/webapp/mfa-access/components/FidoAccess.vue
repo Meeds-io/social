@@ -233,6 +233,7 @@ export default {
               }
             });
           } else {
+            this.changeScreen('error');
             console.error('Error when starting registration');
           }
         });
