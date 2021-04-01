@@ -149,6 +149,27 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     relationshipManager.delete(relationship);
   }
 
+  public void testSelfUserMentionInActivityStream() throws Exception {
+    // Given
+    MultivaluedMap<String, String> h3 = new MultivaluedMapImpl();
+    String username = "root";
+    h3.putSingle("username", username);
+    ByteArrayContainerResponseWriter writer = new ByteArrayContainerResponseWriter();
+
+    // When
+    ContainerResponse response =
+        service("GET",
+                "/social/people/suggest.json?nameToSearch=root&currentUser=&typeOfRelation=mention_activity_stream&activityId=null&spaceURL=null",
+                "",
+                h3,
+                null,
+                writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertTrue(((ArrayList) response.getEntity()).size() == 1);
+  }
+
   public void testUserMentionInSpaceComment() throws Exception {
     // Given
     Relationship relationship = new Relationship(rootIdentity, maryIdentity);
