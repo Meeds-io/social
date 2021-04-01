@@ -52,7 +52,7 @@
 <script>
 export default {
   data: () => ({
-    screen: 'initial',
+    screen: '',
   }),
   created() {
     this.changeScreen('initial');
