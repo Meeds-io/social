@@ -883,6 +883,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           continue;
         }
         Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+        if (identity == null) {
+          LOG.warn("Cannot find identity by username {} for onboarding, he is disabled or not existing", username);
+          continue;
+        }
         if (Util.isExternal(identity.getId())) {
           LOG.warn("User {} is external, he cannot be enrolled.", username);
           continue;
