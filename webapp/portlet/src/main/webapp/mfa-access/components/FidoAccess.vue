@@ -54,11 +54,9 @@ export default {
   data: () => ({
     screen: 'initial',
   }),
-  created() {
-    this.startRegistration();
-  },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    this.startRegistration();
   },
   methods: {
     getQueryParam(paramName) {
