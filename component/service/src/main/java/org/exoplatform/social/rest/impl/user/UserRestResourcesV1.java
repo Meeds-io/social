@@ -846,7 +846,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return Response.ok(updatedUsers).build();
   }
   
->>>>>>> 06f86a7f9... Fix retrieving suggestions without current user
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
