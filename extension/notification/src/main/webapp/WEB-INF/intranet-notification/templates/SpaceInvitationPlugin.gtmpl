@@ -6,8 +6,10 @@
     <div class="media-body">
       <%
         String spaceUrl = "<span class=\"text-bold\">" + _ctx.escapeHTML(SPACE) + "</span>";
+        String senderName = "<span class=\"text-bold\">" + _ctx.escapeHTML(SENDER_NAME) + "</span>";
+
         String actions = (STATUS == "ACCEPTED") ? _ctx.appRes("Notification.intranet.message.accept.SpaceInvitationPlugin", spaceUrl)
-                                                : _ctx.appRes("Notification.intranet.message.SpaceInvitationPlugin", spaceUrl);
+                                                : _ctx.appRes("Notification.intranet.message.SpaceInvitationPlugin",senderName, spaceUrl);
         String iconType = (STATUS == "ACCEPTED")  ? "uiIconTick uiIconLightGray" : "uiIconSocGroup uiIconSocLightGray";
       %>
       <div class="contentSmall" data-link="$SPACE_URL">

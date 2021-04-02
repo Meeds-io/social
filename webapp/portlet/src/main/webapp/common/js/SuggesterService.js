@@ -25,6 +25,7 @@ function searchSpaces(filter, items) {
           providerId: 'space',
           profile: {
             fullName: item.displayName,
+            originalName: item.shortName,
             avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/spaces/${item.prettyName}/avatar`,
           },
         });
@@ -46,7 +47,13 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
     params = $.param(options);
     url = '/portal/rest/social/people/suggest.json?'.concat(params);
   } else {
-    url = searchOptions.searchUrl.concat(filter);
+    if (searchOptions.options) {
+      params = $.param(searchOptions.options);
+      url = searchOptions.searchUrl.concat(`${filter}?${params}`);
+    } else {
+      url = searchOptions.searchUrl.concat(filter);
+    }
+
   }
 
   return fetch(url, {credentials: 'include'})
@@ -56,7 +63,10 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
         data = data.options || data;
         if (data && data.length) {
           data.forEach((item) => {
-            const username = item.value || item.id  && item.id.indexOf('@') === 0 && item.id.substring(1);
+            let username = item.value || item.id;
+            if (item.id && item.id.indexOf('@') === 0){
+              username = item.id.substring(1);
+            }
             items.push({
               id: `organization:${username}`,
               remoteId: username,
@@ -108,6 +118,7 @@ export function convertSuggesterItemToIdentity(suggesterIdentity) {
     identity.profile = {
       avatar: profile.avatarUrl,
       fullname: profile.fullName,
+      originalName: profile.originalName,
     };
   }
   return identity;

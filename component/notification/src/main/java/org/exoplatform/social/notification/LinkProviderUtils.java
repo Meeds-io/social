@@ -60,7 +60,7 @@ public static final String RESOURCE_URL = "social/notifications";
    * @return
    */
   public static String getConfirmInvitationToConnectUrl(String senderId, String receiverId) {
-    return getPrivateRestUrl(CONFIRM_INVITATION_TO_CONNECT, senderId, receiverId);
+    return getPortalRestUrl(CONFIRM_INVITATION_TO_CONNECT, senderId, receiverId);
   }
   
   /**
@@ -71,7 +71,7 @@ public static final String RESOURCE_URL = "social/notifications";
    * @return
    */
   public static String getIgnoreInvitationToConnectUrl(String senderId, String receiverId) {
-    return getPrivateRestUrl(IGNORE_INVITATION_TO_CONNECT, senderId, receiverId);
+    return getPortalRestUrl(IGNORE_INVITATION_TO_CONNECT, senderId, receiverId);
   }
   
   /**
@@ -211,6 +211,7 @@ public static final String RESOURCE_URL = "social/notifications";
    * @param objectId2
    * @return
    */
+  @Deprecated
   public static String getPrivateRestUrl(String type, String objectId1, String objectId2) {
     String baseUrl = getBasePrivateRestUrl();
     return new StringBuffer(baseUrl).append("/").append(type).append("/").append(objectId1)

@@ -367,7 +367,12 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
                                                 boolean excludeExternal) {
     StringBuilder queryStringBuilder = null;
     if (excludeExternal) {
-      queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id, identity_prop.value \n");
+      queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id ");
+      if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
+        queryStringBuilder.append(", lower(identity_prop.value) AS prop_order_field \n");
+      } else {
+        queryStringBuilder.append(" \n");
+      }
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
       queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
@@ -376,7 +381,12 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
       queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
     } else {
-      queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
+      queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id ");
+      if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
+        queryStringBuilder.append(", lower(identity_prop.value) AS prop_order_field \n");
+      } else {
+        queryStringBuilder.append(" \n");
+      }
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     }
     if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
@@ -396,7 +406,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     queryStringBuilder.append(" AND identity_1.enabled = TRUE \n");
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-      queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + sortDirection);
+      queryStringBuilder.append(" ORDER BY prop_order_field " + sortDirection);
     }
     return getEntityManager().createNativeQuery(queryStringBuilder.toString());
   }

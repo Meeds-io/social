@@ -1491,7 +1491,7 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     //increase common users
     Relationship johnToDemoRelationship = relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
     Relationship paulToDemoRelationship = relationshipManager.inviteToConnect(paulIdentity, maryIdentity);
-    suggestions = relationshipManager.getSuggestions(ghostIdentity, -1, -1, 10); 
+    suggestions = relationshipManager.getSuggestions(ghostIdentity, -1, -1, 10);
     assertEquals(1, suggestions.size());
     relationshipManager.confirm(demoIdentity, johnIdentity);
     relationshipManager.confirm(paulIdentity, maryIdentity);
@@ -1501,7 +1501,6 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     objs = suggestions.entrySet().toArray();
     first = (Entry<Identity, Integer>) objs[0];
     Entry<Identity, Integer> second = (Entry<Identity, Integer>) objs[1];
-    
     assertEquals(demoIdentity.getRemoteId(), first.getKey().getRemoteId());
     assertEquals(paulIdentity.getRemoteId(), second.getKey().getRemoteId());
     assertEquals(2, first.getValue().intValue());
@@ -1512,7 +1511,14 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     relationshipManager.delete(paulToDemoRelationship);
     suggestions = relationshipManager.getSuggestions(ghostIdentity, -1, -1, 10); 
     assertEquals(1, suggestions.size());
-
+    // Let's disable Paul and check for suggestions. Must return 1 instead of 2 (Only demo is returned)
+    paulIdentity.setEnable(false);
+    identityManager.updateIdentity(paulIdentity);
+    suggestions = relationshipManager.getSuggestions(ghostIdentity, -1, -1, 10);
+    assertEquals(1, suggestions.size());
+    objs = suggestions.entrySet().toArray();
+    first = (Entry<Identity, Integer>) objs[0];
+    assertEquals(demoIdentity.getRemoteId(), first.getKey().getRemoteId());
   }
 
   public void testGetSuggestionsWithParams() throws Exception {

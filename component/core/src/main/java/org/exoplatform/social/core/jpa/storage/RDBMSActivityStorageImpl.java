@@ -53,7 +53,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   private static final Log                       LOG                         =
                                                      ExoLogger.getLogger(RDBMSActivityStorageImpl.class);
 
-  public static final Pattern                    MENTION_PATTERN             = Pattern.compile("@([^\\s]+)|@([^\\s]+)$");
+  public static final Pattern                    MENTION_PATTERN             = Pattern.compile("@([^\\s<]+)|@([^\\s<]+)$");
 
   public static final String                     COMMENT_PREFIX              = "comment";
 

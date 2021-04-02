@@ -872,6 +872,7 @@ public class SpaceServiceImpl implements SpaceService {
    */
   public void setIgnored(String spaceId, String userId) {
     spaceStorage.ignoreSpace(spaceId, userId);
+    removeWebNotifications(spaceId, userId);
   }
 
   @Override

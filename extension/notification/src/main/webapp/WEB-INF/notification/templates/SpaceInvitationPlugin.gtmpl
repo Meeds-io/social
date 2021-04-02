@@ -34,7 +34,6 @@
                                                     <%
                                                       String spaceUrl = "<a target=\"_blank\" style=\"color: #2f5e92; text-decoration: none; font-weight: bold; font-size:13px; font-family: HelveticaNeue,Helvetica,Arial,sans-serif;\" href=\""+ SPACE_URL + "\">" + _ctx.escapeHTML(SPACE) + "</a>";
                                                     %>
-                                                    <%=_ctx.appRes("Notification.message.SpaceInvitationPlugin", spaceUrl)%>
                                                 </p>
                                                 <div>
                                                     <a target="_blank" style="
@@ -101,8 +100,7 @@
                         </table>
                     </td>
                 </tr>
-            </table>            
-            
+            </table>
         </td>
     </tr><!--end content area-->
     <tr>

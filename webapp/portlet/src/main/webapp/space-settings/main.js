@@ -30,6 +30,7 @@ const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 export function init(maxUploadSize) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
+    
     appElement.id = appId;
 
     new Vue({

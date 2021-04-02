@@ -41,13 +41,13 @@ public class LinkProviderUtilsTest extends AbstractCoreTest {
 
   public void testGetConfirmInvitationToConnectUrl() {
     String receiverId = "demo", senderId = "root";
-    String expected = "http://exoplatform.com/rest/private/social/notifications/confirmInvitationToConnect/root/demo";
+    String expected = "http://exoplatform.com/portal/login?initialURI=/portal/rest/social/notifications/confirmInvitationToConnect/root/demo";
     assertEquals(expected, LinkProviderUtils.getConfirmInvitationToConnectUrl(senderId, receiverId));
   }
 
   public void testGetIgnoreInvitationToConnectUrl() {
     String receiverId = "demo", senderId = "root";
-    String expected = "http://exoplatform.com/rest/private/social/notifications/ignoreInvitationToConnect/root/demo";
+    String expected = "http://exoplatform.com/portal/login?initialURI=/portal/rest/social/notifications/ignoreInvitationToConnect/root/demo";
     assertEquals(expected, LinkProviderUtils.getIgnoreInvitationToConnectUrl(senderId, receiverId));
   }
 

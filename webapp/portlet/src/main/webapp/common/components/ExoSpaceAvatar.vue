@@ -14,7 +14,7 @@
         eager>
       </v-img>
     </v-avatar>
-    <div v-if="displayName || $slots.subTitle" class="pull-left ml-2">
+    <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ml-2">
       <p v-if="displayName" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
         {{ displayName }}
       </p>

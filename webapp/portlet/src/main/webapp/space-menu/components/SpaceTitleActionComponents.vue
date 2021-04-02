@@ -32,6 +32,7 @@ export default {
           container = container[0];
           action.init(container, eXo.env.portal.spaceName);
         } else {
+          // eslint-disable-next-line no-console
           console.error(
             `Error initialization of the ${action.key} action component: empty container`
           );

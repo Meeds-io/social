@@ -1348,6 +1348,9 @@
       <module>ExoAttachmentsApp</module>
       <as>attachmentsApp</as>
     </depends>
+    <depends>
+      <module>bts_tooltip</module>
+    </depends>
   </module>
 
   <module>

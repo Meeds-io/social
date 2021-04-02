@@ -25,6 +25,7 @@
           type-of-relations="user_to_invite"
           class="ma-4"
           include-users
+          include-spaces
           multiple />
         <v-alert v-if="error" type="error">
           {{ error }}
@@ -36,7 +37,7 @@
         outlined
         text
       >
-        {{ this.$t('peopleList.label.successfulInvitation') }}
+        {{ $t('peopleList.label.successfulInvitation', {0: invitedUserFullName}) }}
       </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
         <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
@@ -161,7 +162,13 @@ export default {
     },
     defaultAvatar() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-    }
+    },
+    invitedUser() {
+      return this.invitedMembers.length === 1 && this.invitedMembers[0] && this.invitedMembers[0].profile;
+    },
+    invitedUserFullName() {
+      return this.invitedUser && this.invitedUser.fullName || this.$t('peopleList.label.users');
+    },
   },
   watch: {
     savingSpace() {

@@ -6,7 +6,7 @@
       <h5>{{ $t("social.space.description.managers") }}</h5>
       <ul id="spaceManagers">
         <li v-for="manager in managers" :key="manager" class="spaceManagerEntry">
-          <a :href="manager.href">
+          <a :href="`${profileUrl}${manager.username}`">
             <img :src="manager.avatar" alt="avatar"/> {{ manager.fullname }}
           </a>
         </li>
@@ -20,7 +20,8 @@ export default {
   data() {
     return {
       description: '',
-      managers: []
+      managers: [],
+      profileUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/`
     };
   },
   created() {
@@ -38,8 +39,8 @@ export default {
             return this.$nextTick();
           })
           .then(() => {
-            this.initPopup();
             this.$root.$emit('application-loaded');
+            this.initPopup();
           });
       }
     },
