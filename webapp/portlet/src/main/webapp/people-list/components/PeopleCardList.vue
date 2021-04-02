@@ -101,19 +101,6 @@ export default {
     originalLimitToFetch: 0,
   }),
   computed:{
-    searchUsersFunction() {
-      if (this.filter === 'all') {
-        return this.$userService.getUsers;
-      } else if (this.filter === 'connections') {
-        return this.$userService.getConnections;
-      } else if (this.filter === 'member'
-          || this.filter === 'manager'
-          || this.filter === 'invited'
-          || this.filter === 'pending'
-          || this.filter === 'redactor') {
-        return this.$spaceService.getSpaceMembers;
-      }
-    },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
     },
@@ -168,22 +155,33 @@ export default {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users 
-      return this.searchUsersFunction(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId)
-        .then(data => {
-          let users = data && data.users || [];
-          if (this.filter === 'all') {
-            users = users.filter(user => user && user.username !== eXo.env.portal.userName);
-          }
-          users = users.slice(0, this.limitToFetch);
-          this.users = users;
-          this.peopleCount = data && data.size && data.size || 0;
-          if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
-            this.peopleCount = this.peopleCount - 1;
-          }
-          this.hasPeople = this.hasPeople || this.peopleCount > 0;
-          this.$emit('loaded', this.peopleCount);
-          return this.$nextTick();
-        })
+      let searchUsersFunction;
+      if (this.filter === 'connections') {
+        searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
+      } else if (this.filter === 'member'
+          || this.filter === 'manager'
+          || this.filter === 'invited'
+          || this.filter === 'pending'
+          || this.filter === 'redactor') {
+        searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId);
+      } else {
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
+      }
+      return searchUsersFunction.then(data => {
+        let users = data && data.users || [];
+        if (this.filter === 'all') {
+          users = users.filter(user => user && user.username !== eXo.env.portal.userName);
+        }
+        users = users.slice(0, this.limitToFetch);
+        this.users = users;
+        this.peopleCount = data && data.size && data.size || 0;
+        if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
+          this.peopleCount = this.peopleCount - 1;
+        }
+        this.hasPeople = this.hasPeople || this.peopleCount > 0;
+        this.$emit('loaded', this.peopleCount);
+        return this.$nextTick();
+      })
         .then(() => {
           if (this.keyword && this.filteredPeople.length < this.originalLimitToFetch && this.users.length >= this.limitToFetch) {
             this.limitToFetch += this.pageSize;
