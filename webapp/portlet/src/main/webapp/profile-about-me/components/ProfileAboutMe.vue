@@ -86,7 +86,9 @@ export default {
   methods: {
     refresh(aboutMe) {
       this.aboutMe = aboutMe;
-      this.$refs.aboutMeDrawer.close();
+      if (this.$refs.aboutMeDrawer) {
+        this.$refs.aboutMeDrawer.close();
+      }
       this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     },
     editAboutMe() {
