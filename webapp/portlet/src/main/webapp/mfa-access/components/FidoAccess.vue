@@ -54,11 +54,9 @@ export default {
   data: () => ({
     screen: '',
   }),
-  created() {
-    this.changeScreen('initial');
-  },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    this.changeScreen('initial');
     this.startRegistration();
   },
   methods: {
