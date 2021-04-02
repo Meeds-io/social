@@ -5,13 +5,13 @@
            justify="center">
         <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
         <div class="font-weight-medium infoClass">{{ $t('mfa.fido.access.info') }}</div>
-        <template v-if="screen === 'initial'">
+        <div v-if="screen === 'initial'">
           <div class="otpAccessBlock usbIcon">
             <i class="uiIconLock lockIconColor"></i>
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.confirm') }}</div>
-        </template>
-        <template v-if="screen === 'register'">
+        </div>
+        <div v-if="screen === 'register'">
           <div class="progressCircularBlock">
             <v-progress-circular
               :size="100"
@@ -21,14 +21,14 @@
             ></v-progress-circular>
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.save') }}</div>
-        </template>
-        <template v-if="screen === 'success'">
+        </div>
+        <div v-if="screen === 'success'">
           <div class="otpAccessBlock usbIcon">
             <i class="uiIconSuccess successIconColor"></i>
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.save') }}</div>
-        </template>
-        <template v-if="screen === 'authenticate'">
+        </div>
+        <div v-if="screen === 'authenticate'">
           <div class="progressCircularBlock">
             <v-progress-circular
               :size="100"
@@ -38,13 +38,13 @@
             ></v-progress-circular>
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.check') }}</div>
-        </template>
-        <template v-if="screen === 'error'">
+        </div>
+        <div v-if="screen === 'error'">
           <div class="otpAccessBlock usbIcon">
             <i class="uiIconCloseCircled closeCircledIconColor"></i>
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.echec') }}</div>
-        </template>
+        </div>
       </div>
     </v-container>
   </v-app>
@@ -77,7 +77,9 @@ export default {
       ));
     },
     changeScreen(screen) {
+      console.log(`screenBefore=${screen}, this.screen=${this.screen}`);
       this.screen = screen;
+      console.log(`screenAfter=${screen}, this.screen=${this.screen}`);
     },
     b64StrToBin(str) {
       return Uint8Array.from(atob(str), c => c.charCodeAt(0));
