@@ -40,16 +40,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -258,7 +249,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   public Response getUsers(@Context UriInfo uriInfo,
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
-                           @ApiParam(value = "User type to filter, ex: internal, external", required = false) @QueryParam("userType") String userType,
+                           @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
@@ -276,7 +267,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !userType.equals(INTERNAL)) {
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 

@@ -894,11 +894,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       char firstCharacter,
                                       String sortField,
                                       String sortDirection,
-                                      boolean IsEnabled,
+                                      boolean isEnabled,
                                       String userType,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, IsEnabled, userType, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {

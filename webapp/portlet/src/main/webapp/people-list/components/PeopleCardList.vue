@@ -166,7 +166,7 @@ export default {
           || this.filter === 'redactor') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.userType);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
       }
       return searchUsersFunction.then(data => {
         let users = data && data.users || [];

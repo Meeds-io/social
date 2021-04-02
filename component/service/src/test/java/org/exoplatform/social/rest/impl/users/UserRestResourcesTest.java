@@ -215,6 +215,37 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(0, collections.getEntities().size());
   }
 
+  public void testGetUsersByUserType() throws Exception {
+    startSessionAs("root");
+    Profile profile = maryIdentity.getProfile();
+    profile.setProperty(Profile.EXTERNAL, "true");
+    identityManager.saveProfile(profile);
+
+    // when 
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+
+    // when
+    response = service("GET", getURLResource("users?limit=5&offset=0&userType=internal"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+
+    // when
+    response = service("GET", getURLResource("users?limit=5&offset=0&userType=external"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+  }
+  
   public void testGetAllUsersWithExtraFields() throws Exception {
     Space spaceTest = getSpaceInstance(700, "root");
     spaceTest.getId();
