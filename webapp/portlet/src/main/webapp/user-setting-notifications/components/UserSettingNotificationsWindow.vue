@@ -14,7 +14,7 @@
         @click="$emit('back')">
         <v-icon size="20">mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title class="pl-0">
+      <v-toolbar-title class="ps-0">
         {{ $t('UserSettings.manageNotifications') }}
       </v-toolbar-title>
       <v-spacer />

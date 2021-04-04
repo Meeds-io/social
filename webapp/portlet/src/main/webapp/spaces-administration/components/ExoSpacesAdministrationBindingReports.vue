@@ -19,7 +19,7 @@
               hide-details>
             </v-text-field>
           </v-flex>
-          <v-flex class="filter" ml-2 mr-4 xs2>
+          <v-flex class="filter" ms-2 me-4 xs2>
             <div class="btn-group">
               <button class="btn dropdown-toggle" data-toggle="dropdown">
                 {{ action }}

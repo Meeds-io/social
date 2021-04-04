@@ -19,6 +19,8 @@ if (extensionRegistry) {
   }
 }
 
+Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
+
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
 

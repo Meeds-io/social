@@ -1,8 +1,8 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :right="right"
-    :left="!right"
+    :right="rightDrawer"
+    :left="leftDrawer"
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
@@ -17,7 +17,7 @@
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
-            <v-list-item class="pr-0">
+            <v-list-item class="pe-0">
               <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
@@ -93,6 +93,14 @@ export default {
     drawer: false,
     loading: false,
   }),
+  computed: {
+    rightDrawer() {
+      return this.right && eXo.env.portal.orientation === 'ltr';
+    },
+    leftDrawer() {
+      return !this.right || eXo.env.portal.orientation === 'rtl';
+    },
+  },
   watch: {
     drawer() {
       if (this.drawer) {

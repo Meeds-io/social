@@ -1,7 +1,7 @@
 <template>
   <select
     v-model="timeValue"
-    class="width-auto my-auto ml-4 ignore-vuetify-classes">
+    class="width-auto my-auto ms-4 ignore-vuetify-classes">
     <option
       v-for="time in timeOptions"
       v-if="time.enabled"

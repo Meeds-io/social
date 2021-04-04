@@ -3,9 +3,7 @@ import { getActivityComposerActionExtensions } from './extension.js';
 
 Vue.use(Vuetify);
 
-const vuetify = new Vuetify({
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 // getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';

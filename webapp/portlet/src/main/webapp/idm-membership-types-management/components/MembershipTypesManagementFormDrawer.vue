@@ -56,7 +56,7 @@
         <v-spacer />
         <v-btn
           :disabled="saving"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           {{ $t('MembershipTypesManagement.button.cancel') }}
         </v-btn>

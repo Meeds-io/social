@@ -4,7 +4,7 @@
       <v-list-item
         :href="PROFILE_URI"
         class="accountTitleItem py-3">
-        <v-list-item-avatar size="44" class="mr-3 mt-0 mb-0 elevation-1">
+        <v-list-item-avatar size="44" class="me-3 mt-0 mb-0 elevation-1">
           <v-img :src="avatar" eager />
         </v-list-item-avatar>
         <v-list-item-content class="py-0 accountTitleLabel">

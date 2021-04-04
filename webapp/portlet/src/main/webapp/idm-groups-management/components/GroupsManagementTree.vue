@@ -7,7 +7,7 @@
       :page-size="pageSize"
       :loading="loading"
       :open-all="!!keyword"
-      class="ml-3" />
+      class="ms-3" />
   </v-list-item-group>
 </template>
 

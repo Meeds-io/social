@@ -25,7 +25,7 @@
       </v-card-title>
       <div class="content">
         <v-layout
-          class="mt-4 pl-2"
+          class="mt-4 ps-2"
           wrap>
           <v-flex align-center xs1>
             <img v-if="spaceToBind && spaceToBind.avatarUrl != null" :src="spaceToBind.avatarUrl" class="avatar" />
@@ -36,7 +36,7 @@
           </v-flex>
         </v-layout>
         <v-layout
-          class="pt-5 pl-3 mb-4"
+          class="pt-5 ps-3 mb-4"
           wrap>
           <v-flex xs9>
             <exo-suggester 
@@ -59,14 +59,14 @@
           </v-flex>
         </v-layout>
         <v-layout v-show="boundGroupsLoading" column>
-          <v-flex pl-4>
+          <v-flex ps-4>
             <v-skeleton-loader
               class="mx-auto"
               type="heading">
             </v-skeleton-loader>
           </v-flex>
           <v-spacer></v-spacer>
-          <v-flex pt-4 pl-4 pr-8>
+          <v-flex pt-4 ps-4 pe-8>
             <v-skeleton-loader
               class="mx-auto"
               type="paragraph@3">
@@ -106,8 +106,8 @@
       <v-card-actions absolute class="drawerActions">
         <v-layout>
           <v-flex class="xs6"></v-flex>
-          <button type="button" class="btn ml-2" @click="cancelBinding">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</button>
-          <button :disabled="!isAllowToSave" type="button" class="btn btn-primary ml-6" @click="$emit('openBindingModal', groups)">
+          <button type="button" class="btn ms-2" @click="cancelBinding">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</button>
+          <button :disabled="!isAllowToSave" type="button" class="btn btn-primary ms-6" @click="$emit('openBindingModal', groups)">
             {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.apply') }}
           </button>
         </v-layout>

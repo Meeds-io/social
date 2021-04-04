@@ -10,7 +10,7 @@
         class="pull-left my-auto">
         <img :src="avatarUrl" :alt="title"/>
       </v-avatar>
-      <div v-if="fullname || $slots.subTitle" class="pull-left ml-2 d-flex flex-column text-truncate">
+      <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
         <p v-if="fullname" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-auto">
           {{ fullname }}
           <span v-if="isExternal" class="muted">{{ externalTag }} </span>

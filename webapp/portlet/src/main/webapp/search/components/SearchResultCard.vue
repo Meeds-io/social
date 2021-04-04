@@ -19,10 +19,7 @@ export default {
   }),
   mounted() {
     if (this.result && this.result.connector) {
-      const vuetify = new Vuetify({
-        dark: true,
-        iconfont: 'mdi',
-      });
+      const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
       const vueI18n = new VueI18n({
         locale: this.$i18n.locale,
         messages: this.$i18n.messages,

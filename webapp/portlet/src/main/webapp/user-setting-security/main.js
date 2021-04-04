@@ -11,10 +11,7 @@ if (extensionRegistry) {
 
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
-const vuetify = new Vuetify({
-  dark: true,
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';

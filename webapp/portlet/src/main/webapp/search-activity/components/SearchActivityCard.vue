@@ -21,7 +21,7 @@
     <v-list class="light-grey-background flex-grow-0 border-top-color no-border-radius pa-0">
       <v-list-item :href="link" class="px-0 pt-1 pb-2">
         <v-list-item-icon class="mx-0 my-auto">
-          <span :class="activityIcon" class="tertiary--text pl-1 pr-2 display-1"></span>
+          <span :class="activityIcon" class="tertiary--text ps-1 pe-2 display-1"></span>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title :title="activityReactions">

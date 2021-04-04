@@ -79,7 +79,7 @@
         <div class="d-flex">
           <v-spacer />
           <v-btn
-            class="btn mr-2"
+            class="btn me-2"
             @click="cancel">
             {{ $t('items.dlp.button.cancel') }}
           </v-btn>

@@ -1,5 +1,5 @@
 <template>
-  <v-flex :class="shaped && 'ml-12'" class="mx-0 spacesNavigationContent" flat>
+  <v-flex :class="shaped && 'ms-12'" class="mx-0 spacesNavigationContent" flat>
     <v-list :shaped="shaped" dense>
       <v-list-item-group v-model="selectedSpaceIndex">
         <v-list-item
@@ -11,7 +11,7 @@
           class="px-2 spaceItem">
           <v-list-item-avatar 
             size="26"
-            class="mr-3 tile my-0 spaceAvatar"
+            class="me-3 tile my-0 spaceAvatar"
             tile>
             <v-img :src="space.avatarUrl" />
           </v-list-item-avatar>

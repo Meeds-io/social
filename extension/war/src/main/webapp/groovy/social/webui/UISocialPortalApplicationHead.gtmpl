@@ -21,7 +21,7 @@
      });
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
      eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
-	 eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
+     eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
      eXo.env.portal.spaceDisplayName = "<%=space == null ? "" : space.getDisplayName()%>" ;
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
@@ -30,4 +30,9 @@
      eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
      eXo.env.portal.timezoneOffset = <%=timezone.getRawOffset()%> ;
      eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
+     eXo.env.portal.vuetifyPreset = {
+       dark: true,
+       iconfont: 'mdi',
+       rtl: eXo.env.portal.orientation === 'rtl',
+     };
 </script>

@@ -5,7 +5,7 @@
         :disabled="!group"
         class="btn addNewMembershipButton"
         @click="$root.$emit('addNewMembership', group)">
-        <i class="uiIconSocConnectUser mr-md-3"></i>
+        <i class="uiIconSocConnectUser me-md-3"></i>
         <span class="d-none d-sm-inline">
           {{ $t('GroupsManagement.addMemberInGroup') }}
         </span>
@@ -18,7 +18,7 @@
         :placeholder="$t('GroupsManagement.filterBy')"
         :disabled="!group"
         prepend-inner-icon="fa-filter"
-        class="inputMembershipTypeFilter pa-0 mr-3 my-auto" />
+        class="inputMembershipTypeFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
   </v-toolbar>
 </template>

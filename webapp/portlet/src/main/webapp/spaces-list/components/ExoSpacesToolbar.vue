@@ -2,7 +2,7 @@
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title v-if="canCreateSpace">
       <v-btn
-        class="btn btn-primary pr-2 pl-0 addNewSpaceButton"
+        class="btn btn-primary pe-2 ps-0 addNewSpaceButton"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
@@ -11,7 +11,7 @@
       </v-btn>
     </v-toolbar-title>
     <div
-      class="text-sub-title ml-3 d-none d-sm-flex">
+      class="text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
     <v-spacer></v-spacer>
@@ -20,12 +20,12 @@
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpaces')"
         prepend-inner-icon="fa-filter"
-        class="inputSpacesFilter pa-0 mr-3 my-auto"></v-text-field>
+        class="inputSpacesFilter pa-0 me-3 my-auto"></v-text-field>
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectSpacesFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectSpacesFilter my-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="spaceFilter in spaceFilters"
           :key="spaceFilter.value"
@@ -62,13 +62,13 @@
             @click="filterToChange = spaceFilter.value">
             <v-list-item-title class="align-center d-flex">
               <v-icon v-if="filterToChange === spaceFilter.value">fa-check</v-icon>
-              <span v-else class="mr-6"></span>
+              <span v-else class="me-6"></span>
               <v-spacer />
               <div>
                 {{ spaceFilter.text }}
               </div>
               <v-spacer />
-              <span class="mr-6"></span>
+              <span class="me-6"></span>
             </v-list-item-title>
           </v-list-item>
         </v-list>

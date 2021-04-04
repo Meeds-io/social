@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-4 mr-7">
+  <div class="ms-4 me-7">
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
       :message="deleteConfirmMessage"

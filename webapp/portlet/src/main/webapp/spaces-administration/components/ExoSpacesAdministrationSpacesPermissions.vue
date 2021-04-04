@@ -3,7 +3,7 @@
     <v-col class="pa-0" cols="12"
            md="4">
       <v-list class="pt-0">
-        <v-list-item class="pl-0">
+        <v-list-item class="ps-0">
           <v-list-item-content class="pt-0">
             <v-list-item-title class="mb-0 title">
               <v-row no-gutters class="col-12">

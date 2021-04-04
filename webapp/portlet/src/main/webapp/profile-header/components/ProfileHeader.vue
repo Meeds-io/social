@@ -39,7 +39,7 @@
                     class="ma-auto pb-0" />
                 </div>
                 <div class="flex-grow-1"></div>
-                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-2">
+                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pe-2">
                   <profile-header-banner-button
                     v-if="owner"
                     :user="user"

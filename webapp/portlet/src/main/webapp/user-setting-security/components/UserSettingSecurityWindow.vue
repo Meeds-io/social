@@ -13,7 +13,7 @@
         @click="$emit('back')">
         <v-icon size="20">mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title class="pl-0">
+      <v-toolbar-title class="ps-0">
         {{ $t('UserSettings.security') }}
       </v-toolbar-title>
       <v-spacer />
@@ -89,7 +89,7 @@
           <v-spacer />
           <v-btn
             :disabled="saving"
-            class="btn mr-2"
+            class="btn me-2"
             @click="$emit('back')">
             {{ $t('UserSettings.button.cancel') }}
           </v-btn>
