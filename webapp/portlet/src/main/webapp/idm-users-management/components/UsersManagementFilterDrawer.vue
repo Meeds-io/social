@@ -13,7 +13,7 @@
           <div class="pa-0 d-inline-flex"><v-card-text class="pr-0 text-sub-title">{{ $t('UsersManagement.type') }}</v-card-text></div>
           <v-col class="align-self-center mx-2"><v-divider></v-divider></v-col>
         </v-row>
-        <v-card flat class="px-4">
+        <v-card flat class="px-3">
           <v-radio-group
             v-model="userType"
             class="mt-0"
