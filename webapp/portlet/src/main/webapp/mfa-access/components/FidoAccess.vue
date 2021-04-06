@@ -56,8 +56,12 @@ export default {
   }),
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  },
+  created() {
     this.changeScreen('initial');
-    this.startRegistration();
+    window.setTimeout(() => {
+      this.startRegistration();
+    }, 2000);
   },
   methods: {
     getQueryParam(paramName) {
@@ -94,7 +98,6 @@ export default {
       });
     },
     startAuthentication() {
-      this.changeScreen('authenticate');
       if (navigator.credentials && navigator.credentials.get) {
         fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/fido/startAuthentication`, {
           method: 'GET',
@@ -218,14 +221,20 @@ export default {
               if (makeCredentialOptions.excludeCredentials.length>0) {
                 //at least one authenticator is registred
                 //so we should make authentication instead of register
-                this.startAuthentication();
+                this.changeScreen('authenticate');
+                window.setTimeout(() => {
+                  this.startAuthentication();
+                }, 2000);
+
               } else {
 
                 this.changeScreen('register');
                 navigator.credentials.create({
                   'publicKey': makeCredentialOptions
                 }).then(attestation => {
-                  this.finishRegistration(attestation);
+                  window.setTimeout(() => {
+                    this.finishRegistration(attestation);
+                  }, 2000);
                 }).catch((err) => {
                   this.changeScreen('error');
                   console.error('Unable to create credentials', err);
@@ -282,7 +291,9 @@ export default {
         if (resp && resp.ok) {
           console.log('Registration success');
           this.changeScreen('success');
-          window.location.href=this.getQueryParam('initialUri');
+          window.setTimeout(() => {
+            window.location.href=this.getQueryParam('initialUri');
+          }, 2000);
         } else {
           this.changeScreen('error');
           console.error('Unable to finalize registration');
