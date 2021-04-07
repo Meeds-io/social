@@ -296,9 +296,17 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
       filter.setUserType(userType);
+      filter.setSearchEmail(true);
       if (isDisabled && q != null && !q.isEmpty()) {
+        ListAccess<User> usersListAccess;
         User[] users;
-        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        if(q.contains("@")) {
+          Query query = new Query();
+          query.setEmail(q);
+          usersListAccess = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.DISABLED);
+        } else {
+          usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        }
         totalSize = usersListAccess.getSize();
         int limitToFetch = limit;
         if (totalSize < (offset + limitToFetch)) {
