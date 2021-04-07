@@ -36,12 +36,13 @@
     String spaceGroupId = uicomponent.getSpaceGroupId();
     String currentUserId = _ctx.getRequestContext().getRemoteUser();
     isCurrentUserRedactor = SpaceUtils.isRedactor(currentUserId, spaceGroupId);
+    isCurrentUserManager = SpaceUtils.isManager(currentUserId, spaceGroupId);
   }
   def space = SpaceUtils.getSpaceByContext();
   def spaceId = space == null ? "" : space.getId();
 
   if(featureService.isActiveFeature("new-composer")) {
-    if (uicomponent.getSpaceGroupId() != null && isCurrentUserRedactor || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
+    if (uicomponent.getSpaceGroupId() != null && isCurrentUserRedactor || isCurrentUserManager || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
 %>
 <div id="activityComposer" class="activityComposer">
   <v-cacheable-dom-app cache-id="activityComposer_<%=spaceId%>"></v-cacheable-dom-app>

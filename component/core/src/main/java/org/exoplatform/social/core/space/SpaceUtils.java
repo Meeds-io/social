@@ -1904,6 +1904,19 @@ public class SpaceUtils {
     return true;
   }
 
+  public static boolean isManager(String userName, String spaceGroupId) throws Exception {
+    String MANAGER_MEMBERSHIP_NAME = "manager";
+
+    List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
+    for (MembershipType membershipType : membershipTypes) {
+      if (MANAGER_MEMBERSHIP_NAME.equals(membershipType.getName())) {
+        return getOrganizationService().getMembershipHandler().
+                findMembershipByUserGroupAndType(userName, spaceGroupId, MANAGER_MEMBERSHIP_NAME) != null;
+      }
+    }
+    return true;
+  }
+
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,
                                                      NavigationContext navigation,
                                                      String navUri) {
