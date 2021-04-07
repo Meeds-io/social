@@ -16,7 +16,7 @@
       :filter="filterIgnoredItems"
       :hide-no-data="hideNoData"
       :class="autocompleteClass"
-      :prepend-inner-icon="icon"
+      :prepend-inner-icon="prependInnerIcon"
       append-icon=""
       menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
@@ -185,9 +185,7 @@ export default {
     },
     filterStyle: {
       type: Boolean,
-      default: function () {
-        return false;
-      },
+      default: false
     }
   },
   data() {
@@ -202,7 +200,7 @@ export default {
     };
   },
   computed: {
-    icon() {
+    prependInnerIcon() {
       return this.filterStyle && 'fa-filter' || '';
     },
     autocompleteClass() {
