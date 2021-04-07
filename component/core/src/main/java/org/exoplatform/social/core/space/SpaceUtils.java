@@ -1891,30 +1891,29 @@ public class SpaceUtils {
    * @return boolean true if the user has that role Or the role is not present in the space
    * @throws Exception
    */
-  public static boolean isRedactor (String userName, String spaceGroupId) throws Exception{
-    String REDACTOR_MEMBERSHIP_NAME = "redactor";
-
-    List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
-    for(MembershipType membershipType : membershipTypes) {
-      if(REDACTOR_MEMBERSHIP_NAME.equals(membershipType.getName())) {
-        return getOrganizationService().getMembershipHandler().
-                findMembershipByUserGroupAndType(userName, spaceGroupId, REDACTOR_MEMBERSHIP_NAME) != null;
-      }
+  public static boolean isRedactorOrNotSpaceRedactional(String userName, String spaceGroupId) throws Exception {
+    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
+    boolean isRedactorOrNotSpaceRedactional = false;
+    if (space != null) {
+      isRedactorOrNotSpaceRedactional = getSpaceService().isRedactor(space, userName) ? true : false;
     }
-    return true;
+    return isRedactorOrNotSpaceRedactional;
   }
 
-  public static boolean isManager(String userName, String spaceGroupId) throws Exception {
-    String MANAGER_MEMBERSHIP_NAME = "manager";
-
-    List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
-    for (MembershipType membershipType : membershipTypes) {
-      if (MANAGER_MEMBERSHIP_NAME.equals(membershipType.getName())) {
-        return getOrganizationService().getMembershipHandler().
-                findMembershipByUserGroupAndType(userName, spaceGroupId, MANAGER_MEMBERSHIP_NAME) != null;
-      }
+  /**
+   * Check if the user has the role manager in that space
+   * @param userName
+   * @param spaceGroupId
+   * @return boolean true if the user has that role Or the role is not present in the space
+   * @throws Exception
+   */
+  public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) throws Exception {
+    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
+    boolean isSpaceManagerOrSuperManager = false;
+    if (space != null) {
+      isSpaceManagerOrSuperManager = getSpaceService().isManager(space, userName) || getSpaceService().isSuperManager(userName) ? true : false;
     }
-    return true;
+    return isSpaceManagerOrSuperManager;
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,

@@ -214,17 +214,17 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     Space space = tearDown.get(0);
     // No redactor in /spaces/space1 -> john is redactor
     try {
-      assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+      assertTrue(SpaceUtils.isRedactorOrNotSpaceRedactional(JOHN, space.getGroupId()));
     } catch (Exception e) {
       LOG.error("Problem executing Test",e);
       fail();
     }
     // Add another redactor in group -> john is no more redactor
     addUserToGroupWithMembership(DEMO, space.getGroupId(), REDACTOR);
-    assertFalse(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+    assertFalse(SpaceUtils.isRedactorOrNotSpaceRedactional(JOHN, space.getGroupId()));
 
     // add the user with membership redactor -> john is redactor
     addUserToGroupWithMembership(JOHN, space.getGroupId(), REDACTOR);
-    assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+    assertTrue(SpaceUtils.isRedactorOrNotSpaceRedactional(JOHN, space.getGroupId()));
   }
 }
