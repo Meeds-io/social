@@ -15,7 +15,8 @@
       :height="height"
       :filter="filterIgnoredItems"
       :hide-no-data="hideNoData"
-      :class="(required && !value && 'required-field invalid') || (required && 'required-field')"
+      :class="autocompleteClass"
+      :prepend-inner-icon="icon"
       append-icon=""
       menu-props="closeOnClick, maxHeight = 100"
       class="identitySuggester"
@@ -182,6 +183,12 @@ export default {
         return null;
       },
     },
+    filterStyle: {
+      type: Boolean,
+      default: function () {
+        return false;
+      },
+    }
   },
   data() {
     return {
@@ -195,6 +202,14 @@ export default {
     };
   },
   computed: {
+    icon() {
+      return this.filterStyle && 'fa-filter' || '';
+    },
+    autocompleteClass() {
+      const requiredClass = this.required && !this.value && 'required-field invalid' || this.required && 'required-field' || '';
+      const sugesterStyleClass = this.filterStyle && 'identitySuggesterFilterStyle' || 'identitySuggesterInputStyle';
+      return `${requiredClass} ${sugesterStyleClass}`;
+    },
     displaySearchPlaceHolder() {
       return this.labels.searchPlaceholder && (!this.searchStarted || !this.value);
     },
