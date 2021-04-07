@@ -225,6 +225,7 @@ export default {
     },
   },
   data: () => ({
+    currentUserName: eXo.env.portal.userName,
     displayActionMenu: false,
     waitTimeUntilCloseMenu: 200,
     sendingAction: false,
@@ -258,7 +259,7 @@ export default {
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
     canUseActionsMenu() {
-      return this.user && this.enabledProfileActionExtensions.length;
+      return this.user && this.user.username !== this.currentUserName  && this.enabledProfileActionExtensions.length;
     },
     url() {
       if (this.user && this.user.username) {

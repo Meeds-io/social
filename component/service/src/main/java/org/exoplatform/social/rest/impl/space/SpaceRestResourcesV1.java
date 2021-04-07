@@ -249,9 +249,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     space.setMembers(members);
 
     //
-    spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+    Space createdSpace = spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+    spaceService.addRedactor(createdSpace, authenticatedUser);
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(createdSpace, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
   /**
