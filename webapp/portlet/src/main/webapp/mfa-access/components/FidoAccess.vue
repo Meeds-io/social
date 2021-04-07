@@ -108,7 +108,7 @@ export default {
               console.log(options);
 
               const requestOptions = {};
-              requestOptions.challenge = this.strToBin(options.challenge);
+              requestOptions.challenge = this.b64StrToBin(options.challenge);
 
               if ('rpId' in options) {
                 requestOptions.rpId = options.rpId;
@@ -157,7 +157,7 @@ export default {
       }
 
       publicKeyCredential.response = {
-        clientDataJSON: this.binToB64Str(assertion.response.clientDataJSON),
+        clientDataJSON: this.binToStr(assertion.response.clientDataJSON),
         authenticatorData: this.binToB64Str(assertion.response.authenticatorData),
         signature: this.binToB64Str(assertion.response.signature)
 
@@ -202,8 +202,8 @@ export default {
               const makeCredentialOptions = {};
               makeCredentialOptions.rp = options.rp;
               makeCredentialOptions.user = options.user;
-              makeCredentialOptions.user.id = this.strToBin(options.user.id);
-              makeCredentialOptions.challenge = this.strToBin(options.challenge);
+              makeCredentialOptions.user.id = this.b64StrToBin(options.user.id);
+              makeCredentialOptions.challenge = this.b64StrToBin(options.challenge);
               makeCredentialOptions.pubKeyCredParams = options.pubKeyCredParams;
 
               if ('authenticatorSelection' in options) {
