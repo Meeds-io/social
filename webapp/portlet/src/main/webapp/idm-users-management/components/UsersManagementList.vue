@@ -91,7 +91,7 @@
         </div>
       </template>
       <template slot="item.isInternal" slot-scope="{ item }">
-        <div v-if="item.isInternal">
+        <div v-if="item.isInternal" class="displayedIconClass">
           <v-btn
             v-exo-tooltip.bottom.body="createdTitle(item.createdDate)"
             primary
@@ -100,7 +100,7 @@
             <i class="uiIconSoupCan"><span class="internalIconClass">eXo</span></i>
           </v-btn>
         </div>
-        <div v-else>
+        <div v-else class="displayedIconClass">
           <v-btn
             v-exo-tooltip.bottom.body="synchronizedTitle(item.synchronizedDate)"
             primary
@@ -176,6 +176,7 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    userType: null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -202,7 +203,7 @@ export default {
         return this.users.slice();
       } else {
         return this.users.slice()
-          .filter(user => 
+          .filter(user =>
             user.userName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
             || user.firstName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
             || user.lastName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
@@ -214,61 +215,80 @@ export default {
         text: this.$t && this.$t('UsersManagement.userName'),
         value: 'userName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.firstName'),
         value: 'firstName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.lastName'),
         value: 'lastName',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.email'),
         value: 'email',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       }, {
-        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        text: this.$t && this.$t('UsersManagement.lastConnection'),
         value: 'lastConnexion',
         align: 'center',
+        class: 'headerPadding',
         sortable: false,
       },{
         text: this.$t && this.$t('UsersManagement.enrollment'),
         value: 'enrollmentDate',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.status'),
         value: 'enabled',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.source'),
         value: 'isInternal',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.type'),
         value: 'external',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.role'),
         value: 'role',
         align: 'center',
+        width: '60px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.edit'),
         value: 'edit',
         align: 'center',
+        width: '60px',
+        class: 'headerPadding',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.delete'),
         value: 'delete',
         align: 'center',
+        width: '80px',
+        class: 'headerPadding',
         sortable: false,
         show : this.isSuperUser
       }].filter(x => x.show == null || x.show === true);
@@ -306,6 +326,7 @@ export default {
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
     this.$root.$on('multiSelectAction', this.multiSelectAction);
+    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   methods: {
     updateSearchTerms(keyword, filter) {
@@ -394,7 +415,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -427,7 +448,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.connectionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
@@ -527,6 +548,10 @@ export default {
         this.loading = false;
         this.initialized = true;
       });
+    },
+    applyAdvancedFilter(userType) {
+      this.userType= userType;
+      this.searchUsers();
     }
   },
 };

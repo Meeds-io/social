@@ -408,13 +408,13 @@ public interface IdentityStorage {
    * @param firstCharacter
    * @param sortField
    * @param sortDirection
-   * @param excludeExternal
    * @param isEnabled
+   * @param userType
    * @param offset
    * @param limit
    * @return
    */
-  default public List<Identity> getIdentities(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean excludeExternal, boolean isEnabled, long offset, long limit) {
+  default public List<Identity> getIdentities(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean isEnabled, String userType, long offset, long limit) {
     throw new UnsupportedOperationException("This operation is not supported using current implementation of service IdentityStorage");
   }
 

@@ -40,16 +40,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -149,6 +140,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private static final String ONLINE              = "online";
 
+  private static final String INTERNAL              = "internal";
+  
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
@@ -256,8 +249,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   public Response getUsers(@Context UriInfo uriInfo,
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
+                           @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
-                           @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") boolean excludeExternal,
                            @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
@@ -274,7 +267,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !excludeExternal) {
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -301,8 +294,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
-      filter.setExcludeExternal(excludeExternal);
       filter.setEnabled(!isDisabled);
+      filter.setUserType(userType);
       if (isDisabled && q != null && !q.isEmpty()) {
         User[] users;
         ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
@@ -883,6 +876,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           continue;
         }
         Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+        if (identity == null) {
+          LOG.warn("Cannot find identity by username {} for onboarding, he is disabled or not existing", username);
+          continue;
+        }
         if (Util.isExternal(identity.getId())) {
           LOG.warn("User {} is external, he cannot be enrolled.", username);
           continue;

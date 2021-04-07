@@ -214,26 +214,37 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
-    if (filter.isExcludeExternal()) {
-      // Get users have external = false or have no external field
-      esSubQuery.append("    \"should\": [\n");
-      esSubQuery.append("                  {\n");
-      esSubQuery.append("                    \"term\": {\n");
-      esSubQuery.append("                      \"external\": false\n");
-      esSubQuery.append("                    }\n");
-      esSubQuery.append("                  },\n");
-      esSubQuery.append("                  {\n");
-      esSubQuery.append("                    \"bool\": {\n");
-      esSubQuery.append("                      \"must_not\": {\n");
-      esSubQuery.append("                        \"exists\": {\n");
-      esSubQuery.append("                          \"field\": \"external\"\n");
-      esSubQuery.append("                        }\n");
-      esSubQuery.append("                      }\n");
-      esSubQuery.append("                    }\n");
-      esSubQuery.append("                  }\n");
-      esSubQuery.append("                  ]\n");
-      subQueryEmpty = false;
-      appendCommar = true;
+    if (filter.getUserType() != null) {
+      if (filter.getUserType().equals("internal")) {
+        esSubQuery.append("    \"should\": [\n");
+        esSubQuery.append("                  {\n");
+        esSubQuery.append("                    \"term\": {\n");
+        esSubQuery.append("                      \"external\": false\n");
+        esSubQuery.append("                    }\n");
+        esSubQuery.append("                  },\n");
+        esSubQuery.append("                  {\n");
+        esSubQuery.append("                    \"bool\": {\n");
+        esSubQuery.append("                      \"must_not\": {\n");
+        esSubQuery.append("                        \"exists\": {\n");
+        esSubQuery.append("                          \"field\": \"external\"\n");
+        esSubQuery.append("                        }\n");
+        esSubQuery.append("                      }\n");
+        esSubQuery.append("                    }\n");
+        esSubQuery.append("                  }\n");
+        esSubQuery.append("                  ]\n");
+        subQueryEmpty = false;
+        appendCommar = true;
+      } else if (filter.getUserType().equals("external")) {
+        esSubQuery.append("    \"should\": [\n");
+        esSubQuery.append("                  {\n");
+        esSubQuery.append("                    \"term\": {\n");
+        esSubQuery.append("                      \"external\": true\n");
+        esSubQuery.append("                    }\n");
+        esSubQuery.append("                  }\n");
+        esSubQuery.append("                  ]\n");
+        subQueryEmpty = false;
+        appendCommar = true;
+      }
     }
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();

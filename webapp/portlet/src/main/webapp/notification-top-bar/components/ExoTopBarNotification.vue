@@ -106,13 +106,16 @@ export default {
     },
   },
   created() {
-    this.getNotifications();
+    this.getNotifications().finally(() => this.$root.$emit('application-loaded'));
     notificationlAPI.getUserToken().then(
       (data) => {
         notificationlAPI.initCometd(data);
       }
     );
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
+  },
+  mounted() {
+    this.$root.$emit('application-loaded');
   },
   methods: {
     getNotifications() {
@@ -122,8 +125,7 @@ export default {
           this.badge = data.badge;
           this.notificationsSize = this.notifications.length;
           return this.$nextTick();
-        })
-        .then(() => this.$root.$emit('application-loaded'));
+        });
     },
     markAllAsRead() {
       return notificationlAPI.updateNotification(null, 'markAllAsRead')
@@ -133,7 +135,8 @@ export default {
               $(this).removeClass('unread').addClass('read');
             }
           });
-        });
+        })
+        .finally(() => this.$root.$emit('application-loaded'));
     },
     openDrawer() {
       this.$refs.drawerNotificationDrawer.open();
@@ -142,6 +145,7 @@ export default {
     },
     closeDrawer() {
       this.$refs.drawerNotificationDrawer.close();
+      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     },
     navigateTo(pagelink) {
       location.href=`${ eXo.env.portal.context }/${ eXo.env.portal.portalName }/${ pagelink }` ;

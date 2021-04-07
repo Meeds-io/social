@@ -430,6 +430,7 @@ public class EntityBuilder {
 
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setLastUpdatedTime(space.getLastUpdatedTime());
+    spaceEntity.setCreatedTime(String.valueOf(space.getCreatedTime()));
     spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());

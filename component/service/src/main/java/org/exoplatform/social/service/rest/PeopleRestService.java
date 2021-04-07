@@ -169,6 +169,8 @@ public class PeopleRestService implements ResourceContainer{
     Identity currentIdentity = Util.getViewerIdentity(currentUser);
     identityFilter.setViewerIdentity(currentIdentity);
 
+    Identity authenticatedUserIdentity = RestUtils.getCurrentIdentity();
+
     Identity[] result;
     if (PENDING_STATUS.equals(typeOfRelation)) {
       ListAccess<Identity> listAccess = getRelationshipManager().getOutgoingByFilter(currentIdentity, identityFilter);
@@ -356,7 +358,7 @@ public class PeopleRestService implements ResourceContainer{
       
       // add others in the suggestion
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
+      if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
@@ -411,7 +413,7 @@ public class PeopleRestService implements ResourceContainer{
   
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
+        if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, request.getLocale());
         }
       }
@@ -464,7 +466,7 @@ public class PeopleRestService implements ResourceContainer{
 
         // finally add others in the suggestion
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
-        if (remain > 0 && !Util.isExternal(currentIdentity.getId())) {
+        if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, request.getLocale());
         }
       }
@@ -542,7 +544,7 @@ public class PeopleRestService implements ResourceContainer{
     Identity[] identitiesList = listAccess.toArray(new Identity[0]);
     // Exclude external users from other users
     identitiesList = Arrays.stream(identitiesList)
-            .filter(identity -> !Util.isExternal(identity.getId()))
+            .filter(identity -> identity != null && !Util.isExternal(identity.getId()))
             .toArray(Identity[]::new);
     userInfos = addUsersToUserInfosList(identitiesList, identityFilter, userInfos, currentUser, false, locale);
     return userInfos;
@@ -624,7 +626,7 @@ public class PeopleRestService implements ResourceContainer{
    * @throws Exception
    * @LevelAPI Platform
    * @anchor PeopleRestService.suggestUsernames
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getUsers(UriInfo, String, String, String,boolean, boolean, int, int, boolean, String)}
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getUsers(UriInfo, String, String, String, String, boolean, int, int, boolean, String)}
    * 
    */
   @GET
