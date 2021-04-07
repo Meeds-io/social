@@ -705,7 +705,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.isExcludeExternal(), profileFilter.isEnabled());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isEnabled());
   }
 
   @Override
@@ -894,11 +894,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       char firstCharacter,
                                       String sortField,
                                       String sortDirection,
-                                      boolean excludeExternal,
-                                      boolean IsEnabled,
+                                      boolean isEnabled,
+                                      String userType,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, excludeExternal, IsEnabled, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -912,7 +912,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
-    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, false,true, offset, limit);
+    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, true, null, offset, limit);
   }
 
   @Override

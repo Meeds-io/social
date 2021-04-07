@@ -176,6 +176,7 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    userType: null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -235,7 +236,7 @@ export default {
         class: 'headerPadding',
         sortable: false,
       }, {
-        text: this.$t && this.$t('UsersManagement.lastConnexion'),
+        text: this.$t && this.$t('UsersManagement.lastConnection'),
         value: 'lastConnexion',
         align: 'center',
         class: 'headerPadding',
@@ -325,6 +326,7 @@ export default {
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
     this.$root.$on('multiSelectAction', this.multiSelectAction);
+    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   methods: {
     updateSearchTerms(keyword, filter) {
@@ -413,7 +415,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -446,7 +448,7 @@ export default {
               user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
-            user.connectionStatus = this.$t('UsersManagement.lastConnexion.neverConnected');
+            user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
             if (user.external === 'true') {
               user.enrollmentStatus = 'cannotBeEnrolled';
               user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
@@ -546,6 +548,10 @@ export default {
         this.loading = false;
         this.initialized = true;
       });
+    },
+    applyAdvancedFilter(userType) {
+      this.userType= userType;
+      this.searchUsers();
     }
   },
 };

@@ -91,6 +91,7 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+    userType: 'internal',
     initialized: false,
     hasPeople: false,
     offset: 0,
