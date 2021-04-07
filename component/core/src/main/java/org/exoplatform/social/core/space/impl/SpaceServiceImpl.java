@@ -408,12 +408,10 @@ public class SpaceServiceImpl implements SpaceService {
     // Add creator as a manager and a member to this space
     String[] managers = space.getManagers();
     String[] members = space.getMembers();
-    String[] redactors = space.getRedactors();
     managers = (String[]) ArrayUtils.add(managers,creator);
     members = (String[]) ArrayUtils.add(members,creator);
     space.setManagers(managers);
     space.setMembers(members);
-    space.setRedactors(redactors);
 
     // Creates new space by creating new group
     String groupId = null;

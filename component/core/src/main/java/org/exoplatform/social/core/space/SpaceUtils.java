@@ -1885,35 +1885,28 @@ public class SpaceUtils {
 
 
   /**
-   * Check if the user has the role redactor in that space
+   * Check if the user has the role redactor in that space or that the space is not redactional
    * @param userName
    * @param spaceGroupId
    * @return boolean true if the user has that role Or the role is not present in the space
    * @throws Exception
    */
-  public static boolean isRedactorOrNotSpaceRedactional(String userName, String spaceGroupId) throws Exception {
+  public static boolean isRedactor(String userName, String spaceGroupId) throws Exception {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    boolean isRedactorOrNotSpaceRedactional = false;
-    if (space != null) {
-      isRedactorOrNotSpaceRedactional = getSpaceService().isRedactor(space, userName) ? true : false;
-    }
-    return isRedactorOrNotSpaceRedactional;
+    return space != null ? getSpaceService().isRedactor(space, userName) || space.getRedactors().length == 0 : false;
   }
 
   /**
    * Check if the user has the role manager in that space
+   *
    * @param userName
    * @param spaceGroupId
-   * @return boolean true if the user has that role Or the role is not present in the space
+   * @return boolean true if the user is supermanager of all spaces or has the role manager in that space
    * @throws Exception
    */
   public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) throws Exception {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    boolean isSpaceManagerOrSuperManager = false;
-    if (space != null) {
-      isSpaceManagerOrSuperManager = getSpaceService().isManager(space, userName) || getSpaceService().isSuperManager(userName) ? true : false;
-    }
-    return isSpaceManagerOrSuperManager;
+    return space != null ? getSpaceService().isManager(space, userName) || getSpaceService().isSuperManager(userName) : false;
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,

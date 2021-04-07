@@ -35,7 +35,7 @@
   if(uicomponent.getSpaceGroupId()) {
     String spaceGroupId = uicomponent.getSpaceGroupId();
     String currentUserId = _ctx.getRequestContext().getRemoteUser();
-    isCurrentUserRedactor = SpaceUtils.isRedactorOrNotSpaceRedactional(currentUserId, spaceGroupId);
+    isCurrentUserRedactor = SpaceUtils.isRedactor(currentUserId, spaceGroupId);
     isCurrentUserManager = SpaceUtils.isSpaceManagerOrSuperManager(currentUserId, spaceGroupId);
   }
   def space = SpaceUtils.getSpaceByContext();
