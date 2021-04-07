@@ -245,8 +245,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     String[] managers = new String[] { authenticatedUser };
     String[] members = new String[] { authenticatedUser };
+    String[] redactors = new String[] { authenticatedUser };
     space.setManagers(managers);
     space.setMembers(members);
+    space.setRedactors(redactors);
 
     //
     spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());

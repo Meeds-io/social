@@ -81,8 +81,10 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     space1.setPriority("2");
     String[] manager = new String []{"root"};
     String[] members = new String []{"demo", "john", "mary"};
+    String[] redactors = new String []{"john"};
     space1.setManagers(manager);
     space1.setMembers(members);
+    space1.setRedactors(redactors);
 
     spaceService.createSpace(space1, "root");
     tearDown.add(space1);
@@ -219,12 +221,8 @@ public class SpaceUtilsTest extends AbstractCoreTest {
       LOG.error("Problem executing Test",e);
       fail();
     }
-    // Add another redactor in group -> john is no more redactor
+    // Add another redactor in group -> john is still redactor
     addUserToGroupWithMembership(DEMO, space.getGroupId(), REDACTOR);
-    assertFalse(SpaceUtils.isRedactorOrNotSpaceRedactional(JOHN, space.getGroupId()));
-
-    // add the user with membership redactor -> john is redactor
-    addUserToGroupWithMembership(JOHN, space.getGroupId(), REDACTOR);
     assertTrue(SpaceUtils.isRedactorOrNotSpaceRedactional(JOHN, space.getGroupId()));
   }
 }
