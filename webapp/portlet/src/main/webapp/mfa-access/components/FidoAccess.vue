@@ -61,7 +61,7 @@ export default {
     this.changeScreen('initial');
     window.setTimeout(() => {
       this.startRegistration();
-    }, 2000);
+    }, 1000);
   },
   methods: {
     getQueryParam(paramName) {
@@ -81,9 +81,7 @@ export default {
       ));
     },
     changeScreen(screen) {
-      console.log(`screenBefore=${screen}, this.screen=${this.screen}`);
       this.screen = screen;
-      console.log(`screenAfter=${screen}, this.screen=${this.screen}`);
     },
     b64StrToBin(str) {
       return Uint8Array.from(atob(str), c => c.charCodeAt(0));
@@ -105,8 +103,6 @@ export default {
         }).then(resp => {
           if (resp && resp.ok) {
             resp.json().then(options => {
-              console.log(options);
-
               const requestOptions = {};
               requestOptions.challenge = this.b64StrToBin(options.challenge);
 
@@ -116,8 +112,6 @@ export default {
               if ('allowCredentials' in options) {
                 requestOptions.allowCredentials = this.credentialListConversion(options.allowCredentials);
               }
-              console.log('sending assertion request:');
-              console.log(requestOptions);
               navigator.credentials.get({
                 'publicKey': requestOptions
               }).then(assertion => {
@@ -138,8 +132,6 @@ export default {
       }
     },
     finishAuthentication(assertion) {
-      console.log('received assertion response:');
-      console.log(assertion);
 
       const publicKeyCredential = {};
       if ('id' in assertion) {
@@ -166,8 +158,6 @@ export default {
         publicKeyCredential.response.userHandle=this.binToStr(assertion.response.userHandle);
       }
 
-
-      console.log(publicKeyCredential);
       let formData = new FormData();
       formData.append('data', JSON.stringify(publicKeyCredential));
       formData=new URLSearchParams(formData);
@@ -182,7 +172,6 @@ export default {
         body: formData
       }).then(resp => {
         if (resp && resp.ok) {
-          console.log('Authentication success');
           window.location.href=this.getQueryParam('initialUri');
         } else {
           this.changeScreen('error');
@@ -198,7 +187,6 @@ export default {
         }).then(resp => {
           if (resp && resp.ok) {
             resp.json().then(options => {
-              console.log(options);
               const makeCredentialOptions = {};
               makeCredentialOptions.rp = options.rp;
               makeCredentialOptions.user = options.user;
@@ -216,15 +204,13 @@ export default {
                 makeCredentialOptions.excludeCredentials = this.credentialListConversion(options.excludeCredentials);
               }
 
-              console.log('sending attestation request:');
-              console.log(makeCredentialOptions);
               if (makeCredentialOptions.excludeCredentials.length>0) {
                 //at least one authenticator is registred
                 //so we should make authentication instead of register
                 this.changeScreen('authenticate');
                 window.setTimeout(() => {
                   this.startAuthentication();
-                }, 2000);
+                }, 1000);
 
               } else {
 
@@ -234,7 +220,7 @@ export default {
                 }).then(attestation => {
                   window.setTimeout(() => {
                     this.finishRegistration(attestation);
-                  }, 2000);
+                  }, 1000);
                 }).catch((err) => {
                   this.changeScreen('error');
                   console.error('Unable to create credentials', err);
@@ -252,8 +238,6 @@ export default {
       }
     },
     finishRegistration(attestation) {
-      console.log('received attestation response');
-      console.log(attestation);
       const publicKeyCredential = {};
 
       if ('id' in attestation) {
@@ -273,8 +257,6 @@ export default {
 
       publicKeyCredential.response = response;
 
-      console.log(publicKeyCredential);
-      console.log(JSON.stringify(publicKeyCredential));
       let formData = new FormData();
       formData.append('data', JSON.stringify(publicKeyCredential));
       formData=new URLSearchParams(formData);
@@ -289,14 +271,12 @@ export default {
         body: formData
       }).then(resp => {
         if (resp && resp.ok) {
-          console.log('Registration success');
           this.changeScreen('success');
           window.setTimeout(() => {
             window.location.href=this.getQueryParam('initialUri');
-          }, 2000);
+          }, 1000);
         } else {
           this.changeScreen('error');
-          console.error('Unable to finalize registration');
         }
       });
     }
