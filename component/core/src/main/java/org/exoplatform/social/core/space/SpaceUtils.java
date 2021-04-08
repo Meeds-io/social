@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.web.url.navigation.NodeURL;
@@ -1893,7 +1894,7 @@ public class SpaceUtils {
    */
   public static boolean isRedactor(String userName, String spaceGroupId) throws Exception {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return space != null ? getSpaceService().isRedactor(space, userName) || space.getRedactors().length == 0 : false;
+    return space != null && (getSpaceService().isRedactor(space, userName) || ArrayUtils.isEmpty(space.getRedactors()));
   }
 
   /**
@@ -1906,7 +1907,7 @@ public class SpaceUtils {
    */
   public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) throws Exception {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return space != null ? getSpaceService().isManager(space, userName) || getSpaceService().isSuperManager(userName) : false;
+    return (space != null && getSpaceService().isManager(space, userName)) || getSpaceService().isSuperManager(userName);
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,

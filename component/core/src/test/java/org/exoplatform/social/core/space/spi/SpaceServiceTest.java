@@ -1496,7 +1496,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testCreateSpaceWithManagersAndMembers() throws SpaceException {
     String[] managers = { "manager" };
     String[] members = { "member1", "member2", "member3" };
-    String[] redactors = { "root" };
     String creator = "root";
     String invitedGroup = "invited";
     Space space = new Space();
@@ -1506,7 +1505,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setMembers(members);
-    space.setRedactors(redactors);
     space.setPrettyName(space.getDisplayName());
     space.setPriority("3");
     space.setRegistration("validation");
