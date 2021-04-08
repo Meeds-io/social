@@ -116,31 +116,55 @@ export default {
         if (!this.initialized) {
           this.initialized = true;
         }
-        $('body').addClass(this.bodyClasses);
+        window.setTimeout(() => {
+          if ($('.v-overlay').length) {
+            $('body').addClass(this.bodyClasses);
+          }
+        }, 200);
+        this.$root.openedDrawers.push(this);
         this.$emit('opened');
       } else {
         window.setTimeout(() => {
-          $('body').removeClass(this.bodyClasses);
+          if (!$('.v-overlay').length) {
+            $('body').removeClass(this.bodyClasses);
+          }
         }, 200);
+        if (this.$root.openedDrawers) {
+          const currentOpenedDrawerIndex = this.$root.openedDrawers.indexOf(this);
+          if (currentOpenedDrawerIndex >= 0) {
+            this.$root.openedDrawers.splice(currentOpenedDrawerIndex, 1);
+          }
+        }
+        this.$root.$emit('drawer-closed');
         this.$emit('closed');
       }
-      this.$nextTick().then(() => {
-        $('.v-overlay').off('click').on('click', () => {
-          this.close();
-        });
-      });
+      this.installOverlayListener();
       this.expand = false;
     },
   },
   created() {
     $(document).on('keydown', this.closeByEscape);
+    this.$root.$on('drawer-closed', this.installOverlayListener);
+    if (!this.$root.openedDrawers) {
+      this.$root.openedDrawers = [];
+    }
   },
   methods: {
     open() {
       this.drawer = true;
     },
+    installOverlayListener() {
+      if (this.drawer) {
+        this.$nextTick().then(() => {
+          $('.v-overlay').off('click').on('click', () => {
+            this.close();
+          });
+        });
+      }
+    },
     closeByEscape(event) {
-      if (event.key === 'Escape' && this.drawer) {
+      const isLastOpenedDrawer = this.$root.openedDrawers.indexOf(this) === this.$root.openedDrawers.length - 1;
+      if (event.key === 'Escape' && this.drawer && isLastOpenedDrawer) {
         this.close(event);
       }
     },
