@@ -25,7 +25,6 @@
   PortalContainer portalContainer = PortalContainer.getCurrentInstance(session.getServletContext());
   ResourceBundleService service = (ResourceBundleService) portalContainer.getComponentInstanceOfType(ResourceBundleService.class);
   ResourceBundle res = service.getResourceBundle(service.getSharedResourceBundleNames(), request.getLocale()) ;
-  String join = res.getString("UserProfilePopup.label.Loading");
 
   if (space == null) {
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
