@@ -4,7 +4,7 @@
       ref="selectAutoComplete"
       v-model="value"
       :label="labels.label"
-      :placeholder="labels.placeholder"
+      :placeholder="SearchPlaceHolder"
       :disabled="disabled"
       :loading="loadingSuggestions > 0"
       :rules="rules"
@@ -200,6 +200,9 @@ export default {
     };
   },
   computed: {
+    SearchPlaceHolder() {
+      return this.filterStyle && this.$t('Search.label.placeHolder') || this.labels && this.labels.placeholder;
+    },
     prependInnerIcon() {
       return this.filterStyle && 'fa-filter' || '';
     },
