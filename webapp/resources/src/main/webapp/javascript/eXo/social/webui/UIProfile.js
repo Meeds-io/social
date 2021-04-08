@@ -59,28 +59,34 @@ var UIProfile = {
     var spaceRestUrl = '//' + window.location.host + portal.context + '/' + portal.rest + '/v1/social/spaces/{0}';
     var membersRestUrl = '//' + window.location.host + portal.context + '/' + portal.rest + '/v1/social/spaces/{0}/users?returnSize=true';
     var managerRestUrl = '//' + window.location.host + portal.context + '/' + portal.rest + '/v1/social/spaces/{0}/users?role=manager&returnSize=true';
-    var membershipRestUrl = '//' + window.location.host + portal.context + '/' + portal.rest + '/v1/social/spacesMemberships?space={0}&returnSize=true';
     var deleteMembershipRestUrl = '//' + window.location.host + portal.context + '/' + portal.rest + '/v1/social/spacesMemberships/{0}:{1}:{2}';
 
     var container = $('#' + uicomponentId).closest('.PORTLET-FRAGMENT');
     var spaceLinks = $(container).find('.space-avatar');
     var defaultAvatar =  decodeURIComponent(defaultAvatarUrl);
     $.each(spaceLinks, function (idx, el) {
-      var spaceID = $(el).attr('space-data');
+      var spaceID = '' ;
+      var returnToHome = false ;
+      if (uicomponentId=='UserHomePortalLink') {
+        spaceID = eXo.env.portal.spaceId;
+        returnToHome = true;
+      }else{
+        spaceID = $(el).attr('space-data');
+      }
       $(el).spacePopup({
         userName : portal.userName,
         spaceID:spaceID,
         restURL: spaceRestUrl,
         membersRestURL: membersRestUrl,
         managerRestUrl: managerRestUrl,
-        membershipRestUrl : membershipRestUrl,
         defaultAvatarUrl : defaultAvatar,
         deleteMembershipRestUrl : deleteMembershipRestUrl,
         labels: UIProfile.labels,
         content: false,
         defaultPosition: "left",
         keepAlive: true,
-        maxWidth: "240px"
+        maxWidth: "240px",
+        returnToHome: returnToHome,
       });
     });
   },
