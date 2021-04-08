@@ -240,9 +240,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     // john is no more manager
     spaceService.setManager(space, JOHN, false);
     assertFalse(SpaceUtils.isSpaceManagerOrSuperManager(JOHN, space.getGroupId()));
-
     // root is super manager
-    spaceService.isSuperManager("root");
     assertTrue(SpaceUtils.isSpaceManagerOrSuperManager("root", space.getGroupId()));
   }
 }
