@@ -73,7 +73,7 @@
             <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%> - Homepage">
           </a>
           <% } %>
-          <a href="<%=portalPath%>" title="<%=logoTitle%>" class="ps-2 align-self-center brandingContainer <%=titleClass%>">
+          <a href="<%=portalPath%>" title="<%=logoTitle%>" class="pl-2 align-self-center brandingContainer <%=titleClass%> <%=spaceAvatarClass%> ">
             <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
               <%= logoTitle%>
             </div>
