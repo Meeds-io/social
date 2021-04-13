@@ -68,7 +68,7 @@ export default {
             contentId: app.contentId,
             description: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.description`),
             displayName: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.title`),
-            id: app.id(),
+            id: app.id,
             removable: app.removable,
           }));
         });
