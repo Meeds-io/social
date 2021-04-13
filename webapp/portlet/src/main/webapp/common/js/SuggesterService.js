@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorSpace, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, noRedactorSpace)
+    searchSpaces(filter, result, onlyRedactor, noRedactorSpace, onlyManager)
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -13,7 +13,7 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
   }
 }
 
-function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace) {
+function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, excludeNonManager) {
   const formData = new FormData();
   formData.append('filterType', 'member');
   formData.append('limit', '20');
@@ -24,7 +24,8 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace) {
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-        if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount)) {
+      // canEdit = true if manager or super manager
+        if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount) || (!excludeNonManager || item.canEdit)) {
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
