@@ -207,8 +207,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
 
   }
 
-  public void testIsRedactor() throws Exception{
-    String REDACTOR = "redactor";
+  public void testIsRedactor() throws Exception {
     String JOHN = "john";
     String DEMO = "demo";
     Space space = tearDown.get(0);
@@ -216,15 +215,32 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     try {
       assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
     } catch (Exception e) {
-      LOG.error("Problem executing Test",e);
+      LOG.error("Problem executing Test", e);
       fail();
     }
     // Add another redactor in group -> john is no more redactor
-    addUserToGroupWithMembership(DEMO, space.getGroupId(), REDACTOR);
+    spaceService.addRedactor(space, DEMO);
     assertFalse(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
 
     // add the user with membership redactor -> john is redactor
-    addUserToGroupWithMembership(JOHN, space.getGroupId(), REDACTOR);
+    spaceService.addRedactor(space, JOHN);
     assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
+  }
+
+  public void testIsSpaceManagerOrSuperManager() throws Exception {
+    String JOHN = "john";
+    Space space = tearDown.get(0);
+    spaceService.setManager(space, JOHN, true);
+    try {
+      assertTrue(SpaceUtils.isSpaceManagerOrSuperManager(JOHN, space.getGroupId()));
+    } catch (Exception e) {
+      LOG.error("Problem executing Test", e);
+      fail();
+    }
+    // john is no more manager
+    spaceService.setManager(space, JOHN, false);
+    assertFalse(SpaceUtils.isSpaceManagerOrSuperManager(JOHN, space.getGroupId()));
+    // root is super manager
+    assertTrue(SpaceUtils.isSpaceManagerOrSuperManager("root", space.getGroupId()));
   }
 }
