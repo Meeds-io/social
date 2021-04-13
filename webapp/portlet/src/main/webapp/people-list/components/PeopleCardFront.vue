@@ -23,7 +23,7 @@
         :title="$t('peopleList.label.spaceManager')"
         :ripple="false"
         color="primary"
-        class="peopleInfoIcon d-flex not-clickable primary-border-color ml-1"
+        class="peopleInfoIcon d-flex not-clickable primary-border-color ms-1"
         icon
         small>
         <span class="d-flex uiIconMemberAdmin primary--text"></span>
@@ -33,7 +33,7 @@
         :title="$t('peopleList.label.groupBound')"
         :ripple="false"
         color="grey"
-        class="peopleGroupMemberBindingIcon d-flex not-clickable ml-1"
+        class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
         icon
         small>
         <span class="d-flex uiIconPLFFont uiIconGroup"></span>

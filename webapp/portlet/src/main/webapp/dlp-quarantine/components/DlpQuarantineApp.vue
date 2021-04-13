@@ -53,11 +53,11 @@
             <date-format
               :value="item.detectionDate"
               :format="fullDateFormat"
-              class="mr-1" />
+              class="me-1" />
             <date-format
               :value="item.detectionDate"
               :format="dateTimeFormat"
-              class="mr-1" />
+              class="me-1" />
           </div>
         </template>
         <template slot="item.authorDisplayName" slot-scope="{ item }">

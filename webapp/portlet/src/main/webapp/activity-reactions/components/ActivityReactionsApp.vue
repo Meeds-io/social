@@ -11,7 +11,7 @@
             :avatar-url="liker.personLikeAvatarImageSource"
             :url="liker.personLikeProfileUri"
             :size="30"
-            class="mr-1" />
+            class="me-1" />
         </div>
       </div>
       <div class="activityLikersAndKudosDrawer">
@@ -26,7 +26,7 @@
             </v-avatar>
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </div>
-          <p v-if="likersNumber" class="likersNumber my-auto pl-2 align-self-end caption" @click="openDrawer">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
+          <p v-if="likersNumber" class="likersNumber my-auto ps-2 align-self-end caption" @click="openDrawer">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
         </div>
         <activity-reactions-drawer
           ref="reactionsDrawer"

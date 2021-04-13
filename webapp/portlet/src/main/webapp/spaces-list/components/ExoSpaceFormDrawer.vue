@@ -11,11 +11,11 @@
     <template slot="content">
       <div></div>
       <div>
-        <v-stepper v-model="stepper" vertical flat class="ma-0 pb-0">
+        <v-stepper v-model="stepper" vertical flat class="ma-0 py-0 me-4">
           <v-stepper-step :complete="stepper > 1" step="1" class="ma-0">
             {{ $t('spacesList.label.spaceDetails') }}
           </v-stepper-step>
-          <v-stepper-content step="1">
+          <v-stepper-content step="1" class="ps-4 pe-6 my-0">
             <form ref="form1" @submit="nextStep">
               <v-label for="name">
                 {{ $t('spacesList.label.name') }}
@@ -56,12 +56,14 @@
                   {{ item.resolvedLabel || item.name }}
                 </option>
               </select>
-              <div class="caption font-italic font-weight-light pl-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
+              <div class="caption font-italic font-weight-light ps-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
               <v-card-actions class="px-0">
                 <v-spacer />
                 <v-btn class="btn btn-primary" outlined @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
-                  <v-icon size="18" class="ml-2">fa-caret-right</v-icon>
+                  <v-icon size="18" class="ms-2">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
                 </v-btn>
               </v-card-actions>
             </form>
@@ -69,7 +71,7 @@
           <v-stepper-step :complete="stepper > 2" step="2" class="ma-0">
             {{ $t('spacesList.label.spaceAccess') }}
           </v-stepper-step>
-          <v-stepper-content step="2">
+          <v-stepper-content step="2" class="ps-4 pe-6 my-0">
             <form ref="form2" @submit="nextStep">
               <div class="d-flex flex-wrap pt-2">
                 <label for="hidden" class="v-label theme--light my-auto float-left">
@@ -80,9 +82,9 @@
                   v-model="space.visibility"
                   true-value="hidden"
                   false-value="private"
-                  class="float-left my-0 ml-4" />
+                  class="float-left my-0 ms-4" />
               </div>
-              <div class="caption font-italic font-weight-light pl-1 muted mb-2 mt-1">
+              <div class="caption font-italic font-weight-light ps-1 muted mb-2 mt-1">
                 {{ $t(`spacesList.description.${space.visibility || 'hidden'}`) }}
               </div>
               <div class="d-flex flex-wrap pt-2">
@@ -91,7 +93,7 @@
                 </label>
                 <v-radio-group
                   v-model="space.subscription"
-                  class="mt-2 ml-2"
+                  class="mt-2 ms-2"
                   mandatory
                   row
                   inset>
@@ -109,16 +111,20 @@
                     class="my-0" />
                 </v-radio-group>
               </div>
-              <div class="caption font-italic font-weight-light pl-1 muted">{{ $t(`spacesList.description.${space.subscription || 'open'}`) }}</div>
+              <div class="caption font-italic font-weight-light ps-1 muted">{{ $t(`spacesList.description.${space.subscription || 'open'}`) }}</div>
               <v-card-actions class="mt-4 px-0">
                 <v-btn class="btn" @click="previousStep">
-                  <v-icon size="18" class="mr-2">fa-caret-left</v-icon>
+                  <v-icon size="18" class="me-2">
+                    {{ $vuetify.rtl && 'fa-caret-right' || 'fa-caret-left' }}
+                  </v-icon>
                   {{ $t('spacesList.button.back') }}
                 </v-btn>
                 <v-spacer />
                 <v-btn class="btn btn-primary" outlined @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
-                  <v-icon size="18" class="ml-2">fa-caret-right</v-icon>
+                  <v-icon size="18" class="ms-2">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
                 </v-btn>
               </v-card-actions>
             </form>
@@ -126,7 +132,7 @@
           <v-stepper-step :complete="stepper > 3" step="3" class="ma-0">
             {{ $t('spacesList.label.inviteUsers') }}
           </v-stepper-step>
-          <v-stepper-content step="3">
+          <v-stepper-content step="3" class="ps-4 pe-6 my-0">
             <form
               ref="form3"
               :disabled="savingSpace || spaceSaved"
@@ -153,7 +159,9 @@
                   :disabled="savingSpace || spaceSaved"
                   class="btn"
                   @click="previousStep">
-                  <v-icon size="18" class="mr-2">fa-caret-left</v-icon>
+                  <v-icon size="18" class="me-2">
+                    {{ $vuetify.rtl && 'fa-caret-right' || 'fa-caret-left' }}
+                  </v-icon>
                   {{ $t('spacesList.button.back') }}
                 </v-btn>
               </v-card-actions>
@@ -170,7 +178,7 @@
         <v-spacer />
         <v-btn
           :disabled="savingSpace || spaceSaved"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           <template>
             {{ $t('spacesList.button.cancel') }}

@@ -51,7 +51,7 @@
           maxlength="2000" />
       </v-card-text>
       <v-card-text class="d-flex text-color pb-2">
-        <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold mr-3">
+        <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">
           {{ $t('profileWorkExperiences.startDate') }}
         </div>
         <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
@@ -59,9 +59,10 @@
         </div>
       </v-card-text>
       <v-card-text class="d-flex py-0 profileWorkExperiencesDates">
-        <div class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold half-width mr-3">
+        <div class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold half-width me-3">
           <date-picker
             v-model="experience.startDate"
+            :left="$vuetify.rtl"
             class="ignore-vuetify-classes"
             top
             return-iso
@@ -72,9 +73,9 @@
             v-model="endDate"
             :disabled="isCurrent"
             :min-value="experience.startDate"
+            :left="!$vuetify.rtl"
             class="ignore-vuetify-classes"
             top
-            left
             return-iso
             required />
         </div>
@@ -91,7 +92,7 @@
           class="pa-0"
           outlined
           @click="$emit('remove')">
-          <i class="uiIconTrash pb-1 pr-2"></i>
+          <i class="uiIconTrash pb-1 pe-2"></i>
           {{ $t('profileWorkExperiences.removeExperience') }}
         </v-btn>
       </v-card-text>

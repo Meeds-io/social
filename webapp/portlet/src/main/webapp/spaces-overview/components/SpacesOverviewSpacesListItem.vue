@@ -41,7 +41,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck"
           fab
           dark
           depressed
@@ -71,7 +71,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck"
           fab
           dark
           depressed

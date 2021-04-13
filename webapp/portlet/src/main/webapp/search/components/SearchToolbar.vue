@@ -11,7 +11,7 @@
         class="fill-width my-auto pt-0 px-4 searchInputParent">
       </v-text-field>
     </v-list-item-content>
-    <v-list-item-action class="align-end d-flex flex-row ml-0 mr-4">
+    <v-list-item-action class="align-end d-flex flex-row ms-0 me-4">
       <v-btn v-if="term" text color="error" @click="clearSearchTerm">
         {{ $t('search.connector.label.clear') }}
       </v-btn>

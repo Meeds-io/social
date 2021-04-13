@@ -46,7 +46,7 @@
       nav
       class="recentSpacesWrapper">
       <v-list-item v-if="canAddSpaces" :href="allSpacesLink" class="addSpaces my-2">
-        <v-list-item-avatar class="mr-3" size="22" tile>
+        <v-list-item-avatar class="me-3" size="22" tile>
           <i class="uiPlusEmptyIcon"></i>
         </v-list-item-avatar>
         <v-list-item-content class="py-0 body-2 grey--text darken-4">

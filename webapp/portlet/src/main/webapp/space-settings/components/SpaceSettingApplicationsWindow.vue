@@ -17,9 +17,11 @@
         height="36"
         width="36"
         @click="$emit('back')">
-        <v-icon size="20">mdi-arrow-left</v-icon>
+        <v-icon size="20">
+          {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
+        </v-icon>
       </v-btn>
-      <v-toolbar-title class="pl-0">
+      <v-toolbar-title class="ps-0">
         {{ $t('SpaceSettings.applications') }}
       </v-toolbar-title>
       <v-spacer />

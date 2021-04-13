@@ -4,7 +4,7 @@
     v-show="hover"
     ref="bannerInput"
     prepend-icon="fa-file-image"
-    class="changeBannerButton mr-4"
+    class="changeBannerButton me-4"
     accept="image/*"
     clearable
     @change="uploadBanner" />
