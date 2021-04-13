@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.web.url.navigation.NodeURL;
@@ -1885,23 +1886,28 @@ public class SpaceUtils {
 
 
   /**
-   * Check if the user has the role redactor in that space
+   * Check if the user has the role redactor in that space or that the space is not redactional
    * @param userName
    * @param spaceGroupId
    * @return boolean true if the user has that role Or the role is not present in the space
    * @throws Exception
    */
-  public static boolean isRedactor (String userName, String spaceGroupId) throws Exception{
-    String REDACTOR_MEMBERSHIP_NAME = "redactor";
+  public static boolean isRedactor(String userName, String spaceGroupId) throws Exception {
+    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
+    return space != null && (getSpaceService().isRedactor(space, userName) || ArrayUtils.isEmpty(space.getRedactors()));
+  }
 
-    List<MembershipType> membershipTypes = getOrganizationService().getMembershipHandler().findMembershipTypesByGroup(spaceGroupId);
-    for(MembershipType membershipType : membershipTypes) {
-      if(REDACTOR_MEMBERSHIP_NAME.equals(membershipType.getName())) {
-        return getOrganizationService().getMembershipHandler().
-                findMembershipByUserGroupAndType(userName, spaceGroupId, REDACTOR_MEMBERSHIP_NAME) != null;
-      }
-    }
-    return true;
+  /**
+   * Check if the user has the role manager in that space
+   *
+   * @param userName
+   * @param spaceGroupId
+   * @return boolean true if the user is supermanager of all spaces or has the role manager in that space
+   * @throws Exception
+   */
+  public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) throws Exception {
+    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
+    return (space != null && getSpaceService().isManager(space, userName)) || getSpaceService().isSuperManager(userName);
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,
