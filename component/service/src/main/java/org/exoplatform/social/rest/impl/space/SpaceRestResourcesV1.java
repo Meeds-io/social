@@ -285,7 +285,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      return builder.cacheControl(cc).tag(eTag).build();
     }
 
     return builder.cacheControl(cc).tag(eTag).build();
