@@ -817,8 +817,29 @@
             <description>Remove user space binding when user is deleted</description>
         </component-plugin>
     </external-component-plugins>
-    
-    
+
+    <external-component-plugins>
+        <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.new</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Add new external store user listener.</description>
+        </component-plugin>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.deleted</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Delete external store user listener.</description>
+        </component-plugin>
+        <component-plugin>
+            <name>exo.idm.externalStore.user.modified</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
+            <description>Edit external store user listener.</description>
+        </component-plugin>
+    </external-component-plugins>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
         <component-plugin profiles="all">
@@ -835,6 +856,33 @@
                     <property name="job" value="org.exoplatform.social.core.binding.job.QueueGroupSpaceBindingJob"/>
                     <property name="expression" value="${exo.social.QueueGroupSpaceBindingJob.expression:0 0/5 * * * ?}"/>
                     <!-- Runs every 5 minutes -->
+                </properties-param>
+            </init-params>
+        </component-plugin>
+    </external-component-plugins>
+	
+	<external-component-plugins>
+        <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
+        <component-plugin>
+            <name>MalwareDetectionJob</name>
+            <set-method>addPeriodJob</set-method>
+            <type>org.exoplatform.services.scheduler.PeriodJob</type>
+            <description>Job to process malware detection</description>
+            <init-params>
+                <properties-param>
+                    <name>job.info</name>
+                    <description>Configuration for malware detection job</description>
+                    <!-- Start exceution: a minute after server startup -->
+                    <property name="startTime" value="+60000" />
+                    <!-- REPEAT_INDEFINITELY -->
+					<property name="endTime" value="" />
+                    <property name="jobName" value="MalwareDetectionJob"/>
+                    <property name="groupName" value="MalwareDetection"/>
+                    <property name="job" value="org.exoplatform.social.service.malwareDetection.job.MalwareDetectionJob"/>
+                    <!-- REPEAT_INDEFINITELY -->
+                    <property name="repeatCount" value="0" />
+                    <!-- Runs every 30 minutes -->
+                    <property name="period" value="${exo.social.MalwareDetectionJob.period:1800000}"/>
                 </properties-param>
             </init-params>
         </component-plugin>

@@ -11,6 +11,32 @@ export function getUser(username, expand) {
   });
 }
 
+export function isSuperUser() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSuperUser`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function isSynchronizedUserAllowedToChangePassword() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSynchronizedUserAllowedToChangePassword`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getUserByEmail(email) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/email/${email}`, {
     method: 'GET',
@@ -25,7 +51,7 @@ export function getUserByEmail(email) {
 }
 
 export function getUsers(query, offset, limit, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&excludeExternal=true&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -322,3 +348,21 @@ export function cleanImportUsers(uploadId) {
     return data;
   });
 }
+
+export function multiSelectAction(action, selectedUsers) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/bulk/${action}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'PATCH',
+    body: JSON.stringify(selectedUsers),
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error when updating users');
+    } else {
+      return resp.json();
+    }
+  });
+}
+

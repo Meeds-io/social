@@ -16,12 +16,6 @@
  */
 package org.exoplatform.social.notification;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.exoplatform.commons.api.notification.service.setting.PluginContainer;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
@@ -30,8 +24,8 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
@@ -46,6 +40,12 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.mock.MockNotificationService;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
@@ -63,7 +63,8 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected MockNotificationService notificationService;
   protected PluginSettingService pluginSettingService;
   protected ExoFeatureService exoFeatureService;
-  
+  protected OrganizationService organizationService;
+
   protected Identity rootIdentity;
   protected Identity johnIdentity;
   protected Identity maryIdentity;
@@ -92,6 +93,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     notificationService = getService(MockNotificationService.class);
     pluginSettingService = getService(PluginSettingService.class);
     exoFeatureService = getService(ExoFeatureService.class);
+    organizationService = getService(OrganizationService.class);
     System.setProperty(CommonsUtils.CONFIGURED_DOMAIN_URL_KEY, "http://exoplatform.com");
     //
     checkAndCreateDefaultUsers();
@@ -101,6 +103,8 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
     demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo");
     ghostIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "ghost");
+    addUserToDlpGroup("root");
+    addUserToDlpGroup("mary");
 
     notificationService.clearAll();
   }
@@ -135,7 +139,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   private void checkAndCreateDefaultUsers() {
     //
     UserHandler handler = getService(OrganizationService.class).getUserHandler();
-    String[] users = new String[] { "root", "demo", "mary", "john", "ghost" };
+    String[] users = new String[] { "root", "demo", "mary", "john", "ghost"};
     try {
       for (String userName : users) {
         if (handler.findUserByName(userName) == null) {
@@ -149,6 +153,26 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
         //
         handler.setEnabled(userName, true, true);
       }
+    } catch (Exception e) {
+      ExoLogger.getExoLogger(getClass()).debug(e);
+    }
+  }
+
+  private void addUserToDlpGroup(String userName) throws Exception {
+    try {
+      Group child = organizationService.getGroupHandler().createGroupInstance();
+      child.setGroupName("dlp");
+      child.setLabel("dlp");
+      child.setDescription("platform dlp");
+      organizationService.getGroupHandler()
+                         .addChild(organizationService.getGroupHandler().findGroupById("/platform"), child, true);
+
+      User user = organizationService.getUserHandler().findUserByName(userName);
+      organizationService.getMembershipHandler()
+                         .linkMembership(user,
+                                         child,
+                                         organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                         true);
     } catch (Exception e) {
       ExoLogger.getExoLogger(getClass()).debug(e);
     }

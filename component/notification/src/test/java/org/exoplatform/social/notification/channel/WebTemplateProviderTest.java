@@ -130,6 +130,10 @@ public class WebTemplateProviderTest extends AbstractCoreTest {
     actual = channel.getTemplateFilePath(PluginKey.key(DlpUserRestoredItemPlugin.ID));
     expected = "war:/intranet-notification/templates/DlpUserRestoredItemPlugin.gtmpl";
     assertEquals(expected, actual);
+    
+    actual = channel.getTemplateFilePath(PluginKey.key(MalwareDetectionPlugin.ID));
+    expected = "war:/intranet-notification/templates/MalwareDetectionPlugin.gtmpl";
+    assertEquals(expected, actual);
   }
   
   public void testWebTemplateBuilder() throws Exception {
@@ -150,6 +154,7 @@ public class WebTemplateProviderTest extends AbstractCoreTest {
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpUserDetectedItemPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpAdminDetectedItemPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpUserRestoredItemPlugin.ID)));
+    assertTrue(channel.hasTemplateBuilder(PluginKey.key(MalwareDetectionPlugin.ID)));
   }
     
 }

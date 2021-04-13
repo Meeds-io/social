@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.search.Sorting;
-import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.SpaceUtils;
 
 /**
@@ -63,13 +62,16 @@ public class ProfileFilter implements Cloneable {
   /** Filter by first character of name. */
   private char firstCharacterOfName;
 
+  /** Filter by user type {internal, external}. */
+  private String userType;
+
   private List<String> remoteIds = null;
 
   private Sorting sorting;
 
   private String firstCharFieldName = null;
   
-  private boolean excludeExternal = false; 
+  private boolean isEnabled = true;
 
   public ProfileFilter() {
     this.name = "";
@@ -241,7 +243,15 @@ public class ProfileFilter implements Cloneable {
   public void setSorting(Sorting sorting) {
     this.sorting = sorting;
   }
-  
+
+  public String getUserType() {
+    return userType;
+  }
+
+  public void setUserType(String userType) {
+    this.userType = userType;
+  }
+
   public Identity getViewerIdentity() {
     return viewerIdentity;
   }
@@ -277,18 +287,19 @@ public class ProfileFilter implements Cloneable {
   public void setFirstCharFieldName(String firstCharField) {
     this.firstCharFieldName = firstCharField;
   }
+
   /**
-   * @return the excludeExternal
+   * @return the isEnabled
    */
-  public boolean isExcludeExternal() {
-    return excludeExternal;
+  public boolean isEnabled() {
+    return isEnabled;
   }
 
   /**
-   * @param excludeExternal the excludeExternal to set
+   * @param isEnabled the enabled to set
    */
-  public void setExcludeExternal(boolean excludeExternal) {
-    this.excludeExternal = excludeExternal;
+  public void setEnabled(boolean isEnabled) {
+    this.isEnabled = isEnabled;
   }
 
   public boolean isEmpty() {

@@ -1549,4 +1549,26 @@
       <role-link>admin</role-link>
     </security-role-ref>
   </portlet>
+  
+  <portlet>
+    <description xml:lang="EN">Mfa Access portlet</description>
+    <portlet-name>mfaAccess</portlet-name>
+    <display-name xml:lang="EN">Mfa Access portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/mfa-access/mfa-access.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.mfaAccess.mfaAccess</resource-bundle>
+    <portlet-info>
+      <title>Mfa Access portlet for eXo Platform</title>
+      <short-title>mfa-access</short-title>
+      <keywords>mfa-access</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>

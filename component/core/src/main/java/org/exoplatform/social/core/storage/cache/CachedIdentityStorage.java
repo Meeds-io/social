@@ -701,7 +701,8 @@ public class CachedIdentityStorage implements IdentityStorage {
                                       char firstCharacter,
                                       String sortField,
                                       String sortDirection,
-                                      boolean excludeExternal,
+                                      boolean isEnabled,
+                                      String userType,
                                       long offset,
                                       long limit) {
     ProfileFilter profileFilter = null;
@@ -709,7 +710,8 @@ public class CachedIdentityStorage implements IdentityStorage {
       profileFilter = new ProfileFilter();
       profileFilter.setFirstCharFieldName(firstCharacterFieldName);
       profileFilter.setFirstCharacterOfName(firstCharacter);
-      profileFilter.setExcludeExternal(excludeExternal);
+      profileFilter.setEnabled(isEnabled);
+      profileFilter.setUserType(userType);
       profileFilter.setSorting(Sorting.valueOf(sortField, sortDirection));
     }
 
@@ -725,7 +727,8 @@ public class CachedIdentityStorage implements IdentityStorage {
                                                    firstCharacter,
                                                    sortField,
                                                    sortDirection,
-                                                   excludeExternal,
+                                                   isEnabled,
+                                                   userType,
                                                    offset,
                                                    limit);
         return buildIds(got);
@@ -741,7 +744,7 @@ public class CachedIdentityStorage implements IdentityStorage {
    */
   @Override
   public List<Identity> getIdentities(String providerId, long offset, long limit) {
-    return this.getIdentities(providerId, null, '\u0000', null, null, false, offset, limit);
+    return this.getIdentities(providerId, null, '\u0000', null, null, true, null, offset, limit);
   }
 
   @Override

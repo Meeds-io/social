@@ -815,6 +815,47 @@
               </object-param>
           </init-params>
       </component-plugin>
-  </external-component-plugins>  
+  </external-component-plugins>
+  
+  <external-component-plugins>
+      <target-component>org.exoplatform.commons.api.notification.service.setting.PluginContainer</target-component>
+      <component-plugin>
+          <name>notification.plugins</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.social.notification.plugin.MalwareDetectionPlugin</type>
+          <description>Initial information for plugin.</description>
+          <init-params>
+              <object-param>
+                  <name>template.MalwareDetectionPlugin</name>
+                  <description>The template of MalwareDetectionPlugin</description>
+                  <object
+                          type="org.exoplatform.commons.api.notification.plugin.config.PluginConfig">
+                      <field name="pluginId">
+                          <string>MalwareDetectionPlugin</string>
+                      </field>
+                      <field name="resourceBundleKey">
+                          <string>UINotification.label.MalwareDetectionPlugin</string>
+                      </field>
+                    <field name="order">
+                      <string>3</string>
+                    </field>
+                    <field name="defaultConfig">
+                          <collection type="java.util.ArrayList">
+                              <value>
+                                  <string>Instantly</string>
+                              </value>
+                          </collection>
+                      </field>
+                      <field name="groupId">
+                          <string>malwareDetection</string>
+                      </field>
+                      <field name="bundlePath">
+                          <string>locale.notification.template.Notification</string>
+                      </field>
+                  </object>
+              </object-param>
+          </init-params>
+      </component-plugin>
+  </external-component-plugins>
 
 </configuration>

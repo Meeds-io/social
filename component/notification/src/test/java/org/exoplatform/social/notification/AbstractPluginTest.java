@@ -374,6 +374,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     instantly.add(DlpUserDetectedItemPlugin.ID);
     instantly.add(DlpAdminDetectedItemPlugin.ID);
     instantly.add(DlpUserRestoredItemPlugin.ID);
+    instantly.add(MalwareDetectionPlugin.ID);
 
     List<String> daily = new ArrayList<String>();
     daily.add(PostActivityPlugin.ID);
@@ -419,6 +420,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     webNotifs.add(DlpUserDetectedItemPlugin.ID);
     webNotifs.add(DlpAdminDetectedItemPlugin.ID);
     webNotifs.add(DlpUserRestoredItemPlugin.ID);
+    webNotifs.add(MalwareDetectionPlugin.ID);
     
     // root
     saveSetting(instantly, daily, weekly, webNotifs, rootIdentity.getRemoteId());

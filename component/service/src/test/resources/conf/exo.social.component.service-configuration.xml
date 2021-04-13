@@ -42,6 +42,10 @@
   <component>
     <type>org.exoplatform.social.service.rest.NotificationsRestService</type>
   </component>
+  
+  <component>
+    <type>org.exoplatform.social.service.malwareDetection.MalwareDetectionService</type>
+  </component>
 
   <component>
     <type>org.exoplatform.services.rest.impl.ProvidersRegistry</type>

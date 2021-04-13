@@ -123,6 +123,12 @@ public class Profile {
   /** EXTERNAL. */
   public static final String EXTERNAL                 = "external";
 
+  /** ENROLLMENT DATE. */
+  public static final String ENROLLMENT_DATE          = "enrollmentDate";
+
+  /** SYNCHRONIZED DATE. */
+  public static final String SYNCHRONIZED_DATE          = "synchronizedDate";
+
   /**
    * An optional url for this profile
    */
@@ -490,8 +496,22 @@ public class Profile {
   }
 
   /**
-   * Get this profile URL
+   * Get this profile synchronized date
    * 
+   * @return this profile synchronized date
+   */
+  public String getSynchronizedDate() { return SYNCHRONIZED_DATE; }
+
+  /**
+   * Set this profile synchronized date
+   */
+  public void setSynchronizedDate(String synchronizedDate) {
+    setProperty(SYNCHRONIZED_DATE, synchronizedDate);
+  }
+
+  /**
+   * Get this profile URL
+   *
    * @return this profile URL
    */
   public final String getUrl() {

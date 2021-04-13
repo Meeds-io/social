@@ -82,6 +82,14 @@ public class ProfileEntity extends BaseEntity {
   
   public static final String EXTERNAL         = "external";
 
+  public static final String LAST_LOGIN_TIME   = "lastLoginTime";
+  
+  public static final String ENROLLMENT_DATE   = "enrollmentDate";
+
+  public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
+
+  public static final String CREATED_DATE   = "createdDate";
+
   public ProfileEntity() {
   }
 
@@ -460,7 +468,7 @@ public class ProfileEntity extends BaseEntity {
   public String isEnabled() {
     return getString(ENABLED);
   }
-  
+
   public ProfileEntity setIsExternal(String isExternal) {
     setProperty(EXTERNAL, isExternal);
     return this;
@@ -468,6 +476,42 @@ public class ProfileEntity extends BaseEntity {
 
   public String isExternal() {
     return getString(EXTERNAL);
+  }
+
+  public ProfileEntity setLastLoginTime(String lastLoginTime) {
+    setProperty(LAST_LOGIN_TIME, lastLoginTime);
+    return this;
+  }
+
+  public String getLastLoginTime() {
+    return getString(LAST_LOGIN_TIME);
+  }
+
+  public ProfileEntity setCreatedDate(String createdDate) {
+    setProperty(CREATED_DATE, createdDate);
+    return this;
+  }
+
+  public String getCreatedDate() {
+    return getString(CREATED_DATE);
+  }
+
+  public ProfileEntity setEnrollmentDate(String enrollmentDate) {
+    setProperty(ENROLLMENT_DATE, enrollmentDate);
+    return this;
+  }
+
+  public String getEnrollmentDate() {
+    return getString(ENROLLMENT_DATE);
+  }
+
+  public ProfileEntity setSynchronizedDate(String synchronizedDate) {
+    setProperty(SYNCHRONIZED_DATE, synchronizedDate);
+    return this;
+  }
+
+  public String getSynchronizedDate() { 
+    return getString(SYNCHRONIZED_DATE); 
   }
 
   public static String getFieldName(String name) {

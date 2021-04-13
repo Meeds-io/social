@@ -60,7 +60,7 @@
               <string>people</string>
             </field>
             <field name="uri">
-              <string><![CDATA[/portal/rest/v1/social/users?excludeExternal=true&q={keyword}&limit={limit}&expand=all,spacesCount,relationshipStatus,connectionsCount]]></string>
+              <string><![CDATA[/portal/rest/v1/social/users?q={keyword}&limit={limit}&expand=all,spacesCount,relationshipStatus,connectionsCount]]></string>
             </field>
             <field name="enabled">
               <boolean>${exo.search.people.enabled:true}</boolean>

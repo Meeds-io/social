@@ -6,11 +6,11 @@
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
-    :temporary="temporaryDrawer"
+    :temporary="temporary"
+    :width="width"
     touchless
     height="100%"
     max-height="100%"
-    width="420px"
     max-width="100vw"
     class="drawerParent">
     <v-container v-if="initialized" fill-height class="pa-0">
@@ -23,6 +23,9 @@
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
+                <v-btn v-if="allowExpand" icon @click="toogleExpand">
+                  <v-icon size="18">mdi-arrow-expand</v-icon>
+                </v-btn>
                 <v-btn icon>
                   <v-icon @click="close()">mdi-close</v-icon>
                 </v-btn>
@@ -78,6 +81,14 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    drawerWidth: {
+      type: String,
+      default: () => '420px',
+    },
+    allowExpand: {
+      type: Boolean,
+      default: false,
+    },
     confirmCloseLabels: {
       type: Object,
       default: () => ({
@@ -92,11 +103,12 @@ export default {
     initialized: false,
     drawer: false,
     loading: false,
+    expand: false,
   }),
-  computed : {
-    temporaryDrawer() {
-      return this.temporary && !this.confirmClose;
-    }
+  computed: {
+    width() {
+      return this.expand && '100%' || this.drawerWidth;
+    },
   },
   watch: {
     drawer() {
@@ -117,6 +129,7 @@ export default {
           this.close();
         });
       });
+      this.expand = false;
     },
   },
   created() {
@@ -162,6 +175,9 @@ export default {
     },
     endLoading() {
       this.loading = false;
+    },
+    toogleExpand() {
+      this.expand = !this.expand;
     },
   },
 };

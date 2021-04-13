@@ -1,5 +1,7 @@
 package org.exoplatform.social.rest.impl.users;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
@@ -7,6 +9,10 @@ import java.util.*;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.*;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.IOUtil;
@@ -34,6 +40,10 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class UserRestResourcesTest extends AbstractResourceTest {
 
   private ActivityManager     activityManager;
@@ -46,9 +56,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private SpaceService        spaceService;
 
+  private OrganizationService organizationService;
+
   private UserStateService    userStateService;
 
   private MockUploadService   uploadService;
+
+  private UserSearchService   userSearchService;
 
   private Identity            rootIdentity;
 
@@ -70,7 +84,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
-
+    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
+    userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
@@ -98,6 +113,139 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(4, collections.getEntities().size());
   }
 
+  public void testSearchUsers() throws Exception {
+
+    startSessionAs("root");
+    //when
+    ContainerResponse response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+    //then
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
+    //when
+    organizationService.getUserHandler().setEnabled("mary", false, false);
+    response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    //then
+    organizationService.getUserHandler().setEnabled("mary", true, false);
+    response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+    
+    // test when isDisabled false
+    removeResource(UserRestResourcesV1.class);
+    identityManager = mock(IdentityManager.class);
+    
+    ListAccess<Identity> identityListAccess = new ListAccess<Identity>() {
+      public Identity[] load(int index, int length) {
+        List<Identity> identities = new ArrayList();
+        identities.add(maryIdentity);
+        Identity[] result = new Identity[identities.size()];
+        return identities.toArray(result);
+      }
+
+      public int getSize() {
+        return 1;
+      }
+    };
+
+    when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
+
+    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(
+            userACL,
+            organizationService,
+            identityManager,
+            relationshipManager,
+            userStateService,
+            spaceService,
+            uploadService,
+            userSearchService);
+    registry(userRestResources);
+
+    //when
+    response = service("GET", getURLResource("users?q=mar&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    //when
+    response = service("GET", getURLResource("users?q=mar&isDisabled=false&limit=5&offset=0"), "", null, null);
+
+    //then
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+  }
+   
+  public void testGetDisabledUsers() throws Exception {
+    startSessionAs("root");
+    //when
+    maryIdentity.setEnable(false);
+    johnIdentity.setEnable(false);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+    
+    //when
+    maryIdentity.setEnable(true);
+    johnIdentity.setEnable(true);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+  }
+
+  public void testGetUsersByUserType() throws Exception {
+    startSessionAs("root");
+    Profile profile = maryIdentity.getProfile();
+    profile.setProperty(Profile.EXTERNAL, "true");
+    identityManager.saveProfile(profile);
+
+    // when 
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+
+    // when
+    response = service("GET", getURLResource("users?limit=5&offset=0&userType=internal"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+
+    // when
+    response = service("GET", getURLResource("users?limit=5&offset=0&userType=external"), "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+  }
+  
   public void testGetAllUsersWithExtraFields() throws Exception {
     Space spaceTest = getSpaceInstance(700, "root");
     spaceTest.getId();
@@ -571,6 +719,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(content, storedContent);
   }
 
+
   public void testImportUsers() throws Exception {
     startSessionAs("root");
 
@@ -600,6 +749,23 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
 
+    uploadId = "users-update.csv";
+    resource = getClass().getClassLoader().getResource("users-update.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    uploadId = "users.csv";
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
@@ -608,10 +774,101 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     UserImportResultEntity importResultEntity = (UserImportResultEntity) response.getEntity();
     assertEquals(4, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+
+    BufferedReader reader = new BufferedReader(new FileReader(uploadResource.getStoreLocation()));
+    reader.readLine();
+    String User = reader.readLine();
+    List<String> userNames = new ArrayList<>();
+    List<String> passWords = new ArrayList<>();
+
+    while (User!= null){
+    List<String> userProperties = Arrays.asList(User.split(","));
+     userNames.add(userProperties.get(0));
+     passWords.add(userProperties.get(3));
+     User = reader.readLine();
+    }
+
     assertNull(importResultEntity.getErrorMessages());
     assertNull(importResultEntity.getWarnMessages());
 
-    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    uploadId = "users-update.csv";
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(4, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+
+    for(int i=0;i<(userNames.size());i++) {
+      String userEnabled = organizationService.getUserHandler().findUserByName(userNames.get(i), UserStatus.ANY).getUserName();
+      boolean result = organizationService.getUserHandler().authenticate(userEnabled, passWords.get(i));
+      assertTrue(result);
+    }
+
+    // Test import enabled or disabled users
+    uploadId = "users-enabled.csv";
+    resource = getClass().getClassLoader().getResource("users-enabled.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(2, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    String  userEnabled = organizationService.getUserHandler().findUserByName("usera", UserStatus.ANY).getUserName();
+    boolean result = organizationService.getUserHandler().authenticate(userEnabled, "successuser11");
+    assertTrue(result);
+    String  userDisabled = organizationService.getUserHandler().findUserByName("userb", UserStatus.DISABLED).getUserName();
+    try {
+      organizationService.getUserHandler().authenticate(userDisabled, "successuser22");
+      fail("disabled user");
+    } catch (Exception e1) {
+      // Expected
+    }
+
+    uploadId = "users-update-status.csv";
+    resource = getClass().getClassLoader().getResource("users-update-status.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update-status.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+
+    // Test update status
+    uploadId = "users-update-status.csv";
+    resource = getClass().getClassLoader().getResource("users-update-status.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-update-status.csv", "text/csv");
+    response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
+    assertNotNull(response);
+    assertNotNull(response.getEntity());
+    assertEquals(200, response.getStatus());
+    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
+    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(2, importResultEntity.getCount());
+    assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
+
+    assertNull(importResultEntity.getErrorMessages());
+    assertNull(importResultEntity.getWarnMessages());
+    // Status after update
+    boolean userStatusUpdated1 = organizationService.getUserHandler().findUserByName("usera", UserStatus.DISABLED).isEnabled();
+    boolean userStatusUpdated2 = organizationService.getUserHandler().findUserByName("userb", UserStatus.ENABLED).isEnabled();
+    assertFalse(userStatusUpdated1);
+    assertTrue(userStatusUpdated2);
+    organizationService.getUserHandler().setEnabled("usera", true, true);
+
+    uploadId = "users.csv";
+    uploadResource = uploadService.getUploadResource(uploadId);
     assertNotNull(uploadResource);
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&clean=true").getBytes());
     assertNotNull(response);
@@ -899,6 +1156,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     endSession();
   }
+
 
   private void uploadUserAvatar(String user) throws Exception {
     startSessionAs(user);

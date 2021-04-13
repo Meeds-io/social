@@ -32,35 +32,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -72,6 +52,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -87,7 +69,6 @@ import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
-import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -159,6 +140,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private static final String ONLINE              = "online";
 
+  private static final String INTERNAL              = "internal";
+  
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
@@ -199,6 +182,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private UserStateService userStateService;
 
   private SpaceService spaceService;
+  
+  private UserSearchService userSearchService;
 
   public static enum ACTIVITY_STREAM_TYPE {
     all, owner, connections, spaces
@@ -222,7 +207,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              RelationshipManager relationshipManager,
                              UserStateService userStateService,
                              SpaceService spaceService,
-                             UploadService uploadService) {
+                             UploadService uploadService,
+                             UserSearchService userSearchService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -230,6 +216,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.userStateService = userStateService;
     this.spaceService = spaceService;
     this.uploadService = uploadService;
+    this.userSearchService = userSearchService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
@@ -262,8 +249,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   public Response getUsers(@Context UriInfo uriInfo,
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
+                           @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
-                           @ApiParam(value = "Exclude external", required = false, defaultValue = "false") @QueryParam("excludeExternal") boolean excludeExternal,
+                           @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -279,7 +267,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !excludeExternal) {
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -306,11 +294,30 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
-      filter.setExcludeExternal(excludeExternal);
-      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, false);
-      identities = list.load(offset, limit);
-      if(returnSize) {
-        totalSize = list.getSize();
+      filter.setEnabled(!isDisabled);
+      filter.setUserType(userType);
+      if (isDisabled && q != null && !q.isEmpty()) {
+        User[] users;
+        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        totalSize = usersListAccess.getSize();
+        int limitToFetch = limit;
+        if (totalSize < (offset + limitToFetch)) {
+          limitToFetch = totalSize - offset;
+        }
+        if (limitToFetch <= 0) {
+          users = new User[0];
+        } else {
+          users = usersListAccess.load(offset, limitToFetch);
+        }
+        identities = Arrays.stream(users)
+                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                           .toArray(Identity[]::new);
+      } else {
+        ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
+        identities = list.load(offset, limit);
+        if(returnSize) {
+          totalSize = list.getSize();
+        }
       }
     }
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
@@ -828,6 +835,100 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  @PATCH
+  @Path("onboard/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Send onBoarding email to a specific user", 
+                httpMethod = "PATCH", 
+                response = Response.class, 
+                notes = "This send onBoarding email to a specific user.")
+  public Response sendOnBoardingEmail(@Context HttpServletRequest request,
+                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(id);
+    if (user == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    StringBuilder url = getUrl(request);
+    sendOnBoardingEmail((UserImpl) user, url);
+    return Response.ok().build();
+  }
+
+  @PATCH
+  @Path("bulk/{action}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @ApiOperation(value = "Make action on list of users", httpMethod = "PATCH", response = Response.class, notes = "This will realize the action on the list of users if possible")
+  public Response bulk(@Context HttpServletRequest request,
+                                       @ApiParam(value = "Action", required = true) @PathParam("action") String action,
+                                       @ApiParam(value = "User List", required = true) List<String> users) throws Exception {
+
+    List<String> updatedUsers = new ArrayList<>();
+    switch (action) {
+    case "onboard":
+      StringBuilder url = getUrl(request);
+      for (String username : users) {
+        UserHandler userHandler = organizationService.getUserHandler();
+        User user = userHandler.findUserByName(username);
+        if (user == null) {
+          LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
+          continue;
+        }
+        Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+        if (identity == null) {
+          LOG.warn("Cannot find identity by username {} for onboarding, he is disabled or not existing", username);
+          continue;
+        }
+        if (Util.isExternal(identity.getId())) {
+          LOG.warn("User {} is external, he cannot be enrolled.", username);
+          continue;
+        }
+        if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
+          LOG.warn("User {} is already logged in, he cannot be enrolled", username);
+          continue;
+        }
+        sendOnBoardingEmail((UserImpl) user, url);
+        updatedUsers.add(username);
+      }
+      break;
+    case "enable":
+      for (String username : users) {
+        UserHandler userHandler = organizationService.getUserHandler();
+        User user = userHandler.findUserByName(username, UserStatus.DISABLED);
+        if (user == null) {
+          LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
+          continue;
+        }
+        organizationService.getUserHandler().setEnabled(username, true, true);
+        updatedUsers.add(username);
+      }
+      break;
+    case "disable":
+      for (String username : users) {
+        UserHandler userHandler = organizationService.getUserHandler();
+        User user = userHandler.findUserByName(username, UserStatus.ENABLED);
+        if (user == null) {
+          LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
+          continue;
+        }
+        String currentUsername = ConversationState.getCurrent().getIdentity().getUserId();
+        if (StringUtils.equals(currentUsername, user.getUserName())) {
+          LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
+          continue;
+        }
+        if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
+          LOG.warn("Try to suspend superuser account {}. Not allowed", username);
+          continue;
+        }
+        organizationService.getUserHandler().setEnabled(username, false, true);
+        updatedUsers.add(username);
+      }
+      break;
+    }
+    return Response.ok(updatedUsers).build();
+  }
+  
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
@@ -1202,13 +1303,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-    StringBuilder url = new StringBuilder();
-    url.append(request.getScheme()).append("://").append(request.getServerName());
-    if (request.getServerPort() != 80 && request.getServerPort() != 443) {
-      url.append(':').append(request.getServerPort());
-    }
-    PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
-    url.append(container.getPortalContext().getContextPath());
+    StringBuilder url = getUrl(request);
     Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, url, sync);
     return errorResponse == null ? Response.noContent().build() : errorResponse;
   }
@@ -1233,7 +1328,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (sync) {
       importUsers(fileLocation, userImportResultEntity, locale, url);
     } else {
-      importUsersAsync(fileLocation, userImportResultEntity, locale, url);
+      importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
     }
     return null;
   }
@@ -1241,8 +1336,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private void importUsersAsync(String fileLocation,
                                 UserImportResultEntity userImportResultEntity,
                                 Locale locale,
-                                StringBuilder url) {
-    importExecutorService.execute(() -> this.importUsers(fileLocation, userImportResultEntity, locale, url));
+                                StringBuilder url,
+                                ConversationState currentState) {
+    importExecutorService.execute(() -> {
+      ConversationState.setCurrent(currentState);
+      this.importUsers(fileLocation, userImportResultEntity, locale, url);
+    });
   }
 
   private void importUsers(String fileLocation,
@@ -1319,9 +1418,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return userName;
     }
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
+    boolean userStatus = !userObject.isNull("enabled") && ( "true".equalsIgnoreCase(userObject.getString("enabled")) ||"false".equalsIgnoreCase(userObject.getString("enabled")));
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
-    if (existingUser != null) {
+    if (existingUser != null ) {
+      if(LOG.isDebugEnabled()){
+        LOG.debug("Skipping password update for: {}",userName);
+      }
+      // skipping password overwrite from csvLine
+      user.setPassword(null);
+      if (userStatus) {
+        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
+      }
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
     }
@@ -1340,45 +1448,44 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     if (!userObject.isNull("groups")) {
       String groups = userObject.getString("groups");
-      List<String> groupsList = Arrays.asList(groups.split(";"));
-      for (String groupMembershipExpression : groupsList) {
-        String membershipType =
-                              groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
-                                                                      : SpaceUtils.MEMBER;
-        String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
-                                                                 : groupMembershipExpression;
-        Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
-        if (groupObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
-          continue;
+      if (StringUtils.isNotBlank(groups)) {
+        List<String> groupsList = Arrays.asList(groups.split(";"));
+        for (String groupMembershipExpression : groupsList) {
+          String membershipType =
+                  groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
+                          : SpaceUtils.MEMBER;
+          String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
+                  : groupMembershipExpression;
+          Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
+          if (groupObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
+            continue;
+          }
+          MembershipType membershipTypeObject =
+                  organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
+          if (membershipTypeObject == null) {
+            userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
+            continue;
+          }
+          try {
+            organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
+          } catch (Exception e) {
+            userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
+          }
         }
-        MembershipType membershipTypeObject =
-                                            organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
-        if (membershipTypeObject == null) {
-          userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
-          continue;
-        }
-        try {
-          organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
-        } catch (Exception e) {
-          userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
-        }
+      } else {
+        userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:");
       }
     }
     //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
-      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
-      String currentSiteName = CommonsUtils.getCurrentSite().getName();
-      try {
-        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
-        locale = new Locale(currentSiteLocale);
-      } catch (Exception e) {
-        LOG.error("Failure to retrieve portal config", e);
-      }
-      passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+      sendOnBoardingEmail(user, url);
     }
-    
+
+    if (userStatus) {
+      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
+    }
+
     // Delete imported User object properties
     userObject.remove("userName");
     userObject.remove("firstName");
@@ -1386,6 +1493,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("password");
     userObject.remove("email");
     userObject.remove("groups");
+    userObject.remove("enabled");
 
     ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
     String warnMessage = null;
@@ -1595,6 +1703,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return builder;
   }
 
+  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
+    PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    String currentSiteName = CommonsUtils.getCurrentSite().getName();
+    String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+    Locale locale = new Locale(currentSiteLocale);
+    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+    if (onBoardingEmailSent) {
+      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+      Profile profile = userIdentity.getProfile();
+      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+    }
+  }
+
   private void updateProfileField(Profile profile,
                                   String name,
                                   Object value,
@@ -1733,5 +1855,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         identityManager.updateProfile(profile, true);
       }
     }
+  }
+
+  private StringBuilder getUrl(HttpServletRequest request) {
+    StringBuilder url = new StringBuilder();
+    if (request != null) {
+      url.append(request.getScheme()).append("://").append(request.getServerName());
+      if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+        url.append(':').append(request.getServerPort());
+      }
+      PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
+      url.append(container.getPortalContext().getContextPath());
+    }
+    return url;
   }
 }
