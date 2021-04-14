@@ -9,7 +9,7 @@
         v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 me-3 my-auto"></v-text-field>
+        class="inputPeopleFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
     <v-scale-transition>
       <select
@@ -30,16 +30,19 @@
     </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
-        <v-toolbar color="primary" dark class="border-box-sizing">
+        <v-toolbar
+          color="primary"
+          dark
+          class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('peopleList.label.cancel') }}
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-toolbar-title>
             <v-icon>fa-filter</v-icon>
             {{ $t('peopleList.label.filter') }}
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn text @click="changeFilterSelection">
             {{ $t('peopleList.label.confirm') }}
           </v-btn>

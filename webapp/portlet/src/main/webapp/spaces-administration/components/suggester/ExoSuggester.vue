@@ -1,5 +1,5 @@
 <template>
-  <input type="text"/>
+  <input type="text">
 </template>
 
 <script>
@@ -51,7 +51,7 @@ export default {
     
     //
     this.sourceProviders.forEach(sourceProvider => {
-      if(typeof sourceProvider === 'function') {
+      if (typeof sourceProvider === 'function') {
         suggesterOptions.providers[sourceProvider.name] = sourceProvider;
         suggesterOptions.sourceProviders.push(sourceProvider.name);
       } else {

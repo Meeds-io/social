@@ -7,7 +7,10 @@
         <li :class="{active: activeTab === 1}" @click="activeTab=1">
           <a href="#manage" data-toggle="tab">{{ $t('social.spaces.administration.manageSpaces') }}</a>
         </li>
-        <li v-show="canChangePermissions" :class="{active: activeTab === 2}" @click="activeTab=2" >
+        <li
+          v-show="canChangePermissions"
+          :class="{active: activeTab === 2}"
+          @click="activeTab=2">
           <a href="#permissions" data-toggle="tab">{{ $t('social.spaces.administration.permissions') }}</a>
         </li>
         <li :class="{active: activeTab === 3}" @click="activeTab=3">
@@ -16,25 +19,43 @@
         <li :class="{active: activeTab === 4}" @click="activeTab=4">
           <a href="#spaceTemplates" data-toggle="tab">{{ $t('social.spaces.templates') }}</a>
         </li>
-        <li v-show="canChangePermissions" :class="{active: activeTab === 5}" @click="activeTab=5" >
+        <li
+          v-show="canChangePermissions"
+          :class="{active: activeTab === 5}"
+          @click="activeTab=5">
           <a href="#bindingReports" data-toggle="tab">{{ $t('social.spaces.administration.bindingReports') }}</a>
         </li>
       </ul>
       <div class="tab-content">
-        <div v-if="showManageSpaces" id="manage" class="tab-pane fade in active">
-          <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 5"></exo-spaces-administration-manage-spaces>
+        <div
+          v-if="showManageSpaces"
+          id="manage"
+          class="tab-pane fade in active">
+          <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 5" />
         </div>
-        <div v-else-if="showPermissions" id="permissions" class="tab-pane fade in active">
-          <exo-spaces-administration-manage-permissions></exo-spaces-administration-manage-permissions>
+        <div
+          v-else-if="showPermissions"
+          id="permissions"
+          class="tab-pane fade in active">
+          <exo-spaces-administration-manage-permissions />
         </div>
-        <div v-else-if="showSpaceApplications" id="spaceApplications" class="tab-pane fade in active">
+        <div
+          v-else-if="showSpaceApplications"
+          id="spaceApplications"
+          class="tab-pane fade in active">
           <exo-space-applications :applications-by-category="applicationsByCategory" />
         </div>
-        <div v-else-if="showSpaceTemplates" id="spaceTemplates" class="tab-pane fade in active">
-          <exo-space-templates-spaces></exo-space-templates-spaces>
+        <div
+          v-else-if="showSpaceTemplates"
+          id="spaceTemplates"
+          class="tab-pane fade in active">
+          <exo-space-templates-spaces />
         </div>
-        <div v-else-if="showBindingReports" id="bindingReports" class="tab-pane fade in active">
-          <exo-spaces-administration-binding-reports></exo-spaces-administration-binding-reports>
+        <div
+          v-else-if="showBindingReports"
+          id="bindingReports"
+          class="tab-pane fade in active">
+          <exo-spaces-administration-binding-reports />
         </div>
       </div>
     </div>
@@ -78,7 +99,7 @@ export default {
   },
   created() {
     spacesAdministrationServices.getUserPermissions(eXo.env.portal.userName).then(data => {
-      if(data && data.platformAdministrator) {
+      if (data && data.platformAdministrator) {
         this.canChangePermissions = data.platformAdministrator;
         this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }

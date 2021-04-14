@@ -4,7 +4,8 @@
       <div
         v-for="action in enabledComponents"
         :key="action.key"
-        :class="`${action.appClass} ${action.typeClass}`" :ref="action.key">
+        :class="`${action.appClass} ${action.typeClass}`"
+        :ref="action.key">
       </div>
     </div>
   </v-app>
@@ -12,9 +13,6 @@
 <script>
 import { spaceTitleActionComponents } from '../extension.js';
 export default {
-  components: {
-    spaceTitleActionComponents
-  },
   computed: {
     enabledComponents() {
       return spaceTitleActionComponents.filter(action => action.enabled);

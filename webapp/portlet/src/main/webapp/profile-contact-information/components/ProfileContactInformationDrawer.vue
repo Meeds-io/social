@@ -44,7 +44,7 @@
               type="text"
               class="ignore-vuetify-classes"
               maxlength="2000"
-              required />
+              required>
           </div>
           <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.lastName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-end flex-grow-0 text-no-wrap text-left font-weight-bold">
             <input
@@ -53,7 +53,7 @@
               type="text"
               class="ignore-vuetify-classes"
               maxlength="2000"
-              required />
+              required>
           </div>
         </v-card-text>
         <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -66,7 +66,7 @@
             type="email"
             class="ignore-vuetify-classes"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.jobTitle') }}*
@@ -78,7 +78,7 @@
             type="text"
             class="ignore-vuetify-classes"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.company') }}
@@ -89,8 +89,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.location') }}
@@ -101,8 +100,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.department') }}
@@ -113,8 +111,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.team') }}
@@ -125,8 +122,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.profession') }}
@@ -137,8 +133,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.country') }}
@@ -149,8 +144,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileContactInformation.city') }}
@@ -161,8 +155,7 @@
             :disabled="saving"
             type="text"
             class="ignore-vuetify-classes"
-            maxlength="2000"
-          />
+            maxlength="2000">
         </v-card-text>
         <profile-contact-edit-phone v-model="userToSave.phones" />
         <profile-contact-edit-ims v-model="userToSave.ims" />

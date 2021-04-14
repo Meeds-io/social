@@ -2,7 +2,8 @@
   <v-layout
     row
     wrap
-    pa-1 pb-1
+    pa-1
+    pb-1
     mx-0>
     <v-flex
       xs12>
@@ -91,7 +92,7 @@ export default {
               method: 'GET',
               credentials: 'include',
             }).then((resp) => {
-              if(resp && resp.ok) {
+              if (resp && resp.ok) {
                 return resp.json();
               }
               else {
@@ -107,21 +108,20 @@ export default {
       );
     },
     replyInvitationToJoinSpace(spaceId, reply) {
-      externalSpacesListService.replyInvitationToJoinSpace(spaceId, reply).then(
-        (data) => {
+      externalSpacesListService.replyInvitationToJoinSpace(spaceId, reply)
+        .then(() => {
           if (reply === 'approved') {
             const confirmedRequest = this.spacesRequests.filter(request => request.id === spaceId)[0];
             const space = {
               id: confirmedRequest.id,
-              displayName:confirmedRequest.displayName,
-              avatarUrl:confirmedRequest.avatar,
+              displayName: confirmedRequest.displayName,
+              avatarUrl: confirmedRequest.avatar,
 
             };
             this.$emit('invitationReplied', space);
           }
           this.getSpacesRequests();
-        }
-      );
+        });
     },
   }
 };

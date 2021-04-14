@@ -41,7 +41,7 @@
           circle
           light
           flat
-          @input="changePage"/>
+          @input="changePage" />
       </div>
     </template>
   </exo-drawer>

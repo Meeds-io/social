@@ -1,8 +1,9 @@
 <template>
   <v-app>
     <v-container class="pa-0">
-      <div align="center"
-           justify="center">
+      <div
+        align="center"
+        justify="center">
         <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
         <div class="font-weight-medium infoClass">{{ $t('mfa.fido.access.info') }}</div>
         <div v-if="screen === 'initial'">
@@ -17,8 +18,7 @@
               :size="100"
               :width="10"
               color="primary"
-              indeterminate
-            ></v-progress-circular>
+              indeterminate />
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.save') }}</div>
         </div>
@@ -34,8 +34,7 @@
               :size="100"
               :width="10"
               color="primary"
-              indeterminate
-            ></v-progress-circular>
+              indeterminate />
           </div>
           <div class="font-italic messageClass">{{ $t('mfa.fido.access.check') }}</div>
         </div>

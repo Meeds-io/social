@@ -15,21 +15,21 @@ import ExoSpaceAddApplicationDrawer from './drawer/ExoSpaceAddApplicationDrawer.
 
 const components = {
   'exo-spaces-administration-manage-spaces': ExoSpacesAdministrationManageSpaces,
-  'exo-spaces-administration-manage-permissions' : ExoSpacesAdministrationSpacesPermissions,
-  'exo-spaces-administration-spaces' : ExoSpacesAdministrationSpaces,
-  'exo-modal' : ExoModal,
-  'exo-group-binding-drawer' : ExoGroupBindingDrawer,
-  'exo-group-binding-second-level-drawer' : ExoGroupBindingSecondLevelDrawer,
-  'exo-spaces-administration-binding-reports' : ExoSpacesAdministrationBindingReports,
-  'exo-suggester' : ExoSuggester,
-  'exo-space-template' : ExoSpaceTemplate,
-  'exo-space-templates-spaces' : ExoSpacesTemplatesSpaces,
-  'exo-space-applications' : ExoSpaceApplications,
-  'exo-space-application-card' : ExoSpaceApplicationCard,
-  'exo-space-application-category-card' : ExoSpaceApplicationCategoryCard,
-  'exo-space-add-application-drawer' : ExoSpaceAddApplicationDrawer,
+  'exo-spaces-administration-manage-permissions': ExoSpacesAdministrationSpacesPermissions,
+  'exo-spaces-administration-spaces': ExoSpacesAdministrationSpaces,
+  'exo-modal': ExoModal,
+  'exo-group-binding-drawer': ExoGroupBindingDrawer,
+  'exo-group-binding-second-level-drawer': ExoGroupBindingSecondLevelDrawer,
+  'exo-spaces-administration-binding-reports': ExoSpacesAdministrationBindingReports,
+  'exo-suggester': ExoSuggester,
+  'exo-space-template': ExoSpaceTemplate,
+  'exo-space-templates-spaces': ExoSpacesTemplatesSpaces,
+  'exo-space-applications': ExoSpaceApplications,
+  'exo-space-application-card': ExoSpaceApplicationCard,
+  'exo-space-application-category-card': ExoSpaceApplicationCategoryCard,
+  'exo-space-add-application-drawer': ExoSpaceAddApplicationDrawer,
 };
 
-for(const key in components) {
+for (const key in components) {
   Vue.component(key, components[key]);
 }

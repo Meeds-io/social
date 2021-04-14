@@ -10,7 +10,7 @@
           :key="i"
           class="btn ma-2 mb-0"
           @click="extension.click(user)">
-          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
+          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
           <span class="buttonText">
             {{ extension.title }}
           </span>
@@ -46,7 +46,7 @@
             :disabled="sendingAction"
             class="btn btn-primary mx-auto acceptToConnectButton"
             @click="acceptToConnect">
-            <i class="uiIconSocConnectUser"/>
+            <i class="uiIconSocConnectUser"></i>
             <span class="buttonText">
               {{ $t('profileHeader.button.acceptToConnect') }}
             </span>
@@ -68,7 +68,7 @@
           :disabled="sendingSecondAction"
           class="btn mx-auto refuseToConnectButton"
           @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser"/>
+          <i class="uiIconSocCancelConnectUser"></i>
           <span class="buttonText">
             {{ $t('profileHeader.button.refuseToConnect') }}
           </span>
@@ -80,7 +80,7 @@
         :disabled="sendingAction"
         class="btn btn-primary mx-auto cancelRequestButton"
         @click="cancelRequest">
-        <i class="uiIconSocCancelConnectUser"/>
+        <i class="uiIconSocCancelConnectUser"></i>
         <span class="buttonText">
           {{ $t('profileHeader.button.cancelRequest') }}
         </span>
@@ -92,18 +92,22 @@
         :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
         class="btn ma-2 mb-0 connectUserButton"
         @click="connect">
-        <i class="uiIconSocConnectUser"/>
+        <i class="uiIconSocConnectUser"></i>
         <span class="buttonText">
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
       <div class="profileHeaderActionComponents order-first ma-2 mb-0">
-        <div v-for="action in profileHeaderActionComponents" v-if="action.enabled" :key="action.key"
-             :class="`${action.appClass} ${action.typeClass}`" :ref="action.key">
+        <div
+          v-for="action in enabledProfileHeaderActionComponents"
+          :key="action.key"
+          :class="`${action.appClass} ${action.typeClass}`"
+          :ref="action.key">
           <div v-if="action.component">
-            <component v-dynamic-events="action.component.events"
-                       v-bind="action.component.props ? action.component.props : {}"
-                       :is="action.component.name"></component>
+            <component
+              v-dynamic-events="action.component.events"
+              v-bind="action.component.props ? action.component.props : {}"
+              :is="action.component.name" />
           </div>
           <div v-else-if="action.element" v-html="action.element.outerHTML">
           </div>
@@ -146,6 +150,9 @@ export default {
     resolveMounting: null
   }),
   computed: {
+    enabledProfileHeaderActionComponents() {
+      return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
+    },
     relationshipStatus() {
       return this.user && this.user.relationshipStatus;
     },

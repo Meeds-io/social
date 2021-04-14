@@ -13,7 +13,7 @@
         <v-switch
           v-model="active"
           :loading="saving"
-          @change="save"/>
+          @change="save" />
       </v-list-item-action>
     </v-list-item>
     <v-divider class="mx-4" />

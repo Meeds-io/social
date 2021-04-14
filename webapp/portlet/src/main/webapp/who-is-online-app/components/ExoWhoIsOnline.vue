@@ -6,7 +6,10 @@
           {{ $t('header.label') }}
         </v-card-title>
         <ul id="onlineList" class="gallery uiContentBox">
-          <li v-for="user in users" :key="user" :id="user.id">
+          <li
+            v-for="user in users"
+            :key="user"
+            :id="user.id">
             <a :href="user.href" class="avatarXSmall">
               <v-avatar size="37" class="mx-1">
                 <v-img
@@ -38,6 +41,7 @@ export default {
       if (!this.users || !this.users.length) {
         return 'd-none hidden';
       }
+      return '';
     },
   },
   created() {

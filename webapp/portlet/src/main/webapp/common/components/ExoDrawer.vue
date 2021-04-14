@@ -13,7 +13,10 @@
     max-height="100%"
     max-width="100vw"
     class="drawerParent">
-    <v-container v-if="initialized" fill-height class="pa-0">
+    <v-container
+      v-if="initialized"
+      fill-height
+      class="pa-0">
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
@@ -23,7 +26,10 @@
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
-                <v-btn v-if="allowExpand" icon @click="toogleExpand">
+                <v-btn
+                  v-if="allowExpand"
+                  icon
+                  @click="toogleExpand">
                   <v-icon size="18">mdi-arrow-expand</v-icon>
                 </v-btn>
                 <v-btn icon>
@@ -32,7 +38,10 @@
               </v-list-item-action>
             </v-list-item>
           </v-flex>
-          <v-progress-linear v-if="loading" indeterminate color="primary" />
+          <v-progress-linear
+            v-if="loading"
+            indeterminate
+            color="primary" />
           <v-divider v-else class="my-0" />
         </template>
         <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">

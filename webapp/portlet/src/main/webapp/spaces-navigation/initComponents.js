@@ -8,7 +8,7 @@ const components = {
   'exo-spaces-navigation-content': ExoSpacesNavigationContent,
 };
 
-for(const key in components) {
+for (const key in components) {
   Vue.component(key, components[key]);
 }
 

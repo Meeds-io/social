@@ -1,5 +1,8 @@
 <template>
-  <v-card :id="spaceMenuParentId" class="spaceCardItem d-flex flex-column" flat>
+  <v-card
+    :id="spaceMenuParentId"
+    class="spaceCardItem d-flex flex-column"
+    flat>
     <v-btn
       absolute
       small
@@ -21,8 +24,7 @@
           :title="space.description"
           :data="space.description"
           :line-clamp="3"
-          end-char="...">
-        </ellipsis>
+          end-char="..." />
         <template v-else>
           {{ space.description }}
         </template>

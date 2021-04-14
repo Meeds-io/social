@@ -38,7 +38,11 @@
                 </div>
                 <span>
                   {{ $t('spacesList.label.noSpacesYetDescription2') }}
-                  <v-btn link text class="primary--text px-0 addNewSpaceLink" @click="$root.$emit('addNewSpace')">
+                  <v-btn
+                    link
+                    text
+                    class="primary--text px-0 addNewSpaceLink"
+                    @click="$root.$emit('addNewSpace')">
                     {{ $t('spacesList.label.noSpacesLink') }}
                   </v-btn>
                 </span>
@@ -95,7 +99,7 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
   }),
-  computed:{
+  computed: {
     canShowMore() {
       return this.loadingSpaces || this.spaces.length >= this.limitToFetch;
     },

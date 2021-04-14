@@ -7,7 +7,7 @@
       :lazy-src="(avatarData || user && user.avatar) || ''" 
       :src="(avatarData || user && user.avatar) || ''" 
       transition="none"
-      eager/>
+      eager />
     <v-file-input
       v-if="owner && !sendingImage"
       v-show="hover"

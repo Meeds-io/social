@@ -6,7 +6,10 @@
       :applications="applications"
       @back="closeDetail"
       @refresh="refresh" />
-    <v-card v-else class="border-radius" flat>
+    <v-card
+      v-else
+      class="border-radius"
+      flat>
       <v-list>
         <v-list-item>
           <v-list-item-content>

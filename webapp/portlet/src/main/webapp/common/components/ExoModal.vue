@@ -15,7 +15,7 @@
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">
-        <v-spacer/>
+        <v-spacer />
         <button
           v-if="okLabel"
           :disabled="loading"
@@ -24,7 +24,7 @@
           @click="close">
           {{ okLabel }}
         </button>
-        <v-spacer/>
+        <v-spacer />
       </v-card-actions>
     </v-card>
   </v-dialog>

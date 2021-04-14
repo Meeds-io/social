@@ -11,8 +11,15 @@
     <template slot="content">
       <div></div>
       <div>
-        <v-stepper v-model="stepper" vertical flat class="ma-0 py-0 me-4">
-          <v-stepper-step :complete="stepper > 1" step="1" class="ma-0">
+        <v-stepper
+          v-model="stepper"
+          vertical
+          flat
+          class="ma-0 py-0 me-4">
+          <v-stepper-step
+            :complete="stepper > 1"
+            step="1"
+            class="ma-0">
             {{ $t('spacesList.label.spaceDetails') }}
           </v-stepper-step>
           <v-stepper-content step="1" class="ps-4 pe-6 my-0">
@@ -27,7 +34,7 @@
                 type="text"
                 name="name"
                 class="input-block-level ignore-vuetify-classes my-3"
-                required />
+                required>
               <v-label for="description">
                 {{ $t('spacesList.label.description') }}
               </v-label>
@@ -38,7 +45,7 @@
                 rows="20"
                 maxlength="2000"
                 noresize
-                class="input-block-level ignore-vuetify-classes my-3" >
+                class="input-block-level ignore-vuetify-classes my-3">
               </textarea>
               <v-label for="spaceTemplate">
                 {{ $t('spacesList.label.spaceTemplate') }}
@@ -59,7 +66,10 @@
               <div class="caption font-italic font-weight-light ps-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
               <v-card-actions class="px-0">
                 <v-spacer />
-                <v-btn class="btn btn-primary" outlined @click="nextStep">
+                <v-btn
+                  class="btn btn-primary"
+                  outlined
+                  @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
                   <v-icon size="18" class="ms-2">
                     {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
@@ -68,7 +78,10 @@
               </v-card-actions>
             </form>
           </v-stepper-content>
-          <v-stepper-step :complete="stepper > 2" step="2" class="ma-0">
+          <v-stepper-step
+            :complete="stepper > 2"
+            step="2"
+            class="ma-0">
             {{ $t('spacesList.label.spaceAccess') }}
           </v-stepper-step>
           <v-stepper-content step="2" class="ps-4 pe-6 my-0">
@@ -120,7 +133,10 @@
                   {{ $t('spacesList.button.back') }}
                 </v-btn>
                 <v-spacer />
-                <v-btn class="btn btn-primary" outlined @click="nextStep">
+                <v-btn
+                  class="btn btn-primary"
+                  outlined
+                  @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
                   <v-icon size="18" class="ms-2">
                     {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
@@ -129,7 +145,10 @@
               </v-card-actions>
             </form>
           </v-stepper-content>
-          <v-stepper-step :complete="stepper > 3" step="3" class="ma-0">
+          <v-stepper-step
+            :complete="stepper > 3"
+            step="3"
+            class="ma-0">
             {{ $t('spacesList.label.inviteUsers') }}
           </v-stepper-step>
           <v-stepper-content step="3" class="ps-4 pe-6 my-0">
@@ -267,7 +286,7 @@ export default {
   },
   created() {
     const search = window.location.search && window.location.search.substring(1);
-    if(search) {
+    if (search) {
       const parameters = JSON.parse(
         `{"${decodeURI(search)
           .replace(/"/g, '\\"')

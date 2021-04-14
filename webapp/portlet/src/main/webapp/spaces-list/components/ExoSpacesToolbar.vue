@@ -14,13 +14,13 @@
       class="text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
-    <v-spacer></v-spacer>
+    <v-spacer />
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpaces')"
         prepend-inner-icon="fa-filter"
-        class="inputSpacesFilter pa-0 me-3 my-auto"></v-text-field>
+        class="inputSpacesFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
     <v-scale-transition>
       <select
@@ -41,16 +41,19 @@
     </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
-        <v-toolbar color="primary" dark class="border-box-sizing">
+        <v-toolbar
+          color="primary"
+          dark
+          class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('spacesList.button.cancel') }}
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-toolbar-title>
             <v-icon>fa-filter</v-icon>
             {{ $t('spacesList.label.filter') }}
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn text @click="changeFilterSelection">
             {{ $t('spacesList.button.confirm') }}
           </v-btn>

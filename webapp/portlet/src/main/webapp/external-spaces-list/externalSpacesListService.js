@@ -6,7 +6,7 @@ export function getExternalSpacesList() {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     }
     else {
@@ -20,7 +20,7 @@ export function getExternalSpacesRequests() {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     }
     else {
@@ -40,7 +40,7 @@ export function replyInvitationToJoinSpace(spaceMembershipId, reply) {
       'Content-Type': 'application/json'
     }
   }).then((resp) => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     }
     else {

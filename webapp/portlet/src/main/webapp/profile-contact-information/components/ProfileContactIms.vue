@@ -1,6 +1,6 @@
 <template>
   <div v-if="user.ims && user.ims.length>0">
-    <v-divider class="my-4"/>
+    <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div
         class="align-start text-no-wrap font-weight-bold me-3">

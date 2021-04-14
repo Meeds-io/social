@@ -3,7 +3,10 @@
     :id="id"
     :href="url"
     class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
-    <v-avatar :size="size" tile class="pull-left my-auto">
+    <v-avatar
+      :size="size"
+      tile
+      class="pull-left my-auto">
       <v-img
         :src="avatarUrl"
         :height="size"
@@ -11,11 +14,13 @@
         :max-height="size"
         :max-width="size"
         class="mx-auto"
-        eager>
-      </v-img>
+        eager />
     </v-avatar>
     <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2">
-      <p v-if="displayName" :class="boldTitle && 'font-weight-bold'" class="text-truncate subtitle-2 text-color my-0">
+      <p
+        v-if="displayName"
+        :class="boldTitle && 'font-weight-bold'"
+        class="text-truncate subtitle-2 text-color my-0">
         {{ displayName }}
       </p>
       <p v-if="$slots.subTitle" class="text-sub-title my-0">

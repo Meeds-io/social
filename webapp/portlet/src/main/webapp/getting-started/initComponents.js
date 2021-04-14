@@ -4,6 +4,6 @@ const components = {
   'exo-getting-started': ExoGettingStarted,
 };
 
-for(const key in components) {
+for (const key in components) {
   Vue.component(key, components[key]);
 }

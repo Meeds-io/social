@@ -3,7 +3,7 @@ export function getNotifications() {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     } else {
       throw new Error('Error when getting notification list');
@@ -26,7 +26,7 @@ export function getUserToken() {
   return fetch(`/rest/continuation/gettoken/${eXo.env.portal.userName}`, {
     method: 'GET',
   }).then((resp) => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.text();
     } else {
       throw new Error('Error when getting user token');
@@ -44,6 +44,6 @@ export function initCometd(userToken) {
 
   cCometd.subscribe('/eXo/Application/web/NotificationMessage', null, (event) => {
     const data = JSON.parse(event.data);
-    document.dispatchEvent(new CustomEvent('cometdNotifEvent', {'detail': {'data' : data}}));
+    document.dispatchEvent(new CustomEvent('cometdNotifEvent', {'detail': {'data': data}}));
   });
 }

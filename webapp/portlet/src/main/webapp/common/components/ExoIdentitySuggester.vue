@@ -58,7 +58,7 @@
           class="identitySuggesterItem"
           @click:close="remove(item)">
           <v-avatar left>
-            <v-img :src="item.profile.avatarUrl"></v-img>
+            <v-img :src="item.profile.avatarUrl" />
           </v-avatar>
           <span class="text-truncate">
             {{ item.profile.external ? item.profile.fullName.concat(' (').concat($t('userAvatar.external.label')).concat(')') : item.profile.fullName }}
@@ -70,7 +70,7 @@
         <v-list-item-avatar
           v-if="data.item && data.item.profile && data.item.profile.avatarUrl"
           size="20">
-          <v-img :src="data.item.profile.avatarUrl"></v-img>
+          <v-img :src="data.item.profile.avatarUrl" />
         </v-list-item-avatar>
         <v-list-item-title
           :style="menuItemStyle"
@@ -266,13 +266,13 @@ export default {
   },
   methods: {
     init() {
-      if(this.value && this.value.length) {
+      if (this.value && this.value.length) {
         this.value.forEach(item => {
-          if( item.profile ) {
+          if ( item.profile ) {
             this.items = this.value;
           }
         });
-      } else if(this.value && this.value.profile){
+      } else if (this.value && this.value.profile){
         this.items = this.value;
       }
     },
@@ -302,8 +302,8 @@ export default {
       this.loadingSuggestions = 0;
     },
     remove(item) {
-      if(this.value) {
-        if(this.value.splice) {
+      if (this.value) {
+        if (this.value.splice) {
           const index = this.value.findIndex(val => val.id === item.id);
           if (index >= 0){
             this.value.splice(index, 1);

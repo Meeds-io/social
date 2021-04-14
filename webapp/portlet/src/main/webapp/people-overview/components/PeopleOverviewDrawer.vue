@@ -45,7 +45,7 @@ export default {
     pageSize: 20,
     users: [],
   }),
-  computed:{
+  computed: {
     canShowMore() {
       return this.loadingUsers || this.users.length >= this.limit;
     },

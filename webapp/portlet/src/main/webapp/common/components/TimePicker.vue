@@ -3,8 +3,7 @@
     v-model="timeValue"
     class="width-auto my-auto ms-4 ignore-vuetify-classes">
     <option
-      v-for="time in timeOptions"
-      v-if="time.enabled"
+      v-for="time in filteredTimeOptions"
       :key="time.value"
       :value="time.value">
       {{ time.text }}
@@ -46,11 +45,7 @@ export default {
   }),
   computed: {
     filteredTimeOptions() {
-      if (this.min) {
-        return this.timeOptions.filter(timeOption => timeOption.enabled);
-      } else {
-        return this.timeOptions;
-      }
+      return this.timeOptions && this.timeOptions.filter(timeOption => timeOption.enabled) || [];
     },
     minTimeInMinutes() {
       if (!this.min) {

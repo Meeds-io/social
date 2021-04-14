@@ -4,7 +4,10 @@
       v-if="displayDetails"
       :settings="notificationSettings"
       @back="closeDetail" />
-    <v-card v-else class="ma-4 border-radius" flat>
+    <v-card
+      v-else
+      class="ma-4 border-radius"
+      flat>
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
           <v-list-item-content>

@@ -4,7 +4,10 @@
       <user-setting-security-window
         v-if="displayDetails"
         @back="closeSecurityDetail" />
-      <v-card v-else class="ma-4 border-radius" flat>
+      <v-card
+        v-else
+        class="ma-4 border-radius"
+        flat>
         <v-list>
           <v-list-item>
             <v-list-item-content>

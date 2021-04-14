@@ -1,7 +1,13 @@
 <template>
-  <v-container px-0 pt-0 class="border-box-sizing">
+  <v-container
+    px-0
+    pt-0
+    class="border-box-sizing">
     <v-row class="mx-0 clickable spacesNavigationTitle">
-      <v-list-item link @mouseover="openDrawer()" @click="openDrawer()">
+      <v-list-item
+        link
+        @mouseover="openDrawer()"
+        @click="openDrawer()">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
@@ -42,7 +48,7 @@ export default {
       secondLevelVueInstance: null,
     };
   },
-  computed:{
+  computed: {
     confirmMessage() {
       return this.$t('menu.confirmation.message.changeHome', {
         0: `<b>${this.selectedSpace && this.selectedSpace.displayName}</b>`,

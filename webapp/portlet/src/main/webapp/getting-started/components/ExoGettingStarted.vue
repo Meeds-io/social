@@ -1,7 +1,11 @@
 <template>
   <div v-if="showGettingStrated">
     <v-app>
-      <v-flex d-flex xs12 sm12 class="hiddenable-widget">
+      <v-flex
+        d-flex
+        xs12
+        sm12
+        class="hiddenable-widget">
         <v-layout
           row
           wrap
@@ -15,14 +19,24 @@
               <v-card-title class="getting-started-title subtitle-1 text-uppercase pb-0">
                 <span class="title">
                   {{ $t('locale.portlet.gettingStarted.title') }}
-                  <a v-show="showButtonClose" :title="$t('locale.portlet.gettingStarted.button.close')" class="btClose" href="#" rel="tooltip" data-placement="bottom" @click="hideGettingStarted">x</a>
+                  <a
+                    v-show="showButtonClose"
+                    :title="$t('locale.portlet.gettingStarted.button.close')"
+                    class="btClose"
+                    href="#"
+                    rel="tooltip"
+                    data-placement="bottom"
+                    @click="hideGettingStarted">x</a>
                 </span>
               </v-card-title>
               <v-list dense class="getting-started-list">
-                <v-list-item v-for="(step, index) in gettingStratedSteps" :key="index" class="getting-started-list-item">
+                <v-list-item
+                  v-for="(step, index) in gettingStratedSteps"
+                  :key="index"
+                  class="getting-started-list-item">
                   <v-list-item-icon class="me-3 steps-icon">
-                    <i v-if="step.status" class="UICheckIcon white--text" />
-                    <span v-else class="step-number font-weight-bold text-center white--text" >
+                    <i v-if="step.status" class="UICheckIcon white--text"></i>
+                    <span v-else class="step-number font-weight-bold text-center white--text">
                       <span>{{ index + 1 }}</span>
                     </span>
                   </v-list-item-icon>
@@ -51,14 +65,14 @@ export default {
       showGettingStrated: false
     };
   },computed: {
-    showButtonClose : function () {
+    showButtonClose: function () {
       return this.gettingStratedSteps.some(step => step.status === false) ? false : true;
     }
   },
   created() {
     this.initGettingStarted();
   },
-  methods : {
+  methods: {
     initGettingStarted() {
       if (localStorage.getItem('gettingStarted') && this.showButtonClose){
         const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
@@ -66,22 +80,22 @@ export default {
           this.clearCache();
           this.showGettingStrated = false;
           return;
-        }else {
+        } else {
           this.showGettingStrated = true;
           this.getGettingStartedSteps();
         }
-      }else if (this.showButtonClose){
+      } else if (this.showButtonClose){
         gettingStartedService.getGettingStartedSettings().then((resp) =>{
           if (resp && resp.value){
             this.clearCache();
             this.showGettingStrated = false;
             return;
-          }else {
+          } else {
             this.showGettingStrated = true;
             this.getGettingStartedSteps();
           }
         });
-      }else {
+      } else {
         this.showGettingStrated = true;
         this.getGettingStartedSteps();
       }
@@ -101,7 +115,7 @@ export default {
         if (response){
           this.clearCache();
           const gettingStarted = {
-            user : eXo.env.portal.userName,
+            user: eXo.env.portal.userName,
             gettingStartedStatus: true
           };
           localStorage.setItem('gettingStarted',JSON.stringify(gettingStarted));

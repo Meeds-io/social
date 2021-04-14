@@ -18,7 +18,7 @@
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
           maxlength="2000"
-          required />
+          required>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
         {{ $t('profileWorkExperiences.jobTitle') }}
@@ -29,7 +29,7 @@
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
           maxlength="2000"
-          required />
+          required>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
         {{ $t('profileWorkExperiences.jobDetails') }}
@@ -48,7 +48,7 @@
           v-model="experience.skills"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000" />
+          maxlength="2000">
       </v-card-text>
       <v-card-text class="d-flex text-color pb-2">
         <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">

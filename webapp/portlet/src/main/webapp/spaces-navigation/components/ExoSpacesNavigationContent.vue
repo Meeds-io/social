@@ -1,5 +1,8 @@
 <template>
-  <v-flex :class="shaped && 'ms-12'" class="mx-0 spacesNavigationContent" flat>
+  <v-flex
+    :class="shaped && 'ms-12'"
+    class="mx-0 spacesNavigationContent"
+    flat>
     <v-list :shaped="shaped" dense>
       <v-list-item-group v-model="selectedSpaceIndex">
         <v-list-item
@@ -79,7 +82,7 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
   }),
-  computed:{
+  computed: {
     canShowMore() {
       return this.showMoreButton && !this.loadingSpaces && this.spaces.length >= this.limitToFetch;
     },

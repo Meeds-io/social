@@ -12,8 +12,7 @@
           :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto spaceAvatar">
-        </v-img>
+          class="mx-auto spaceAvatar" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
@@ -107,7 +106,7 @@
           dark
           depressed
           @click="$emit('edit')">
-          <i class="uiIcon uiIconEdit" />
+          <i class="uiIcon uiIconEdit"></i>
         </v-btn>
       </template>
       <template v-if="filter === 'pending'">

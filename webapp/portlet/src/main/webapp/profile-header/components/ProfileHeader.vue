@@ -21,11 +21,11 @@
                 :ok-label="$t('profileHeader.label.ok')" />
               <v-hover>
                 <profile-header-avatar
-                  slot-scope="{ hover }"
+                  slot-scope="{ profileHover }"
                   :user="user"
                   :max-upload-size="maxUploadSizeInBytes"
                   :owner="owner"
-                  :hover="hover"
+                  :hover="hover || profileHover"
                   save
                   @refresh="avatarUpdated"
                   @error="handleError" />

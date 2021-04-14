@@ -19,8 +19,7 @@
         :title="user.aboutMe"
         :data="user.aboutMe"
         :line-clamp="5"
-        end-char="...">
-      </ellipsis>
+        end-char="..." />
     </div>
 
     <div class="d-flex pa-2 align-end flex-row">

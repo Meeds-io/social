@@ -42,13 +42,13 @@
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
 <script type="text/javascript">
-  document.addEventListener('spaceDetailUpdated', event => {
-    const space = event && event.detail;
-    if (space && space.displayName) {
-      document.querySelector('.logoTitle').innerText = space.displayName;
-      document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
-    }
-  });
+document.addEventListener('spaceDetailUpdated', event => {
+  const space = event && event.detail;
+  if (space && space.displayName) {
+    document.querySelector('.logoTitle').innerText = space.displayName;
+    document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
+  }
+});
 </script>
 <div class="VuetifyApp">
   <div data-app="true"

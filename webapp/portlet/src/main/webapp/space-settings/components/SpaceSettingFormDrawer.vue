@@ -33,7 +33,7 @@
           class="input-block-level ignore-vuetify-classes my-3"
           maxlength="200"
           autofocus
-          required />
+          required>
         <v-label for="description">
           {{ $t('SpaceSettings.label.description') }}
         </v-label>
@@ -44,7 +44,7 @@
           rows="20"
           maxlength="2000"
           noresize
-          class="input-block-level ignore-vuetify-classes my-3" >
+          class="input-block-level ignore-vuetify-classes my-3">
         </textarea>
         <v-label for="spaceTemplate">
           {{ $t('SpaceSettings.label.spaceTemplate') }}
@@ -180,7 +180,7 @@ export default {
       this.template = null;
       this.spaceTemplate = null;
       this.spaceToUpdate = null;
-      if(this.$refs.spaceAvatar) {
+      if (this.$refs.spaceAvatar) {
         this.$refs.spaceAvatar.reset();
       }
       this.space = {};
