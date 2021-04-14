@@ -19,8 +19,7 @@ const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API
-const url = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.addon.Wallet-${lang}.json`];
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 
 const appId = 'SpaceSettings';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
