@@ -20,7 +20,7 @@
           v-if="okLabel"
           :disabled="loading"
           :loading="loading"
-          class="ignore-vuetify-classes btn btn-primary mr-2"
+          class="ignore-vuetify-classes btn btn-primary me-2"
           @click="close">
           {{ okLabel }}
         </button>

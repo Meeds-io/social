@@ -20,7 +20,7 @@
               </v-card-title>
               <v-list dense class="getting-started-list">
                 <v-list-item v-for="(step, index) in gettingStratedSteps" :key="index" class="getting-started-list-item">
-                  <v-list-item-icon class="mr-3 steps-icon">
+                  <v-list-item-icon class="me-3 steps-icon">
                     <i v-if="step.status" class="UICheckIcon white--text" />
                     <span v-else class="step-number font-weight-bold text-center white--text" >
                       <span>{{ index + 1 }}</span>

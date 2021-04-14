@@ -8,10 +8,7 @@ const lang = `${spacesConstants.LANG}`;
 const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.whoisonline.whoisonline-${lang}.json`;
 
 Vue.use(Vuetify);
-const vuetify = new Vuetify({
-  dark: true,
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 // get overrided components if exists
 if (extensionRegistry) {

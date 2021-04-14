@@ -37,7 +37,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 peopleOverviewCheck"
+          class="me-2 peopleOverviewCheck"
           fab
           dark
           depressed

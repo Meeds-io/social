@@ -1,8 +1,8 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :right="right"
-    :left="!right"
+    :right="rightDrawer"
+    :left="leftDrawer"
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
@@ -17,7 +17,7 @@
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
-            <v-list-item class="pr-0">
+            <v-list-item class="pe-0">
               <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
@@ -106,6 +106,12 @@ export default {
     expand: false,
   }),
   computed: {
+    rightDrawer() {
+      return this.right && eXo.env.portal.orientation === 'ltr';
+    },
+    leftDrawer() {
+      return !this.right || eXo.env.portal.orientation === 'rtl';
+    },
     width() {
       return this.expand && '100%' || this.drawerWidth;
     },
@@ -117,30 +123,58 @@ export default {
           this.initialized = true;
         }
         $('body').addClass(this.bodyClasses);
+        window.setTimeout(() => {
+          if ($('.v-overlay').length) {
+            $('body').addClass(this.bodyClasses);
+          }
+        }, 200);
+        this.$root.openedDrawers.push(this);
         this.$emit('opened');
       } else {
         window.setTimeout(() => {
-          $('body').removeClass(this.bodyClasses);
+          if (!$('.v-overlay').length) {
+            $('body').removeClass(this.bodyClasses);
+          }
         }, 200);
+        if (this.$root.openedDrawers) {
+          const currentOpenedDrawerIndex = this.$root.openedDrawers.indexOf(this);
+          if (currentOpenedDrawerIndex >= 0) {
+            this.$root.openedDrawers.splice(currentOpenedDrawerIndex, 1);
+            if (currentOpenedDrawerIndex === 0) {
+              $('body').removeClass(this.bodyClasses);
+            }
+          }
+        }
+        this.$root.$emit('drawer-closed');
         this.$emit('closed');
       }
-      this.$nextTick().then(() => {
-        $('.v-overlay').off('click').on('click', () => {
-          this.close();
-        });
-      });
+      this.installOverlayListener();
       this.expand = false;
     },
   },
   created() {
     $(document).on('keydown', this.closeByEscape);
+    this.$root.$on('drawer-closed', this.installOverlayListener);
+    if (!this.$root.openedDrawers) {
+      this.$root.openedDrawers = [];
+    }
   },
   methods: {
     open() {
       this.drawer = true;
     },
+    installOverlayListener() {
+      if (this.drawer) {
+        this.$nextTick().then(() => {
+          $('.v-overlay').off('click').on('click', () => {
+            this.close();
+          });
+        });
+      }
+    },
     closeByEscape(event) {
-      if (event.key === 'Escape' && this.drawer) {
+      const isLastOpenedDrawer = this.$root.openedDrawers.indexOf(this) === this.$root.openedDrawers.length - 1;
+      if (event.key === 'Escape' && this.drawer && isLastOpenedDrawer) {
         this.close(event);
       }
     },
