@@ -272,7 +272,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                @Context Request request,
                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
-    
+    CacheControl cc = new CacheControl();
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(id);
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
@@ -285,15 +285,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-      builder.tag(eTag);
     }
 
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-    }
-    return builder.build();
+    return builder.cacheControl(cc).tag(eTag).build();
   }
 
   /**
