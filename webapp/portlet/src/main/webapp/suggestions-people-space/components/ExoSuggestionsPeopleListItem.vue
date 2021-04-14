@@ -20,19 +20,21 @@
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
-        <a text
-           icon
-           small
-           min-width="auto"
-           class="px-0 suggestions-btn-action connexion-accept-btn"
-           @click="connectionRequest(people)">
+        <a
+          text
+          icon
+          small
+          min-width="auto"
+          class="px-0 suggestions-btn-action connexion-accept-btn"
+          @click="connectionRequest(people)">
           <i class="uiIconInviteUser"></i>
         </a>
-        <a text
-           small
-           min-width="auto"
-           class="px-0 suggestions-btn-action connexion-refuse-btn"
-           @click="ignoredConnectionUser(people)">
+        <a
+          text
+          small
+          min-width="auto"
+          class="px-0 suggestions-btn-action connexion-refuse-btn"
+          @click="ignoredConnectionUser(people)">
           <i class="uiIconCloseCircled"></i>
         </a>
       </v-btn-toggle>

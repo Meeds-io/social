@@ -8,12 +8,12 @@ export function getActivityComposerActionExtensions() {
 }
 
 export function getActivityComposerHintActionExtensions() {
-  if(activityComposerHintAction === null){
+  if (activityComposerHintAction === null){
     activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
     if (activityComposerHintAction) {
       activityComposerHintAction = activityComposerHintAction.sort(compare);
       activityComposerHintAction = activityComposerHintAction[0];
-    }else {
+    } else {
       activityComposerHintAction = null;
     }
   }
@@ -21,8 +21,8 @@ export function getActivityComposerHintActionExtensions() {
 }
 
 export function executeExtensionAction(extension, component) {
-  if(extension.hasOwnProperty('onExecute') && isFunction(extension.onExecute)) {
-    if(component) {
+  if (extension.hasOwnProperty('onExecute') && isFunction(extension.onExecute)) {
+    if (component) {
       extension.onExecute(component[0]);
     } else {
       extension.onExecute();
@@ -35,10 +35,10 @@ function getExtensionsByType(type) {
 }
 
 function isExtensionEnabled(extension) {
-  if(extension.hasOwnProperty('enabled')) {
-    if(typeof extension.enabled === 'boolean') {
+  if (extension.hasOwnProperty('enabled')) {
+    if (typeof extension.enabled === 'boolean') {
       return extension.enabled;
-    } else if(isFunction(extension.enabled)) {
+    } else if (isFunction(extension.enabled)) {
       return extension.enabled.call();
     }
   }

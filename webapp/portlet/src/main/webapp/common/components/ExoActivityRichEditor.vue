@@ -1,12 +1,22 @@
 <template>
   <div class="activityRichEditor">
-    <textarea ref="editor" :id="ckEditorType" v-model="inputVal" :placeholder="placeholder" cols="30" rows="10" class="textarea"></textarea>
+    <textarea
+      ref="editor"
+      :id="ckEditorType"
+      v-model="inputVal"
+      :placeholder="placeholder"
+      cols="30"
+      rows="10"
+      class="textarea"></textarea>
     <v-progress-circular
       v-if="!editorReady"
       :width="3"
       indeterminate
-      class="loadingRing"/>
-    <div v-show="editorReady" :class="charsCount > maxLength ? 'tooManyChars' : ''" class="activityCharsCount">
+      class="loadingRing" />
+    <div
+      v-show="editorReady"
+      :class="charsCount > maxLength ? 'tooManyChars' : ''"
+      class="activityCharsCount">
       {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
       <i class="uiIconMessageLength"></i>
     </div>
@@ -133,7 +143,7 @@ export default {
           .each(function() {
             $(this).replaceWith(function() {
               return $('<span/>', {
-                class:'atwho-inserted',
+                class: 'atwho-inserted',
                 html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
               }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
                 .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))

@@ -6,8 +6,7 @@
     :placeholder="placeholder"
     counter
     auto-grow
-    class="extended-textarea">
-  </v-textarea>
+    class="extended-textarea" />
 </template>
 
 <script>
@@ -42,7 +41,7 @@ export default {
   created() {
     this.rules = [v => !v || v.length <= this.maxLength || this.limitMessageLabel];
   },
-  methods:{
+  methods: {
     counterValue(value) {
       return `${value && value.length || 0} / ${this.maxLength}`;
     },

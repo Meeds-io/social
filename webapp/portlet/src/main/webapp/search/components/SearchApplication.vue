@@ -5,7 +5,7 @@
       icon
       class="transparent"
       @click="dialog = !dialog">
-      <i class="uiIconPLF24x24Search" />
+      <i class="uiIconPLF24x24Search"></i>
     </v-btn>
     <v-fade-transition>
       <v-flex
@@ -18,7 +18,7 @@
             ref="toolbar"
             :standalone="standalone"
             @search="term = $event"
-            @close-search="dialog = false"/>
+            @close-search="dialog = false" />
           <search-results
             ref="results"
             :connectors="connectors"
@@ -79,7 +79,7 @@ export default {
     this.standalone = window.location.pathname.indexOf(this.searchUri) === 0;
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
-      if(search) {
+      if (search) {
         const parameters = JSON.parse(
           `{"${decodeURI(search)
             .replace(/"/g, '\\"')

@@ -22,19 +22,21 @@
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
-        <a text
-           icon
-           small
-           min-width="auto"
-           class="px-0 suggestions-btn-action connexion-accept-btn"
-           @click="joinSpace(space)">
+        <a
+          text
+          icon
+          small
+          min-width="auto"
+          class="px-0 suggestions-btn-action connexion-accept-btn"
+          @click="joinSpace(space)">
           <i class="uiIconPlusLight"></i>
         </a>
-        <a text
-           small
-           min-width="auto"
-           class="px-0 suggestions-btn-action connexion-refuse-btn"
-           @click="ignoredSuggestionSpace(space)">
+        <a
+          text
+          small
+          min-width="auto"
+          class="px-0 suggestions-btn-action connexion-refuse-btn"
+          @click="ignoredSuggestionSpace(space)">
           <i class="uiIconCloseCircled"></i>
         </a>
       </v-btn-toggle>

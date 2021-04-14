@@ -6,6 +6,6 @@
   String jsModule = ((String[])request.getAttribute("jsModule"))[0];
 %>
 <script type="text/javascript">
-  eXo.env.portal.homeLink = "<%=homeLink%>";
-  require(['<%=jsModule%>']);
+eXo.env.portal.homeLink = '<%=homeLink%>';
+require(['<%=jsModule%>']);
 </script>

@@ -11,21 +11,18 @@
       <v-list>
         <v-row no-gutters class="col-12 mx-0 px-0">
           <div class="pa-0 d-inline-flex"><v-card-text class="pe-0 text-sub-title">{{ $t('UsersManagement.type') }}</v-card-text></div>
-          <v-col class="align-self-center mx-2"><v-divider></v-divider></v-col>
+          <v-col class="align-self-center mx-2"><v-divider /></v-col>
         </v-row>
         <v-card flat class="px-3">
           <v-radio-group
             v-model="userType"
-            class="mt-0"
-          >
+            class="mt-0">
             <v-radio
               :label="$t('UsersManagement.type.internal')"
-              value="internal"
-            ></v-radio>
+              value="internal" />
             <v-radio
               :label="$t('UsersManagement.type.external')"
-              value="external"
-            ></v-radio>
+              value="external" />
           </v-radio-group>
         </v-card>
       </v-list>

@@ -25,10 +25,10 @@ if (extensionRegistry) {
 // getting locale resources
 export function init(params) {
   if ($('.activityComposerApp').length && params && params.activityId) {
-    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail : params}));
+    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail: params}));
   } else {
     getActivityComposerActionExtensions().forEach(extension => {
-      if(extension.resourceBundle) {
+      if (extension.resourceBundle) {
         urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
       }
     });

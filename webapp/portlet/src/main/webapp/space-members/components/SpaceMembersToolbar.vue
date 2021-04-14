@@ -4,7 +4,7 @@
       <v-btn
         class="btn pe-2 ps-0 me-4 inviteUserToSpaceButton"
         @click="$emit('invite-users')">
-        <i class="uiIconInviteUser ms-2 me-1" />
+        <i class="uiIconInviteUser ms-2 me-1"></i>
         <span class="d-none d-sm-inline">
           {{ $t('peopleList.button.inviteUsers') }}
         </span>
@@ -20,7 +20,7 @@
         v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 me-3 my-auto"></v-text-field>
+        class="inputPeopleFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
     <v-scale-transition>
       <select
@@ -41,16 +41,19 @@
     </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet :height="bottomNavigationHeight" class="text-center">
-        <v-toolbar color="primary" dark class="border-box-sizing">
+        <v-toolbar
+          color="primary"
+          dark
+          class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('peopleList.label.cancel') }}
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-toolbar-title>
             <v-icon>fa-filter</v-icon>
             {{ $t('peopleList.label.filter') }}
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn text @click="changeFilterSelection">
             {{ $t('peopleList.label.confirm') }}
           </v-btn>

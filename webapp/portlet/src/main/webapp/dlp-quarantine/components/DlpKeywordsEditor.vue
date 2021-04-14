@@ -4,8 +4,7 @@
       <div>
         <v-chip-group
           active-class="primary--text"
-          column
-        >
+          column>
           <v-row no-gutters>
             <div class="my-auto col-1">
               <h4 class="font-weight-bold ma-0">{{ $t('items.dlp.editKeyword.keywords') }}</h4>
@@ -14,8 +13,7 @@
               v-for="keyword in keywords"
               :key="keyword"
               outlined
-              class="my-1"
-            >
+              class="my-1">
               {{ keyword }}
             </v-chip>
             <div class="my-auto">
@@ -24,8 +22,8 @@
                 outlined
                 small
                 @click="editKeywords">
-                <i v-if="keywords.length" class="uiIconEdit uiIconLightBlue pb-2" />
-                <i v-else class="uiIconSocSimplePlus uiIconLightBlue" />
+                <i v-if="keywords.length" class="uiIconEdit uiIconLightBlue pb-2"></i>
+                <i v-else class="uiIconSocSimplePlus uiIconLightBlue"></i>
               </v-btn>
             </div>
           </v-row>
@@ -48,22 +46,19 @@
               :placeholder="$t('items.dlp.editKeyword.placeholder')"
               class="ignore-vuetify-classes inputKeyword"
               maxlength="50"
-              @keyup.enter="AddKeyword"
-            />
+              @keyup.enter="AddKeyword">
           </v-card-text>
           <v-card-text>
             <v-chip-group
               active-class="primary--text"
-              column
-            >
+              column>
               <v-chip
                 v-for="keyword in modifyingKeywords"
                 :key="keyword"
                 close
                 outlined
                 class="my-1"
-                @click:close="removeKeyword(keyword)"
-              >
+                @click:close="removeKeyword(keyword)">
                 {{ keyword }}
               </v-chip>
             </v-chip-group>
@@ -102,10 +97,10 @@ export default {
     return {
       keywordsEdit: false,
       keywords: [],
-      modifyingKeywords : [],
-      keywordTextLength : 100,
-      showEditBtn : false, 
-      error : null,
+      modifyingKeywords: [],
+      keywordTextLength: 100,
+      showEditBtn: false, 
+      error: null,
     };
   },
   watch: {
@@ -116,7 +111,7 @@ export default {
   created() {
     this.getDlpKeywords();
   },
-  methods : {
+  methods: {
     getDlpKeywords() {
       getDlpKeywords().then(keywords => {
         if (keywords) {
@@ -131,7 +126,7 @@ export default {
         const index = this.modifyingKeywords.indexOf(input);
         const words = input.trim().split(/\s+/);
         const num_words = words.length;
-        if(num_words>3){
+        if (num_words>3){
           this.error = this.$t('items.dlp.editKeyword.maxWordsAllowed');
           window.setTimeout(() => {
             this.error = null;

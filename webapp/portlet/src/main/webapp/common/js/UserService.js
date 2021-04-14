@@ -142,7 +142,7 @@ export function sendConnectionRequest(userID) {
 
 export function ignoreSuggestion(receiver) {
   const sender = eXo.env.portal.userName;
-  const data = {'sender': sender ,'receiver': receiver,'status':'IGNORED'};
+  const data = {'sender': sender ,'receiver': receiver,'status': 'IGNORED'};
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships/`, {
     method: 'POST',
     headers: {

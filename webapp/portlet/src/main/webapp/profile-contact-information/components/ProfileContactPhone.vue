@@ -6,7 +6,11 @@
         {{ $t('profileContactInformation.phones') }}
       </div>
       <div v-if="user && user.phones && user.phones.length" class="align-end flex-grow-1 text-truncate text-end">
-        <div v-for="(phone, i) in user.phones" :key="i" :title="phone.phoneNumber" class="text-no-wrap text-truncate">
+        <div
+          v-for="(phone, i) in user.phones"
+          :key="i"
+          :title="phone.phoneNumber"
+          class="text-no-wrap text-truncate">
           <span class="pe-1 text-capitalize">
             {{ getLabel(`profileContactInformation.phone.${phone.phoneType}`, phone.phoneType) }}:
           </span>

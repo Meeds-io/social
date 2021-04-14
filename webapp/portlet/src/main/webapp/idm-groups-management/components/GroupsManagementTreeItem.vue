@@ -6,8 +6,14 @@
       dense
       @click="$root.$emit('selectGroup', group)">
       <v-list-item-action class="me-4">
-        <v-btn v-if="displayIcon" icon @click="toogleOpenTree">
-          <v-progress-circular v-if="loadingChildren" indeterminate size="32" />
+        <v-btn
+          v-if="displayIcon"
+          icon
+          @click="toogleOpenTree">
+          <v-progress-circular
+            v-if="loadingChildren"
+            indeterminate
+            size="32" />
           <v-icon v-else size="32">{{ icon }}</v-icon>
         </v-btn>
         <div v-else class="ms-5 me-4"></div>

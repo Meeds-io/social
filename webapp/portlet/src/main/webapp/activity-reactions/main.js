@@ -36,8 +36,8 @@ export function init(params) {
     }).$mount(`#activityReactions-${params.activityId}`);
   });
   document.dispatchEvent(
-    new CustomEvent('display-activity-details', {detail : {
-      id : params.activityId,
+    new CustomEvent('display-activity-details', {detail: {
+      id: params.activityId,
       type: 'ACTIVITY',
     }}));
 }

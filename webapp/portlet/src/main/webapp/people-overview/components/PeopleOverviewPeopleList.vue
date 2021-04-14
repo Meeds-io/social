@@ -1,5 +1,8 @@
 <template>
-  <v-list v-if="users && users.length" two-line subheader>
+  <v-list
+    v-if="users && users.length"
+    two-line
+    subheader>
     <people-overview-people-list-item
       v-for="user in users"
       :key="user.id"

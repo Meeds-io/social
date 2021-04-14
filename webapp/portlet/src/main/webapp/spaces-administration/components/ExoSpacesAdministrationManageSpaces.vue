@@ -1,8 +1,16 @@
 <template>
   <div class="manageSpaces">
     <div class="uiSearchInput">
-      <input v-model="searchText" :placeholder="$t('social.spaces.administration.manageSpaces.search')" class="showInputSearch" type="text" @keyup.enter="searchSpaces()"/>
-      <a v-exo-tooltip.bottom.body="Search" class="advancedSearch" href="#">
+      <input
+        v-model="searchText"
+        :placeholder="$t('social.spaces.administration.manageSpaces.search')"
+        class="showInputSearch"
+        type="text"
+        @keyup.enter="searchSpaces()">
+      <a
+        v-exo-tooltip.bottom.body="Search"
+        class="advancedSearch"
+        href="#">
         <i class="uiIconPLF24x24Search" @click="searchSpaces()"></i>
       </a>
     </div>
@@ -33,19 +41,38 @@
         <td class="empty center" colspan="12"> {{ $t('social.spaces.administration.manageSpaces.noSpaces') }} </td>
       </tr>
       <tr v-for="(space, index) in spaces" :key="space.id">
-        <td><img v-if="space.avatarUrl != null" :src="space.avatarUrl" class="avatar" /> <img v-else :src="avatar" class="avatar" />  {{ space.displayName }}</td>
+        <td>
+          <img
+            v-if="space.avatarUrl != null"
+            :src="space.avatarUrl"
+            class="avatar"> <img
+              v-else
+              :src="avatar"
+              class="avatar">  {{ space.displayName }}
+        </td>
         <td v-html="space.description"></td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.members.length }} </td>
-        <td class="center actionContainer" >
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')" v-if="canBindGroupsAndSpaces" class="actionIcon" @click="openSpaceBindingDrawer(space, index)">
+        <td class="center actionContainer">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')"
+            v-if="canBindGroupsAndSpaces"
+            class="actionIcon"
+            @click="openSpaceBindingDrawer(space, index)">
             <i :class="{'bound': space.hasBindings}" class="uiIconSpaceBinding uiIconGroup"></i>
           </a>
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.edit')" :href="getSpaceLinkSetting(space.displayName,space.groupId)" class="actionIcon" target="_blank">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.edit')"
+            :href="getSpaceLinkSetting(space.displayName,space.groupId)"
+            class="actionIcon"
+            target="_blank">
             <i class="uiIconEdit uiIconLightGray"></i>
           </a>
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.delete')" class="actionIcon" @click="deleteSpaceById(space.id, index)">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.delete')"
+            class="actionIcon"
+            @click="deleteSpaceById(space.id, index)">
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
         </td>
@@ -54,7 +81,10 @@
     <div v-if="totalPages > 1" class="pagination uiPageIterator">
       <ul class="pull-right">
         <li :class="{'disabled': currentPage === 1}">
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.previous')" href="#" @click="getSpacesPerPage(currentPage-1)">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.previous')"
+            href="#"
+            @click="getSpacesPerPage(currentPage-1)">
             <i class="uiIconPrevArrow"></i>
           </a>
         </li>
@@ -62,15 +92,18 @@
           <a href="#" @click="getSpacesPerPage(1)">{{ 1 }}</a>
         </li>
         <li v-if="isInFirstPage">
-          <a >
+          <a>
             <span>...</span>
           </a>
         </li>
-        <li v-for="(page,i) in pages" :key="i" :class="{'active': currentPage === page.name}">
+        <li
+          v-for="(page,i) in pages"
+          :key="i"
+          :class="{'active': currentPage === page.name}">
           <a href="#" @click="getSpacesPerPage(page.name)">{{ page.name }}</a>
         </li>
         <li v-if="isInLastPage">
-          <a >
+          <a>
             <span>...</span>
           </a>
         </li>
@@ -78,13 +111,19 @@
           <a href="#" @click="getSpacesPerPage(totalPages)">{{ totalPages }}</a>
         </li>
         <li :class="[currentPage === totalPages ? 'disabled': '' ]">
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.next')" href="#" @click="getSpacesPerPage(currentPage+1)">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.next')"
+            href="#"
+            @click="getSpacesPerPage(currentPage+1)">
             <i class="uiIconNextArrow"></i>
           </a>
         </li>
       </ul>
     </div> 
-    <exo-modal v-show="showConfirmMessageModal" :title="$t('social.spaces.administration.delete.spaces.confirm.title')" @modal-closed="closeModal">
+    <exo-modal
+      v-show="showConfirmMessageModal"
+      :title="$t('social.spaces.administration.delete.spaces.confirm.title')"
+      @modal-closed="closeModal">
       <p>{{ $t('social.spaces.administration.delete.spaces.confirm') }}</p>
       <div class="uiAction uiActionBorder">
         <div class="btn btn-primary" @click="confirmDelete">{{ $t('social.spaces.administration.delete.spaces.button.delete') }}</div>
@@ -100,7 +139,14 @@
       temporary
       width="500"
       max-width="100vw">
-      <exo-group-binding-drawer :key="groupBindingDrawerKey" :group-space-bindings="groupSpaceBindings" :bound-groups-loading="bindingsLoading" :space-to-bind="spaceToBind" @close="closeGroupBindingDrawer" @openBindingModal="openBindingModal" @openRemoveBindingModal="openRemoveBindingModal" />
+      <exo-group-binding-drawer
+        :key="groupBindingDrawerKey"
+        :group-space-bindings="groupSpaceBindings"
+        :bound-groups-loading="bindingsLoading"
+        :space-to-bind="spaceToBind"
+        @close="closeGroupBindingDrawer"
+        @openBindingModal="openBindingModal"
+        @openRemoveBindingModal="openRemoveBindingModal" />
     </v-navigation-drawer>
     <exo-modal 
       v-show="showConfirmMessageBindingModal"
@@ -155,14 +201,14 @@ export default {
       maxVisiblePagesButtons: 3,
       maxVisibleButtons: 5,
       groupBindingDrawerKey: 0,
-      showConfirmMessageBindingModal : false,
+      showConfirmMessageBindingModal: false,
       showConfirmMessageRemoveBindingModal: false,
       groupsToBind: [],
       groupSpaceBindings: [],
       bindingsLoading: true,
       binding: {},
       groupPrettyName: '',
-      avatar : spacesConstants.DEFAULT_SPACE_AVATAR
+      avatar: spacesConstants.DEFAULT_SPACE_AVATAR
     };
   },
   computed: {
@@ -171,31 +217,31 @@ export default {
         return 1;
       }
       if (this.currentPage === this.totalPages && this.totalPages > this.maxVisibleButtons){
-        if(this.totalPages - this.maxVisiblePagesButtons +1 < 0) {
+        if (this.totalPages - this.maxVisiblePagesButtons +1 < 0) {
           return 1;
         }
         else {
           return this.totalPages - this.maxVisiblePagesButtons + 1;
         }
       }
-      if(this.totalPages > this.maxVisibleButtons){
-        if(this.totalPages - this.currentPage < this.maxVisibleButtons && this.totalPages - this.currentPage >= this.maxVisiblePagesButtons){
+      if (this.totalPages > this.maxVisibleButtons){
+        if (this.totalPages - this.currentPage < this.maxVisibleButtons && this.totalPages - this.currentPage >= this.maxVisiblePagesButtons){
           return this.totalPages - this.maxVisibleButtons +1;
         }
-        if(this.totalPages - this.currentPage < this.maxVisiblePagesButtons-1) {
+        if (this.totalPages - this.currentPage < this.maxVisiblePagesButtons-1) {
           return this.currentPage-1;
         }
       }
-      else{
+      else {
         return 1;
       }
       return this.currentPage ;
     },
     endPage() {
-      if( this.totalPages - this.startPage <= this.maxVisibleButtons -1 ){
+      if ( this.totalPages - this.startPage <= this.maxVisibleButtons -1 ){
         return this.totalPages;
       }
-      else{
+      else {
         return Math.min(this.startPage + this.maxVisiblePagesButtons - 1, this.totalPages);
       }
     },
@@ -216,7 +262,7 @@ export default {
     },
   },
   created() {
-    this.initSpaces();	
+    this.initSpaces();
   },
 
   methods: {

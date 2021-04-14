@@ -14,7 +14,7 @@
                     v-if="dlpFeatureStatusLoaded"
                     v-model="dlpFeatureEnabled"
                     dense
-                    @change="saveDlpFeatureStatus(dlpFeatureEnabled)"/>
+                    @change="saveDlpFeatureStatus(dlpFeatureEnabled)" />
                 </v-col>
               </v-row>
             </v-list-item-title>
@@ -23,8 +23,8 @@
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <dlp-keywords-editor></dlp-keywords-editor>
-        <v-divider class="mx-5"/>
+        <dlp-keywords-editor />
+        <v-divider class="mx-5" />
       </v-list>
       <exo-confirm-dialog
         ref="restoreConfirmDialog"
@@ -195,7 +195,7 @@ export default {
         }
         return this.retrieveDlpPositiveItems();
       }).catch(error => {
-        error = error.message || String(error);
+        this.error = error.message || String(error);
         window.setTimeout(() => {
           this.error = null;
         }, 5000);
@@ -229,7 +229,7 @@ export default {
         }
         return this.retrieveDlpPositiveItems();
       }).catch(error => {
-        error = error.message || String(error);
+        this.error = error.message || String(error);
         window.setTimeout(() => {
           this.error = null;
         }, 5000);

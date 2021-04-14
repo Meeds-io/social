@@ -8,6 +8,6 @@ const components = {
   'exo-suggestions-people-list-item': ExoSuggestionsPeopleListItem
 };
 
-for(const key in components) {
+for (const key in components) {
   Vue.component(key, components[key]);
 }

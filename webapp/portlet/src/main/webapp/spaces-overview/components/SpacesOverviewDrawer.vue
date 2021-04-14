@@ -45,7 +45,7 @@ export default {
     pageSize: 20,
     spaces: [],
   }),
-  computed:{
+  computed: {
     canShowMore() {
       return this.loadingSpaces || this.spaces.length >= this.limit;
     },
@@ -73,7 +73,7 @@ export default {
       this.searchSpaces();
     },
     editSpace(space) {
-      document.dispatchEvent(new CustomEvent('meeds.social.editSpace', {'detail': {'data' : space}}));
+      document.dispatchEvent(new CustomEvent('meeds.social.editSpace', {'detail': {'data': space}}));
       this.$refs.overviewDrawer.close();
     },
     open(filter, title) {

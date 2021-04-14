@@ -2,7 +2,10 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
     class="white">
-    <v-toolbar color="white" flat class="border-box-sizing">
+    <v-toolbar
+      color="white"
+      flat
+      class="border-box-sizing">
       <div
         class="text-header-title text-sub-title">
         {{ $t('profileContactInformation.contactInformation') }}
@@ -14,7 +17,7 @@
         outlined
         small
         @click="editContactInformation">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
       </v-btn>
     </v-toolbar>
     <div v-if="user" class="px-4 pb-6 white">
@@ -77,8 +80,9 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.department') }}
           </div>
-          <div :title="user.department"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.department"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.department }}
           </div>
         </v-flex>
@@ -89,8 +93,9 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.team') }}
           </div>
-          <div :title="user.team"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.team"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.team }}
           </div>
         </v-flex>
@@ -101,8 +106,9 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.profession') }}
           </div>
-          <div :title="user.profession"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.profession"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.profession }}
           </div>
         </v-flex>
@@ -124,8 +130,9 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.city') }}
           </div>
-          <div :title="user.city"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.city"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.city }}
           </div>
         </v-flex>

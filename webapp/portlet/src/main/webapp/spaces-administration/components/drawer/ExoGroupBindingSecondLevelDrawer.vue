@@ -67,19 +67,23 @@
             clearable
             solo
             flat
-            hide-details>
-          </v-text-field>
+            hide-details />
         </v-flex>
       </v-layout>
     </v-card-title>
-    <v-layout pt-4 ps-2 class="content">
+    <v-layout
+      pt-4
+      ps-2
+      class="content">
       <v-flex>
         <div v-show="loading">
-          <v-flex pt-4 ps-4 pe-8>
+          <v-flex
+            pt-4
+            ps-4
+            pe-8>
             <v-skeleton-loader
               class="mx-auto"
-              type="paragraph@3">
-            </v-skeleton-loader>
+              type="paragraph@3" />
           </v-flex>
         </div>
         <v-treeview
@@ -97,8 +101,7 @@
           hoverable
           selectable
           open-on-click
-          return-object>
-        </v-treeview>
+          return-object />
         <v-treeview
           v-show="searching"
           id="treeSearchMode"
@@ -117,15 +120,23 @@
           activatable
           multiple-active
           open-on-click
-          return-object>
-        </v-treeview>
+          return-object />
       </v-flex>
     </v-layout>
     <v-card-actions absolute class="drawerActions">
       <v-layout>
-        <v-flex class="xs6"></v-flex>
-        <button type="button" class="btn ms-2" @click="cancelSelection">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</button>
-        <button :disabled="!isAllowToSave" type="button" class="btn btn-primary ms-6" @click="saveSelection">
+        <v-flex class="xs6" />
+        <button
+          type="button"
+          class="btn ms-2"
+          @click="cancelSelection">
+          {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}
+        </button>
+        <button
+          :disabled="!isAllowToSave"
+          type="button"
+          class="btn btn-primary ms-6"
+          @click="saveSelection">
           {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.save') }}
         </button>
       </v-layout>
@@ -161,7 +172,7 @@ export default {
       confirmedSelection: [],
     };
   },
-  computed : {
+  computed: {
     isAllowToSave() {
       // retrieve none confirmed selections
       const nonConfirmedSelection = [];
@@ -250,7 +261,7 @@ export default {
   mounted() {
     this.getRootChildGroups();
   },
-  methods : {
+  methods: {
     getRootChildGroups() {
       spacesAdministrationServices.getGroupsTree(null).then(data => {
         this.items = data.childGroups;

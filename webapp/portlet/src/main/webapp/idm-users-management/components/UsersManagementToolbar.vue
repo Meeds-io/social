@@ -19,20 +19,35 @@
           <users-management-import-csv-button />
         </div>
       </div>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="mx-1 multiSelect" @click="multiSelectAction('onboard')">
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="mx-1 multiSelect"
+        @click="multiSelectAction('onboard')">
         <i class="uiIconInviteUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.onboard') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('enable')">
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="multiSelect"
+        @click="multiSelectAction('enable')">
         <i class="uiIconValidateUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.enable') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('disable')">
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="multiSelect"
+        @click="multiSelectAction('disable')">
         <i class="uiIconRejectUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.disable') }}
       </v-btn>
     </v-toolbar-title>
-    <v-spacer></v-spacer>
+    <v-spacer />
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
@@ -52,7 +67,11 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-btn v-if="filter === 'ENABLED'" min-width="auto" outlined @click="$root.$emit('advancedFilter', userType)">
+    <v-btn
+      v-if="filter === 'ENABLED'"
+      min-width="auto"
+      outlined
+      @click="$root.$emit('advancedFilter', userType)">
       <i class="uiSettingsIcon"></i>
       <div v-if="numberOfFilters > 0" class="pb-1">
         ({{ numberOfFilters }})

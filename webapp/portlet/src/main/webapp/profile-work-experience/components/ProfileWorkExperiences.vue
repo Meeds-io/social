@@ -2,7 +2,10 @@
   <v-app
     :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
     class="white">
-    <v-toolbar color="white" flat class="border-box-sizing">
+    <v-toolbar
+      color="white"
+      flat
+      class="border-box-sizing">
       <div class="text-header-title text-sub-title">
         {{ $t('profileWorkExperiences.title') }}
       </div>
@@ -13,7 +16,7 @@
         outlined
         small
         @click="editWorkExperiences">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
       </v-btn>
     </v-toolbar>
     <div v-if="owner || (experiences && experiences.length)" class="px-4 pb-6 white">

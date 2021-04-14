@@ -35,69 +35,86 @@
         v-else
         class="ma-4 pa-3 successfulInvitation"
         outlined
-        text
-      >
+        text>
         {{ $t('peopleList.label.successfulInvitation', {0: invitedUserFullName}) }}
       </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
-        <v-alert v-if="alreadyExistAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyExistAlert"/>
-        <v-alert v-if="alreadyInvitedAlert" outlined text class="mb-0 pa-2 text-center alreadyExistAlert" v-html="alreadyInvitedAlert"/>
+        <v-alert
+          v-if="alreadyExistAlert"
+          outlined
+          text
+          class="mb-0 pa-2 text-center alreadyExistAlert"
+          v-html="alreadyExistAlert" />
+        <v-alert
+          v-if="alreadyInvitedAlert"
+          outlined
+          text
+          class="mb-0 pa-2 text-center alreadyExistAlert"
+          v-html="alreadyInvitedAlert" />
         <v-list-item
           v-for="user in externalInvitedUsers"
-          :key="user"
-        >
+          :key="user">
           <v-badge
             bottom
             color="white"
             bordered
             offset-x="33"
             offset-y="26"
-            class="externalBadge pa-0"
-          >
-            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon class="helpIcon">mdi-help</v-icon></span>
+            class="externalBadge pa-0">
+            <span slot="badge"><i class="uiIconSocUserProfile"></i><v-icon class="helpIcon">mdi-help</v-icon></span>
             <v-list-item-avatar class="ms-0">
               <v-img
-                :src="defaultAvatar"
-              ></v-img>
+                :src="defaultAvatar" />
             </v-list-item-avatar>
           </v-badge>
           <v-list-item-content>
-            <v-list-item-title class="externalUserEmail" v-text="user"></v-list-item-title>
+            <v-list-item-title class="externalUserEmail" v-text="user" />
             <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="removeExternalInvitation(user)">
+          <v-btn
+            v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')"
+            icon
+            @click="removeExternalInvitation(user)">
             <v-icon>
               mdi-close-circle
             </v-icon>
           </v-btn>
         </v-list-item>
       </v-list>
-      <v-list v-if="externalInvitationsSent.length > 0" class="mx-4 mt-0 rounded externalList" subheader>
+      <v-list
+        v-if="externalInvitationsSent.length > 0"
+        class="mx-4 mt-0 rounded externalList"
+        subheader>
         <v-list-item
           v-for="invitation in externalInvitationsSent"
-          :key="invitation"
-        >
+          :key="invitation">
           <v-badge
             bottom
             bordered
             color="white"
             offset-x="33"
             offset-y="26"
-            class="externalBadge pa-0"
-          >
-            <span slot="badge"><i class="uiIconSocUserProfile"/><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
+            class="externalBadge pa-0">
+            <span slot="badge"><i class="uiIconSocUserProfile"></i><v-icon color="white" class="helpIcon">mdi-help</v-icon></span>
             <v-list-item-avatar class="ms-0">
               <v-img
-                :src="defaultAvatar"
-              ></v-img>
+                :src="defaultAvatar" />
             </v-list-item-avatar>
           </v-badge>
           <v-list-item-content>
-            <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail"></v-list-item-title>
+            <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail" />
             <v-list-item-subtitle v-if="!invitation.expired" class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
-            <v-list-item-subtitle v-exo-tooltip.bottom.body="$t('peopleList.label.invitationExpiredToolTip')" v-else class="subExpired">{{ $t('peopleList.label.invitationExpired') }}</v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-exo-tooltip.bottom.body="$t('peopleList.label.invitationExpiredToolTip')"
+              v-else
+              class="subExpired">
+              {{ $t('peopleList.label.invitationExpired') }}
+            </v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')" icon @click="declineInvitation(invitation)">
+          <v-btn
+            v-exo-tooltip.bottom.body="$t('peopleList.label.clickToDecline')"
+            icon
+            @click="declineInvitation(invitation)">
             <v-icon>
               mdi-close-circle
             </v-icon>
@@ -137,7 +154,7 @@ export default {
     }
   },
   data: () => ({
-    users:[],
+    users: [],
     savingSpace: false,
     spaceSaved: false,
     error: null,
@@ -145,10 +162,10 @@ export default {
     invitedMembers: [],
     includeExternalUser: false,
     externalInvitedUsers: [],
-    invitationSent:false,
-    alreadyExistAlert :'',
-    alreadyInvitedAlert :'',
-    externalInvitationsSent:[],
+    invitationSent: false,
+    alreadyExistAlert: '',
+    alreadyInvitedAlert: '',
+    externalInvitationsSent: [],
   }),
   computed: {
     saveButtonDisabled() {

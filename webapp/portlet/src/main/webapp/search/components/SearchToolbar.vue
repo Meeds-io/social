@@ -8,15 +8,22 @@
         :placeholder="$t('Search.label.inputPlaceHolder')"
         type="text"
         autocomplete="off"
-        class="fill-width my-auto pt-0 px-4 searchInputParent">
-      </v-text-field>
+        class="fill-width my-auto pt-0 px-4 searchInputParent" />
     </v-list-item-content>
     <v-list-item-action class="align-end d-flex flex-row ms-0 me-4">
-      <v-btn v-if="term" text color="error" @click="clearSearchTerm">
+      <v-btn
+        v-if="term"
+        text
+        color="error"
+        @click="clearSearchTerm">
         {{ $t('search.connector.label.clear') }}
       </v-btn>
-      <v-btn v-if="!standalone" :aria-label="$t('Search.button.close.label')" icon class="searchCloseIcon transparent"
-             @click="$emit('close-search')">
+      <v-btn
+        v-if="!standalone"
+        :aria-label="$t('Search.button.close.label')"
+        icon
+        class="searchCloseIcon transparent"
+        @click="$emit('close-search')">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-list-item-action>
@@ -59,7 +66,7 @@ export default {
     });
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
-      if(search) {
+      if (search) {
         const parameters = JSON.parse(
           `{"${decodeURI(search)
             .replace(/"/g, '\\"')

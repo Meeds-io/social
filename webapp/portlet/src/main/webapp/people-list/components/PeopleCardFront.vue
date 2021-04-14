@@ -1,13 +1,15 @@
 <template>
-  <v-card :id="userMenuParentId" class="peopleCardItem d-block d-sm-flex" flat>
+  <v-card
+    :id="userMenuParentId"
+    class="peopleCardItem d-block d-sm-flex"
+    flat>
     <v-img
       :lazy-src="userBannerUrl"
       :src="userBannerUrl"
       transition="none"
       height="80px"
       class="white--text align-start d-block peopleBannerImg"
-      eager>
-    </v-img>
+      eager />
 
     <div class="peopleToolbarIcons px-2">
       <v-btn
@@ -61,7 +63,7 @@
               :key="i"
               @click="extension.click(user)">
               <v-list-item-title class="peopleActionItem">
-                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon" />
+                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
                 {{ extension.title }}
               </v-list-item-title>
             </v-list-item>
@@ -81,8 +83,7 @@
           width="65px"
           max-height="65px"
           max-width="65px"
-          eager>
-        </v-img>
+          eager />
       </a>
     </div>
 
@@ -133,7 +134,7 @@
         depressed
         block
         @click="disconnectConfirm">
-        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"></i>
         <span class="d-inline peopleRelationshipButtonText">
           {{ $t('peopleList.button.disconnect') }}
         </span>
@@ -147,7 +148,7 @@
             class="btn mx-auto peopleRelationshipButton acceptToConnectButton"
             depressed
             @click="acceptToConnect">
-            <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"/>
+            <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"></i>
             <span class="d-flex">
               {{ $t('peopleList.button.acceptToConnect') }}
             </span>
@@ -169,7 +170,7 @@
           depressed
           block
           @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+          <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"></i>
           <span class="d-flex">
             {{ $t('peopleList.button.refuseToConnect') }}
           </span>
@@ -184,7 +185,7 @@
         depressed
         block
         @click="cancelRequest">
-        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"/>
+        <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"></i>
         <span class="d-inline peopleRelationshipButtonText">
           {{ $t('peopleList.button.cancelRequest') }}
         </span>
@@ -198,7 +199,7 @@
         depressed
         block
         @click="connect">
-        <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"/>
+        <i class="uiIconSocConnectUser peopleRelationshipIcon d-inline"></i>
         <span class="d-inline peopleRelationshipButtonText">
           {{ $t('peopleList.button.connect') }}
         </span>

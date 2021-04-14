@@ -19,7 +19,7 @@ export function deleteSpaceById(id) {
 }
 
 export function getSpaceLinkSetting(spaceDisplayName, groupId) {
-  if(spaceDisplayName && groupId) {
+  if (spaceDisplayName && groupId) {
     const spaceName = spaceDisplayName.toLowerCase().split(' ').join('_');
     const groupIdTab = groupId.toLowerCase().split('/');
     const groupName  = groupIdTab[groupIdTab.length-1];
@@ -46,7 +46,7 @@ export function getSpacesAdministrationSetting(key) {
     method: 'GET'
   }).then(resp => {
     const HTTP_OK_CODE = 200;
-    if(resp.status === HTTP_OK_CODE) {
+    if (resp.status === HTTP_OK_CODE) {
       return resp.json();
     } else {
       return resp.text();
@@ -62,7 +62,7 @@ export function checkCanCreateSpaces() {
     credentials: 'include',
     method: 'GET'
   }).then(resp => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     } else {
       throw new Error ('Error to check can add spaces');
@@ -133,7 +133,7 @@ export function isExternalFeatureActive() {
       'Content-Type': 'application/json',
     },
   }).then(resp => {
-    if(resp && resp.ok) {
+    if (resp && resp.ok) {
       return resp.json();
     } else {
       throw new Error('Error when getting External Feature settings');

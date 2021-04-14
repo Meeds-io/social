@@ -2,7 +2,10 @@
   <v-app
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
-    <v-toolbar color="white" flat class="border-box-sizing">
+    <v-toolbar
+      color="white"
+      flat
+      class="border-box-sizing">
       <div
         class="text-header-title text-sub-title">
         {{ $t('profileAboutMe.title') }}
@@ -14,14 +17,20 @@
         outlined
         small
         @click="editAboutMe">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
       </v-btn>
     </v-toolbar>
     <v-card
       class="border-box-sizing"
       flat>
-      <p v-autolinker="aboutMe" v-if="aboutMe || !owner" class="paragraph text-color pt-0 pb-6 px-4"></p>
-      <p v-else class="paragraph text-color pt-0 pb-6 px-4" v-text="$t('profileAboutMe.emptyOwner')"></p>
+      <p
+        v-autolinker="aboutMe"
+        v-if="aboutMe || !owner"
+        class="paragraph text-color pt-0 pb-6 px-4"></p>
+      <p
+        v-else
+        class="paragraph text-color pt-0 pb-6 px-4"
+        v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
     <exo-drawer
       v-if="owner"

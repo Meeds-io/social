@@ -3,8 +3,7 @@
     <div v-if="loading">
       <v-skeleton-loader
         class="mx-auto"
-        type="table-heading,table-tbody">
-      </v-skeleton-loader>
+        type="table-heading,table-tbody" />
     </div>
     <div v-else>
       <div class="reportsFilterSearch">
@@ -16,14 +15,17 @@
               prepend-inner-icon="search"
               single-line
               flat
-              hide-details>
-            </v-text-field>
+              hide-details />
           </v-flex>
-          <v-flex class="filter" ms-2 me-4 xs2>
+          <v-flex
+            class="filter"
+            ms-2
+            me-4
+            xs2>
             <div class="btn-group">
               <button class="btn dropdown-toggle" data-toggle="dropdown">
                 {{ action }}
-                <i class="uiIconMiniArrowDown uiIconLightGray"></i><span/>
+                <i class="uiIconMiniArrowDown uiIconLightGray"></i><span></span>
               </button>
               <ul class="dropdown-menu">
                 <li><a href="#" @click="action = operationTypes[0]"> {{ operationTypes[0] }} </a></li>
@@ -46,19 +48,30 @@
         <template slot="item" slot-scope="props">
           <tr>
             <td class="text-md-start">
-              <img v-if="props.item.space.avatarUrl != null" :src="props.item.space.avatarUrl" class="avatar" />
-              <img v-else :src="avatar" class="avatar" />
+              <img
+                v-if="props.item.space.avatarUrl != null"
+                :src="props.item.space.avatarUrl"
+                class="avatar">
+              <img
+                v-else
+                :src="avatar"
+                class="avatar">
               {{ props.item.space.displayName }}
             </td>
-            <td :title="props.item.group.name" class="text-md-center nameGroupBinding" rel="tooltip" data-placement="bottom">{{ props.item.group.name }}</td>
+            <td
+              :title="props.item.group.name"
+              class="text-md-center nameGroupBinding"
+              rel="tooltip"
+              data-placement="bottom">
+              {{ props.item.group.name }}
+            </td>
             <td class="text-md-center">{{ props.item.startDate }}</td>
             <td class="text-md-center">
               <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
               <div v-else class="inProgress">
                 <v-progress-circular
                   indeterminate
-                  color="primary">
-                </v-progress-circular> <span>In progress</span>
+                  color="primary" /> <span>In progress</span>
               </div>
             </td>
             <td class="text-md-center">{{ getOperationType(props.item.operationType) }}</td>
