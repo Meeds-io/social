@@ -129,6 +129,12 @@ export default {
         return false;
       },
     },
+    onlyManager: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
     disabled: {
       type: Boolean,
       default: function() {
@@ -239,6 +245,7 @@ export default {
               this.includeSpaces,
               this.onlyRedactor,
               this.noRedactorSpace,
+              this.onlyManager,
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
