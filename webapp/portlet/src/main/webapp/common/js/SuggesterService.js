@@ -24,7 +24,6 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, exclud
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-      // canEdit = true if manager or super manager
         if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount) || (!excludeNonManager || item.canEdit)) {
           items.push({
             id: `space:${item.prettyName}`,
