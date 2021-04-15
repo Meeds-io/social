@@ -114,10 +114,10 @@ export default {
       return this.application && this.application.id;
     },
     applicationName() {
-      return this.application && this.application.displayName;
+      return this.application && this.$t(`SpaceSettings.application.${/\s/.test(this.application.displayName) ? this.application.displayName.replace(/ /g,'.').toLowerCase() : this.application.displayName.toLowerCase()}.title`);
     },
     applicationDescription() {
-      return this.application && this.application.description;
+      return this.application && this.$t(`SpaceSettings.application.${/\s/.test(this.application.displayName) ? this.application.displayName.replace(/ /g,'.').toLowerCase() : this.application.displayName.toLowerCase()}.description`);
     },
     applicationIcon() {
       if (!this.application || !this.application.id) {
