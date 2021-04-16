@@ -121,6 +121,22 @@
 										</field>
 									</object>
 								</value>
+								<value>
+									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+										<field name="name">
+											<string>delegated</string>
+										</field>
+										<field name="parentId">
+											<string>/platform</string>
+										</field>
+										<field name="description">
+											<string></string>
+										</field>
+										<field name="label">
+											<string>Delegated Administrators</string>
+										</field>
+									</object>
+								</value>
 							</collection>
 						</field>
 					</object>
