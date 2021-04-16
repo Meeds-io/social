@@ -148,6 +148,9 @@ public class ProfileSearchConnector {
       identity.setId(identityId);
       p = new Profile(identity);
       Profile profile = getIdentityProfile(userName);
+      if (profile == null) {
+        continue;
+      }
       p.setId(identityId);
       p.setAvatarUrl(avatarUrl);
       p.setUrl(LinkProvider.getProfileUri(userName));
@@ -174,7 +177,8 @@ public class ProfileSearchConnector {
 
   private Profile getIdentityProfile(String userName) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName).getProfile();
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
+    return identity == null ? null : identity.getProfile();
   }
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {

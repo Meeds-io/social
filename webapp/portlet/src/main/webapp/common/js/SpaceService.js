@@ -513,7 +513,7 @@ export function getSuggestionsSpace(){
 }
 
 export function ignoreSuggestion(item) {
-  const data = {'user': item.username,'space': item.displayName, 'status':'IGNORED'};
+  const data = {'user': item.username,'space': item.displayName, 'status': 'IGNORED'};
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/`, {
     method: 'POST',
     headers: {

@@ -35,7 +35,7 @@
         @display-banner="displayBanner" />
     </table>
     <v-dialog v-model="preview">
-      <v-img :src="bannerImage"></v-img>
+      <v-img :src="bannerImage" />
     </v-dialog>
   </div>
 </template>

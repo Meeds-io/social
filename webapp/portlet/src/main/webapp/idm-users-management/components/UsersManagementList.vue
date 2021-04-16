@@ -36,45 +36,53 @@
           <date-format
             :value="item.lastLoginTime"
             :format="fullDateFormat"
-            class="grey--text mr-1" />
+            class="grey--text me-1" />
         </div>
         <div v-else class="grey--text">
           {{ item.connectionStatus }}
         </div>
       </template>
       <template slot="item.enrollmentDate" slot-scope="{ item }">
-        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-if="item.enrollmentStatus === 'invitationAccepted'" class="d-inline">
+        <div
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-if="item.enrollmentStatus === 'invitationAccepted'"
+          class="d-inline">
           <v-badge
             bottom
             color="white"
             flat
             class="mailBadge"
             offset-x="8"
-            offset-y="12"
-          >
-            <span slot="badge"><v-icon class="successColor mt-n1 mr-0" size="14">mdi-check-circle</v-icon></span>
+            offset-y="12">
+            <span slot="badge"><v-icon class="successColor mt-n1 me-0" size="14">mdi-check-circle</v-icon></span>
             <v-icon size="22" color="primary">mdi-email</v-icon>
-            
           </v-badge>
         </div>
-        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'reInviteToJoin'" class="d-inline">
+        <div
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-else-if="item.enrollmentStatus === 'reInviteToJoin'"
+          class="d-inline">
           <v-badge
             bottom
             color="white"
             flat
             class="mailBadge"
             offset-x="15"
-            offset-y="19"
-          >
-            <span slot="badge"><v-icon class="errorColor mt-n1 mr-0" size="14">mdi-help-circle</v-icon></span>
+            offset-y="19">
+            <span slot="badge"><v-icon class="errorColor mt-n1 me-0" size="14">mdi-help-circle</v-icon></span>
             <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
-
           </v-badge>
         </div>
-        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else-if="item.enrollmentStatus === 'inviteToJoin'" class="d-inline">
+        <div
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-else-if="item.enrollmentStatus === 'inviteToJoin'"
+          class="d-inline">
           <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
         </div>
-        <div v-exo-tooltip.bottom.body="item.enrollmentDetails" v-else class="d-inline mailBadge">
+        <div
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-else
+          class="d-inline mailBadge">
           <v-icon class="disabled" size="22">mdi-email</v-icon>
         </div>
       </template>
@@ -84,7 +92,7 @@
             <input
               v-model="item.enabled"
               type="checkbox"
-              @click ="saveUserStatus(item)">
+              @click="saveUserStatus(item)">
             <div class="slider round"><span class="absolute-activate">{{ $t(`UsersManagement.button.enabled`) }}</span></div>
             <span class="absolute-deactivated">{{ $t(`UsersManagement.button.disabled`) }}</span>
           </label>
@@ -153,8 +161,7 @@
       close-icon="mdi-close"
       colored-border
       color="primary"
-      dismissible
-    >
+      dismissible>
       {{ selectedUsersUpdated }}
     </v-alert>
   </div>
@@ -290,7 +297,7 @@ export default {
         width: '80px',
         class: 'headerPadding',
         sortable: false,
-        show : this.isSuperUser
+        show: this.isSuperUser
       }].filter(x => x.show == null || x.show === true);
     },
   },

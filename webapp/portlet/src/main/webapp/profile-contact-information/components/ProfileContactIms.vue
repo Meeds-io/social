@@ -1,9 +1,9 @@
 <template>
   <div v-if="user.ims && user.ims.length>0">
-    <v-divider class="my-4"/>
+    <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div
-        class="align-start text-no-wrap font-weight-bold mr-3">
+        class="align-start text-no-wrap font-weight-bold me-3">
         {{ $t('profileContactInformation.ims') }}
       </div>
       <div v-if="user && user.ims && user.ims.length" class="align-end flex-grow-1 text-truncate text-end">
@@ -12,7 +12,7 @@
           :key="i"
           :title="iM.imId"
           class="text-no-wrap text-truncate">
-          <span class="pr-1 text-capitalize">
+          <span class="pe-1 text-capitalize">
             {{ getLabel(`profileContactInformation.phone.${iM.imType}`, iM.imType) }}:
           </span>
           {{ iM.imId }}

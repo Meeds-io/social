@@ -11,22 +11,29 @@
             :avatar-url="liker.personLikeAvatarImageSource"
             :url="liker.personLikeProfileUri"
             :size="30"
-            class="mr-1" />
+            class="me-1" />
         </div>
       </div>
       <div class="activityLikersAndKudosDrawer">
         <div class="seeMoreReactionsContainer">
-          <div v-if="likersNumber > maxLikersToShow" class="seeMoreLikers" @click="openDrawer">
+          <div
+            v-if="likersNumber > maxLikersToShow"
+            class="seeMoreLikers"
+            @click="openDrawer">
             <v-avatar
               :size="30">
               <img
                 :src="likers[maxLikersToShow].personLikeAvatarImageSource"
-                :title="likers[maxLikersToShow].personLikeFullName"
-              >
+                :title="likers[maxLikersToShow].personLikeFullName">
             </v-avatar>
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </div>
-          <p v-if="likersNumber" class="likersNumber my-auto pl-2 align-self-end caption" @click="openDrawer">{{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
+          <p
+            v-if="likersNumber"
+            class="likersNumber my-auto ps-2 align-self-end caption"
+            @click="openDrawer">
+            {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
+          </p>
         </div>
         <activity-reactions-drawer
           ref="reactionsDrawer"
@@ -34,14 +41,13 @@
           :likers-number="likersNumber"
           :activity-id="activityId"
           :max-items-to-show="maxLikersToShow"
-          @reactions="reactionsNumber"
-        />
+          @reactions="reactionsNumber" />
       </div>
       <activity-reactions-mobile
         :kudos-number="kudosNumber"
         :likers-number="likersNumber"
         :comment-number="commentNumber"
-        @openDrawer="openDrawer"/>
+        @openDrawer="openDrawer" />
     </div>
   </v-app>
 </template>
@@ -70,7 +76,7 @@ export default {
     }
   },
   data: () => ({
-    maxLikersToShow : 4,
+    maxLikersToShow: 4,
     kudosNumber: 0
   }),
   computed: {

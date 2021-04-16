@@ -19,12 +19,11 @@
         :title="user.aboutMe"
         :data="user.aboutMe"
         :line-clamp="5"
-        end-char="...">
-      </ellipsis>
+        end-char="..." />
     </div>
 
     <div class="d-flex pa-2 align-end flex-row">
-      <div class="d-flex flex-column flex-grow-0 ml-2">
+      <div class="d-flex flex-column flex-grow-0 ms-2">
         <p class="font-weight-bold ma-auto mb-1">
           {{ user.connectionsCount }}
         </p>
@@ -33,7 +32,7 @@
         </p>
       </div>
       <div class="flex-grow-1"></div>
-      <div class="d-flex flex-column flex-grow-0 mr-2">
+      <div class="d-flex flex-column flex-grow-0 me-2">
         <p class="font-weight-bold ma-auto mb-1">
           {{ user.spacesCount }}
         </p>

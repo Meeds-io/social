@@ -25,18 +25,24 @@
       </v-card-title>
       <div class="content">
         <v-layout
-          class="mt-4 pl-2"
+          class="mt-4 ps-2"
           wrap>
           <v-flex align-center xs1>
-            <img v-if="spaceToBind && spaceToBind.avatarUrl != null" :src="spaceToBind.avatarUrl" class="avatar" />
-            <img v-else :src="avatar" class="avatar" />
+            <img
+              v-if="spaceToBind && spaceToBind.avatarUrl != null"
+              :src="spaceToBind.avatarUrl"
+              class="avatar">
+            <img
+              v-else
+              :src="avatar"
+              class="avatar">
           </v-flex>
           <v-flex pt-1 class="spaceName">
             <span> {{ spaceToBind ? spaceToBind.displayName : '' }} </span>
           </v-flex>
         </v-layout>
         <v-layout
-          class="pt-5 pl-3 mb-4"
+          class="pt-5 ps-3 mb-4"
           wrap>
           <v-flex xs9>
             <exo-suggester 
@@ -45,9 +51,9 @@
               :source-providers="[findGroups]"
               :bound-groups="groupSpaceBindings"
               :second-drawer-selected-groups="secondDrawerSelectedGroups"
-              :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')"/>
+              :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')" />
           </v-flex>
-          <v-flex xs1/>
+          <v-flex xs1 />
           <v-flex xs1>
             <v-btn
               v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.spaceBindingForm.selectList')"
@@ -59,18 +65,19 @@
           </v-flex>
         </v-layout>
         <v-layout v-show="boundGroupsLoading" column>
-          <v-flex pl-4>
+          <v-flex ps-4>
             <v-skeleton-loader
               class="mx-auto"
-              type="heading">
-            </v-skeleton-loader>
+              type="heading" />
           </v-flex>
-          <v-spacer></v-spacer>
-          <v-flex pt-4 pl-4 pr-8>
+          <v-spacer />
+          <v-flex
+            pt-4
+            ps-4
+            pe-8>
             <v-skeleton-loader
               class="mx-auto"
-              type="paragraph@3">
-            </v-skeleton-loader>
+              type="paragraph@3" />
           </v-flex>
         </v-layout>
         <v-layout v-if="groupSpaceBindings.length > 0 && !boundGroupsLoading" column>
@@ -80,7 +87,10 @@
             </span>
           </v-flex>
           <v-flex class="boundGroups" mt-2>
-            <v-list flat subheader dense>
+            <v-list
+              flat
+              subheader
+              dense>
               <v-list-item-group>
                 <div v-for="(binding, index) in groupSpaceBindings" :key="index">
                   <v-list-item>
@@ -105,16 +115,30 @@
       </div>
       <v-card-actions absolute class="drawerActions">
         <v-layout>
-          <v-flex class="xs6"></v-flex>
-          <button type="button" class="btn ml-2" @click="cancelBinding">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</button>
-          <button :disabled="!isAllowToSave" type="button" class="btn btn-primary ml-6" @click="$emit('openBindingModal', groups)">
+          <v-flex class="xs6" />
+          <button
+            type="button"
+            class="btn ms-2"
+            @click="cancelBinding">
+            {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}
+          </button>
+          <button
+            :disabled="!isAllowToSave"
+            type="button"
+            class="btn btn-primary ms-6"
+            @click="$emit('openBindingModal', groups)">
             {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.apply') }}
           </button>
         </v-layout>
       </v-card-actions>      
     </v-flex>
     <div v-show="showSelectGroupsTree">
-      <exo-group-binding-second-level-drawer :already-selected="groups" :group-space-bindings="groupSpaceBindings" @selectionSaved="selectionSaved" @back="back" @close="closeDrawer"></exo-group-binding-second-level-drawer>
+      <exo-group-binding-second-level-drawer
+        :already-selected="groups"
+        :group-space-bindings="groupSpaceBindings"
+        @selectionSaved="selectionSaved"
+        @back="back"
+        @close="closeDrawer" />
     </div>
   </div>
 </template>
@@ -145,7 +169,7 @@ export default {
       groups: [],
       showSelectGroupsTree: false,
       avatar: spacesConstants.DEFAULT_SPACE_AVATAR,
-      secondDrawerSelectedGroups : [],
+      secondDrawerSelectedGroups: [],
       suggesterOptions: {
         type: 'tag',
         plugins: ['remove_button', 'restore_on_backspace'],
@@ -166,12 +190,12 @@ export default {
       }
     };
   },
-  computed : {
+  computed: {
     isAllowToSave() {
       return this.groups && this.groups.length > 0;
     },
   },
-  methods : {
+  methods: {
     findGroups (query, callback) {
       if (!query.length) {
         return callback();
@@ -179,7 +203,7 @@ export default {
       spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
         const boundGroups = this.groupSpaceBindings.map(binding => binding.group);
-        for(const group of data.entities) {
+        for (const group of data.entities) {
           if (!group.id.startsWith('/spaces') && !boundGroups.includes(group.id)) {
             groups.push({
               avatarUrl: null,

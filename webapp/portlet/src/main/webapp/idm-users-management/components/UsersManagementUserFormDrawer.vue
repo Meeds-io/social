@@ -31,7 +31,7 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
 
         <v-card-text class="d-flex firstNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -45,7 +45,7 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
 
         <v-card-text class="d-flex lastNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -59,7 +59,7 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
 
         <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -73,7 +73,7 @@
             type="email"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
 
         <v-card-text class="d-flex newPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -89,7 +89,7 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000" />
+            maxlength="2000">
         </v-card-text>
 
         <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -105,9 +105,8 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000" />
+            maxlength="2000">
         </v-card-text>
-
       </v-form>
     </template>
     <template slot="footer">
@@ -115,7 +114,7 @@
         <v-spacer />
         <v-btn
           :disabled="saving"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           {{ $t('UsersManagement.button.cancel') }}
         </v-btn>

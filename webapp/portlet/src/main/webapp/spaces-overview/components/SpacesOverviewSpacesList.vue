@@ -1,5 +1,8 @@
 <template>
-  <v-list v-if="spaces && spaces.length" two-line subheader>
+  <v-list
+    v-if="spaces && spaces.length"
+    two-line
+    subheader>
     <spaces-overview-spaces-list-item
       v-for="space in spaces"
       :key="space.id"

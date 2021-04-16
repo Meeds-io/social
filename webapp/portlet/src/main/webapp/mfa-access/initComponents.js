@@ -8,6 +8,6 @@ const components = {
   'mfa-fido-access': FidoAccess,
 };
 
-for(const key in components) {
+for (const key in components) {
   Vue.component(key, components[key]);
 }

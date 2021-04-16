@@ -101,7 +101,7 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
   }),
-  computed:{
+  computed: {
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
     },

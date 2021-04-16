@@ -21,14 +21,13 @@
             :href="nav.fullUri"
             :class="homeLink === nav.fullUri && 'UserPageLinkHome' || 'UserPageLink'"
             link>
-            <v-list-item-icon class="mr-6 my-2">
+            <v-list-item-icon class="me-6 my-2">
               <i :class="nav.iconClass"></i>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
                 class="subtitle-2"
-                v-text="nav.label">
-              </v-list-item-title>
+                v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-icon @click="selectHome($event, nav)">
               <span class="UserPageHome">
@@ -60,7 +59,7 @@ export default {
     navigationVisibilities: ['displayed'],
     navigations: [],
   }),
-  computed:{
+  computed: {
     confirmMessage() {
       return this.$t('menu.confirmation.message.changeHome', {
         0: `<b>${this.selectedNavigation && this.selectedNavigation.label}</b>`,

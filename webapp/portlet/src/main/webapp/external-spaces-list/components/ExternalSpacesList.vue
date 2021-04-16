@@ -1,7 +1,10 @@
 <template>
   <div>
     <v-app v-if="isShown">
-      <v-flex d-flex xs12 sm12>
+      <v-flex
+        d-flex
+        xs12
+        sm12>
         <v-layout
           row
           wrap
@@ -22,8 +25,8 @@
                   <external-space-item
                     v-for="space in spacesList"
                     :key="space.id"
-                    :space="space"/>
-                  <external-spaces-requests-items @invitationReplied="refreshSpaces"/>
+                    :space="space" />
+                  <external-spaces-requests-items @invitationReplied="refreshSpaces" />
                 </template>
               </v-list>
             </v-card>
@@ -55,7 +58,7 @@ export default {
         this.spacesRequestsSize = data.spacesMemberships.length;
       }).then(() => this.$root.$emit('application-loaded'));
   },
-  methods : {
+  methods: {
     getExternalSpacesList() {
       externalSpacesListService.getExternalSpacesList().then(data => {
         this.spacesList = data.spaces;

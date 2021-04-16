@@ -26,7 +26,7 @@
       <v-list class="pa-0" dense>
         <v-list-item @click="emitEvent($event, 'editGroup')">
           <v-list-item-title class="subtitle-2">
-            <i class="uiIcon uiIconEdit" />
+            <i class="uiIcon uiIconEdit"></i>
             {{ $t('GroupsManagement.edit') }}
           </v-list-item-title>
         </v-list-item>
@@ -44,7 +44,7 @@
         </v-list-item>
         <v-list-item @click="deleteGroup">
           <v-list-item-title class="subtitle-2">
-            <i class="uiIcon uiIconTrash" />
+            <i class="uiIcon uiIconTrash"></i>
             {{ $t('GroupsManagement.delete') }}
           </v-list-item-title>
         </v-list-item>

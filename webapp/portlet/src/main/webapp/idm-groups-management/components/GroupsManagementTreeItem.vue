@@ -5,12 +5,18 @@
       selectable
       dense
       @click="$root.$emit('selectGroup', group)">
-      <v-list-item-action class="mr-4">
-        <v-btn v-if="displayIcon" icon @click="toogleOpenTree">
-          <v-progress-circular v-if="loadingChildren" indeterminate size="32" />
+      <v-list-item-action class="me-4">
+        <v-btn
+          v-if="displayIcon"
+          icon
+          @click="toogleOpenTree">
+          <v-progress-circular
+            v-if="loadingChildren"
+            indeterminate
+            size="32" />
           <v-icon v-else size="32">{{ icon }}</v-icon>
         </v-btn>
-        <div v-else class="ml-5 mr-4"></div>
+        <div v-else class="ms-5 me-4"></div>
       </v-list-item-action>
       <v-list-item-content>
         <v-list-item-title
@@ -29,7 +35,7 @@
       </v-list-item-action>
     </v-list-item>
     <div v-if="displayChildren">
-      <div class="ml-3 d-flex flex-nowrap">
+      <div class="ms-3 d-flex flex-nowrap">
         <v-pagination
           v-if="pagesCount > 1"
           v-model="page"
@@ -43,7 +49,7 @@
         :page-size="pageSize"
         :loading="loading"
         :open-all="openAll"
-        class="ml-3" />
+        class="ms-3" />
     </div>
   </div>
 </template>

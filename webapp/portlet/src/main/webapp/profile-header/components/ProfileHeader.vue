@@ -21,11 +21,11 @@
                 :ok-label="$t('profileHeader.label.ok')" />
               <v-hover>
                 <profile-header-avatar
-                  slot-scope="{ hover }"
+                  slot-scope="{ profileHover }"
                   :user="user"
                   :max-upload-size="maxUploadSizeInBytes"
                   :owner="owner"
-                  :hover="hover"
+                  :hover="hover || profileHover"
                   save
                   @refresh="avatarUpdated"
                   @error="handleError" />
@@ -39,7 +39,7 @@
                     class="ma-auto pb-0" />
                 </div>
                 <div class="flex-grow-1"></div>
-                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pr-2">
+                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pe-2">
                   <profile-header-banner-button
                     v-if="owner"
                     :user="user"

@@ -3,17 +3,16 @@
     :disabled="disabled"
     class="btn dropdown-button"
     @click="openFileSelection">
-    <i class="uiIconImport mr-md-3" />
+    <i class="uiIconImport me-md-3"></i>
     {{ $t('UsersManagement.importCSV') }}
     <v-file-input
       v-if="!disabled"
       ref="usersCSVInput"
-      class="importCSVUsersButton hidden mr-4"
+      class="importCSVUsersButton hidden me-4"
       prepend-icon=""
       accept=".csv"
       clearable
-      @change="importUsers">
-    </v-file-input>
+      @change="importUsers" />
   </v-btn>
 </template>
 

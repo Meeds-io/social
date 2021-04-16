@@ -33,7 +33,7 @@
           class="input-block-level ignore-vuetify-classes my-3"
           maxlength="200"
           autofocus
-          required />
+          required>
         <v-label for="description">
           {{ $t('SpaceSettings.label.description') }}
         </v-label>
@@ -44,7 +44,7 @@
           rows="20"
           maxlength="2000"
           noresize
-          class="input-block-level ignore-vuetify-classes my-3" >
+          class="input-block-level ignore-vuetify-classes my-3">
         </textarea>
         <v-label for="spaceTemplate">
           {{ $t('SpaceSettings.label.spaceTemplate') }}
@@ -62,7 +62,7 @@
             {{ item.resolvedLabel || item.name }}
           </option>
         </select>
-        <div class="caption font-italic font-weight-light pl-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
+        <div class="caption font-italic font-weight-light ps-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
         <div class="d-flex flex-wrap pt-2">
           <label for="hidden" class="v-label theme--light my-auto float-left">
             {{ $t('SpaceSettings.label.hidden') }}
@@ -71,9 +71,9 @@
             v-model="space.visibility"
             true-value="hidden"
             false-value="private"
-            class="float-left my-0 ml-4" />
+            class="float-left my-0 ms-4" />
         </div>
-        <div class="caption font-italic font-weight-light pl-1 muted mb-2 mt-1">
+        <div class="caption font-italic font-weight-light ps-1 muted mb-2 mt-1">
           {{ $t(`SpaceSettings.description.${space.visibility || 'hidden'}`) }}
         </div>
         <div class="d-flex flex-wrap pt-2">
@@ -82,7 +82,7 @@
           </label>
           <v-radio-group
             v-model="space.subscription"
-            class="mt-2 ml-2"
+            class="mt-2 ms-2"
             mandatory
             row
             inset>
@@ -100,7 +100,7 @@
               class="my-0" />
           </v-radio-group>
         </div>
-        <div class="caption font-italic font-weight-light pl-1 muted">{{ $t(`SpaceSettings.description.${space.subscription || 'open'}`) }}</div>
+        <div class="caption font-italic font-weight-light ps-1 muted">{{ $t(`SpaceSettings.description.${space.subscription || 'open'}`) }}</div>
         <v-alert v-if="error" type="error">
           {{ error }}
         </v-alert>
@@ -111,7 +111,7 @@
         <v-spacer />
         <v-btn
           :disabled="savingSpace || spaceSaved"
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           <template>
             {{ $t('SpaceSettings.button.cancel') }}
@@ -180,7 +180,7 @@ export default {
       this.template = null;
       this.spaceTemplate = null;
       this.spaceToUpdate = null;
-      if(this.$refs.spaceAvatar) {
+      if (this.$refs.spaceAvatar) {
         this.$refs.spaceAvatar.reset();
       }
       this.space = {};

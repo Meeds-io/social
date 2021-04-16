@@ -1,5 +1,8 @@
 <template>
-  <v-card :id="spaceMenuParentId" class="spaceCardItem d-block d-sm-flex" flat>
+  <v-card
+    :id="spaceMenuParentId"
+    class="spaceCardItem d-block d-sm-flex"
+    flat>
     <v-img
       :src="spaceBannerUrl"
       transition="none"
@@ -8,8 +11,7 @@
       max-height="80px"
       min-width="100%"
       class="white--text align-start d-block spaceBannerImg"
-      eager>
-    </v-img>
+      eager />
 
     <div class="spaceToolbarIcons px-2">
       <v-btn
@@ -29,7 +31,7 @@
           text
           class="spaceActionIcon spaceEditIcon d-none"
           @click="editSpace">
-          <i class="uiIcon uiIconEdit" />
+          <i class="uiIcon uiIconEdit"></i>
         </v-btn>
         <v-btn
           :title="$t('spaceList.label.openSpaceMenu')"
@@ -50,13 +52,13 @@
             <template v-if="space.canEdit">
               <v-list-item @click="editSpace">
                 <v-list-item-title class="subtitle-2">
-                  <i class="uiIcon uiIconEdit" />
+                  <i class="uiIcon uiIconEdit"></i>
                   {{ $t('spacesList.button.edit') }}
                 </v-list-item-title>
               </v-list-item>
               <v-list-item @click="removeSpaceConfirm">
                 <v-list-item-title class="subtitle-2">
-                  <i class="uiIcon uiIconTrash" />
+                  <i class="uiIcon uiIconTrash"></i>
                   {{ $t('spacesList.button.remove') }}
                 </v-list-item-title>
               </v-list-item>
@@ -66,7 +68,7 @@
               :key="i"
               @click="extension.click(space)">
               <v-list-item-title>
-                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon " />
+                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon "></i>
                 {{ extension.title }}
               </v-list-item-title>
             </v-list-item>
@@ -85,8 +87,7 @@
           width="75px"
           max-height="75px"
           max-width="75px"
-          eager>
-        </v-img>
+          eager />
       </a>
     </div>
 

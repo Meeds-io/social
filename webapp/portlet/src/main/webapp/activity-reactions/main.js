@@ -19,10 +19,7 @@ if (extensionRegistry) {
 }
 
 Vue.use(Vuetify);
-const vuetify = new Vuetify({
-  dark: true,
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 export function init(params) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
@@ -39,8 +36,8 @@ export function init(params) {
     }).$mount(`#activityReactions-${params.activityId}`);
   });
   document.dispatchEvent(
-    new CustomEvent('display-activity-details', {detail : {
-      id : params.activityId,
+    new CustomEvent('display-activity-details', {detail: {
+      id: params.activityId,
       type: 'ACTIVITY',
     }}));
 }

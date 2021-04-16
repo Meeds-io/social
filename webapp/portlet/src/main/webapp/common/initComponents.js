@@ -73,6 +73,7 @@ Vue.directive('cacheable', {
 
     vnode.componentInstance.$root.$on('application-loaded', () => {
       cacheDom();
+      vnode.componentInstance.$root.$vuetify.rtl = eXo.env.portal.orientation === 'rtl';
       vnode.componentInstance.$root.$emit('application-mount');
     });
 

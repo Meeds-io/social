@@ -21,10 +21,7 @@ if (extensionRegistry) {
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 Vue.use(Vuetify);
-const vuetify = new Vuetify({
-  dark: true,
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 const appId = 'ExternalSpacesListPortlet';
 

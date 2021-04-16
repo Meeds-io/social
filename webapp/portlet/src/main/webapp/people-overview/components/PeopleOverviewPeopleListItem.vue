@@ -12,8 +12,7 @@
           :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto userAvatar">
-        </v-img>
+          class="mx-auto userAvatar" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
@@ -37,7 +36,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 peopleOverviewCheck"
+          class="me-2 peopleOverviewCheck"
           fab
           dark
           depressed

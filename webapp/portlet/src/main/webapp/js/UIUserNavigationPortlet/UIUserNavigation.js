@@ -1,11 +1,11 @@
 (function($, bannerUploader) {
   var UIUserNavigation = {
-    MORE_LABEL : "",
-    initNavigation : function(moreLabel) {
+    MORE_LABEL: '',
+    initNavigation: function(moreLabel) {
       UIUserNavigation.MORE_LABEL = moreLabel;
 
-      var $popupStatus = $('.uiRelationshipAction .popStatusAnswer');
-      var $parent = $popupStatus.parent();
+      const $popupStatus = $('.uiRelationshipAction .popStatusAnswer');
+      const $parent = $popupStatus.parent();
       $popupStatus.on('show.bs.modal', function() {
         $('body').append($popupStatus);
       }).on('hide.bs.modal', function() {
@@ -18,37 +18,37 @@
 
       //
       function autoMoveApps(){
-        var _w = $(window).width();
+        const _w = $(window).width();
         if ( _w  < 1025) {
-          var tabContainer = $('ul.userNavigation');
-          tabContainer.css('visibility', 'visible')
+          const tabContainer = $('ul.userNavigation');
+          tabContainer.css('visibility', 'visible');
           return;
         }
 
-        var ul = $('.userNavigation');
-        var $container = $('#UIUserNavigationPortlet').closest('.UIRowContainer');
-        var delta = 130;
+        const ul = $('.userNavigation');
+        const $container = $('#UIUserNavigationPortlet').closest('.UIRowContainer');
+        let delta = 130;
         if ($container.hasClass('sticky')) {
-          var $avt = $('.uiProfileMenu .userAvt');
-          var $navHeader = $('.uiProfileMenu .profileMenuNav');
+          const $avt = $('.uiProfileMenu .userAvt');
+          const $navHeader = $('.uiProfileMenu .profileMenuNav');
           delta = $avt.width() + $navHeader.width() + 20;
         }
 
-        var index = calculateIndex(ul, delta);
+        let index = calculateIndex(ul, delta);
         if (index < ul.find('li.item').length) {
           index = calculateIndex(ul, delta + 109);
         }
         UIUserNavigation.reInitNavigation(index);
-      };
+      }
 
       function calculateIndex(ul, delta) {
-        var maxWith = ul.innerWidth() - delta;
-        var liElements = ul.find('li.item');
+        const maxWith = ul.innerWidth() - delta;
+        const liElements = ul.find('li.item');
 
-        var w = 0, index = 0;
-        for (var i = 0; i < liElements.length; ++i) {
-          var wElm = liElements.eq(i).width();
-          if((w + wElm) < maxWith) {
+        let w = 0, index = 0;
+        for (let i = 0; i < liElements.length; ++i) {
+          const wElm = liElements.eq(i).width();
+          if ((w + wElm) < maxWith) {
             w += wElm;
             index++;
           } else {
@@ -59,47 +59,47 @@
       }
 
       function reset() {
-        var ul = $('.userNavigation');
-        var liElements = ul.find('li.item');
+        const ul = $('.userNavigation');
+        const liElements = ul.find('li.item');
 
-        var temp = $('<ul></ul>');
+        const temp = $('<ul></ul>');
         temp.append(liElements);
         ul.empty().append(temp.find('li.item'));
-      };
+      }
 
       $(document).ready(function(){
-        var ul = $('.userNavigation');
-        var liElements = ul.find('> li');
+        const ul = $('.userNavigation');
+        const liElements = ul.find('> li');
         liElements.addClass('item');
         autoMoveApps();
       });
 
       $(window).resize(function(){
-          reset();
-          autoMoveApps();
+        reset();
+        autoMoveApps();
       });
 
       UIUserNavigation.initStickyBanner();
     },
-  	reInitNavigation : function(index) {
+  	reInitNavigation: function(index) {
   	  //
-      var tabContainer = $('ul.userNavigation');
-      var tabs = tabContainer.find('li.item');
+      const tabContainer = $('ul.userNavigation');
+      const tabs = tabContainer.find('li.item');
 
-      var dropDownMenu = $('<ul/>', {
-        'class' : 'dropdown-menu'
+      const dropDownMenu = $('<ul/>', {
+        'class': 'dropdown-menu'
       });
 
-      var dropDownToggle = $('<a/>', {
-        'href' : '',
-        'class' : 'dropdown-toggle',
-        'data-toggle' : 'dropdown'
+      const dropDownToggle = $('<a/>', {
+        'href': '',
+        'class': 'dropdown-toggle',
+        'data-toggle': 'dropdown'
       }).append($('<i/>', {
-                            'class' : 'uiIconAppMoreButton'
-                          }))
+        'class': 'uiIconAppMoreButton'
+      }))
         .append($('<span/>', {
-                               'text' : UIUserNavigation.MORE_LABEL
-                             })
+          'text': UIUserNavigation.MORE_LABEL
+        })
         );
 
       // clear
@@ -116,73 +116,73 @@
 
       if (dropDownMenu.children().length > 0) {
   	    var dropDown = $('<li/>', {
-  	      'class' : 'dropdown pull-right'
+  	      'class': 'dropdown pull-right'
   	    }).append(dropDownToggle).append(dropDownMenu);
 
         tabContainer.append(dropDown);
-      };
+      }
 
       // swap position if needed
-      var swappedEl = $(dropDown).find('li.active');
+      const swappedEl = $(dropDown).find('li.active');
       if ( swappedEl.length > 0 ) {
-        var targetEl = $(dropDown).prevAll('li:first');
-        var copy_to = $(swappedEl).clone(true);
-        var copy_from = $(targetEl).clone(true);
+        const targetEl = $(dropDown).prevAll('li:first');
+        const copy_to = $(swappedEl).clone(true);
+        const copy_from = $(targetEl).clone(true);
         $(swappedEl).replaceWith(copy_from);
         $(targetEl).replaceWith(copy_to);
       }
 
-      $(tabContainer).css({"visibility":"visible"});
+      $(tabContainer).css({'visibility': 'visible'});
       UIUserNavigation.initStickyBanner();
-     var appScroll = null;
-     var $menuApps = $('.uiProfileMenu .profileMenuApps');
-     $menuApps.off('scroll').on('scroll', function() {
-       appScroll = window.setTimeout(function() {
-         $menuApps.scrollLeft(0);
-       }, 10000);
-     });
-     var $tab = $('.uiProfileMenu .userNavigation');
-     var $selectedTab = $tab.find('.active');
-     if($selectedTab && $selectedTab.length) {
-       var left = $selectedTab.position().left;
-       var screenWidth = $(window).width();
+      let appScroll = null;
+      const $menuApps = $('.uiProfileMenu .profileMenuApps');
+      $menuApps.off('scroll').on('scroll', function() {
+        appScroll = window.setTimeout(function() {
+          $menuApps.scrollLeft(0);
+        }, 10000);
+      });
+      const $tab = $('.uiProfileMenu .userNavigation');
+      const $selectedTab = $tab.find('.active');
+      if ($selectedTab && $selectedTab.length) {
+        const left = $selectedTab.position().left;
+        const screenWidth = $(window).width();
 
-       if (left > (screenWidth / 2) && left < ($tab[0].scrollWidth - screenWidth / 2)) {
-         console.log('center left:' + left + " screenwidth/2: " + (screenWidth / 2));
-         $tab.scrollLeft(left - screenWidth / 2);
-       } else if (left > $tab.width() - screenWidth / 2) {
-         console.log('left:' + left + " screenwidth/2: " + (screenWidth / 2));
-         $tab.scrollLeft(left);
-       }
-     }
+        if (left > (screenWidth / 2) && left < ($tab[0].scrollWidth - screenWidth / 2)) {
+          console.log(`center left:${  left  } screenwidth/2: ${  screenWidth / 2}`);
+          $tab.scrollLeft(left - screenWidth / 2);
+        } else if (left > $tab.width() - screenWidth / 2) {
+          console.log(`left:${  left  } screenwidth/2: ${  screenWidth / 2}`);
+          $tab.scrollLeft(left);
+        }
+      }
   	},
 
   	initStickyBanner: function() {
   	  $(window).off('scroll.uiProfileMenu').on('scroll.uiProfileMenu', function() {
-        var $container = $('#UIUserNavigationPortlet').closest('.UIRowContainer');
+        const $container = $('#UIUserNavigationPortlet').closest('.UIRowContainer');
         if ($(window).scrollTop() > 130) {
-         if (!$container.hasClass('sticky')) {
+          if (!$container.hasClass('sticky')) {
             $container.addClass('sticky');
             $(window).trigger('resize');
-         }
+          }
         } else {
-         if ($container.hasClass('sticky')) {
+          if ($container.hasClass('sticky')) {
             $container.removeClass('sticky');
             $(window).trigger('resize');
-         }
+          }
         }
       });
   	},
 
-    initAvatar : function(uploaderId) {
-      $(uploaderId + ' .uiUploadFile').on('click', function() {
-          bannerUploader.selectFile(uploaderId);
+    initAvatar: function(uploaderId) {
+      $(`${uploaderId  } .uiUploadFile`).on('click', function() {
+        bannerUploader.selectFile(uploaderId);
       });
     },
 
-    initBanner : function(uploaderId) {
+    initBanner: function(uploaderId) {
       $('.bannerControls .uiUploadFile').on('click', function() {
-          bannerUploader.selectFile(uploaderId);
+        bannerUploader.selectFile(uploaderId);
       });
       $('.bannerControls [data-toggle="popover"]').popover();
     }

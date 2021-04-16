@@ -5,9 +5,12 @@
     <div id="spaceManagersList">
       <h5>{{ $t("social.space.description.managers") }}</h5>
       <ul id="spaceManagers">
-        <li v-for="manager in managers" :key="manager" class="spaceManagerEntry">
+        <li
+          v-for="manager in managers"
+          :key="manager"
+          class="spaceManagerEntry">
           <a :href="`${profileUrl}${manager.username}`">
-            <img :src="manager.avatar" alt="avatar"/> {{ manager.fullname }}
+            <img :src="manager.avatar" alt="avatar"> {{ manager.fullname }}
           </a>
         </li>
       </ul>
@@ -29,7 +32,7 @@ export default {
   },
   methods: {
     init(spaceId) {
-      if(spaceId) {
+      if (spaceId) {
         return this.$spaceService.getSpaceById(spaceId, 'managers')
           .then(space => {
             if (space) {

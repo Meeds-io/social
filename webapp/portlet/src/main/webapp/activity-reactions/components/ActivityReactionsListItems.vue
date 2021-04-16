@@ -1,7 +1,7 @@
 <template>
   <v-list-item class="likerItem">
     <v-list-item-avatar :size="avatarSize">
-      <v-img :src="avatar" class="likerAvatar"></v-img>
+      <v-img :src="avatar" class="likerAvatar" />
     </v-list-item-avatar>
     <v-list-item-content class="pb-3">
       <v-list-item-title class="body-2 font-weight-bold text-color">
@@ -19,10 +19,11 @@
     </v-list-item-content>
     <v-list-item-action v-if="notConnected">
       <v-btn-toggle class="transparent">
-        <a text
-           icon
-           min-width="auto"
-           @click="connect()">
+        <a
+          text
+          icon
+          min-width="auto"
+          @click="connect()">
           <i class="uiIconInviteUser"></i>
         </a>
       </v-btn-toggle>

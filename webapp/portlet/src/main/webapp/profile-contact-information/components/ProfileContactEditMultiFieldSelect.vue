@@ -17,8 +17,13 @@
       :title="value[itemValue]"
       type="text"
       class="ignore-vuetify-classes align-end flex-grow-1"
-      maxlength="2000" />
-    <v-icon small class="removeMultiFieldValue error--text" @click="$emit('remove')">fa-minus</v-icon>
+      maxlength="2000">
+    <v-icon
+      small
+      class="removeMultiFieldValue error--text"
+      @click="$emit('remove')">
+      fa-minus
+    </v-icon>
   </div>
 </template>
 

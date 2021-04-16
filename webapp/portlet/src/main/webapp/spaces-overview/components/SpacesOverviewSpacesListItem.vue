@@ -12,8 +12,7 @@
           :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto spaceAvatar">
-        </v-img>
+          class="mx-auto spaceAvatar" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
@@ -41,7 +40,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck"
           fab
           dark
           depressed
@@ -71,7 +70,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="mr-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck"
           fab
           dark
           depressed
@@ -107,7 +106,7 @@
           dark
           depressed
           @click="$emit('edit')">
-          <i class="uiIcon uiIconEdit" />
+          <i class="uiIcon uiIconEdit"></i>
         </v-btn>
       </template>
       <template v-if="filter === 'pending'">

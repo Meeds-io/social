@@ -3,9 +3,7 @@ import { getActivityComposerActionExtensions } from './extension.js';
 
 Vue.use(Vuetify);
 
-const vuetify = new Vuetify({
-  iconfont: '',
-});
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 // getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -27,10 +25,10 @@ if (extensionRegistry) {
 // getting locale resources
 export function init(params) {
   if ($('.activityComposerApp').length && params && params.activityId) {
-    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail : params}));
+    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail: params}));
   } else {
     getActivityComposerActionExtensions().forEach(extension => {
-      if(extension.resourceBundle) {
+      if (extension.resourceBundle) {
         urls.push(`/portal/rest/i18n/bundle/${extension.resourceBundle}-${lang}.json`);
       }
     });

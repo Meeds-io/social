@@ -15,6 +15,7 @@
   String imageClass = "";
 
   Space space = SpaceUtils.getSpaceByContext();
+  PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
 
   if (space == null) {
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
@@ -26,7 +27,7 @@
     UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (portalPath == null) {
-      portalPath = "/portal/" + ((PortalRequestContext) RequestContext.getCurrentInstance()).getPortalOwner();
+      portalPath = "/portal/" + requestContext.getPortalOwner();
     }
     titleClass = "company";
   } else {
@@ -38,29 +39,30 @@
     titleClass = "space";
   }
 
+  String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
 <script type="text/javascript">
-  document.addEventListener('spaceDetailUpdated', event => {
-    const space = event && event.detail;
-    if (space && space.displayName) {
-      document.querySelector('.logoTitle').innerText = space.displayName;
-      document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
-    }
-  });
+document.addEventListener('spaceDetailUpdated', event => {
+  const space = event && event.detail;
+  if (space && space.displayName) {
+    document.querySelector('.logoTitle').innerText = space.displayName;
+    document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
+  }
+});
 </script>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application border-box-sizing v-application--is-ltr theme--light"
+    class="v-application border-box-sizing <%= directionVuetifyClass %> theme--light"
     id="brandingTopBar" flat="">
     <div class="v-application--wrap">
-      <div class="container pa-0 pl-3">
+      <div class="container pa-0 ps-3">
         <div class="d-flex mx-0 pa-0">
           <% if (logoPath != null) { %>
-          <a id="UserHomePortalLink" href="<%=portalPath%>" class="pr-3 logoContainer">
+          <a id="UserHomePortalLink" href="<%=portalPath%>" class="pe-3 logoContainer">
             <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%> - Homepage">
           </a>
           <% } %>
-          <a href="<%=portalPath%>" title="<%=logoTitle%>" class="pl-2 align-self-center brandingContainer <%=titleClass%>">
+          <a href="<%=portalPath%>" title="<%=logoTitle%>" class="ps-2 align-self-center brandingContainer <%=titleClass%>">
             <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
               <%= logoTitle%>
             </div>

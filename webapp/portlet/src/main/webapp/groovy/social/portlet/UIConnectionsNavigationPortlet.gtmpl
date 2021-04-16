@@ -49,12 +49,12 @@
 	         .require("SHARED/bts_tooltip").addScripts("jq('*[rel=\"tooltip\"]').tooltip();");
 %>
 <% if (!isOwner) {%>
-  <script type="text/javascript">
-    function hideUIRelationNavigation() {
-      var tdProfileRelation = document.getElementById('UIContainer-ProfileRelation').parentNode;
-      tdProfileRelation.style.display='none';
-    }
-  </script>
+<script type="text/javascript">
+function hideUIRelationNavigation() {
+  const tdProfileRelation = document.getElementById('UIContainer-ProfileRelation').parentNode;
+  tdProfileRelation.style.display='none';
+}
+</script>
 <%}%>
 <div class="$uicomponent.id" id="$uicomponent.id">
   <% if (isOwner == true) { %>

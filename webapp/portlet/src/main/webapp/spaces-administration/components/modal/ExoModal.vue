@@ -3,7 +3,10 @@
     <div :class="modalClass" class="uiPopup modal-content">
       <div class="popupHeader">
         <span class="PopupTitle popupTitle">{{ title }}</span>
-        <a v-if="displayClose" class="uiIconClose pull-right" @click="closeModal"></a>
+        <a
+          v-if="displayClose"
+          class="uiIconClose pull-right"
+          @click="closeModal"></a>
         <v-btn
           v-else
           icon

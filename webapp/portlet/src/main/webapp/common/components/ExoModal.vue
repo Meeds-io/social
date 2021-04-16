@@ -15,16 +15,16 @@
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">
-        <v-spacer/>
+        <v-spacer />
         <button
           v-if="okLabel"
           :disabled="loading"
           :loading="loading"
-          class="ignore-vuetify-classes btn btn-primary mr-2"
+          class="ignore-vuetify-classes btn btn-primary me-2"
           @click="close">
           {{ okLabel }}
         </button>
-        <v-spacer/>
+        <v-spacer />
       </v-card-actions>
     </v-card>
   </v-dialog>

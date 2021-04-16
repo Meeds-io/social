@@ -6,7 +6,10 @@
       :applications="applications"
       @back="closeDetail"
       @refresh="refresh" />
-    <v-card v-else class="border-radius" flat>
+    <v-card
+      v-else
+      class="border-radius"
+      flat>
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -20,7 +23,7 @@
               icon
               @click="openDetail">
               <v-icon size="24" class="text-sub-title">
-                fa-caret-right
+                {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
               </v-icon>
             </v-btn>
           </v-list-item-action>

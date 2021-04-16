@@ -33,7 +33,7 @@
                 v-model="digest"
                 :disabled="!pluginOption.channelActive"
                 name="EMAIL_DIGEST"
-                class="col-auto mr-2 my-auto px-3 py-0 subtitle-1 ignore-vuetify-classes">
+                class="col-auto me-2 my-auto px-3 py-0 subtitle-1 ignore-vuetify-classes">
                 <option
                   v-for="digestOption in digestOptions"
                   :key="digestOption.value"
@@ -50,7 +50,7 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          class="btn mr-2"
+          class="btn me-2"
           @click="cancel">
           {{ $t('UserSettings.button.cancel') }}
         </v-btn>

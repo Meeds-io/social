@@ -11,9 +11,11 @@
         height="36"
         width="36"
         @click="$emit('back')">
-        <v-icon size="20">mdi-arrow-left</v-icon>
+        <v-icon size="20">
+          {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
+        </v-icon>
       </v-btn>
-      <v-toolbar-title class="pl-0">
+      <v-toolbar-title class="ps-0">
         {{ $t('UserSettings.security') }}
       </v-toolbar-title>
       <v-spacer />
@@ -27,7 +29,7 @@
         id="username"
         name="username"
         autocomplete="username"
-        class="hidden" />
+        class="hidden">
 
       <v-card flat>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
@@ -42,7 +44,7 @@
             class="ignore-vuetify-classes flex-grow-1"
             minlength="8"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.newPassword') }}*
@@ -56,7 +58,7 @@
             class="ignore-vuetify-classes flex-grow-1"
             minlength="8"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.confirmNewPassword') }}*
@@ -70,7 +72,7 @@
             class="ignore-vuetify-classes flex-grow-1"
             minlength="8"
             maxlength="2000"
-            required />
+            required>
         </v-card-text>
 
         <v-card-text v-if="error">
@@ -89,7 +91,7 @@
           <v-spacer />
           <v-btn
             :disabled="saving"
-            class="btn mr-2"
+            class="btn me-2"
             @click="$emit('back')">
             {{ $t('UserSettings.button.cancel') }}
           </v-btn>

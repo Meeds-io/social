@@ -5,7 +5,7 @@
         <v-btn
           class="btn btn-primary addNewUserButton"
           @click="$root.$emit('addNewUser')">
-          <i class="uiIconAddUser uiIconWhite mr-md-3"></i>
+          <i class="uiIconAddUser uiIconWhite me-md-3"></i>
           <span class="d-none d-sm-inline">
             {{ $t('UsersManagement.addUser') }}
           </span>
@@ -19,31 +19,46 @@
           <users-management-import-csv-button />
         </div>
       </div>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="mx-1 multiSelect" @click="multiSelectAction('onboard')">
-        <i class="uiIconInviteUser mr-2 mb-2"></i>
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="mx-1 multiSelect"
+        @click="multiSelectAction('onboard')">
+        <i class="uiIconInviteUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.onboard') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('enable')">
-        <i class="uiIconValidateUser mr-2 mb-2"></i>
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="multiSelect"
+        @click="multiSelectAction('enable')">
+        <i class="uiIconValidateUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.enable') }}
       </v-btn>
-      <v-btn :disabled="!usersSelected" outlined color="primary" class="multiSelect" @click="multiSelectAction('disable')">
-        <i class="uiIconRejectUser mr-2 mb-2"></i>
+      <v-btn
+        :disabled="!usersSelected"
+        outlined
+        color="primary"
+        class="multiSelect"
+        @click="multiSelectAction('disable')">
+        <i class="uiIconRejectUser me-2 mb-2"></i>
         {{ $t('UsersManagement.selection.disable') }}
       </v-btn>
     </v-toolbar-title>
-    <v-spacer></v-spacer>
+    <v-spacer />
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
         :placeholder="$t('UsersManagement.filterBy')"
         prepend-inner-icon="fa-filter"
-        class="inputUserFilter pa-0 mr-3 my-auto" />
+        class="inputUserFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectUsersFilter width-auto my-auto mr-2 pr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectUsersFilter width-auto my-auto me-2 pe-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option value="ENABLED">
           {{ $t('UsersManagement.status.enabled') }}
         </option>
@@ -52,7 +67,11 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-btn v-if="filter === 'ENABLED'" min-width="auto" outlined @click="$root.$emit('advancedFilter', userType)">
+    <v-btn
+      v-if="filter === 'ENABLED'"
+      min-width="auto"
+      outlined
+      @click="$root.$emit('advancedFilter', userType)">
       <i class="uiSettingsIcon"></i>
       <div v-if="numberOfFilters > 0" class="pb-1">
         ({{ numberOfFilters }})

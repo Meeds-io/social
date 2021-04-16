@@ -2,9 +2,9 @@
   <v-toolbar id="peopleListToolbar" flat>
     <v-toolbar-title v-if="isManager">
       <v-btn
-        class="btn pr-2 pl-0 mr-4 inviteUserToSpaceButton"
+        class="btn pe-2 ps-0 me-4 inviteUserToSpaceButton"
         @click="$emit('invite-users')">
-        <i class="uiIconInviteUser ml-2 mr-1" />
+        <i class="uiIconInviteUser ms-2 me-1"></i>
         <span class="d-none d-sm-inline">
           {{ $t('peopleList.button.inviteUsers') }}
         </span>
@@ -20,12 +20,12 @@
         v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 mr-3 my-auto"></v-text-field>
+        class="inputPeopleFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectPeopleFilter my-auto mr-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectPeopleFilter my-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="peopleFilter in peopleFilters"
           :key="peopleFilter.value"
@@ -41,16 +41,19 @@
     </v-icon>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet :height="bottomNavigationHeight" class="text-center">
-        <v-toolbar color="primary" dark class="border-box-sizing">
+        <v-toolbar
+          color="primary"
+          dark
+          class="border-box-sizing">
           <v-btn text @click="bottomMenu = false">
             {{ $t('peopleList.label.cancel') }}
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-toolbar-title>
             <v-icon>fa-filter</v-icon>
             {{ $t('peopleList.label.filter') }}
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn text @click="changeFilterSelection">
             {{ $t('peopleList.label.confirm') }}
           </v-btn>
@@ -62,13 +65,13 @@
             @click="filterToChange = peopleFilter.value">
             <v-list-item-title class="align-center d-flex">
               <v-icon v-if="filterToChange === peopleFilter.value">fa-check</v-icon>
-              <span v-else class="mr-6"></span>
+              <span v-else class="me-6"></span>
               <v-spacer />
               <div>
                 {{ peopleFilter.text }}
               </div>
               <v-spacer />
-              <span class="mr-6"></span>
+              <span class="me-6"></span>
             </v-list-item-title>
           </v-list-item>
         </v-list>

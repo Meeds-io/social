@@ -17,7 +17,6 @@
       offset-y
       eager>
       <input
-        v-slot:activator="{ on }"
         slot="activator"
         slot-scope="{ on }"
         v-model="dateFormatted"
@@ -27,7 +26,7 @@
         class="ignore-vuetify-classes datePickerText flex-grow-0"
         readonly
         type="text"
-        v-on="on" />
+        v-on="on">
       <v-date-picker
         v-model="date"
         :first-day-of-week="1"
@@ -226,7 +225,7 @@ export default {
         const dateObj = this.$dateUtil.getDateObjectFromString(String(this.value).trim(), true);
         this.date = this.$dateUtil.getISODate(dateObj);
       } else {
-        if( this.defaultValue ) {
+        if ( this.defaultValue ) {
           this.date = this.$dateUtil.getISODate(new Date());
         } else {
           this.date = null;

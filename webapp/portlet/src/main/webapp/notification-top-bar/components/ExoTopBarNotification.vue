@@ -5,7 +5,7 @@
         <v-btn
           icon
           class="text-xs-center"
-          @click="openDrawer()" >
+          @click="openDrawer()">
           <v-badge
             :value="badge > 0"
             :content="badge"
@@ -131,7 +131,7 @@ export default {
       return notificationlAPI.updateNotification(null, 'markAllAsRead')
         .then(() => {
           $('.notifDrawerItems').find('li').each(function() {
-            if($(this).hasClass('unread')) {
+            if ($(this).hasClass('unread')) {
               $(this).removeClass('unread').addClass('read');
             }
           });
@@ -169,13 +169,13 @@ export default {
         $(this).on('click', function(evt) {
           evt.stopPropagation();
 
-          if($(this).hasClass('unread')) {
+          if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
 
           notificationlAPI.updateNotification(dataId, 'markAsRead')
             .finally(() => {
-              if(linkId != null && linkId.length >1 ) {
+              if (linkId != null && linkId.length >1 ) {
                 if (linkId[0].includes('/view_full_activity/')) {
                   const id = linkId[0].split('/view_full_activity/')[1];
                   location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
@@ -202,14 +202,14 @@ export default {
           .on('click', function(evt) {
             evt.stopPropagation();
             let restURl = $(this).data('rest');
-            if(restURl.indexOf('?') >= 0 ) {
+            if (restURl.indexOf('?') >= 0 ) {
               restURl += '&';
             } 
             else {
               restURl += '?';
             }
             restURl += `portal:csrf=${eXo.env.portal.csrfToken}`;
-            if(restURl && restURl.length > 0) {
+            if (restURl && restURl.length > 0) {
               $.ajax(restURl).done(function () {
                 $(document).trigger('exo-invitation-updated');
               });
@@ -224,14 +224,14 @@ export default {
           .on('click', function(evt) {
             evt.stopPropagation();
             let restCancelURl = $(this).data('rest');
-            if(restCancelURl.indexOf('?') >= 0 ) {
+            if (restCancelURl.indexOf('?') >= 0 ) {
               restCancelURl += '&';
             }
             else {
               restCancelURl += '?';
             }
             restCancelURl += `portal:csrf=${eXo.env.portal.csrfToken}`;
-            if(restCancelURl && restCancelURl.length > 0) {
+            if (restCancelURl && restCancelURl.length > 0) {
               $.ajax(restCancelURl).done(function () {
                 $(document).trigger('exo-invitation-updated');
               });
@@ -243,7 +243,7 @@ export default {
     },
 
     notificationUpdated(event) {
-      if(event && event.detail) {
+      if (event && event.detail) {
         this.badge = event.detail.data.numberOnBadge;
         this.getNotifications();
       }

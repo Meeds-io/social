@@ -2,7 +2,10 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
     class="white">
-    <v-toolbar color="white" flat class="border-box-sizing">
+    <v-toolbar
+      color="white"
+      flat
+      class="border-box-sizing">
       <div
         class="text-header-title text-sub-title">
         {{ $t('profileContactInformation.contactInformation') }}
@@ -14,13 +17,13 @@
         outlined
         small
         @click="editContactInformation">
-        <i class="uiIconEdit uiIconLightBlue pb-2" />
+        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
       </v-btn>
     </v-toolbar>
     <div v-if="user" class="px-4 pb-6 white">
       <v-flex class="d-flex">
         <div
-          class="align-start text-no-wrap font-weight-bold mr-3">
+          class="align-start text-no-wrap font-weight-bold me-3">
           {{ $t('profileContactInformation.fullName') }}
         </div>
         <div
@@ -31,7 +34,7 @@
       </v-flex>
       <v-divider class="my-4" />
       <v-flex class="d-flex">
-        <div class="align-start text-no-wrap font-weight-bold mr-3">
+        <div class="align-start text-no-wrap font-weight-bold me-3">
           {{ $t('profileContactInformation.email') }}
         </div>
         <div :title="user.email" class="align-end flex-grow-1 text-truncate text-end">
@@ -40,7 +43,7 @@
       </v-flex>
       <v-divider v-if="user.position" class="my-4" />
       <v-flex v-if="user.position" class="d-flex">
-        <div class="align-start text-no-wrap font-weight-bold mr-3">
+        <div class="align-start text-no-wrap font-weight-bold me-3">
           {{ $t('profileContactInformation.jobTitle') }}
         </div>
         <div :title="user.position || ''" class="align-end flex-grow-1 text-truncate text-end">
@@ -50,7 +53,7 @@
       <template v-if="user.company">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.company') }}
           </div>
           <div :title="user.company" class="align-end flex-grow-1 text-truncate text-end">
@@ -61,7 +64,7 @@
       <template v-if="user.location">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.location') }}
           </div>
           <div
@@ -74,11 +77,12 @@
       <template v-if="user.department">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.department') }}
           </div>
-          <div :title="user.department"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.department"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.department }}
           </div>
         </v-flex>
@@ -86,11 +90,12 @@
       <template v-if="user.team">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.team') }}
           </div>
-          <div :title="user.team"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.team"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.team }}
           </div>
         </v-flex>
@@ -98,11 +103,12 @@
       <template v-if="user.profession">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.profession') }}
           </div>
-          <div :title="user.profession"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.profession"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.profession }}
           </div>
         </v-flex>
@@ -110,7 +116,7 @@
       <template v-if="user.country">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.country') }}
           </div>
           <div :title="user.country" class="align-end flex-grow-1 text-truncate text-end">
@@ -121,11 +127,12 @@
       <template v-if="user.city">
         <v-divider class="my-4" />
         <v-flex class="d-flex">
-          <div class="align-start text-no-wrap font-weight-bold mr-3">
+          <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.city') }}
           </div>
-          <div :title="user.city"
-               class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.city"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.city }}
           </div>
         </v-flex>
