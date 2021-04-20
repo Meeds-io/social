@@ -24,6 +24,19 @@ export function isSuperUser() {
   });
 }
 
+export function isDelegatedAdministrator() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isDelegatedAdministrator`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function isSynchronizedUserAllowedToChangePassword() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSynchronizedUserAllowedToChangePassword`, {
     method: 'GET',
