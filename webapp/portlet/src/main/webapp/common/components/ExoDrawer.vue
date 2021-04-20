@@ -139,6 +139,7 @@ export default {
         }, 200);
         this.$root.openedDrawers.push(this);
         this.$emit('opened');
+        document.dispatchEvent(new CustomEvent('drawerOpened'));
       } else {
         window.setTimeout(() => {
           if (!$('.v-overlay').length) {
@@ -156,6 +157,7 @@ export default {
         }
         this.$root.$emit('drawer-closed');
         this.$emit('closed');
+        document.dispatchEvent(new CustomEvent('drawerClosed'));
       }
       this.installOverlayListener();
       this.expand = false;
@@ -167,6 +169,7 @@ export default {
     if (!this.$root.openedDrawers) {
       this.$root.openedDrawers = [];
     }
+    document.addEventListener('closeAllDrawers', () => this.drawer = false);
   },
   methods: {
     open() {
