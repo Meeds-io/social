@@ -53,7 +53,7 @@ export default {
     drawer: false,
     loading: false,
     saving: false,
-    pageSize: 20,
+    pageSize: 10,
     page: 1,
     offset: 0,
     limit: 5,
@@ -62,7 +62,7 @@ export default {
   }),
   computed: {
     title() {
-      return this.$t('UsersManagement.button.membershipsOfUser', {0: this.user.fullName});
+      return this.$t('UsersManagement.button.membershipsOfUser', {0: this.user.fullname});
     },
     userName() {
       return this.user && this.user.userName;
