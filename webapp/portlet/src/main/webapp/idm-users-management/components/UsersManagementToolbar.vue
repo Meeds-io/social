@@ -1,7 +1,7 @@
 <template>
   <v-toolbar id="usersManagementToolbar" flat>
     <v-toolbar-title class="nav-collapse overflow-visible">
-      <div class="btn-group">
+      <div v-if="!isDelegatedAdministrator" class="btn-group">
         <v-btn
           class="btn btn-primary addNewUserButton"
           @click="$root.$emit('addNewUser')">
@@ -89,6 +89,7 @@ export default {
     usersSelected: false,
     numberOfFilters: 0,
     userType: null,
+    isDelegatedAdministrator: true,
   }),
   watch: {
     keyword() {
@@ -99,6 +100,10 @@ export default {
     },
   },
   created() {
+    this.$userService.isDelegatedAdministrator().then(
+      (data) => {
+        this.isDelegatedAdministrator = data.result === 'true';
+      });
     document.addEventListener('multiSelect', this.updateSelectedUsers);
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },

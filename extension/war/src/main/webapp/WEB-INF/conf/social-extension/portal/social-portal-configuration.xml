@@ -162,6 +162,9 @@
                 <value>
                   <string>/platform/dlp</string>
                 </value>
+                <value>
+                  <string>/platform/delegated</string>
+                </value>
               </collection>
             </field>
             <field name="ownerType">
