@@ -436,6 +436,14 @@ public class BaseUIActivity extends UIForm {
     getActivity().setUpdated(new Date().getTime());
     Utils.getActivityManager().updateActivity(getActivity());
   }
+  
+   protected void hideActivity(){
+     if (!getActivity().isHidden()) {
+       getActivity().isHidden(true);
+       getActivity().setUpdated(new Date().getTime());
+       Utils.getActivityManager().updateActivity(getActivity());
+     }
+   }
 
   /**
    *
@@ -1005,6 +1013,40 @@ public class BaseUIActivity extends UIForm {
         return;
       }
       Utils.getActivityManager().deleteActivity(activityId);
+
+      UIActivitiesContainer activitiesContainer = uiActivity.getAncestorOfType(UIActivitiesContainer.class);
+      activitiesContainer.removeChildById(uiActivity.getParent().getId());
+      activitiesContainer.removeActivity(uiActivity.getActivity());
+
+      WebuiRequestContext context = event.getRequestContext();
+      context.getJavascriptManager()
+             .require("SHARED/social-ui-activity", "activity")
+             .addScripts("activity.responsiveMobile('"
+                 + activitiesContainer.getAncestorOfType(UIPortletApplication.class).getId() + "');");
+      //
+      boolean isEmptyListActivity = (activitiesContainer.getActivityIdList().size() == 0)
+          && (activitiesContainer.getActivityList().size() == 0);
+      if (isEmptyListActivity) {
+        context.addUIComponentToUpdateByAjax(activitiesContainer.getParent().getParent());
+      } else {
+        AbstractActivitiesDisplay uiActivitiesDisplay = activitiesContainer.getAncestorOfType(AbstractActivitiesDisplay.class);
+        uiActivitiesDisplay.init();
+        event.getRequestContext().addUIComponentToUpdateByAjax(uiActivitiesDisplay);
+      }
+      Utils.clearUserProfilePopup();
+    }
+  }
+  
+  public static class HideActivityActionListener extends EventListener<BaseUIActivity> {
+
+    @Override
+    public void execute(Event<BaseUIActivity> event) throws Exception {
+      BaseUIActivity uiActivity = event.getSource();
+      String activityId = uiActivity.getActivity().getId();
+      if (uiActivity.isNoLongerExisting(activityId)) {
+        return;
+      }
+      uiActivity.hideActivity();
 
       UIActivitiesContainer activitiesContainer = uiActivity.getAncestorOfType(UIActivitiesContainer.class);
       activitiesContainer.removeChildById(uiActivity.getParent().getId());
