@@ -263,7 +263,8 @@ public class IdentityManagerImpl implements IdentityManager {
                                            Profile.CONTACT_PHONES,
                                            Profile.CONTACT_IMS,
                                            Profile.CONTACT_URLS,
-                                           Profile.EXTERNAL)) {
+                                           Profile.EXTERNAL,
+                                           Profile.LAST_LOGIN_TIME)) {
         list.add(Profile.UpdateType.CONTACT);
       }
       if (UserProfileComparator.hasChanged(specificProfile, existingProfile, Profile.EXPERIENCES)) {

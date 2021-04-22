@@ -149,6 +149,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           Sorting sorting = profileFilter.getSorting();
           boolean isEnabled = profileFilter.isEnabled();
           String userType = profileFilter.getUserType();
+          Boolean isConnected = profileFilter.isConnected();
           
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
@@ -159,6 +160,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      sortDirection,
                                                      isEnabled,
                                                      userType,
+                                                     isConnected,
                                                      offset,
                                                      usedLimit);
         }

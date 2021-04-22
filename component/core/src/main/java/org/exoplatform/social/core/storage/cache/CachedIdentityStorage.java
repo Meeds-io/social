@@ -703,6 +703,7 @@ public class CachedIdentityStorage implements IdentityStorage {
                                       String sortDirection,
                                       boolean isEnabled,
                                       String userType,
+                                      Boolean isConnected,
                                       long offset,
                                       long limit) {
     ProfileFilter profileFilter = null;
@@ -712,6 +713,7 @@ public class CachedIdentityStorage implements IdentityStorage {
       profileFilter.setFirstCharacterOfName(firstCharacter);
       profileFilter.setEnabled(isEnabled);
       profileFilter.setUserType(userType);
+      profileFilter.setConnected(isConnected);
       profileFilter.setSorting(Sorting.valueOf(sortField, sortDirection));
     }
 
@@ -729,6 +731,7 @@ public class CachedIdentityStorage implements IdentityStorage {
                                                    sortDirection,
                                                    isEnabled,
                                                    userType,
+                                                   isConnected,
                                                    offset,
                                                    limit);
         return buildIds(got);
@@ -744,7 +747,7 @@ public class CachedIdentityStorage implements IdentityStorage {
    */
   @Override
   public List<Identity> getIdentities(String providerId, long offset, long limit) {
-    return this.getIdentities(providerId, null, '\u0000', null, null, true, null, offset, limit);
+    return this.getIdentities(providerId, null, '\u0000', null, null, true, null, null, offset, limit);
   }
 
   @Override

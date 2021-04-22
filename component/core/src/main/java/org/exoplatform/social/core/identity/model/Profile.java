@@ -129,6 +129,9 @@ public class Profile {
   /** SYNCHRONIZED DATE. */
   public static final String SYNCHRONIZED_DATE          = "synchronizedDate";
 
+  /** LAST LOGIN TIME. */
+  public static final String LAST_LOGIN_TIME            = "lastLoginTime";
+  
   /**
    * An optional url for this profile
    */
