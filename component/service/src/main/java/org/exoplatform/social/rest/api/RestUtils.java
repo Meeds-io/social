@@ -56,6 +56,8 @@ public class RestUtils {
 
   public static final String ADMIN_GROUP    = "/platform/administrators";
 
+  public static final String DELEGATED_GROUP    = "/platform/delegated";
+
   private static IdentityManager identityManager;
 
   public static String formatISO8601(Date date) {
@@ -123,6 +125,15 @@ public class RestUtils {
    */
   public static boolean isMemberOfAdminGroup() {
     return ConversationState.getCurrent().getIdentity().isMemberOf(ADMIN_GROUP);
+  }
+
+  /**
+   * Check if the authenticated user is a member of the delegated group
+   *
+   * @return
+   */
+  public static boolean isMemberOfDelegatedGroup() {
+    return ConversationState.getCurrent().getIdentity().isMemberOf(DELEGATED_GROUP);
   }
   
   /** 
