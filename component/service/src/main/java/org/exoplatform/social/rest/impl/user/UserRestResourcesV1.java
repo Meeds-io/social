@@ -876,7 +876,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @PATCH
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("administrators")
+  @RolesAllowed("users")
   @ApiOperation(value = "Send onBoarding email to a specific user", 
                 httpMethod = "PATCH", 
                 response = Response.class, 
