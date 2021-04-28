@@ -1,13 +1,5 @@
 <template>
   <div class="activityRichEditor">
-    <textarea
-      ref="editor"
-      :id="ckEditorType"
-      v-model="inputVal"
-      :placeholder="placeholder"
-      cols="30"
-      rows="10"
-      class="textarea"></textarea>
     <v-progress-circular
       v-if="!editorReady"
       :width="3"

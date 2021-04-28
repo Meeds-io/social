@@ -40,7 +40,10 @@
   }
   def space = SpaceUtils.getSpaceByContext();
   def spaceId = space == null ? "" : space.getId();
-
+  def tinyMCEApiKey = System.getProperty("exo.tinyMCE.apiKey","");
+  def params = """ {
+    tinyMCEApiKey: '${tinyMCEApiKey}'
+  } """
   if(featureService.isActiveFeature("new-composer")) {
     if (uicomponent.getSpaceGroupId() != null && (isCurrentUserRedactor || isCurrentUserSpaceManagerOrSuperManager) || (isMainStreamComposerEnabled && uicomponent.getSpaceGroupId() == null)) {
 %>
@@ -48,7 +51,7 @@
   <v-cacheable-dom-app cache-id="activityComposer_<%=spaceId%>"></v-cacheable-dom-app>
   <script>
     require(['SHARED/jquery', 'SHARED/ActivityComposer'], function(jq, activityComposerApp) {
-      activityComposerApp.init();
+      activityComposerApp.init(<%=params%>);
     });
   </script>
 </div>

@@ -18,12 +18,43 @@
             @click="closeMessageComposer()">×</a>
         </div>
         <div class="content">
-          <exo-activity-rich-editor
+          <editor
+            :id="ckEditorId"
+            :ref="ckEditorId"
+            :init="{
+              height: 140,
+              menubar: false,
+              toolbar_location: 'bottom',
+              statusbar: false,
+              plugins: [
+                'autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+              ],
+              toolbar:
+                'bold italic bullist numlist blockquote'
+            }"
+            v-model="message"
+            :api-key="tinyMCEApiKey"
+            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"
+            :name="ckEditorId" />
+
+          <!--exo-activity-rich-editor
             :ref="ckEditorId"
             v-model="message"
             :ck-editor-type="ckEditorId"
             :max-length="MESSAGE_MAX_LENGTH"
-            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)" />
+            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)" /-->
+		  
+    <div class="activityRichEditor">
+	<div
+      v-show="editorReady"
+      :class="charsCount > maxLength ? 'tooManyChars' : ''"
+      class="activityCharsCount">
+      {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
+      <i class="uiIconMessageLength"></i>
+    </div>
+	</div>
           <div class="composerButtons">
             <div v-if="activityComposerHintAction" class="action">
               <i class="fas fa-pencil-alt fa-sm colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
@@ -100,8 +131,12 @@
 <script>
 import * as composerServices from '../composerServices';
 import {getActivityComposerActionExtensions, getActivityComposerHintActionExtensions, executeExtensionAction} from '../extension';
+import Editor from '@tinymce/tinymce-vue';
 
 export default {
+  components: {
+    'editor': Editor
+  },
   directives: {
     DynamicEvents: {
       bind: function (el, binding, vnode) {
@@ -131,6 +166,10 @@ export default {
       type: String,
       default: ''
     },
+    tinyMCEApiKey: {
+      type: String,
+      default: ''
+    },
     composerAction: {
       type: String,
       default: 'post'
@@ -156,6 +195,9 @@ export default {
       actionsEvents: [],
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
+	  charsCount: 0,
+	  maxLength: 1300,
+	  editorReady: true
     };
   },
   computed: {
@@ -251,7 +293,7 @@ export default {
       }
 
       this.showMessageComposer = true;
-      this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
+      this.$nextTick(() => this.message.setFocus());
     },
     openMessageComposer: function() {
       // If previously, the activity composer
@@ -265,7 +307,7 @@ export default {
       this.message = '';
 
       this.showMessageComposer = true;
-      this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
+      //this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
 
       // Send metric
       let url = '/portal/rest/v1/social/metrics/composer/click?composer=new';
@@ -284,7 +326,7 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const msg = this.$refs[this.ckEditorId].getMessage();
+      const msg = this.message;
       if (this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => this.closeMessageComposer())

@@ -46,6 +46,7 @@ export function init(params) {
             composerAction: params && params.composerAction || 'post',
             activityBody: params && params.activityBody || '',
             activityId: params && params.activityId || '',
+            tinyMCEApiKey: params && params.tinyMCEApiKey || '',
             standalone: !!(params && params.activityId),
           }),
           template: `<exo-activity-composer
@@ -53,6 +54,7 @@ export function init(params) {
                        id="${appId}"
                        :activityBody="activityBody"
                        :activity-id="activityId"
+                       :tinyMCEApiKey="tinyMCEApiKey"
                        :composer-action="composerAction"
                        :standalone="standalone">
                      </exo-activity-composer>`,
@@ -66,9 +68,10 @@ export function init(params) {
             composerAction: params && params.composerAction || 'post',
             activityBody: params && params.activityBody || '',
             activityId: params && params.activityId || '',
+            tinyMCEApiKey: params && params.tinyMCEApiKey || '',
             standalone: !!(params && params.activityId),
           }),
-          template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
+          template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :tinyMCEApiKey="tinyMCEApiKey" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
           i18n,
           vuetify
         });
