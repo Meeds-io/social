@@ -28,12 +28,10 @@
             </v-avatar>
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </div>
-          <p
-            v-if="likersNumber"
-            class="likersNumber my-auto ps-2 align-self-end caption"
-            @click="openDrawer">
-            {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
-          </p>
+          <p v-if="likersNumber && likersNumber <= 1" class="likersNumber my-auto pl-2 align-self-end caption"
+             @click="openDrawer">{{ likersNumber }} {{ $t('UIActivity.label.single_Reaction_Number') }}</p>
+          <p v-if="likersNumber > 1" class="likersNumber my-auto pl-2 align-self-end caption" @click="openDrawer">
+            {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}</p>
         </div>
         <activity-reactions-drawer
           ref="reactionsDrawer"
