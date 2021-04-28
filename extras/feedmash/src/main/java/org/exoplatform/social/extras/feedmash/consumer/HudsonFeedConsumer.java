@@ -16,14 +16,13 @@
  */
 package org.exoplatform.social.extras.feedmash.consumer;
 
+import com.rometools.rome.feed.synd.SyndEntry;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.extras.feedmash.AbstractFeedmashJob;
 import org.exoplatform.social.extras.feedmash.Application;
 import org.quartz.JobDataMap;
-
-import com.sun.syndication.feed.synd.SyndEntryImpl;
 
 public class HudsonFeedConsumer extends AbstractFeedmashJob {
   private static final Log LOG = ExoLogger.getLogger(HudsonFeedConsumer.class);
@@ -44,7 +43,7 @@ public class HudsonFeedConsumer extends AbstractFeedmashJob {
 
 
   @Override
-  protected boolean accept(SyndEntryImpl entry) {
+  protected boolean accept(SyndEntry entry) {
     if (alreadyChecked(entry.getUpdatedDate())) {
       return false;
     } else {
@@ -53,7 +52,7 @@ public class HudsonFeedConsumer extends AbstractFeedmashJob {
   }
 
   @Override
-  protected void handle(SyndEntryImpl entry) {
+  protected void handle(SyndEntry entry) {
     try {
 
       Identity targetStream = getIdentity(targetActivityStream);
@@ -93,7 +92,7 @@ public class HudsonFeedConsumer extends AbstractFeedmashJob {
     feedLastCheck = LAST_CHECKED + "." + feedUrl + "." + targetActivityStream;
   }
 
-  private String currentStatus(SyndEntryImpl entry) {
+  private String currentStatus(SyndEntry entry) {
     String currentStatus;
 
     if (entry.getTitle().contains(BuildStatus.SUCCESS.name())) {

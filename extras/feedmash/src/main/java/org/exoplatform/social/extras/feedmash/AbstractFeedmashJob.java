@@ -22,7 +22,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 import java.util.List;
+import java.util.Base64;
 
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
@@ -38,11 +44,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.google.common.collect.Lists;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
-import com.sun.syndication.io.impl.Base64;
 
 public abstract class AbstractFeedmashJob implements Job {
 
@@ -92,12 +93,12 @@ public abstract class AbstractFeedmashJob implements Job {
       URLConnection urlConnection = null;
       URL url = new URL(feedUrl);
       if(url.getUserInfo() != null){
-        byte[] authEncBytes = Base64.encode(url.getUserInfo().getBytes());
+        byte[] authEncBytes = Base64.getEncoder().encode(url.getUserInfo().getBytes());
         String authStringEnc = new String(authEncBytes);
         urlConnection = url.openConnection();
         urlConnection.setRequestProperty("Authorization", "Basic " + authStringEnc);
       } else if(username != null && password != null) {
-        byte[] authEncBytes = Base64.encode((username + ":" + password).getBytes());
+        byte[] authEncBytes = Base64.getEncoder().encode((username + ":" + password).getBytes());
         String authStringEnc = new String(authEncBytes);
         urlConnection = url.openConnection();
         urlConnection.setRequestProperty("Authorization", "Basic " + authStringEnc);       
@@ -108,10 +109,10 @@ public abstract class AbstractFeedmashJob implements Job {
       InputStream is = urlConnection.getInputStream();
       SyndFeed feed = input.build(new XmlReader(is));
       
-      List<SyndEntryImpl> entries = feed.getEntries();
+      List<SyndEntry> entries = feed.getEntries();
 
       // process what we are interested in
-      for (SyndEntryImpl entry : Lists.reverse(entries)) {
+      for (SyndEntry entry : Lists.reverse(entries)) {
         if (accept(entry)) {
           handle(entry);
         }
@@ -122,9 +123,9 @@ public abstract class AbstractFeedmashJob implements Job {
 
   }
 
-  protected abstract void handle(SyndEntryImpl entry);
+  protected abstract void handle(SyndEntry entry);
 
-  protected abstract boolean accept(SyndEntryImpl entry);
+  protected abstract boolean accept(SyndEntry entry);
 
   public void beforeJobExecute(JobDataMap dataMap) {
     // void by default

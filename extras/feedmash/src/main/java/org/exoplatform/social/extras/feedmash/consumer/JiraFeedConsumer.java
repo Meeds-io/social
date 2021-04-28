@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.extras.feedmash.consumer;
 
+import com.rometools.rome.feed.synd.SyndEntry;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -23,7 +24,6 @@ import org.exoplatform.social.extras.feedmash.AbstractFeedmashJob;
 import org.exoplatform.social.extras.feedmash.Application;
 import org.quartz.JobDataMap;
 
-import com.sun.syndication.feed.synd.SyndEntryImpl;
 
 /**
  * Republishes some entries selected from a JIRA feed as activities into an activity stream.
@@ -45,7 +45,7 @@ public class JiraFeedConsumer extends AbstractFeedmashJob {
    * A feed entry is accepted if its title matches "categoryMatch".
    */
   @SuppressWarnings("unchecked")
-  protected boolean accept(SyndEntryImpl entry) {
+  protected boolean accept(SyndEntry entry) {
 
     // skipping entries already read
     if (alreadyChecked(entry.getUpdatedDate())) {
@@ -58,7 +58,7 @@ public class JiraFeedConsumer extends AbstractFeedmashJob {
   /**
    * Publish the entry title as an activity on the 'targetActivityStream'
    */
-  protected void handle(SyndEntryImpl entry) {
+  protected void handle(SyndEntry entry) {
     try {
       LOG.debug("republishing jira activity on : " + targetActivityStream + " stream, entry uri: " + entry.getLink());
 
