@@ -883,6 +883,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                 notes = "This send onBoarding email to a specific user.")
   public Response sendOnBoardingEmail(@Context HttpServletRequest request,
                                       @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
