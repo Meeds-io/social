@@ -296,21 +296,24 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         if (q != null && !q.isEmpty()) {
           query.setUserName(q);
         }
-        ListAccess<User> usersListAccess;
+        ListAccess<User> usersListAccess = null;
         User[] users;
         OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
         List<String> groupIds = organizationService.getMembershipHandler()
                                                    .findMembershipsByUser(userId)
                                                    .stream()
                                                    .filter(x -> x.getMembershipType().equals("manager")
-                                                       && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP))
+                                                       && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
+                                                       && !x.getGroupId().startsWith("/spaces/"))
                                                    .map(Membership::getGroupId)
                                                    .collect(Collectors.toList());
 
-        usersListAccess = organizationService.getUserHandler()
-                                             .findUsersByQuery(query,
-                                                               groupIds,
-                                                               isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
+        if (groupIds.size() > 0) {
+          usersListAccess = organizationService.getUserHandler()
+                                               .findUsersByQuery(query,
+                                                                 groupIds,
+                                                                 isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
+        }
 
         totalSize = usersListAccess.getSize();
         int limitToFetch = limit;
@@ -899,12 +902,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @PATCH
   @Path("bulk/{action}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("administrators")
+  @RolesAllowed("users")
   @ApiOperation(value = "Make action on list of users", httpMethod = "PATCH", response = Response.class, notes = "This will realize the action on the list of users if possible")
   public Response bulk(@Context HttpServletRequest request,
                                        @ApiParam(value = "Action", required = true) @PathParam("action") String action,
                                        @ApiParam(value = "User List", required = true) List<String> users) throws Exception {
 
+    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
     List<String> updatedUsers = new ArrayList<>();
     switch (action) {
     case "onboard":
