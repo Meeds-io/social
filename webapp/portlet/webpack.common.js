@@ -45,6 +45,7 @@ let config = {
     activityReactions: './src/main/webapp/activity-reactions/main.js',
     dlpQuarantine : './src/main/webapp/dlp-quarantine/main.js',
     mfaAccess : './src/main/webapp/mfa-access/main.js'
+    bannerLogo : './src/main/webapp/banner-logo/main.js'
   },
   module: {
     rules: [

@@ -296,7 +296,6 @@
 
                 function buildPopup(json, spaceUrl) {
                     var action = null;
-                    var returnToHomeAction = null;
                     var isManager = false;
                     var isMember = false;
                     var labels = opts.labels;
@@ -328,20 +327,6 @@
                             "onclick": "executeAction(this)"
                         });
                     }
-                    if (opts.returnToHome) {
-                        streamUrl = "/"+eXo.env.portal.containerName+"/"+eXo.env.portal.portalName+"/stream" ;
-                        returnToHomeAction = $('<div/>', {
-                            "class": "btn-link home-button"
-                        });
-                        var aHome = $("<a/>", {
-                          "target":"_self",
-                          "href": streamUrl,
-                          "text": "Return to home"
-                        });
-
-                        returnToHomeAction.append(aHome)
-                    }
-
 
                     var popupContentContainer = $("<div/>");
                     var popupContent = $("<table/>", {
@@ -415,12 +400,8 @@
                     if (action) {
                         var divUIAction = $("<div/>", {
                             "class": "uiAction connectAction isSpace"
-                        });
-                        if (opts.returnToHome) {
-                          divUIAction.append(returnToHomeAction)
-                        }else{
-                          divUIAction.append(action);
-                        }
+                        }).append(action);
+
                         if(eXo.social && eXo.social.tiptip && eXo.social.tiptip.extraActions) {
                             for (var index = 0; index < eXo.social.tiptip.extraActions.length; index++) {
                                 var extraAction = eXo.social.tiptip.extraActions[index];
