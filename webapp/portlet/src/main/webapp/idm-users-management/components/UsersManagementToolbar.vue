@@ -68,7 +68,7 @@
       </select>
     </v-scale-transition>
     <v-btn
-      v-if="filter === 'ENABLED'"
+      v-if="filter === 'ENABLED' && !isDelegatedAdministrator"
       min-width="auto"
       outlined
       @click="$root.$emit('advancedFilter', userType)">
