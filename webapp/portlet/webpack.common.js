@@ -44,7 +44,7 @@ let config = {
     activitySearchResultCard: './src/main/webapp/search-activity/main.js',
     activityReactions: './src/main/webapp/activity-reactions/main.js',
     dlpQuarantine : './src/main/webapp/dlp-quarantine/main.js',
-    mfaAccess : './src/main/webapp/mfa-access/main.js'
+    mfaAccess : './src/main/webapp/mfa-access/main.js',
     bannerLogo : './src/main/webapp/banner-logo/main.js'
   },
   module: {
