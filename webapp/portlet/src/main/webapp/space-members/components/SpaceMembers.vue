@@ -20,7 +20,6 @@
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
-      ignore-profile-extensions
       @loaded="peopleLoaded" />
 
     <space-invitation-drawer
@@ -62,7 +61,8 @@ export default {
       this.space = space;
     });
     if (this.isManager) {
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-removeMember',
         title: this.$t('peopleList.button.removeMember'),
         icon: 'uiIconTrash',
         order: 0,
@@ -74,7 +74,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-removeManager',
         title: this.$t('peopleList.button.removeManager'),
         icon: 'uiIconMemberAdmin',
         order: 1,
@@ -86,7 +87,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-promoteManager',
         title: this.$t('peopleList.button.promoteManager'),
         icon: 'uiIconMemberAdmin',
         order: 1,
@@ -98,7 +100,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-setAsRedactor',
         title: this.$t('peopleList.button.setAsRedactor'),
         icon: 'uiIconEditMembership',
         order: 1,
@@ -110,7 +113,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-removeRedactor',
         title: this.$t('peopleList.button.removeRedactor'),
         icon: 'uiIconEditMembership',
         order: 1,
@@ -122,7 +126,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-cancelInvitation',
         title: this.$t('peopleList.button.cancelInvitation'),
         icon: 'uiIconTrash',
         order: 1,
@@ -134,7 +139,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-acceptPending',
         title: this.$t('peopleList.button.acceptPending'),
         icon: 'uiIconUserCheck',
         order: 1,
@@ -146,7 +152,8 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      extensionRegistry.registerExtension('profile-extension', 'action', {
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-refusePending',
         title: this.$t('peopleList.button.refusePending'),
         icon: 'uiIconTrash',
         order: 1,
@@ -158,7 +165,7 @@ export default {
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
-      document.dispatchEvent(new CustomEvent('profile-extension-updated'));
+      document.dispatchEvent(new CustomEvent('space-member-extension-updated'));
     }
   },
   methods: {
