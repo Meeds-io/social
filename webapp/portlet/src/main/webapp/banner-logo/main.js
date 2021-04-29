@@ -7,6 +7,8 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 // should expose the locale ressources as REST API
 const url = `${spacesConstants.PORTAL}/${spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.social.SpaceInfosPortlet-${lang}.json`;
 
+Vue.use(Vuetify);
+const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 const appId = 'TopBarLogo';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
@@ -19,6 +21,7 @@ export function init() {
 
     new Vue({
       template: `<banner-logo  id="${appId}"></banner-logo>`,
+      vuetify,
       i18n,
     }).$mount(appElement);
   });
