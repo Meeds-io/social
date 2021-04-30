@@ -16,12 +16,7 @@
  */
 package org.exoplatform.commons.search.service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ObjectPageList;
@@ -385,6 +380,12 @@ public class MockOrganizationService implements OrganizationService {
     public ListAccess<User> findUsersByGroupId(String groupId) throws Exception {
       return null;
     }
+
+    @Override
+    public ListAccess<User> findUsersByQuery(Query query, List<String> groupIds, UserStatus userStatus) throws Exception {
+      return null;
+    }
+
     public  ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception {
         return null;
     }

@@ -52,6 +52,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
@@ -71,13 +72,6 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
-import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
@@ -267,7 +261,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -297,7 +291,46 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setEnabled(!isDisabled);
       filter.setUserType(userType);
       filter.setSearchEmail(true);
-      if (isDisabled && q != null && !q.isEmpty()) {
+      if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
+        Query query = new Query();
+        if (q != null && !q.isEmpty()) {
+          query.setUserName(q);
+        }
+        ListAccess<User> usersListAccess = null;
+        User[] users;
+        OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+        List<String> groupIds = organizationService.getMembershipHandler()
+                                                   .findMembershipsByUser(userId)
+                                                   .stream()
+                                                   .filter(x -> x.getMembershipType().equals("manager")
+                                                       && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
+                                                       && !x.getGroupId().startsWith("/spaces/"))
+                                                   .map(Membership::getGroupId)
+                                                   .collect(Collectors.toList());
+
+        if (groupIds.size() > 0) {
+          usersListAccess = organizationService.getUserHandler()
+                                               .findUsersByQuery(query,
+                                                                 groupIds,
+                                                                 isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
+        }
+
+        totalSize = usersListAccess.getSize();
+        int limitToFetch = limit;
+        if (totalSize < (offset + limitToFetch)) {
+          limitToFetch = totalSize - offset;
+        }
+        if (limitToFetch <= 0) {
+          users = new User[0];
+        } else {
+          users = usersListAccess.load(offset, limitToFetch);
+        }
+        identities =
+                   Arrays.stream(users)
+                         .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                         .toArray(Identity[]::new);
+
+      } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
         User[] users;
         if(q.contains("@")) {
@@ -846,13 +879,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @PATCH
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("administrators")
+  @RolesAllowed("users")
   @ApiOperation(value = "Send onBoarding email to a specific user", 
                 httpMethod = "PATCH", 
                 response = Response.class, 
                 notes = "This send onBoarding email to a specific user.")
   public Response sendOnBoardingEmail(@Context HttpServletRequest request,
                                       @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
@@ -866,12 +902,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @PATCH
   @Path("bulk/{action}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("administrators")
+  @RolesAllowed("users")
   @ApiOperation(value = "Make action on list of users", httpMethod = "PATCH", response = Response.class, notes = "This will realize the action on the list of users if possible")
   public Response bulk(@Context HttpServletRequest request,
                                        @ApiParam(value = "Action", required = true) @PathParam("action") String action,
                                        @ApiParam(value = "User List", required = true) List<String> users) throws Exception {
 
+    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
     List<String> updatedUsers = new ArrayList<>();
     switch (action) {
     case "onboard":
