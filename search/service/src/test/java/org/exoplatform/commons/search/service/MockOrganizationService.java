@@ -381,11 +381,6 @@ public class MockOrganizationService implements OrganizationService {
       return null;
     }
 
-    @Override
-    public ListAccess<User> findUsersByQuery(Query query, List<String> groupIds, UserStatus userStatus) throws Exception {
-      return null;
-    }
-
     public  ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception {
         return null;
     }

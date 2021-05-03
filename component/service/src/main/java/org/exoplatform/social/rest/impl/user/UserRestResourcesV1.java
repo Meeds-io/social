@@ -309,26 +309,29 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                                    .collect(Collectors.toList());
 
         if (groupIds.size() > 0) {
+          query.setGroups(groupIds);
           usersListAccess = organizationService.getUserHandler()
                                                .findUsersByQuery(query,
-                                                                 groupIds,
                                                                  isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
+          totalSize = usersListAccess.getSize();
+          int limitToFetch = limit;
+          if (totalSize < (offset + limitToFetch)) {
+            limitToFetch = totalSize - offset;
+          }
+          if (limitToFetch <= 0) {
+            users = new User[0];
+          } else {
+            users = usersListAccess.load(offset, limitToFetch);
+          }
+          identities =
+              Arrays.stream(users)
+                    .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                    .toArray(Identity[]::new);
+        } else {
+          
         }
 
-        totalSize = usersListAccess.getSize();
-        int limitToFetch = limit;
-        if (totalSize < (offset + limitToFetch)) {
-          limitToFetch = totalSize - offset;
-        }
-        if (limitToFetch <= 0) {
-          users = new User[0];
-        } else {
-          users = usersListAccess.load(offset, limitToFetch);
-        }
-        identities =
-                   Arrays.stream(users)
-                         .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
-                         .toArray(Identity[]::new);
+        
 
       } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
