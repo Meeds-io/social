@@ -328,11 +328,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                     .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
                     .toArray(Identity[]::new);
         } else {
-          
+          identities = new Identity[0];
         }
-
-        
-
       } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
         User[] users;
