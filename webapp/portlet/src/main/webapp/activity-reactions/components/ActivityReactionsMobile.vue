@@ -1,16 +1,16 @@
 <template>
   <div class="actionBarMobile">
     <a
-        v-if="likersNumber === 1"
-        class="likesNumber"
-        @click="open">{{ likersNumber }} {{ $t('UIActivity.label.single_likeLabel') }}</a>
+      v-if="likersNumber === 1"
+      class="likesNumber"
+      @click="open">{{ likersNumber }} {{ $t('UIActivity.label.single_likeLabel') }}</a>
     <a
-        v-if="likersNumber > 1"
-        class="likesNumber"
-        @click="open">{{ likersNumber }} {{ $t('UIActivity.label.likesLabel') }}</a>
+      v-if="likersNumber > 1"
+      class="likesNumber"
+      @click="open">{{ likersNumber }} {{ $t('UIActivity.label.likesLabel') }}</a>
     <a v-if="commentNumber>0" class="CommentsNumber">{{ commentNumber }} {{
-        $t('UIActivity.comment.commentsLabel')
-      }}</a>
+      $t('UIActivity.comment.commentsLabel')
+    }}</a>
     <a
       v-if="kudosNumber>0"
       class="KudosNumber"
