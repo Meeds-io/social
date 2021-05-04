@@ -19,6 +19,8 @@
      require(['SHARED/presence'], function(presence) {
        presence.sendPing("<%= frequency %>");
      });
+</script>
+<script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
      eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
      eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
