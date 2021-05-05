@@ -1,25 +1,24 @@
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.application.registry.Application;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -28,9 +27,12 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.mock.MockUploadService;
-import org.exoplatform.social.rest.entity.*;
-import org.exoplatform.upload.UploadService;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+import org.exoplatform.upload.UploadService;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
   private IdentityManager identityManager;
@@ -612,6 +614,36 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals(7, listAccess.getSize());
     ExoSocialActivity activity = listAccess.load(0, 10)[0];
     assertEquals("title6", activity.getTitle());
+  }
+  
+  public void testShareActivityOnSpaces() throws Exception {
+    //root creates 1 spaces and post 5 activities on it
+    Space space = getSpaceInstance(1, "root");
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    List<ExoSocialActivity> activities = new ArrayList<ExoSocialActivity>();
+    for (int i = 0; i < 5 ; i++) {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      activity.setTitle("title " + i);
+      activity.setUserId(rootIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activities.add(activity);
+    }
+    //root creates another spaces
+    Space shareTargetSpace = getSpaceInstance(2, "root");
+    Identity shareTargetSpaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, shareTargetSpace.getPrettyName(), false);
+    
+    startSessionAs("root");
+
+    //root shares another activity
+    String input = "{\"title\":\"shared default activity\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"space2\"]}";
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/activities/" + activities.get(0).getId() + "/share"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(shareTargetSpaceIdentity);
+    assertEquals(2, listAccess.getSize());
+    ExoSocialActivity activity = listAccess.load(0, 10)[0];
+    assertEquals("shared default activity", activity.getTitle());
   }
 
   public void testGetSpaceActivityFileByFileId() throws Exception {

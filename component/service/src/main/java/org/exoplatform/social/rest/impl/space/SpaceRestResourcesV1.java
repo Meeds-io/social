@@ -16,21 +16,55 @@
  */
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.*;
-import java.util.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.*;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.DataStorage;
@@ -39,14 +73,14 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
+import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
@@ -57,18 +91,26 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.api.*;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.RestProperties;
+import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.api.SpaceRestResources;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.BaseEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
+import org.exoplatform.social.service.rest.api.models.SharedActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
-
-import io.swagger.annotations.*;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
@@ -1152,6 +1194,60 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     logMetrics(activity, space);
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @POST
+  @Path("activities/{activityId}/share")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @ApiOperation(value = "Shares the given activity to specific spaces",
+                httpMethod = "POST",
+                response = Response.class,
+                notes = "This shares the given activity to the given spaces if the authenticated user is a member of the target not redactional space or a super admin, a spaces super manager, a redactor or a manager of the target redactional space.")
+  @ApiResponses(value = {
+    @ApiResponse (code = 200, message = "Request fulfilled"),
+    @ApiResponse (code = 500, message = "Internal server error"),
+    @ApiResponse (code = 400, message = "Invalid query input") })
+  public Response shareActivityOnSpaces(@Context UriInfo uriInfo,
+                                      @ApiParam(value = "Activity id to be shared", required = true) @PathParam("activityId") String activityId,
+                                      @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
+                                      @ApiParam(value = "Share target spaces", required = true) SharedActivityRestIn sharedActivityRestIn) throws Exception {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
+    if (activityManager.getActivity(activityId) == null) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    if (sharedActivityRestIn == null || sharedActivityRestIn.getTargetSpaces() == null || sharedActivityRestIn.getTargetSpaces().isEmpty() || sharedActivityRestIn.getType() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    List<ActivityEntity> sharedActivitiesEntities = new ArrayList<ActivityEntity>();
+    for (String targetSpaceName : sharedActivityRestIn.getTargetSpaces()) {
+      Space targetSpace = spaceService.getSpaceByPrettyName(targetSpaceName);
+      if (SpaceUtils.isSpaceManagerOrSuperManager(authenticatedUser, targetSpace.getGroupId()) || (spaceService.isMember(targetSpace, authenticatedUser) && SpaceUtils.isRedactor(authenticatedUser, targetSpace.getGroupId()))) {
+        // create activity
+        ExoSocialActivity sharedActivity = new ExoSocialActivityImpl();
+        sharedActivity.setTitle(sharedActivityRestIn.getTitle());
+        sharedActivity.setType(sharedActivityRestIn.getType());
+        sharedActivity.setUserId(authenticatedUserIdentity.getId());
+        Map<String, String> templateParams = new HashMap<>();
+        templateParams.put("originalActivityId", activityId); 
+        sharedActivity.setTemplateParams(templateParams);
+        Identity targetSpaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, targetSpaceName);
+        if (targetSpaceIdentity != null) {
+          CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(targetSpaceIdentity, sharedActivity);
+          ActivityEntity sharedActivityEntity = EntityBuilder.buildEntityFromActivity(sharedActivity, uriInfo.getPath(), expand);
+          sharedActivitiesEntities.add(sharedActivityEntity);
+          logMetrics(sharedActivity, targetSpace);
+        }
+      }
+    }
+    return EntityBuilder.getResponse(sharedActivitiesEntities, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   /**
