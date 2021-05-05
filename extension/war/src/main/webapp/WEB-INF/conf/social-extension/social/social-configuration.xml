@@ -55,6 +55,22 @@
         </object-param>
       </init-params>
     </component-plugin>
+	<component-plugin>
+      <name>add.action</name>
+      <set-method>registerUIExtensionPlugin</set-method>
+      <type>org.exoplatform.webui.ext.UIExtensionPlugin</type>
+      <init-params>
+        <object-param>
+          <name>Shared Default Activity</name>
+          <object type="org.exoplatform.social.webui.activity.UIActivityExtension">
+            <field name="type"><string>org.exoplatform.social.webui.activity.BaseUIActivity</string></field>
+            <field name="name"><string>SHARED_DEFAULT_ACTIVITY</string></field>
+            <field name="component"><string>org.exoplatform.social.webui.activity.share.UISharedDefaultActivity</string></field>
+            <field name="activityBuiderClass"><string>org.exoplatform.social.webui.activity.DefaultUIActivityBuilder</string></field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
     <component-plugin>
       <name>add.action</name>
       <set-method>registerUIExtensionPlugin</set-method>
@@ -190,7 +206,8 @@
           <value>war:/groovy/social/webui/activity/commons/UIActivityCommentBox.gtmpl</value>
         </values-param>
       </init-params>
-    </component-plugin><component-plugin>
+    </component-plugin>
+	<component-plugin>
       <name>UIActivityHeading</name>
       <set-method>addTemplateExtension</set-method>
       <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
@@ -199,6 +216,18 @@
           <name>templates</name>
           <description>The heading template to include in all activity templates</description>
           <value>war:/groovy/social/webui/activity/commons/UIActivityHeading.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+	<component-plugin>
+      <name>UISharedActivityHeading</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>The heading template to include in all activity templates</description>
+          <value>war:/groovy/social/webui/activity/share/commons/UISharedActivityHeading.gtmpl</value>
         </values-param>
       </init-params>
     </component-plugin>
