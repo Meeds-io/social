@@ -22,7 +22,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.3.x-SNAPSHOT</version>
+    <version>6.3.x-rewards-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-api</artifactId>
   <name>eXo PLF:: Social API</name>
