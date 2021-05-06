@@ -20,12 +20,12 @@ export function getActivityComposerHintActionExtensions() {
   return activityComposerHintAction;
 }
 
-export function executeExtensionAction(extension, component) {
+export function executeExtensionAction(extension, component, attachments) {
   if (extension.hasOwnProperty('onExecute') && isFunction(extension.onExecute)) {
     if (component) {
       extension.onExecute(component[0]);
     } else {
-      extension.onExecute();
+      extension.onExecute(attachments);
     }
   }
 }
