@@ -31,13 +31,13 @@ export function init(params) {
     new Vue({
       data: () => ({
         activityId: params.activityId,
-        activityDescription: params.activityBody,
+        activityType: params.activityType,
       }),
       template: `<share-activity 
                   v-cacheable="{cacheId: '${appId}'}"
                   id="${appId}"
-                  :activity-id= this.activityId  
-                  :activity-description= this.activityDescription />`,
+                  :activity-id= this.activityId
+                  :activity-type= this.activityType />`,
       i18n,
       vuetify,
     }).$mount(appElement);

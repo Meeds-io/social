@@ -7,7 +7,7 @@
     <share-activity-drawer
       ref="activityDrawer"
       :activity-id="activityId"
-      :activity-description="activityDescription" />
+      :activity-type="activityType" />
   </v-app>
 </template>
 
@@ -18,7 +18,7 @@ export default {
       type: String,
       default: ''
     },
-    activityDescription: {
+    activityType: {
       type: String,
       default: ''
     },
@@ -30,9 +30,11 @@ export default {
   methods: {
     openDrawer() {
       if (this.$refs.activityDrawer) {
+        $('#dropdown-menu').removeClass('dropdown-menu');
         this.spaces = [];
         this.$refs.activityDrawer.open();
-        $(`#dropDownEditActivity${this.activityId}.actLink`).removeClass('open');
+        //$(`#dropDownEditActivity${this.activityId}`).removeClass('actLink open');
+        //$(`#dropDownEditActivity${this.activityId}`).removeClass('actionLink open');
       }
     },
   }

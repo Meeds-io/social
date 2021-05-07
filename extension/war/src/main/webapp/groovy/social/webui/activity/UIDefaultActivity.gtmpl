@@ -97,7 +97,8 @@
     spaceGroupId: '$spaceGroupId',
     allCommentSize: '${allCommentSize}',
     commentFormFocused: '${uicomponent.isCommentFormFocused()}',
-    labels: $labels
+    labels: $labels,
+    activityType: "SHARED_DEFAULT_ACTIVITY"
   } """
 
   jsManager.require("SHARED/jquery", "jq")
@@ -130,7 +131,7 @@
             <i class="uiIconActivityAction uiIconLightGray">
             </i>
           </div>
-          <ul class="dropdown-menu actLink-items pull-right" role="menu">
+          <ul class="dropdown-menu actLink-items pull-right" id="dropdown-menu" role="menu">
           <% if(activityEditable) {%>
           <li class="actLink-item">
           <a id="EditActivitylink${activity.id}" class="" data-edit-activity="${activity.id}" data-placement="bottom" href="javascript:void(0)">
