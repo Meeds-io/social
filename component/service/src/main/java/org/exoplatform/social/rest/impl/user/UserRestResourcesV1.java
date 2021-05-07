@@ -1498,6 +1498,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isNotBlank(groups)) {
         List<String> groupsList = Arrays.asList(groups.split(";"));
         for (String groupMembershipExpression : groupsList) {
+          if (groupMembershipExpression.equals("/platform/externals")) continue;
           String membershipType =
                   groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
                           : SpaceUtils.MEMBER;
