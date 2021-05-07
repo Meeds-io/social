@@ -78,17 +78,6 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
 
         SpaceUtils.refreshNavigation();
       }
-    } 
-    //only trigger when the Organization service removes membership from Externals group
-    else if (m.getGroupId().equals(PLATFORM_EXTERNALS_GROUP)) {
-      // Set "external" social profile property to "false"
-      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
-      Profile profile = identity.getProfile();
-      if (profile != null) {
-        profile.setProperty(Profile.EXTERNAL, "false");
-        identityManager.updateProfile(profile, true);
-      }
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();
@@ -138,14 +127,6 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     }
     //only trigger when the Organization service adds new membership to Externals group
     else if (m.getGroupId().equals(PLATFORM_EXTERNALS_GROUP)) {
-      // Set "external" social profile property to "true"
-      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
-      Profile profile = identity.getProfile();
-      if (profile != null) {
-        profile.setProperty(Profile.EXTERNAL, "true");
-        identityManager.updateProfile(profile);
-      }
       OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
       User user = orgService.getUserHandler().findUserByName(m.getUserName());
