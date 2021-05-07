@@ -1,11 +1,11 @@
 <template>
-  <v-app id="shareActivity" class="shareActivity">
+  <v-app :id="id" class="shareActivity">
     <div class="shareActivityButton" @click="openDrawer">
       <i class="uiIconRecurrence uiIconLightBlue uiIcon16x16 ml-3 py-3"></i>
       <span class="ml-1">Share</span>
     </div>
     <share-activity-drawer
-      ref="shareActivityDrawer"
+      ref="activityDrawer"
       :activity-id="activityId"
       :activity-description="activityDescription" />
   </v-app>
@@ -21,17 +21,21 @@ export default {
     activityDescription: {
       type: String,
       default: ''
+    },
+    id: {
+      type: String,
+      default: ''
     }
   },
   methods: {
     openDrawer() {
-      if (this.$refs.shareActivityDrawer) {
+      if (this.$refs.activityDrawer) {
         this.spaces = [];
-        this.$refs.shareActivityDrawer.open();
+        this.$refs.activityDrawer.open();
         $(`#dropDownEditActivity${this.activityId}.actLink`).removeClass('open');
-        $(`#dropDownEditActivity${this.activityId}.actionLink`).removeClass('open');
       }
     },
   }
+  
 };
 </script>

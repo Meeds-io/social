@@ -21,8 +21,7 @@ if (extensionRegistry) {
 }
 
 export function init(params) {
-  const appId = 'shareActivity';
-  const cacheId = `${appId}_${params.activityId}`;
+  const appId = `shareActivity-${params.activityId}`;
 
   const appElement = document.createElement('div');
   appElement.id = appId;
@@ -35,7 +34,7 @@ export function init(params) {
         activityDescription: params.activityBody,
       }),
       template: `<share-activity 
-                  v-cacheable="{cacheId: '${cacheId}'}"
+                  v-cacheable="{cacheId: '${appId}'}"
                   id="${appId}"
                   :activity-id= this.activityId  
                   :activity-description= this.activityDescription />`,
