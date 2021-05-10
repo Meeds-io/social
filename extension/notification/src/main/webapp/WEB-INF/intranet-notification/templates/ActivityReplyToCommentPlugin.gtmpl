@@ -29,7 +29,7 @@
             $COMMENT_REPLY
           </div>
           <div class="readMore">
-            Read more
+            <%=_ctx.appRes("Notification.label.readMore");%>
           </div>
         </div>
         <div class="lastUpdatedTime">$LAST_UPDATED_TIME</div>
