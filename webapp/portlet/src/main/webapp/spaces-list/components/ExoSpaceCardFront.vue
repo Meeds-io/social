@@ -113,99 +113,72 @@
         :cancel-label="okMethod && $t('spacesList.label.cancel')"
         @ok="okConfirmDialog"
         @dialog-closed="closeConfirmDialog" />
-      <v-btn
-        v-if="space.isMember"
-        :loading="sendingAction"
-        :disabled="sendingAction || space.isUserBound"
-        class="btn mx-auto spaceMembershipButton leaveSpaceButton"
-        depressed
-        block
-        @click="leaveConfirm">
-        <v-icon>mdi-minus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.leave') }}
-        </span>
-      </v-btn>
-      <div v-else-if="space.isInvited" class="invitationButtons">
-        <div class="acceptToJoinSpaceButtonParent">
+      <template v-if="!space.isSuperUser">
+        <v-btn
+          v-if="space.isMember"
+          :loading="sendingAction"
+          :disabled="sendingAction || space.isUserBound"
+          class="btn mx-auto spaceMembershipButton leaveSpaceButton"
+          depressed
+          block
+          @click="leaveConfirm">
+          <v-icon>mdi-minus</v-icon>
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.leave') }}
+          </span>
+        </v-btn>
+        <div v-else-if="space.isInvited" class="invitationButtons">
+          <div class="acceptToJoinSpaceButtonParent">
+            <v-btn
+              :loading="sendingAction"
+              :disabled="sendingAction"
+              class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
+              depressed
+              @click="acceptToJoin">
+              <v-icon>mdi-check</v-icon>
+              <span class="d-flex">
+                {{ $t('spacesList.button.acceptToJoin') }}
+              </span>
+            </v-btn>
+            <v-btn
+              class="btn spaceButtonMenu d-inline"
+              depressed
+              x-small
+              @click="displaySecondButton = !displaySecondButton">
+              <v-icon>mdi-menu-down</v-icon>
+            </v-btn>
+          </div>
           <v-btn
-            :loading="sendingAction"
-            :disabled="sendingAction"
-            class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
+            v-show="displaySecondButton"
+            :loading="sendingSecondAction"
+            :disabled="sendingSecondAction"
+            class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
             depressed
-            @click="acceptToJoin">
-            <v-icon>mdi-check</v-icon>
+            block
+            @click="refuseToJoin">
+            <v-icon>mdi-close</v-icon>
             <span class="d-flex">
-              {{ $t('spacesList.button.acceptToJoin') }}
+              {{ $t('spacesList.button.refuseToJoin') }}
             </span>
-          </v-btn>
-          <v-btn
-            class="btn spaceButtonMenu d-inline"
-            depressed
-            x-small
-            @click="displaySecondButton = !displaySecondButton">
-            <v-icon>mdi-menu-down</v-icon>
           </v-btn>
         </div>
         <v-btn
-          v-show="displaySecondButton"
-          :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
-          class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
+          v-else-if="space.isPending"
+          :loading="sendingAction"
+          :disabled="sendingAction"
+          class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
           depressed
           block
-          @click="refuseToJoin">
+          @click="cancelRequest">
           <v-icon>mdi-close</v-icon>
-          <span class="d-flex">
-            {{ $t('spacesList.button.refuseToJoin') }}
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.cancelRequest') }}
           </span>
         </v-btn>
-      </div>
-      <v-btn
-        v-else-if="space.isPending"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
-        depressed
-        block
-        @click="cancelRequest">
-        <v-icon>mdi-close</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.cancelRequest') }}
-        </span>
-      </v-btn>
-      <v-btn
-        v-else-if="space.subscription === 'open'"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton joinSpaceButton"
-        depressed
-        block
-        @click="join">
-        <v-icon>mdi-plus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.join') }}
-        </span>
-      </v-btn>
-      <v-btn
-        v-else-if="space.subscription === 'validation'"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton joinSpaceButton"
-        depressed
-        block
-        @click="requestJoin">
-        <v-icon>mdi-plus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.requestJoin') }}
-        </span>
-      </v-btn>
-      <div
-        v-else
-        :title="$t('spacesList.label.closedSpace')"
-        class="joinSpaceDisabledLabel">
         <v-btn
-          disabled
+          v-else-if="space.subscription === 'open'"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="btn mx-auto spaceMembershipButton joinSpaceButton"
           depressed
           block
@@ -215,7 +188,36 @@
             {{ $t('spacesList.button.join') }}
           </span>
         </v-btn>
-      </div>
+        <v-btn
+          v-else-if="space.subscription === 'validation'"
+          :loading="sendingAction"
+          :disabled="sendingAction"
+          class="btn mx-auto spaceMembershipButton joinSpaceButton"
+          depressed
+          block
+          @click="requestJoin">
+          <v-icon>mdi-plus</v-icon>
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.requestJoin') }}
+          </span>
+        </v-btn>
+        <div
+          v-else
+          :title="$t('spacesList.label.closedSpace')"
+          class="joinSpaceDisabledLabel">
+          <v-btn
+            disabled
+            class="btn mx-auto spaceMembershipButton joinSpaceButton"
+            depressed
+            block
+            @click="join">
+            <v-icon>mdi-plus</v-icon>
+            <span class="spaceMembershipButtonText d-inline">
+              {{ $t('spacesList.button.join') }}
+            </span>
+          </v-btn>
+        </div>
+      </template>
     </v-card-actions>
   </v-card>
 </template>
