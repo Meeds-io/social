@@ -1,14 +1,14 @@
 <template>
   <v-flex class="space-suggester text-truncate">
     <exo-identity-suggester
-      ref="newsSpaceSuggester"
+      ref="activitySpaceSuggester"
       v-model="sharingSpaces"
       :labels="spaceSuggesterLabels"
       :include-users="false"
       :width="220"
       :search-options="searchOptions"
-      name="newsSpaceAutocomplete"
-      class="space-suggester newsSpaceAutocomplete"
+      name="activitySpaceAutocomplete"
+      class="space-suggester activitySpaceAutocomplete"
       include-spaces
       only-redactor
       only-manager />
@@ -45,16 +45,16 @@ export default {
     },
     spaceSuggesterLabels() {
       return {
-        searchPlaceholder: this.$t('news.share.spaces.searchPlaceholder'),
-        placeholder: this.$t('news.share.spaces.placeholder'),
-        noDataLabel: this.$t('news.share.spaces.noDataLabel'),
+        searchPlaceholder: this.$t('UIActivity.share.spaces.searchPlaceholder'),
+        placeholder: this.$t('UIActivity.share.spaces.placeholder'),
+        noDataLabel: this.$t('UIActivity.share.spaces.noDataLabel'),
       };
     },
   },
   watch: {
     sharingSpaces() {
       if (!this.sharingSpaces) {
-        this.$nextTick(this.$refs.newsSpaceSuggester.$refs.selectAutoComplete.deleteCurrentItem);
+        this.$nextTick(this.$refs.activitySpaceSuggester.$refs.selectAutoComplete.deleteCurrentItem);
         return;
       }
       if (!this.spaces) {

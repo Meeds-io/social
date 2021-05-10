@@ -5,26 +5,26 @@
     right
     @closed="close">
     <template slot="title">
-      {{ $t('news.share.drawer.popupTitle') }}
+      {{ $t('UIActivity.share.drawer.popupTitle') }}
     </template>
     <template slot="content">
       <v-form
         v-if="activityId"
-        ref="newsShareFrom"
-        class="flex news-form share-news"
+        ref="activityShareFrom"
+        class="flex news-form share-activity"
         flat>
         <div class="d-flex flex-column flex-grow-1">
           <div class="d-flex flex-row">
-            <span class="mt-4 ml-2 mb-2">{{ $t('news.share.shareInSpaces') }} </span>
+            <span class="mt-4 ml-2 mb-2">{{ $t('UIActivity.share.shareInSpaces') }} </span>
           </div>
-          <div class="d-flex flex-row flex-grow-1 newsSpaceSuggester">
+          <div class="d-flex flex-row flex-grow-1 activitySpaceSuggester">
             <share-activity-suggester :spaces="spaces" class="ml-2" />
           </div>
           <div class="d-flex flex-row">
             <textarea
               v-model="description"
-              :placeholder="$t('news.share.sharedActivityPlaceholder')"
-              class="ml-2 ignore-vuetify-classes newsShareDescription">
+              :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
+              class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default {
       $(`#dropDownEditActivity${this.activityId} #dropdown-menu li a`).each(function() {
         $(this).show();
       });
-      $(`#dropDownEditActivity${this.activityId} #dropdown-menu #shareActivityButton`).show();
+      $(`#dropDownEditActivity${this.activityId} #dropdown-menu .shareActivityButton`).show();
       this.$refs.shareActivityDrawer.close();
     },
     shareActivity() {
@@ -83,13 +83,7 @@ export default {
         type: this.activityType,
         targetSpaces: this.spaces,
       };
-      this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(this.refreshActivityStream());
-    },
-    refreshActivityStream() {
-      const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
-      if (refreshButton) {
-        refreshButton.click();
-      }
+      this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(this.$refs.shareActivityDrawer.close());
     },
   }
 };
