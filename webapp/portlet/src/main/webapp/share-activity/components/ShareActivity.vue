@@ -1,6 +1,6 @@
 <template>
   <v-app :id="id" class="shareActivity">
-    <div class="shareActivityButton" @click="openDrawer">
+    <div id="shareActivityButton" class="shareActivityButton" @click="openDrawer">
       <i class="uiIconRecurrence uiIconLightBlue uiIcon16x16 ml-3 py-3"></i>
       <span class="ml-1">Share</span>
     </div>
@@ -30,11 +30,13 @@ export default {
   methods: {
     openDrawer() {
       if (this.$refs.activityDrawer) {
-        $('#dropdown-menu').removeClass('dropdown-menu');
+        $(`#dropDownEditActivity${this.activityId} #dropdown-menu`).removeClass('dropdown-menu');
+        $(`#dropDownEditActivity${this.activityId} #dropdown-menu li a`).each(function() {
+          $(this).hide();
+        });
+        $(`#dropDownEditActivity${this.activityId} #dropdown-menu #shareActivityButton`).hide();
         this.spaces = [];
         this.$refs.activityDrawer.open();
-        //$(`#dropDownEditActivity${this.activityId}`).removeClass('actLink open');
-        //$(`#dropDownEditActivity${this.activityId}`).removeClass('actionLink open');
       }
     },
   }

@@ -70,7 +70,11 @@ export default {
       this.$refs.shareActivityDrawer.open();
     },
     close() {
-      $('#dropdown-menu').addClass('dropdown-menu');
+      $(`#dropDownEditActivity${this.activityId} #dropdown-menu`).addClass('dropdown-menu');
+      $(`#dropDownEditActivity${this.activityId} #dropdown-menu li a`).each(function() {
+        $(this).show();
+      });
+      $(`#dropDownEditActivity${this.activityId} #dropdown-menu #shareActivityButton`).show();
       this.$refs.shareActivityDrawer.close();
     },
     shareActivity() {
