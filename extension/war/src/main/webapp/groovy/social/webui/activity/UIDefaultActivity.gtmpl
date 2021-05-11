@@ -151,18 +151,6 @@
 
                                     </li>
           <%}%>
-            <li class="actLink-item">
-			  <div class="VuetifyApp share-link">
-                  <div data-app="true"
-                    class="v-application v-application--is-ltr theme--light"
-                    id="shareActivity-${activity.id}">
-                    <v-cacheable-dom-app cache-id="shareActivity-${activity.id}"></v-cacheable-dom-app>
-                    <script>
-                      require(["SHARED/ShareActivity"], shareActivity => shareActivity.init($params));
-                    </script>
-                  </div>
-              </div>
-			</li>
            </ul>
           </div>
           <%

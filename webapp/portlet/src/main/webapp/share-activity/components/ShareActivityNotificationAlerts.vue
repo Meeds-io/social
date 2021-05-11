@@ -37,7 +37,7 @@ export default {
       const spacesList = [];
       if (spaces && spaces.length > 0) {
         spaces.forEach(space => spacesList.push(this.truncateString(space)));
-        const message = `${this.$t('news.share.message')} ${spacesList.join(', ')}`;
+        const message = `${this.$t('UIActivity.share.message')} ${spacesList.join(', ')}`;
         this.$root.$emit('activity-notification-alert', {
           message,
           type: 'success',

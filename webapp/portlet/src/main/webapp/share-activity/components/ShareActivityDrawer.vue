@@ -40,7 +40,6 @@
         </v-btn>
       </div>
     </template>
-    <share-activity-notification-alerts />
   </exo-drawer>
 </template>
 
@@ -70,14 +69,6 @@ export default {
     open() {
       this.$refs.shareActivityDrawer.open();
     },
-    close() {
-      $(`#dropDownEditActivity${this.activityId} #dropdown-menu`).addClass('dropdown-menu');
-      $(`#dropDownEditActivity${this.activityId} #dropdown-menu li a`).each(function() {
-        $(this).show();
-      });
-      $(`#dropDownEditActivity${this.activityId} #dropdown-menu .shareActivityButton`).show();
-      this.$refs.shareActivityDrawer.close();
-    },
     shareActivity() {
       const spacesList = [];
       this.spaces.forEach(space => {
@@ -92,8 +83,9 @@ export default {
       };
       this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(() =>
       {
-        this.$root.$emit('activity-shared', spacesList);
         this.$refs.shareActivityDrawer.close();
+      }).then(() => {
+        this.$root.$emit('activity-shared', spacesList);
       });
     },
   }

@@ -1,7 +1,7 @@
 <template>
   <v-chip
     close
-    class="identitySuggesterItem me-4 mt-4"
+    class="identitySuggesterItem me-4 mt-2"
     @click:close="$emit('remove-space', space)">
     <v-avatar left>
       <v-img :src="avatarUrl" />
