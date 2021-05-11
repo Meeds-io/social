@@ -40,6 +40,7 @@
         </v-btn>
       </div>
     </template>
+    <share-activity-notification-alerts />
   </exo-drawer>
 </template>
 
@@ -78,12 +79,22 @@ export default {
       this.$refs.shareActivityDrawer.close();
     },
     shareActivity() {
+      const spacesList = [];
+      this.spaces.forEach(space => {
+        this.$spaceService.getSpaceByPrettyName(space,'identity').then(data => {
+          spacesList.push(data.displayName);
+        });
+      });
       const sharedActivityRestIn = {
         title: this.description,
         type: this.activityType,
         targetSpaces: this.spaces,
       };
-      this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(this.$refs.shareActivityDrawer.close());
+      this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(() =>
+      {
+        this.$root.$emit('activity-shared', spacesList);
+        this.$refs.shareActivityDrawer.close();
+      });
     },
   }
 };
