@@ -5,8 +5,8 @@ import ShareActivitySpaceItem from './components/ShareActivitySpaceItem.vue';
 import ShareActivityNotificationAlerts from './components/ShareActivityNotificationAlerts.vue';
 
 const components = {
-  'share-activity-drawer': ShareActivityDrawer,
   'share-activity': ShareActivity,
+  'share-activity-drawer': ShareActivityDrawer,
   'share-activity-suggester': ShareActivitySuggester,
   'share-activity-space-item': ShareActivitySpaceItem,
   'share-activity-notification-alerts': ShareActivityNotificationAlerts,

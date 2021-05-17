@@ -11,7 +11,7 @@
       <v-form
         v-if="activityId"
         ref="activityShareFrom"
-        class="flex news-form share-activity"
+        class="flex share-activity"
         flat>
         <div class="d-flex flex-column flex-grow-1">
           <div class="d-flex flex-row">
@@ -36,7 +36,7 @@
           :disabled="shareDisabled"
           class="btn btn-primary mr-2"
           @click="shareActivity">
-          {{ $t('news.share.share') }}
+          {{ $t('UIActivity.share.share') }}
         </v-btn>
       </div>
     </template>
@@ -56,7 +56,6 @@ export default {
     }
   },
   data: () => ({
-    showShareNewsDrawer: false,
     description: '',
     spaces: [],
   }),
@@ -76,12 +75,12 @@ export default {
           spacesList.push(data.displayName);
         });
       });
-      const sharedActivityRestIn = {
+      const sharedActivity = {
         title: this.description,
         type: this.activityType,
         targetSpaces: this.spaces,
       };
-      this.$spaceService.shareActivityOnSpaces(this.activityId,sharedActivityRestIn).then(() =>
+      this.$spaceService.shareActivityOnSpaces(this.activityId, sharedActivity).then(() =>
       {
         this.$refs.shareActivityDrawer.close();
       }).then(() => {

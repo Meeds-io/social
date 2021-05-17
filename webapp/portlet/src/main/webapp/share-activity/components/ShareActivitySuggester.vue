@@ -72,11 +72,6 @@ export default {
       this.sharingSpaces = null;
     }
   },
-  created() {
-    this.$root.$on('news-share-drawer-closed', ()=> {
-      this.displayedSpaces = [];
-    });
-  },
   methods: {
     removeSpace(space) {
       const index = this.displayedSpaces.findIndex(addedSpace => {

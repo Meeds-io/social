@@ -169,7 +169,6 @@
 				<%
                 if (originalActivity) { %>
 				<div class="shareActivityContainer">
-					<!-- it is just a temporary css waiting the final display implementation -->
 					<div class="heading">
 						<div class="activityHeader">
 							<% _ctx.includeTemplates("UISharedActivityHeading") %>

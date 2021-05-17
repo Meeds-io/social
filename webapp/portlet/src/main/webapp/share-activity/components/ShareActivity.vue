@@ -1,7 +1,7 @@
 <template>
   <v-app :id="id" class="shareActivity">
     <div class="shareActivityButton" @click="openDrawer">
-      <i class="uiIconShareActivity uiIconLightBlue uiIcon16x16"></i>
+      <i class="uiIconShare uiIconLightBlue uiIcon16x16"></i>
       <span class="share-text">{{ $t('UIActivity.share.share') }}</span>
     </div>
     <share-activity-drawer
