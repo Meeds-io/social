@@ -97,6 +97,12 @@
       <set-method>addListenerPlugin</set-method>
       <type>org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImpl</type>
     </component-plugin>
+    <component-plugin>
+      <name>esocial.update.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.ExternalUsersListenerImpl</type>
+      <description>Update external profile property.</description>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
