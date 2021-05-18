@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2010 eXo Platform SAS.
+ * Copyright (C) 2003-2021 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -21,6 +21,7 @@ import java.util.Date;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.webui.Utils;
+import org.exoplatform.social.webui.activity.share.UISharedLinkActivity;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
@@ -113,5 +114,13 @@ public class UILinkActivity extends BaseUIActivity {
     getActivity().setUpdated(new Date().getTime());
     this.setLinkComment(message);
     Utils.getActivityManager().updateActivity(getActivity());
+  }
+  
+  public boolean isActivityShareable() {
+    return true;
+  }
+  
+  public String getOriginalActivityType() {
+    return UISharedLinkActivity.ACTIVITY_TYPE;
   }
 }
