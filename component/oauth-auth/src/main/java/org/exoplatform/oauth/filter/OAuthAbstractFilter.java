@@ -23,6 +23,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.web.filter.Filter;
 import org.exoplatform.web.security.AuthenticationRegistry;
+import org.gatein.pc.portlet.impl.jsr168.DispatchedHttpServletRequest;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.spi.OAuthProviderTypeRegistry;
 import javax.servlet.FilterChain;
@@ -46,9 +47,9 @@ public abstract class OAuthAbstractFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
+        DispatchedHttpServletRequest req = (DispatchedHttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
+        sanitizeRequest(req);
         if (req.getRemoteUser() != null) {
             // User already loggedIn
             Cookie cookie = new Cookie(COOKIE_LAST_LOGIN, req.getRemoteUser());
@@ -108,7 +109,12 @@ public abstract class OAuthAbstractFilter implements Filter {
         }
         return this.oauthEnable;
     }
-
+    private void sanitizeRequest(DispatchedHttpServletRequest request) {
+        String Uri = request.getRequestURI();
+        if (Uri != null && !Uri.equals("/portal")) {
+            request.setRequestURI("/portal");
+        }
+    }
     protected <T> T getService(Class<T> clazz) {
         return container.get().getComponentInstanceOfType(clazz);
     }
