@@ -83,7 +83,7 @@
           <input
             ref="newPasswordInput"
             v-model="user.password"
-            :disabled="saving || !user.isInternal"
+            :disabled="saving || (!user.isInternal && !newUser)"
             :required="newUser"
             :minlength="newUser && 8 || 0"
             type="password"
@@ -99,7 +99,7 @@
           <input
             ref="confirmNewPassword"
             v-model="confirmNewPassword"
-            :disabled="saving || !user.isInternal"
+            :disabled="saving || (!user.isInternal && !newUser)"
             :required="newUser"
             :minlength="newUser && 8 || 0"
             type="password"
