@@ -35,7 +35,7 @@
         <v-btn
           :disabled="shareDisabled"
           class="btn btn-primary mr-2"
-          @click="shareActivity">
+          @click="$emit('share-activity', spaces, description)">
           {{ $t('UIActivity.share.share') }}
         </v-btn>
       </div>
@@ -68,24 +68,8 @@ export default {
     open() {
       this.$refs.shareActivityDrawer.open();
     },
-    shareActivity() {
-      const spacesList = [];
-      this.spaces.forEach(space => {
-        this.$spaceService.getSpaceByPrettyName(space,'identity').then(data => {
-          spacesList.push(data.displayName);
-        });
-      });
-      const sharedActivity = {
-        title: this.description,
-        type: this.activityType,
-        targetSpaces: this.spaces,
-      };
-      this.$spaceService.shareActivityOnSpaces(this.activityId, sharedActivity).then(() =>
-      {
-        this.$refs.shareActivityDrawer.close();
-      }).then(() => {
-        this.$root.$emit('activity-shared', spacesList);
-      });
+    close() {
+      this.$refs.shareActivityDrawer.close();
     },
   }
 };

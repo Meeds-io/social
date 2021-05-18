@@ -1527,6 +1527,36 @@
       <path>/js/shareActivity.bundle.js</path>
     </script>
     <depends>
+      <module>ShareActivityDrawer</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>ShareActivityDrawer</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/shareActivityDrawer.bundle.js</path>
+    </script>
+    <depends>
       <module>commonVueComponents</module>
     </depends>
     <depends>

@@ -8,7 +8,8 @@
       ref="activityDrawer"
       class="activityDrawer"
       :activity-id="activityId"
-      :activity-type="activityType" />
+      :activity-type="activityType"
+      @share-activity="shareActivity" />
     <share-activity-notification-alerts />
   </v-app>
 </template>
@@ -31,12 +32,28 @@ export default {
   },
   methods: {
     openDrawer() {
-      if (this.$refs.activityDrawer) {
-        this.spaces = [];
-        this.$refs.activityDrawer.open();
-      }
+      this.$refs.activityDrawer.open();
     },
+    shareActivity(spaces, description) {
+      const spacesList = [];
+      spaces.forEach(space => {
+        this.$spaceService.getSpaceByPrettyName(space,'identity').then(data => {
+          spacesList.push(data.displayName);
+        });
+      });
+      const sharedActivity = {
+        title: description,
+        type: this.activityType,
+        targetSpaces: spaces,
+      };
+      this.$spaceService.shareActivityOnSpaces(this.activityId, sharedActivity).then(() =>
+      {
+        this.$refs.activityDrawer.close();
+      }).then(() => {
+        this.$root.$emit('activity-shared', spacesList);
+      });
+    }
   }
-  
+
 };
 </script>
