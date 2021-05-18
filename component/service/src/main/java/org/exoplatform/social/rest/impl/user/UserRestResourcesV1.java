@@ -290,9 +290,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
-      filter.setUserType(userType);
-      filter.setConnected(isConnected);
       filter.setSearchEmail(true);
+      if (!isDisabled) {
+        filter.setUserType(userType);
+        filter.setConnected(isConnected);
+      }
       if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
         if (q != null && !q.isEmpty()) {
