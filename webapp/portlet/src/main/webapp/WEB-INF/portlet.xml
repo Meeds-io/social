@@ -1290,11 +1290,13 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/bannerLogo.jsp</value>
+      <value>/banner-logo/index.html</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.SpaceInfosPortlet</resource-bundle>
     <portlet-info>
       <title>Top Bar Logo</title>
     </portlet-info>
