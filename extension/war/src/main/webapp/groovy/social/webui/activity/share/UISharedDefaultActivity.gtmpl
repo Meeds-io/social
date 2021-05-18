@@ -168,21 +168,21 @@
 				<div class="description">$activity.title</div>
 				<%
                 if (originalActivity) { %>
-					<div style="margin-left:30px;border: 1px solid #999999"><!-- it is just a temporary css waiting the final display implementation -->
-						<div class="heading">
-							<div class="activityHeader">
-								<% _ctx.includeTemplates("UISharedActivityHeading") %>
-							</div>
-						<!--end activityHeader-->
+				<div class="shareActivityContainer">
+					<div class="heading">
+						<div class="activityHeader">
+							<% _ctx.includeTemplates("UISharedActivityHeading") %>
 						</div>
-						<!--end heading-->
-						<div class="description">$originalActivity.title</div>
-						<!--end description-->
+						<!--end activityHeader-->
 					</div>
-                <%
+					<!--end heading-->
+					<div class="description">$originalActivity.title</div>
+					<!--end description-->
+				</div>
+				<%
                 }
                 %>
-				
+
 				<!--end description-->
 				<div class="desktop-input clearfix">
 					<div class="blastInputPeople hideEffect">

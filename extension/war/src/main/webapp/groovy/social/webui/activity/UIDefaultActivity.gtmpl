@@ -97,7 +97,8 @@
     spaceGroupId: '$spaceGroupId',
     allCommentSize: '${allCommentSize}',
     commentFormFocused: '${uicomponent.isCommentFormFocused()}',
-    labels: $labels
+    labels: $labels,
+    activityType: "SHARED_DEFAULT_ACTIVITY"
   } """
 
   jsManager.require("SHARED/jquery", "jq")
@@ -127,17 +128,17 @@
           <div id="activityComposer${activity.id}"></div>
           <div id="dropDownEditActivity${activity.id}" class="btn-group uiDropdownWithIcon actLink ">
           <div class="dropdown-toggle" data-toggle="dropdown">
-          <i class="uiIconActivityAction uiIconLightGray">
-          </i>
-                                </div>
-          <ul class="dropdown-menu actLink-items pull-right" role="menu">
+            <i class="uiIconActivityAction uiIconLightGray">
+            </i>
+          </div>
+          <ul class="dropdown-menu actLink-items pull-right" id="dropdown-menu" role="menu">
           <% if(activityEditable) {%>
           <li class="actLink-item">
           <a id="EditActivitylink${activity.id}" class="" data-edit-activity="${activity.id}" data-placement="bottom" href="javascript:void(0)">
               <i class="uiIcon uiIconEdit actLink-icon"></i>
               <span class="actLink-label">${labelEdit}</span>
           </a>
-                                    </li>
+          </li>
           <%
           }
           if (activityDeletable) {
@@ -150,8 +151,8 @@
 
                                     </li>
           <%}%>
-          </ul>
-                            </div>
+           </ul>
+          </div>
           <%
           }
           %>

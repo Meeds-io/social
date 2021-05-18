@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.webui.activity;
 
+import org.exoplatform.social.webui.activity.share.UISharedDefaultActivity;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
@@ -45,4 +46,12 @@ import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
 )
 public class UIDefaultActivity extends BaseUIActivity {
   public static final String ACTIVITY_TYPE = "DEFAULT_ACTIVITY";
+  
+  public boolean isActivityShareable() {
+    return true;
+  }
+  
+  public String getOriginalActivityType() {
+    return UISharedDefaultActivity.ACTIVITY_TYPE;
+  }
 }
