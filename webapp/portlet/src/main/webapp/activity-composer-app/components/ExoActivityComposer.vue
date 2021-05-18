@@ -68,7 +68,7 @@
               v-for="action in activityComposerActions"
               :key="action.key"
               :class="`${action.appClass}Action`">
-              <div class="actionItem" @click="executeAction(action)">
+              <div class="actionItem" @click="executeAction(action, attachments)">
                 <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
                 <div class="actionItemDescription">
                   <div class="actionLabel">{{ getLabel(action.labelKey) }}</div>
@@ -346,8 +346,8 @@ export default {
       this.showMessageComposer = false;
       this.$refs[this.ckEditorId].unload();
     },
-    executeAction(action) {
-      executeExtensionAction(action, this.$refs[action.key]);
+    executeAction(action, attachments) {
+      executeExtensionAction(action, this.$refs[action.key], attachments);
     },
     updateAttachments(attachments) {
       this.attachments = attachments;

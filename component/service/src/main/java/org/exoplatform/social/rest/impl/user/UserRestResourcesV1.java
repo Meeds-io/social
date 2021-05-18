@@ -1503,6 +1503,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                           : SpaceUtils.MEMBER;
           String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
                   : groupMembershipExpression;
+          if (groupId.equals("/platform/externals")) continue;
           Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
           if (groupObject == null) {
             userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
