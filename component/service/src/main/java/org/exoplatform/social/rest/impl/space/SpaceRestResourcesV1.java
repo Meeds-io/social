@@ -1197,60 +1197,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   }
   
   /**
-   * {@inheritDoc}
-   */
-  @POST
-  @Path("activities/{activityId}/share")
-  @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
-  @ApiOperation(value = "Shares the given activity to specific spaces",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This shares the given activity to the given spaces if the authenticated user is a member of the target not redactional space or a super admin, a spaces super manager, a redactor or a manager of the target redactional space.")
-  @ApiResponses(value = {
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
-  public Response shareActivityOnSpaces(@Context UriInfo uriInfo,
-                                      @ApiParam(value = "Activity id to be shared", required = true) @PathParam("activityId") String activityId,
-                                      @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
-                                      @ApiParam(value = "Share target spaces", required = true) SharedActivityRestIn sharedActivityRestIn) throws Exception {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
-    if (activityManager.getActivity(activityId) == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    if (sharedActivityRestIn == null || sharedActivityRestIn.getTargetSpaces() == null || sharedActivityRestIn.getTargetSpaces().isEmpty() || sharedActivityRestIn.getType() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).build();
-    }
-    
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    List<ActivityEntity> sharedActivitiesEntities = new ArrayList<ActivityEntity>();
-    for (String targetSpaceName : sharedActivityRestIn.getTargetSpaces()) {
-      Space targetSpace = spaceService.getSpaceByPrettyName(targetSpaceName);
-      if (SpaceUtils.isSpaceManagerOrSuperManager(authenticatedUser, targetSpace.getGroupId()) || (spaceService.isMember(targetSpace, authenticatedUser) && SpaceUtils.isRedactor(authenticatedUser, targetSpace.getGroupId()))) {
-        // create activity
-        ExoSocialActivity sharedActivity = new ExoSocialActivityImpl();
-        sharedActivity.setTitle(sharedActivityRestIn.getTitle());
-        sharedActivity.setType(sharedActivityRestIn.getType());
-        sharedActivity.setUserId(authenticatedUserIdentity.getId());
-        Map<String, String> templateParams = new HashMap<>();
-        templateParams.put("originalActivityId", activityId); 
-        sharedActivity.setTemplateParams(templateParams);
-        Identity targetSpaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, targetSpaceName);
-        if (targetSpaceIdentity != null) {
-          CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(targetSpaceIdentity, sharedActivity);
-          ActivityEntity sharedActivityEntity = EntityBuilder.buildEntityFromActivity(sharedActivity, uriInfo.getPath(), expand);
-          sharedActivitiesEntities.add(sharedActivityEntity);
-          logMetrics(sharedActivity, targetSpace);
-        }
-      }
-    }
-    return EntityBuilder.getResponse(sharedActivitiesEntities, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
-  /**
    * Log metric about composer usage
    * @param activity The posted activity
    * @param space The space of the posted activity

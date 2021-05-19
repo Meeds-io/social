@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2010 eXo Platform SAS.
+ * Copyright (C) 2003-2021 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,22 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.webui.activity;
+package org.exoplatform.social.webui.activity.share;
 
-import org.exoplatform.social.webui.activity.share.UISharedDefaultActivity;
+import org.exoplatform.social.webui.activity.BaseUIActivity;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
 
-/**
- * UIDefaultActivity.java
- *
- * @author    zun
- * @since     Jul 22, 2010
- */
 @ComponentConfig(
   lifecycle = UIFormLifecycle.class,
-  template = "war:/groovy/social/webui/activity/UIDefaultActivity.gtmpl",
+  template = "war:/groovy/social/webui/activity/share/UISharedLinkActivity.gtmpl",
   events = {
     @EventConfig(listeners = BaseUIActivity.ToggleDisplayCommentFormActionListener.class),
     @EventConfig(listeners = BaseUIActivity.LikeActivityActionListener.class),
@@ -44,14 +38,6 @@ import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
     @EventConfig(listeners = BaseUIActivity.RefreshActivityActionListener.class)
   }
 )
-public class UIDefaultActivity extends BaseUIActivity {
-  public static final String ACTIVITY_TYPE = "DEFAULT_ACTIVITY";
-  
-  public boolean isActivityShareable() {
-    return true;
-  }
-  
-  public String getOriginalActivityType() {
-    return UISharedDefaultActivity.ACTIVITY_TYPE;
-  }
+public class UISharedLinkActivity extends UISharedActivity {
+  public static final String ACTIVITY_TYPE = "SHARED_LINK_ACTIVITY";
 }

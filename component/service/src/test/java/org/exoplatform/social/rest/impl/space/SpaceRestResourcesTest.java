@@ -615,36 +615,6 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     ExoSocialActivity activity = listAccess.load(0, 10)[0];
     assertEquals("title6", activity.getTitle());
   }
-  
-  public void testShareActivityOnSpaces() throws Exception {
-    //root creates 1 spaces and post 5 activities on it
-    Space space = getSpaceInstance(1, "root");
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    List<ExoSocialActivity> activities = new ArrayList<ExoSocialActivity>();
-    for (int i = 0; i < 5 ; i++) {
-      ExoSocialActivity activity = new ExoSocialActivityImpl();
-      activity.setTitle("title " + i);
-      activity.setUserId(rootIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
-      activities.add(activity);
-    }
-    //root creates another spaces
-    Space shareTargetSpace = getSpaceInstance(2, "root");
-    Identity shareTargetSpaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, shareTargetSpace.getPrettyName(), false);
-    
-    startSessionAs("root");
-
-    //root shares another activity
-    String input = "{\"title\":\"shared default activity\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"space2\"]}";
-    ContainerResponse response = getResponse("POST", getURLResource("spaces/activities/" + activities.get(0).getId() + "/share"), input);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(shareTargetSpaceIdentity);
-    assertEquals(2, listAccess.getSize());
-    ExoSocialActivity activity = listAccess.load(0, 10)[0];
-    assertEquals("shared default activity", activity.getTitle());
-  }
 
   public void testGetSpaceActivityFileByFileId() throws Exception {
     // Given

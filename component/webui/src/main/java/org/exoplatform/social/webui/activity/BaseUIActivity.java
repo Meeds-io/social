@@ -115,7 +115,7 @@ public class BaseUIActivity extends UIForm {
   private String                                updatedCommentId;
 
   private ActivityManager activityManager;
-
+  
   /**
    * Constructor
    */
@@ -593,6 +593,11 @@ public class BaseUIActivity extends UIForm {
 
     return false;
   }
+  
+  public boolean isActivityShareable() {
+    return false;
+  }
+  
 
   public boolean isActivityEditable(ExoSocialActivity activity) {
     return getActivityManager().isActivityEditable(activity, ConversationState.getCurrent().getIdentity());
