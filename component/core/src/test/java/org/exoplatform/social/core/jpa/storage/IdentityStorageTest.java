@@ -20,6 +20,7 @@ package org.exoplatform.social.core.jpa.storage;
 import org.exoplatform.services.organization.*;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -456,54 +457,69 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     String sortField = SortBy.FULLNAME.getFieldName();
     String fieldName = Profile.FULL_NAME;
-    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.LAST_NAME;
     sortField = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.FIRST_NAME;
     sortField = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacter = 'f';
     firstCharacterFieldName = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     firstCharacterFieldName = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, offset, limit);
     assertTrue("Returned result should be empty", result.isEmpty());
 
     // filter users by type 
     sortField = SortBy.FULLNAME.getFieldName();
     fieldName = Profile.FULL_NAME;
     firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "internal", offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "internal", null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 7);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "external", offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "external", null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
+
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, false, offset, limit);
+    assertTrue("Returned result count is not consistent", result.size() == 10);
+    assertSorted(remoteIdPrefix, fieldName, result);
     
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, true, offset, limit);
+    assertTrue("Returned result count is not consistent", result.size() == 0);
+    assertSorted(remoteIdPrefix, fieldName, result);
+
+    result = identityStorage.getIdentities(providerId, offset, limit);
+    assertTrue("Returned result count is not consistent", result.size() == 10);
+    assertSorted(remoteIdPrefix, fieldName, result);
+
+    List<IdentityWithRelationship> result1 = identityStorage.getIdentitiesWithRelationships("1", 0, 20);
+    assertTrue("Returned result count is not consistent", result1.size() == 10);
+    assertSorted(remoteIdPrefix, fieldName, result);
   }
 
   @MaxQueryNumber(99)
@@ -617,6 +633,15 @@ public class IdentityStorageTest extends AbstractCoreTest {
     pf.setUserType("internal");
 
     assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    
+    pf.setConnected(true);
+    assertEquals(0, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+
+    pf.setConnected(false);
+    assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+
+    pf.setUserType(null);
+    assertEquals(6, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
   }
   
   /**

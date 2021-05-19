@@ -183,6 +183,7 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    isConnected: null,
     userType: null,
     lang: eXo.env.portal.language,
     options: {
@@ -422,7 +423,7 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -556,7 +557,8 @@ export default {
         this.initialized = true;
       });
     },
-    applyAdvancedFilter(userType) {
+    applyAdvancedFilter(isConnected, userType) {
+      this.isConnected = isConnected;
       this.userType= userType;
       this.searchUsers();
     }

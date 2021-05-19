@@ -65,6 +65,9 @@ public class ProfileFilter implements Cloneable {
   /** Filter by user type {internal, external}. */
   private String userType;
 
+  /** Filter by user login status {connected, never connected}. */
+  private Boolean isConnected;
+
   private List<String> remoteIds = null;
 
   private Sorting sorting;
@@ -250,6 +253,14 @@ public class ProfileFilter implements Cloneable {
 
   public void setUserType(String userType) {
     this.userType = userType;
+  }
+
+  public Boolean isConnected() {
+    return isConnected;
+  }
+
+  public void setConnected(Boolean isConnected) {
+    this.isConnected = isConnected;
   }
 
   public Identity getViewerIdentity() {

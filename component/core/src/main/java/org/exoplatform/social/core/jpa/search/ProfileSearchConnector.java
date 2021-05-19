@@ -250,6 +250,28 @@ public class ProfileSearchConnector {
         appendCommar = true;
       }
     }
+    if (filter.isConnected() != null) {
+        if(filter.getUserType() != null && !filter.getUserType().isEmpty()){
+          esSubQuery.append("      ,\n");
+        }
+        esSubQuery.append("    \"should\": [\n");
+        esSubQuery.append("                  {\n");
+        esSubQuery.append("                    \"bool\": {\n");
+        if (filter.isConnected()) {
+          esSubQuery.append("                      \"must\": {\n");
+        } else {
+          esSubQuery.append("                      \"must_not\": {\n");
+        }
+        esSubQuery.append("                        \"exists\": {\n");
+        esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
+        esSubQuery.append("                        }\n");
+        esSubQuery.append("                      }\n");
+        esSubQuery.append("                    }\n");
+        esSubQuery.append("                  }\n");
+        esSubQuery.append("                  ]\n");
+        subQueryEmpty = false;
+        appendCommar = true;
+    }
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {

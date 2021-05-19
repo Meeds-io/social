@@ -51,6 +51,7 @@ public class IdentityFilterKey implements CacheKey {
   private String all;
   private Sorting sorting;
   private String userType;
+  private Boolean isConnected;
   private boolean isEnabled;
 
   /**
@@ -70,6 +71,7 @@ public class IdentityFilterKey implements CacheKey {
       this.firstChar = filter.getFirstCharacterOfName();
       this.firstCharFieldName = filter.getFirstCharFieldName();
       this.userType = filter.getUserType();
+      this.isConnected = filter.isConnected();
       this.isEnabled = filter.isEnabled();
 
       List<IdentityKey> keys = new ArrayList<IdentityKey>();
@@ -137,6 +139,7 @@ public class IdentityFilterKey implements CacheKey {
     if (skills != null ? !skills.equals(that.skills) : that.skills != null) return false;
     if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
     if (userType != null ? !userType.equals(that.userType) : that.userType != null) return false;
+    if (isConnected != that.isConnected) return true;
     if (isEnabled != that.isEnabled) return true;
 
     return true;
@@ -157,6 +160,7 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (all != null ? all.hashCode() : 0);
     result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
     result = 31 * result + (userType != null ? userType.hashCode() : 0);
+    result = 31 * result + (isConnected != null ? isConnected.hashCode() : 0);
     result = 31 * result + Boolean.hashCode(isEnabled);
     return result;
   }

@@ -244,6 +244,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
                            @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
+                           @ApiParam(value = "Is connected users", required = false) @QueryParam("isConnected") Boolean isConnected,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
@@ -289,8 +290,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setPosition(q == null || q.isEmpty() ? "" : q);
       filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
-      filter.setUserType(userType);
       filter.setSearchEmail(true);
+      if (!isDisabled) {
+        filter.setUserType(userType);
+        filter.setConnected(isConnected);
+      }
       if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
         if (q != null && !q.isEmpty()) {
