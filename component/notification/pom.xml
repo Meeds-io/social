@@ -162,12 +162,6 @@
             <include>**/UtilsTestCase.java</include>
             <include>**/SocialNotificationUtilsTest.java</include>
           </includes>
-          <systemProperties>
-            <property>
-              <name>exo.files.storage.dir</name>
-              <value>target/exo-files</value>
-            </property>
-          </systemProperties>
         </configuration>
       </plugin>
       <plugin>

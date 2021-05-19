@@ -133,6 +133,10 @@
       <artifactId>pc-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.exoplatform.gatein.pc</groupId>
+      <artifactId>pc-portlet</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.exoplatform.gatein.portal</groupId>
       <artifactId>exo.portal.component.application-registry</artifactId>
     </dependency>
@@ -326,12 +330,6 @@
       <!-- used only by byteman -->
       <optional>true</optional>
     </dependency>
-    <dependency>
-       <groupId>javax.ccpp</groupId>
-       <artifactId>ccpp</artifactId>
-        <version>1.0</version>
-        <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -411,12 +409,6 @@
           <excludes>
             <exclude>**/*TestIT.java</exclude>
           </excludes>
-          <systemProperties>
-            <property>
-              <name>exo.files.storage.dir</name>
-              <value>target/exo-files</value>
-            </property>
-          </systemProperties>
         </configuration>
       </plugin>
       <plugin>
