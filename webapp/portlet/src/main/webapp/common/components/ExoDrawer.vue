@@ -137,37 +137,36 @@ export default {
             $('body').addClass(this.bodyClasses);
           }
         }, 200);
-        this.$root.openedDrawers.push(this);
+        eXo.openedDrawers.push(this);
         this.$emit('opened');
         document.dispatchEvent(new CustomEvent('drawerOpened'));
+        this.installOverlayListener();
       } else {
         window.setTimeout(() => {
           if (!$('.v-overlay').length) {
             $('body').removeClass(this.bodyClasses);
           }
         }, 200);
-        if (this.$root.openedDrawers) {
-          const currentOpenedDrawerIndex = this.$root.openedDrawers.indexOf(this);
+        if (eXo.openedDrawers) {
+          const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
           if (currentOpenedDrawerIndex >= 0) {
-            this.$root.openedDrawers.splice(currentOpenedDrawerIndex, 1);
+            eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
             if (currentOpenedDrawerIndex === 0) {
               $('body').removeClass(this.bodyClasses);
             }
           }
         }
-        this.$root.$emit('drawer-closed');
         this.$emit('closed');
         document.dispatchEvent(new CustomEvent('drawerClosed'));
       }
-      this.installOverlayListener();
       this.expand = false;
     },
   },
   created() {
     $(document).on('keydown', this.closeByEscape);
-    this.$root.$on('drawer-closed', this.installOverlayListener);
-    if (!this.$root.openedDrawers) {
-      this.$root.openedDrawers = [];
+    document.addEventListener('drawerClosed', () => this.installOverlayListener());
+    if (!eXo.openedDrawers) {
+      eXo.openedDrawers = [];
     }
     document.addEventListener('closeAllDrawers', () => this.drawer = false);
   },
@@ -185,7 +184,7 @@ export default {
       }
     },
     closeByEscape(event) {
-      const isLastOpenedDrawer = this.$root.openedDrawers.indexOf(this) === this.$root.openedDrawers.length - 1;
+      const isLastOpenedDrawer = eXo.openedDrawers.indexOf(this) === eXo.openedDrawers.length - 1;
       if (event.key === 'Escape' && this.drawer && isLastOpenedDrawer) {
         this.close(event);
       }
