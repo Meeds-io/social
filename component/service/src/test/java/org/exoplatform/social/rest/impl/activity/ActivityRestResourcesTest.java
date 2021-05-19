@@ -1,13 +1,13 @@
 package org.exoplatform.social.rest.impl.activity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
 
 import org.exoplatform.services.rest.impl.ContainerResponse;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -22,7 +22,6 @@ import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.CommentEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.impl.comment.CommentRestResourcesTest;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
@@ -449,6 +448,32 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     // clean data
     activityManager.deleteActivity(rootActivity);
+  }
+  
+  public void testShareActivityOnSpaces() throws Exception {
+    startSessionAs("root");
+
+    getSpaceInstance("test", "root");
+    testSpaceIdentity = new Identity(SpaceIdentityProvider.NAME, "test");
+    identityStorage.saveIdentity(testSpaceIdentity);
+    ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
+    testSpaceActivity.setTitle("Test space activity");
+    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+      
+    getSpaceInstance("share", "root");
+    Identity shareTargetSpaceIdentity = new Identity(SpaceIdentityProvider.NAME, "share");
+    identityStorage.saveIdentity(shareTargetSpaceIdentity);
+
+    //root shares another activity
+    String input = "{\"title\":\"shared default activity\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"share\"]}";
+    ContainerResponse response = getResponse("POST", getURLResource("activities/" + testSpaceActivity.getId() + "/share"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(shareTargetSpaceIdentity);
+    assertEquals(2, listAccess.getSize());
+    ExoSocialActivity activity = listAccess.load(0, 10)[0];
+    assertEquals("shared default activity", activity.getTitle());
   }
 
   public void testPostCommentReply() throws Exception {

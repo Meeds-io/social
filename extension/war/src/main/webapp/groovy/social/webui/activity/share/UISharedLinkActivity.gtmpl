@@ -29,11 +29,17 @@
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.webui.Utils;
 
+  import org.exoplatform.social.service.rest.Util;
+  import org.exoplatform.social.webui.activity.UILinkUtil;
+  import org.exoplatform.social.webui.activity.UILinkActivity;
+  import java.net.*;
+
+
   import org.apache.commons.lang.StringEscapeUtils;
 
   import static org.exoplatform.social.webui.activity.BaseUIActivity.TEMPLATE_PARAM_COMMENT;
 
-  def pcontext = Util.getPortalRequestContext();
+  def pcontext = org.exoplatform.portal.webui.util.Util.getPortalRequestContext();
   def labelActivityHasBeenDeleted = _ctx.appRes("UIActivity.label.Activity_Has_Been_Deleted");
   def activity = uicomponent.getActivity();
   def activityDeletable = uicomponent.isActivityDeletable();
@@ -111,7 +117,8 @@
   def currentTime = System.currentTimeMillis();
 
   def viewerId = Utils.getViewerIdentity().getId();
-  def originalActivity = uicomponent.getOriginalActivity();   
+  def originalActivity = uicomponent.getOriginalActivity();
+  
 
 %>
 <div class="activityStream uiActivityStreamWrapper uiDefaultActivity"
@@ -167,7 +174,34 @@
 				<!--end heading-->
 				<div class="description">$activity.title</div>
 				<%
-                if (originalActivity) { %>
+                if (originalActivity) {
+                  def templateParams = originalActivity.getTemplateParams();
+			      String linkSource = templateParams.get(UILinkActivity.LINK_PARAM);
+				  String linkTitle = templateParams.get(UILinkActivity.TITLE_PARAM);
+				  if (linkTitle == null || linkTitle.equals("")) {
+				    linkTitle = UILinkUtil.simpleEscapeHtml(linkSource);
+				  }
+				  String linkImage = templateParams.get(UILinkActivity.IMAGE_PARAM);
+				  String linkDescription = UILinkUtil.simpleEscapeHtml(templateParams.get(UILinkActivity.DESCRIPTION_PARAM));
+				  //
+				  linkTitle = UILinkUtil.simpleEscapeHtml(org.exoplatform.social.service.rest.Util.getDecodeQueryURL(linkTitle));
+				  linkSource = UILinkUtil.simpleEscapeHtml(org.exoplatform.social.service.rest.Util.getDecodeQueryURL(linkSource));
+				  def linkMedia = new URL(linkSource);
+                  def hostUrl = linkMedia.getHost();
+				  //
+				  def linkComment = templateParams.get(UILinkActivity.COMMENT_PARAM);
+				  def link = "";
+				  if (linkImage == null || linkImage.equals("")) {
+                    link = "<img src=\"/eXoSkin/skin/images/system/composer/PostLinks.png\" class=\"imagePreview\" alt=\"$linkTitle\" />";
+				  } else {
+				    link = "<img src=\"$linkImage\" class=\"imagePreview\" alt=\"$linkTitle\" />";
+				  }
+				  def embedHtml = templateParams.get(UILinkActivity.HTML_PARAM);
+				  def linkClass = "";
+				  if ( embedHtml != null ){
+				    linkClass = "embedBox";
+				  }%>
+
 				<div class="shareActivityContainer">
 					<div class="heading">
 						<div class="activityHeader">
@@ -176,8 +210,57 @@
 						<!--end activityHeader-->
 					</div>
 					<!--end heading-->
-					<div class="description">$originalActivity.title</div>
+					<% if (linkComment != null && linkComment.length() > 0) { %>
+					<div class="description">$linkComment</div>
+					<% } %>
 					<!--end description-->
+					<div class="uiBox roundedBottom introBox linkShare">
+						<div class="clearfix linkClass">
+							<% if (embedHtml == null && link.length() != 0) { %>
+							<div class="linkPreview">
+								<div>
+									<a href="javascript:void(0);" rel="tooltip"
+										data-placement="right" title="$linkTitle" target="_blank">$link</a>
+								</div>
+								<div class="boxDescription">
+									<div class="block">
+										<div class="titlePreview">
+											<a target="_blank" href="$linkSource" target="_blank">$linkTitle</a>
+										</div>
+										<div class="descriptionLink">$linkDescription</div>
+										<div class="link">
+											<a href="$linkSource" target="_blank"><i
+												class="far fa-link"></i> $linkSource</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<% } %>
+							<% if (embedHtml != null) { %>
+							<div class="EmbedHtml">$embedHtml</div>
+							<div class="box">
+								<div class="boxLink">
+									<div class="linkVideo">
+										<a href="$linkSource" target="_blank">$linkSource</a>
+									</div>
+								</div>
+								<div class="boxSite link">
+									<p>
+										<i class="far fa-link"></i>$hostUrl
+									</p>
+								</div>
+							</div>
+							<% } %>
+						</div>
+					</div>
+					<!--end introBox,linkShare-->
+					<% if (embedHtml != null) { %>
+					<ul class="statusAction uiActivityActions">
+						<li><a href="<%=uicomponent.event("ViewDocument")%>"><i
+								class="uiIconWatch uiIconLightGray"></i>&nbsp;<%=_ctx.appRes("SocialIntegration.view");%></a>
+						</li>
+					</ul>
+					<% } %>
 				</div>
 				<%
                 }
