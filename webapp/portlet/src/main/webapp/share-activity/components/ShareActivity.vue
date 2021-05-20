@@ -1,9 +1,5 @@
 <template>
   <v-app :id="id" class="shareActivity">
-    <div class="shareActivityButton" @click="openDrawer">
-      <i class="uiIconShare uiIconLightBlue uiIcon16x16"></i>
-      <span class="share-text">{{ $t('UIActivity.share.share') }}</span>
-    </div>
     <share-activity-drawer
       ref="activityDrawer"
       class="activityDrawer"
@@ -29,6 +25,11 @@ export default {
       type: String,
       default: ''
     }
+  },
+  created() {
+    this.$root.$on('open-share-activity-drawer', () => {
+      this.openDrawer();
+    });
   },
   methods: {
     openDrawer() {

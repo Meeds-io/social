@@ -3,10 +3,16 @@
   def likeActivityAction = uicomponent.event("LikeActivity", "true");
   def unlikeActivityAction = uicomponent.event("LikeActivity", "false");
   def labelLike = _ctx.appRes("UIActivity.label.Like");
+  def labelShare = _ctx.appRes("UIActivity.share.share");
   def labelComment = _ctx.appRes("UIActivity.label.Comment");
   def totalLikesNum = uicomponent.getIdentityLikes().length;
   int allCommentSize = uicomponent.getAllCommentSize();
   def isActivityShareable = uicomponent.isActivityShareable();
+  def activityType = uicomponent.getOriginalActivityType();
+  def params = """ {
+        activityId: '${activity.id}',
+        activityType: '$activityType'
+  } """;
 %>
 <div class="actionBar clearfix ">
   <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
@@ -36,24 +42,23 @@
     </li>
     <% _ctx.includeTemplates("UIActivityActionBar-actions-after") %>
     <%  if (isActivityShareable) {
-    def activityType = uicomponent.getOriginalActivityType();
-    def params = """ {
-        activityId: '${activity.id}',
-        activityType: '$activityType'
-        } """;
     %>
-    <li class="VuetifyApp">
-      <div class="share-link">
-        <div data-app="true"
-             class="v-application v-application--is-ltr theme--light"
-             id="shareActivity-${activity.id}">
-             <v-cacheable-dom-app cache-id="shareActivity-${activity.id}"></v-cacheable-dom-app>
-              <script>
-                require(["SHARED/ShareActivity"], shareActivity => shareActivity.init($params));
-              </script>
-        </div>
-      </div>
+    <li class="share-link" onclick="javascript:openDrawer.call(this);">
+      <i class="uiIconShare uiIcon16x16"></i>
+      <span class="share-text">$labelShare</span>
     </li>
     <% }%>
   </ul>
+  <div class="VuetifyApp">
+    <div id="shareActivity-${activity.id}">
+      <script type="text/javascript">
+        require(["SHARED/ShareActivity"], shareActivity => shareActivity.init($params));
+      </script>
+    </div>
+  </div>
+    <script type="text/javascript">
+    function openDrawer() {
+      require(["SHARED/ShareActivity"], shareActivity => shareActivity.openShareActivityDrawer());
+    }
+</script>
 </div><!--end actionBar-->

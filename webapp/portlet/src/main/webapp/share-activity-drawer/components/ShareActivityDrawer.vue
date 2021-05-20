@@ -1,46 +1,48 @@
 <template>
-  <exo-drawer
-    ref="shareActivityDrawer"
-    body-classes="hide-scroll decrease-z-index-more"
-    right
-    @closed="close">
-    <template slot="title">
-      {{ $t('UIActivity.share.drawer.popupTitle') }}
-    </template>
-    <template slot="content">
-      <v-form
-        v-if="activityId"
-        ref="activityShareFrom"
-        class="flex share-activity"
-        flat>
-        <div class="d-flex flex-column flex-grow-1">
-          <div class="d-flex flex-row">
-            <span class="mt-4 ml-2 mb-2">{{ $t('UIActivity.share.shareInSpaces') }} </span>
-          </div>
-          <div class="d-flex flex-row flex-grow-1 activitySpaceSuggester">
-            <share-activity-suggester :spaces="spaces" class="ml-2" />
-          </div>
-          <div class="d-flex flex-row">
-            <textarea
-              v-model="description"
-              :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
-              class="ml-2 ignore-vuetify-classes activityShareDescription">
+  <v-app>
+    <exo-drawer
+      ref="shareActivityDrawer"
+      body-classes="hide-scroll decrease-z-index-more"
+      right
+      @closed="close">
+      <template slot="title">
+        {{ $t('UIActivity.share.drawer.popupTitle') }}
+      </template>
+      <template slot="content">
+        <v-form
+          v-if="activityId"
+          ref="activityShareFrom"
+          class="flex share-activity"
+          flat>
+          <div class="d-flex flex-column flex-grow-1">
+            <div class="d-flex flex-row">
+              <span class="mt-4 ml-2 mb-2">{{ $t('UIActivity.share.shareInSpaces') }} </span>
+            </div>
+            <div class="d-flex flex-row flex-grow-1 activitySpaceSuggester">
+              <share-activity-suggester :spaces="spaces" class="ml-2" />
+            </div>
+            <div class="d-flex flex-row">
+              <textarea
+                v-model="description"
+                :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
+                class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
+            </div>
           </div>
+        </v-form>
+      </template>
+      <template slot="footer">
+        <div class="d-flex justify-end">
+          <v-btn
+            :disabled="shareDisabled"
+            class="btn btn-primary mr-2"
+            @click="shareActivity">
+            {{ $t('UIActivity.share.share') }}
+          </v-btn>
         </div>
-      </v-form>
-    </template>
-    <template slot="footer">
-      <div class="d-flex justify-end">
-        <v-btn
-          :disabled="shareDisabled"
-          class="btn btn-primary mr-2"
-          @click="shareActivity">
-          {{ $t('UIActivity.share.share') }}
-        </v-btn>
-      </div>
-    </template>
-  </exo-drawer>
+      </template>
+    </exo-drawer>
+  </v-app>
 </template>
 
 <script>

@@ -19,7 +19,7 @@ if (extensionRegistry) {
     });
   }
 }
-
+let shareActivityApp;
 export function init(params) {
   const appId = `shareActivity-${params.activityId}`;
 
@@ -28,7 +28,7 @@ export function init(params) {
 
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
-    new Vue({
+    shareActivityApp = new Vue({
       data: () => ({
         activityId: params.activityId,
         activityType: params.activityType,
@@ -42,4 +42,16 @@ export function init(params) {
       vuetify,
     }).$mount(appElement);
   });
+}
+
+export function openShareActivityDrawer() {
+  if (shareActivityApp) {
+    shareActivityApp.$root.$emit('open-share-activity-drawer');
+  }
+}
+
+export function destroy() {
+  if (shareActivityApp) {
+    shareActivityApp.$destroy();
+  }
 }
