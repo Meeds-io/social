@@ -46,6 +46,7 @@ let config = {
     dlpQuarantine : './src/main/webapp/dlp-quarantine/main.js',
     mfaAccess : './src/main/webapp/mfa-access/main.js',
     shareActivity: './src/main/webapp/share-activity/main.js',
+    shareActivityDrawer: './src/main/webapp/share-activity-drawer/main.js',
   },
   module: {
     rules: [

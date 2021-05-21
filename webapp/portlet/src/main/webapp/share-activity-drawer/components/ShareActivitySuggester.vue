@@ -72,6 +72,11 @@ export default {
       this.sharingSpaces = null;
     }
   },
+  created() {
+    this.$root.$on('activity-shared', () => {
+      this.displayedSpaces = [];
+    });
+  },
   methods: {
     removeSpace(space) {
       const index = this.displayedSpaces.findIndex(addedSpace => {
