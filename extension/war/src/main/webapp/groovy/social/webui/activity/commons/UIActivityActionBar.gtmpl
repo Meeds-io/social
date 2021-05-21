@@ -8,6 +8,7 @@
   def totalLikesNum = uicomponent.getIdentityLikes().length;
   int allCommentSize = uicomponent.getAllCommentSize();
   def isActivityShareable = uicomponent.isActivityShareable();
+	
 %>
 <div class="actionBar clearfix ">
   <% def toggleDisplayCommentAction = uicomponent.event('ToggleDisplayCommentForm', null, false);
@@ -51,17 +52,19 @@
           activityType: '$activityType'
     } """;
   %>
+
   <div class="VuetifyApp">
     <div id="shareActivity-${activity.id}">
       <script type="text/javascript">
         require(["SHARED/ShareActivity"], shareActivity => shareActivity.init($params));
       </script>
     </div>
-  <% }%>
   </div>
-    <script type="text/javascript">
+  <script type="text/javascript">
     function openDrawer() {
       require(["SHARED/ShareActivity"], shareActivity => shareActivity.openShareActivityDrawer());
     }
-</script>
+  </script>
+  <% }%>
+
 </div><!--end actionBar-->
