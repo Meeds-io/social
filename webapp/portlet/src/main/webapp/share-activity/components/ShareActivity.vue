@@ -3,8 +3,6 @@
     <share-activity-drawer
       ref="activityDrawer"
       class="activityDrawer"
-      :activity-id="activityId"
-      :activity-type="activityType"
       @share-activity="shareActivity" />
     <share-activity-notification-alerts />
   </v-app>
@@ -13,21 +11,19 @@
 <script>
 export default {
   props: {
-    activityId: {
-      type: String,
-      default: ''
-    },
-    activityType: {
-      type: String,
-      default: ''
-    },
     id: {
       type: String,
       default: ''
     }
   },
+  data: () => ({
+    activityId: '',
+    activityType: '',
+  }),
   created() {
-    this.$root.$on('open-share-activity-drawer', () => {
+    this.$root.$on('open-share-activity-drawer', (params) => {
+      this.activityId = params.activityId;
+      this.activityType = params.activityType;
       this.openDrawer();
     });
   },

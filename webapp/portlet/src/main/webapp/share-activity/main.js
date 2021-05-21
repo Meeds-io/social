@@ -29,24 +29,18 @@ export function init(params) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     shareActivityApp = new Vue({
-      data: () => ({
-        activityId: params.activityId,
-        activityType: params.activityType,
-      }),
       template: `<share-activity 
                   v-cacheable="{cacheId: '${appId}'}"
-                  id="${appId}"
-                  :activity-id= this.activityId
-                  :activity-type= this.activityType />`,
+                  id="${appId}" />`,
       i18n,
       vuetify,
     }).$mount(appElement);
   });
 }
 
-export function openShareActivityDrawer() {
+export function openShareActivityDrawer(params) {
   if (shareActivityApp) {
-    shareActivityApp.$root.$emit('open-share-activity-drawer');
+    shareActivityApp.$root.$emit('open-share-activity-drawer', params);
   }
 }
 

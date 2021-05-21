@@ -10,7 +10,6 @@
       </template>
       <template slot="content">
         <v-form
-          v-if="activityId"
           ref="activityShareFrom"
           class="flex share-activity"
           flat>
@@ -47,16 +46,6 @@
 
 <script>
 export default {
-  props: {
-    activityId: {
-      type: String,
-      default: ''
-    },
-    activityType: {
-      type: String,
-      default: ''
-    }
-  },
   data: () => ({
     description: '',
     spaces: [],
