@@ -21,7 +21,6 @@ export default {
     getSettings().then(settings => {
       this.extension = extensionRegistry.loadExtensions('mfa-extension', 'mfa-extension')
         .find(plugin => plugin.id === settings.mfaSystem);
-      console.log(this.extension);
     });
   },
 };
