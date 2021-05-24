@@ -44,6 +44,7 @@ public interface UserRestResources extends SocialRest {
    * @param isConnected filter by connected users
    * @param spaceId filter only space members
    * @param isDisabled only disabled users
+   * @param enrollmentStatus filter by enrollment status
    * @return List of users in json format.
    * @throws Exception
    */
@@ -52,9 +53,10 @@ public interface UserRestResources extends SocialRest {
                                     @QueryParam("q") String q,
                                     @QueryParam("status") String status,
                                     @QueryParam("userType") String userType,
-                                    @QueryParam("isConnected") Boolean isConnected,
+                                    @QueryParam("isConnected") String isConnected,
                                     @QueryParam("spaceId") String spaceId,
                                     @QueryParam("isDisabled") boolean isDisabled,
+                                    @QueryParam("enrollmentStatus") String enrollmentStatus,
                                     @QueryParam("offset") int offset,
                                     @QueryParam("limit") int limit,
                                     @QueryParam("returnSize") boolean returnSize,
