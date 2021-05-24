@@ -9,34 +9,36 @@
     </template>
     <template slot="content">
       <v-list>
-        <v-row no-gutters class="col-12 mx-0 px-0">
-          <div class="pa-0 d-inline-flex"><v-card-text class="pe-0 text-sub-title">{{ $t('UsersManagement.lastConnection') }}</v-card-text></div>
-          <v-col class="align-self-center mx-2"><v-divider /></v-col>
-        </v-row>
-        <v-card flat class="px-3">
+        <v-card flat class="pa-2">
           <v-radio-group
-            v-model="isConnected"
+            v-model="selectedFiler"
             class="mt-0">
             <v-radio
+              class="pa-2"
               :label="$t('UsersManagement.lastConnection.connected')"
-              value="true" />
+              value="connected" />
             <v-radio
+               class="pa-2"
               :label="$t('UsersManagement.lastConnection.neverConnected')"
-              value="false" />
-          </v-radio-group>
-        </v-card>
-        <v-row no-gutters class="col-12 mx-0 px-0">
-          <div class="pa-0 d-inline-flex"><v-card-text class="pe-0 text-sub-title">{{ $t('UsersManagement.type') }}</v-card-text></div>
-          <v-col class="align-self-center mx-2"><v-divider /></v-col>
-        </v-row>
-        <v-card flat class="px-3">
-          <v-radio-group
-            v-model="userType"
-            class="mt-0">
+              value="neverConnected" />
             <v-radio
+              class="pa-2"
+              :label="$t('UsersManagement.enrollment.enrolled')"
+              value="enrolled" />
+            <v-radio
+              class="pa-2"
+              :label="$t('UsersManagement.enrollment.notEnrolled')"
+              value="notEnrolled" />
+            <v-radio
+              class="pa-2"
+              :label="$t('UsersManagement.enrollment.noEnrollmentPossible')"
+              value="noEnrolmentPossible" />
+            <v-radio
+              class="pa-2"
               :label="$t('UsersManagement.type.internal')"
               value="internal" />
             <v-radio
+               class="pa-2"
               :label="$t('UsersManagement.type.external')"
               value="external" />
           </v-radio-group>
@@ -73,8 +75,7 @@
 export default {
   data: () => ({
     drawer: false,
-    userType: null,
-    isConnected: null,
+    selectedFiler: null,
   }),
   watch: {
     drawer() {
@@ -83,28 +84,26 @@ export default {
       } else {
         this.$refs.usersFilterDrawer.close();
       }
-    }
+    },
   },
   created() {
     this.$root.$on('advancedFilter', this.advancedFilter);
   },
   methods: {
-    advancedFilter(isConnected, userType) {
-      this.isConnected = isConnected;
-      this.userType = userType;
+    advancedFilter(selectedFiler) {
+      this.selectedFiler = selectedFiler;
       this.drawer = true;
     },
     cancel() {
       this.drawer = false;
     },
     save() {
-      this.$root.$emit('applyAdvancedFilter',this.isConnected, this.userType);
+      this.$root.$emit('applyAdvancedFilter',this.selectedFiler);
       this.$refs.usersFilterDrawer.close();
     },
     resetFilter() {
-      this.userType = null;
-      this.isConnected = null;
-    }
+      this.selectedFiler = null;
+    },
   },
 };
 </script>

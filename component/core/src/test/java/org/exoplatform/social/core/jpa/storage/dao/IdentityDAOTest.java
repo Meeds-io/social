@@ -183,6 +183,7 @@ public class IdentityDAOTest extends BaseCoreTest {
                                                                         true,
                                                                         null,
                                                                         null,
+                                                                        null,
                                                                         0,
                                                                         Integer.MAX_VALUE);
     assertTrue(identitiesList.size() >= 20);
