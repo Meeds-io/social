@@ -70,3 +70,45 @@ export function formatDateObjectToDisplay(dateObj, format, lang) {
     return getISODate(dateObj);
   }
 }
+
+export function getRelativeTimeLabelKey(dateObj) {
+  if (!dateObj || !dateObj.getTime) {
+    return '';
+  }
+  const periodInSeconds = (Date.now() - dateObj.getTime()) / 1000;
+  if (periodInSeconds < 60) {
+    return 'TimeConvert.label.Less_Than_A_Minute';
+  } else if (periodInSeconds < 120) {
+    return 'TimeConvert.label.About_A_Minute';
+  } else if (periodInSeconds < 3600) {
+    return 'TimeConvert.label.About_?_Minutes';
+  } else if (periodInSeconds < 7200) {
+    return 'TimeConvert.label.About_An_Hour';
+  } else if (periodInSeconds < 86400) {
+    return 'TimeConvert.label.About_?_Hours';
+  } else if (periodInSeconds < 172800) {
+    return 'TimeConvert.label.About_A_Day';
+  } else if (periodInSeconds < 2592000) {
+    return 'TimeConvert.label.About_?_Days';
+  } else if (periodInSeconds < 5184000) {
+    return 'TimeConvert.label.About_A_Month';
+  } else {
+    return 'TimeConvert.label.About_?_Months';
+  }
+}
+
+export function getRelativeTimeValue(dateObj) {
+  if (!dateObj || !dateObj.getTime) {
+    return '';
+  }
+  const periodInSeconds = (Date.now() - dateObj.getTime()) / 1000;
+  if (periodInSeconds >= 120 && periodInSeconds < 3600) {
+    return Math.round(periodInSeconds / 60);
+  } else if (periodInSeconds >= 7200 && periodInSeconds < 86400) {
+    return Math.round(periodInSeconds / 3600);
+  } else if (periodInSeconds >= 172800 && periodInSeconds < 2592000) {
+    return Math.round(periodInSeconds / 86400);
+  } else if (periodInSeconds >= 5184000) {
+    return Math.round(periodInSeconds / 2592000);
+  }
+}

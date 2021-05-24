@@ -1,3 +1,5 @@
+const spaces = {};
+
 export function getSpaceTemplates() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/templates?lang=${eXo.env.portal.language}`, {
     method: 'GET',
@@ -62,7 +64,12 @@ export function isSpaceMember(spaceId, userId) {
 }
 
 export function getSpaceById(spaceId, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}?expand=${expand || ''}`, {
+  expand = expand || '';
+  const key = `${spaceId}-${expand}`;
+  if (spaces[key]) {
+    return Promise.resolve(spaces[key]);
+  }
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}?expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -71,11 +78,21 @@ export function getSpaceById(spaceId, expand) {
     } else {
       return resp.json();
     }
+  }).then(space => {
+    if (space) {
+      spaces[key] = space;
+    }
+    return space;
   });
 }
 
 export function getSpaceByPrettyName(prettyName, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byPrettyName/${prettyName}?expand=${expand || ''}`, {
+  expand = expand || '';
+  const key = `${prettyName}-${expand}`;
+  if (spaces[key]) {
+    return Promise.resolve(spaces[key]);
+  }
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byPrettyName/${prettyName}?expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -84,11 +101,21 @@ export function getSpaceByPrettyName(prettyName, expand) {
     } else {
       return resp.json();
     }
+  }).then(space => {
+    if (space) {
+      spaces[key] = space;
+    }
+    return space;
   });
 }
 
 export function getSpaceByDisplayName(displayName, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byDisplayName/${displayName}?expand=${expand || ''}`, {
+  expand = expand || '';
+  const key = `${displayName}-${expand}`;
+  if (spaces[key]) {
+    return Promise.resolve(spaces[key]);
+  }
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byDisplayName/${displayName}?expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -97,6 +124,11 @@ export function getSpaceByDisplayName(displayName, expand) {
     } else {
       return resp.json();
     }
+  }).then(space => {
+    if (space) {
+      spaces[key] = space;
+    }
+    return space;
   });
 }
 
@@ -545,6 +577,19 @@ export function shareActivityOnSpaces(spaceId, sharedActivity) {
       return resp.text().then((text) => {
         throw new Error(text);
       });
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function getSpaceActivities(spaceId, limit, expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/activities?limit=${limit}&expand=${expand || ''}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
     } else {
       return resp.json();
     }

@@ -21,10 +21,14 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const appId = 'ActivityStream';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const urls = [
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
+];
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     new Vue({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
