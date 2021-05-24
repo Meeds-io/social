@@ -60,7 +60,8 @@
   }
   
 %>
-<div class="uiUserActivityStreamPortlet uiUserActivityDetail" id="$uicomponent.id">
+<% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
+<div class="uiUserActivityStreamPortlet uiUserActivityDetail uiActivityStreamPortlet" id="$uicomponent.id">
   <div class="uiTabPane $uiTabClazz">
  	 <div class="uiUserActivitiesContainer">
       <% uicomponent.renderChild(PopupContainer.class); %>
