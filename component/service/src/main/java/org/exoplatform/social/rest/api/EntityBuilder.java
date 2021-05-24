@@ -201,8 +201,8 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
-    if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
-      userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
+    if (profile.getProperty(Profile.ENROLMENT_DATE) != null) {
+      userEntity.setEnrolmentDate(profile.getProperty(Profile.ENROLMENT_DATE).toString());
     }
     if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
       userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));

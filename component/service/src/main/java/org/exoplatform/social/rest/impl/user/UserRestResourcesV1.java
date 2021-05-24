@@ -135,7 +135,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private static final String ONLINE              = "online";
 
   private static final String INTERNAL              = "internal";
-  
+
+  private static final String CONNECTED              = "connected";
+
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
@@ -244,9 +246,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
                            @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
                            @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
-                           @ApiParam(value = "Is connected users", required = false) @QueryParam("isConnected") Boolean isConnected,
+                           @ApiParam(value = "Is connected users", required = false) @QueryParam("isConnected") String isConnected,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
+                           @ApiParam(value = "Enrolment status, ex: enrolled, not enrolled, no possible enrolment", required = false) @QueryParam("enrolmentStatus") String enrolmentStatus,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -293,7 +296,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setSearchEmail(true);
       if (!isDisabled) {
         filter.setUserType(userType);
-        filter.setConnected(isConnected);
+        filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
+        filter.setEnrolmentStatus(enrolmentStatus);
       }
       if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
@@ -1768,7 +1772,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
       Profile profile = userIdentity.getProfile();
-      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+      updateProfileField(profile, Profile.ENROLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
     }
   }
 

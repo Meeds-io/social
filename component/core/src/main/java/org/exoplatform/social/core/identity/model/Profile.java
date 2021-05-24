@@ -124,7 +124,7 @@ public class Profile {
   public static final String EXTERNAL                 = "external";
 
   /** ENROLLMENT DATE. */
-  public static final String ENROLLMENT_DATE          = "enrollmentDate";
+  public static final String ENROLMENT_DATE          = "enrolmentDate";
 
   /** SYNCHRONIZED DATE. */
   public static final String SYNCHRONIZED_DATE          = "synchronizedDate";

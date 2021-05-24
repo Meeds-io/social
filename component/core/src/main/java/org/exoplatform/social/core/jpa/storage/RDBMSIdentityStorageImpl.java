@@ -705,7 +705,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrolmentStatus());
   }
 
   @Override
@@ -897,9 +897,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       boolean isEnabled,
                                       String userType,
                                       Boolean isConnected,
+                                      String enrolmentStatus,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, enrolmentStatus, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -913,7 +914,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
-    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, true, null, null, offset, limit);
+    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, true, null, null, null, offset, limit);
   }
 
   @Override

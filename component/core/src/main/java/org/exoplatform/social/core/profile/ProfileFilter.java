@@ -65,6 +65,9 @@ public class ProfileFilter implements Cloneable {
   /** Filter by user type {internal, external}. */
   private String userType;
 
+  /** Filter by enrolment status. */
+  private String enrolmentStatus;
+
   /** Filter by user login status {connected, never connected}. */
   private Boolean isConnected;
 
@@ -253,6 +256,12 @@ public class ProfileFilter implements Cloneable {
 
   public void setUserType(String userType) {
     this.userType = userType;
+  }
+
+  public String getEnrolmentStatus() { return enrolmentStatus; }
+
+  public void setEnrolmentStatus(String enrolmentStatus) {
+    this.enrolmentStatus = enrolmentStatus;
   }
 
   public Boolean isConnected() {

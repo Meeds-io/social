@@ -71,7 +71,7 @@
       v-if="filter === 'ENABLED' && !isDelegatedAdministrator"
       min-width="auto"
       outlined
-      @click="$root.$emit('advancedFilter', isConnected, userType)">
+      @click="$root.$emit('advancedFilter', selectedFiler)">
       <i class="uiSettingsIcon"></i>
       <div v-if="numberOfFilters > 0" class="pb-1">
         ({{ numberOfFilters }})
@@ -88,8 +88,7 @@ export default {
     keyword: null,
     usersSelected: false,
     numberOfFilters: 0,
-    isConnected: null,
-    userType: null,
+    selectedFiler: null,
     isDelegatedAdministrator: true,
   }),
   watch: {
@@ -120,17 +119,13 @@ export default {
     multiSelectAction(action) {
       this.$root.$emit('multiSelectAction', action);
     },
-    applyAdvancedFilter(isConnected, userType) {
-      this.isConnected = isConnected;
-      this.userType = userType;
-      this.numberOfFilters = this.countFiltersMethods(isConnected, userType);
+    applyAdvancedFilter(selectedFiler) {
+      this.selectedFiler = selectedFiler;
+      this.numberOfFilters = this.countFiltersMethods(selectedFiler);
     },
-    countFiltersMethods(isConnected, userType) {
+    countFiltersMethods(selectedFiler ) {
       let filterCount = 0;
-      if (isConnected != null) {
-        filterCount++;
-      }
-      if (userType != null) {
+      if (selectedFiler != null) {
         filterCount++;
       }
       return filterCount;

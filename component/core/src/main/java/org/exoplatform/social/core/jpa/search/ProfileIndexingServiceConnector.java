@@ -229,6 +229,9 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     if (profile.getProperty(Profile.LAST_LOGIN_TIME) != null) {
       fields.put("lastLoginTime", profile.getProperty(Profile.LAST_LOGIN_TIME).toString());
     }
+    if (profile.getProperty(Profile.ENROLMENT_DATE) != null) {
+      fields.put("enrolmentDate", profile.getProperty(Profile.ENROLMENT_DATE).toString());
+    }
     Date createdDate = new Date(profile.getCreatedTime());
 
     //confirmed connections
