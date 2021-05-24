@@ -32,7 +32,8 @@
   print("<div class=\"visible-tabletL\"></div>");
   print("<div class=\"visible-phone\"></div>");
 %>
-<div class="uiSpaceActivityStreamPortlet" id="$uicomponent.id">
+<% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
+<div class="uiSpaceActivityStreamPortlet uiActivityStreamPortlet" id="$uicomponent.id">
   <div class="uiTabPane">
  	  <div class="uiSpaceActivitiesContainer">
       <%
