@@ -10,7 +10,7 @@
         {{ buttonText }}
       </v-btn>
     </div>
-    <div v-if="useNewApp" class="white d-flex flex-column text-center pb-4">
+    <div v-if="useNewApp" class="white d-flex flex-column text-center mb-4">
       <v-img
         src="/social-portlet/activity-stream/comingSoon.png"
         width="450px"
@@ -40,8 +40,10 @@ export default {
   watch: {
     useNewApp() {
       if (this.useNewApp) {
+        this.$root.$emit('activity-stream-display');
         $('.uiActivityStreamPortlet').hide();
       } else {
+        this.$root.$emit('activity-stream-hide');
         $('.uiActivityStreamPortlet').show();
       }
     },

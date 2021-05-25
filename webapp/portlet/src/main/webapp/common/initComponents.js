@@ -8,6 +8,7 @@ import ExoActivityRichEditor from './components/ExoActivityRichEditor.vue';
 import DatePicker from './components/DatePicker.vue';
 import TimePicker from './components/TimePicker.vue';
 import DateFormat from './components/DateFormat.vue';
+import RelativeDateFormat from './components/RelativeDateFormat.vue';
 import ExoModal from './components/ExoModal.vue';
 import ExtendedTextarea from './components/ExtendedTextarea.vue';
 import ExoNotificationAlert from './components/ExoNotificationAlert.vue';
@@ -23,6 +24,7 @@ const components = {
   'date-picker': DatePicker,
   'time-picker': TimePicker,
   'date-format': DateFormat,
+  'relative-date-format': RelativeDateFormat,
   'exo-modal': ExoModal,
   'extended-textarea': ExtendedTextarea,
   'exo-notification-alert': ExoNotificationAlert,

@@ -48,3 +48,14 @@ window.Object.defineProperty(Vue.prototype, '$settingService', {
 window.Object.defineProperty(Vue.prototype, '$featureService', {
   value: featureService,
 });
+
+const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+
+const urls = [
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
+];
+
+exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
+  new Vue({i18n});
+});
