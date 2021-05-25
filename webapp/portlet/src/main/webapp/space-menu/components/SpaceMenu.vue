@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="navigations && navigations.length" class="spaceMenuParent white">
+  <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
     <v-dialog
       v-if="isMobile"
       :value="true"
@@ -60,8 +60,16 @@ export default {
     },
   },
   computed: {
+    displaySpaceNavigations() {
+      return this.navigations && this.navigations.length;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
+    },
+  },
+  watch: {
+    displaySpaceNavigations() {
+      this.computedSiteBodyMargin();
     },
   },
   created() {
@@ -87,6 +95,16 @@ export default {
   },
   mounted() {
     this.$root.$emit('application-loaded');
+    this.computedSiteBodyMargin();
+  },
+  methods: {
+    computedSiteBodyMargin() {
+      if (this.isMobile && this.displaySpaceNavigations) {
+        window.setTimeout(() => {
+          $('#UISiteBody').css('margin-bottom', '50px');
+        }, 200);
+      }
+    },
   },
 };
 </script>
