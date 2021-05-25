@@ -43,15 +43,12 @@
   if (uicomponent.isSingleActivity()) {
     String activityTitle = uicomponent.getSingleActivityTitle();
     if (activityTitle == null) {
-      activityTitle = _ctx.appRes("UIUserActivitiesDisplay.label.activityNotFound");
 	    %>
-	      <div class="uiUserActivityStreamPortlet" id="$uicomponent.id">
-		      <div class="uiTabPane $uiTabClazz">
-		       <div class="uiUserActivitiesContainer">
-		          <h4><%=_ctx.appRes("UIUserActivitiesDisplay.label.activityNotFound")%></h4>
-		        </div>
-		      </div>
-		    </div>
+	    <div class="uiNotFoundActivity">
+        	<i class="notfoundActivity"></i>
+        		<h4><%=_ctx.appRes("UIUserActivitiesDisplay.label.activityNotFound")%></h4>
+        		<button class="btn btn-primary" onclick="window.location.href='/'"><%=_ctx.appRes("UIUserActivitiesDisplay.label.backToHome")%></button>
+        </div>
 	    <%  
 	    requireJs.addScripts("activity.setPageTitle('"+ activityTitle +"');");
 	    return;
