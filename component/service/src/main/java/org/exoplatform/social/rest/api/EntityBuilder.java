@@ -56,7 +56,6 @@ import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
@@ -111,6 +110,13 @@ public class EntityBuilder {
   public static final String  REDACTOR_MEMBERSHIP             = "redactor";
 
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
+
+  private static final CacheControl       NO_CACHE_CC                               = new CacheControl();
+
+  static {
+    NO_CACHE_CC.setNoCache(true);
+    NO_CACHE_CC.setNoStore(true);
+  }
 
   private static SpaceService        spaceService;
 
@@ -849,9 +855,10 @@ public class EntityBuilder {
       entity = ((BaseEntity) entity).getDataEntity();
     }
     ResponseBuilder responseBuilder = Response.created(uriInfo.getAbsolutePath())
-                   .entity(entity)
-                   .type(mediaType.toString() + "; charset=utf-8")
-                   .status(status);
+                                              .entity(entity)
+                                              .type(mediaType.toString() + "; charset=utf-8")
+                                              .status(status)
+                                              .cacheControl(NO_CACHE_CC);
     if (hasPaging(entity)) {
       responseBuilder.header(LINK, buildLinkForHeader(entity, uriInfo.getAbsolutePath().toString()));
     } 

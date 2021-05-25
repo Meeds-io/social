@@ -900,6 +900,9 @@ public class Utils {
    * @return true if the user is external
    */
   public static boolean isExternal(Identity userIdentity) {
-    return userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+    return userIdentity != null
+        && userIdentity.getProfile() != null
+        && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null
+        && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
   }
 }
