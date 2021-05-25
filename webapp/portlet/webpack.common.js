@@ -47,6 +47,7 @@ let config = {
     mfaAccess : './src/main/webapp/mfa-access/main.js',
     shareActivity: './src/main/webapp/share-activity/main.js',
     shareActivityDrawer: './src/main/webapp/share-activity-drawer/main.js',
+    activityStream: './src/main/webapp/activity-stream/main.js',
   },
   module: {
     rules: [

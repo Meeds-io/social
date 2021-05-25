@@ -1,0 +1,18 @@
+<%
+  import org.exoplatform.commons.api.settings.ExoFeatureService;
+
+  ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
+  if (featureService.isFeatureActiveForUser("NewActivityStream", _ctx.getRequestContext().getRemoteUser())) {
+%>
+<div class="VuetifyApp">
+  <div id="ActivityStream"
+    class="v-application transparent v-application--is-ltr theme--light peopleList"
+    data-app="true" flat="">
+    <script type="text/javascript">
+      require(['SHARED/ActivityStream'], app => app.init());
+    </script>
+  </div>
+</div>
+<%
+  }
+%>
