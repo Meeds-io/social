@@ -56,7 +56,7 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-shared', () => {
+    this.$root.$on('clear-suggester', () => {
       this.spaces = [];
       this.description = '';
     });
