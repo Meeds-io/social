@@ -60,6 +60,10 @@ export default {
       this.spaces = [];
       this.description = '';
     });
+    this.$root.$on('news-shared', () => {
+      this.spaces = [];
+      this.description = '';
+    });
   },
   methods: {
     open() {

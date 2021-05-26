@@ -76,6 +76,9 @@ export default {
     this.$root.$on('activity-shared', () => {
       this.displayedSpaces = [];
     });
+    this.$root.$on('news-shared', () => {
+      this.displayedSpaces = [];
+    });
   },
   methods: {
     removeSpace(space) {
