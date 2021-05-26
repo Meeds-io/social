@@ -48,6 +48,7 @@ export default {
         this.$refs.activityDrawer.close();
       }).then(() => {
         this.$root.$emit('activity-shared', spacesList);
+        this.$root.$emit('clear-suggester', spacesList);
       });
     }
   }

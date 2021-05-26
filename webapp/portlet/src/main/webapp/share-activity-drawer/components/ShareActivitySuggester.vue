@@ -73,10 +73,7 @@ export default {
     }
   },
   created() {
-    this.$root.$on('activity-shared', () => {
-      this.displayedSpaces = [];
-    });
-    this.$root.$on('news-shared', () => {
+    this.$root.$on('clear-suggester', () => {
       this.displayedSpaces = [];
     });
   },
