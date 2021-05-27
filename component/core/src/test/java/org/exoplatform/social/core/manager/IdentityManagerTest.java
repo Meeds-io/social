@@ -18,18 +18,14 @@ package org.exoplatform.social.core.manager;
 
 import java.util.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.Application;
-import org.exoplatform.social.core.identity.provider.FakeIdentityProvider;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.profile.*;
@@ -205,7 +201,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
     {
       ProfileFilter profileFilter = new ProfileFilter();
-      ListAccess<Identity> spaceMembers = identityManager.getSpaceIdentityByProfileFilter(savedSpace, profileFilter, Type.MEMBER, true);
+      ListAccess<Identity> spaceMembers = identityManager.getSpaceIdentityByProfileFilter(savedSpace, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, true);
       assertEquals(3, spaceMembers.getSize());
     }
     
@@ -213,7 +209,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     spaceService.removeMember(savedSpace, johnIdentity.getRemoteId());
     {
       ProfileFilter profileFilter = new ProfileFilter();
-      ListAccess<Identity> got = identityManager.getSpaceIdentityByProfileFilter(savedSpace, profileFilter, Type.MEMBER, true);
+      ListAccess<Identity> got = identityManager.getSpaceIdentityByProfileFilter(savedSpace, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, true);
       assertEquals(2, got.getSize());
     }
     

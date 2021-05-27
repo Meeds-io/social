@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.test;
 
-import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -33,6 +32,7 @@ import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.search.SearchServiceTest;
+import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
 @RunWith(Suite.class)

@@ -648,8 +648,8 @@
     </component>
     
     <component>
-        <key>org.exoplatform.social.core.space.SpaceTemplateStatisticsListenerPlugin</key>
-        <type>org.exoplatform.social.core.space.SpaceTemplateStatisticsListenerPlugin</type>
+        <key>org.exoplatform.social.core.space.impl.SpaceTemplateStatisticsListenerPlugin</key>
+        <type>org.exoplatform.social.core.space.impl.SpaceTemplateStatisticsListenerPlugin</type>
     </component>
     
     <component>
@@ -772,7 +772,7 @@
         <component-plugin>
             <name>SpaceTemplateStatisticsListenerPlugin</name>
             <set-method>addSpaceListener</set-method>
-            <type>org.exoplatform.social.core.space.SpaceTemplateStatisticsListenerPlugin</type>
+            <type>org.exoplatform.social.core.space.impl.SpaceTemplateStatisticsListenerPlugin</type>
         </component-plugin>
         
         <component-plugin>

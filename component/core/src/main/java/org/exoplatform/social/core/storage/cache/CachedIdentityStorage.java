@@ -32,7 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
@@ -548,7 +548,7 @@ public class CachedIdentityStorage implements IdentityStorage {
   }
 
   public List<Identity> getSpaceMemberIdentitiesByProfileFilter(final Space space,
-      final ProfileFilter profileFilter, final Type type, final long offset, final long limit)
+      final ProfileFilter profileFilter, final SpaceMemberFilterListAccess.Type type, final long offset, final long limit)
       throws IdentityStorageException {
 
     SpaceKey spaceKey = new SpaceKey(space.getId());
@@ -691,7 +691,7 @@ public class CachedIdentityStorage implements IdentityStorage {
   }
 
   @Override
-  public int countSpaceMemberIdentitiesByProfileFilter(Space space, ProfileFilter profileFilter, Type type) {
+  public int countSpaceMemberIdentitiesByProfileFilter(Space space, ProfileFilter profileFilter, SpaceMemberFilterListAccess.Type type) {
     return storage.countSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type);
   }
 

@@ -16,9 +16,6 @@
  */
 package org.exoplatform.social.core.activity.model;
 
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-
 /**
  * Use this class to know the stream context and its information. As defined in
  * http://activitystrea.ms/
@@ -28,6 +25,10 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
  */
 public interface ActivityStream {
 
+  public static final String ORGANIZATION_PROVIDER_ID = "organization";
+
+  public static final String SPACE_PROVIDER_ID        = "space";
+
   /**
    * The type of activity stream, can be user or space.
    */
@@ -35,11 +36,11 @@ public interface ActivityStream {
     /**
      * User Stream Type.
      */
-    USER(OrganizationIdentityProvider.NAME),
+    USER(ORGANIZATION_PROVIDER_ID),
     /**
      * Space Stream Type.
      */
-    SPACE(SpaceIdentityProvider.NAME);
+    SPACE(SPACE_PROVIDER_ID);
 
     /**
      * String type.

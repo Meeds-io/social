@@ -1,9 +1,8 @@
 package org.exoplatform.social.core.activity;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class ActivitySearchConnectorTest {
       // Expected
     }
     Identity identity = mock(Identity.class);
-    when(identity.getId()).thenReturn("1");
+    lenient().when(identity.getId()).thenReturn("1");
     try {
       activitySearchConnector.search(identity, null, 0, 10);
       fail("Should throw IllegalArgumentException: filter is mandatory");
@@ -131,8 +130,8 @@ public class ActivitySearchConnectorTest {
     ActivitySearchFilter filter = new ActivitySearchFilter("term");
     HashSet<Long> permissions = new HashSet<>(Arrays.asList(10L, 20L, 30L));
     Identity identity = mock(Identity.class);
-    when(identity.getId()).thenReturn("1");
-    when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
+    lenient().when(identity.getId()).thenReturn("1");
+    lenient().when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
@@ -221,7 +220,7 @@ public class ActivitySearchConnectorTest {
     ActivitySearchFilter filter = new ActivitySearchFilter("John");
     HashSet<Long> permissions = new HashSet<>(Arrays.asList(10L, 20L, 30L));
     Identity identity = mock(Identity.class);
-    when(identity.getId()).thenReturn("1");
+    lenient().when(identity.getId()).thenReturn("1");
     when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
             .replaceAll("@permissions@", StringUtils.join(permissions, ","))
@@ -241,11 +240,11 @@ public class ActivitySearchConnectorTest {
     Identity streamOwner = new Identity("streamOwner");
     streamOwner.setId("10");
     Identity poster = new Identity("posterId");
-    when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
+    lenient().when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
     when(identityManager.getIdentity("2")).thenReturn(poster);
     when(identityManager.getIdentity("10")).thenReturn(streamOwner);
 
-    when(activityStorage.getActivity(eq("7"))).thenReturn(activity);
+    lenient().when(activityStorage.getActivity(eq("7"))).thenReturn(activity);
 
     List<ActivitySearchResult> result = activitySearchConnector.search(identity, filter, 0, 10);
     assertNotNull(result);

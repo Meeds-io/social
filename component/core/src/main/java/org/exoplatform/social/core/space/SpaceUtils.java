@@ -384,39 +384,7 @@ public class SpaceUtils {
    * @return cleaned string
    */
   public static String cleanString(String str) {
-    if (str == null) {
-      throw new IllegalArgumentException("String argument must not be null.");
-    }
-
-    str = ACCENTS_CONVERTER.transliterate(str);
-
-    // the character ? seems to not be changed to d by the transliterate
-    // function
-
-    StringBuilder cleanedStr = new StringBuilder(str.trim());
-    // delete special character
-    for (int i = 0; i < cleanedStr.length(); i++) {
-      char c = cleanedStr.charAt(i);
-      if (c == ' ') {
-        if (i > 0 && cleanedStr.charAt(i - 1) == '_') {
-          cleanedStr.deleteCharAt(i--);
-        } else {
-          c = '_';
-          cleanedStr.setCharAt(i, c);
-        }
-        continue;
-      }
-
-      if (Character.getType(c) == Character.MODIFIER_LETTER || !(Character.isLetterOrDigit(c) || c == '_')) {
-        cleanedStr.deleteCharAt(i--);
-        continue;
-      }
-
-      if (i > 0 && c == '_' && cleanedStr.charAt(i - 1) == '_') {
-        cleanedStr.deleteCharAt(i--);
-      }
-    }
-    return cleanedStr.toString().toLowerCase();
+    return org.exoplatform.social.common.Utils.cleanString(str);
   }
 
   /**
@@ -1667,55 +1635,6 @@ public class SpaceUtils {
   private static ApplicationRegistryService getApplicationRegistryService() {
     PortalContainer portalContainer = PortalContainer.getInstance();
     return (ApplicationRegistryService) portalContainer.getComponentInstanceOfType(ApplicationRegistryService.class);
-  }
-
-  /**
-   * Filter all invalid character (anything except word, number, space and
-   * search wildcard) from Space search conditional.
-   * 
-   * @since: 1.2.2
-   * @param input String
-   * @return
-   */
-
-  public static String removeSpecialCharacterInSpaceFilter(String input) {
-    // We don't remove the character "'" because it's a normal character in
-    // french
-    String result = input.replaceAll("[^\\pL\\pM\\p{Nd}\\p{Nl}\\p{Pc}[\\p{InEnclosedAlphanumerics}&&\\p{So}]\\?\\*%0-9\\']", " ");
-    result = result.replaceAll("\\s+", " ");
-    return result.trim();
-  }
-
-  /**
-   * As the similarity is provided in the search term, we need to extract the
-   * keyword that user enter in the search form
-   * 
-   * @param input the search value include the similarity
-   * @return the search condition after process
-   */
-  public static String processUnifiedSearchCondition(String input) {
-    if (StringUtils.isEmpty(input)) {
-      return input;
-    } else if (input.indexOf("~") < 0 || input.indexOf("\\~") > 0) {
-      return input.trim();
-    }
-    StringBuilder builder = new StringBuilder();
-    // The similarity is added for each word in the search condition, ex :
-    // space~0.5 test~0.5
-    // then we need to process each word separately
-    String[] tab = input.split(" ");
-    for (String s : tab) {
-      if (s.isEmpty())
-        continue;
-      if (s.indexOf("~") > -1) {
-        String searchTerm = s.substring(0, s.lastIndexOf("~"));
-        builder.append(searchTerm).append(" ");
-      } else {
-        builder.append(s).append(" ");
-      }
-
-    }
-    return builder.toString().trim();
   }
 
   /**
