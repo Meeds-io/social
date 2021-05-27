@@ -76,7 +76,7 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -728,9 +728,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     if (StringUtils.isBlank(role)) {
-      role = Type.MEMBER.name();
+      role = SpaceMemberFilterListAccess.Type.MEMBER.name();
     }
-    Type type = Type.valueOf(role.toUpperCase());
+    SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
 
     ProfileFilter profileFilter = new ProfileFilter();
     profileFilter.setName(q);

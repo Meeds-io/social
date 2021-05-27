@@ -17,7 +17,7 @@
 
 package org.exoplatform.social.core.storage.cache.model.key;
 
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -27,9 +27,9 @@ public class ListSpaceMembersKey extends ListIdentitiesKey {
 
   private final SpaceKey spaceKey;
 
-  private final Type     type;
+  private final SpaceMemberFilterListAccess.Type     type;
 
-  public ListSpaceMembersKey(final SpaceKey spaceKey, final IdentityFilterKey identityKey, final Type type, final long offset, final long limit) {
+  public ListSpaceMembersKey(final SpaceKey spaceKey, final IdentityFilterKey identityKey, final SpaceMemberFilterListAccess.Type type, final long offset, final long limit) {
     super(identityKey, offset, limit);
     this.spaceKey = spaceKey;
     this.type = type;

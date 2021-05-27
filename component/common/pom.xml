@@ -33,6 +33,10 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>

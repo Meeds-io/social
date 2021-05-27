@@ -28,7 +28,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.*;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.model.Profile.UpdateType;
@@ -182,7 +181,7 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public ListAccess<Identity> getSpaceIdentityByProfileFilter(Space space, ProfileFilter profileFilter, Type type,
+  public ListAccess<Identity> getSpaceIdentityByProfileFilter(Space space, ProfileFilter profileFilter, SpaceMemberFilterListAccess.Type type,
                                                            boolean forceLoadProfile) {
     return (new SpaceMemberFilterListAccess(identityStorage, space, profileFilter, type));
   }
@@ -222,12 +221,12 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public void updateProfile(Profile existingProfile) throws MessageException {
+  public void updateProfile(Profile existingProfile) {
     updateProfile(existingProfile, false);
   }
 
   @Override
-  public void updateProfile(Profile specificProfile, boolean broadcastChanges) throws MessageException {
+  public void updateProfile(Profile specificProfile, boolean broadcastChanges) {
     if (broadcastChanges) {
       detectChanges(specificProfile);
     }
@@ -545,7 +544,7 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public void updateAvatar(Profile p) throws MessageException {
+  public void updateAvatar(Profile p) {
     updateProfile(p);
   }
 

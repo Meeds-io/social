@@ -27,7 +27,7 @@ public class ExternalUsersListenerImpl extends MembershipEventListener {
         profile.setProperty(Profile.EXTERNAL, String.valueOf(true));
         try {
           getIdentityManager().updateProfile(profile, true);
-        } catch (MessageException e) {
+        } catch (Exception e) {
           LOG.error("Error while saving the external property for user profile {}", m.getUserName(), e);
         }
       }
@@ -43,7 +43,7 @@ public class ExternalUsersListenerImpl extends MembershipEventListener {
         profile.setProperty(Profile.EXTERNAL, String.valueOf(false));
         try {
           getIdentityManager().updateProfile(profile, true);
-        } catch (MessageException e) {
+        } catch (Exception e) {
           LOG.error("Error while saving the external property for user profile {}", m.getUserName(), e);
         }
       }

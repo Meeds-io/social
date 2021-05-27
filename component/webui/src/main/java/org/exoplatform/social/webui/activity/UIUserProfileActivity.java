@@ -16,7 +16,7 @@
  */
 package org.exoplatform.social.webui.activity;
 
-import org.exoplatform.social.core.application.PeopleService;
+import org.exoplatform.social.core.activity.model.ActivityPluginType;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
@@ -38,5 +38,5 @@ import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
   }
 )
 public class UIUserProfileActivity extends BaseUIActivity {
-  public static final String ACTIVITY_TYPE = PeopleService.USER_PROFILE_ACTIVITY;
+  public static final String ACTIVITY_TYPE = ActivityPluginType.PROFILE.getName();
 }

@@ -32,7 +32,7 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
     profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTime());
     try {
       identityManager.updateProfile(profile, true);
-    } catch (MessageException e) {
+    } catch (Exception e) {
       LOG.error("Error while updating the last login time for user profile {}", user.getUserName(), e);
     }
   }
