@@ -1,6 +1,7 @@
 package org.exoplatform.social.core.listeners;
 
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.log.ExoLogger;
@@ -17,6 +18,7 @@ import org.exoplatform.webui.exception.MessageException;
 
 import java.util.Calendar;
 
+@Asynchronous
 public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, ConversationState> {
   private static final Log LOG = ExoLogger.getLogger(UpdateLoginTimeListenerImpl.class);
 
