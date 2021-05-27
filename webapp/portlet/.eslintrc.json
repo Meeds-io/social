@@ -1,5 +1,8 @@
 {
   "extends": [
     "eslint-config-meedsio"
-  ]
+  ],
+  "globals": {
+    "socialUIProfile": true
+  }
 }
