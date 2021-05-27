@@ -1590,6 +1590,10 @@
       <path>/js/activityStream.bundle.js</path>
     </script>
     <depends>
+      <module>social-ui-profile</module>
+      <as>socialUIProfile</as>
+    </depends>
+    <depends>
       <module>commonVueComponents</module>
     </depends>
     <depends>

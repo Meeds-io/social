@@ -1,7 +1,6 @@
 <template>
-  <div class="white border-radius">
-    <activity-head :activity="activity" />
-    <activity-content :activity="activity" />
+  <div class="pa-4 uiActivityStreamWrapper">
+    <activity-content-message :activity="activity" />
   </div>
 </template>
 
