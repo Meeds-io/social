@@ -49,7 +49,7 @@ export default {
       return this.activity && this.activity.id;
     },
     activityLink() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}`;
+      return `${this.$root.activityBaseLink}?id=${this.activityId}`;
     },
     activityPostedTime() {
       if (!this.isSpaceStream) {

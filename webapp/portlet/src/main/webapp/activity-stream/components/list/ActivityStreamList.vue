@@ -1,9 +1,11 @@
 <template>
   <div v-show="display">
     <activity-stream-activity
-      v-for="activity in activities"
+      v-for="activity of activities"
       :key="activity.id"
       :activity="activity"
+      :activity-types="activityTypes"
+      :is-activity-detail="activityId"
       class="mb-6" />
     <v-btn
       v-if="hasMore"
@@ -19,6 +21,16 @@
 
 <script>
 export default {
+  props: {
+    activityId: {
+      type: String,
+      default: null,
+    },
+    activityTypes: {
+      type: Object,
+      default: null,
+    },
+  },
   data: () => ({
     activities: [],
     pageSize: 10,
@@ -43,14 +55,27 @@ export default {
   },
   created() {
     this.$root.$on('activity-stream-display', () => {
+      this.activities = [];
+      this.limit = this.pageSize;
       this.display = true;
-      this.loadActivities();
+      this.init();
     });
     this.$root.$on('activity-stream-hide', () => {
       this.display = false;
     });
   },
   methods: {
+    init() {
+      if (this.activityId) {
+        this.loadActivity();
+      } else {
+        this.loadActivities();
+      }
+    },
+    loadActivity() {
+      this.$activityService.getActivityById(this.activityId, 'identity')
+        .then(activity => this.activities = activity && [activity] || []);
+    },
     loadActivities() {
       this.loading = true;
       // Load 'limit + 1' instead of only 'limit' to avoid retrieving count of user activities
@@ -59,11 +84,11 @@ export default {
       // else no more elements to retrieve
       const limitToRetrieve = this.limit + 1;
       if (this.spaceId) {
-        this.$spaceService.getSpaceActivities(this.spaceId, limitToRetrieve, 'identity')
+        this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, 'identity')
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
           .finally(() => this.loading = false);
       } else {
-        this.$userService.getUserActivities(this.userName, limitToRetrieve, 'identity')
+        this.$activityService.getUserActivities(this.userName, limitToRetrieve, 'identity')
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
           .finally(() => this.loading = false);
       }
