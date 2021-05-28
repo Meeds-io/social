@@ -65,7 +65,7 @@
 
           <div v-show="activityId ? false : showMessageComposer" class="composerActions">
             <div
-              v-for="action in activityComposerActions"
+              v-for="action in enabledActivityComposerActions"
               :key="action.key"
               :class="`${action.appClass}Action`">
               <div class="actionItem" @click="executeAction(action, attachments)">
@@ -156,6 +156,7 @@ export default {
       actionsEvents: [],
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
+      forceRecomputeCounter: 0,
     };
   },
   computed: {
@@ -183,6 +184,11 @@ export default {
     },
     activityBodyEdited: function() {
       return this.activityId ? this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody)) : false;
+    },
+    enabledActivityComposerActions: function () {
+      /* eslint no-unused-expressions: "off" */
+      this.forceRecomputeCounter;
+      return this.activityComposerActions && this.activityComposerActions.filter(activityComposerActions => activityComposerActions.isEnabled);
     }
   },
   watch: {
@@ -230,6 +236,7 @@ export default {
       const urls = [];
       this.activityComposerActions = getActivityComposerActionExtensions();
       this.activityComposerActions.forEach(action => {
+        this.checkEnabled(action);
         if (action.component) {
           this.actionsData[action.key] = action.component.model.value;
           this.actionsEvents[action.key] = action.component.events;
@@ -239,6 +246,23 @@ export default {
         }
       });
       exoi18n.loadLanguageAsync(eXo.env.portal.language, urls);
+    },
+    checkEnabled(action) {
+      if (action.hasOwnProperty('enabled')) {
+        if (typeof action.enabled === 'boolean') {
+          action.isEnabled = action.enabled;
+        } else if (this.isFunction(action.enabled)) {
+          action.enabled().then(enabled => {
+            action.isEnabled = enabled;
+            this.forceRecomputeCounter++;
+          });
+        }
+      } else {
+        action.isEnabled = true;
+      }
+    },
+    isFunction: function (object) {
+      return object && {}.toString.call(object) === '[object Function]';
     },
     editActivity(params) {
       params = params && params.detail;
