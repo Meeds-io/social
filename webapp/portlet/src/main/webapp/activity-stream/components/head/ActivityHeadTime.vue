@@ -1,12 +1,12 @@
 <template>
-  <v-list-item-subtitle class="caption text-light-color">
+  <v-list-item-subtitle class="caption text-light-color activity-head-time">
     <i class="uiIconClock  uiIconLightGray"></i>
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <a
           :title="absolutePostedTime"
           :href="activityLink"
-          class="hover-underline"
+          class="hover-underline activity-head-time-link"
           v-bind="attrs"
           v-on="on">
           <relative-date-format

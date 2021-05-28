@@ -1,6 +1,6 @@
 <template>
   <v-list-item
-    class="pa-4"
+    class="pa-4 activity-head"
     dense>
     <activity-head-user :identity="posterIdentity" avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
