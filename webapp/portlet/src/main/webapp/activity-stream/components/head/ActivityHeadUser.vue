@@ -2,7 +2,8 @@
   <a
     v-if="avatar"
     :id="id"
-    :href="url">
+    :href="url"
+    class="activity-head-user-link">
     <v-list-item-avatar size="45" class="me-3 my-0">
       <v-img :src="avatarUrl" eager />
     </v-list-item-avatar>
@@ -11,7 +12,7 @@
     v-else
     :id="id"
     :href="url"
-    class="text-none primary--text">
+    class="text-none primary--text activity-head-user-link">
     {{ fullName }}
     <span v-if="isExternal" class="externalFlagClass">
       ({{ $t('userAvatar.external.label') }})
