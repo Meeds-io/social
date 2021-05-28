@@ -1,5 +1,8 @@
 <template>
-  <div v-show="display">
+  <div
+    v-show="display"
+    :class="activityStreamTypeClass"
+    class="activity-stream">
     <activity-stream-activity
       v-for="activity of activities"
       :key="activity.id"
@@ -41,6 +44,11 @@ export default {
     loading: false,
     display: false,
   }),
+  computed: {
+    activityStreamTypeClass() {
+      return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
+    },
+  },
   watch: {
     loading() {
       if (this.loading) {
@@ -49,6 +57,7 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         window.setTimeout(() => {
           socialUIProfile.initUserProfilePopup('ActivityStream', {});
+          document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
         }, 500);
       }
     },
@@ -73,8 +82,10 @@ export default {
       }
     },
     loadActivity() {
+      this.loading = true;
       this.$activityService.getActivityById(this.activityId, 'identity')
-        .then(activity => this.activities = activity && [activity] || []);
+        .then(activity => this.activities = activity && [activity] || [])
+        .finally(() => this.loading = false);
     },
     loadActivities() {
       this.loading = true;

@@ -1,5 +1,5 @@
 <template>
-  <div class="white border-radius">
+  <div :id="id" class="white border-radius activity-detail">
     <activity-head :activity="activity" />
     <activity-content
       :activity-link="activityLink"
@@ -39,14 +39,17 @@ export default {
     sourceLink: null,
   }),
   computed: {
+    id() {
+      return `activity-detail-${this.activityId}`;
+    },
+    activityId() {
+      return this.activity && this.activity.id;
+    },
     activityOptions() {
       if (!this.activity || !this.activityTypes) {
         return {};
       }
       return this.activityTypes[this.activity.type] || this.activityTypes['default'] || {};
-    },
-    activityId() {
-      return this.activity && this.activity.id;
     },
     init() {
       return this.activityOptions && this.activityOptions.init;
