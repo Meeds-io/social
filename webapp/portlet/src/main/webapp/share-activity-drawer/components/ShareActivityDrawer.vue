@@ -27,6 +27,10 @@
                 class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
             </div>
+            <div class="d-flex flex-row mt-4 ml-2">
+              <v-icon size="20px" color="#f8b441">warning</v-icon>
+              <span class="ml-2 grey--text">{{ $t('UIActivity.share.warnMessage') }}</span>
+            </div>
           </div>
         </v-form>
       </template>
