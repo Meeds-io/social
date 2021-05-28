@@ -8,6 +8,7 @@ import * as identityService from './js/IdentityService.js';
 import * as dateUtil from './js/DateUtil.js';
 import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
+import * as activityService from './js/ActivityService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -47,6 +48,9 @@ window.Object.defineProperty(Vue.prototype, '$settingService', {
 });
 window.Object.defineProperty(Vue.prototype, '$featureService', {
   value: featureService,
+});
+window.Object.defineProperty(Vue.prototype, '$activityService', {
+  value: activityService,
 });
 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
