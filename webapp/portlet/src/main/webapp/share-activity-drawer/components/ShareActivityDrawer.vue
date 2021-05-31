@@ -27,8 +27,8 @@
                 class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
             </div>
-            <div class="d-flex flex-row mt-4 ml-2">
-              <v-icon size="20px" color="#f8b441">warning</v-icon>
+            <div v-if="checkUrl" class="d-flex flex-row mt-4 ml-2">
+              <v-icon class="warningStyle">warning</v-icon>
               <span class="ml-2 grey--text">{{ $t('UIActivity.share.warnMessage') }}</span>
             </div>
           </div>
@@ -58,6 +58,13 @@ export default {
     shareDisabled() {
       return !this.spaces || this.spaces.filter(part => part !== '').length === 0;
     },
+    checkUrl() {
+      if (this.description) {
+        return this.isURL(this.description);
+      } else {
+        return false;
+      }
+    }
   },
   created() {
     this.$root.$on('clear-suggester', () => {
@@ -74,6 +81,10 @@ export default {
     },
     shareActivity() {
       this.$emit('share-activity', this.spaces, this.description);
+    },
+    isURL(str) {
+      const res = str.match(/(((https?:\/\/)|(www\.))[^\s]+)/g);
+      return (res !== null);
     }
   }
 };
