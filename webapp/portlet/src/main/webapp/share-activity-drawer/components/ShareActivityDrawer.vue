@@ -27,7 +27,7 @@
                 class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
             </div>
-            <div v-if="checkUrl" class="d-flex flex-row mt-4 ml-2">
+            <div v-if="descriptionHasLink" class="d-flex flex-row mt-4 ml-2">
               <v-icon class="warningStyle">warning</v-icon>
               <span class="ml-2 grey--text">{{ $t('UIActivity.share.warnMessage') }}</span>
             </div>
@@ -49,6 +49,7 @@
 </template>
 
 <script>
+const LINK_REGEX = /(((https?:\/\/)|(www\.))[^\s]+)/g;
 export default {
   data: () => ({
     description: '',
@@ -58,12 +59,8 @@ export default {
     shareDisabled() {
       return !this.spaces || this.spaces.filter(part => part !== '').length === 0;
     },
-    checkUrl() {
-      if (this.description) {
-        return this.isURL(this.description);
-      } else {
-        return false;
-      }
+    descriptionHasLink() {
+      return this.description && this.description.match(LINK_REGEX) !== null;
     }
   },
   created() {
@@ -82,10 +79,6 @@ export default {
     shareActivity() {
       this.$emit('share-activity', this.spaces, this.description);
     },
-    isURL(str) {
-      const res = str.match(/(((https?:\/\/)|(www\.))[^\s]+)/g);
-      return (res !== null);
-    }
   }
 };
 </script>
