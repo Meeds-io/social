@@ -236,7 +236,7 @@ export default {
       const urls = [];
       this.activityComposerActions = getActivityComposerActionExtensions();
       this.activityComposerActions.forEach(action => {
-        this.checkEnabled(action);
+        this.setExtensionEnabled(action);
         if (action.component) {
           this.actionsData[action.key] = action.component.model.value;
           this.actionsEvents[action.key] = action.component.events;
@@ -247,15 +247,19 @@ export default {
       });
       exoi18n.loadLanguageAsync(eXo.env.portal.language, urls);
     },
-    checkEnabled(action) {
+    setExtensionEnabled(action) {
       if (action.hasOwnProperty('enabled')) {
         if (typeof action.enabled === 'boolean') {
           action.isEnabled = action.enabled;
         } else if (this.isFunction(action.enabled)) {
-          action.enabled().then(enabled => {
-            action.isEnabled = enabled;
-            this.forceRecomputeCounter++;
-          });
+          if (action.enabled() === '') {
+            action.isEnabled = false;
+          } else {
+            action.enabled().then(enabled => {
+              action.isEnabled = enabled;
+              this.forceRecomputeCounter++;
+            });
+          }
         }
       } else {
         action.isEnabled = true;
