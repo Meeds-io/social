@@ -8,52 +8,43 @@
       v-if="sourceLink"
       :href="sourceLink"
       :target="sourceLinkTarget"
-      class="d-flex flex-no-wrap border-box-sizing pa-4">
+      class="d-flex flex-no-wrap activity-thumbnail-box">
       <v-avatar
         v-if="supportsThumbnail"
-        class="border-color me-4"
+        class="border-color border-box-sizing ma-4"
         min-height="150"
         height="150"
-        min-width="250"
-        width="250"
+        min-width="252"
+        width="252"
         rounded
         tile>
         <v-img
           v-if="thumbnail"
           :src="thumbnail"
-          max-height="150"
-          max-width="250"
-          contain />
+          min-height="100%"
+          min-width="100%" />
         <v-icon
           v-else
-          size="80"
+          class="text-sub-title"
+          size="58"
           contain>
           far fa-image
         </v-icon>
       </v-avatar>
-      <div>
-        <div
+      <div class="text-truncate me-4 my-4">
+        <h5
           v-if="title"
+          :title="title"
           v-sanitized-html="title"
-          class="font-weight-bold text-color pb-4">
-        </div>
-        <div
+          class="font-weight-bold text-color pb-2 pt-0 ma-0 text-truncate">
+        </h5>
+        <ellipsis
           v-if="summary"
-          v-sanitized-html="summary"
-          class="caption text-light-color pb-4">
-        </div>
-        <a
-          v-if="sourceLink"
-          :href="sourceLink"
-          :target="sourceLinkTarget"
-          class="text-break">
-          <v-icon
-            v-if="sourceIcon"
-            v-text="sourceIcon"
-            class="primary--text"
-            size="12" />
-          {{ sourceLink }}
-        </a>
+          :title="summary"
+          :data="summary"
+          :line-clamp="3"
+          end-char="..."
+          class="caption text-light-color text-wrap" />
       </div>
     </a>
   </v-card>
@@ -83,10 +74,6 @@ export default {
       default: false,
     },
     thumbnail: {
-      type: String,
-      default: null,
-    },
-    sourceIcon: {
       type: String,
       default: null,
     },
