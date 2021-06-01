@@ -1,5 +1,5 @@
 <template>
-  <v-app :id="id" class="shareActivity">
+  <v-app :id="id">
     <share-activity-drawer
       ref="activityDrawer"
       class="activityDrawer"
