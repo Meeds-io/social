@@ -101,7 +101,7 @@ export default {
     computedSiteBodyMargin() {
       if (this.isMobile && this.displaySpaceNavigations) {
         window.setTimeout(() => {
-          $('#UISiteBody').css('margin-bottom', '50px');
+          $('#UISiteBody').css('margin-bottom', '70px');
         }, 200);
       }
     },

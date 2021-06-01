@@ -27,7 +27,6 @@ if (extensionRegistry) {
       getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
       supportsThumbnail: true,
       getSourceLink: activity => activity && activity.templateParams && activity.templateParams.link,
-      getSourceIcon: () => 'fa-link',
     },
   });
 }

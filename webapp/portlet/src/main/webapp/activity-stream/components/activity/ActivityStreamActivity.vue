@@ -8,7 +8,6 @@
       :summary="summary"
       :thumbnail="thumbnail"
       :supports-thumbnail="supportsThumbnail"
-      :source-icon="sourceIcon"
       :source-link="sourceLink" />
   </div>
 </template>
@@ -35,7 +34,6 @@ export default {
     title: null,
     summary: null,
     thumbnail: null,
-    sourceIcon: null,
     sourceLink: null,
   }),
   computed: {
@@ -65,9 +63,6 @@ export default {
     },
     getThumbnail() {
       return this.activityOptions && this.activityOptions.getThumbnail;
-    },
-    getSourceIcon() {
-      return this.activityOptions && this.activityOptions.getSourceIcon;
     },
     getSourceLink() {
       return this.activityOptions && this.activityOptions.getSourceLink;
@@ -109,7 +104,6 @@ export default {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       this.summary = this.getSummary && this.getSummary(this.activity, this.isActivityDetail);
-      this.sourceIcon = this.getSourceIcon && this.getSourceIcon(this.activity, this.isActivityDetail);
       this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
