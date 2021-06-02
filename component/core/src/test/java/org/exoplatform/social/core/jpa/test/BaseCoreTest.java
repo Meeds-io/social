@@ -37,7 +37,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.jboss.byteman.contrib.bmunit.BMUnit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,21 +73,9 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   protected Identity maryIdentity;
   protected Identity demoIdentity;
 
-  public static boolean wantCount = false;
-  protected static int count;
-  protected int maxQuery;
-  protected boolean hasByteMan; 
-
   @Override
   protected void setUp() throws Exception {
     begin();
-    // If is query number test, init byteman
-    hasByteMan = getClass().isAnnotationPresent(QueryNumberTest.class);
-    if (hasByteMan) {
-      count = 0;
-      maxQuery = 0;
-      BMUnit.loadScriptFile(getClass(), "queryBaseCount", "src/test/resources");
-    }
     
     identityManager = getService(IdentityManager.class);
     activityManager =  getService(ActivityManager.class);
@@ -152,37 +139,9 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
    if (!Modifier.isPublic(runMethod.getModifiers())) {
      fail("Method \""+fName+"\" should be public");
    }
-
-   try {
-     MaxQueryNumber queryNumber = runMethod.getAnnotation(MaxQueryNumber.class);
-     if (queryNumber != null) {
-       wantCount = true;
-       maxQuery = queryNumber.value();
-     }
-     runMethod.invoke(this);
-   }
-   catch (InvocationTargetException e) {
-     e.fillInStackTrace();
-     throw e.getTargetException();
-   }
-   catch (IllegalAccessException e) {
-     e.fillInStackTrace();
-     throw e;
-   }
-   
-   if (hasByteMan) {
-     if (wantCount && count > maxQuery) {
-       throw new AssertionFailedError(""+ count + " JDBC queries was executed but the maximum is : " + maxQuery);
-     }
-   }
  }
 
- // Called by byteman
- public static void count() {
-   ++count;
-  }
- 
-  /** Concurrency area**/
+ /** Concurrency area**/
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
   
   /**

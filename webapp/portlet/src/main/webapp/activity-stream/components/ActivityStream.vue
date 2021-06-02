@@ -3,7 +3,8 @@
     <activity-stream-feature-switch />
     <activity-stream-list
       :activity-id="activityId"
-      :activity-types="activityTypes" />
+      :activity-types="activityTypes"
+      :activity-actions="activityActions" />
   </v-app>
 </template>
 
@@ -13,12 +14,16 @@ export default {
     loaded: false,
     activityId: null,
     activityTypes: {},
+    activityActions: {},
     extensionApp: 'activity',
-    extensionType: 'types',
+    activityTypeExtension: 'type',
+    activityActionExtension: 'action',
   }),
   created() {
-    document.addEventListener(`extension-${this.extensionApp}-${this.extensionType}-updated`, this.refreshActivityTypes);
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
     this.refreshActivityTypes();
+    this.refreshActivityActions();
     if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
       this.activityId = this.getQueryParam('id');
     }
@@ -26,10 +31,18 @@ export default {
   },
   methods: {
     refreshActivityTypes() {
-      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.extensionType);
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityTypeExtension);
       extensions.forEach(extension => {
         if (extension.type && extension.options && (!this.activityTypes[extension.type] || this.activityTypes[extension.type] !== extension.options)) {
           this.activityTypes[extension.type] = extension.options;
+        }
+      });
+    },
+    refreshActivityActions() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionExtension);
+      extensions.forEach(extension => {
+        if (extension.id) {
+          this.activityActions[extension.id] = extension;
         }
       });
     },

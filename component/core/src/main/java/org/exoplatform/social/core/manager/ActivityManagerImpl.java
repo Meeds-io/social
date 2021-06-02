@@ -26,6 +26,7 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.commons.utils.PropertyManager;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -39,6 +40,7 @@ import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
@@ -714,6 +716,23 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   @Override
+  public boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+    String username = viewer.getUserId();
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    if (identity == null) {
+      return false;
+    }
+    if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
+      return true;
+    }
+    ActivityStream activityStream = activity.getActivityStream();
+    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+      return isSpaceManager(username, activityStream.getPrettyId());
+    }
+    return getSpaceService().isSuperManager(username);
+  }
+
+  @Override
   public List<String> getActivityFilesIds(ExoSocialActivity activity) {
     List<String> values = new ArrayList<>();
     if (activity != null) {
@@ -783,4 +802,23 @@ public class ActivityManagerImpl implements ActivityManager {
     return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
   }
 
+  public void setSpaceService(SpaceService spaceService) {
+    this.spaceService = spaceService;
+  }
+
+  private boolean isSpaceManager(String username, String spacePrettyName) {
+    Space space = getSpaceService().getSpaceByPrettyName(spacePrettyName);
+    boolean isSpacesManager = getSpaceService().isSuperManager(username);
+    if (space == null) {
+      return isSpacesManager;
+    }
+    return isSpacesManager || getSpaceService().isManager(space, username);
+  }
+
+  private SpaceService getSpaceService() {
+    if (spaceService == null) {
+      spaceService = ExoContainerContext.getService(SpaceService.class);
+    }
+    return spaceService;
+  }
 }

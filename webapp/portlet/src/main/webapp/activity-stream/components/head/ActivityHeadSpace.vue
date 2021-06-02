@@ -17,14 +17,13 @@
 const randomMax = 10000;
 export default {
   props: {
-    prettyName: {
+    space: {
       type: Object,
       default: null,
     },
   },
   data: () => ({
     id: `spaceAvatar${parseInt(Math.random() * randomMax)}`,
-    space: null,
     tiptipInitialized: false,
   }),
   computed: {
@@ -61,17 +60,11 @@ export default {
       };
     },
   },
-  created() {
-    this.$spaceService.getSpaceByPrettyName(this.prettyName)
-      .then(space => {
-        this.space = space;
-        this.initTiptip();
-      });
-  },
   mounted() {
-    if (this.spaceId && this.groupId && this.tiptip) {
-      // TODO disable tiptip because of high CPU usage using its code
-      this.initTiptip();
+    if (this.spaceId && this.groupId) {
+      window.setTimeout(() => {
+        this.initTiptip();
+      }, 50);
     }
   },
   methods: {
