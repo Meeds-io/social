@@ -2,7 +2,7 @@
   <a
     :id="id"
     :href="url"
-    class="text-none primary--text space-avatar">
+    class="text-none primary--text space-avatar activity-head-space-link">
     <v-list-item-avatar
       size="20"
       rounded

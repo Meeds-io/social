@@ -7,7 +7,6 @@ import ActivityHeadSpace from './components/head/ActivityHeadSpace.vue';
 import ActivityHeadUser from './components/head/ActivityHeadUser.vue';
 import ActivityHeadTime from './components/head/ActivityHeadTime.vue';
 import ActivityContent from './components/content/ActivityContent.vue';
-import ActivityContentMessage from './components/content/ActivityContentMessage.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -19,7 +18,6 @@ const components = {
   'activity-head-user': ActivityHeadUser,
   'activity-head-time': ActivityHeadTime,
   'activity-content': ActivityContent,
-  'activity-content-message': ActivityContentMessage,
 };
 
 for (const key in components) {

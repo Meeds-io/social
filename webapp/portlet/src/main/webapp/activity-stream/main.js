@@ -8,6 +8,27 @@ if (extensionRegistry) {
       Vue.component(cmp.componentName, cmp.componentOptions);
     });
   }
+
+  // Register predefined activity types
+  extensionRegistry.registerExtension('activity', 'types', {
+    type: 'default',
+    options: {
+      getBody: activity => activity && activity.title || '',
+    },
+  });
+  extensionRegistry.registerExtension('activity', 'types', {
+    type: 'LINK_ACTIVITY',
+    options: {
+      init: null,
+      getActivityLink: null,
+      getBody: activity => activity && activity.templateParams && activity.templateParams.comment || '',
+      getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
+      getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
+      getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
+      supportsThumbnail: true,
+      getSourceLink: activity => activity && activity.templateParams && activity.templateParams.link,
+    },
+  });
 }
 
 //getting language of the PLF
@@ -28,6 +49,9 @@ const urls = [
 export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     new Vue({
+      data: {
+        activityBaseLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`,
+      },
       template: `<activity-stream id="${appId}" />`,
       vuetify,
       i18n,
