@@ -53,7 +53,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.webui.exception.MessageException;
 
-import org.jboss.byteman.contrib.bmunit.BMUnit;
 import org.mockito.Mockito;
 
 import java.lang.reflect.InvocationTargetException;

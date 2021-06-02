@@ -16,6 +16,7 @@
             :value="activity.updateDate" />
           <relative-date-format
             v-else
+            class="text-capitalize-first-letter d-inline-block"
             :value="activity.createDate" />
         </a>
       </template>

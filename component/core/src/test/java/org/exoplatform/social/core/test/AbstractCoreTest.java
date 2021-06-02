@@ -67,13 +67,6 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected void setUp() throws Exception {
     begin();
 
-    // If is query number test, init byteman
-//    if (getClass().isAnnotationPresent(QueryNumberTest.class)) {
-//      count = 0;
-//      maxQuery = 0;
-//      BMUnit.loadScriptFile(getClass(), "queryCount", "src/test/resources");
-//    }
-
     //
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
@@ -169,11 +162,6 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     ConversationState state = new ConversationState(identity);
     ConversationState.setCurrent(state);
   }
-
-  // Called by byteman
-  public static void count() {
-    ++count;
-   }
 
   /**
    * Creates new space with out init apps.

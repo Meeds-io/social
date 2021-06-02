@@ -25,6 +25,7 @@ import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
@@ -515,6 +516,17 @@ public interface ActivityManager {
   boolean isActivityEditable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer);
 
   /**
+   * Return whether an activity is deletable or not
+   * 
+   * @param activity checked activity
+   * @param viewer user identity
+   * @return true is user can delete activity, else false
+   */
+  default boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+    return false;
+  }
+
+  /**
    * Get all files ids of an activity
    * @param activity
    * @return
@@ -542,4 +554,5 @@ public interface ActivityManager {
   default boolean isActivityTypeEnabled(String activityType) {
     return true;
   }
+
 }

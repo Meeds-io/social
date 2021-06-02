@@ -41,10 +41,12 @@ export default {
     useNewApp() {
       if (this.useNewApp) {
         this.$root.$emit('activity-stream-display');
-        $('.uiActivityStreamPortlet').hide();
+        $('.uiActivityStreamPortlet .uiActivitiesDisplay').hide();
+        $('.uiActivityStreamPortlet .openLink').hide();
       } else {
         this.$root.$emit('activity-stream-hide');
-        $('.uiActivityStreamPortlet').show();
+        $('.uiActivityStreamPortlet .uiActivitiesDisplay').show();
+        $('.uiActivityStreamPortlet .openLink').show();
       }
     },
   },
