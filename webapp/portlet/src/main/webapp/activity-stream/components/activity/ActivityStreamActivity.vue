@@ -1,6 +1,9 @@
 <template>
   <div :id="id" class="white border-radius activity-detail">
-    <activity-head :activity="activity" />
+    <activity-head
+      :activity="activity"
+      :activity-actions="activityActions"
+      :activity-type-extension="activityTypeExtension" />
     <activity-content
       :activity-link="activityLink"
       :body="body"
@@ -20,6 +23,10 @@ export default {
       default: null,
     },
     activityTypes: {
+      type: Object,
+      default: null,
+    },
+    activityActions: {
       type: Object,
       default: null,
     },
@@ -43,47 +50,53 @@ export default {
     activityId() {
       return this.activity && this.activity.id;
     },
-    activityOptions() {
+    activityTypeExtension() {
       if (!this.activity || !this.activityTypes) {
         return {};
       }
       return this.activityTypes[this.activity.type] || this.activityTypes['default'] || {};
     },
     init() {
-      return this.activityOptions && this.activityOptions.init;
+      return this.activityTypeExtension && this.activityTypeExtension.init;
     },
     getBody() {
-      return this.activityOptions && this.activityOptions.getBody;
+      return this.activityTypeExtension && this.activityTypeExtension.getBody;
     },
     getTitle() {
-      return this.activityOptions && this.activityOptions.getTitle;
+      return this.activityTypeExtension && this.activityTypeExtension.getTitle;
     },
     getSummary() {
-      return this.activityOptions && this.activityOptions.getSummary;
+      return this.activityTypeExtension && this.activityTypeExtension.getSummary;
     },
     getThumbnail() {
-      return this.activityOptions && this.activityOptions.getThumbnail;
+      return this.activityTypeExtension && this.activityTypeExtension.getThumbnail;
     },
     getSourceLink() {
-      return this.activityOptions && this.activityOptions.getSourceLink;
+      return this.activityTypeExtension && this.activityTypeExtension.getSourceLink;
     },
     getActivityLink() {
-      return this.activityOptions && this.activityOptions.getActivityLink;
+      return this.activityTypeExtension && this.activityTypeExtension.getActivityLink;
     },
     supportsThumbnail() {
-      return this.activityOptions && this.activityOptions.supportsThumbnail;
+      return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
     },
   },
   watch: {
     activity() {
       this.retrieveActivityProperties();
     },
-    activityOptions() {
+    activityTypeExtension() {
       this.retrieveActivityProperties();
     },
   },
   created() {
     this.retrieveActivityProperties();
+    document.addEventListener('activity-stream-activity-updated', event => {
+      const activityId = event && event.detail;
+      if (activityId === this.activityId) {
+        this.retrieveActivityProperties();
+      }
+    });
   },
   methods: {
     retrieveActivityProperties() {

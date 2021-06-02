@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -125,6 +126,8 @@ public class EntityBuilder {
   private static RelationshipManager relationshipManager;
 
   private static IdentityManager     identityManager;
+
+  private static ActivityManager     activityManager;
 
   /**
    * Get a IdentityEntity from an identity in order to build a json object for the rest service
@@ -511,7 +514,7 @@ public class EntityBuilder {
     activityEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, activity.getId(), restPath));
     LinkEntity identityLink;
     if (expand != null && RestProperties.IDENTITY.equals(expand)) {
-      identityLink = new LinkEntity(buildEntityIdentity(poster, restPath, null));
+      identityLink = new LinkEntity(buildEntityIdentity(poster, restPath, expand));
     } else {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     }
@@ -519,7 +522,10 @@ public class EntityBuilder {
     activityEntity.setOwner(getActivityOwner(poster, restPath));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<DataEntity>());
-    
+    boolean canEdit = getActivityManager().isActivityEditable(activity, ConversationState.getCurrent().getIdentity());
+    activityEntity.setCanEdit(canEdit);
+    activityEntity.setCanDelete(canEdit);
+
     LinkEntity commentLink;
     if (expand != null && COMMENTS_TYPE.equals(expand)) {
       List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity, restPath, "", RestUtils.DEFAULT_OFFSET, RestUtils.DEFAULT_OFFSET);
@@ -586,8 +592,7 @@ public class EntityBuilder {
 
   public static List<DataEntity> buildEntityFromComment(ExoSocialActivity activity, String restPath, String expand, int offset, int limit) {
     List<DataEntity> commentsEntity = new ArrayList<DataEntity>();
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, expandSubComments(expand));
+    RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, expandSubComments(expand));
     List<ExoSocialActivity> comments = listAccess.loadAsList(offset, limit);
     for (ExoSocialActivity comment : comments) {
       CommentEntity commentInfo = buildEntityFromComment(comment, restPath, expand, true);
@@ -725,30 +730,32 @@ public class EntityBuilder {
    * Get the activityStream's information related to the activity.
    * 
    * @param activity
-   * @param authentiatedUsed the viewer
+   * @param restPath
+   * @param authentiatedUser the viewer
    * @return activityStream object, null if the viewer has no permission to view activity
    */
-  public static DataEntity getActivityStream(ExoSocialActivity activity, Identity authentiatedUsed) {
+  public static DataEntity getActivityStream(ExoSocialActivity activity, String restPath, Identity authentiatedUser) {
     DataEntity as = new DataEntity();
     IdentityManager identityManager = getIdentityManager();
-    Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner(), true);
+    Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner());
     SpaceService spaceService = getSpaceService();
     if (owner != null) { //case of user activity
-      Relationship relationship = getRelationshipManager().get(authentiatedUsed, owner);
-      if (! authentiatedUsed.getId().equals(activity.getPosterId()) //the viewer is not the poster
-          && ! authentiatedUsed.getRemoteId().equals(activity.getStreamOwner()) //the viewer is not the owner
+      Relationship relationship = getRelationshipManager().get(authentiatedUser, owner);
+      if (! authentiatedUser.getId().equals(activity.getPosterId()) //the viewer is not the poster
+          && ! authentiatedUser.getRemoteId().equals(activity.getStreamOwner()) //the viewer is not the owner
           && (relationship == null || ! relationship.getStatus().equals(Relationship.Type.CONFIRMED)) //the viewer has no relationship with the given user
           && ! RestUtils.isMemberOfAdminGroup()) { //current user is not an administrator
         return null;
       }
       as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
     } else { //case of space activity
-      owner = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
+      owner = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
       Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
-      if (space == null || !(spaceService.isSuperManager(authentiatedUsed.getRemoteId()) || spaceService.isMember(space, authentiatedUsed.getRemoteId()))) { //the viewer is not member of space
+      if (space == null || !(spaceService.isSuperManager(authentiatedUser.getRemoteId()) || spaceService.isMember(space, authentiatedUser.getRemoteId()))) { //the viewer is not member of space
         return null;
       }
       as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
+      as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
     }
     //
     as.put(RestProperties.ID, owner.getRemoteId());
@@ -1074,6 +1081,13 @@ public class EntityBuilder {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to transform object " + object, e);
     }
+  }
+
+  public static ActivityManager getActivityManager() {
+    if (activityManager == null) {
+      activityManager = ExoContainerContext.getService(ActivityManager.class);
+    }
+    return activityManager;
   }
 
   public static IdentityManager getIdentityManager() {

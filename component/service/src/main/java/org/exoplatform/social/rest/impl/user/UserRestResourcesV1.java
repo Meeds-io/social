@@ -1260,7 +1260,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     List<DataEntity> activityEntities = new ArrayList<DataEntity>();
     for (ExoSocialActivity activity : activities) {
-      DataEntity as = EntityBuilder.getActivityStream(activity, currentUser);
+      DataEntity as = EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser);
       if (as == null) continue;
       ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
       activityEntity.setActivityStream(as);

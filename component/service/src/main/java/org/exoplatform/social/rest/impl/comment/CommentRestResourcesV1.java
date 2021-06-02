@@ -96,7 +96,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     
-    DataEntity as = EntityBuilder.getActivityStream(activityManager.getParentActivity(act), currentUser);
+    DataEntity as = EntityBuilder.getActivityStream(activityManager.getParentActivity(act), uriInfo.getPath(), currentUser);
     if (as == null && !Util.hasMentioned(act, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -206,7 +206,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     ExoSocialActivity activity = activityManager.getParentActivity(comment);
 
-    if (EntityBuilder.getActivityStream(activity, currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(comment, uriInfo.getPath(), expand, offset, limit);
@@ -244,7 +244,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     ExoSocialActivity activity = activityManager.getParentActivity(comment);
 
-    if (EntityBuilder.getActivityStream(activity, currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 

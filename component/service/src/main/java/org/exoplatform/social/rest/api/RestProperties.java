@@ -32,7 +32,11 @@ public class RestProperties {
   public static final String RELATIONSHIPS = "relationships";
   public static final String SENDER        = "sender";
   public static final String TYPE          = "type";
+  public static final String SPACE         = "space";
   public static final String UPDATE_DATE   = "updateDate";
   public static final String LIKES         = "likes";
-  public static final String SUB_COMMENTS      = "subComments";
+  public static final String SUB_COMMENTS  = "subComments";
+  public static final String CAN_EDIT      = "canEdit";
+  public static final String CAN_DELETE    = "canDelete";
+
 }
