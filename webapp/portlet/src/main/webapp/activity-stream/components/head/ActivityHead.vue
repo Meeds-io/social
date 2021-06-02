@@ -6,7 +6,7 @@
     <v-list-item-content class="py-0 accountTitleLabel">
       <v-list-item-title class="font-weight-bold body-2 mb-0">
         <activity-head-user :identity="posterIdentity" />
-        <template v-if="isSpaceStream">
+        <template v-if="space">
           <v-icon
             v-if="$vuetify.rtl"
             size="8"
@@ -19,11 +19,15 @@
             class="mx-1">
             fa-chevron-right
           </v-icon>
-          <activity-head-space :pretty-name="spacePrettyName" />
+          <activity-head-space :space="space" />
         </template>
       </v-list-item-title>
       <activity-head-time :activity="activity" />
     </v-list-item-content>
+    <activity-head-menu
+      :activity="activity"
+      :activity-actions="activityActions"
+      :activity-type-extension="activityTypeExtension" />
   </v-list-item>
 </template>
 
@@ -34,16 +38,22 @@ export default {
       type: Object,
       default: null,
     },
-  },
-  data: () => ({
-    space: null,
-  }),
-  computed: {
-    isSpaceStream() {
-      return this.activity && this.activity.activityStream && this.activity.activityStream.type === 'space';
+    activityTypeExtension: {
+      type: Object,
+      default: null,
     },
-    spacePrettyName() {
-      return this.activity && this.activity.activityStream && this.activity.activityStream.id;
+    activityActions: {
+      type: Object,
+      default: null,
+    },
+    spaceStream: {
+      type: Object,
+      default: null,
+    },
+  },
+  computed: {
+    space() {
+      return this.activity && this.activity.activityStream && this.activity.activityStream.space;
     },
     posterIdentity() {
       return this.activity && this.activity.identity;

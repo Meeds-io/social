@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -99,6 +100,7 @@ public class ActivitiesRestService implements ResourceContainer {
    */
   @POST
   @Path("destroy/{activityId}.{format}")
+  @RolesAllowed("users")
   public Response destroyActivity(@Context UriInfo uriInfo,
                                   @PathParam("portalName") String portalName,
                                   @PathParam("activityId") String activityId,
@@ -109,10 +111,12 @@ public class ActivitiesRestService implements ResourceContainer {
     ExoSocialActivity activity = activityManager.getActivity(activityId);
     if (activity == null){
       LOG.error("No activity is found for this activityId. You should enter a valid and a correct value for the activityId parameter.");
-      return Util.getResponse("No id is found for this activityId. You should enter a valid and a correct value for the activityId parameter.", uriInfo, mediaType, Response.Status.OK);
-    } else {
+      return Util.getResponse("No id is found for this activityId. You should enter a valid and a correct value for the activityId parameter.", uriInfo, mediaType, Response.Status.NOT_FOUND);
+    } else if (activityManager.isActivityDeletable(activity, ConversationState.getCurrent().getIdentity())) {
       activity = destroyActivity(activityId);
       return Util.getResponse(activity, uriInfo, mediaType, Response.Status.OK);
+    } else {
+      return Util.getResponse(null, uriInfo, mediaType, Response.Status.NOT_FOUND);
     }
   }
 
@@ -131,6 +135,7 @@ public class ActivitiesRestService implements ResourceContainer {
    */
   @GET
   @Path("{activityId}/likes/show.{format}")
+  @RolesAllowed("users")
   public Response showLikes(@Context UriInfo uriInfo,
                             @PathParam("portalName") String portalName,
                             @PathParam("activityId") String activityId,
@@ -158,6 +163,7 @@ public class ActivitiesRestService implements ResourceContainer {
    */
   @POST
   @Path("{activityId}/likes/update.{format}")
+  @RolesAllowed("users")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response updateLike(@Context UriInfo uriInfo,
                              @PathParam("portalName") String portalName,
@@ -185,6 +191,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link ActivityRestResourcesV1#deleteLike(UriInfo, String, String, String)}
    */
   @POST
+  @RolesAllowed("users")
   @Path("{activityId}/likes/destroy/{identityId}.{format}")
   public Response destroyLike(@Context UriInfo uriInfo,
                               @PathParam("portalName") String portalName,
@@ -212,6 +219,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link ActivityRestResourcesV1#getCommentsOfActivity(UriInfo, String, int, int, boolean, String)}
    */
   @GET
+  @RolesAllowed("users")
   @Path("{activityId}/comments/show.{format}")
   public Response showComments(@Context UriInfo uriInfo,
                                @PathParam("portalName") String portalName,
@@ -240,6 +248,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link ActivityRestResourcesV1#getCommentsOfActivity(UriInfo, String, int, int, boolean, String)}
    */
   @GET
+  @RolesAllowed("users")
   @Path("{activityId}/comments.{format}")
   public Response showComments(@Context UriInfo uriInfo,
                                @PathParam("portalName") String portalName,
@@ -312,6 +321,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link ActivityRestResourcesV1#getActivityById(UriInfo, String, String)}
    */
   @GET
+  @RolesAllowed("users")
   @Path("{activityId}.{format}")
   public Response getActivityById(@Context UriInfo uriInfo,
                                   @PathParam("portalName") String portalContainerName,
@@ -406,6 +416,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link CommentRestResourcesV1#updateCommentById(UriInfo, String, String, ActivityEntity)}
    */
   @POST
+  @RolesAllowed("users")
   @Path("{activityId}/comments/update.{format}")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response updateComment(@Context UriInfo uriInfo,
@@ -434,6 +445,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link ActivityRestResourcesV1#postComment(UriInfo, String, String, CommentEntity)}
    */
   @GET
+  @RolesAllowed("users")
   @Path("{activityId}/comments/create.{format}")
   public Response createCommentActivityById(@Context UriInfo uriInfo,
                                            @PathParam("portalName") String portalName,
@@ -489,6 +501,7 @@ public class ActivitiesRestService implements ResourceContainer {
    * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link CommentRestResourcesV1#deleteCommentById(UriInfo, String, String)}
    */
   @POST
+  @RolesAllowed("users")
   @Path("{activityId}/comments/destroy/{commentId}.{format}")
   public Response destroyComment(@Context UriInfo uriInfo,
                                  @PathParam("portalName") String portalName,

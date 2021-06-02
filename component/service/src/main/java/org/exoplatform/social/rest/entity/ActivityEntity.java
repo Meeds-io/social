@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
   private static final long serialVersionUID = 8770364706590680865L;
@@ -160,6 +161,24 @@ public class ActivityEntity extends BaseEntity {
 
   public String getComments() {
     return getString("comments");
+  }
+
+  public void setCanEdit(boolean canEdit) {
+    setProperty(RestProperties.CAN_EDIT, String.valueOf(canEdit));
+  }
+
+  public boolean isCanEdit() {
+    Object canEdit = getProperty(RestProperties.CAN_EDIT);
+    return canEdit != null && Boolean.parseBoolean(canEdit.toString());
+  }
+
+  public void setCanDelete(boolean canDelete) {
+    setProperty(RestProperties.CAN_DELETE, String.valueOf(canDelete));
+  }
+
+  public boolean isCanDelete() {
+    Object canDelete = getProperty(RestProperties.CAN_DELETE);
+    return canDelete != null && Boolean.parseBoolean(canDelete.toString());
   }
 
   public ActivityEntity setActivityStream(DataEntity activityStream) {

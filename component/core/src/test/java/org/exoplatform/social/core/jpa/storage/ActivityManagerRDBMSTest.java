@@ -31,8 +31,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -178,6 +177,91 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     //
     assertFalse(manager.isActivityEditable(activity, owner));
     assertFalse(manager.isActivityEditable(activity, admin));
+  }
+
+  public void testActivityDeletable() {
+    ActivityStorage storage = Mockito.mock(ActivityStorage.class);
+    IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+    SpaceService spaceService = Mockito.mock(SpaceService.class);
+    FileService fileService = Mockito.mock(FileService.class);
+    UserACL acl = Mockito.mock(UserACL.class);
+
+    // no configuration
+    // by default: edit activity/comment are all enabled
+    ActivityManagerImpl activityManager = new ActivityManagerImpl(storage,
+                                                                  identityManager,
+                                                                  acl,
+                                                                  fileService,
+                                                                  null);
+    activityManager.setSpaceService(spaceService);
+    Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
+
+    Mockito.when(spaceService.isSuperManager(Mockito.eq("john"))).thenReturn(true);
+    Mockito.when(spaceService.isSuperManager(Mockito.eq("mary"))).thenReturn(false);
+    Mockito.when(spaceService.isSuperManager(Mockito.eq("james"))).thenReturn(false);
+
+    // prepare activity
+    ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
+    Mockito.when(activity.isComment()).thenReturn(false);
+    Mockito.when(activity.getPosterId()).thenReturn("1");
+    ActivityStreamImpl activityStream = new ActivityStreamImpl();
+    activityStream.setType(ActivityStream.Type.USER);
+    activityStream.setPrettyId("demo");
+    Mockito.when(activity.getActivityStream()).thenReturn(activityStream);
+
+    // prepare comment
+    ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
+    Mockito.when(comment.isComment()).thenReturn(true);
+    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
+    Mockito.when(comment.getPosterId()).thenReturn("1");
+
+    // prepare viewer
+    org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(owner.getUserId()).thenReturn("demo");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+           .thenReturn(new Identity("1"));
+    org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(admin.getUserId()).thenReturn("john");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
+           .thenReturn(new Identity("2"));
+    Mockito.when(admin.getGroups()).thenReturn(new HashSet<>(Arrays.asList("/platform/administrators")));
+    org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(mary.getUserId()).thenReturn("mary");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
+           .thenReturn(new Identity("3"));
+    org.exoplatform.services.security.Identity james = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(james.getUserId()).thenReturn("james");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "james"))
+           .thenReturn(new Identity("4"));
+
+    // owner
+    assertTrue(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(comment, owner));
+
+    // manager is able to delete other user's activity
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    // member is not able to delete other user's activity
+    assertFalse(activityManager.isActivityDeletable(activity, mary));
+    assertFalse(activityManager.isActivityDeletable(comment, mary));
+
+    // Test on space activity
+    activityStream.setType(ActivityStream.Type.SPACE);
+    activityStream.setPrettyId("demo_space");
+
+    Space space = new Space();
+    Mockito.when(spaceService.getSpaceByPrettyName(Mockito.eq("demo_space"))).thenReturn(space);
+
+    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("john"))).thenReturn(false);
+    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("mary"))).thenReturn(true);
+    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("james"))).thenReturn(false);
+
+    assertTrue(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    assertTrue(activityManager.isActivityDeletable(activity, mary));
+    assertFalse(activityManager.isActivityDeletable(activity, james));
+
+    Mockito.when(james.isMemberOf(acl.getAdminGroups())).thenReturn(true);
+    assertTrue(activityManager.isActivityDeletable(activity, james));
   }
 
   /**

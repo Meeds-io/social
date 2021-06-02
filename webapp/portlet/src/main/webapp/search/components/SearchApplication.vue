@@ -60,11 +60,11 @@ export default {
     },
     dialog() {
       if (this.dialog) {
-        $('body').addClass('hide-scroll transparent');
+        $('body').addClass('hide-scroll');
         this.$root.$emit('search-opened');
         window.history.replaceState('', this.$t('Search.page.title'), `${this.searchUri}?q=${this.term || ''}`);
       } else {
-        $('body').removeClass('hide-scroll transparent');
+        $('body').removeClass('hide-scroll');
         this.$root.$emit('search-closed');
         window.history.replaceState('', this.pageTitle, this.pageUri);
       }

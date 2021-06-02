@@ -1347,7 +1347,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    if (EntityBuilder.getActivityStream(activity, currentUser) == null
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null
         && !Util.hasMentioned(activity, currentUser.getRemoteId())) { // current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }

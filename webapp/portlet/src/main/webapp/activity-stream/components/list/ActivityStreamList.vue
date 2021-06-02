@@ -3,11 +3,13 @@
     v-show="display"
     :class="activityStreamTypeClass"
     class="activity-stream">
+    <activity-stream-confirm-dialog />
     <activity-stream-activity
       v-for="activity of activities"
       :key="activity.id"
       :activity="activity"
       :activity-types="activityTypes"
+      :activity-actions="activityActions"
       :is-activity-detail="activityId"
       class="mb-6" />
     <v-btn
@@ -30,6 +32,10 @@ export default {
       default: null,
     },
     activityTypes: {
+      type: Object,
+      default: null,
+    },
+    activityActions: {
       type: Object,
       default: null,
     },
@@ -72,6 +78,31 @@ export default {
     this.$root.$on('activity-stream-hide', () => {
       this.display = false;
     });
+    document.addEventListener('activity-stream-activity-deleted', event => {
+      const activityId = event && event.detail;
+      if (activityId) {
+        const index = this.activities.findIndex(activity => activityId === activity.id);
+        if (index >= 0) {
+          this.activities.splice(index, 1);
+          this.$forceUpdate();
+        }
+      }
+    });
+    document.addEventListener('activity-stream-activity-updated', event => {
+      const activityId = event && event.detail;
+      if (activityId) {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+        this.$activityService.getActivityById(activityId, 'identity')
+          .then(activity => {
+            const index = this.activities.findIndex(activity => activityId === activity.id);
+            if (index >= 0) {
+              this.activities.splice(index, 1, activity);
+              this.$forceUpdate();
+            }
+          })
+          .finally (() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+      }
+    });
   },
   methods: {
     init() {
@@ -109,7 +140,9 @@ export default {
       this.hasMore = activities.length > this.limit;
     },
     loadMore() {
-      this.limit += this.pageSize;
+      if (this.activities.length === this.limit) {
+        this.limit += this.pageSize;
+      }
       this.loadActivities();
     },
   },

@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -96,7 +97,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     
-    DataEntity as = EntityBuilder.getActivityStream(activityManager.getParentActivity(act), currentUser);
+    DataEntity as = EntityBuilder.getActivityStream(activityManager.getParentActivity(act), uriInfo.getPath(), currentUser);
     if (as == null && !Util.hasMentioned(act, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -162,7 +163,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     Identity currentUser = org.exoplatform.social.service.rest.RestUtils.getCurrentIdentity();
     ExoSocialActivity act = activityManager.getActivity(id);
-    if (act == null || !act.isComment() || ! act.getPosterId().equals(currentUser.getId())) {
+    if (act == null || !act.isComment() || !activityManager.isActivityDeletable(act, ConversationState.getCurrent().getIdentity())) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(act, uriInfo.getPath(), expand);
@@ -206,7 +207,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     ExoSocialActivity activity = activityManager.getParentActivity(comment);
 
-    if (EntityBuilder.getActivityStream(activity, currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(comment, uriInfo.getPath(), expand, offset, limit);
@@ -244,7 +245,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     ExoSocialActivity activity = activityManager.getParentActivity(comment);
 
-    if (EntityBuilder.getActivityStream(activity, currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
