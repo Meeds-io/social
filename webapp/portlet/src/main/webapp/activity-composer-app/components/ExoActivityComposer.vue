@@ -216,14 +216,14 @@ export default {
     });
   },
   mounted() {
-    this.$nextTick().then(() => {
-      this.refreshExtensions();
-      this.message = this.activityBody;
-  
-      if (this.activityId) {
-        this.editActivity();
-      }
-    });
+    this.$nextTick()
+      .then(() => this.refreshExtensions())
+      .then(() => {
+        this.message = this.activityBody;
+        if (this.activityId) {
+          this.editActivity();
+        }
+      });
   },
   methods: {
     refreshExtensions: function() {
@@ -238,7 +238,13 @@ export default {
           urls.push(`/portal/rest/i18n/bundle/${action.resourceBundle}-${eXo.env.portal.language}.json`);
         }
       });
-      exoi18n.loadLanguageAsync(eXo.env.portal.language, urls);
+      return exoi18n.loadLanguageAsync(eXo.env.portal.language, urls)
+        .then(i18n => {
+          if (i18n) {
+            // inject downloaded resource bundles in Vue context
+            new Vue({i18n});
+          }
+        });
     },
     editActivity(params) {
       params = params && params.detail;
@@ -287,7 +293,10 @@ export default {
       const msg = this.$refs[this.ckEditorId].getMessage();
       if (this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
-          .then(() => this.closeMessageComposer())
+          .then(() => {
+            document.dispatchEvent(new CustomEvent('activity-stream-activity-updated', {detail: this.activityId}));
+            this.closeMessageComposer();
+          })
           .then(() => this.refreshCurrentActivity())
           .then(() => {
             this.resetComposer();
@@ -300,7 +309,10 @@ export default {
       } else {
         if (eXo.env.portal.spaceId) {
           composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
-            .then(() => this.refreshActivityStream())
+            .then(() => {
+              document.dispatchEvent(new CustomEvent('activity-stream-activity-updated', {detail: this.activityId}));
+              this.refreshActivityStream();
+            })
             .then(() => this.closeMessageComposer())
             .then(() => {
               this.resetComposer();

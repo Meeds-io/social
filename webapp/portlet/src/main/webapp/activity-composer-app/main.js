@@ -34,45 +34,39 @@ export function init(params) {
     });
     params = params ? params : '';
     exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-      if ($('#activityComposer').length || !params || !params.activityId) {
-        const appId = 'activityComposer';
-        const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
+      const appId = 'activityComposer';
+      let appElement = null;
+      let cacheAttribute = null;
 
-        const appElement = document.createElement('div');
+      if ($(`${appId}`).length) {
+        appElement = document.createElement('div');
         appElement.id = appId;
-
-        new Vue({
-          data: () => ({
-            composerAction: params && params.composerAction || 'post',
-            activityBody: params && params.activityBody || '',
-            activityId: params && params.activityId || '',
-            standalone: !!(params && params.activityId),
-          }),
-          template: `<exo-activity-composer
-                       v-cacheable="{cacheId: '${cacheId}'}"
-                       id="${appId}"
-                       :activityBody="activityBody"
-                       :activity-id="activityId"
-                       :composer-action="composerAction"
-                       :standalone="standalone">
-                     </exo-activity-composer>`,
-          i18n,
-          vuetify,
-        }).$mount(appElement);
+        const cacheId = `${appId}_${eXo.env.portal.spaceId}_${params && params.activityId || ''}`;
+        cacheAttribute = `v-cacheable="{cacheId: '${cacheId}'}"`;
       } else {
-        new Vue({
-          el: `#activityComposer${params.activityId}`,
-          data: () => ({
-            composerAction: params && params.composerAction || 'post',
-            activityBody: params && params.activityBody || '',
-            activityId: params && params.activityId || '',
-            standalone: !!(params && params.activityId),
-          }),
-          template: '<exo-activity-composer :activityBody="activityBody" :activity-id="activityId" :composer-action="composerAction" :standalone="standalone"></exo-activity-composer>',
-          i18n,
-          vuetify
-        });
+        $(`<div id="${appId}"></div>`).appendTo($('#UIPortalApplication'));
+        appElement = `#${appId}`;
+        cacheAttribute = '';
       }
+
+      new Vue({
+        data: () => ({
+          composerAction: params && params.composerAction || 'post',
+          activityBody: params && params.activityBody || '',
+          activityId: params && params.activityId || '',
+          standalone: !!(params && params.activityId),
+        }),
+        template: `<exo-activity-composer
+                     ${cacheAttribute}
+                     id="${appId}"
+                     :activityBody="activityBody"
+                     :activity-id="activityId"
+                     :composer-action="composerAction"
+                     :standalone="standalone">
+                   </exo-activity-composer>`,
+        i18n,
+        vuetify,
+      }).$mount(appElement);
     });
 
     window.activityComposerInitialized = true;

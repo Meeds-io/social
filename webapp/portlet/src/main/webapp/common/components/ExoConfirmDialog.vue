@@ -125,6 +125,7 @@ export default {
       this.$nextTick(() => this.dialog = false);
     },
     open() {
+      this.dialog = true;
       this.$emit('opened');
       this.$nextTick(() => this.dialog = true);
     },
