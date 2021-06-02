@@ -31,6 +31,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.social.core.utils.MentionUtils;
 
 /**
  * A processor that substitute @username expressions by a link on the user profile
@@ -57,52 +58,14 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
         //default value for testing and social
         portalOwner = userPortalConfigService.getDefaultPortal();
       }
-      activity.setTitle(substituteUsernames(portalOwner, activity.getTitle()));
-      activity.setBody(substituteUsernames(portalOwner, activity.getBody()));
+      activity.setTitle(MentionUtils.substituteUsernames(portalOwner, activity.getTitle()));
+      activity.setBody(MentionUtils.substituteUsernames(portalOwner, activity.getBody()));
       Map<String, String> templateParams = activity.getTemplateParams();
       List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
       for(String key : templateParamKeys){
-        templateParams.put(key, substituteUsernames(portalOwner, templateParams.get(key)));
+        templateParams.put(key, MentionUtils.substituteUsernames(portalOwner, templateParams.get(key)));
       }
     }
   }
 
-  /*
-   * Substitute @username expressions by full user profile link
-   */
-  private String substituteUsernames(String portalOwner, String message) {
-    if (message == null || message.trim().isEmpty()) {
-      return message;
-    }
-    //
-    Matcher matcher = pattern.matcher(message);
-
-    // Replace all occurrences of pattern in input
-    StringBuffer buf = new StringBuffer();
-    while (matcher.find()) {
-      // Get the match result
-      String username = matcher.group().substring(1);
-      if (username == null || username.isEmpty()) {
-        continue;
-      }
-      Identity identity = LinkProvider.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, false);
-      if (identity == null || identity.isDeleted() || !identity.isEnable()) {
-        continue;
-      }
-      try {
-        username = LinkProvider.getProfileLink(username, portalOwner);
-      } catch (Exception e) {
-        continue;
-      }
-      // Insert replacement
-      if (username != null) {
-        matcher.appendReplacement(buf, username);
-      }
-    }
-    if (buf.length() > 0) {
-      matcher.appendTail(buf);
-      return buf.toString();
-    }
-    return message;
-  }
 }
