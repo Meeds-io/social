@@ -1,4 +1,6 @@
 <%
+  import org.exoplatform.ws.frameworks.cometd.ContinuationService;
+  import org.mortbay.cometd.continuation.EXoContinuationBayeux;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.social.webui.Utils;
   import org.apache.commons.lang.StringUtils;
@@ -14,6 +16,10 @@
   }
   Space space = SpaceUtils.getSpaceByContext();
   TimeZone timezone = Utils.getViewerTimezone();
+  ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
+  String cometdToken = continuationService.getUserToken(Utils.getViewerIdentity().getRemoteId());
+  EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
+  String cometdContext = continuationBayeux.getCometdContextName();
 %>
 <script type="text/javascript">
      require(['SHARED/presence'], function(presence) {
@@ -32,6 +38,8 @@
      eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
      eXo.env.portal.timezoneOffset = <%=timezone.getRawOffset()%> ;
      eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
+     eXo.env.portal.cometdToken = "<%=cometdToken%>";
+     eXo.env.portal.cometdContext = "<%=cometdContext%>";
      eXo.env.portal.vuetifyPreset = {
        dark: true,
        iconfont: 'mdi',
