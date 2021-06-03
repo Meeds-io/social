@@ -1,5 +1,13 @@
 import './initComponents.js';
 
+import * as activityStreamWebSocket from './js/WebSocket.js';
+
+if (!Vue.prototype.$activityStreamWebSocket) {
+  window.Object.defineProperty(Vue.prototype, '$activityStreamWebSocket', {
+    value: activityStreamWebSocket,
+  });
+}
+
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;
 
 // get overrided components if exists
