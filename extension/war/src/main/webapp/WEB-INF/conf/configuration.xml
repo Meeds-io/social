@@ -39,6 +39,7 @@
   <import>war:/conf/social-extension/social/webui-configuration.xml</import>
   <import>war:/conf/social-extension/social/indexing-configuration.xml</import>
   <import>war:/conf/social-extension/social/search-configuration.xml</import>
+  <import>war:/conf/social-extension/social/websocket-configuration.xml</import>
 
   <import>war:/conf/social-extension/social/help-configuration.xml</import>
 

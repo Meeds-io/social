@@ -4,6 +4,11 @@
     :class="activityStreamTypeClass"
     class="activity-stream">
     <activity-stream-confirm-dialog />
+    <activity-stream-updater
+      ref="activityUpdater"
+      v-if="!activityId"
+      :space-id="spaceId"
+      @addActivities="addActivities" />
     <activity-stream-activity
       v-for="activity of activities"
       :key="activity.id"
@@ -111,6 +116,9 @@ export default {
       } else {
         this.loadActivities();
       }
+      if (this.$refs && this.$refs.activityUpdater) {
+        this.$refs.activityUpdater.init();
+      }
     },
     loadActivity() {
       this.loading = true;
@@ -144,6 +152,9 @@ export default {
         this.limit += this.pageSize;
       }
       this.loadActivities();
+    },
+    addActivities(activities) {
+      this.activities.unshift(...activities);
     },
   },
 };
