@@ -1,5 +1,7 @@
 <template>
-  <v-card flat>
+  <v-card
+    :loading="loading"
+    flat>
     <v-card-text
       v-if="isBodyNotEmpty"
       v-sanitized-html="body"
@@ -10,13 +12,13 @@
       :target="sourceLinkTarget"
       class="d-flex flex-no-wrap activity-thumbnail-box">
       <template v-if="isMobile">
-        <div class="border-color border-box-sizing ma-4">
+        <div class="border-color border-box-sizing col pa-4">
           <v-avatar
             v-if="supportsThumbnail"
             min-height="75vw"
             height="75vw"
-            min-width="calc(100vw - 56px)"
-            width="calc(100vw - 56px)"
+            min-width="100%"
+            width="100%"
             rounded
             tile>
             <v-img
@@ -45,10 +47,10 @@
         <v-avatar
           v-if="supportsThumbnail"
           class="border-color border-box-sizing ma-4"
-          min-height="150"
-          height="150"
-          min-width="252"
-          width="252"
+          min-height="150px"
+          height="150px"
+          min-width="252px"
+          width="252px"
           rounded
           tile>
           <v-img
@@ -126,6 +128,10 @@ export default {
     isBodyNotEmpty() {
       return this.body && this.body.trim() !== '<p></p>';
     },
+  },
+  created() {
+    this.$root.$on('activity-stream-updating-activity-start', this.loading = true);
+    this.$root.$emit('activity-stream-updating-activity-end', this.loading = false);
   },
 };
 </script>

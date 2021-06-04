@@ -40,7 +40,7 @@ export function init(params) {
 
 export function openShareActivityDrawer(params) {
   if (shareActivityApp) {
-    shareActivityApp.$root.$emit('open-share-activity-drawer', params);
+    document.dispatchEvent(new CustomEvent('activity-stream-share-open', {detail: params}));
   }
 }
 

@@ -51,7 +51,7 @@ export default {
       this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId);
     },
     checkNewerActivities(activityId) {
-      this.$activityService.getActivityById(activityId, 'identity')
+      this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
         .then(activity => {
           // If the activity has been retrieved
           // and the displayed activity stream corresponds

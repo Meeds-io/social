@@ -5,6 +5,7 @@
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions" />
+    <share-activity-drawer />
   </v-app>
 </template>
 

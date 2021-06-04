@@ -94,10 +94,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     
     List<DataEntity> activityEntities = new ArrayList<DataEntity>();
     for (ExoSocialActivity activity : activities) {
-      DataEntity as = EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser);
-      if (as == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) continue;
-      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
-      activityEntity.setActivityStream(as);
+      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
       //
       activityEntities.add(activityEntity.getDataEntity()); 
     }
@@ -132,14 +129,10 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (activity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    
-    DataEntity as = EntityBuilder.getActivityStream(activity.isComment() ? activityManager.getParentActivity(activity) : activity, uriInfo.getPath(), currentUser);
-    if (as == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+
+    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
+    if (activityEntity.getActivityStream() == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
-    if (!activity.isComment()) {
-      activityEntity.setActivityStream(as);
     }
 
     return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -202,10 +195,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }
     activityManager.updateActivity(activity);
 
-    DataEntity as = EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser);
-    ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
-    activityInfo.setActivityStream(as);
-
+    ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
     return EntityBuilder.getResponse(activityInfo.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
@@ -233,9 +223,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
-    DataEntity as = EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser);
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
-    activityEntity.setActivityStream(as);
+    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
     //Delete activity
     activityManager.deleteActivity(activity);
     return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -380,7 +368,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
         Identity targetSpaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, targetSpaceName);
         if (targetSpaceIdentity != null) {
           CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(targetSpaceIdentity, sharedActivity);
-          ActivityEntity sharedActivityEntity = EntityBuilder.buildEntityFromActivity(sharedActivity, uriInfo.getPath(), expand);
+          ActivityEntity sharedActivityEntity = EntityBuilder.buildEntityFromActivity(sharedActivity, authenticatedUserIdentity, uriInfo.getPath(), expand);
           sharedActivitiesEntities.add(sharedActivityEntity);
           LOG.info("service=activity operation=share parameters=\"activity_type:{},activity_id:{},space_id:{},user_id:{}\"",
                    sharedActivity.getType(),
@@ -440,12 +428,11 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
                 response = Response.class,
 				notes = "This adds the like if the authenticated user has permissions to see the activity.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
+    @ApiResponse (code = 204, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response addLike(@Context UriInfo uriInfo,
-                          @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
-                          @ApiParam(value = "Asking for a full representation of a subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                          @ApiParam(value = "Activity id", required = true) @PathParam("id") String id) throws Exception {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
@@ -459,14 +446,8 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    List<String> likerIds = new ArrayList<String>(Arrays.asList(activity.getLikeIdentityIds()));
-    if (!likerIds.contains(currentUser.getId())) {
-      likerIds.add(currentUser.getId());
-      String[] identityIds = new String[likerIds.size()];
-      activity.setLikeIdentityIds(likerIds.toArray(identityIds));
-      activityManager.updateActivity(activity);
-    }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activityManager.getActivity(id), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    activityManager.saveLike(activity, currentUser);
+    return Response.noContent().build();
   }
   
   @GET
@@ -505,25 +486,20 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
   }
   
   @DELETE
-  @Path("{id}/likes/{username}")
+  @Path("{id}/likes")
   @RolesAllowed("users")
   @ApiOperation(value = "Deletes a like of a specific user for a given activity",
                 httpMethod = "DELETE",
                 response = Response.class,
-                notes = "This deletes the like if the authenticated user is the given user or the super user.")
+                notes = "This deletes the like of authenticated user from an activity")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
+    @ApiResponse (code = 204, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response deleteLike(@Context UriInfo uriInfo,
-                                     @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
-                                     @ApiParam(value = "User name", required = true) @PathParam("username") String username,
-                                     @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                     @ApiParam(value = "Activity id", required = true) @PathParam("id") String id) throws Exception {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!authenticatedUser.equals(username)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
 
     ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
@@ -532,15 +508,9 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
             || (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId()))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    
-    List<String> likerIds = new ArrayList<String>(Arrays.asList(activity.getLikeIdentityIds()));
-    if (likerIds.contains(currentUser.getId())) {
-      likerIds.remove(currentUser.getId());
-      String[] identityIds = new String[likerIds.size()];
-      activity.setLikeIdentityIds(likerIds.toArray(identityIds));
-      activityManager.updateActivity(activity);
-    }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activityManager.getActivity(id), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    activityManager.deleteLike(activity, currentUser);
+    return Response.noContent().build();
   }
 
   @GET
