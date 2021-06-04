@@ -27,6 +27,10 @@
                 class="ml-2 ignore-vuetify-classes activityShareDescription">
               </textarea>
             </div>
+            <div class="d-flex flex-row mt-4 ml-2">
+              <v-icon class="warningStyle">warning</v-icon>
+              <span class="ml-2 grey--text">{{ $t('UIActivity.share.warnMessage') }}</span>
+            </div>
           </div>
         </v-form>
       </template>
@@ -70,7 +74,7 @@ export default {
     },
     shareActivity() {
       this.$emit('share-activity', this.spaces, this.description);
-    }
+    },
   }
 };
 </script>
