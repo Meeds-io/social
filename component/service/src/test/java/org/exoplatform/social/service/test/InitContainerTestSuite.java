@@ -27,7 +27,7 @@ import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResou
 import org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRestResourcesTest;
 import org.exoplatform.social.rest.impl.userrelationship.UsersRelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.users.UserRestResourcesTest;
-import org.exoplatform.social.service.rest.ActivitiesRestServiceTest;
+import org.exoplatform.social.service.malwareDetection.MalwareDetectionServiceTest;
 import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
 import org.exoplatform.social.service.rest.IdentityRestServiceTest;
 import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
@@ -54,7 +54,6 @@ import org.junit.runners.Suite.SuiteClasses;
   ActivityStreamResourcesTest.class,
   IdentityResourcesTest.class,
   VersionResourcesTest.class,
-  ActivitiesRestServiceTest.class,
   IdentityRestServiceTest.class,
   LinkShareRestServiceTest.class,
   //PeopleRestServiceTest.class,  //skipped until add integration test
