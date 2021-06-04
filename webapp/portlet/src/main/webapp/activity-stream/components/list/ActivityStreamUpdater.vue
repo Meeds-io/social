@@ -73,8 +73,14 @@ export default {
         window.location.reload();
         return;
       }
+      const newestActivityId = this.newActivities[0].id;
+
       this.$emit('addActivities', this.newActivities.slice());
       this.init();
+
+      // check if network is disconnected (checking websocket connection isn't sufficient)
+      this.$activityService.getActivityById(newestActivityId)
+        .catch(() => window.location.reload());
     },
   },
 };
