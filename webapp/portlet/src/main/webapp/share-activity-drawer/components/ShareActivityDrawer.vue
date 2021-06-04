@@ -1,5 +1,6 @@
 <template>
-  <v-app>
+  <div class="activityDrawer">
+    <share-activity-notification-alerts />
     <exo-drawer
       ref="shareActivityDrawer"
       body-classes="hide-scroll decrease-z-index-more"
@@ -45,14 +46,26 @@
         </div>
       </template>
     </exo-drawer>
-  </v-app>
+  </div>
 </template>
 
 <script>
 export default {
+  props: {
+    activityId: {
+      type: String,
+      default: ''
+    },
+    activityType: {
+      type: String,
+      default: ''
+    },
+  },
   data: () => ({
     description: '',
     spaces: [],
+    activityId: '',
+    activityType: '',
   }),
   computed: {
     shareDisabled() {
@@ -64,6 +77,11 @@ export default {
       this.spaces = [];
       this.description = '';
     });
+    this.$root.$on('open-share-activity-drawer', (params) => {
+      this.activityId = params.activityId;
+      this.activityType = params.activityType;
+      this.$refs.activityDrawer.open();
+    });
   },
   methods: {
     open() {
@@ -73,8 +91,25 @@ export default {
       this.$refs.shareActivityDrawer.close();
     },
     shareActivity() {
-      this.$emit('share-activity', this.spaces, this.description);
-    },
+      const spacesList = [];
+      this.spaces.forEach(space => {
+        this.$spaceService.getSpaceByPrettyName(space,'identity').then(data => {
+          spacesList.push(data.displayName);
+        });
+      });
+      const sharedActivity = {
+        title: this.description,
+        type: this.activityType,
+        targetSpaces: this.spaces,
+      };
+      this.$spaceService.shareActivityOnSpaces(this.activityId, sharedActivity).then(() =>
+      {
+        this.$refs.activityDrawer.close();
+      }).then(() => {
+        this.$root.$emit('activity-shared', spacesList);
+        this.$root.$emit('clear-suggester', spacesList);
+      });
+    }
   }
 };
 </script>

@@ -15,8 +15,8 @@
             v-if="supportsThumbnail"
             min-height="75vw"
             height="75vw"
-            min-width="calc(100vw - 56px)"
-            width="calc(100vw - 56px)"
+            min-width="100%"
+            width="100%"
             rounded
             tile>
             <v-img

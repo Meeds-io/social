@@ -505,25 +505,21 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
   }
   
   @DELETE
-  @Path("{id}/likes/{username}")
+  @Path("{id}/likes")
   @RolesAllowed("users")
   @ApiOperation(value = "Deletes a like of a specific user for a given activity",
                 httpMethod = "DELETE",
                 response = Response.class,
-                notes = "This deletes the like if the authenticated user is the given user or the super user.")
+                notes = "This deletes the like of authenticated user from an activity")
   @ApiResponses(value = { 
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response deleteLike(@Context UriInfo uriInfo,
                                      @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
-                                     @ApiParam(value = "User name", required = true) @PathParam("username") String username,
                                      @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!authenticatedUser.equals(username)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
 
     ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);

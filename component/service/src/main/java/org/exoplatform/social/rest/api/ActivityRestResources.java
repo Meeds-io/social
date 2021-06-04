@@ -197,6 +197,5 @@ public interface ActivityRestResources extends SocialRest {
   @Path("{id}/likes/{username}")
   public Response deleteLike(@Context UriInfo uriInfo,
                                      @PathParam("id") String id,
-                                     @PathParam("username") String username,
                                      @QueryParam("expand") String expand) throws Exception;
 }

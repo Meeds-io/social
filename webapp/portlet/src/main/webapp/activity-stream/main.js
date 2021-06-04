@@ -1,10 +1,16 @@
 import './initComponents.js';
 
 import * as activityStreamWebSocket from './js/WebSocket.js';
-
 if (!Vue.prototype.$activityStreamWebSocket) {
   window.Object.defineProperty(Vue.prototype, '$activityStreamWebSocket', {
     value: activityStreamWebSocket,
+  });
+}
+
+import * as activityConstants from './js/ActivityConstants.js';
+if (!Vue.prototype.$activityConstants) {
+  window.Object.defineProperty(Vue.prototype, '$activityConstants', {
+    value: activityConstants.default,
   });
 }
 

@@ -12,6 +12,9 @@
       :thumbnail="thumbnail"
       :supports-thumbnail="supportsThumbnail"
       :source-link="sourceLink" />
+    <activity-footer
+      :activity="activity"
+      :activity-type-extension="activityTypeExtension" />
   </div>
 </template>
 

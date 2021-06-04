@@ -2,13 +2,14 @@
   <div
     v-show="display"
     :class="activityStreamTypeClass"
-    class="activity-stream">
+    class="activityStream pa-0">
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
       v-if="!activityId"
       :space-id="spaceId"
       @addActivities="addActivities" />
+    <share-activity-drawer />
     <activity-stream-activity
       v-for="activity of activities"
       :key="activity.id"
@@ -16,7 +17,7 @@
       :activity-types="activityTypes"
       :activity-actions="activityActions"
       :is-activity-detail="activityId"
-      class="mb-6" />
+      class="mb-6 contentBox" />
     <v-btn
       v-if="hasMore"
       :loading="loading"
@@ -95,17 +96,13 @@ export default {
     });
     document.addEventListener('activity-stream-activity-updated', event => {
       const activityId = event && event.detail;
-      if (activityId) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-        this.$activityService.getActivityById(activityId, 'identity')
-          .then(activity => {
-            const index = this.activities.findIndex(activity => activityId === activity.id);
-            if (index >= 0) {
-              this.activities.splice(index, 1, activity);
-              this.$forceUpdate();
-            }
-          })
-          .finally (() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+      this.updateActivityById(activityId);
+    });
+    this.$root.$on('activity-stream-activity-updated', (activityId, activity) => {
+      if (activity) {
+        this.updateActivity(activity);
+      } else {
+        this.updateActivityById(activityId);
       }
     });
   },
@@ -122,7 +119,7 @@ export default {
     },
     loadActivity() {
       this.loading = true;
-      this.$activityService.getActivityById(this.activityId, 'identity')
+      this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
         .then(activity => this.activities = activity && [activity] || [])
         .finally(() => this.loading = false);
     },
@@ -134,11 +131,11 @@ export default {
       // else no more elements to retrieve
       const limitToRetrieve = this.limit + 1;
       if (this.spaceId) {
-        this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, 'identity')
+        this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
           .finally(() => this.loading = false);
       } else {
-        this.$activityService.getUserActivities(this.userName, limitToRetrieve, 'identity')
+        this.$activityService.getUserActivities(this.userName, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
           .finally(() => this.loading = false);
       }
@@ -146,6 +143,19 @@ export default {
     handleRetrievedActivities(activities) {
       this.activities = activities.slice(0, this.limit);
       this.hasMore = activities.length > this.limit;
+    },
+    updateActivityById(activityId) {
+      document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        .then(activity => this.updateActivity(activity))
+        .finally (() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+    },
+    updateActivity(updatedActivity) {
+      const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
+      if (index >= 0) {
+        this.activities.splice(index, 1, updatedActivity);
+        this.$forceUpdate();
+      }
     },
     loadMore() {
       if (this.activities.length === this.limit) {
