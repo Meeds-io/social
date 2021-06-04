@@ -43,6 +43,9 @@ export function updateActivityInUserStream(message, activityId, activityType, at
     body: JSON.stringify({
       'updateDate': Date.now(),
       'title': message,
+      'templateParams': {
+        'MESSAGE': message
+      },
       'type': activityType,
       'files': attachments
     })
