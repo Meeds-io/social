@@ -105,7 +105,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Identity identity = Utils.getIdentityManager().getIdentity(commentActivity.getPosterId(), true);
       
       TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
       SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
@@ -203,7 +203,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Identity identity = Utils.getIdentityManager().getIdentity(comment.getPosterId(), true);
 
       TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
       SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
@@ -324,7 +324,7 @@ public class MailTemplateProvider extends TemplateProvider {
         Identity identity = Utils.getIdentityManager().getIdentity(comment.getPosterId(), true);
 
         TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
-        templateContext.put("USER", identity.getProfile().getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(identity));
         String subject = TemplateUtils.processSubject(templateContext);
 
         SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
@@ -434,7 +434,7 @@ public class MailTemplateProvider extends TemplateProvider {
             Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
             TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
-            templateContext.put("USER", identity.getProfile().getFullName());
+            templateContext.put("USER", Utils.addExternalFlag(identity));
             String subject = TemplateUtils.processSubject(templateContext);
 
             SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
@@ -513,7 +513,7 @@ public class MailTemplateProvider extends TemplateProvider {
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("AVATAR", LinkProviderUtils.getUserAvatarUrl(identity.getProfile()));
@@ -611,7 +611,7 @@ public class MailTemplateProvider extends TemplateProvider {
         return null;
       }
 
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
       templateContext.put("SUBJECT", title);
@@ -711,7 +711,7 @@ public class MailTemplateProvider extends TemplateProvider {
       }
       Profile userProfile = identity.getProfile();
 
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
       templateContext.put("PORTAL_HOME", NotificationUtils.getPortalHome(NotificationPluginUtils.getBrandingPortalName()));
       String subject = TemplateUtils.processSubject(templateContext);
@@ -784,7 +784,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
 
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
       templateContext.put("SUBJECT", title);
@@ -857,7 +857,7 @@ public class MailTemplateProvider extends TemplateProvider {
         return null;
       }
 
-      templateContext.put("USER", identity.getProfile().getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("SPACE", space.getDisplayName());
 
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
@@ -939,7 +939,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Profile userProfile = identity.getProfile();
 
       templateContext.put("PORTAL_NAME", System.getProperty("exo.notifications.portalname", "eXo"));
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
@@ -1003,7 +1003,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Profile userProfile = identity.getProfile();
 
       templateContext.put("SPACE", space.getDisplayName());
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space_members", space.getId()));

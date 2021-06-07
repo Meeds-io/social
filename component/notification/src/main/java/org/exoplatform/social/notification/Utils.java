@@ -23,11 +23,13 @@ import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -309,5 +311,19 @@ public class Utils {
       return !Arrays.asList(activityTypes).contains(activityType);
     }
     return true;
+  }
+
+  /**
+   * Add the external flag if the user is an external
+   *
+   * @param userIdentity
+   * @return full username
+   */
+  public static String addExternalFlag(Identity userIdentity) {
+    String fullName = userIdentity.getProfile().getFullName();
+    if(userIdentity != null && userIdentity.getProfile() != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true")) {
+      fullName += " " + "(" + LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage(userIdentity.getRemoteId())), "external.label.tag") + ")";
+    }
+    return fullName;
   }
 }

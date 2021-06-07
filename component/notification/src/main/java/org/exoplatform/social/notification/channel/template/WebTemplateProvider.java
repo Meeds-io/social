@@ -219,14 +219,14 @@ public class WebTemplateProvider extends TemplateProvider {
       if (nbUsers > 0) {
         Identity lastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 1), true);
         Profile profile = lastIdentity.getProfile();
-        templateContext.put("USER", profile.getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(lastIdentity));
         templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
         templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(lastIdentity.getRemoteId()));
         templateContext.put("NB_USERS", nbUsers);
         //
         if (nbUsers >= 2) {
           Identity beforeLastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 2), true);
-          templateContext.put("LAST_USER", beforeLastIdentity.getProfile().getFullName());
+          templateContext.put("LAST_USER", Utils.addExternalFlag(beforeLastIdentity));
           if (nbUsers > 2) {
             templateContext.put("COUNT", nbUsers - 2);
           }
@@ -319,14 +319,14 @@ public class WebTemplateProvider extends TemplateProvider {
       if (nbUsers > 0) {
         Identity lastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 1), true);
         Profile profile = lastIdentity.getProfile();
-        templateContext.put("USER", profile.getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(lastIdentity));
         templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
         templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(lastIdentity.getRemoteId()));
         templateContext.put("NB_USERS", nbUsers);
         //
         if (nbUsers >= 2) {
           Identity beforeLastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 2), true);
-          templateContext.put("LAST_USER", beforeLastIdentity.getProfile().getFullName());
+          templateContext.put("LAST_USER",  Utils.addExternalFlag(beforeLastIdentity));
           if (nbUsers > 2) {
             templateContext.put("COUNT", nbUsers - 2);
           }
@@ -419,14 +419,14 @@ public class WebTemplateProvider extends TemplateProvider {
       if (nbUsers > 0) {
         Identity lastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 1), true);
         Profile profile = lastIdentity.getProfile();
-        templateContext.put("USER", profile.getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(lastIdentity));
         templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
         templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(lastIdentity.getRemoteId()));
         templateContext.put("NB_USERS", nbUsers);
         //
         if (nbUsers >= 2) {
           Identity beforeLastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 2), true);
-          templateContext.put("LAST_USER", beforeLastIdentity.getProfile().getFullName());
+          templateContext.put("LAST_USER", Utils.addExternalFlag(beforeLastIdentity));
           if (nbUsers > 2) {
             templateContext.put("COUNT", nbUsers - 2);
           }
@@ -506,14 +506,14 @@ public class WebTemplateProvider extends TemplateProvider {
       if (nbUsers > 0) {
         Identity lastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 1), true);
         Profile profile = lastIdentity.getProfile();
-        templateContext.put("USER", profile.getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(lastIdentity));
         templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
         templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(lastIdentity.getRemoteId()));
         templateContext.put("NB_USERS", nbUsers);
         //
         if (nbUsers >= 2) {
           Identity beforeLastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 2), true);
-          templateContext.put("LAST_USER", beforeLastIdentity.getProfile().getFullName());
+          templateContext.put("LAST_USER", Utils.addExternalFlag(beforeLastIdentity));
           if (nbUsers > 2) {
             templateContext.put("COUNT", nbUsers - 2);
           }
@@ -571,7 +571,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("USER", profile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       
@@ -626,7 +626,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       templateContext.put("AVATAR", userProfile.getAvatarUrl() != null ? userProfile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
@@ -672,7 +672,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
       templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
-      templateContext.put("USER", profile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProvider.getSingleActivityUrl(activity.getId()));
       //
@@ -720,7 +720,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("USER", profile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
       templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
       templateContext.put("SPACE", space.getDisplayName());
@@ -766,7 +766,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("STATUS", status != null && status.equals("accepted") ? "ACCEPTED" : "PENDING");
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       templateContext.put("AVATAR", userProfile.getAvatarUrl() != null ? userProfile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
       templateContext.put("ACCEPT_CONNECTION_REQUEST_ACTION_URL", LinkProviderUtils.getWebNotificationRestUrl(ACCEPT_INVITATION_TO_CONNECT, sender, toUser, notification.getId(), MESSAGE_JSON_FILE_NAME));
@@ -812,7 +812,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("SPACE", space.getDisplayName());
-      templateContext.put("USER", userProfile.getFullName());
+      templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("SPACE_URL", LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")));
       templateContext.put("AVATAR", userProfile.getAvatarUrl() != null ? userProfile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
       templateContext.put("VALIDATE_SPACE_REQUEST_ACTION_URL", LinkProviderUtils.getWebNotificationRestUrl(VALIDATE_SPACE_REQUEST, space.getId(), identity.getRemoteId()) + "/" + notification.getTo() + "/" + notification.getId() + "/" + MESSAGE_JSON_FILE_NAME);
@@ -1098,14 +1098,14 @@ public class WebTemplateProvider extends TemplateProvider {
       if (nbUsers > 0) {
         Identity lastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 1), true);
         Profile profile = lastIdentity.getProfile();
-        templateContext.put("USER", profile.getFullName());
+        templateContext.put("USER", Utils.addExternalFlag(lastIdentity));
         templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
         templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(lastIdentity.getRemoteId()));
         templateContext.put("NB_USERS", nbUsers);
         //
         if (nbUsers >= 2) {
           Identity beforeLastIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, users.get(nbUsers - 2), true);
-          templateContext.put("LAST_USER", beforeLastIdentity.getProfile().getFullName());
+          templateContext.put("LAST_USER", Utils.addExternalFlag(beforeLastIdentity));
           if (nbUsers > 2) {
             templateContext.put("COUNT", nbUsers - 2);
           }
