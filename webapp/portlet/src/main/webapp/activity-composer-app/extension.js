@@ -1,23 +1,11 @@
-let activityComposerActions = null;
-let activityComposerHintAction = null;
 export function getActivityComposerActionExtensions() {
   const allExtensions = getExtensionsByType('activity-composer-action');
-  activityComposerActions = allExtensions.filter(extension => isExtensionEnabled(extension));
-
-  return activityComposerActions;
+  return allExtensions.filter(extension => isExtensionEnabled(extension));
 }
 
 export function getActivityComposerHintActionExtensions() {
-  if (activityComposerHintAction === null){
-    activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
-    if (activityComposerHintAction) {
-      activityComposerHintAction = activityComposerHintAction.sort(compare);
-      activityComposerHintAction = activityComposerHintAction[0];
-    } else {
-      activityComposerHintAction = null;
-    }
-  }
-  return activityComposerHintAction;
+  const activityComposerHintAction = getExtensionsByType('activity-composer-hint-action');
+  return activityComposerHintAction && activityComposerHintAction.length && activityComposerHintAction[0] || null;
 }
 
 export function executeExtensionAction(extension, component, attachments) {
@@ -48,14 +36,4 @@ function isExtensionEnabled(extension) {
 
 function isFunction(object) {
   return object && {}.toString.call(object) === '[object Function]';
-}
-
-function compare(a, b) {
-  if (a.rank < b.rank) {
-    return -1;
-  }
-  if (a.rank > b.rank) {
-    return 1;
-  }
-  return 0;
 }
