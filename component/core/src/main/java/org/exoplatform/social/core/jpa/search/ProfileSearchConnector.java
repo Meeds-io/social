@@ -160,6 +160,7 @@ public class ProfileSearchConnector {
       p.setProperty(Profile.POSITION, position);
       p.setProperty(Profile.EMAIL, email);
       p.setProperty(Profile.USERNAME, userName);
+      p.setProperty(Profile.ABOUT_ME, profile.getAboutMe());
       if (external != null) {
         p.setProperty(Profile.EXTERNAL, external);
       }
