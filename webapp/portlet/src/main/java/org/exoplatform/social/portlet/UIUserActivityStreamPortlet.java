@@ -27,6 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.webui.Utils;
 import org.exoplatform.social.webui.composer.PopupContainer;
@@ -103,11 +104,12 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
    * @param activity
    * @return
    */
-  private boolean hasPermissionToViewActivity(ExoSocialActivity activity) {
+  private boolean hasPermissionToViewActivity(ExoSocialActivity activity) throws Exception {
     Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
     if (space == null)
       return true;
-    return space != null && Utils.getSpaceService().isMember(space, Utils.getViewerRemoteId());
+    return space != null && (SpaceUtils.isSpaceManagerOrSuperManager(Utils.getViewerRemoteId(), space.getGroupId())
+        || Utils.getSpaceService().isMember(space, Utils.getViewerRemoteId()));
   }
   
   /**
@@ -178,7 +180,7 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
    * Get activity title when display single activity
    * @return activityTitle
    */
-  public String getSingleActivityTitle() {
+  public String getSingleActivityTitle() throws Exception {
     String gotId = Utils.getValueFromRequestParam("id");
     if (gotId == null) {
       gotId = Utils.getValueFromRefererURI("id");
