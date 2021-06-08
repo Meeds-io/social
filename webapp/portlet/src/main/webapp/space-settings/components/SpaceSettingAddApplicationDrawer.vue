@@ -60,8 +60,8 @@ export default {
         this.applications = data.map(app => ({
           applicationName: app.applicationName,
           contentId: app.contentId,
-          description: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.description`),
-          displayName: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.title`),
+          description: app.description,
+          displayName: app.displayName,
           id: app.id,
           removable: app.removable,
         }));
