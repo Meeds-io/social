@@ -13,12 +13,12 @@
         <div
           :title="applicationName"
           class="text-truncate subtitle-1 px-1 pt-4 text-color SpaceApplicationCardTitle">
-          {{ applicationName }}
+          {{ application.displayName }}
         </div>
         <v-card-subtitle
           :title="applicationDescription"
           class="text-truncate subtitle-2 px-1 pt-0 text-sub-title SpaceApplicationCardDescription">
-          {{ applicationDescription || applicationName }}
+          {{ application.description || application.applicationName }}
         </v-card-subtitle>
       </div>
       <div class="SpaceApplicationCardAction">
@@ -136,6 +136,7 @@ export default {
         }
       });
     }
+    this.$root.$on('last-updates', data => {this.application = data;});
   },
 };
 </script>
