@@ -25,14 +25,14 @@
             :max-length="MESSAGE_MAX_LENGTH"
             :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)" />
           <div class="composerButtons">
-            <div v-if="activityComposerHintAction" class="action">
+            <div v-if="displayHintMessage" class="action">
               <i class="fas fa-pencil-alt fa-sm colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
               <a
                 class="message"
                 href="javascript:void(0)"
                 @click="activityComposerHintAction.onExecute(attachments)">{{ getLabel(activityComposerHintAction.labelKey) }} </a>
             </div>
-            <div v-if="activityComposerHintAction === null || typeof activityComposerHintAction === 'undefined' || messageLength < MESSAGE_MAX_LENGTH" class="emptyMessage">
+            <div v-else class="emptyMessage">
             </div>
             <div>
               <button
@@ -176,6 +176,10 @@ export default {
     uploading: function() {
       return this.attachments.length * this.percent !== this.uploadingProgress;
     },
+    displayHintMessage: function() {
+      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+      return this.activityComposerHintAction && pureText.length > this.MESSAGE_MAX_LENGTH;
+    },
     uploadingProgress: function() {
       return this.attachments.map(attachment => {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
@@ -186,16 +190,6 @@ export default {
     }
   },
   watch: {
-    message() {
-      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      if (pureText.length > this.MESSAGE_MAX_LENGTH) {
-        if (this.activityComposerHintAction === null && eXo.env.portal.spaceDisplayName !== '') {
-          this.activityComposerHintAction = getActivityComposerHintActionExtensions();
-        }
-      } else {
-        this.activityComposerHintAction = null;
-      }
-    },
     showErrorMessage: function(newVal) {
       if (newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
@@ -229,6 +223,7 @@ export default {
     refreshExtensions: function() {
       const urls = [];
       this.activityComposerActions = getActivityComposerActionExtensions();
+      this.activityComposerHintAction = getActivityComposerHintActionExtensions();
       this.activityComposerActions.forEach(action => {
         if (action.component) {
           this.actionsData[action.key] = action.component.model.value;
