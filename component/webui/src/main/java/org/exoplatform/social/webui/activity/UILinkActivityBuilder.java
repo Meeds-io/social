@@ -41,6 +41,9 @@ public class UILinkActivityBuilder extends BaseUIActivityBuilder {
     }
     
     Map<String, String> templateParams = activity.getTemplateParams();
+    if (activity.getTemplateParams().get(UILinkActivity.MESSAGE) != null) {
+      uiLinkActivity.setMessage(templateParams.get(UILinkActivity.MESSAGE));
+    }
     uiLinkActivity.setDefaultTitle(templateParams.get(UILinkActivity.DEFAULT_TITLE));
     uiLinkActivity.setLinkSource(templateParams.get(UILinkActivity.LINK_PARAM));
     uiLinkActivity.setLinkTitle(templateParams.get(UILinkActivity.TITLE_PARAM));

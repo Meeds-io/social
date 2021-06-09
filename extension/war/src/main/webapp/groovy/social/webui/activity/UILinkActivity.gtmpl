@@ -36,6 +36,7 @@
   def jsManager = pcontext.getJavascriptManager().require("SHARED/uiForm");
   def labelActivityHasBeenDeleted = _ctx.appRes("UIActivity.label.Activity_Has_Been_Deleted");
   def activity = uicomponent.getActivity();
+  def activityMessage = uicomponent.getMessage();
   def activityDeletable = uicomponent.isActivityDeletable();
   def activityEditable = uicomponent.isActivityEditable(activity);
   def activityCommentAndLikable = uicomponent.isActivityCommentAndLikable();
@@ -80,7 +81,7 @@
   String activityLink = new StringBuilder("<p><a id='editActivityLinkPreview' href='").append(uicomponent.getLinkSource())
                         .append("'>").append(uicomponent.getLinkSource()).append("</a></p>");
   def activityTitle = uicomponent.getDefaultTitle();
-  String activityBody = new StringBuilder(activityTitle.split('<oembed>')[0]).append(activityLink);
+  String activityBody = new StringBuilder(activityTitle.split('<oembed>')[0]);
 
   //params for init UIActivity javascript object
   def params = """ {
@@ -204,8 +205,8 @@
 					    linkClass = "embedBox";
 					  }
 					%>
-				<% if (linkComment != null && linkComment.length() > 0) { %>
-				<div class="description">$linkComment</div>
+				<% if (activityMessage != null && activityMessage.length() > 0) { %>
+				<div class="description">$activityMessage</div>
 				<% } %>
                 <div class="desktop-input clearfix">
                     <div class="blastInputPeople hideEffect">

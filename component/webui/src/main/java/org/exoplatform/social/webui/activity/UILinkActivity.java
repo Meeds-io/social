@@ -18,6 +18,7 @@ package org.exoplatform.social.webui.activity;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.webui.Utils;
@@ -52,6 +53,7 @@ public class UILinkActivity extends BaseUIActivity {
   public static final String COMMENT_PARAM = "comment";
   public static final String HTML_PARAM = "html";
   public static final String DEFAULT_TITLE = "default_title";
+  public static final String MESSAGE = "MESSAGE";
 
   private String linkSource = "";
   private String linkTitle = "";
@@ -60,7 +62,7 @@ public class UILinkActivity extends BaseUIActivity {
   private String linkComment = "";
   private String embedHtml = "";
   private String defaultTitle = "";
-
+  private String message = "";
   public String getLinkComment() {
     return linkComment;
   }
@@ -97,6 +99,19 @@ public class UILinkActivity extends BaseUIActivity {
   public void setEmbedHtml(String embedHtml) {
     this.embedHtml = embedHtml;
   }
+
+  public String getMessage() {
+    if (StringUtils.isNotBlank(message)) {
+      return message;
+    } else {
+      return getLinkComment();
+    }
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
 
   public String getDefaultTitle() {
     return defaultTitle;
