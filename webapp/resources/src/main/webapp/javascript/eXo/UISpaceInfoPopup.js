@@ -433,8 +433,8 @@
                     window.profileActionXHR = $.ajax({
                         type: "DELETE",
                         cache: false,
-                        url: opts.deleteMembershipRestUrl.replace('{0}', spaceName).replace('{1}', userName).replace('{2}', role)
-                    }).success(function (jqXHR) {
+                        url: opts.deleteMembershipRestUrl.replace('{0}', spaceName).replace('{1}', userName).replace('{2}', role),
+                        success: function (jqXHR) {
                             var popup = $(el).closest('#tiptip_holder');
                             popup.fadeOut('fast', function () {
                             });
@@ -444,6 +444,8 @@
                             }
                             // clear cache
                             clearCache();
+                            document.dispatchEvent(new CustomEvent('space_membership_updated', {'detail': spaceName}));
+                        }
                     });
                 }
 
