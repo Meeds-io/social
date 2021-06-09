@@ -18,6 +18,7 @@ package org.exoplatform.social.rest.impl.activity;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -191,9 +192,18 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       activity.setBody(model.getBody());
     }
     if(model.getTemplateParams() != null) {
-      Map<String, String> templateParams = new HashMap<>();
-      model.getTemplateParams().forEach((name, value) -> templateParams.put(name, (String) value));
-      activity.setTemplateParams(templateParams);
+      Map<String, String> newTemplateParams = new HashMap<>();
+      Map<String, String> currentTemplateParams = activity.getTemplateParams();
+      model.getTemplateParams().forEach((name, value) -> newTemplateParams.put(name, (String) value));
+      // merge the new updated template params with the old params
+      Map<String, String> updatedTemplateParams = newTemplateParams.entrySet().stream()
+              .filter(param -> currentTemplateParams.containsKey(param.getKey()))
+              .collect(Collectors.toMap(
+                      Map.Entry::getKey,
+                      Map.Entry::getValue,
+                      (oldParamValue, newParamValue) -> newParamValue,
+                      () -> new HashMap<>(currentTemplateParams)));
+      activity.setTemplateParams(updatedTemplateParams);
     }
     if (model.getUpdateDate() != null) {
       activity.setUpdated(Long.parseLong(model.getUpdateDate()));
