@@ -26,11 +26,10 @@
           <activity-reactions-list-items
             v-for="liker in likers"
             :key="liker.id"
-            :user-id="liker.likerId"
-            :avatar="liker.personLikeAvatarImageSource"
-            :name="liker.personLikeFullName"
-            :profile-url="liker.personLikeProfileUri"
-            class="px-3  likersList" />
+            :user-id="liker.username"
+            :avatar="liker.avatar"
+            :name="liker.fullname"
+            class="px-3 likersList" />
           <div v-for="(tab, i) in enabledReactionsTabsExtensions" :key="i">
             <activity-reactions-list-items
               v-for="(item, index) in tab.reactionListItems"
@@ -47,7 +46,7 @@
           <activity-reactions-list-items
             v-for="liker in likers"
             :key="liker.id"
-            :user-id="liker.likerId"
+            :user-id="liker.username"
             :avatar="liker.personLikeAvatarImageSource"
             :name="liker.personLikeFullName"
             :profile-url="liker.personLikeProfileUri"

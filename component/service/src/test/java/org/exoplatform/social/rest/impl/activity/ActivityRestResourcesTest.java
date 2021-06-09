@@ -643,14 +643,12 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ContainerResponse response = service("DELETE",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + demoActivity.getId()
-                                             + "/likes/demo",
+                                             + "/likes",
                                          "",
                                          null,
                                          null);
     assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    DataEntity activityEntity = (DataEntity) response.getEntity();
-    assertNotNull(activityEntity);
+    assertEquals(204, response.getStatus());
 
     // clean data
     activityManager.deleteActivity(demoActivity);
@@ -668,7 +666,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ContainerResponse response = service("DELETE",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId()
-                                             + "/likes/demo",
+                                             + "/likes",
                                          "",
                                          null,
                                          null);
