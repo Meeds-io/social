@@ -1106,6 +1106,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     //
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
@@ -1124,12 +1125,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     List<DataEntity> activityEntities = new ArrayList<DataEntity>();
     //
-    BaseEntity as = new BaseEntity(spaceIdentity.getRemoteId());
-    as.setProperty(RestProperties.TYPE, EntityBuilder.SPACE_ACTIVITY_TYPE);
-    //
     for (ExoSocialActivity activity : activities) {
-      ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
-      activityInfo.setActivityStream(as.getDataEntity());
+      ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand);
       //
       activityEntities.add(activityInfo.getDataEntity());
     }
@@ -1168,6 +1165,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
     //
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     //
     Space space = spaceService.getSpaceById(id);
     if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
@@ -1193,7 +1191,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     logMetrics(activity, space);
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
   /**
