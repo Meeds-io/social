@@ -1262,7 +1262,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     for (ExoSocialActivity activity : activities) {
       DataEntity as = EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser);
       if (as == null) continue;
-      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand);
+      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
       activityEntity.setActivityStream(as);
       //
       activityEntities.add(activityEntity.getDataEntity()); 
@@ -1314,7 +1314,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     logMetrics(activity);
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @POST

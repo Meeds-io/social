@@ -1601,6 +1601,13 @@
       <as>activityComposer</as>
     </depends>
     <depends>
+      <module>ActivityReactions</module>
+      <as>activityReactions</as>
+    </depends>
+    <depends>
+      <module>ShareActivityDrawer</module>
+    </depends>
+    <depends>
       <module>vueEllipsis</module>
     </depends>
     <depends>

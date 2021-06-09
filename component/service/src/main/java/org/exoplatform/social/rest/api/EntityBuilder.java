@@ -90,6 +90,10 @@ public class EntityBuilder {
   
   public static final String LIKES_TYPE              = "likes";
 
+  public static final String LIKES_COUNT_TYPE        = "likesCount";
+
+  public static final String COMMENTS_COUNT_TYPE     = "commentsCount";
+
   public static final String KEY                     = "key";
 
   public static final String VALUE                   = "value";
@@ -508,12 +512,19 @@ public class EntityBuilder {
    * @param expand
    * @return a hash map
    */
-  public static ActivityEntity buildEntityFromActivity(ExoSocialActivity activity, String restPath, String expand) {
+  public static ActivityEntity buildEntityFromActivity(ExoSocialActivity activity, Identity authentiatedUser, String restPath, String expand) {
+    List<String> expandFields;
+    if (StringUtils.isBlank(expand)) {
+      expandFields = Collections.emptyList();
+    } else {
+      expandFields = Arrays.asList(expand.split(","));
+    }
+
     Identity poster = getIdentityManager().getIdentity(activity.getPosterId(), true);
     ActivityEntity activityEntity = new ActivityEntity(activity);
     activityEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, activity.getId(), restPath));
     LinkEntity identityLink;
-    if (expand != null && RestProperties.IDENTITY.equals(expand)) {
+    if (expandFields.contains(RestProperties.IDENTITY)) {
       identityLink = new LinkEntity(buildEntityIdentity(poster, restPath, expand));
     } else {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
@@ -528,17 +539,30 @@ public class EntityBuilder {
     activityEntity.setCanDelete(canDelete);
 
     LinkEntity commentLink;
-    if (expand != null && COMMENTS_TYPE.equals(expand)) {
-      List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity, restPath, "", RestUtils.DEFAULT_OFFSET, RestUtils.DEFAULT_OFFSET);
+    if (expandFields.contains(COMMENTS_TYPE)) {
+      List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity, restPath, "", RestUtils.DEFAULT_OFFSET, RestUtils.DEFAULT_LIMIT);
       commentLink = new LinkEntity(commentsEntity);
     } else {
       commentLink = new LinkEntity(getCommentsActivityRestUrl(activity.getId(), restPath));
     }
-    //getBaseRestUrl
     activityEntity.setComments(commentLink);
-    activityEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/likes"));
+
+    if (expandFields.contains(LIKES_TYPE)) {
+      List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(activity, restPath, "", RestUtils.DEFAULT_OFFSET, RestUtils.DEFAULT_LIMIT);
+      activityEntity.setLikes(new LinkEntity(likesEntity));
+    } else {
+      activityEntity.setLikes(new LinkEntity(getLikesActivityRestUrl(activity.getId(), restPath)));
+    }
+
+    activityEntity.setLikesCount(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
+    activityEntity.setCommentsCount(activity.getCommentedIds() == null ? 0 : activity.getCommentedIds().length);
+
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
+
+    DataEntity as = getActivityStream(activity.isComment() ? activityManager.getParentActivity(activity) : activity, restPath, authentiatedUser);
+    activityEntity.setActivityStream(as);
+
     //
     updateCachedLastModifiedValue(activity.getUpdated());
     return activityEntity;
@@ -847,6 +871,16 @@ public class EntityBuilder {
    */
   public static String getCommentsActivityRestUrl(String activityId, String restPath) {
     return new StringBuffer(RestUtils.getRestUrl(ACTIVITIES_TYPE, activityId, restPath)).append("/").append("comments").toString();
+  }
+
+  /**
+   * Get the rest url in order to load all likes of an activity
+   * 
+   * @param activityId activity's id
+   * @return
+   */
+  public static String getLikesActivityRestUrl(String activityId, String restPath) {
+    return new StringBuffer(RestUtils.getRestUrl(ACTIVITIES_TYPE, activityId, restPath)).append("/").append("likes").toString();
   }
 
   /**

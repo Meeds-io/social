@@ -154,6 +154,16 @@ public class ActivityEntity extends BaseEntity {
     return getString("likes");
   }
 
+  public ActivityEntity setLikesCount(int count) {
+    setProperty("likesCount", String.valueOf(count));
+    return this;
+  }
+
+  public int getLikesCount() {
+    Object count = getProperty("likesCount");
+    return count == null ? 0 : Integer.parseInt(count.toString());
+  }
+
   public ActivityEntity setComments(LinkEntity comments) {
     setProperty("comments", comments.getData());
     return this;
@@ -161,6 +171,16 @@ public class ActivityEntity extends BaseEntity {
 
   public String getComments() {
     return getString("comments");
+  }
+
+  public ActivityEntity setCommentsCount(int count) {
+    setProperty("commentsCount", String.valueOf(count));
+    return this;
+  }
+  
+  public int getCommentsCount() {
+    Object count = getProperty("commentsCount");
+    return count == null ? 0 : Integer.parseInt(count.toString());
   }
 
   public void setCanEdit(boolean canEdit) {

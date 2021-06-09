@@ -53,6 +53,19 @@ window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,
 });
 
+window.Object.defineProperty(Vue.prototype, '$currentUserIdentity', {
+  value: {
+    id: eXo.env.portal.userIdentityId,
+    username: eXo.env.portal.userName,
+  },
+});
+identityService.getIdentityById(eXo.env.portal.userIdentityId)
+  .then(identity => {
+    if (identity) {
+      Object.assign(Vue.prototype.$currentUserIdentity, identity);
+    }
+  });
+
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 const urls = [

@@ -33,6 +33,13 @@
   print("<div class=\"visible-phone\"></div>");
 %>
 <% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
+<div class="VuetifyApp">
+  <div id="shareActivityApp">
+    <script type="text/javascript">
+    require(["SHARED/ShareActivity"], shareActivity => shareActivity.init());
+    </script>
+  </div>
+</div>
 <div class="uiSpaceActivityStreamPortlet uiActivityStreamPortlet" id="$uicomponent.id">
   <div class="uiTabPane">
  	  <div class="uiSpaceActivitiesContainer">

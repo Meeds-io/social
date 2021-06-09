@@ -45,23 +45,18 @@
     </li>
     <% _ctx.includeTemplates("UIActivityActionBar-actions-after") %>
     <%  if (isActivityShareable) { %>
-    <li class="share-link" onclick="javascript:openDrawer($params);">
+    <li class="share-link" onclick="javascript:openDrawer<%=activity.id%>($params);">
       <i class="uiIconShare uiIcon16x16"></i>
       <span class="share-text">$labelShare</span>
     </li>
     <% }%>
   </ul>
   <%  if (isActivityShareable) { %>
-  <div class="VuetifyApp">
-    <div id="shareActivity-${activity.id}">
-      <script type="text/javascript">
-        require(["SHARED/ShareActivity"], shareActivity => shareActivity.init($params));
-      </script>
-    </div>
-  </div>
   <script type="text/javascript">
-    function openDrawer(params) {
-      require(["SHARED/ShareActivity"], shareActivity => shareActivity.openShareActivityDrawer(params));
+    function openDrawer<%=activity.id%>(params) {
+      require(["SHARED/ShareActivity"], () => {
+        document.dispatchEvent(new CustomEvent('activity-stream-share-open', {detail: params}));
+      });
     }
   </script>
   <% }%>

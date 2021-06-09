@@ -12,6 +12,8 @@ import RelativeDateFormat from './components/RelativeDateFormat.vue';
 import ExoModal from './components/ExoModal.vue';
 import ExtendedTextarea from './components/ExtendedTextarea.vue';
 import ExoNotificationAlert from './components/ExoNotificationAlert.vue';
+import ExtensionRegistryComponent from './components/ExtensionRegistryComponent.vue';
+import ExtensionRegistryComponents from './components/ExtensionRegistryComponents.vue';
 
 const components = {
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -28,6 +30,8 @@ const components = {
   'exo-modal': ExoModal,
   'extended-textarea': ExtendedTextarea,
   'exo-notification-alert': ExoNotificationAlert,
+  'extension-registry-component': ExtensionRegistryComponent,
+  'extension-registry-components': ExtensionRegistryComponents,
 };
 
 for (const key in components) {

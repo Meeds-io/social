@@ -157,7 +157,6 @@ public interface ActivityRestResources extends SocialRest {
    * 
    * @param uriInfo
    * @param id
-   * @param expand
    * @return
    * @throws Exception
    */
@@ -165,8 +164,7 @@ public interface ActivityRestResources extends SocialRest {
   @Path("{id}/likes")
   @Produces(MediaType.APPLICATION_JSON)
   public Response addLike(@Context UriInfo uriInfo,
-                          @PathParam("id") String id,
-                          @QueryParam("expand") String expand) throws Exception;
+                          @PathParam("id") String id) throws Exception;
   /**
    * Gets the like of the user with the given username for the activity with the given activity id.
    * 
@@ -188,15 +186,11 @@ public interface ActivityRestResources extends SocialRest {
    * 
    * @param uriInfo
    * @param id
-   * @param username
-   * @param expand
    * @return
    * @throws Exception
    */
   @DELETE
-  @Path("{id}/likes/{username}")
+  @Path("{id}/likes")
   public Response deleteLike(@Context UriInfo uriInfo,
-                                     @PathParam("id") String id,
-                                     @PathParam("username") String username,
-                                     @QueryParam("expand") String expand) throws Exception;
+                                     @PathParam("id") String id) throws Exception;
 }

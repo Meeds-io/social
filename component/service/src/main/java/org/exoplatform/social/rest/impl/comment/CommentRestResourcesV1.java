@@ -141,7 +141,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
     act.setTitle(model.getTitle());
     activityManager.updateActivity(act);
     
-    ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(act, uriInfo.getPath(), expand);
+    ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(act, currentUser, uriInfo.getPath(), expand);
     
     return EntityBuilder.getResponse(activityInfo.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -166,7 +166,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
     if (act == null || !act.isComment() || !activityManager.isActivityDeletable(act, ConversationState.getCurrent().getIdentity())) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(act, uriInfo.getPath(), expand);
+    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(act, currentUser, uriInfo.getPath(), expand);
 
     activityManager.deleteActivity(act);
     

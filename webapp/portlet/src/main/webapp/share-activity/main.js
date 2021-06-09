@@ -19,29 +19,22 @@ if (extensionRegistry) {
     });
   }
 }
+
 let shareActivityApp;
-export function init(params) {
-  const appId = `shareActivity-${params.activityId}`;
-
-  const appElement = document.createElement('div');
-  appElement.id = appId;
-
+export function init() {
+  const appId = 'shareActivityApp';
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     shareActivityApp = new Vue({
-      template: `<share-activity 
-                  v-cacheable="{cacheId: '${appId}'}"
-                  id="${appId}" />`,
+      template: `<share-activity id="${appId}" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }).$mount(`#${appId}`);
   });
 }
 
 export function openShareActivityDrawer(params) {
-  if (shareActivityApp) {
-    shareActivityApp.$root.$emit('open-share-activity-drawer', params);
-  }
+  document.dispatchEvent(new CustomEvent('activity-stream-share-open', {detail: params}));
 }
 
 export function destroy() {
