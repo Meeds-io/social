@@ -244,6 +244,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <profiles>
   <profile>
       <id>exo-public</id>
       <repositories>
@@ -262,6 +263,7 @@
         </repository>
       </repositories>
     </profile>
+    </profiles>
   <build>
     <pluginManagement>
       <plugins>
