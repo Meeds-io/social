@@ -254,7 +254,7 @@
 	</repository>
 	<repository>
 	  <id>exoAddons</id>
-          <url>https://repository.exoplatform.org/content/repositories/exo-addons-releases</surl>
+          <url>https://repository.exoplatform.org/content/repositories/exo-addons-releases</url>
 	</repository>
         <repository>
           <id>exoPublic</id>
