@@ -81,6 +81,9 @@
   String activityLink = new StringBuilder("<p><a id='editActivityLinkPreview' href='").append(uicomponent.getLinkSource())
                         .append("'>").append(uicomponent.getLinkSource()).append("</a></p>");
   def activityTitle = uicomponent.getDefaultTitle();
+  if (activityTitle == null) {
+    activityTitle = "";
+  }
   String activityBody = new StringBuilder(activityTitle.split('<oembed>')[0]);
 
   //params for init UIActivity javascript object
@@ -189,15 +192,18 @@
 					  //
 					  linkTitle = UILinkUtil.simpleEscapeHtml(Util.getDecodeQueryURL(linkTitle));
 					  linkSource = UILinkUtil.simpleEscapeHtml(Util.getDecodeQueryURL(linkSource));
-					  def linkMedia = new URL(linkSource);
-                      def hostUrl = linkMedia.getHost();
+					  def hostUrl = null;
+            if (linkSource != null && linkSource != "") {
+              def linkMedia = new URL(linkSource);
+              hostUrl = linkMedia.getHost();
+            }
 					  //
 					  def linkComment = uicomponent.getLinkComment();
 					  def link = "";
 					  if (linkImage == null || linkImage.equals("")) {
-                        link = "<img src=\"/eXoSkin/skin/images/system/composer/PostLinks.png\" class=\"imagePreview\" alt=\"$linkTitle\" />";
+               link = "<img src=\"/eXoSkin/skin/images/system/composer/PostLinks.png\" class=\"imagePreview\" alt=\"$linkTitle\" />";
 					  } else {
-						link = "<img src=\"$linkImage\" class=\"imagePreview\" alt=\"$linkTitle\" />";
+						   link = "<img src=\"$linkImage\" class=\"imagePreview\" alt=\"$linkTitle\" />";
 					  }
 					  def embedHtml = uicomponent.getEmbedHtml();
 					  def linkClass = "";
@@ -233,7 +239,7 @@
                          </div>
                       </div>
                       <% } %>
-                      <% if (embedHtml != null) { %>
+                      <% if (embedHtml != null && hostUrl != null) { %>
 							<div class="EmbedHtml">$embedHtml</div>
 							<div class="box">
 							  <div class="boxLink">
