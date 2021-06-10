@@ -24,6 +24,8 @@ import java.util.Map;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -142,10 +144,13 @@ public class ProfileSearchConnector {
       String avatarUrl = (String) hitSource.get("avatarUrl");
       String email = (String) hitSource.get("email");
       String identityId = (String) ((JSONObject) jsonHit).get("_id");
-      String aboutMe = (String) hitSource.get("aboutMe");
       identity = new Identity(OrganizationIdentityProvider.NAME, userName);
       identity.setId(identityId);
       p = new Profile(identity);
+      Profile profile = getIdentityProfile(userName);
+      if (profile == null) {
+        continue;
+      }
       p.setId(identityId);
       p.setAvatarUrl(avatarUrl);
       p.setUrl(LinkProvider.getProfileUri(userName));
@@ -155,13 +160,18 @@ public class ProfileSearchConnector {
       p.setProperty(Profile.POSITION, position);
       p.setProperty(Profile.EMAIL, email);
       p.setProperty(Profile.USERNAME, userName);
-      p.setProperty(Profile.ABOUT_ME, aboutMe);
+      p.setProperty(Profile.ABOUT_ME, profile.getAboutMe());
       identity.setProfile(p);
       results.add(identity);
     }
     return results;
   }
 
+  private Profile getIdentityProfile(String userName) {
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
+    return identity == null ? null : identity.getProfile();
+  }
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
     StringBuilder esQuery = new StringBuilder();
