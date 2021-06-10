@@ -22,7 +22,7 @@
   <parent>
     <artifactId>maven-parent-pom</artifactId>
     <groupId>org.exoplatform</groupId>
-    <version>23-M09</version>
+    <version>23-SNAPSHOT</version>
     <relativePath />
   </parent>
   <groupId>org.exoplatform.social</groupId>
@@ -55,6 +55,9 @@
     <sonar.projectKey>rdenarie_social</sonar.projectKey>
     <sonar.organization>rdenarie</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/test-coverage-all/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
 
   </properties>
   <dependencyManagement>
@@ -241,7 +244,24 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  <profile>
+      <id>exo-public</id>
+      <repositories>
+	<repository>
+	  <id>eXoReleases</id>
+	  <url>https://repository.exoplatform.org/content/repositories/exo-releases</url>
+	</repository>
+	<repository>
+	  <id>exoAddons</id>
+          <url>http://repository.exoplatform.org/content/repositories/exo-addons-releases</url>
+	</repository>
+        <repository>
+          <id>exoPublic</id>
+          <url>http://repository.exoplatform.org/content/groups/public</url>
+          <layout>default</layout>
+        </repository>
+      </repositories>
+    </profile>
   <build>
     <pluginManagement>
       <plugins>
