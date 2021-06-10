@@ -254,11 +254,11 @@
 	</repository>
 	<repository>
 	  <id>exoAddons</id>
-          <url>http://repository.exoplatform.org/content/repositories/exo-addons-releases</url>
+          <url>https://repository.exoplatform.org/content/repositories/exo-addons-releases</surl>
 	</repository>
         <repository>
           <id>exoPublic</id>
-          <url>http://repository.exoplatform.org/content/groups/public</url>
+          <url>https://repository.exoplatform.org/content/groups/public</url>
           <layout>default</layout>
         </repository>
       </repositories>
