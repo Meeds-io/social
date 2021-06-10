@@ -52,6 +52,10 @@
 
     <!-- For surefire and failsafe to be compatible with jacoco -->
     <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
+    <sonar.projectKey>rdenarie_social</sonar.projectKey>
+    <sonar.organization>rdenarie</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
   </properties>
   <dependencyManagement>
     <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
