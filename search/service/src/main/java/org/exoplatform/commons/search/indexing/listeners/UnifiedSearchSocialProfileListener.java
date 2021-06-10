@@ -32,9 +32,10 @@ public class UnifiedSearchSocialProfileListener extends ProfileListenerPlugin {
   }
 
   @Override
-  public void bannerUpdated(ProfileLifeCycleEvent event) {
+  public void bannerUpdated(ProfileLifeCycleEvent event) { }
 
-  }
+  @Override
+  public void lastLoginTimeUpdated(ProfileLifeCycleEvent event) { }
 
   @Override
   public void basicInfoUpdated(ProfileLifeCycleEvent profileLifeCycleEvent) {

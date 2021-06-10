@@ -171,7 +171,8 @@ public class Profile {
     EXPERIENCES,
     AVATAR,
     ABOUT_ME,
-    BANNER;
+    BANNER,
+    LAST_LOGIN_TIME;
 
     public void updateActivity(ProfileLifeCycle profileLifeCycle, Profile profile) {
       switch (this) {
@@ -192,6 +193,10 @@ public class Profile {
         break;
       }
       case BANNER: {
+        profileLifeCycle.bannerUpdated(profile.getIdentity().getRemoteId(), profile);
+        break;
+      }
+      case LAST_LOGIN_TIME: {
         profileLifeCycle.bannerUpdated(profile.getIdentity().getRemoteId(), profile);
         break;
       }

@@ -110,6 +110,11 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     LOG.debug("Profile banner of user {} has been updated", event.getProfile().getIdentity().getId());
   }
 
+  @Override
+  public void lastLoginTimeUpdated(ProfileLifeCycleEvent event) {
+    LOG.debug("Profile last login time of user {} has been updated", event.getProfile().getIdentity().getId());
+  }
+
 
   @Override
   public void basicInfoUpdated(ProfileLifeCycleEvent event) {

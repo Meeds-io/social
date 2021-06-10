@@ -13,11 +13,11 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.web.CacheUserProfileFilter;
 import org.exoplatform.webui.exception.MessageException;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 @Asynchronous
@@ -26,7 +26,6 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
 
   public void onEvent(Event<ConversationRegistry, ConversationState> event) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     ConversationState state = event.getData();
     User user = (User) state.getAttribute(CacheUserProfileFilter.USER_PROFILE);
     Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
@@ -34,9 +33,9 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
     Profile profile = userIdentity.getProfile();
     if (profile != null) {
       profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
+      profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.LAST_LOGIN_TIME));
       try {
         identityManager.updateProfile(profile, true);
-        indexingService.reindex(ProfileIndexingServiceConnector.TYPE, userIdentity.getId());
       } catch (MessageException e) {
         LOG.error("Error while updating the last login time for user profile {}", user.getUserName(), e);
       }
