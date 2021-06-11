@@ -1,14 +1,26 @@
 <template>
-  <li v-if="element === 'li'" :id="id">
+  <li
+    v-if="element === 'li'"
+    :id="id"
+    :class="elementClass">
     <span></span>
   </li>
-  <span v-else-if="element === 'span'" :id="id">
+  <span
+    v-else-if="element === 'span'"
+    :id="id"
+    :class="elementClass">
     <span></span>
   </span>
-  <a v-else-if="element === 'a'" :id="id">
+  <a
+    v-else-if="element === 'a'"
+    :id="id"
+    :class="elementClass">
     <span></span>
   </a>
-  <div v-else :id="id">
+  <div
+    v-else
+    :id="id"
+    :class="elementClass">
     <span></span>
   </div>
 </template>
@@ -27,6 +39,10 @@ export default {
     element: {
       type: String,
       default: () => null,
+    },
+    elementClass: {
+      type: String,
+      default: () => '',
     },
   },
   data: () => ({
