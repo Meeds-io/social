@@ -13,11 +13,15 @@
     <div v-if="useNewApp" class="white d-flex flex-column text-center mb-4">
       <v-img
         src="/social-portlet/activity-stream/comingSoon.png"
-        width="450px"
+        width="190px"
         max-width="100%"
-        class="mx-auto mt-10"
+        class="mx-auto mt-6"
         @load="displayText" />
-      <h3 v-if="imageLoaded" class="font-weight-bold">{{ $t('activityStream.comingSoon') }}</h3>
+      <div
+        v-if="imageLoaded"
+        class="v-label font-weight-bold mt-0 mb-6 text-color"
+        v-sanitized-html="comingSoonText">
+      </div>
     </div>
   </div>
 </template>
@@ -29,6 +33,12 @@ export default {
     imageLoaded: false,
   }),
   computed: {
+    comingSoonText() {
+      return this.$t('activityStream.comingSoonV2', {
+        0: `<a href="${eXo.env.portal.context}/${eXo.env.portal.portalName}/tribe-feedback">`,
+        1: '</a>',
+      });
+    },
     buttonText() {
       if (this.useNewApp) {
         return this.$t('activityStream.switchToOldApp');
