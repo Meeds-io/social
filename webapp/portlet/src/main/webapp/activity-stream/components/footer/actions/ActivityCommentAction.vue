@@ -3,7 +3,7 @@
     :id="`CommentLink${activityId}`"
     :title="$t('UIActivity.label.Comment')"
     :data-activity="activityId"
-    class="pa-0 primary--text"
+    class="pa-0 mx-2 primary--text"
     text
     link
     small>
