@@ -5,6 +5,7 @@
       type="activity-footer-action"
       parent-element="ul"
       element="li"
+      element-class="ma-0"
       class="pull-right statusAction"
       :params="params" />
   </div>
