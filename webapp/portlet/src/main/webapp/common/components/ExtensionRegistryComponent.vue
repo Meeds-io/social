@@ -46,22 +46,25 @@ export default {
     },
   },
   data: () => ({
-    id: `ExtRegistryComp${parseInt(Math.random() * 100000)}`,
+    randomId: String(parseInt(Math.random() * 100000)),
     mounted: false,
   }),
+  computed: {
+    id() {
+      return `Ext${this.component.componentName}-${this.randomId}`;
+    },
+    ExtVueComponent() {
+      return this.component && this.component.componentOptions && Vue.extend(this.component.componentOptions.vueComponent);
+    },
+  },
   mounted() {
-    if (!this.mounted) {
+    if (!this.mounted && this.ExtVueComponent) {
       this.mounted = true;
-      const VueComponent = Vue.extend(this.component.componentOptions.vueComponent);
-      const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-      new VueComponent({
+      new this.ExtVueComponent({
         propsData: this.params,
-        i18n: new VueI18n({
-          locale: this.$i18n.locale,
-          messages: this.$i18n.messages,
-        }),
-        vuetify: vuetify,
-        el: `#${this.id} :first-child`,
+        i18n: this.$i18n,
+        vuetify: this.vuetifyOptions,
+        el: `#${this.id} > :first-child`,
       });
     }
   },
