@@ -76,7 +76,6 @@ export default {
   },
   data: () => ({
     components: [],
-    loaded: false,
   }),
   created() {
     document.addEventListener(`component-${this.name}-${this.type}-updated`, event => {
