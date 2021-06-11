@@ -57,7 +57,7 @@ export default {
   created() {
     this.$spaceService.getSpaceApplicationsChoices()
       .then(data =>
-        this.applications = data;
+        this.applications = data
       );
   },
   methods: {
