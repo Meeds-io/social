@@ -26,11 +26,18 @@ export function init(params) {
     // init Vue app when locale ressources are ready
     new Vue({
       data: () => ({
+        activityId: params.activityId,
         likers: params.likers,
         likersNumber: params.likersNum,
         commentNumber: params.commentNum
       }),
-      template: `<activity-reactions :activity-id=${params.activityId} :likers="likers" :likers-number="likersNumber" :comment-number="commentNumber" app-id="activityReactions-${params.activityId}" data-id="${params.activityId}"/>`,
+      template: `<activity-reactions-app
+                   id="activityReactions-${params.activityId}"
+                   :data-id="activityId"
+                   :activity-id="activityId"
+                   :likers="likers"
+                   :likers-number="likersNumber"
+                   :comment-number="commentNumber" />`,
       i18n,
       vuetify,
     }).$mount(`#activityReactions-${params.activityId}`);
