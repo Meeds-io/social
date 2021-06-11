@@ -10,6 +10,8 @@
       :title="title"
       :summary="summary"
       :thumbnail="thumbnail"
+      :tooltip="tooltip"
+      :default-icon="defaultIcon"
       :supports-thumbnail="supportsThumbnail"
       :source-link="sourceLink" />
     <activity-footer
@@ -45,6 +47,7 @@ export default {
     summary: null,
     thumbnail: null,
     sourceLink: null,
+    tooltip: null,
   }),
   computed: {
     id() {
@@ -82,6 +85,12 @@ export default {
     },
     supportsThumbnail() {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
+    },
+    getTooltip() {
+      return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
+    },
+    defaultIcon() {
+      return this.activityTypeExtension && this.activityTypeExtension.defaultIcon;
     },
   },
   watch: {
@@ -121,6 +130,7 @@ export default {
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       this.summary = this.getSummary && this.getSummary(this.activity, this.isActivityDetail);
       this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
+      this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
       }
