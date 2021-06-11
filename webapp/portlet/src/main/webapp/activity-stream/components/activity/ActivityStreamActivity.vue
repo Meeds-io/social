@@ -1,20 +1,43 @@
 <template>
   <div :id="id" class="white border-radius activity-detail">
-    <activity-head
-      :activity="activity"
-      :activity-actions="activityActions"
-      :activity-type-extension="activityTypeExtension" />
-    <activity-content
-      :activity-link="activityLink"
-      :body="body"
-      :title="title"
-      :summary="summary"
-      :thumbnail="thumbnail"
-      :supports-thumbnail="supportsThumbnail"
-      :source-link="sourceLink" />
-    <activity-footer
-      :activity="activity"
-      :activity-type-extension="activityTypeExtension" />
+    <template v-if="extendedComponent">
+      <activity-head
+        v-if="!extendedComponent.overrideHeader"
+        :activity="activity"
+        :activity-actions="activityActions"
+        :activity-type-extension="activityTypeExtension" />
+      <extension-registry-component
+        :component="extendedComponentOptions"
+        :element="extendedComponent.element"
+        :element-class="extendedComponent.class"
+        :params="extendedComponentParams" />
+      <activity-footer
+        v-if="!extendedComponent.overrideFooter"
+        :activity="activity"
+        :activity-type-extension="activityTypeExtension" />
+    </template>
+    <template v-else>
+      <activity-head
+        :activity="activity"
+        :activity-actions="activityActions"
+        :activity-type-extension="activityTypeExtension" />
+      <activity-content
+        :activity-link="activityLink"
+        :body="body"
+        :title="title"
+        :summary="summary"
+        :source-link="sourceLink"
+        :supports-icon="supportsIcon"
+        :default-icon="defaultIcon"
+        :thumbnail="thumbnail"
+        :supports-thumbnail="supportsThumbnail"
+        :thumbnail-properties="thumbnailProperties"
+        :use-same-view-for-mobile="useSameViewForMobile"
+        :tooltip="tooltip" />
+      <activity-footer
+        :activity="activity"
+        :activity-type-extension="activityTypeExtension" />
+    </template>
   </div>
 </template>
 
@@ -45,6 +68,7 @@ export default {
     summary: null,
     thumbnail: null,
     sourceLink: null,
+    tooltip: null,
   }),
   computed: {
     id() {
@@ -58,6 +82,20 @@ export default {
         return {};
       }
       return this.activityTypes[this.activity.type] || this.activityTypes['default'] || {};
+    },
+    extendedComponent() {
+      return this.activityTypeExtension && this.activityTypeExtension.getExtendedComponent && this.activityTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
+    },
+    extendedComponentOptions() {
+      return this.extendedComponent && {
+        componentName: `Activity-${this.activityTypeExtension.id}`,
+        componentOptions: {
+          vueComponent: this.extendedComponent.component,
+        },
+      };
+    },
+    extendedComponentParams() {
+      return this.$options && this.$options.propsData;
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
@@ -83,6 +121,21 @@ export default {
     supportsThumbnail() {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
     },
+    thumbnailProperties() {
+      return this.activityTypeExtension && this.activityTypeExtension.thumbnailProperties;
+    },
+    useSameViewForMobile() {
+      return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
+    },
+    supportsIcon() {
+      return this.supportsThumbnail || (this.activityTypeExtension && this.activityTypeExtension.supportsIcon);
+    },
+    getTooltip() {
+      return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
+    },
+    defaultIcon() {
+      return this.activityTypeExtension && this.activityTypeExtension.defaultIcon;
+    },
   },
   watch: {
     activity() {
@@ -104,7 +157,7 @@ export default {
   methods: {
     retrieveActivityProperties() {
       if (this.init) {
-        const initPromise = this.init(this.activity);
+        const initPromise = this.init(this.activity, this.isActivityDetail);
         if (initPromise && initPromise.then) {
           return initPromise.then(this.computeActivityProperties);
         }
@@ -112,18 +165,25 @@ export default {
       this.computeActivityProperties();
     },
     computeActivityProperties() {
+      if (this.extendedComponent) {
+        return;
+      }
       if (this.getActivityLink) {
         this.activityLink = this.getActivityLink(this.activity);
       } else {
         this.activityLink = `${this.$root.activityBaseLink}?id=${this.activityId}`;
       }
-      this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
-      this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
-      this.summary = this.getSummary && this.getSummary(this.activity, this.isActivityDetail);
+      this.body = this.getBody && this.trim(this.getBody(this.activity, this.isActivityDetail));
+      this.title = this.getTitle && this.trim(this.getTitle(this.activity, this.isActivityDetail));
+      this.summary = this.getSummary && this.trim(this.getSummary(this.activity, this.isActivityDetail));
       this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
+      this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
       }
+    },
+    trim(text) {
+      return text && text.trim() || '';
     },
   },
 };
