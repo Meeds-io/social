@@ -69,6 +69,6 @@ public abstract class ProfileListenerPlugin extends AbstractListenerPlugin imple
   /**
    * {@inheritDoc}
    */
-  public abstract void lastLoginTimeUpdated(ProfileLifeCycleEvent event);
+  public void technicalUpdated(ProfileLifeCycleEvent event) {};
 
 }

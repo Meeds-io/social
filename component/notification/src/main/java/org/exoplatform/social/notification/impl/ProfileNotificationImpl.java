@@ -72,9 +72,4 @@ public class ProfileNotificationImpl extends ProfileListenerPlugin {
     
   }
 
-  @Override
-  public void lastLoginTimeUpdated(ProfileLifeCycleEvent event) {
-
-  }
-
 }

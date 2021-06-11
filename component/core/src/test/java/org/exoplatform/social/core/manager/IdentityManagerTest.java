@@ -511,7 +511,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
       }
 
       @Override
-      public void lastLoginTimeUpdated(ProfileLifeCycleEvent event) {
+      public void technicalUpdated(ProfileLifeCycleEvent event) {
         // noop
       }
 

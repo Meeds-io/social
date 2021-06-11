@@ -49,7 +49,8 @@ public class UserProfileComparator {
     if (oldValue == null) {
       return newValue != null
           && (((newValue instanceof String) && StringUtils.isNotBlank(newValue.toString()))
-              || ((newValue instanceof List) && !((List<?>) newValue).isEmpty()));
+              || ((newValue instanceof List) && !((List<?>) newValue).isEmpty())
+              || (newValue instanceof Date));
     } else if (oldValue instanceof String) {
       newValue = newValue == null ? StringUtils.EMPTY : String.valueOf(newValue);
       return !StringUtils.equals((String) oldValue, (String) newValue);

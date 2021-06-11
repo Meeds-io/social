@@ -106,11 +106,11 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   }
 
   @Override
-  public void lastLoginTimeUpdated(ProfileLifeCycleEvent event) {
+  public void technicalUpdated(ProfileLifeCycleEvent event) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile creation id={}", id);
+    LOG.debug("Notifying indexing service for the profile update id={}, lastLoginTime changed", id);
 
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
   }

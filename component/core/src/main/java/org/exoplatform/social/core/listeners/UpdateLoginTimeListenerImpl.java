@@ -1,6 +1,5 @@
 package org.exoplatform.social.core.listeners;
 
-import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
@@ -17,7 +16,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.web.CacheUserProfileFilter;
 import org.exoplatform.webui.exception.MessageException;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 @Asynchronous
@@ -33,7 +31,6 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
     Profile profile = userIdentity.getProfile();
     if (profile != null) {
       profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
-      profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.LAST_LOGIN_TIME));
       try {
         identityManager.updateProfile(profile, true);
       } catch (MessageException e) {
