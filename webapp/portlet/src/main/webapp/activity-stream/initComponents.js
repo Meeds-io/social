@@ -10,6 +10,10 @@ import ActivityHeadUser from './components/head/ActivityHeadUser.vue';
 import ActivityHeadTime from './components/head/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/head/ActivityHeadMenu.vue';
 import ActivityContent from './components/content/ActivityContent.vue';
+import ActivityFooter from './components/footer/ActivityFooter.vue';
+import ActivityActions from './components/footer/ActivityActions.vue';
+import ActivityCommentAction from './components/footer/actions/ActivityCommentAction.vue';
+import ActivityLikeAction from './components/footer/actions/ActivityLikeAction.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -24,6 +28,10 @@ const components = {
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
   'activity-content': ActivityContent,
+  'activity-footer': ActivityFooter,
+  'activity-actions': ActivityActions,
+  'activity-comment-action': ActivityCommentAction,
+  'activity-like-action': ActivityLikeAction,
 };
 
 for (const key in components) {

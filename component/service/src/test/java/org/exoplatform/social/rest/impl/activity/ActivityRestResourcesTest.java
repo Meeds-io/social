@@ -1,7 +1,9 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
@@ -24,6 +26,7 @@ import org.exoplatform.social.rest.entity.CommentEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+import org.junit.Test;
 
 public class ActivityRestResourcesTest extends AbstractResourceTest {
 
@@ -239,6 +242,38 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     activitiesTitle.add(entity.getTitle());
     assertTrue(activitiesTitle.contains("root activity"));
     assertTrue(activitiesTitle.contains("demo activity"));
+  }
+
+  public void testUpdateActivityById() throws Exception {
+    startSessionAs("root");
+
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("test activity");
+    Map<String, String> templateParams = new HashMap<String, String>();
+    templateParams.put("WORKSPACE", "collaboration");
+    templateParams.put("MESSAGE", "old message");
+    templateParams.put("description", "description of the activity");
+    templateParams.put("DOCPATH", "path to a document");
+    rootActivity.setTemplateParams(templateParams);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    ContainerResponse response = service("GET",
+            "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("test activity", result.getTitle());
+
+    String input = "{\"title\":\"updated title\",\"templateParams\":{\"MESSAGE\":\"updated message\",\"NOT_EXIST_KEY\":\"any value\"}}";
+    ActivityEntity model = new ActivityEntity();
+
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals( "updated title", result.getTitle());
+    assertEquals( "updated message", result.getTemplateParams().get("MESSAGE"));
+    assertFalse(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
+    assertEquals( 4, result.getTemplateParams().size());
   }
 
   public void testGetUpdatedDeletedActivityById() throws Exception {
@@ -608,14 +643,12 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ContainerResponse response = service("DELETE",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + demoActivity.getId()
-                                             + "/likes/demo",
+                                             + "/likes",
                                          "",
                                          null,
                                          null);
     assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    DataEntity activityEntity = (DataEntity) response.getEntity();
-    assertNotNull(activityEntity);
+    assertEquals(204, response.getStatus());
 
     // clean data
     activityManager.deleteActivity(demoActivity);
@@ -633,7 +666,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ContainerResponse response = service("DELETE",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId()
-                                             + "/likes/demo",
+                                             + "/likes",
                                          "",
                                          null,
                                          null);
