@@ -32,11 +32,17 @@ export default {
   methods: {
     refreshActivityTypes() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityTypeExtension);
+      let changed = false;
       extensions.forEach(extension => {
         if (extension.type && extension.options && (!this.activityTypes[extension.type] || this.activityTypes[extension.type] !== extension.options)) {
           this.activityTypes[extension.type] = extension.options;
+          changed = true;
         }
       });
+      // force update of attribute to re-render switch new extension type
+      if (changed) {
+        this.activityTypes = Object.assign({}, this.activityTypes);
+      }
     },
     refreshActivityActions() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionExtension);
