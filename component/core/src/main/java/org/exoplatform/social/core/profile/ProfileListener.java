@@ -77,4 +77,12 @@ public interface ProfileListener extends LifeCycleListener<ProfileLifeCycleEvent
    */
   public void createProfile(ProfileLifeCycleEvent event) ;
 
+  /**
+   *  technical updated
+   * @param event
+   */
+  public void technicalUpdated(ProfileLifeCycleEvent event);
+
+  ;
+
 }
