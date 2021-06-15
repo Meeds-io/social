@@ -55,6 +55,9 @@ public class ProfileLifeCycle extends AbstractLifeCycle<ProfileListener, Profile
     case BANNER_UPDATED:
       listener.bannerUpdated(event);
       break;
+    case TECHNICAL_UPDATED:
+      listener.technicalUpdated(event);
+      break;
     default:
       break;
     }
@@ -70,6 +73,10 @@ public class ProfileLifeCycle extends AbstractLifeCycle<ProfileListener, Profile
 
   public void bannerUpdated(String username, Profile profile) {
     broadcast(new ProfileLifeCycleEvent(Type.BANNER_UPDATED, username, profile));
+  }
+
+  public void technicalUpdated(String username, Profile profile) {
+    broadcast(new ProfileLifeCycleEvent(Type.TECHNICAL_UPDATED, username, profile));
   }
 
   public void basicUpdated(String username, Profile profile) {

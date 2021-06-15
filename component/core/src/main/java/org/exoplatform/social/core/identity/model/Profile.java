@@ -171,7 +171,8 @@ public class Profile {
     EXPERIENCES,
     AVATAR,
     ABOUT_ME,
-    BANNER;
+    BANNER,
+    TECHNICAL;
 
     public void updateActivity(ProfileLifeCycle profileLifeCycle, Profile profile) {
       switch (this) {
@@ -193,6 +194,10 @@ public class Profile {
       }
       case BANNER: {
         profileLifeCycle.bannerUpdated(profile.getIdentity().getRemoteId(), profile);
+        break;
+      }
+      case TECHNICAL: {
+        profileLifeCycle.technicalUpdated(profile.getIdentity().getRemoteId(), profile);
         break;
       }
       default:

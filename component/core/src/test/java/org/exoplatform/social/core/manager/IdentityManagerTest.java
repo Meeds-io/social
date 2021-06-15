@@ -511,6 +511,11 @@ public class IdentityManagerTest extends AbstractCoreTest {
       }
 
       @Override
+      public void technicalUpdated(ProfileLifeCycleEvent event) {
+        // noop
+      }
+
+      @Override
       public void contactSectionUpdated(ProfileLifeCycleEvent event) {
         changes.add(2);
       }

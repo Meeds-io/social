@@ -7,12 +7,14 @@
     text
     link
     small>
-    <v-icon
-      class="me-1 pb-1"
-      size="12">
-      fa-comment
-    </v-icon>
-    <span>{{ $t('UIActivity.label.Comment') }}</span>
+    <span>
+      <v-icon
+        class="baseline-vertical-align"
+        size="14">
+        fa-comment
+      </v-icon>
+      {{ $t('UIActivity.label.Comment') }}
+    </span>
   </v-btn>
 </template>
 

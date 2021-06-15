@@ -7,18 +7,22 @@
       v-sanitized-html="body"
       class="postContent text-color pt-0" />
     <a
-      v-if="sourceLink"
       :href="sourceLink"
       :target="sourceLinkTarget"
-      class="d-flex flex-no-wrap activity-thumbnail-box">
-      <template v-if="isMobile">
-        <div class="border-color border-box-sizing col pa-4">
+      :title="tooltipText"
+      class="d-flex flex-no-wrap activity-thumbnail-box"
+      v-bind="attrs"
+      v-on="tooltip && on">
+      <template v-if="useMobileView">
+        <div
+          :class="thumbnailMobileNoBorder || 'border-color'"
+          class="border-box-sizing col pa-4">
           <v-avatar
             v-if="supportsThumbnail"
-            min-height="75vw"
-            height="75vw"
-            min-width="100%"
-            width="100%"
+            :min-height="thumbnailMobileHeight"
+            :height="thumbnailMobileHeight"
+            :min-width="thumbnailMobileWidth"
+            :width="thumbnailMobileWidth"
             rounded
             tile>
             <v-img
@@ -28,10 +32,10 @@
               min-width="100%" />
             <v-icon
               v-else
-              class="text-sub-title"
-              size="58"
+              :size="defaultIconSize"
+              class="grey-text"
               contain>
-              far fa-image
+              {{ defaultIconClass }}
             </v-icon>
           </v-avatar>
           <div v-if="title" class="pa-4 grey-background border-top-color">
@@ -48,11 +52,12 @@
       <template v-else>
         <v-avatar
           v-if="supportsThumbnail"
-          class="border-color border-box-sizing ma-4"
-          min-height="150px"
-          height="150px"
-          min-width="252px"
-          width="252px"
+          :min-height="thumbnailHeight"
+          :height="thumbnailHeight"
+          :min-width="thumbnailWidth"
+          :width="thumbnailWidth"
+          :class="thumbnailNoBorder || 'border-color'"
+          class="border-box-sizing ma-4"
           rounded
           tile>
           <v-img
@@ -62,19 +67,36 @@
             min-width="100%" />
           <v-icon
             v-else
-            class="text-sub-title"
-            size="58"
+            :size="defaultIconSize"
+            class="grey-text"
             contain>
-            far fa-image
+            {{ defaultIconClass }}
           </v-icon>
         </v-avatar>
-        <div class="text-truncate me-4 my-4">
-          <h5
+        <v-avatar
+          v-else-if="supportsIcon"
+          class="border-color border-box-sizing ma-4"
+          min-height="150px"
+          height="150px"
+          min-width="90px"
+          width="90px"
+          rounded
+          tile>
+          <v-icon
+            :size="defaultIconSize"
+            class="grey-text"
+            contain>
+            {{ defaultIconClass }}
+          </v-icon>
+        </v-avatar>
+        <div class="me-4 my-4">
+          <ellipsis
             v-if="title"
             :title="title"
-            v-sanitized-html="title"
-            class="font-weight-bold text-color pb-2 pt-0 ma-0 text-truncate">
-          </h5>
+            :data="title"
+            :line-clamp="3"
+            end-char="..."
+            class="font-weight-bold text-color ma-0 pb-2 text-wrap" />
           <ellipsis
             v-if="summary"
             :title="summary"
@@ -107,7 +129,15 @@ export default {
       type: String,
       default: null,
     },
+    supportsIcon: {
+      type: Boolean,
+      default: false,
+    },
     supportsThumbnail: {
+      type: Boolean,
+      default: false,
+    },
+    useSameViewForMobile: {
       type: Boolean,
       default: false,
     },
@@ -115,20 +145,65 @@ export default {
       type: String,
       default: null,
     },
+    thumbnailProperties: {
+      type: Object,
+      default: null,
+    },
+    tooltip: {
+      type: String,
+      default: null,
+    },
     sourceLink: {
       type: String,
       default: null,
     },
+    defaultIcon: {
+      type: Object,
+      default: null,
+    },
   },
   computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs';
+    defaultIconClass() {
+      return this.defaultIcon && this.defaultIcon.icon || 'far fa-image';
+    },
+    defaultIconSize() {
+      return this.defaultIcon && this.defaultIcon.size || 58;
+    },
+    useMobileView() {
+      return this.$vuetify.breakpoint.name === 'xs' && !this.useSameViewForMobile;
     },
     sourceLinkTarget() {
       return this.sourceLink && this.sourceLink.indexOf('/') === 0 && '_self' || '_blank';
     },
     isBodyNotEmpty() {
       return this.body && this.body.trim() !== '<p></p>';
+    },
+    thumbnailHeight() {
+      return this.thumbnailProperties && this.thumbnailProperties.height || '150px';
+    },
+    thumbnailWidth() {
+      return this.thumbnailProperties && this.thumbnailProperties.width || '252px';
+    },
+    thumbnailNoBorder() {
+      return this.thumbnailProperties && this.thumbnailProperties.noBorder;
+    },
+    thumbnailMobileHeight() {
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '75vw';
+    },
+    thumbnailMobileWidth() {
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.width || '100%';
+    },
+    thumbnailMobileNoBorder() {
+      if (this.thumbnailProperties && this.thumbnailProperties.mobile && (this.thumbnailProperties.mobile.noBorder === false || this.thumbnailProperties.mobile.noBorder === true)) {
+        return this.thumbnailProperties.mobile.noBorder;
+      }
+      if (this.thumbnailNoBorder === false || this.thumbnailNoBorder === true) {
+        return this.thumbnailNoBorder;
+      }
+      return false;
+    },
+    tooltipText() {
+      return this.tooltip && this.$t(this.tooltip) || '';
     },
   },
   created() {

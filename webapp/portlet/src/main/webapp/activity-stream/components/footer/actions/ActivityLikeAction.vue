@@ -9,13 +9,15 @@
     link
     small
     @click="changeLike">
-    <v-icon
-      :class="likeColorClass"
-      class="me-1 pb-1"
-      size="12">
-      fa-thumbs-up
-    </v-icon>
-    <span>{{ $t('UIActivity.msg.LikeActivity') }}</span>
+    <span>
+      <v-icon
+        :class="likeColorClass"
+        class="baseline-vertical-align"
+        size="14">
+        fa-thumbs-up
+      </v-icon>
+      {{ $t('UIActivity.msg.LikeActivity') }}
+    </span>
   </v-btn>
 </template>
 

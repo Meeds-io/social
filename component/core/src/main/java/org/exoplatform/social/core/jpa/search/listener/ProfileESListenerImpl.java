@@ -105,4 +105,14 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
     indexingService.index(ProfileIndexingServiceConnector.TYPE, id);
   }
 
+  @Override
+  public void technicalUpdated(ProfileLifeCycleEvent event) {
+    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+    String id = event.getProfile().getIdentity().getId();
+
+    LOG.debug("Notifying indexing service for the profile update id={}, technical property changed", id);
+
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+  }
+
 }

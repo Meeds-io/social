@@ -273,6 +273,9 @@ public class IdentityManagerImpl implements IdentityManager {
       if (specificProfile.getProperty(Profile.AVATAR) != null){
         list.add(UpdateType.AVATAR);
       }
+      if (UserProfileComparator.hasChanged(specificProfile, existingProfile, Profile.LAST_LOGIN_TIME)){
+        list.add(UpdateType.TECHNICAL);
+      }
       specificProfile.setListUpdateTypes(list);
     }
   }

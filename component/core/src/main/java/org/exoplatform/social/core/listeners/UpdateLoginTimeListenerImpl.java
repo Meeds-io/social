@@ -29,11 +29,13 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
     Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
                                                                 event.getData().getIdentity().getUserId());
     Profile profile = userIdentity.getProfile();
-    profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTime());
-    try {
-      identityManager.updateProfile(profile, true);
-    } catch (MessageException e) {
-      LOG.error("Error while updating the last login time for user profile {}", user.getUserName(), e);
+    if (profile != null) {
+      profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
+      try {
+        identityManager.updateProfile(profile, true);
+      } catch (MessageException e) {
+        LOG.error("Error while updating the last login time for user profile {}", user.getUserName(), e);
+      }
     }
   }
 }
