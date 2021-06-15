@@ -1,5 +1,5 @@
 <template>
-  <ul v-if="parentElement === 'ul'">
+  <ul v-if="parentElement === 'ul' && isEnabled">
     <extension-registry-component
       v-for="component in components"
       :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -8,7 +8,7 @@
       :element-class="elementClass"
       :params="params" />
   </ul>
-  <li v-else-if="parentElement === 'li'">
+  <li v-else-if="parentElement === 'li' && isEnabled">
     <extension-registry-component
       v-for="component in components"
       :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -17,7 +17,7 @@
       :element-class="elementClass"
       :params="params" />
   </li>
-  <span v-else-if="parentElement === 'span'">
+  <span v-else-if="parentElement === 'span' && isEnabled">
     <extension-registry-component
       v-for="component in components"
       :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -26,7 +26,7 @@
       :element-class="elementClass"
       :params="params" />
   </span>
-  <a v-else-if="parentElement === 'a'">
+  <a v-else-if="parentElement === 'a' && isEnabled">
     <extension-registry-component
       v-for="component in components"
       :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -35,7 +35,7 @@
       :element-class="elementClass"
       :params="params" />
   </a>
-  <div v-else>
+  <div v-else-if="isEnabled">
     <extension-registry-component
       v-for="component in components"
       :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -77,6 +77,11 @@ export default {
   data: () => ({
     components: [],
   }),
+  computed: {
+    isEnabled() {
+      return this.components.length;
+    },
+  },
   created() {
     document.addEventListener(`component-${this.name}-${this.type}-updated`, event => {
       const component = event && event.detail;

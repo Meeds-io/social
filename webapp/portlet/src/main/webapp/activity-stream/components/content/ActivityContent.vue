@@ -7,6 +7,7 @@
       v-sanitized-html="body"
       class="postContent text-color pt-0" />
     <a
+      v-if="sourceLink"
       :href="sourceLink"
       :target="sourceLinkTarget"
       :title="tooltipText"
