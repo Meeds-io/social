@@ -2,7 +2,10 @@
   <v-list-item
     class="pa-4 activity-head"
     dense>
-    <activity-head-user :identity="posterIdentity" avatar />
+    <activity-head-user
+      :identity="posterIdentity"
+      class="me-3"
+      avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
       <v-list-item-title class="font-weight-bold body-2 mb-0">
         <activity-head-user :identity="posterIdentity" />

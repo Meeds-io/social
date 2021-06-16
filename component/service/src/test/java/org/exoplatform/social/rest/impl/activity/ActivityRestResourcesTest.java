@@ -339,7 +339,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ContainerResponse response = service("GET",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId()
-                                             + "/comments",
+                                             + "/comments?sortDescending=false",
                                          "",
                                          null,
                                          null);
@@ -371,6 +371,20 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(5, collections.getEntities().size());
+
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId() + "/comments?sortDescending=true",
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(5, collections.getEntities().size());
+
+    for (int i = 0; i < nbComments; i++) {
+      assertEquals("comment " + (4 - i), ((DataEntity) collections.getEntities().get(i)).get("title"));
+    }
 
     // clean data
     activityManager.deleteActivity(rootActivity);

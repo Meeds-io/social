@@ -759,6 +759,56 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link ActivityManager#getCommentsWithListAccess(ExoSocialActivity, boolean, boolean)}
+   * 
+   * @throws Exception
+   * @since 1.2.0-Beta3
+   */
+  public void testGetCommentsAndSubCommentsWithListAccessDescending() throws Exception {
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("demo activity");
+    demoActivity.setUserId(demoActivity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+
+    int total = 10;
+    int totalWithSubComments = total + total * total;
+
+    for (int i = 0; i < total; i++) {
+      ExoSocialActivity maryComment = new ExoSocialActivityImpl();
+      maryComment.setUserId(maryIdentity.getId());
+      maryComment.setTitle("mary comment");
+      activityManager.saveComment(demoActivity, maryComment);
+      for (int j = 0; j < total; j++) {
+        ExoSocialActivity johnComment = new ExoSocialActivityImpl();
+        johnComment.setUserId(johnIdentity.getId());
+        johnComment.setTitle("john comment" + i + j);
+        johnComment.setParentCommentId(maryComment.getId());
+        activityManager.saveComment(demoActivity, johnComment);
+      }
+    }
+
+    RealtimeListAccess<ExoSocialActivity> maryComments = activityManager.getCommentsWithListAccess(demoActivity);
+    assertNotNull("maryComments must not be null", maryComments);
+    assertEquals("maryComments.getSize() must return: 10", total, maryComments.getSize());
+
+    RealtimeListAccess<ExoSocialActivity> comments = activityManager.getCommentsWithListAccess(demoActivity, true, true);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.getSize() must return: 10", total, comments.getSize());
+
+    ExoSocialActivity[] commentsArray = comments.load(0, total);
+    assertEquals("commentsArray.length must return: 110", totalWithSubComments, commentsArray.length);
+    int index = 0;
+    for (int i = 0; i < total; i++) {
+      ExoSocialActivity maryComment = commentsArray[index++];
+      assertEquals("Title of comment should be 'mary comment', iteration = " + (total - i - 1), "mary comment", maryComment.getTitle());
+      for (int j = 0; j < total; j++) {
+        ExoSocialActivity johnComment = commentsArray[index++];
+        assertEquals("Title of comment should be 'john comment " + (total - i - 1) + j + "'", "john comment" + (total - i - 1) + j, johnComment.getTitle());
+      }
+    }
+  }
+
+  /**
    * Test
    * {@link ActivityManager#deleteComment(ExoSocialActivity, ExoSocialActivity)}
    * 

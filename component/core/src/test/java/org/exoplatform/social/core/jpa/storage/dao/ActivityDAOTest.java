@@ -221,7 +221,7 @@ public class ActivityDAOTest extends BaseCoreTest {
     //
     activity = activityDao.find(activity.getId());
     
-    List<ActivityEntity> demoComments = activityDao.getComments(activity.getId(), 0, -1);
+    List<ActivityEntity> demoComments = activityDao.getComments(activity.getId(), 0, -1, false);
     assertNotNull(demoComments);
     assertEquals(1, demoComments.size());
     
