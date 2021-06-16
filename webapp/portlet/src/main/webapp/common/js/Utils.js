@@ -8,3 +8,7 @@ export function htmlToText(htmlContent) {
     return htmlContent.replace(/<[^>]+>/g, '').trim();
   }
 }
+
+export function trim(text) {
+  return text && text.trim() || '';
+}
