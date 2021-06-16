@@ -34,6 +34,12 @@
         :thumbnail-properties="thumbnailProperties"
         :use-same-view-for-mobile="useSameViewForMobile"
         :tooltip="tooltip" />
+      <extension-registry-components
+        name="ActivityContent"
+        type="activity-content-extensions"
+        parent-element="div"
+        element="div"
+        :params="extendedComponentParams" />
       <activity-footer
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
