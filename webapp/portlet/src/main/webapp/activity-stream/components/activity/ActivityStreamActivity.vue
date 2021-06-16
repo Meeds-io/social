@@ -21,25 +21,15 @@
         :activity="activity"
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension" />
-      <activity-content
-        :activity-link="activityLink"
-        :body="body"
-        :title="title"
-        :summary="summary"
-        :source-link="sourceLink"
-        :supports-icon="supportsIcon"
-        :default-icon="defaultIcon"
-        :thumbnail="thumbnail"
-        :supports-thumbnail="supportsThumbnail"
-        :thumbnail-properties="thumbnailProperties"
-        :use-same-view-for-mobile="useSameViewForMobile"
-        :tooltip="tooltip" />
-      <extension-registry-components
-        name="ActivityContent"
-        type="activity-content-extensions"
-        parent-element="div"
-        element="div"
-        :params="extendedComponentParams" />
+      <v-card :loading="loading" flat>
+        <extension-registry-components
+          v-if="initialized"
+          name="ActivityContent"
+          type="activity-content-extensions"
+          parent-element="div"
+          element="div"
+          :params="extendedComponentParams" />
+      </v-card>
       <activity-footer
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
@@ -68,13 +58,8 @@ export default {
     },
   },
   data: () => ({
-    activityLink: null,
-    body: null,
-    title: null,
-    summary: null,
-    thumbnail: null,
-    sourceLink: null,
-    tooltip: null,
+    loading: false,
+    initialized: false,
   }),
   computed: {
     id() {
@@ -101,46 +86,14 @@ export default {
       };
     },
     extendedComponentParams() {
-      return this.$options && this.$options.propsData;
+      return {
+        activity: this.activity,
+        isActivityDetail: this.isActivityDetail,
+        activityTypeExtension: this.activityTypeExtension,
+      };
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
-    },
-    getBody() {
-      return this.activityTypeExtension && this.activityTypeExtension.getBody;
-    },
-    getTitle() {
-      return this.activityTypeExtension && this.activityTypeExtension.getTitle;
-    },
-    getSummary() {
-      return this.activityTypeExtension && this.activityTypeExtension.getSummary;
-    },
-    getThumbnail() {
-      return this.activityTypeExtension && this.activityTypeExtension.getThumbnail;
-    },
-    getSourceLink() {
-      return this.activityTypeExtension && this.activityTypeExtension.getSourceLink;
-    },
-    getActivityLink() {
-      return this.activityTypeExtension && this.activityTypeExtension.getActivityLink;
-    },
-    supportsThumbnail() {
-      return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
-    },
-    thumbnailProperties() {
-      return this.activityTypeExtension && this.activityTypeExtension.thumbnailProperties;
-    },
-    useSameViewForMobile() {
-      return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
-    },
-    supportsIcon() {
-      return this.supportsThumbnail || (this.activityTypeExtension && this.activityTypeExtension.supportsIcon);
-    },
-    getTooltip() {
-      return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
-    },
-    defaultIcon() {
-      return this.activityTypeExtension && this.activityTypeExtension.defaultIcon;
     },
   },
   watch: {
@@ -152,44 +105,32 @@ export default {
     },
   },
   created() {
-    this.retrieveActivityProperties();
+    this.$root.$on('activity-stream-updating-activity-start', () => this.loading = true);
+    this.$root.$emit('activity-stream-updating-activity-end', () => this.loading = false);
+
     document.addEventListener('activity-stream-activity-updated', event => {
       const activityId = event && event.detail;
       if (activityId === this.activityId) {
         this.retrieveActivityProperties();
       }
     });
+
+    this.retrieveActivityProperties();
   },
   methods: {
     retrieveActivityProperties() {
       if (this.init) {
         const initPromise = this.init(this.activity, this.isActivityDetail);
         if (initPromise && initPromise.then) {
-          return initPromise.then(this.computeActivityProperties);
+          this.loading = true;
+          return initPromise
+            .finally(() => {
+              this.loading = false;
+              this.initialized = true;
+            });
         }
       }
-      this.computeActivityProperties();
-    },
-    computeActivityProperties() {
-      if (this.extendedComponent) {
-        return;
-      }
-      if (this.getActivityLink) {
-        this.activityLink = this.getActivityLink(this.activity);
-      } else {
-        this.activityLink = `${this.$root.activityBaseLink}?id=${this.activityId}`;
-      }
-      this.body = this.getBody && this.trim(this.getBody(this.activity, this.isActivityDetail));
-      this.title = this.getTitle && this.trim(this.getTitle(this.activity, this.isActivityDetail));
-      this.summary = this.getSummary && this.trim(this.getSummary(this.activity, this.isActivityDetail));
-      this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
-      this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
-      if (this.supportsThumbnail) {
-        this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
-      }
-    },
-    trim(text) {
-      return text && text.trim() || '';
+      this.initialized = true;
     },
   },
 };
