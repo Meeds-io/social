@@ -39,7 +39,7 @@
             :data="title"
             :line-clamp="2"
             end-char="..."
-            class="font-weight-bold text-color ma-0 text-wrap" />
+            class="font-weight-bold text-color ma-0 text-wrap text-break" />
         </div>
       </div>
     </template>
@@ -90,14 +90,14 @@
           :data="title"
           :line-clamp="3"
           end-char="..."
-          class="font-weight-bold text-color ma-0 pb-2 text-wrap" />
+          class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
         <ellipsis
           v-if="summary"
           :title="summary"
           :data="summary"
           :line-clamp="3"
           end-char="..."
-          class="caption text-light-color text-wrap" />
+          class="caption text-light-color text-wrap text-break" />
       </div>
     </template>
   </a>
