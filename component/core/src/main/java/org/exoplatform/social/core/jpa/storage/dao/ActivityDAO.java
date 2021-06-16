@@ -387,9 +387,10 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @param activityId the Id of activity
    * @param offset the start index
    * @param limit max comments to load
+   * @param sortDescending 
    * @return list of activity entities represent comment
    */
-  List<ActivityEntity> getComments(long activityId, int offset, int limit);
+  List<ActivityEntity> getComments(long activityId, int offset, int limit, boolean sortDescending);
 
   /**
    *

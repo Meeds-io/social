@@ -4,7 +4,7 @@
     :id="id"
     :href="url"
     class="activity-head-user-link">
-    <v-list-item-avatar size="45" class="me-3 my-0">
+    <v-list-item-avatar :size="size" class="ma-0">
       <v-img :src="avatarUrl" eager />
     </v-list-item-avatar>
   </a>
@@ -32,6 +32,10 @@ export default {
     avatar: {
       type: Boolean,
       default: false,
+    },
+    size: {
+      type: Number,
+      default: () => 45,
     },
   },
   data() {

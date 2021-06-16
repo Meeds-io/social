@@ -255,6 +255,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
                                         @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                                         @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                                         @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                        @ApiParam(value = "Retrieve comments by last post time or by first post time", defaultValue = "false") @QueryParam("sortDescending") boolean sortDescending,
                                         @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -274,7 +275,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }
     
     List<DataEntity> commentsEntity = new ArrayList<DataEntity>();
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, EntityBuilder.expandSubComments(expand));
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, EntityBuilder.expandSubComments(expand), sortDescending);
     List<ExoSocialActivity> comments = listAccess.loadAsList(offset, limit);
     for (ExoSocialActivity comment : comments) {
       CommentEntity commentInfo = EntityBuilder.buildEntityFromComment(comment, uriInfo.getPath(), expand, true);

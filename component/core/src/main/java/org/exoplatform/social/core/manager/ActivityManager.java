@@ -168,6 +168,23 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity activity, boolean loadSubComments);
 
   /**
+   * Gets comments of a specific activity. 
+   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * If loadSubComments is true, subComments will be added to the result list
+   * If sortDescending is true, the latest posted comments will be retrieved first.
+   * 
+   * @param activity The specific activity.
+   * @param loadSubComments
+   * @param sortDescending
+   * @return The comments.
+   */
+  default RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity existingActivity,
+                                                                          boolean loadSubComments,
+                                                                          boolean sortDescending) {
+    return getCommentsWithListAccess(existingActivity, loadSubComments);
+  }
+
+  /**
    * Deletes an existing comment of a specific activity by its Id.
    *
    * @param activityId Id of the activity containing the deleted comment.
@@ -397,7 +414,8 @@ public interface ActivityManager {
    * his connections' activities and his spaces' activities, which are returned, are sorted starting from the most recent.
    *
    * @param identity The identity information to get the activity.
-   * @return All related to the identity, such as his activities, connections' activities, and spaces' activities.
+   * @Override
+  @return All related to the identity, such as his activities, connections' activities, and spaces' activities.
    * @since 1.1.2
    * @LevelAPI Provisional
    * @deprecated Use {@link #getActivityFeedWithListAccess(Identity)} instead. Will be removed by 4.0.x.
