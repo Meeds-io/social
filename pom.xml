@@ -54,10 +54,7 @@
     <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
     
     <!-- Sonar properties -->
-    <sonar.projectKey>${project.groupId}</sonar.projectKey>
     <sonar.organization>meeds-io</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
   </properties>
   <dependencyManagement>
     <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
