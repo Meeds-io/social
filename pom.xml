@@ -55,6 +55,7 @@
     
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
+    
   </properties>
   <dependencyManagement>
     <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
