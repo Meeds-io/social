@@ -38,5 +38,5 @@ public class RestProperties {
   public static final String SUB_COMMENTS  = "subComments";
   public static final String CAN_EDIT      = "canEdit";
   public static final String CAN_DELETE    = "canDelete";
-
+  public static final String MEMBERS_COUNT = "membersCount";
 }
