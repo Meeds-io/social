@@ -429,6 +429,10 @@ public class EntityBuilder {
           members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
         }
         spaceEntity.setMembers(members);
+
+        if(RestProperties.MEMBERS_COUNT.equals(expand)) {
+          spaceEntity.setMembersCount(space.getMembers().length);
+        }
   
         if(RestProperties.PENDING.equals(expand)) {
           LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
