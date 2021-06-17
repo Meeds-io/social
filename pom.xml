@@ -57,6 +57,7 @@
     <sonar.projectKey>Meeds-io_social</sonar.projectKey>
     <sonar.organization>meeds-io</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
   </properties>
   <dependencyManagement>
     <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
