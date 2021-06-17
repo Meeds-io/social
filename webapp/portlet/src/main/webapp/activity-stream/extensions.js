@@ -1,37 +1,51 @@
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;
 
 if (extensionRegistry) {
+
+  extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+    id: 'body',
+    isEnabled: () => true,
+    vueComponent: Vue.options.components['activity-body'],
+    rank: -1,
+  });
+
+  extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+    id: 'link',
+    isEnabled: (params) => {
+      const activityTypeExtension = params && params.activityTypeExtension;
+      const activity = params && params.activity;
+      const isActivityDetail = params && params.isActivityDetail;
+      return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail);
+    },
+    vueComponent: Vue.options.components['activity-link'],
+    rank: 0,
+  });
+
+  const defaultActivityOptions = {
+    getSourceLink: activity => activity && activity.templateParams && activity.templateParams.link,
+    getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
+    getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
+    getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
+    supportsThumbnail: true,
+    getBody: activity => (activity.templateParams && activity.templateParams.comment) || (activity && activity.title) || '',
+    getBodyToEdit: activity => {
+      const body = activity && activity.templateParams && activity.templateParams.default_title && activity.templateParams.default_title.split('<oembed>')[0] || '';
+      const link = activity && activity.templateParams && activity.templateParams.link || '';
+      if (link) {
+        return `${body}<p><a id='editActivityLinkPreview' href='${link}'>${link}</a></p>`;
+      } else if (body) {
+        return body;
+      } else {
+        return activity && activity.title;
+      }
+    },
+    canShare: () => true,
+  };
+
   // Register predefined activity types
   extensionRegistry.registerExtension('activity', 'type', {
     type: 'default',
-    options: {
-      getBody: activity => activity && activity.title || '',
-      canShare: () => true,
-    },
-  });
-
-  extensionRegistry.registerExtension('activity', 'type', {
-    type: 'LINK_ACTIVITY',
-    options: {
-      init: null,
-      getActivityLink: null,
-      getBody: activity => activity && activity.templateParams && activity.templateParams.comment || '',
-      getBodyToEdit: activity => {
-        const body = activity && activity.templateParams && activity.templateParams.default_title && activity.templateParams.default_title.split('<oembed>')[0] || '';
-        const link = activity && activity.templateParams && activity.templateParams.link || '';
-        if (link) {
-          return `${body}<p><a id='editActivityLinkPreview' href='${link}'>${link}</a></p>`;
-        } else {
-          return body;
-        }
-      },
-      getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
-      getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
-      getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
-      supportsThumbnail: true,
-      getSourceLink: activity => activity && activity.templateParams && activity.templateParams.link,
-      canShare: () => true,
-    },
+    options: defaultActivityOptions,
   });
 
   extensionRegistry.registerExtension('activity', 'action', {
