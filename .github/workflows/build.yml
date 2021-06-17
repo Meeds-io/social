@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Analyse Module with SonarCloud
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
     steps:
       - uses: actions/checkout@v2
         with:

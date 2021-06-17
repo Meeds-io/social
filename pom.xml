@@ -54,7 +54,7 @@
     <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
     
     <!-- Sonar properties -->
-    <sonar.projectKey>Meeds-io_social</sonar.projectKey>
+    <sonar.projectKey>${project.groupId}</sonar.projectKey>
     <sonar.organization>meeds-io</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -274,6 +274,8 @@
       </plugins>
     </pluginManagement>
   </build>
+  
+  <!-- This profile is used to allow github action to build branches. The github action is used for sonar analysis --> 
   <profiles>
     <profile>
       <id>project-repositories</id>
