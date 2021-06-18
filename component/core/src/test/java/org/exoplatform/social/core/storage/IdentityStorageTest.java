@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.organization.*;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -552,19 +552,19 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     ProfileFilter profileFilter = new ProfileFilter();
 
-    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 2);
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 2);
     assertEquals(2, identities.size());
 
     profileFilter.setName("0");
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 2);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 2);
     assertEquals(0, identities.size());
 
     profileFilter.setName("3");
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 2);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 2);
     assertEquals(1, identities.size());
 
     addUserToGroupWithMembership("username4", space.getGroupId(), MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.MANAGER, 0, 10);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.MANAGER, 0, 10);
     assertEquals(1, identities.size());
   }
 
@@ -596,12 +596,12 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     ProfileFilter profileFilter = new ProfileFilter();
 
-    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MANAGER, 0, 2);
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MANAGER, 0, 2);
     assertEquals(1, identities.size());
 
     identityStorage.hardDeleteIdentity(identities.get(0));
     List<Identity> identities2 =
-                               identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MANAGER, 0, 2);
+                               identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MANAGER, 0, 2);
     assertEquals(0, identities2.size());
   }
 

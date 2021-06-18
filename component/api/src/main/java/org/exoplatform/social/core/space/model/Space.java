@@ -16,9 +16,9 @@
  */
 package org.exoplatform.social.core.space.model;
 
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
-import org.exoplatform.social.core.space.SpaceUtils;
 
 /**
  * Space Model
@@ -591,7 +591,7 @@ public class Space {
    * @since 1.2.0-GA
    */
   public void setPrettyName(String prettyName) {
-    this.prettyName = SpaceUtils.cleanString(prettyName);
+    this.prettyName = Utils.cleanString(prettyName);
   }
 
   /**

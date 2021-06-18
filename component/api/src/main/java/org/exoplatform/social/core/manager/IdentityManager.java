@@ -17,9 +17,7 @@
 package org.exoplatform.social.core.manager;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.social.core.identity.IdentityProvider;
-import org.exoplatform.social.core.identity.IdentityProviderPlugin;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.*;
 import org.exoplatform.social.core.identity.model.GlobalId;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -31,7 +29,6 @@ import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.webui.exception.MessageException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -156,7 +153,7 @@ public interface IdentityManager {
    * @LevelAPI Platform 
    * @since  1.2.0-GA
    */
-  void updateProfile(Profile specificProfile) throws MessageException;
+  void updateProfile(Profile specificProfile);
 
   /**
    * Updates a specific profile and broadcast detected changes on profile if
@@ -165,7 +162,7 @@ public interface IdentityManager {
    * @param specificProfile The specific profile.
    * @param broadcastChanges whether detect and broadcast changed fields or not
    */
-  default void updateProfile(Profile specificProfile, boolean broadcastChanges) throws MessageException {
+  default void updateProfile(Profile specificProfile, boolean broadcastChanges) {
     throw new UnsupportedOperationException();
   }
 
@@ -205,7 +202,7 @@ public interface IdentityManager {
    * @return The space identities.
    * @LevelAPI Platform 
    */
-  ListAccess<Identity> getSpaceIdentityByProfileFilter(Space space, ProfileFilter profileFilter, Type type,
+  ListAccess<Identity> getSpaceIdentityByProfileFilter(Space space, ProfileFilter profileFilter, SpaceMemberFilterListAccess.Type type,
                                                        boolean isProfileLoaded);
   
   /**
@@ -459,7 +456,7 @@ public interface IdentityManager {
    * @LevelAPI Provisional
    * @deprecated Will be removed by 4.0.x.
    */
-  void updateAvatar(Profile p) throws MessageException;
+  void updateAvatar(Profile p);
 
   /**
    * Updates the basic information.

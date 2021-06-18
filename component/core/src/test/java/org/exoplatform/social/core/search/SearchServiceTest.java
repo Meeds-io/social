@@ -31,19 +31,19 @@ public class SearchServiceTest {
     Map<String, String> settingValues = new HashMap<>();
     SettingService settingService = mock(SettingService.class);
     doAnswer(invocation -> {
-      Context context = invocation.getArgumentAt(0, Context.class);
-      Scope scope = invocation.getArgumentAt(1, Scope.class);
-      String key = invocation.getArgumentAt(2, String.class);
-      SettingValue<?> value = invocation.getArgumentAt(3, SettingValue.class);
+      Context context = invocation.getArgument(0, Context.class);
+      Scope scope = invocation.getArgument(1, Scope.class);
+      String key = invocation.getArgument(2, String.class);
+      SettingValue<?> value = invocation.getArgument(3, SettingValue.class);
       String settingKey = context.getId() + context.getName() + scope.getId() + scope.getName() + key;
       settingValues.put(settingKey, value.toString());
       return null;
     }).when(settingService).set(any(Context.class), any(Scope.class), anyString(), any(SettingValue.class));
 
     when(settingService.get(any(Context.class), any(Scope.class), anyString())).thenAnswer(invocation -> {
-      Context context = invocation.getArgumentAt(0, Context.class);
-      Scope scope = invocation.getArgumentAt(1, Scope.class);
-      String key = invocation.getArgumentAt(2, String.class);
+      Context context = invocation.getArgument(0, Context.class);
+      Scope scope = invocation.getArgument(1, Scope.class);
+      String key = invocation.getArgument(2, String.class);
       String settingKey = context.getId() + context.getName() + scope.getId() + scope.getName() + key;
       String value = settingValues.get(settingKey);
       return value == null ? null : SettingValue.create(value);

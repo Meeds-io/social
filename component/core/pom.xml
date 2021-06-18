@@ -24,7 +24,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.2.x-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-component-core</artifactId>
   <name>eXo PLF:: Social Core Component</name>
   <description>eXo Social Core Component: People and Space</description>
@@ -117,7 +116,7 @@
     </dependency>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>social-component-common</artifactId>
     </dependency>
     <dependency>
@@ -256,6 +255,11 @@
           <artifactId>exo.tool.framework.junit</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.tool</groupId>

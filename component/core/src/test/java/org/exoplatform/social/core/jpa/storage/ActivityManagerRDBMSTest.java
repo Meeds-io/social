@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mockito.Mockito;
+import org.mockito.*;
 
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
@@ -40,6 +40,7 @@ import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -48,7 +49,6 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.upload.UploadService;
 
 /**
@@ -1605,9 +1605,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   public void testGetLastIdenties() throws Exception {
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(paulIdentity))
@@ -1627,9 +1627,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     os.getUserHandler().createUser(user1, false);
     Identity newId1 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId1", false);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId1))
@@ -1647,9 +1647,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     os.getUserHandler().createUser(user2, false);
     Identity newId2 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId2", true);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId2, paulIdentity, jameIdentity, raulIdentity, ghostIdentity))
@@ -1667,9 +1667,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     newId1 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId1", false);
     newId2 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId2", true);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId2))

@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
@@ -279,7 +279,7 @@ public interface IdentityStorage {
    */
   public List<Identity> getSpaceMemberIdentitiesByProfileFilter(final Space space, 
                                                                 final ProfileFilter profileFilter,
-                                                                Type type,
+                                                                SpaceMemberFilterListAccess.Type type,
                                                                 long offset, long limit)
                                                                 throws IdentityStorageException;
   
@@ -385,7 +385,7 @@ public interface IdentityStorage {
    * @param type
    * @return
    */
-  public int countSpaceMemberIdentitiesByProfileFilter(Space space, ProfileFilter profileFilter, Type type);
+  public int countSpaceMemberIdentitiesByProfileFilter(Space space, ProfileFilter profileFilter, SpaceMemberFilterListAccess.Type type);
 
   /**
    * Get list of identities by providerId
