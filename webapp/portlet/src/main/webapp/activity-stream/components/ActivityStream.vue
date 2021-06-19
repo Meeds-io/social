@@ -5,6 +5,7 @@
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions" />
+    <activity-comments-drawer />
   </v-app>
 </template>
 

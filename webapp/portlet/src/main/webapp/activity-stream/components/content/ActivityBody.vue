@@ -2,7 +2,7 @@
   <v-card-text
     v-if="isBodyNotEmpty"
     v-sanitized-html="body"
-    class="postContent text-color pt-0" />
+    class="postContent text-color pt-0 pe-7" />
 </template>
 
 <script>
