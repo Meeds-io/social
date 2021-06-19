@@ -16,6 +16,7 @@ import ActivityActions from './components/footer/ActivityActions.vue';
 import ActivityCommentAction from './components/footer/actions/ActivityCommentAction.vue';
 import ActivityLikeAction from './components/footer/actions/ActivityLikeAction.vue';
 import ActivityCommentsPreview from './components/comment/ActivityCommentsPreview.vue';
+import ActivityCommentsDrawer from './components/comment/ActivityCommentsDrawer.vue';
 import ActivityComments from './components/comment/ActivityComments.vue';
 import ActivityComment from './components/comment/ActivityComment.vue';
 
@@ -38,6 +39,7 @@ const components = {
   'activity-comment-action': ActivityCommentAction,
   'activity-like-action': ActivityLikeAction,
   'activity-comments-preview': ActivityCommentsPreview,
+  'activity-comments-drawer': ActivityCommentsDrawer,
   'activity-comments': ActivityComments,
   'activity-comment': ActivityComment,
 };

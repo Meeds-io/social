@@ -6,7 +6,8 @@
     class="pa-0 mx-2 primary--text"
     text
     link
-    small>
+    small
+    @click="openCommentsDrawer">
     <span>
       <v-icon
         class="baseline-vertical-align"
@@ -29,6 +30,15 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+  },
+  methods: {
+    openCommentsDrawer() {
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activityId: this.activityId,
+        offset: 0,
+        limit: 200, // To display all
+      }}));
     },
   },
 };
