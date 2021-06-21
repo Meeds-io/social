@@ -41,6 +41,10 @@ export default {
     ckEditorType: {
       type: String,
       default: 'activityContent'
+    },
+    autofocus: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -54,6 +58,13 @@ export default {
   watch: {
     inputVal(val) {
       this.$emit('input', val);
+    },
+    editorReady() {
+      if (this.editorReady) {
+        this.$emit('ready');
+      } else {
+        this.$emit('unloaded');
+      }
     },
     value(val) {
       if (!CKEDITOR.instances[this.ckEditorType]) {
@@ -83,6 +94,7 @@ export default {
         if (reset) {
           CKEDITOR.instances[this.ckEditorType].destroy(true);
         } else {
+          this.editorReady = true;
           return;
         }
       }
@@ -120,13 +132,17 @@ export default {
                   $(this).closest('[data-atwho-at-query]').remove();
                 });
               });
+
+            if (self.autofocus) {
+              CKEDITOR.instances[self.ckEditorType].focus();
+            }
           },
           change: function (evt) {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;
 
-            const pureText = newData ? newData.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+            const pureText = self.$utils.htmlToText(newData);
             self.charsCount = pureText.length;
           },
           destroy: function () {
