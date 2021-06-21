@@ -96,7 +96,9 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-commented', (activityId, comment) => {
+    document.addEventListener('activity-commented', (event) => {
+      const activityId = event && event.detail && event.detail.activityId;
+      const comment = event && event.detail && event.detail.comment;
       if (activityId === this.activityId) {
         comment.hightlight = true;
         this.comments.push(comment);
@@ -117,7 +119,10 @@ export default {
       }
       this.commenting = true;
       this.$activityService.createComment(this.activityId, null, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(comment => this.$root.$emit('activity-commented', this.activityId, comment))
+        .then(comment => document.dispatchEvent(new CustomEvent('activity-commented', {detail: {
+          activityId: this.activityId,
+          comment: comment
+        }})))
         .finally(() => {
           this.message = null;
           this.commenting = false;
