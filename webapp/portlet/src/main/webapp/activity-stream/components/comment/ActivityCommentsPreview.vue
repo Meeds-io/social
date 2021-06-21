@@ -48,7 +48,8 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-commented', (activityId) => {
+    document.addEventListener('activity-commented', (event) => {
+      const activityId = event && event.detail && event.detail.activityId;
       if (activityId === this.activityId) {
         this.retrieveLastComment();
       }

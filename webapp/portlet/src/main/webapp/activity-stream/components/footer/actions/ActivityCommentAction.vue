@@ -2,14 +2,15 @@
   <v-btn
     :id="`CommentLink${activityId}`"
     :title="$t('UIActivity.label.Comment')"
-    :data-activity="activityId"
-    class="pa-0 mx-2 primary--text"
+    :class="commentTextColorClass"
+    class="pa-0 mx-2"
     text
     link
     small
     @click="openCommentsDrawer">
     <span>
       <v-icon
+        :class="commentColorClass"
         class="baseline-vertical-align"
         size="14">
         fa-comment
@@ -27,10 +28,28 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    hasCommented: false,
+  }),
   computed: {
     activityId() {
       return this.activity && this.activity.id;
     },
+    commentColorClass() {
+      return this.hasCommented && 'primary--text' || 'disabled--text';
+    },
+    commentTextColorClass() {
+      return this.hasCommented && 'primary--text' || '';
+    },
+  },
+  created() {
+    document.addEventListener('activity-commented', (event) => {
+      const activityId = event && event.detail && event.detail.activityId;
+      if (activityId === this.activityId) {
+        this.hasCommented = true;
+      }
+    });
+    this.hasCommented = this.activity && this.activity.hasCommented === 'true';
   },
   methods: {
     openCommentsDrawer() {

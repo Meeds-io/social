@@ -183,6 +183,15 @@ public class ActivityEntity extends BaseEntity {
     return count == null ? 0 : Integer.parseInt(count.toString());
   }
 
+  public void setHasCommented(boolean hasCommented) {
+    setProperty("hasCommented", String.valueOf(hasCommented));
+  }
+
+  public boolean isHasCommented() {
+    Object hasCommented = getProperty("hasCommented");
+    return hasCommented != null && Boolean.parseBoolean(hasCommented.toString());
+  }
+
   public void setCanEdit(boolean canEdit) {
     setProperty(RestProperties.CAN_EDIT, String.valueOf(canEdit));
   }

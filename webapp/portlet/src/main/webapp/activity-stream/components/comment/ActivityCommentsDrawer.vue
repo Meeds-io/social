@@ -88,7 +88,7 @@ export default {
       }
     });
 
-    this.$root.$on('activity-commented', () => {
+    document.addEventListener('activity-commented', () => {
       this.displayCommentEditor = false;
       this.$nextTick(this.scrollToEnd);
     });
