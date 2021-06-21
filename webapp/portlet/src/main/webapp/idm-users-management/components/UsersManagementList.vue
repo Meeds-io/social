@@ -42,10 +42,10 @@
           {{ item.connectionStatus }}
         </div>
       </template>
-      <template slot="item.enrolmentDate" slot-scope="{ item }">
+      <template slot="item.enrollmentDate" slot-scope="{ item }">
         <div
-          v-exo-tooltip.bottom.body="item.enrolmentDetails"
-          v-if="item.enrolmentStatus === 'invitationAccepted'"
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-if="item.enrollmentStatus === 'invitationAccepted'"
           class="d-inline">
           <v-badge
             bottom
@@ -59,8 +59,8 @@
           </v-badge>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrolmentDetails"
-          v-else-if="item.enrolmentStatus === 'reInviteToJoin'"
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-else-if="item.enrollmentStatus === 'reInviteToJoin'"
           class="d-inline">
           <v-badge
             bottom
@@ -74,13 +74,13 @@
           </v-badge>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrolmentDetails"
-          v-else-if="item.enrolmentStatus === 'inviteToJoin'"
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          v-else-if="item.enrollmentStatus === 'inviteToJoin'"
           class="d-inline">
           <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrolmentDetails"
+          v-exo-tooltip.bottom.body="item.enrollmentDetails"
           v-else
           class="d-inline mailBadge">
           <v-icon class="disabled" size="22">mdi-email</v-icon>
@@ -186,7 +186,7 @@ export default {
     selectedFiler: null,
     isConnected: null,
     userType: null,
-    enrolmentStatus: null,
+    enrollmentStatus: null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -253,7 +253,7 @@ export default {
         sortable: false,
       },{
         text: this.$t && this.$t('UsersManagement.enrollment'),
-        value: 'enrolmentDate',
+        value: 'enrollmentDate',
         align: 'center',
         width: '80px',
         class: 'headerPadding',
@@ -427,8 +427,8 @@ export default {
       const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
       if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {this.userType = this.selectedFiler;}
       if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {this.isConnected = this.selectedFiler;}
-      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrolmentPossible'))  {this.enrolmentStatus = this.selectedFiler;}
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrolmentStatus != null ? `&enrolmentStatus=${(this.enrolmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {this.enrollmentStatus = this.selectedFiler;}
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrollmentStatus != null ? `&enrollmentStatus=${(this.enrollmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -453,24 +453,24 @@ export default {
           }
           if (user.lastLoginTime) {
             user.lastLoginTime = Number(user.lastLoginTime);
-            if (user.enrolmentDate != null) {
-              user.enrolmentStatus = 'invitationAccepted';
-              user.enrolmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrolmentDate))});
+            if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'invitationAccepted';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
             } else {
-              user.enrolmentStatus = 'alreadyConnected';
-              user.enrolmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
+              user.enrollmentStatus = 'alreadyConnected';
+              user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
             }
           } else {
             user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
             if (user.external === 'true') {
-              user.enrolmentStatus = 'cannotBeEnrolled';
-              user.enrolmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-            } else if (user.enrolmentDate != null) {
-              user.enrolmentStatus = 'reInviteToJoin';
-              user.enrolmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrolmentDate))});
+              user.enrollmentStatus = 'cannotBeEnrolled';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+            } else if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'reInviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
             } else {
-              user.enrolmentStatus = 'inviteToJoin';
-              user.enrolmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
+              user.enrollmentStatus = 'inviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
             }
           }
         });
@@ -486,7 +486,7 @@ export default {
           this.initialized = true;
           this.isConnected = null;
           this.userType = null;
-          this.enrolmentStatus = null;
+          this.enrollmentStatus = null;
         });
     },
     waitForEndTyping() {

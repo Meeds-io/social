@@ -443,7 +443,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
       profile.setProperty(Profile.LAST_NAME, "LastName" + i);
       profile.setProperty(Profile.FULL_NAME, "FirstName" + i + " " + "LastName" + i);
       profile.setProperty(Profile.EXTERNAL, "true");
-      profile.setProperty(Profile.ENROLMENT_DATE, new Date().getTime());
+      profile.setProperty(Profile.ENROLLMENT_DATE, new Date().getTime());
       identityStorage.saveProfile(profile);
       identity.setProfile(profile);
     }
@@ -531,7 +531,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertTrue("Returned result count is not consistent", result.size() == 7);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, "noEnrolmentPossible", offset, limit);
+    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, "noEnrollmentPossible", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
 
@@ -640,10 +640,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
     identityStorage.saveIdentity(enrolledIdentity);
     tearDownIdentityList.add(enrolledIdentity);
 
-    //no enrolment possible identity
-    Identity noEnrolmentPossibleIdentity = new Identity("organization", "username8");
-    identityStorage.saveIdentity(noEnrolmentPossibleIdentity);
-    tearDownIdentityList.add(noEnrolmentPossibleIdentity);
+    //no enrollment possible identity
+    Identity noEnrollmentPossibleIdentity = new Identity("organization", "username8");
+    identityStorage.saveIdentity(noEnrollmentPossibleIdentity);
+    tearDownIdentityList.add(noEnrollmentPossibleIdentity);
 
     Profile profile = new Profile(externalIdentity);
     profile.setProperty(Profile.FIRST_NAME, "FirstName6");
@@ -659,21 +659,21 @@ public class IdentityStorageTest extends AbstractCoreTest {
     enrolledProfile.setProperty(Profile.FIRST_NAME, "FirstName7");
     enrolledProfile.setProperty(Profile.LAST_NAME, "LastName7");
     enrolledProfile.setProperty(Profile.FULL_NAME, "FirstName7 LastName7");
-    enrolledProfile.setProperty(Profile.ENROLMENT_DATE, new Date().getTime());
+    enrolledProfile.setProperty(Profile.ENROLLMENT_DATE, new Date().getTime());
     enrolledProfile.setProperty("position", "developer");
     enrolledProfile.setProperty("gender", "male");
     identity.setProfile(enrolledProfile);
     identityStorage.saveProfile(enrolledProfile);
 
-    Profile noEnrolmentPossibleProfile = new Profile(noEnrolmentPossibleIdentity);
-    noEnrolmentPossibleProfile.setProperty(Profile.FIRST_NAME, "FirstName8");
-    noEnrolmentPossibleProfile.setProperty(Profile.LAST_NAME, "LastName8");
-    noEnrolmentPossibleProfile.setProperty(Profile.FULL_NAME, "FirstName8 LastName8");
-    noEnrolmentPossibleProfile.setProperty(Profile.LAST_LOGIN_TIME, new Date().getTime());
-    noEnrolmentPossibleProfile.setProperty("position", "developer");
-    noEnrolmentPossibleProfile.setProperty("gender", "male");
-    identity.setProfile(noEnrolmentPossibleProfile);
-    identityStorage.saveProfile(noEnrolmentPossibleProfile);
+    Profile noEnrollmentPossibleProfile = new Profile(noEnrollmentPossibleIdentity);
+    noEnrollmentPossibleProfile.setProperty(Profile.FIRST_NAME, "FirstName8");
+    noEnrollmentPossibleProfile.setProperty(Profile.LAST_NAME, "LastName8");
+    noEnrollmentPossibleProfile.setProperty(Profile.FULL_NAME, "FirstName8 LastName8");
+    noEnrollmentPossibleProfile.setProperty(Profile.LAST_LOGIN_TIME, new Date().getTime());
+    noEnrollmentPossibleProfile.setProperty("position", "developer");
+    noEnrollmentPossibleProfile.setProperty("gender", "male");
+    identity.setProfile(noEnrollmentPossibleProfile);
+    identityStorage.saveProfile(noEnrollmentPossibleProfile);
 
     assertEquals(8, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
@@ -693,16 +693,16 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
 
     // set enrolled users
-    pf.setEnrolmentStatus("enrolled");
+    pf.setEnrollmentStatus("enrolled");
     assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
     // set notEnrolled users
-    pf.setEnrolmentStatus("notEnrolled");
+    pf.setEnrollmentStatus("notEnrolled");
     assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
-    // set no possible enrolment users
-    pf.setEnrolmentStatus("noEnrolmentPossible");
-    identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(),'\0', SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrolmentPossible", 0, Integer.MAX_VALUE);
+    // set no possible enrollment users
+    pf.setEnrollmentStatus("noEnrollmentPossible");
+    identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(),'\0', SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrollmentPossible", 0, Integer.MAX_VALUE);
     assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
   }
   

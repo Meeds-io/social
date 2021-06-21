@@ -70,12 +70,12 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param enabled
    * @param userType
    * @param isConnected
-   * @param enrolmentStatus
+   * @param enrollmentStatus
    * @param offset
    * @param limit
    * @return
    */
-  List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrolmentStatus, long offset, long limit);
+  List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
 
   /**
    * Count identities by providerId
@@ -86,6 +86,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param enabled
    * @return
    */
-  int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrolmentStatus);
+  int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus);
 
 }

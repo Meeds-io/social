@@ -249,7 +249,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @ApiParam(value = "Is connected users", required = false) @QueryParam("isConnected") String isConnected,
                            @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
                            @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
-                           @ApiParam(value = "Enrolment status, ex: enrolled, not enrolled, no possible enrolment", required = false) @QueryParam("enrolmentStatus") String enrolmentStatus,
+                           @ApiParam(value = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment", required = false) @QueryParam("enrollmentStatus") String enrollmentStatus,
                            @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
                            @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
                            @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -297,7 +297,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (!isDisabled) {
         filter.setUserType(userType);
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
-        filter.setEnrolmentStatus(enrolmentStatus);
+        filter.setEnrollmentStatus(enrollmentStatus);
       }
       if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
@@ -1772,7 +1772,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
       Profile profile = userIdentity.getProfile();
-      updateProfileField(profile, Profile.ENROLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
     }
   }
 

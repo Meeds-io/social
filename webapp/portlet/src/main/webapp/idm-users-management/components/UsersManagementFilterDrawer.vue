@@ -32,7 +32,7 @@
             <v-radio
               class="pa-2"
               :label="$t('UsersManagement.enrollment.noEnrollmentPossible')"
-              value="noEnrolmentPossible" />
+              value="noEnrollmentPossible" />
             <v-radio
               class="pa-2"
               :label="$t('UsersManagement.type.internal')"
