@@ -150,7 +150,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           boolean isEnabled = profileFilter.isEnabled();
           String userType = profileFilter.getUserType();
           Boolean isConnected = profileFilter.isConnected();
-          String enrolmentStatus = profileFilter.getEnrolmentStatus();
+          String enrollmentStatus = profileFilter.getEnrollmentStatus();
 
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
@@ -162,7 +162,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      isEnabled,
                                                      userType,
                                                      isConnected,
-                                                     enrolmentStatus,
+                                                     enrollmentStatus,
                                                      offset,
                                                      usedLimit);
         }

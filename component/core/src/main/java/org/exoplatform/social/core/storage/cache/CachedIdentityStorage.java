@@ -704,7 +704,7 @@ public class CachedIdentityStorage implements IdentityStorage {
                                       boolean isEnabled,
                                       String userType,
                                       Boolean isConnected,
-                                      String enrolmentStatus,
+                                      String enrollmentStatus,
                                       long offset,
                                       long limit) {
     ProfileFilter profileFilter = null;
@@ -715,7 +715,7 @@ public class CachedIdentityStorage implements IdentityStorage {
       profileFilter.setEnabled(isEnabled);
       profileFilter.setUserType(userType);
       profileFilter.setConnected(isConnected);
-      profileFilter.setEnrolmentStatus(enrolmentStatus);
+      profileFilter.setEnrollmentStatus(enrollmentStatus);
       profileFilter.setSorting(Sorting.valueOf(sortField, sortDirection));
     }
 
@@ -734,7 +734,7 @@ public class CachedIdentityStorage implements IdentityStorage {
                                                    isEnabled,
                                                    userType,
                                                    isConnected,
-                                                   enrolmentStatus,
+                                                   enrollmentStatus,
                                                    offset,
                                                    limit);
         return buildIds(got);

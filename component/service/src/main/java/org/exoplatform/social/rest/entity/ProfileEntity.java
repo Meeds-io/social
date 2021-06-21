@@ -84,7 +84,7 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String LAST_LOGIN_TIME   = "lastLoginTime";
   
-  public static final String ENROLMENT_DATE   = "enrolmentDate";
+  public static final String ENROLLMENT_DATE   = "enrollmentDate";
 
   public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
 
@@ -496,13 +496,13 @@ public class ProfileEntity extends BaseEntity {
     return getString(CREATED_DATE);
   }
 
-  public ProfileEntity setEnrolmentDate(String enrolmentDate) {
-    setProperty(ENROLMENT_DATE, enrolmentDate);
+  public ProfileEntity setEnrollmentDate(String enrollmentDate) {
+    setProperty(ENROLLMENT_DATE, enrollmentDate);
     return this;
   }
 
-  public String getEnrolmentDate() {
-    return getString(ENROLMENT_DATE);
+  public String getEnrollmentDate() {
+    return getString(ENROLLMENT_DATE);
   }
 
   public ProfileEntity setSynchronizedDate(String synchronizedDate) {

@@ -704,7 +704,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrolmentStatus());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrollmentStatus());
   }
 
   @Override
@@ -896,10 +896,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       boolean isEnabled,
                                       String userType,
                                       Boolean isConnected,
-                                      String enrolmentStatus,
+                                      String enrollmentStatus,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, enrolmentStatus, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
