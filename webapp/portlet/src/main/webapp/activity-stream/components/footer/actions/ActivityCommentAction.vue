@@ -38,6 +38,7 @@ export default {
         activityId: this.activityId,
         offset: 0,
         limit: 200, // To display all
+        displayComment: true,
       }}));
     },
   },

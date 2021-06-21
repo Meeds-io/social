@@ -1,6 +1,6 @@
 <template>
   <div v-if="commentsSize">
-    <activity-comments :comments="commentsPreviewList" />
+    <activity-comments :activity-id="activityId" :comments="commentsPreviewList" />
     <v-btn
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
@@ -48,14 +48,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-comment-added', event => {
-      const activityId = event && event.detail;
-      if (activityId === this.activityId) {
-        this.retrieveLastComment();
-      }
-    });
-    document.addEventListener('activity-comment-updated', event => {
-      const activityId = event && event.detail;
+    this.$root.$on('activity-commented', (activityId) => {
       if (activityId === this.activityId) {
         this.retrieveLastComment();
       }
