@@ -26,7 +26,7 @@
     <div class="ps-12 py-0 mb-2 align-start border-box-sizing" dense>
       <activity-comment-actions
         :comment="comment"
-        class="py-0 mb-auto flex-shrink-1" />
+        class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
       <activity-comment-rich-text
         v-if="displayReply"
         ref="commentRichEditor"
