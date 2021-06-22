@@ -4,9 +4,10 @@
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
-      :activity-actions="activityActions" />
+      :activity-actions="activityActions"
+      :comment-actions="commentActions" />
     <div class="drawer-parent">
-      <activity-comments-drawer />
+      <activity-comments-drawer :comment-actions="commentActions" />
     </div>
   </v-app>
 </template>
@@ -18,15 +19,19 @@ export default {
     activityId: null,
     activityTypes: {},
     activityActions: {},
+    commentActions: {},
     extensionApp: 'activity',
     activityTypeExtension: 'type',
     activityActionExtension: 'action',
+    commentActionExtension: 'comment-action',
   }),
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
+    document.addEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
     this.refreshActivityTypes();
     this.refreshActivityActions();
+    this.refreshCommentActions();
     if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
       this.activityId = this.getQueryParam('id');
     }
@@ -52,6 +57,14 @@ export default {
       extensions.forEach(extension => {
         if (extension.id) {
           this.activityActions[extension.id] = extension;
+        }
+      });
+    },
+    refreshCommentActions() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.commentActionExtension);
+      extensions.forEach(extension => {
+        if (extension.id) {
+          this.commentActions[extension.id] = extension;
         }
       });
     },

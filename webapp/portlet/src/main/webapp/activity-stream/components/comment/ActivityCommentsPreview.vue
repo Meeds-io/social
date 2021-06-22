@@ -5,7 +5,11 @@
     height="2"
     indeterminate />
   <div v-else-if="commentsSize">
-    <activity-comments :activity-id="activityId" :comments="commentsPreviewList" />
+    <activity-comments
+      :activity-id="activityId"
+      :comments="commentsPreviewList"
+      :comment-actions="commentActions"
+      @comment-deleted="retrieveLastComment" />
     <v-btn
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
@@ -22,6 +26,10 @@ export default {
   props: {
     activityId: {
       type: String,
+      default: null,
+    },
+    commentActions: {
+      type: Object,
       default: null,
     },
   },

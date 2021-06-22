@@ -285,11 +285,11 @@ public class ActivityManagerImpl implements ActivityManager {
     Validate.notNull(existingActivity, "existingActivity must not be null!");
     Validate.notNull(existingActivity.getId(), "existingActivity.getId() must not be null!");
 
-    activityStorage.deleteActivity(existingActivity.getId());
-
-    if(existingActivity.isComment() || existingActivity.getParentId() != null){
+    if (existingActivity.isComment() || existingActivity.getParentId() != null) {
+      activityStorage.deleteComment(existingActivity.getParentId(), existingActivity.getId());
       activityLifeCycle.deleteComment(existingActivity);
     } else {
+      activityStorage.deleteActivity(existingActivity.getId());
       activityLifeCycle.deleteActivity(existingActivity);
     }
   }

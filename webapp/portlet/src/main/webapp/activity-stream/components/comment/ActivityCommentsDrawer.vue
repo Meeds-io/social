@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="activityCommentsDrawer"
+    :temporary="temporaryDrawer"
     id="activityCommentsDrawer"
     body-classes="hide-scroll decrease-z-index"
     allow-expand
@@ -28,6 +29,7 @@
         :activity-id="activityId"
         :comments="comments"
         :comment-editor-display="displayCommentEditor"
+        :comment-actions="commentActions"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
         editor />
     </template>
@@ -36,11 +38,18 @@
 
 <script>
 export default {
+  props: {
+    commentActions: {
+      type: Object,
+      default: null,
+    },
+  },
   data: () => ({
     commentsData: null,
     activityId: null,
     loading: false,
     drawerOpened: false,
+    temporaryDrawer: true,
     displayCommentEditor: false,
     selectedCommentIdToReply: null,
     offset: 0,
@@ -85,6 +94,10 @@ export default {
     });
 
     document.addEventListener('activity-commented', this.hideComment);
+
+    // Avoid closing drawer when closing dialog
+    this.$root.$on('activity-stream-confirm-opened', () => this.temporaryDrawer = false);
+    this.$root.$on('activity-stream-confirm-closed', () => this.temporaryDrawer = true);
   },
   methods: {
     reset() {

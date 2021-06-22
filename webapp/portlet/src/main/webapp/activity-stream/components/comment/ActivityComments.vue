@@ -4,9 +4,11 @@
       v-for="comment in commentsToDisplay"
       :key="comment.id"
       :comment="comment"
+      :sub-comments="comment.subComments"
       :display-reply="commentEditorDisplay && selectedCommentIdToReply === comment.id"
       :editor="editor"
-      :editor-options="lastEditorOptions" />
+      :editor-options="lastEditorOptions"
+      :comment-actions="commentActions" />
     <activity-comment-rich-text
       v-if="displayCommentEditor"
       ref="commentRichEditor"
@@ -27,6 +29,10 @@ export default {
     },
     comments: {
       type: String,
+      default: null,
+    },
+    commentActions: {
+      type: Object,
       default: null,
     },
     commentEditorDisplay: {
@@ -52,15 +58,17 @@ export default {
     commentsToDisplay() {
       const commentsToDisplay = {};
       this.comments.forEach(comment => {
-        if (comment.parentCommentId) {
-          const subComments = commentsToDisplay[comment.parentCommentId].subComments;
-          if (!subComments.find(subComment => subComment.id === comment.id)) {
-            subComments.push(comment);
-          }
-        } else {
+        if (!comment.parentCommentId) {
+          comment.subComments = [];
           commentsToDisplay[comment.id] = comment;
-          if (!comment.subComments) {
-            comment.subComments = [];
+        }
+      });
+      this.comments.forEach(comment => {
+        if (comment.parentCommentId) {
+          const parentComment = commentsToDisplay[comment.parentCommentId];
+          const subComments = parentComment && parentComment.subComments;
+          if (subComments && !subComments.find(subComment => subComment.id === comment.id)) {
+            subComments.push(comment);
           }
         }
       });
@@ -72,12 +80,30 @@ export default {
       document.addEventListener('activity-comment-editor-updated', this.updateEditorOptions);
     }
     document.addEventListener('activity-commented', this.updateComments);
+    document.addEventListener('activity-stream-comment-deleted', this.deleteComment);
+  },
+  beforeDestroy() {
+    if (this.editor) {
+      document.removeEventListener('activity-comment-editor-updated', this.updateEditorOptions);
+    }
+    document.removeEventListener('activity-commented', this.updateComments);
+    document.removeEventListener('activity-stream-comment-deleted', this.deleteComment);
   },
   methods: {
     updateEditorOptions(event) {
       const lastEditorOptions = event && event.detail;
       if (lastEditorOptions && lastEditorOptions.activityId === this.activityId) {
         this.lastEditorOptions = lastEditorOptions;
+      }
+    },
+    deleteComment(event) {
+      const params = event && event.detail;
+      if (params && params.activityId === this.activityId && params.commentId) {
+        const commentIndex = this.comments.findIndex(comment => comment.id === params.commentId);
+        if (commentIndex >= 0) {
+          this.comments.splice(commentIndex, 1);
+          this.$emit('comment-deleted');
+        }
       }
     },
     updateComments(event) {
