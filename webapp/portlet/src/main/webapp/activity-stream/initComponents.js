@@ -22,6 +22,7 @@ import ActivityComment from './components/comment/content/ActivityComment.vue';
 import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
+import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
 import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 
 const components = {
@@ -49,6 +50,7 @@ const components = {
   'activity-comment-rich-text': ActivityCommentRichText,
   'activity-comment-actions': ActivityCommentActions,
   'activity-comment-reply-action': ActivityCommentReplyAction,
+  'activity-comment-like-action': ActivityCommentLikeAction,
   'activity-comment-menu': ActivityCommentMenu,
 };
 
