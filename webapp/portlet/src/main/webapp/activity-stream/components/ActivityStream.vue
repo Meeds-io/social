@@ -5,7 +5,9 @@
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions" />
-    <activity-comments-drawer />
+    <div class="drawer-parent">
+      <activity-comments-drawer />
+    </div>
   </v-app>
 </template>
 

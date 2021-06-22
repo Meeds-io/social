@@ -2,7 +2,7 @@
   <exo-drawer
     ref="activityCommentsDrawer"
     id="activityCommentsDrawer"
-    body-classes="hide-scroll decrease-z-index-more"
+    body-classes="hide-scroll decrease-z-index"
     allow-expand
     right
     @closed="reset">
@@ -23,12 +23,13 @@
     </template>
     <template slot="content">
       <activity-comments
+        v-show="!loading"
         ref="activityComments"
         :activity-id="activityId"
         :comments="comments"
         :comment-editor-display="displayCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
-        @editor-loaded="scrollToEnd" />
+        editor />
     </template>
   </exo-drawer>
 </template>
@@ -39,6 +40,7 @@ export default {
     commentsData: null,
     activityId: null,
     loading: false,
+    drawerOpened: false,
     displayCommentEditor: false,
     selectedCommentIdToReply: null,
     offset: 0,
@@ -59,7 +61,7 @@ export default {
       } else {
         this.$refs.activityCommentsDrawer.endLoading();
         if (!this.displayCommentEditor || !this.selectedCommentIdToReply) {
-          this.$nextTick(this.scrollToEnd);
+          this.$nextTick().then(() => this.scrollToEnd());
         }
       }
     },
@@ -68,55 +70,63 @@ export default {
     document.addEventListener('activity-comments-display', event => {
       const options = event && event.detail;
       if (options) {
-        if (options.activityId !== this.activityId) {
-          this.reset();
+        this.activityId = options.activityId;
+        this.offset = options.offset || 0;
+        this.limit = options.limit || 10;
+        if (!this.drawerOpened) {
+          this.drawerOpened = true;
+          this.retrieveComments();
+          this.$refs.activityCommentsDrawer.open();
         }
-        if (options.activityId) {
-          this.activityId = options.activityId;
-        }
-        if (options.offset) {
-          this.offset = options.offset;
-        }
-        if (options.limit) {
-          this.limit = options.limit;
-        }
-        this.$refs.activityCommentsDrawer.open();
-        this.retrieveComments();
         if (options.displayComment) {
-          this.displayComment(options.commentIdToReply);
+          this.displayComment(options.commentId);
         }
       }
     });
 
-    document.addEventListener('activity-commented', () => {
-      this.displayCommentEditor = false;
-      this.$nextTick(this.scrollToEnd);
-    });
+    document.addEventListener('activity-commented', this.hideComment);
   },
   methods: {
     reset() {
       this.comments = [];
+      this.drawerOpened = false;
       this.hideComment();
     },
     scrollToEnd() {
-      const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
-      drawerContentElement.scrollTo(0, drawerContentElement.scrollHeight);
+      window.setTimeout(() => {
+        const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
+        drawerContentElement.scrollTo({
+          top: drawerContentElement.scrollHeight,
+          left: 0,
+          behavior: 'smooth'
+        });
+      }, 10);
     },
-    displayComment(commentIdToReply) {
-      this.selectedCommentIdToReply = commentIdToReply || null;
+    displayComment(commentId) {
+      this.selectedCommentIdToReply = commentId || null;
       // Has to make this change at the end of the method,
       // to have the correct value of this.selectedCommentIdToReply
       this.displayCommentEditor = true;
+
+      this.$nextTick().then(() => {
+        document.dispatchEvent(new CustomEvent('activity-comment-editor-init', {detail: this.lastEditorOptions}));
+      });
     },
     hideComment() {
+      document.dispatchEvent(new CustomEvent('activity-comment-editor-destroy'));
       this.displayCommentEditor = false;
       this.selectedCommentIdToReply = null;
     },
     retrieveComments() {
       this.loading = true;
-      this.$activityService.getActivityComments(this.activityId, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(data => this.commentsData = data)
-        .finally(() => this.loading = false);
+      window.setTimeout(() => {
+        this.$activityService.getActivityComments(this.activityId, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(data => {
+            this.commentsData = data;
+            return this.$nextTick();
+          })
+          .finally(() => this.loading = false);
+      }, 50);
     },
   },
 };

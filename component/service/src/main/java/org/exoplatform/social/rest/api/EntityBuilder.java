@@ -608,6 +608,11 @@ public class EntityBuilder {
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
     commentEntity.setActivity(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getParentId(), restPath));
+    commentEntity.setActivityId(comment.getParentId());
+    boolean canEdit = getActivityManager().isActivityEditable(comment, ConversationState.getCurrent().getIdentity());
+    commentEntity.setCanEdit(canEdit);
+    boolean canDelete = getActivityManager().isActivityDeletable(comment, ConversationState.getCurrent().getIdentity());
+    commentEntity.setCanDelete(canDelete);
     //
     if(!isBuildList) {
       updateCachedLastModifiedValue(comment.getUpdated());

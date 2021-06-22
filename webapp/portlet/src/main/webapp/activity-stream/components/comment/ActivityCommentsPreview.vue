@@ -1,5 +1,10 @@
 <template>
-  <div v-if="commentsSize">
+  <v-progress-linear
+    v-if="loading"
+    color="primary"
+    height="2"
+    indeterminate />
+  <div v-else-if="commentsSize">
     <activity-comments :activity-id="activityId" :comments="commentsPreviewList" />
     <v-btn
       class="primary--text font-weight-bold mb-1 subtitle-2"
@@ -22,6 +27,8 @@ export default {
   },
   data: () => ({
     commentsData: null,
+    limit: 1,
+    loading: false,
   }),
   computed: {
     comments() {
@@ -58,8 +65,13 @@ export default {
   },
   methods: {
     retrieveLastComment() {
-      this.$activityService.getActivityComments(this.activityId, true, 0, 1, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(data => this.commentsData = data);
+      this.loading = true;
+      this.$activityService.getActivityComments(this.activityId, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        .then(data => {
+          this.commentsData = data;
+          return this.$nextTick();
+        })
+        .finally(() => this.loading = false);
     },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
