@@ -19,8 +19,11 @@
           v-sanitized-html="comment.body"
           class="rich-editor-content"></div>
       </v-list-item-content>
+      <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
+        <activity-comment-menu :comment="comment" :actions="commentActions" />
+      </v-list-item-action>
     </v-list-item>
-    <div class="ps-12 py-0 mb-2 flex-column align-start border-box-sizing" dense>
+    <div class="ps-12 py-0 mb-2 align-start border-box-sizing" dense>
       <activity-comment-actions
         :comment="comment"
         class="py-0 mb-auto flex-shrink-1" />
@@ -40,6 +43,7 @@
         v-for="subComment in subComments"
         :key="subComment.id"
         :comment="subComment"
+        :comment-actions="commentActions"
         class="ms-10" />
     </template>
   </div>
@@ -50,6 +54,14 @@ export default {
   props: {
     comment: {
       type: String,
+      default: null,
+    },
+    subComments: {
+      type: Array,
+      default: null,
+    },
+    commentActions: {
+      type: Object,
       default: null,
     },
     displayReply: {
@@ -86,9 +98,6 @@ export default {
     },
     highlightClass() {
       return this.highlight && 'light-grey-background';
-    },
-    subComments() {
-      return this.comment && this.comment.subComments;
     },
     posterIdentity() {
       return this.comment && this.comment.identity;

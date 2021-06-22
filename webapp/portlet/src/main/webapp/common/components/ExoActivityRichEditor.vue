@@ -191,7 +191,6 @@ export default {
     },
     setFocus: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
-        CKEDITOR.instances[this.ckEditorType].focus();
         window.setTimeout(() => {
           CKEDITOR.instances[this.ckEditorType].focus();
         }, 200);
