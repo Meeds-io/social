@@ -4,26 +4,17 @@
       v-for="comment in commentsToDisplay"
       :key="comment.id"
       :comment="comment"
-      :display-reply="commentEditorDisplay && selectedCommentIdToReply === comment.id" />
-    <div v-if="displayCommentEditor" class="me-4 ms-14 mb-6">
-      <v-list-item-content class="col-auto px-0 pt-1 pb-0 mb-2 flex-shrink-1 border-box-sizing">
-        <exo-activity-rich-editor
-          ref="commentEditor"
-          v-model="message"
-          :ck-editor-type="ckEditorId"
-          :max-length="$activityConstants.COMMENT_MAX_LENGTH"
-          :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
-          autofocus
-          @ready="$emit('editor-loaded')" />
-      </v-list-item-content>
-      <v-btn
-        :loading="commenting"
-        :disabled="disableButton"
-        class="btn btn-primary"
-        @click="postComment">
-        {{ $t('UIActivity.label.Comment') }}
-      </v-btn>
-    </div>
+      :display-reply="commentEditorDisplay && selectedCommentIdToReply === comment.id"
+      :editor="editor"
+      :editor-options="lastEditorOptions" />
+    <activity-comment-rich-text
+      v-if="displayCommentEditor"
+      ref="commentRichEditor"
+      key="commentRichEditor"
+      class="me-4 ms-14 mb-6"
+      :activity-id="activityId"
+      :options="lastEditorOptions"
+      :label="$t('UIActivity.label.Comment')" />
   </v-list>
 </template>
 
@@ -46,21 +37,17 @@ export default {
       type: String,
       default: null,
     },
+    editor: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
-    commenting: false,
-    message: null,
+    lastEditorOptions: null,
   }),
   computed: {
     displayCommentEditor() {
       return this.commentEditorDisplay && !this.selectedCommentIdToReply;
-    },
-    textLength() {
-      const pureText = this.$utils.htmlToText(this.message);
-      return pureText && pureText.length || 0;
-    },
-    disableButton() {
-      return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     commentsToDisplay() {
       const commentsToDisplay = {};
@@ -79,54 +66,33 @@ export default {
       });
       return Object.values(commentsToDisplay);
     },
-    ckEditorId() {
-      return `comment_${this.activityId}`;
-    },
-  },
-  watch: {
-    activityId() {
-      this.message = null;
-    },
-    displayCommentEditor() {
-      if (this.displayCommentEditor) {
-        this.$nextTick(() => {
-          this.$refs.commentEditor.initCKEditor();
-        });
-      }
-    },
   },
   created() {
-    document.addEventListener('activity-commented', (event) => {
+    if (this.editor) {
+      document.addEventListener('activity-comment-editor-updated', this.updateEditorOptions);
+    }
+    document.addEventListener('activity-commented', this.updateComments);
+  },
+  methods: {
+    updateEditorOptions(event) {
+      const lastEditorOptions = event && event.detail;
+      if (lastEditorOptions && lastEditorOptions.activityId === this.activityId) {
+        this.lastEditorOptions = lastEditorOptions;
+      }
+    },
+    updateComments(event) {
       const activityId = event && event.detail && event.detail.activityId;
       const comment = event && event.detail && event.detail.comment;
       if (activityId === this.activityId) {
-        comment.hightlight = true;
+        comment.highlight = true;
         this.comments.push(comment);
         window.setTimeout(() => {
-          comment.hightlight = false;
+          comment.highlight = false;
         }, 5000);
       }
-    });
-  },
-  methods: {
-    reset() {
-      this.commenting = false;
-      this.message = null;
-    },
-    postComment() {
-      if (this.commenting) {
-        return;
-      }
-      this.commenting = true;
-      this.$activityService.createComment(this.activityId, null, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(comment => document.dispatchEvent(new CustomEvent('activity-commented', {detail: {
-          activityId: this.activityId,
-          comment: comment
-        }})))
-        .finally(() => {
-          this.message = null;
-          this.commenting = false;
-        });
+      // Delete preserved comment or reply content
+      // When a new comment is added in any activity
+      this.lastEditorOptions = null;
     },
   },
 };

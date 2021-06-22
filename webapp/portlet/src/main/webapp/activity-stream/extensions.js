@@ -118,4 +118,10 @@ if (extensionRegistry) {
     vueComponent: Vue.options.components['activity-comment-action'],
     rank: 20,
   });
+
+  extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
+    id: 'reply',
+    vueComponent: Vue.options.components['activity-comment-reply-action'],
+    rank: 20,
+  });
 }

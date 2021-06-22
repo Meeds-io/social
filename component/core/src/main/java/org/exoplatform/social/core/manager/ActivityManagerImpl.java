@@ -735,7 +735,13 @@ public class ActivityManagerImpl implements ActivityManager {
     if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
       return true;
     }
-    ActivityStream activityStream = activity.getActivityStream();
+    ActivityStream activityStream = null;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = getActivity(activity.getParentId());
+      activityStream = parentActivity == null ? null : parentActivity.getActivityStream();
+    } else {
+      activityStream = activity.getActivityStream();
+    }
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isSpaceManager(viewer, activityStream.getPrettyId());
     }

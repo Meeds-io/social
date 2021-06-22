@@ -94,7 +94,10 @@ export default {
         if (reset) {
           CKEDITOR.instances[this.ckEditorType].destroy(true);
         } else {
-          this.editorReady = true;
+          this.setEditorReady();
+          if (this.autofocus) {
+            this.setFocus();
+          }
           return;
         }
       }
@@ -124,7 +127,7 @@ export default {
         autoGrow_maxHeight: 300,
         on: {
           instanceReady: function () {
-            self.editorReady = true;
+            self.setEditorReady();
             $(CKEDITOR.instances[self.ckEditorType].document.$)
               .find('.atwho-inserted')
               .each(function() {
@@ -134,7 +137,7 @@ export default {
               });
 
             if (self.autofocus) {
-              CKEDITOR.instances[self.ckEditorType].focus();
+              self.setFocus();
             }
           },
           change: function (evt) {
@@ -151,6 +154,11 @@ export default {
           }
         }
       });
+    },
+    destroyCKEditor: function () {
+      if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].destroy(true);
+      }
     },
     initCKEditorData: function(message) {
       if (message) {
@@ -183,9 +191,16 @@ export default {
     },
     setFocus: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
-        CKEDITOR.instances[this.ckEditorType].status = 'ready';
         CKEDITOR.instances[this.ckEditorType].focus();
+        window.setTimeout(() => {
+          CKEDITOR.instances[this.ckEditorType].focus();
+        }, 200);
       }
+    },
+    setEditorReady: function() {
+      window.setTimeout(() => {
+        this.editorReady = true;
+      }, 50);
     },
     getMessage: function() {
       const newData = CKEDITOR.instances[this.ckEditorType].getData();
