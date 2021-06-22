@@ -770,6 +770,10 @@ public class EntityBuilder {
    * @return activityStream object, null if the viewer has no permission to view activity
    */
   public static DataEntity getActivityStream(ExoSocialActivity activity, String restPath, Identity authentiatedUser) {
+    if (activity.isComment() || activity.getParentId() != null) {
+      activity = activityManager.getParentActivity(activity);
+    }
+
     DataEntity as = new DataEntity();
     IdentityManager identityManager = getIdentityManager();
     Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner());
