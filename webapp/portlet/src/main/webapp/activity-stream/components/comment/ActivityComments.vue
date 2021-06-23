@@ -1,21 +1,20 @@
 <template>
   <v-list v-if="comments" class="pb-0 pt-5 border-top-color">
-    <activity-comment
+    <activity-comment-body
       v-for="comment in commentsToDisplay"
       :key="comment.id"
       :comment="comment"
       :sub-comments="comment.subComments"
-      :display-reply="commentEditorDisplay && selectedCommentIdToReply === comment.id"
-      :allow-edit="allowEdit"
-      :editor-options="lastEditorOptions"
-      :comment-actions="commentActions" />
+      :new-reply-editor="newCommentEditor && selectedCommentIdToReply === comment.id"
+      :editor-options="replyLastEditorOptions"
+      :comment-actions="commentActions"
+      :comment-editing="commentEditing" />
     <activity-comment-rich-text
-      v-if="displayCommentEditor"
+      v-if="newCommentEditor && !selectedCommentIdToReply"
       ref="commentRichEditor"
-      key="commentRichEditor"
       class="me-4 ms-14 mb-6"
       :activity-id="activityId"
-      :options="lastEditorOptions"
+      :options="commentLastEditorOptions"
       :label="$t('UIActivity.label.Comment')" />
   </v-list>
 </template>
@@ -35,7 +34,11 @@ export default {
       type: Object,
       default: null,
     },
-    commentEditorDisplay: {
+    commentEditing: {
+      type: Object,
+      default: null,
+    },
+    newCommentEditor: {
       type: Boolean,
       default: false,
     },
@@ -52,8 +55,11 @@ export default {
     lastEditorOptions: null,
   }),
   computed: {
-    displayCommentEditor() {
-      return this.commentEditorDisplay && !this.selectedCommentIdToReply;
+    replyLastEditorOptions() {
+      return this.lastEditorOptions && this.lastEditorOptions.parentCommentId && this.lastEditorOptions;
+    },
+    commentLastEditorOptions() {
+      return this.lastEditorOptions && !this.lastEditorOptions.parentCommentId && this.lastEditorOptions;
     },
     commentsToDisplay() {
       const commentsToDisplay = {};
@@ -77,31 +83,29 @@ export default {
   },
   created() {
     if (this.allowEdit) {
-      document.addEventListener('activity-comment-editor-updated', this.updateEditorOptions);
+      this.$root.$on('activity-comment-editor-updated', this.updateEditorOptions);
     }
-    document.addEventListener('activity-comment-created', this.addComment);
-    document.addEventListener('activity-comment-deleted', this.deleteComment);
-    document.addEventListener('activity-comment-updated', this.updateComment);
+    this.$root.$on('activity-comment-created', this.addComment);
+    this.$root.$on('activity-comment-updated', this.updateComment);
+    this.$root.$on('activity-comment-deleted', this.deleteComment);
+
+    document.addEventListener('activity-comment-created', this.handleCommentCreated);
+    document.addEventListener('activity-comment-updated', this.handleCommentUpdated);
+    document.addEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   beforeDestroy() {
-    if (this.allowEdit) {
-      document.removeEventListener('activity-comment-editor-updated', this.updateEditorOptions);
-    }
-    document.removeEventListener('activity-comment-created', this.addComment);
-    document.removeEventListener('activity-comment-deleted', this.deleteComment);
-    document.removeEventListener('activity-comment-updated', this.updateComment);
+    document.removeEventListener('activity-comment-created', this.handleCommentCreated);
+    document.removeEventListener('activity-comment-updated', this.handleCommentUpdated);
+    document.removeEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   methods: {
-    updateEditorOptions(event) {
-      const lastEditorOptions = event && event.detail;
-      if (lastEditorOptions && lastEditorOptions.activityId === this.activityId) {
-        this.lastEditorOptions = lastEditorOptions;
-      }
+    handleCommentDeleted(event) {
+      this.$root.$emit('activity-comment-deleted', event && event.detail);
     },
-    deleteComment(event) {
-      const params = event && event.detail;
-      if (params && params.activityId === this.activityId && params.commentId) {
-        const commentIndex = this.comments.findIndex(comment => comment.id === params.commentId);
+    deleteComment(comment) {
+      const activityId = comment && comment.activityId;
+      if (activityId === this.activityId) {
+        const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
         if (commentIndex >= 0) {
           const comment = this.comments[commentIndex];
           this.comments.splice(commentIndex, 1);
@@ -109,9 +113,11 @@ export default {
         }
       }
     },
-    addComment(event) {
-      const activityId = event && event.detail && event.detail.activityId;
-      const comment = event && event.detail && event.detail.comment;
+    handleCommentCreated(event) {
+      this.$root.$emit('activity-comment-created', event && event.detail);
+    },
+    addComment(comment) {
+      const activityId = comment && comment.activityId;
       if (activityId === this.activityId) {
         comment.highlight = true;
         this.comments.push(comment);
@@ -124,9 +130,11 @@ export default {
       // When a new comment is added in any activity
       this.lastEditorOptions = null;
     },
-    updateComment(event) {
-      const activityId = event && event.detail && event.detail.activityId;
-      const comment = event && event.detail && event.detail.comment;
+    handleCommentUpdated(event) {
+      this.$root.$emit('activity-comment-updated', event && event.detail);
+    },
+    updateComment(comment) {
+      const activityId = comment && comment.activityId;
       if (activityId === this.activityId) {
         const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
         if (commentIndex >= 0) {
@@ -141,6 +149,11 @@ export default {
       // Delete preserved comment or reply content
       // When a comment is added or updated in any activity
       this.lastEditorOptions = null;
+    },
+    updateEditorOptions(lastEditorOptions) {
+      if (lastEditorOptions && lastEditorOptions.activityId === this.activityId) {
+        this.lastEditorOptions = lastEditorOptions;
+      }
     },
   },
 };

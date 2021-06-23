@@ -2,6 +2,7 @@
   <div>
     <div class="white mb-3 py-2 primary--text">
       <v-btn
+        :id="buttonId"
         link
         text
         class="primary--text font-weight-bold text-capitalize"
@@ -33,6 +34,9 @@ export default {
     imageLoaded: false,
   }),
   computed: {
+    buttonId() {
+      return this.useNewApp && 'switchToOldActivityStream' || 'switchToNewActivityStream';
+    },
     comingSoonText() {
       return this.$t('activityStream.comingSoonV2', {
         0: `<a href="${eXo.env.portal.context}/${eXo.env.portal.portalName}/tribe-feedback">`,
