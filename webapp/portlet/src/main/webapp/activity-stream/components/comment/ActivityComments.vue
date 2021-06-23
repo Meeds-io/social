@@ -1,5 +1,5 @@
 <template>
-  <v-list v-if="comments" class="pb-0 pt-5 border-top-color">
+  <v-list v-if="comments" class="pb-0 pt-5">
     <activity-comment-body
       v-for="comment in commentsToDisplay"
       :key="comment.id"
