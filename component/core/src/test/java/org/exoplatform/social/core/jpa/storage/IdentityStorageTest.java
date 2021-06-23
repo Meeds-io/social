@@ -18,7 +18,7 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import org.exoplatform.services.organization.*;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -768,7 +768,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     profileFilter.setFirstCharFieldName(Sorting.SortBy.FIRSTNAME.getFieldName());
     profileFilter.setFirstCharacterOfName('C');
     profileFilter.setSorting(new Sorting(SortBy.FULLNAME, Sorting.OrderBy.ASC));
-    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 9);
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
     assertEquals(2, identities.size());
     assertEquals("First member in list should be 'cab'", "cab", identities.get(0).getRemoteId());
     assertEquals("Second member in list should be 'cba'", "cba", identities.get(1).getRemoteId());
@@ -778,7 +778,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     // Test on Sort field
     profileFilter.setSorting(new Sorting(Sorting.SortBy.FULLNAME, Sorting.OrderBy.ASC));
     profileFilter.setFirstCharacterOfName('A');
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 9);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
     assertEquals(2, identities.size());
     assertEquals("First member in list should be 'bca'", "bca", identities.get(0).getRemoteId());
     assertEquals("Second member in list should be 'cba'", "cba", identities.get(1).getRemoteId());
@@ -786,7 +786,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     // Test on Sort direction
     profileFilter.setSorting(new Sorting(Sorting.SortBy.FIRSTNAME, Sorting.OrderBy.DESC));
     profileFilter.setFirstCharacterOfName('B');
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 9);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
     assertEquals(2, identities.size());
     assertEquals("First member in list should be 'cab'", "cab", identities.get(0).getRemoteId());
     assertEquals("Second member in list should be 'acb'", "acb", identities.get(1).getRemoteId());
@@ -795,7 +795,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     profileFilter.setFirstCharFieldName(Sorting.SortBy.FULLNAME.getFieldName());
     profileFilter.setFirstCharacterOfName('A');
     profileFilter.setSorting(new Sorting(Sorting.SortBy.LASTNAME, Sorting.OrderBy.DESC));
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 9);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
     assertEquals(2, identities.size());
     assertEquals("First member in list should be 'abc'", "abc", identities.get(0).getRemoteId());
     assertEquals("Second member in list should be 'acb'", "acb", identities.get(1).getRemoteId());
@@ -803,30 +803,30 @@ public class IdentityStorageTest extends AbstractCoreTest {
     profileFilter.setFirstCharFieldName(Sorting.SortBy.FIRSTNAME.getFieldName());
     profileFilter.setFirstCharacterOfName('B');
     profileFilter.setSorting(new Sorting(Sorting.SortBy.LASTNAME, Sorting.OrderBy.ASC));
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, Type.MEMBER, 0, 9);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
     assertEquals(2, identities.size());
     assertEquals("First member in list should be 'bca'", "bca", identities.get(0).getRemoteId());
     assertEquals("Second member in list should be 'bac'", "bac", identities.get(1).getRemoteId());
     
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, Type.MEMBER, 0, 2);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 2);
     assertEquals(2, identities.size());
 
     Identity username1Identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "username1", true);
     tearDownIdentityList.add(username1Identity);
     tearDownIdentityList.add(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "username4", true));
     firstProfileFilter.setViewerIdentity(username1Identity);
-    assertEquals(8, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, Type.MEMBER));
+    assertEquals(8, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, SpaceMemberFilterListAccess.Type.MEMBER));
 
     addUserToGroupWithMembership("username4", space.getGroupId(), MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.MANAGER, 0, 10);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.MANAGER, 0, 10);
     assertEquals(1, identities.size());
 
-    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.INVITED));
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.INVITED, 0, 10);
+    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.INVITED));
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.INVITED, 0, 10);
     assertEquals(1, identities.size());
 
-    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.PENDING));
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), Type.PENDING, 0, 10);
+    assertEquals(1, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.PENDING));
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, new ProfileFilter(), SpaceMemberFilterListAccess.Type.PENDING, 0, 10);
     assertEquals(1, identities.size());
   }
 

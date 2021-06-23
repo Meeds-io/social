@@ -58,8 +58,7 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.identity.IdentityProvider;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
+import org.exoplatform.social.core.identity.*;
 import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
@@ -810,7 +809,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   @Override
   public int countSpaceMemberIdentitiesByProfileFilter(Space space,
                                                        ProfileFilter profileFilter,
-                                                       org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type type) {
+                                                       SpaceMemberFilterListAccess.Type type) {
     if (space == null) {
       throw new IllegalArgumentException("Space shouldn't be null");
     }

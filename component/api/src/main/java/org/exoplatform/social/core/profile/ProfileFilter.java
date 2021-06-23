@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.search.Sorting;
-import org.exoplatform.social.core.space.SpaceUtils;
 
 /**
  * This class using for filter profile of identity
@@ -229,7 +229,7 @@ public class ProfileFilter implements Cloneable {
   }
 
   public void setAll(String all) {
-    this.all = SpaceUtils.processUnifiedSearchCondition(all);
+    this.all = Utils.processUnifiedSearchCondition(all);
   }
 
   public boolean isSortingEmpty() {

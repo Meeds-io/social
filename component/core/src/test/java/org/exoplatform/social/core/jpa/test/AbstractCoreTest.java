@@ -247,7 +247,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     return identity;
   }
 
-  protected Identity createIdentity(String username, String email) throws MessageException {
+  protected Identity createIdentity(String username, String email) {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.FIRST_NAME, username);

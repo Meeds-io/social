@@ -610,7 +610,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     UserDAOImpl userDAO = Mockito.mock(UserDAOImpl.class);
     Mockito.when(userDAO.findUsersByGroupId("/platform/administrators")).thenReturn(userListAccess);
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
-    Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+    Mockito.lenient().when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
   
     GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
                                                                              Long.parseLong(binding1.getSpaceId()),
@@ -684,7 +684,7 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     UserDAOImpl userDAO = Mockito.mock(UserDAOImpl.class);
     Mockito.when(userDAO.findUsersByGroupId("/platform/administrators")).thenReturn(userListAccess);
     Mockito.when(orgService.getUserHandler()).thenReturn(userDAO);
-    Mockito.when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+    Mockito.lenient().when(groupSpaceBindingStorage.isUserBoundAndMemberBefore(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
     Mockito.when(groupSpaceBindingStorage.countUserBindings(Mockito.anyString(), Mockito.anyString())).thenReturn(0L);
     GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(binding1.getId(),
                                                                              Long.parseLong(binding1.getSpaceId()),
@@ -987,8 +987,8 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     space.setDisplayName("space1");
     space.setPrettyName("space1");
     space.setMembers(new String[] { "root" });
-    Mockito.when(spaceService.getSpaceById(Mockito.any())).thenReturn(space);
-    Mockito.when(groupSpaceBindingStorage.countBoundUsers(Mockito.any())).thenReturn(0L);
+    Mockito.lenient().when(spaceService.getSpaceById(Mockito.any())).thenReturn(space);
+    Mockito.lenient().when(groupSpaceBindingStorage.countBoundUsers(Mockito.any())).thenReturn(0L);
   
     GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
                                                                                          groupSpaceBindingStorage,

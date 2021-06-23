@@ -18,8 +18,6 @@ package org.exoplatform.social.core.activity.model;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 /**
  * ActivityStream implementation.
@@ -67,9 +65,9 @@ public class ActivityStreamImpl implements ActivityStream {
    */
   public final void setType(final String name) {
     //TODO this is not loosely coupled
-    if (name.equals(OrganizationIdentityProvider.NAME)) {
+    if (name.equals(Type.USER.getProviderId())) {
       setType(Type.USER);
-    } else if (name.equals(SpaceIdentityProvider.NAME)) {
+    } else if (name.equals(Type.SPACE.getProviderId())) {
       setType(Type.SPACE);
     } else {
       LOG.warn("Failed to set activity stream type with type:" + name);

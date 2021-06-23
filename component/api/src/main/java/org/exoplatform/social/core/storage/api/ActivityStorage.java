@@ -558,6 +558,26 @@ public interface ActivityStorage {
   public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity, boolean loadSubComments, int offset, int limit);
 
   /**
+   * Gets the comments of an activity with offset, limit. If loadSubComments is
+   * true, sub comments will be added to the list. The returned list will be sorted
+   * by last post time or by first post time.
+   * 
+   * @param activity
+   * @param loadSubComments
+   * @param offset
+   * @param limit
+   * @param sortDescending
+   * @return
+   */
+  default List<ExoSocialActivity> getComments(ExoSocialActivity activity,
+                                                     boolean loadSubComments,
+                                                     int offset,
+                                                     int limit,
+                                                     boolean sortDescending) {
+    return getComments(activity, loadSubComments, offset, limit);
+  }
+
+  /**
    * Gets the number of comments of an activity.
    *
    * @param existingActivity
@@ -1068,4 +1088,5 @@ public interface ActivityStorage {
   default Set<Long> getStreamFeedOwnerIds(Identity identity) {
     throw new UnsupportedOperationException();
   }
+
 }

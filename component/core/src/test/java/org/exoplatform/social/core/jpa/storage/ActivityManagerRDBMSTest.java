@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mockito.Mockito;
+import org.mockito.*;
 
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
@@ -40,6 +40,7 @@ import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -48,7 +49,6 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.upload.UploadService;
 
 /**
@@ -754,6 +754,56 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       for (int j = 0; j < total; j++) {
         ExoSocialActivity johnComment = commentsArray[index++];
         assertEquals("Title of comment should be 'john comment " + i + j + "'", "john comment" + i + j, johnComment.getTitle());
+      }
+    }
+  }
+
+  /**
+   * Test {@link ActivityManager#getCommentsWithListAccess(ExoSocialActivity, boolean, boolean)}
+   * 
+   * @throws Exception
+   * @since 1.2.0-Beta3
+   */
+  public void testGetCommentsAndSubCommentsWithListAccessDescending() throws Exception {
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("demo activity");
+    demoActivity.setUserId(demoActivity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+
+    int total = 10;
+    int totalWithSubComments = total + total * total;
+
+    for (int i = 0; i < total; i++) {
+      ExoSocialActivity maryComment = new ExoSocialActivityImpl();
+      maryComment.setUserId(maryIdentity.getId());
+      maryComment.setTitle("mary comment");
+      activityManager.saveComment(demoActivity, maryComment);
+      for (int j = 0; j < total; j++) {
+        ExoSocialActivity johnComment = new ExoSocialActivityImpl();
+        johnComment.setUserId(johnIdentity.getId());
+        johnComment.setTitle("john comment" + i + j);
+        johnComment.setParentCommentId(maryComment.getId());
+        activityManager.saveComment(demoActivity, johnComment);
+      }
+    }
+
+    RealtimeListAccess<ExoSocialActivity> maryComments = activityManager.getCommentsWithListAccess(demoActivity);
+    assertNotNull("maryComments must not be null", maryComments);
+    assertEquals("maryComments.getSize() must return: 10", total, maryComments.getSize());
+
+    RealtimeListAccess<ExoSocialActivity> comments = activityManager.getCommentsWithListAccess(demoActivity, true, true);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.getSize() must return: 10", total, comments.getSize());
+
+    ExoSocialActivity[] commentsArray = comments.load(0, total);
+    assertEquals("commentsArray.length must return: 110", totalWithSubComments, commentsArray.length);
+    int index = 0;
+    for (int i = 0; i < total; i++) {
+      ExoSocialActivity maryComment = commentsArray[index++];
+      assertEquals("Title of comment should be 'mary comment', iteration = " + (total - i - 1), "mary comment", maryComment.getTitle());
+      for (int j = 0; j < total; j++) {
+        ExoSocialActivity johnComment = commentsArray[index++];
+        assertEquals("Title of comment should be 'john comment " + (total - i - 1) + j + "'", "john comment" + (total - i - 1) + j, johnComment.getTitle());
       }
     }
   }
@@ -1555,9 +1605,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   public void testGetLastIdenties() throws Exception {
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(paulIdentity))
@@ -1577,9 +1627,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     os.getUserHandler().createUser(user1, false);
     Identity newId1 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId1", false);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId1))
@@ -1597,9 +1647,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     os.getUserHandler().createUser(user2, false);
     Identity newId2 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId2", true);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId2, paulIdentity, jameIdentity, raulIdentity, ghostIdentity))
@@ -1617,9 +1667,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     newId1 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId1", false);
     newId2 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "newId2", true);
 
-    Mockito.when(mockProfileSearch.search(Mockito.any(Identity.class),
-                                          Mockito.any(ProfileFilter.class),
-                                          Mockito.any(Relationship.Type.class),
+    Mockito.when(mockProfileSearch.search(Mockito.nullable(Identity.class),
+                                          Mockito.nullable(ProfileFilter.class),
+                                          Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
            .thenReturn(Arrays.asList(newId2))

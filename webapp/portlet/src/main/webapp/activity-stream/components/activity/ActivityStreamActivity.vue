@@ -15,6 +15,9 @@
         v-if="!extendedComponent.overrideFooter"
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
+      <activity-comments-preview
+        v-if="!extendedComponent.overrideComments"
+        :activity-id="activityId" />
     </template>
     <template v-else>
       <activity-head
@@ -33,6 +36,7 @@
       <activity-footer
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
+      <activity-comments-preview :activity-id="activityId" />
     </template>
   </div>
 </template>

@@ -125,7 +125,7 @@ public class ActivityIndexingServiceConnectorTest {
     when(activityManager.getActivity(eq("1"))).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
-      ExoSocialActivity exoSocialActivity = invocation.getArgumentAt(0, ExoSocialActivity.class);
+      ExoSocialActivity exoSocialActivity = invocation.getArgument(0, ExoSocialActivity.class);
       exoSocialActivity.setTitle("<div><h2>What is Lorem Ipsum?</h2>");
       return exoSocialActivity;
     });
@@ -195,7 +195,7 @@ public class ActivityIndexingServiceConnectorTest {
     when(activityManager.getActivity(eq("1"))).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
-      ExoSocialActivity exoSocialActivity = invocation.getArgumentAt(0, ExoSocialActivity.class);
+      ExoSocialActivity exoSocialActivity = invocation.getArgument(0, ExoSocialActivity.class);
       exoSocialActivity.setTitle("<div><h2>What is Lorem Ipsum?</h2>");
       return exoSocialActivity;
     });

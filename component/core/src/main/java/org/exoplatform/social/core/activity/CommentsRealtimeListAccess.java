@@ -47,15 +47,37 @@ public class CommentsRealtimeListAccess implements RealtimeListAccess<ExoSocialA
   private boolean loadSubComments = false;
 
   /**
+   * whether load with sort by posted time descending or not
+   */
+  private boolean sortDescending = false;
+
+  /**
    * The constructor.
    *
    * @param theActivityStorage
    * @param theExistingActivity
+   * @param loadSubComments
+   * @param sortDescending
    */
-  public CommentsRealtimeListAccess(ActivityStorage theActivityStorage, ExoSocialActivity theExistingActivity, boolean loadSubComments) {
+  public CommentsRealtimeListAccess(ActivityStorage theActivityStorage,
+                                    ExoSocialActivity theExistingActivity,
+                                    boolean loadSubComments,
+                                    boolean sortDescending) {
     this.activityStorage = theActivityStorage;
     this.existingActivity = theExistingActivity;
     this.loadSubComments = loadSubComments;
+    this.sortDescending = sortDescending;
+  }
+
+  /**
+   * The constructor.
+   *
+   * @param theActivityStorage
+   * @param theExistingActivity
+   * @param loadSubComments
+   */
+  public CommentsRealtimeListAccess(ActivityStorage theActivityStorage, ExoSocialActivity theExistingActivity, boolean loadSubComments) {
+    this(theActivityStorage, theExistingActivity, loadSubComments, false);
   }
 
   /**
@@ -65,10 +87,9 @@ public class CommentsRealtimeListAccess implements RealtimeListAccess<ExoSocialA
    * @param theExistingActivity
    */
   public CommentsRealtimeListAccess(ActivityStorage theActivityStorage, ExoSocialActivity theExistingActivity) {
-    this.activityStorage = theActivityStorage;
-    this.existingActivity = theExistingActivity;
+    this(theActivityStorage, theExistingActivity, false, false);
   }
-  
+
   @Override
   public List<String> loadIdsAsList(int index, int limit) {
     throw new UnsupportedOperationException("Unsupported this method.");
@@ -78,7 +99,7 @@ public class CommentsRealtimeListAccess implements RealtimeListAccess<ExoSocialA
    * {@inheritDoc}
    */
   public List<ExoSocialActivity> loadAsList(int index, int limit) {
-    return activityStorage.getComments(existingActivity, loadSubComments, index, limit);
+    return activityStorage.getComments(existingActivity, loadSubComments, index, limit, sortDescending);
   }
 
   /**
@@ -159,5 +180,13 @@ public class CommentsRealtimeListAccess implements RealtimeListAccess<ExoSocialA
   @Override
   public int getNumberOfUpgrade() {
     return 0;
+  }
+
+  public boolean isSortDescending() {
+    return sortDescending;
+  }
+
+  public void setSortDescending(boolean sortDescending) {
+    this.sortDescending = sortDescending;
   }
 }

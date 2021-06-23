@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.webui.exception.MessageException;
 
 /**
  * An identity provider represent a service that can serve identity it can be
@@ -111,7 +110,7 @@ public abstract class IdentityProvider<T> {
    * @param profile
    * @since  1.2.0-GA
    */
-  public void onUpdateProfile(Profile profile) throws MessageException {
+  public void onUpdateProfile(Profile profile) {
     return;
   }
   

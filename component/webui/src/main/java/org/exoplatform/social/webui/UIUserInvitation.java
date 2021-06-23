@@ -34,7 +34,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -134,7 +134,7 @@ public class UIUserInvitation extends UIForm {
           isValidInput = false;
         } else if (isValidInput == true) {
           ProfileFilter filter = new ProfileFilter();
-          ListAccess<Identity> loader = Utils.getIdentityManager().getSpaceIdentityByProfileFilter(space, filter, Type.MEMBER, true);
+          ListAccess<Identity> loader = Utils.getIdentityManager().getSpaceIdentityByProfileFilter(space, filter, SpaceMemberFilterListAccess.Type.MEMBER, true);
           Identity[] identities = loader.load(0, loader.getSize());
           for (Identity i : identities) {
             invitedUser = i.getRemoteId();

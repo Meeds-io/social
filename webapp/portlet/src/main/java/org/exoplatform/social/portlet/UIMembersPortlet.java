@@ -30,7 +30,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
@@ -186,17 +186,17 @@ public class UIMembersPortlet extends UIPortletApplication {
     this.selectedChar = selectedChar;
   }
 
-  private List<Identity> loadPeople(int index, int length, Type type) throws Exception {
+  private List<Identity> loadPeople(int index, int length, SpaceMemberFilterListAccess.Type type) throws Exception {
     Identity[] result = null;
     Space space = getSpace();
-    if(Type.MEMBER.equals(type)){
+    if(SpaceMemberFilterListAccess.Type.MEMBER.equals(type)){
       ProfileFilter filter = uiSearchMemberOfSpace.getProfileFilter();
       setMemberListAccess(Utils.getIdentityManager().getSpaceIdentityByProfileFilter(space, filter, type, true));
 
       setMemberNum(getMemberListAccess().getSize());
       uiSearchMemberOfSpace.setPeopleNum(getMemberNum());
       result  = getMemberListAccess().load(index, length);
-    } else if(Type.MANAGER.equals(type)){
+    } else if(SpaceMemberFilterListAccess.Type.MANAGER.equals(type)){
       ProfileFilter filter = managerProfileFilter;
       setManagerListAccess(Utils.getIdentityManager().getSpaceIdentityByProfileFilter(space, filter, type, true));
       setManagerNum(getManagerListAccess().getSize());
@@ -232,7 +232,7 @@ public class UIMembersPortlet extends UIPortletApplication {
    */
   public List<Identity> getMemberList() throws Exception {
     int elementsToDisplay = currentLoadIndex + MEMBER_PER_PAGE;
-    setMemberList(loadPeople(0, elementsToDisplay, Type.MEMBER));
+    setMemberList(loadPeople(0, elementsToDisplay, SpaceMemberFilterListAccess.Type.MEMBER));
     setEnableLoadNext(elementsToDisplay < memberNum);
     return memberList;
   }
@@ -254,7 +254,7 @@ public class UIMembersPortlet extends UIPortletApplication {
    */
   public List<Identity> getManagerList() throws Exception {
     int elementsToDisplay = currentLoadManagerIndex + MANAGER_PER_PAGE;
-    setManagerList(loadPeople(0, elementsToDisplay, Type.MANAGER));
+    setManagerList(loadPeople(0, elementsToDisplay, SpaceMemberFilterListAccess.Type.MANAGER));
     setEnableLoadManagerNext(elementsToDisplay < managerNum);
     return managerList;
   }
@@ -494,7 +494,7 @@ public class UIMembersPortlet extends UIPortletApplication {
    */
   public void loadSearch() throws Exception {
     currentLoadIndex = 0;
-    setMemberList(loadPeople(currentLoadIndex, MEMBER_PER_PAGE, Type.MEMBER));
+    setMemberList(loadPeople(currentLoadIndex, MEMBER_PER_PAGE, SpaceMemberFilterListAccess.Type.MEMBER));
   }
   
   

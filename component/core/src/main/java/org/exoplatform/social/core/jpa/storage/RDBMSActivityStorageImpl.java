@@ -273,10 +273,14 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private List<ExoSocialActivity> convertCommentEntitiesToComments(List<ActivityEntity> comments) {
-    return convertCommentEntitiesToComments(comments, false);
+    return convertCommentEntitiesToComments(comments, false, false);
   }
 
   private List<ExoSocialActivity> convertCommentEntitiesToComments(List<ActivityEntity> comments, boolean loadSubComments) {
+    return convertCommentEntitiesToComments(comments, false, false);
+  }
+
+  private List<ExoSocialActivity> convertCommentEntitiesToComments(List<ActivityEntity> comments, boolean loadSubComments, boolean sortDescending) {
     if (comments == null || comments.isEmpty())
       return Collections.emptyList();
     if (loadSubComments) {
@@ -292,7 +296,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
 
       // Sort sub comments just after the comment
-      Collections.sort(comments, new CommentComparator());
+      Collections.sort(comments, new CommentComparator(sortDescending));
     }
 
     return comments.stream().map(comment -> convertCommentEntityToComment(comment)).collect(Collectors.toList());
@@ -1005,6 +1009,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity, boolean loadSubComments, int offset, int limit) {
+    return getComments(existingActivity, loadSubComments, offset, limit, false);
+  }
+
+  @Override
+  public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity, boolean loadSubComments, int offset, int limit, boolean sortDescending) {
     long activityId = 0;
     try {
       activityId = Long.parseLong(existingActivity.getId());
@@ -1014,12 +1023,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
     List<ActivityEntity> comments;
     if (activityId > 0) {
-      comments = activityDAO.getComments(activityId, offset, limit);
+      comments = activityDAO.getComments(activityId, offset, limit, sortDescending);
     } else {
       comments = null;
     }
 
-    return convertCommentEntitiesToComments(comments, loadSubComments);
+    return convertCommentEntitiesToComments(comments, loadSubComments, sortDescending);
   }
 
   @Override
@@ -1345,7 +1354,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   @Override
   public List<ExoSocialActivity> getSubComments(ExoSocialActivity comment) {
     long commentId = getCommentID(comment.getId());
-    List<ActivityEntity> subComments = activityDAO.getComments(commentId, 0, -1);
+    List<ActivityEntity> subComments = activityDAO.getComments(commentId, 0, -1, false);
     return convertCommentEntitiesToComments(subComments, false);
   }
 
@@ -1423,6 +1432,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   public static final class CommentComparator implements Comparator<ActivityEntity> {
+
+    private final boolean sortDescending;
+
+    public CommentComparator(boolean sortDescending) {
+      this.sortDescending = sortDescending;
+    }
+
     public int compare(ActivityEntity o1, ActivityEntity o2) {
       ActivityEntity parent1 = o1.getParent();
       ActivityEntity parent2 = o2.getParent();
@@ -1431,7 +1447,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       boolean isParentActivity2 = parent2 == null || !parent2.isComment();
 
       if (isParentActivity1 && isParentActivity2) {
-        return o1.getPosted().compareTo(o2.getPosted());
+        return sortDescending ? o2.getPosted().compareTo(o1.getPosted())
+                              : o1.getPosted().compareTo(o2.getPosted());
       } else if (isParentActivity1) {
         return compare(o1, parent2);
       } else if (isParentActivity2) {

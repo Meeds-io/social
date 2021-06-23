@@ -18,6 +18,7 @@ package org.exoplatform.social.core.identity.provider;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -33,7 +34,7 @@ public class SpaceIdentityProvider extends IdentityProvider<Space> {
 
   private static final Log LOG = ExoLogger.getExoLogger(SpaceIdentityProvider.class);
 
-  public static final String NAME = "space";
+  public static final String NAME = ActivityStream.SPACE_PROVIDER_ID;
 
   private SpaceService spaceService;
 

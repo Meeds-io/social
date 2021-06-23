@@ -32,6 +32,7 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -115,8 +116,8 @@ public class SpaceUtilsTest extends AbstractCoreTest {
    * @since 1.2.2
    */
   public void testRemoveSpecialCharacter() {
-    assertEquals("The filter should only filter special characters only","script alert 'Hello' script 100", SpaceUtils.removeSpecialCharacterInSpaceFilter("<script>alert('Hello');</script> 100"));
-    assertEquals("The filter should keep wildcard *,? and %","% * '?", SpaceUtils.removeSpecialCharacterInSpaceFilter("( ) %{ } * [ ] \'? \""));
+    assertEquals("The filter should only filter special characters only","script alert 'Hello' script 100", Utils.removeSpecialCharacterInSpaceFilter("<script>alert('Hello');</script> 100"));
+    assertEquals("The filter should keep wildcard *,? and %","% * '?", Utils.removeSpecialCharacterInSpaceFilter("( ) %{ } * [ ] \'? \""));
     /* I comment this part because unicode String may have problem with Jenkins build.
     assertEquals("The filter should only filter special characters only","script alert a á à ả ã ạ ă ắ ằ ẳ ẵ ặ â" +
     		          " ấ ầ ẩ ẫ ậ o ó ò ỏ õ ọ ơ ớ ờ ở ỡ ợ u ú ù ủ ũ ụ ư ứ ừ ử ữ ự đ script 100",
@@ -175,11 +176,11 @@ public class SpaceUtilsTest extends AbstractCoreTest {
  
   public void testProcessUnifiedSearchCondition() {
     String input = "spa~ce~0.5";
-    assertEquals("spa~ce", SpaceUtils.processUnifiedSearchCondition(input));
+    assertEquals("spa~ce", Utils.processUnifiedSearchCondition(input));
     input = "space~0.5";
-    assertEquals("space", SpaceUtils.processUnifiedSearchCondition(input));
+    assertEquals("space", Utils.processUnifiedSearchCondition(input));
     input = "space~0.5 test~0.5";
-    assertEquals("space test", SpaceUtils.processUnifiedSearchCondition(input));
+    assertEquals("space test", Utils.processUnifiedSearchCondition(input));
   }
 
   public void testchangeAppPageTitle() throws Exception {

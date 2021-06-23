@@ -44,6 +44,8 @@ import java.util.Map;
  * @version $Revision$
  */
 public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
+  public static final String PEOPLE_APP_ID = "exosocial:people";
+  public static final String USER_PROFILE_ACTIVITY = "USER_PROFILE_ACTIVITY";
 
   /**
    * The USER_NAME_PARAM template param key
@@ -135,7 +137,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     ExoSocialActivityImpl comment = new ExoSocialActivityImpl();
     comment.setTitle(title);
     comment.setUserId(identity.getId());
-    comment.setType(PeopleService.PEOPLE_APP_ID);
+    comment.setType(PEOPLE_APP_ID);
     comment.setTitleId(titleId);
     Map<String, String> templateParams = new LinkedHashMap<String, String>();
     if (POSITION_TITLE_ID.equals(titleId)) {
@@ -151,7 +153,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     ExoSocialActivityImpl activity = (ExoSocialActivityImpl) activityManager.getActivity(activityId);
     if (activity == null) {
       activity = new ExoSocialActivityImpl();
-      activity.setType(PeopleService.USER_PROFILE_ACTIVITY);
+      activity.setType(USER_PROFILE_ACTIVITY);
       activityId = null;
     }
     

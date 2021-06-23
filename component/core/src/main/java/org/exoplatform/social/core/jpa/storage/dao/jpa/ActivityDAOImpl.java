@@ -772,8 +772,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
-  public List<ActivityEntity> getComments(long activityId, int offset, int limit) {
-    TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery("SocActivity.findCommentsOfActivity", ActivityEntity.class);
+  public List<ActivityEntity> getComments(long activityId, int offset, int limit, boolean sortDescending) {
+    String queryString = sortDescending ? "SocActivity.findLastCommentsOfActivity" : "SocActivity.findCommentsOfActivity";
+    TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery(queryString, ActivityEntity.class);
     query.setParameter("activityId", activityId);
     if (limit > 0) {
       query.setFirstResult(offset >= 0 ? offset : 0);

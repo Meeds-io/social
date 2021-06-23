@@ -29,6 +29,7 @@
   <name>eXo PLF:: Social Component</name>
   <description>eXo Social Component</description>
   <modules>
+    <module>api</module>
     <module>common</module>
     <module>core</module>
     <module>service</module>

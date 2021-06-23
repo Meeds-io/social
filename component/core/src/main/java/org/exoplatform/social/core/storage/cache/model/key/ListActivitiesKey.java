@@ -28,24 +28,38 @@ import org.exoplatform.social.core.storage.cache.model.data.ListIdentitiesData;
  */
 public class ListActivitiesKey extends ListCacheKey {
 
-  private final ActivityCountKey key;
+  private final ActivityCountKey   key;
+
   private final ListIdentitiesData identities;
 
+  private final boolean            sortDescending;
+
   public ListActivitiesKey(final ActivityCountKey key, final long offset, final long limit) {
-    super(offset, limit);
-    this.key = key;
-    this.identities = null;
+    this(key, offset, limit, false);
   }
 
   public ListActivitiesKey(final ListIdentitiesData identities, final long offset, final long limit) {
+    this(identities, offset, limit, false);
+  }
+
+  public ListActivitiesKey(final ActivityCountKey key, final long offset, final long limit, boolean sortDescending) {
+    super(offset, limit);
+    this.key = key;
+    this.identities = null;
+    this.sortDescending = sortDescending;
+  }
+
+  public ListActivitiesKey(final ListIdentitiesData identities, final long offset, final long limit, boolean sortDescending) {
     super(offset, limit);
     this.key = null;
     this.identities = identities;
+    this.sortDescending = sortDescending;
   }
 
   public ActivityCountKey getKey() {
     return key;
   }
+
 
   @Override
   public boolean equals(final Object o) {
@@ -68,7 +82,7 @@ public class ListActivitiesKey extends ListCacheKey {
       return false;
     }
 
-    return true;
+    return sortDescending == that.sortDescending;
   }
 
   @Override
@@ -76,6 +90,9 @@ public class ListActivitiesKey extends ListCacheKey {
     int result = super.hashCode();
     result = 31 * result + (key != null ? key.hashCode() : 0);
     result = 31 * result + (identities != null ? identities.hashCode() : 0);
+    if (sortDescending) {
+      result = 31 * result;
+    }
     return result;
   }
   

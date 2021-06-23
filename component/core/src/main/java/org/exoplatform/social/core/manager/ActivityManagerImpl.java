@@ -364,6 +364,16 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   @Override
   public RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity existingActivity,
+                                                                         boolean loadSubComments,
+                                                                         boolean sortDescending) {
+    return new CommentsRealtimeListAccess(activityStorage, existingActivity, loadSubComments, sortDescending);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity existingActivity,
                                                                          boolean loadSubComments) {
     return new CommentsRealtimeListAccess(activityStorage, existingActivity, loadSubComments);
   }

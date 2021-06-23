@@ -999,13 +999,26 @@ public class CachedActivityStorage implements ActivityStorage {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<ExoSocialActivity> getComments(final ExoSocialActivity existingActivity,
                                              final boolean loadSubComments,
                                              final int offset,
                                              final int limit) {
+    return getComments(existingActivity, loadSubComments, offset, limit, false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<ExoSocialActivity> getComments(final ExoSocialActivity existingActivity,
+                                             final boolean loadSubComments,
+                                             final int offset,
+                                             final int limit,
+                                             boolean sortDescending) {
     ActivityCountKey key = new ActivityCountKey(existingActivity.getId(),
                                                 loadSubComments ? ActivityType.COMMENTS_AND_SUB_COMMENTS : ActivityType.COMMENTS);
-    ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit, sortDescending);
 
     //
     ListActivitiesData keys = activitiesCache.get(
@@ -1014,7 +1027,8 @@ public class CachedActivityStorage implements ActivityStorage {
                                                       List<ExoSocialActivity> got = storage.getComments(existingActivity,
                                                                                                         loadSubComments,
                                                                                                         offset,
-                                                                                                        limit);
+                                                                                                        limit,
+                                                                                                        sortDescending);
                                                       return buildIds(got);
                                                     }
                                                   },

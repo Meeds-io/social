@@ -29,6 +29,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -46,7 +47,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
   private OrganizationService organizationService;
 
   /** The Constant NAME. */
-  public final static String  NAME = "organization";
+  public final static String  NAME = ActivityStream.ORGANIZATION_PROVIDER_ID;
 
   /**
    * Instantiates a new organization identity provider.
@@ -149,7 +150,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
    * @param profile
    */
   @Override
-  public void onUpdateProfile(Profile profile) throws MessageException {
+  public void onUpdateProfile(Profile profile) {
     new UpdateProfileProcess(profile).doUpdate();
   }
 
@@ -172,19 +173,14 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
     /**
      * update profile information
      */
-    public void doUpdate() throws MessageException {
+    public void doUpdate() {
       try {
         if (updatedProfile.getListUpdateTypes().contains(Profile.UpdateType.CONTACT)) {
           updateBasicInfo();
           updateContact();
         }
       } catch (Exception e) {
-        if (e instanceof MessageException) {
-          throw (MessageException) e;
-        } else {
-          LOG.warn("Failed to update user by profile", e);
-        }
-
+        LOG.warn("Failed to update user by profile", e);
       }
     }
 
