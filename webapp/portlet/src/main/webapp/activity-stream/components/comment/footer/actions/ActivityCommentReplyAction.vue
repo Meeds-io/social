@@ -32,31 +32,42 @@ export default {
     commentId() {
       return this.comment && (this.comment.parentCommentId || this.comment.id) || '';
     },
-    commentColorClass() {
-      return this.hasCommented && 'primary--text' || 'disabled--text';
-    },
     commentTextColorClass() {
       return this.hasCommented && 'primary--text' || '';
     },
+    hasCommented() {
+      return this.hasCommented && 'primary--text' || '';
+    },
+  },
+  watch: {
+    comment() {
+      this.checkWhetherCommented();
+    },
   },
   created() {
-    document.addEventListener('activity-comment-created', (event) => {
-      const activityId = event && event.detail && event.detail.activityId;
-      const commentId = event && event.detail && event.detail.commentId;
-      if (activityId === this.activityId && commentId === this.commentId) {
+    this.$root.$on('activity-comment-created', comment => {
+      if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
         this.hasCommented = true;
       }
     });
-    this.hasCommented = this.activity && this.activity.hasCommented === 'true';
+    this.$root.$on('activity-comment-deleted', comment => {
+      if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
+        this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.filter(tmp => tmp.id !== comment.id).length;
+      }
+    });
+    this.checkWhetherCommented();
   },
   methods: {
+    checkWhetherCommented() {
+      this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.length;
+    },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activityId: this.activityId,
         commentId: this.commentId,
+        newComment: true,
         offset: 0,
         limit: 200, // To display all
-        displayCommentEditor: true,
       }}));
     },
   },

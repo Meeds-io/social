@@ -28,8 +28,9 @@
         ref="activityComments"
         :activity-id="activityId"
         :comments="comments"
-        :comment-editor-display="displayCommentEditor"
         :comment-actions="commentActions"
+        :comment-editing="commentToEdit"
+        :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
         allow-edit />
     </template>
@@ -50,8 +51,10 @@ export default {
     loading: false,
     drawerOpened: false,
     temporaryDrawer: true,
-    displayCommentEditor: false,
+    newCommentEditor: false,
     selectedCommentIdToReply: null,
+    scrollOnOpen: true,
+    commentToEdit: null,
     offset: 0,
     limit: 10,
   }),
@@ -69,31 +72,21 @@ export default {
         this.$refs.activityCommentsDrawer.startLoading();
       } else {
         this.$refs.activityCommentsDrawer.endLoading();
-        if (!this.displayCommentEditor || !this.selectedCommentIdToReply) {
+        if (this.scrollOnOpen && (!this.newCommentEditor || !this.selectedCommentIdToReply)) {
           this.$nextTick().then(() => this.scrollToEnd());
+          // Avoid scrolling again when loading
+          this.scrollOnOpen = false;
         }
       }
     },
   },
   created() {
-    document.addEventListener('activity-comments-display', event => {
-      const options = event && event.detail;
-      if (options) {
-        this.activityId = options.activityId;
-        this.offset = options.offset || 0;
-        this.limit = options.limit || 10;
-        if (!this.drawerOpened) {
-          this.drawerOpened = true;
-          this.retrieveComments();
-          this.$refs.activityCommentsDrawer.open();
-        }
-        if (options.displayCommentEditor) {
-          this.displayCommentRichEditor(options.commentId);
-        }
-      }
-    });
+    document.addEventListener('activity-comments-display', this.displayActivityComments);
+    document.addEventListener('activity-comment-edit', this.editActivityComments);
 
-    document.addEventListener('activity-comment-created', this.hideCommentRichEditor);
+    this.$root.$on('activity-comment-created', this.hideCommentRichEditor);
+    this.$root.$on('activity-comment-updated', this.hideCommentRichEditor);
+    this.$root.$on('activity-comment-edit-cancel', this.hideCommentRichEditor);
 
     // Avoid closing drawer when closing dialog
     this.$root.$on('activity-stream-confirm-opened', () => this.temporaryDrawer = false);
@@ -115,20 +108,48 @@ export default {
         });
       }, 10);
     },
+    editActivityComments(event) {
+      const comment = event && event.detail;
+      if (comment && comment.activityId) {
+        this.displayActivityComments({options: {
+          activityId: comment.activityId,
+          editComment: comment,
+          offset: 0,
+          limit: 200,
+        }});
+      }
+    },
+    displayActivityComments(event) {
+      const options = event && (event.detail || event.options);
+      if (options) {
+        this.hideCommentRichEditor();
+        this.$nextTick().then(() => {
+          this.activityId = options.activityId;
+          this.offset = options.offset || 0;
+          this.limit = options.limit || 10;
+          if (!this.drawerOpened) {
+            this.drawerOpened = true;
+            this.scrollOnOpen = !options.editComment;
+            this.retrieveComments();
+            this.$refs.activityCommentsDrawer.open();
+          }
+          this.commentToEdit = options.editComment;
+          this.newCommentEditor = !this.commentToEdit && options.newComment;
+          this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
+        });
+      }
+    },
     displayCommentRichEditor(commentId) {
-      this.selectedCommentIdToReply = commentId || null;
-      // Has to make this change at the end of the method,
-      // to have the correct value of this.selectedCommentIdToReply
-      this.displayCommentEditor = true;
-
+      this.hideCommentRichEditor();
       this.$nextTick().then(() => {
-        document.dispatchEvent(new CustomEvent('activity-comment-editor-init', {detail: this.lastEditorOptions}));
+        this.selectedCommentIdToReply = commentId;
+        this.newCommentEditor = true;
       });
     },
     hideCommentRichEditor() {
-      document.dispatchEvent(new CustomEvent('activity-comment-editor-destroy'));
-      this.displayCommentEditor = false;
+      this.newCommentEditor = false;
       this.selectedCommentIdToReply = null;
+      this.commentToEdit = null;
     },
     retrieveComments() {
       this.loading = true;

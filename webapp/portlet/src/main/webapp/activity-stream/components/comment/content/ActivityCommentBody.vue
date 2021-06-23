@@ -1,18 +1,16 @@
 <template>
-  <div
-    :id="id">
-    <activity-comment-rich-text
-      v-if="commentEditing"
-      ref="commentRichEditor"
-      key="commentRichEditor"
-      class="col-auto ps-13 mt-1 mb-2 flex-shrink-1"
-      :activity-id="activityId"
-      :parent-comment-id="comment.parentCommentId"
-      :comment-id="comment.id"
-      :label="$t('UIActivity.label.Update')"
-      :options="commentEditOptions"
-      @cancel="commentEditing = false"
-      @updated="commentEditing = false" />
+  <div :id="id">
+    <div
+      v-if="isEditingComment"
+      class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
+      <activity-comment-rich-text
+        ref="commentEditRichEditor"
+        :activity-id="activityId"
+        :parent-comment-id="comment.parentCommentId"
+        :comment-id="comment.id"
+        :label="$t('UIActivity.label.Update')"
+        :options="commentEditOptions" />
+    </div>
     <template v-else>
       <v-list-item :class="highlightClass">
         <activity-head-user
@@ -45,24 +43,21 @@
     </template>
 
     <template v-if="subComments && subComments.length">
-      <activity-comment
+      <activity-comment-body
         v-for="subComment in subComments"
         :key="subComment.id"
         :comment="subComment"
         :comment-actions="commentActions"
-        :allow-edit="allowEdit"
+        :comment-editing="commentEditing"
         class="ms-10" />
     </template>
-    <div v-if="!commentEditing" class="ps-12 py-0 mb-2 align-start border-box-sizing">
+    <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
-        v-if="displayReply"
         ref="commentRichEditor"
-        key="commentRichEditor"
         class="col-auto ps-13 mt-1 mb-2 flex-shrink-1"
         :activity-id="activityId"
         :parent-comment-id="parentCommentId"
         :label="$t('UIActivity.label.Comment')"
-        :allow-edit="allowEdit"
         :options="editorOptions" />
     </div>
   </div>
@@ -83,11 +78,11 @@ export default {
       type: Object,
       default: null,
     },
-    displayReply: {
+    newReplyEditor: {
       type: Boolean,
       default: false,
     },
-    allowEdit: {
+    commentEditing: {
       type: Boolean,
       default: false,
     },
@@ -96,10 +91,6 @@ export default {
       default: null,
     },
   },
-  data: () => ({
-    message: null,
-    commentEditing: false,
-  }),
   computed: {
     activityId() {
       return this.comment && this.comment.activityId || '';
@@ -128,6 +119,9 @@ export default {
     useParagraph() {
       return !this.commentBody.includes('</p>');
     },
+    isEditingComment() {
+      return this.commentEditing && this.commentEditing.id === this.comment.id;
+    },
     commentEditOptions() {
       return {
         activityId: this.activityId,
@@ -137,36 +131,12 @@ export default {
       };
     },
   },
-  created() {
-    document.addEventListener('activity-comment-edit', this.editComment);
-  },
   mounted() {
     if (this.highlight) {
       this.$nextTick().then(this.scrollToComment);
     }
   },
-  beforeDestroy() {
-    document.removeEventListener('activity-comment-edit', this.editComment);
-  },
   methods: {
-    editComment(event) {
-      if (!this.allowEdit) {
-        return;
-      }
-      const comment = event && event.detail;
-      if (!comment || comment.id !== this.comment.id) {
-        return;
-      }
-      this.commentEditing = true;
-      this.$nextTick().then(() => this.$refs.commentRichEditor.init());
-    },
-    updateCommentDisplay(event) {
-      const comment = event && event.detail && event.detail.comment;
-      if (!comment || comment.id !== this.comment.id) {
-        return;
-      }
-      
-    },
     scrollToComment() {
       window.setTimeout(() => {
         const commentElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id}`);
