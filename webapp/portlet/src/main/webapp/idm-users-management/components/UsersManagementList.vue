@@ -183,8 +183,10 @@ export default {
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
+    selectedFiler: null,
     isConnected: null,
     userType: null,
+    enrollmentStatus: null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -423,7 +425,10 @@ export default {
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
       const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {this.userType = this.selectedFiler;}
+      if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {this.isConnected = this.selectedFiler;}
+      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {this.enrollmentStatus = this.selectedFiler;}
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrollmentStatus != null ? `&enrollmentStatus=${(this.enrollmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -479,6 +484,9 @@ export default {
           }
           this.loading = false;
           this.initialized = true;
+          this.isConnected = null;
+          this.userType = null;
+          this.enrollmentStatus = null;
         });
     },
     waitForEndTyping() {
@@ -557,9 +565,8 @@ export default {
         this.initialized = true;
       });
     },
-    applyAdvancedFilter(isConnected, userType) {
-      this.isConnected = isConnected;
-      this.userType= userType;
+    applyAdvancedFilter(selectedFiler) {
+      this.selectedFiler = selectedFiler;
       this.searchUsers();
     }
   },

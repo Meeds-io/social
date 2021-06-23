@@ -53,6 +53,7 @@ public class IdentityFilterKey implements CacheKey {
   private String userType;
   private Boolean isConnected;
   private boolean isEnabled;
+  private String enrollmentStatus;
 
   /**
    * Constructor for case using remoteId as key.
@@ -73,6 +74,7 @@ public class IdentityFilterKey implements CacheKey {
       this.userType = filter.getUserType();
       this.isConnected = filter.isConnected();
       this.isEnabled = filter.isEnabled();
+      this.enrollmentStatus = filter.getEnrollmentStatus();
 
       List<IdentityKey> keys = new ArrayList<IdentityKey>();
       for (Identity i : filter.getExcludedIdentityList()) {
@@ -140,6 +142,7 @@ public class IdentityFilterKey implements CacheKey {
     if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
     if (userType != null ? !userType.equals(that.userType) : that.userType != null) return false;
     if (isConnected != that.isConnected) return true;
+    if (enrollmentStatus != that.enrollmentStatus) return true;
     if (isEnabled != that.isEnabled) return true;
 
     return true;
@@ -161,6 +164,7 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
     result = 31 * result + (userType != null ? userType.hashCode() : 0);
     result = 31 * result + (isConnected != null ? isConnected.hashCode() : 0);
+    result = 31 * result + (enrollmentStatus != null ? enrollmentStatus.hashCode() : 0);
     result = 31 * result + Boolean.hashCode(isEnabled);
     return result;
   }

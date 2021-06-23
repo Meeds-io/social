@@ -150,7 +150,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           boolean isEnabled = profileFilter.isEnabled();
           String userType = profileFilter.getUserType();
           Boolean isConnected = profileFilter.isConnected();
-          
+          String enrollmentStatus = profileFilter.getEnrollmentStatus();
+
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           identities = identityStorage.getIdentities(providerId,
@@ -161,6 +162,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      isEnabled,
                                                      userType,
                                                      isConnected,
+                                                     enrollmentStatus,
                                                      offset,
                                                      usedLimit);
         }

@@ -218,7 +218,7 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
-    if (filter.getUserType() != null) {
+    if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
         esSubQuery.append("                  {\n");
@@ -251,9 +251,6 @@ public class ProfileSearchConnector {
       }
     }
     if (filter.isConnected() != null) {
-        if(filter.getUserType() != null && !filter.getUserType().isEmpty()){
-          esSubQuery.append("      ,\n");
-        }
         esSubQuery.append("    \"should\": [\n");
         esSubQuery.append("                  {\n");
         esSubQuery.append("                    \"bool\": {\n");
@@ -272,6 +269,85 @@ public class ProfileSearchConnector {
         subQueryEmpty = false;
         appendCommar = true;
     }
+    if(filter.getEnrollmentStatus() != null && !filter.getEnrollmentStatus().isEmpty()) {
+      switch (filter.getEnrollmentStatus()) {
+        case "enrolled": {
+          esSubQuery.append("    \"should\": [\n");
+          esSubQuery.append("                  {\n");
+          esSubQuery.append("                    \"bool\": {\n");
+          esSubQuery.append("                      \"must\": {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
+          esSubQuery.append("                        }\n");
+          esSubQuery.append("                      }\n");
+          esSubQuery.append("                    }\n");
+          esSubQuery.append("                  }\n");
+          esSubQuery.append("                  ]\n");
+          subQueryEmpty = false;
+          appendCommar = true;
+          break;
+        }
+
+        case "notEnrolled": {
+          esSubQuery.append("    \"should\": [\n");
+          esSubQuery.append("                  {\n");
+          esSubQuery.append("                    \"bool\": {\n");
+          esSubQuery.append("                      \"must_not\": {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
+          esSubQuery.append("                          }\n");
+          esSubQuery.append("                        },\n");
+          esSubQuery.append("                      \"must\": {\n");
+          esSubQuery.append("                       \"term\": {\n");
+          esSubQuery.append("                         \"external\": false\n");
+          esSubQuery.append("                         }\n");
+          esSubQuery.append("                      },\n");
+          esSubQuery.append("                      \"must_not\": {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
+          esSubQuery.append("                        }\n");
+          esSubQuery.append("                      }\n");
+          esSubQuery.append("                    }\n");
+          esSubQuery.append("                  }\n");
+          esSubQuery.append("                  ]\n");
+          subQueryEmpty = false;
+          appendCommar = true;
+          break;
+        }
+
+        case "noEnrollmentPossible": {
+
+          esSubQuery.append("    \"should\": [\n");
+          esSubQuery.append("                  {\n");
+          esSubQuery.append("                    \"bool\": {\n");
+          esSubQuery.append("                      \"must_not\": {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
+          esSubQuery.append("                          }\n");
+          esSubQuery.append("                        },\n");
+          esSubQuery.append("                      \"must\": {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
+          esSubQuery.append("                        }\n");
+          esSubQuery.append("                      }\n");
+          esSubQuery.append("                    }\n");
+          esSubQuery.append("                  },\n");
+          esSubQuery.append("                  {\n");
+          esSubQuery.append("                    \"term\": {\n");
+          esSubQuery.append("                      \"external\": true\n");
+          esSubQuery.append("                    }\n");
+          esSubQuery.append("                  }\n");
+          esSubQuery.append("                  ]\n");
+          subQueryEmpty = false;
+          appendCommar = true;
+          break;
+        }
+
+        default:
+          break;
+      }
+    }
+
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {
