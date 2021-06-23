@@ -1,5 +1,5 @@
 <template>
-  <div class="actionsDetailsWrapper mb-0 py-0 pe-4 me-1 border-top-color">
+  <div class="actionsDetailsWrapper mb-0 py-0 pe-4 border-top-color">
     <activity-reactions
       :activity-id="activityId"
       :likers="likers"
@@ -8,7 +8,8 @@
       class="activityReactionsContainer" />
     <activity-actions
       :activity="activity"
-      :activity-type-extension="activityTypeExtension" />
+      :activity-type-extension="activityTypeExtension"
+      class="me-1" />
   </div>
 </template>
 

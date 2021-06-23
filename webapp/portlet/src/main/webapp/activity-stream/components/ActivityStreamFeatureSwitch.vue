@@ -60,6 +60,11 @@ export default {
       }
     },
   },
+  mounted() {
+    if (eXo.developing) {
+      this.switchActivityStream();
+    }
+  },
   methods: {
     switchActivityStream() {
       this.useNewApp = !this.useNewApp;

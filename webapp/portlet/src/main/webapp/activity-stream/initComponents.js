@@ -4,20 +4,25 @@ import ActivityStreamList from './components/list/ActivityStreamList.vue';
 import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
-import ActivityHead from './components/head/ActivityHead.vue';
-import ActivityHeadSpace from './components/head/ActivityHeadSpace.vue';
-import ActivityHeadUser from './components/head/ActivityHeadUser.vue';
-import ActivityHeadTime from './components/head/ActivityHeadTime.vue';
-import ActivityHeadMenu from './components/head/ActivityHeadMenu.vue';
-import ActivityBody from './components/content/ActivityBody.vue';
-import ActivityLink from './components/content/ActivityLink.vue';
-import ActivityFooter from './components/footer/ActivityFooter.vue';
-import ActivityActions from './components/footer/ActivityActions.vue';
-import ActivityCommentAction from './components/footer/actions/ActivityCommentAction.vue';
-import ActivityLikeAction from './components/footer/actions/ActivityLikeAction.vue';
+import ActivityHead from './components/activity/head/ActivityHead.vue';
+import ActivityHeadSpace from './components/activity/head/ActivityHeadSpace.vue';
+import ActivityHeadUser from './components/activity/head/ActivityHeadUser.vue';
+import ActivityHeadTime from './components/activity/head/ActivityHeadTime.vue';
+import ActivityHeadMenu from './components/activity/head/ActivityHeadMenu.vue';
+import ActivityBody from './components/activity/content/ActivityBody.vue';
+import ActivityLink from './components/activity/content/ActivityLink.vue';
+import ActivityFooter from './components/activity/footer/ActivityFooter.vue';
+import ActivityActions from './components/activity/footer/ActivityActions.vue';
+import ActivityCommentAction from './components/activity/footer/actions/ActivityCommentAction.vue';
+import ActivityLikeAction from './components/activity/footer/actions/ActivityLikeAction.vue';
 import ActivityCommentsPreview from './components/comment/ActivityCommentsPreview.vue';
+import ActivityCommentsDrawer from './components/comment/ActivityCommentsDrawer.vue';
 import ActivityComments from './components/comment/ActivityComments.vue';
-import ActivityComment from './components/comment/ActivityComment.vue';
+import ActivityComment from './components/comment/content/ActivityComment.vue';
+import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
+import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
+import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
+import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -38,8 +43,13 @@ const components = {
   'activity-comment-action': ActivityCommentAction,
   'activity-like-action': ActivityLikeAction,
   'activity-comments-preview': ActivityCommentsPreview,
+  'activity-comments-drawer': ActivityCommentsDrawer,
   'activity-comments': ActivityComments,
   'activity-comment': ActivityComment,
+  'activity-comment-rich-text': ActivityCommentRichText,
+  'activity-comment-actions': ActivityCommentActions,
+  'activity-comment-reply-action': ActivityCommentReplyAction,
+  'activity-comment-menu': ActivityCommentMenu,
 };
 
 for (const key in components) {

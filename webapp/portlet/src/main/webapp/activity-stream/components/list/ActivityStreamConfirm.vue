@@ -5,7 +5,9 @@
     :title="$t(confirmTitleKey)"
     :ok-label="$t(confirmOkKey)"
     :cancel-label="$t(confirmCancelKey)"
-    @ok="clickCallback && clickCallback()" />
+    @ok="clickCallback && clickCallback()"
+    @dialog-opened="dialogOpened = true"
+    @dialog-closed="dialogOpened = false" />
 </template>
 
 <script>
@@ -16,7 +18,17 @@ export default {
     confirmOkKey: null,
     confirmCancelKey: null,
     clickCallback: null,
+    dialogOpened: false,
   }),
+  watch: {
+    dialogOpened() {
+      if (this.dialogOpened) {
+        this.$root.$emit('activity-stream-confirm-opened');
+      } else {
+        this.$root.$emit('activity-stream-confirm-closed');
+      }
+    },
+  },
   created() {
     this.$root.$on('activity-stream-display-confirm', action => {
       this.confirmTitleKey = action.title;

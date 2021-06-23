@@ -285,11 +285,11 @@ public class ActivityManagerImpl implements ActivityManager {
     Validate.notNull(existingActivity, "existingActivity must not be null!");
     Validate.notNull(existingActivity.getId(), "existingActivity.getId() must not be null!");
 
-    activityStorage.deleteActivity(existingActivity.getId());
-
-    if(existingActivity.isComment() || existingActivity.getParentId() != null){
+    if (existingActivity.isComment() || existingActivity.getParentId() != null) {
+      activityStorage.deleteComment(existingActivity.getParentId(), existingActivity.getId());
       activityLifeCycle.deleteComment(existingActivity);
     } else {
+      activityStorage.deleteActivity(existingActivity.getId());
       activityLifeCycle.deleteActivity(existingActivity);
     }
   }
@@ -735,7 +735,13 @@ public class ActivityManagerImpl implements ActivityManager {
     if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
       return true;
     }
-    ActivityStream activityStream = activity.getActivityStream();
+    ActivityStream activityStream = null;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = getActivity(activity.getParentId());
+      activityStream = parentActivity == null ? null : parentActivity.getActivityStream();
+    } else {
+      activityStream = activity.getActivityStream();
+    }
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isSpaceManager(viewer, activityStream.getPrettyId());
     }

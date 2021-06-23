@@ -15,6 +15,7 @@
       :activity="activity"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
+      :comment-actions="commentActions"
       :is-activity-detail="activityId"
       class="mb-6 contentBox" />
     <v-btn
@@ -41,6 +42,10 @@ export default {
       default: null,
     },
     activityActions: {
+      type: Object,
+      default: null,
+    },
+    commentActions: {
       type: Object,
       default: null,
     },

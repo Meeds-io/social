@@ -67,6 +67,7 @@ if (extensionRegistry) {
       });
     },
   });
+
   extensionRegistry.registerExtension('activity', 'action', {
     id: 'delete',
     labelKey: 'UIActivity.label.Delete',
@@ -90,6 +91,7 @@ if (extensionRegistry) {
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
     },
   });
+
   extensionRegistry.registerExtension('activity', 'action', {
     id: 'copyLink',
     labelKey: 'UIActivity.label.CopyLink',
@@ -107,6 +109,28 @@ if (extensionRegistry) {
     },
   });
 
+  extensionRegistry.registerExtension('activity', 'comment-action', {
+    id: 'delete',
+    labelKey: 'UIActivity.label.Delete',
+    confirmDialog: true,
+    confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Comment',
+    confirmTitleKey: 'UIActivity.label.Confirmation',
+    confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
+    confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
+    isEnabled: comment => comment.canDelete === 'true',
+    click: comment => {
+      document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      return Vue.prototype.$activityService.deleteActivity(comment.id)
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('activity-stream-comment-deleted', {detail: {
+            activityId: comment.activityId,
+            commentId: comment.id,
+          }}));
+        })
+        .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+    },
+  });
+
   extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
     id: 'like',
     vueComponent: Vue.options.components['activity-like-action'],
@@ -116,6 +140,12 @@ if (extensionRegistry) {
   extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
     id: 'comment',
     vueComponent: Vue.options.components['activity-comment-action'],
+    rank: 20,
+  });
+
+  extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
+    id: 'reply',
+    vueComponent: Vue.options.components['activity-comment-reply-action'],
     rank: 20,
   });
 }

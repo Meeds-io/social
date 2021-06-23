@@ -556,6 +556,7 @@ public class EntityBuilder {
 
     activityEntity.setLikesCount(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
     activityEntity.setCommentsCount(activity.getCommentedIds() == null ? 0 : activity.getCommentedIds().length);
+    activityEntity.setHasCommented(ArrayUtils.contains(activity.getCommentedIds(), authentiatedUser.getId()));
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
@@ -607,6 +608,11 @@ public class EntityBuilder {
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
     commentEntity.setActivity(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getParentId(), restPath));
+    commentEntity.setActivityId(comment.getParentId());
+    boolean canEdit = getActivityManager().isActivityEditable(comment, ConversationState.getCurrent().getIdentity());
+    commentEntity.setCanEdit(canEdit);
+    boolean canDelete = getActivityManager().isActivityDeletable(comment, ConversationState.getCurrent().getIdentity());
+    commentEntity.setCanDelete(canDelete);
     //
     if(!isBuildList) {
       updateCachedLastModifiedValue(comment.getUpdated());

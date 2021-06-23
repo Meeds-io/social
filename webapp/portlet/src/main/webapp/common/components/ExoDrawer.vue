@@ -126,6 +126,11 @@ export default {
     },
   },
   watch: {
+    temporary() {
+      if (this.temporary) {
+        this.installOverlayListener();
+      }
+    },
     drawer() {
       if (this.drawer) {
         if (!this.initialized) {
