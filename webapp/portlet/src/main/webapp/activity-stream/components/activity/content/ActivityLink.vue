@@ -143,9 +143,15 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
     },
     thumbnailProperties() {
+      if (this.activityTypeExtension && this.activityTypeExtension.getThumbnailProperties) {
+        return this.activityTypeExtension.getThumbnailProperties(this.activity, this.isActivityDetail);
+      }
       return this.activityTypeExtension && this.activityTypeExtension.thumbnailProperties;
     },
     useSameViewForMobile() {
+      if (this.activityTypeExtension && this.activityTypeExtension.isUseSameViewForMobile) {
+        return this.activityTypeExtension.isUseSameViewForMobile(this.activity, this.isActivityDetail);
+      }
       return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
     },
     supportsIcon() {
