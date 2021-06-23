@@ -41,6 +41,10 @@ export default {
     ckEditorType: {
       type: String,
       default: 'activityContent'
+    },
+    autofocus: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -54,6 +58,13 @@ export default {
   watch: {
     inputVal(val) {
       this.$emit('input', val);
+    },
+    editorReady() {
+      if (this.editorReady) {
+        this.$emit('ready');
+      } else {
+        this.$emit('unloaded');
+      }
     },
     value(val) {
       if (!CKEDITOR.instances[this.ckEditorType]) {
@@ -83,6 +94,10 @@ export default {
         if (reset) {
           CKEDITOR.instances[this.ckEditorType].destroy(true);
         } else {
+          this.setEditorReady();
+          if (this.autofocus) {
+            this.setFocus();
+          }
           return;
         }
       }
@@ -112,7 +127,7 @@ export default {
         autoGrow_maxHeight: 300,
         on: {
           instanceReady: function () {
-            self.editorReady = true;
+            self.setEditorReady();
             $(CKEDITOR.instances[self.ckEditorType].document.$)
               .find('.atwho-inserted')
               .each(function() {
@@ -120,13 +135,17 @@ export default {
                   $(this).closest('[data-atwho-at-query]').remove();
                 });
               });
+
+            if (self.autofocus) {
+              self.setFocus();
+            }
           },
           change: function (evt) {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;
 
-            const pureText = newData ? newData.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
+            const pureText = self.$utils.htmlToText(newData);
             self.charsCount = pureText.length;
           },
           destroy: function () {
@@ -135,6 +154,11 @@ export default {
           }
         }
       });
+    },
+    destroyCKEditor: function () {
+      if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].destroy(true);
+      }
     },
     initCKEditorData: function(message) {
       if (message) {
@@ -167,9 +191,15 @@ export default {
     },
     setFocus: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
-        CKEDITOR.instances[this.ckEditorType].status = 'ready';
-        CKEDITOR.instances[this.ckEditorType].focus();
+        window.setTimeout(() => {
+          CKEDITOR.instances[this.ckEditorType].focus();
+        }, 200);
       }
+    },
+    setEditorReady: function() {
+      window.setTimeout(() => {
+        this.editorReady = true;
+      }, 50);
     },
     getMessage: function() {
       const newData = CKEDITOR.instances[this.ckEditorType].getData();

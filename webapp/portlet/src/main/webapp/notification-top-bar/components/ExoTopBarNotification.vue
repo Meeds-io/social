@@ -12,10 +12,7 @@
             flat
             color="var(--allPagesBadgePrimaryColor, #ff5335)"
             overlap>
-            <v-icon
-              class="grey-color">
-              notifications
-            </v-icon>
+            <v-icon class="grey-color" size="21">mdi-bell</v-icon>
           </v-badge>
         </v-btn>
         <exo-drawer

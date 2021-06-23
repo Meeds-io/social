@@ -1,11 +1,24 @@
 <template>
-  <v-list v-if="lastComment" class="pb-0 pt-5 border-top-color">
-    <activity-comment :comment="lastComment" />
-    <activity-comment
-      v-if="lastSubComment"
-      :comment="lastSubComment"
-      sub-comment />
-  </v-list>
+  <v-progress-linear
+    v-if="loading"
+    color="primary"
+    height="2"
+    indeterminate />
+  <div v-else-if="commentsSize">
+    <activity-comments
+      :activity-id="activityId"
+      :comments="commentsPreviewList"
+      :comment-actions="commentActions"
+      @comment-deleted="retrieveLastComment" />
+    <v-btn
+      class="primary--text font-weight-bold mb-1 subtitle-2"
+      small
+      link
+      text
+      @click="openCommentsDrawer">
+      {{ $t('UIActivity.label.Show_All_Comments', {0: commentsSize}) }}
+    </v-btn>
+  </div>
 </template>
 
 <script>
@@ -15,9 +28,15 @@ export default {
       type: String,
       default: null,
     },
+    commentActions: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     commentsData: null,
+    limit: 1,
+    loading: false,
   }),
   computed: {
     comments() {
@@ -32,16 +51,20 @@ export default {
     lastSubComment() {
       return this.comments && this.comments.length > 1 && this.comments[this.comments.length - 1];
     },
+    commentsPreviewList() {
+      const commentsPreviewList = [];
+      if (this.lastComment) {
+        commentsPreviewList.push(this.lastComment);
+      }
+      if (this.lastSubComment) {
+        commentsPreviewList.push(this.lastSubComment);
+      }
+      return commentsPreviewList;
+    },
   },
   created() {
-    document.addEventListener('activity-comment-added', event => {
-      const activityId = event && event.detail;
-      if (activityId === this.activityId) {
-        this.retrieveLastComment();
-      }
-    });
-    document.addEventListener('activity-comment-updated', event => {
-      const activityId = event && event.detail;
+    document.addEventListener('activity-commented', (event) => {
+      const activityId = event && event.detail && event.detail.activityId;
       if (activityId === this.activityId) {
         this.retrieveLastComment();
       }
@@ -50,8 +73,20 @@ export default {
   },
   methods: {
     retrieveLastComment() {
-      this.$activityService.getActivityComments(this.activityId, true, 0, 1, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(data => this.commentsData = data);
+      this.loading = true;
+      this.$activityService.getActivityComments(this.activityId, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        .then(data => {
+          this.commentsData = data;
+          return this.$nextTick();
+        })
+        .finally(() => this.loading = false);
+    },
+    openCommentsDrawer() {
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activityId: this.activityId,
+        offset: 0,
+        limit: this.commentsSize * 2, // To display all
+      }}));
     },
   },
 };

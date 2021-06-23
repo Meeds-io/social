@@ -19,6 +19,8 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.List;
 
+import org.exoplatform.social.rest.api.RestProperties;
+
 public class CommentEntity extends BaseEntity {
   private static final long serialVersionUID = -2508420154905846726L;
 
@@ -96,9 +98,36 @@ public class CommentEntity extends BaseEntity {
     setProperty("activity", activity);
     return this;
   }
-
+  
   public String getActivity() {
     return getString("activity");
+  }
+
+  public String getActivityId() {
+    return getString("activityId");
+  }
+
+  public CommentEntity setActivityId(String activityId) {
+    setProperty("activityId", activityId);
+    return this;
+  }
+
+  public void setCanEdit(boolean canEdit) {
+    setProperty(RestProperties.CAN_EDIT, String.valueOf(canEdit));
+  }
+
+  public boolean isCanEdit() {
+    Object canEdit = getProperty(RestProperties.CAN_EDIT);
+    return canEdit != null && Boolean.parseBoolean(canEdit.toString());
+  }
+
+  public void setCanDelete(boolean canDelete) {
+    setProperty(RestProperties.CAN_DELETE, String.valueOf(canDelete));
+  }
+
+  public boolean isCanDelete() {
+    Object canDelete = getProperty(RestProperties.CAN_DELETE);
+    return canDelete != null && Boolean.parseBoolean(canDelete.toString());
   }
 
   public CommentEntity setLikes(LinkEntity likes) {
