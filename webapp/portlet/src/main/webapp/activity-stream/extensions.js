@@ -86,7 +86,7 @@ if (extensionRegistry) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(activity.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-activity-deleted', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
     },
@@ -122,12 +122,21 @@ if (extensionRegistry) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(comment.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-comment-deleted', {detail: {
+          document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {
             activityId: comment.activityId,
             commentId: comment.id,
           }}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+    },
+  });
+
+  extensionRegistry.registerExtension('activity', 'comment-action', {
+    id: 'edit',
+    labelKey: 'UIActivity.label.Edit',
+    isEnabled: comment => comment.canEdit === 'true',
+    click: comment => {
+      document.dispatchEvent(new CustomEvent('activity-comment-edit', {detail: comment}));
     },
   });
 

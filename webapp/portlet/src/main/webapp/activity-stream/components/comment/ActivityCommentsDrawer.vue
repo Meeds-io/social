@@ -18,7 +18,7 @@
         elevation="0"
         icon
         plain
-        @click="displayComment()">
+        @click="displayCommentRichEditor()">
         <v-icon color="primary">mdi-chat-plus</v-icon>
       </v-btn>
     </template>
@@ -31,7 +31,7 @@
         :comment-editor-display="displayCommentEditor"
         :comment-actions="commentActions"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
-        editor />
+        allow-edit />
     </template>
   </exo-drawer>
 </template>
@@ -87,13 +87,13 @@ export default {
           this.retrieveComments();
           this.$refs.activityCommentsDrawer.open();
         }
-        if (options.displayComment) {
-          this.displayComment(options.commentId);
+        if (options.displayCommentEditor) {
+          this.displayCommentRichEditor(options.commentId);
         }
       }
     });
 
-    document.addEventListener('activity-commented', this.hideComment);
+    document.addEventListener('activity-comment-created', this.hideCommentRichEditor);
 
     // Avoid closing drawer when closing dialog
     this.$root.$on('activity-stream-confirm-opened', () => this.temporaryDrawer = false);
@@ -103,7 +103,7 @@ export default {
     reset() {
       this.comments = [];
       this.drawerOpened = false;
-      this.hideComment();
+      this.hideCommentRichEditor();
     },
     scrollToEnd() {
       window.setTimeout(() => {
@@ -115,7 +115,7 @@ export default {
         });
       }, 10);
     },
-    displayComment(commentId) {
+    displayCommentRichEditor(commentId) {
       this.selectedCommentIdToReply = commentId || null;
       // Has to make this change at the end of the method,
       // to have the correct value of this.selectedCommentIdToReply
@@ -125,7 +125,7 @@ export default {
         document.dispatchEvent(new CustomEvent('activity-comment-editor-init', {detail: this.lastEditorOptions}));
       });
     },
-    hideComment() {
+    hideCommentRichEditor() {
       document.dispatchEvent(new CustomEvent('activity-comment-editor-destroy'));
       this.displayCommentEditor = false;
       this.selectedCommentIdToReply = null;
