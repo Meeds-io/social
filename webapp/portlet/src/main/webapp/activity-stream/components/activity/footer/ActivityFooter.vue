@@ -1,5 +1,5 @@
 <template>
-  <div class="actionsDetailsWrapper mb-0 py-0 pe-4 border-top-color">
+  <div class="actionsDetailsWrapper mb-0 py-0 pe-4 no-border-bottom">
     <activity-reactions
       :activity-id="activityId"
       :likers="likers"
