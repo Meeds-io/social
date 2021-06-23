@@ -1,23 +1,26 @@
 <template>
-  <div>
+  <div class="d-inline-flex pe-1 ms-2">
     <v-btn
       :id="`LikeLink${commentId}`"
       :loading="changingLike"
       :title="likeButtonTitle"
       :class="likeTextColorClass"
-      class="pe-1 ms-2"
+      class="px-0 width-auto"
       text
       link
       x-small
       @click="changeLike">
-      <span>{{ $t('UIActivity.msg.LikeActivity') }}</span>
+      {{ $t('UIActivity.msg.LikeActivity') }}
     </v-btn>
-    <a
+    <v-btn
+      v-if="likesCount"
       :id="`LikersListLink${commentId}`"
       :title="likersFullnameTitle"
-      class="pe-2 primary--text caption">
-      {{ likesCount && `(${likesCount})` || '&nbsp;' }}
-    </a>
+      class="primary--text font-weight-bold"
+      x-small
+      icon>
+      ({{ likesCount }})
+    </v-btn>
   </div>
 </template>
 
@@ -65,7 +68,7 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-stream-comment-updated', this.updateCommentLikers);
+    this.$root.$on('activity-comment-liked', this.updateCommentLikers);
   },
   methods: {
     updateCommentLikers(comment) {
@@ -90,7 +93,7 @@ export default {
           const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
           this.comment.likes = [...this.likers, liker];
           this.comment.likesCount++;
-          this.$root.$emit('activity-stream-comment-updated', this.comment);
+          this.$root.$emit('activity-comment-liked', this.comment);
         })
         .finally(() => this.changingLike = false);
     },
@@ -100,7 +103,7 @@ export default {
         .then(() => {
           this.comment.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
           this.comment.likesCount--;
-          this.$root.$emit('activity-stream-comment-updated', this.comment);
+          this.$root.$emit('activity-comment-liked', this.comment);
         })
         .finally(() => this.changingLike = false);
     },

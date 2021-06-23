@@ -116,10 +116,7 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-stream-updating-activity-start', () => this.loading = true);
-    this.$root.$emit('activity-stream-updating-activity-end', () => this.loading = false);
-
-    document.addEventListener('activity-stream-activity-updated', event => {
+    document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
       if (activityId === this.activityId) {
         this.retrieveActivityProperties();

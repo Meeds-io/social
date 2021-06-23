@@ -6,7 +6,7 @@
       :comment="comment"
       :sub-comments="comment.subComments"
       :display-reply="commentEditorDisplay && selectedCommentIdToReply === comment.id"
-      :editor="editor"
+      :allow-edit="allowEdit"
       :editor-options="lastEditorOptions"
       :comment-actions="commentActions" />
     <activity-comment-rich-text
@@ -43,7 +43,7 @@ export default {
       type: String,
       default: null,
     },
-    editor: {
+    allowEdit: {
       type: Boolean,
       default: false,
     },
@@ -76,18 +76,20 @@ export default {
     },
   },
   created() {
-    if (this.editor) {
+    if (this.allowEdit) {
       document.addEventListener('activity-comment-editor-updated', this.updateEditorOptions);
     }
-    document.addEventListener('activity-commented', this.updateComments);
-    document.addEventListener('activity-stream-comment-deleted', this.deleteComment);
+    document.addEventListener('activity-comment-created', this.addComment);
+    document.addEventListener('activity-comment-deleted', this.deleteComment);
+    document.addEventListener('activity-comment-updated', this.updateComment);
   },
   beforeDestroy() {
-    if (this.editor) {
+    if (this.allowEdit) {
       document.removeEventListener('activity-comment-editor-updated', this.updateEditorOptions);
     }
-    document.removeEventListener('activity-commented', this.updateComments);
-    document.removeEventListener('activity-stream-comment-deleted', this.deleteComment);
+    document.removeEventListener('activity-comment-created', this.addComment);
+    document.removeEventListener('activity-comment-deleted', this.deleteComment);
+    document.removeEventListener('activity-comment-updated', this.updateComment);
   },
   methods: {
     updateEditorOptions(event) {
@@ -101,12 +103,13 @@ export default {
       if (params && params.activityId === this.activityId && params.commentId) {
         const commentIndex = this.comments.findIndex(comment => comment.id === params.commentId);
         if (commentIndex >= 0) {
+          const comment = this.comments[commentIndex];
           this.comments.splice(commentIndex, 1);
-          this.$emit('comment-deleted');
+          this.$emit('comment-deleted', comment);
         }
       }
     },
-    updateComments(event) {
+    addComment(event) {
       const activityId = event && event.detail && event.detail.activityId;
       const comment = event && event.detail && event.detail.comment;
       if (activityId === this.activityId) {
@@ -115,9 +118,28 @@ export default {
         window.setTimeout(() => {
           comment.highlight = false;
         }, 5000);
+        this.$emit('comment-created', comment);
       }
       // Delete preserved comment or reply content
       // When a new comment is added in any activity
+      this.lastEditorOptions = null;
+    },
+    updateComment(event) {
+      const activityId = event && event.detail && event.detail.activityId;
+      const comment = event && event.detail && event.detail.comment;
+      if (activityId === this.activityId) {
+        const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
+        if (commentIndex >= 0) {
+          comment.highlight = true;
+          this.comments.splice(commentIndex, 1, comment);
+          this.$emit('comment-updated', comment);
+          window.setTimeout(() => {
+            comment.highlight = false;
+          }, 5000);
+        }
+      }
+      // Delete preserved comment or reply content
+      // When a comment is added or updated in any activity
       this.lastEditorOptions = null;
     },
   },

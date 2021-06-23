@@ -88,7 +88,7 @@ export default {
     this.$root.$on('activity-stream-hide', () => {
       this.display = false;
     });
-    document.addEventListener('activity-stream-activity-deleted', event => {
+    document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
       if (activityId) {
         const index = this.activities.findIndex(activity => activityId === activity.id);
@@ -98,11 +98,11 @@ export default {
         }
       }
     });
-    document.addEventListener('activity-stream-activity-updated', event => {
+    document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
       this.updateActivityDisplayById(activityId);
     });
-    this.$root.$on('activity-stream-activity-updated', (activityId, activity) => {
+    this.$root.$on('activity-updated', (activityId, activity) => {
       if (activity) {
         this.updateActivityDisplay(activity);
       } else {
