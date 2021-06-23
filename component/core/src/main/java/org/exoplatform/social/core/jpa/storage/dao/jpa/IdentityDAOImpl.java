@@ -442,7 +442,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           break;
         }
         default:
-          queryStringBuilder.append("\n");
           break;
       }
     }
@@ -566,7 +565,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
             break;
           }
           default:
-            queryStringBuilder.append("\n");
             break;
         }
       }

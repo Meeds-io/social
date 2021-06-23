@@ -344,7 +344,6 @@ public class ProfileSearchConnector {
         }
 
         default:
-          esQuery.append("\n");
           break;
       }
     }
