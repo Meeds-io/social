@@ -218,7 +218,7 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
-    if (filter.getUserType() != null && filter.getUserType().isEmpty()) {
+    if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
         esSubQuery.append("                  {\n");
@@ -342,6 +342,10 @@ public class ProfileSearchConnector {
           appendCommar = true;
           break;
         }
+
+        default:
+          esQuery.append("\n");
+          break;
       }
     }
 

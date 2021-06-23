@@ -441,6 +441,9 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
           break;
         }
+        default:
+          queryStringBuilder.append("\n");
+          break;
       }
     }
 
@@ -562,6 +565,9 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
             queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
             break;
           }
+          default:
+            queryStringBuilder.append("\n");
+            break;
         }
       }
       } else {
