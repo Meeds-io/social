@@ -204,8 +204,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
 
     //
-    if (activity.getPostedTime() == null || activity.getPostedTime() <= 0) {
-      activity.setPostedTime(System.currentTimeMillis());
+    if (activityEntity.getPosted() == null) {
+      activityEntity.setPosted(new Date());
+    }
+
+    // update time have to be same as post time when activity not updated
+    if (activityEntity.getPosted() == null) {
+      activityEntity.setUpdatedDate(activityEntity.getPosted());
+    } else {
+      activityEntity.setUpdatedDate(new Date());
     }
     activityEntity.setPosted(new Date(activity.getPostedTime()));
     activityEntity.setLocked(activity.isLocked());
@@ -326,12 +333,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     commentEntity.setLocked(comment.isLocked());
     commentEntity.setHidden(comment.isHidden());
     //
-    Date today = new Date();
-    Date commentTime = (comment.getPostedTime() != null ? new Date(comment.getPostedTime()) : today);
-    commentEntity.setPosted(commentTime);
-    // update time may be different from post time
-    Date updateCommentTime = (comment.getUpdated() != null ? comment.getUpdated() : today);
-    commentEntity.setUpdatedDate(updateCommentTime);
+    if (commentEntity.getPosted() == null) {
+      commentEntity.setPosted(new Date());
+    }
+    // update time have to be same as post time when activity not updated
+    if (commentEntity.getUpdatedDate() == null) {
+      commentEntity.setUpdatedDate(commentEntity.getPosted());
+    } else {
+      commentEntity.setUpdatedDate(new Date());
+    }
     commentEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentions(comment.getTitle(), comment.getTemplateParams()))));
     //
     return commentEntity;

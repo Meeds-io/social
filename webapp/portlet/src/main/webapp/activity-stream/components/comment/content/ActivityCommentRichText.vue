@@ -17,6 +17,13 @@
       @click="postComment">
       {{ label }}
     </v-btn>
+    <v-btn
+      v-if="commentUpdate"
+      :disabled="commenting"
+      class="btn ms-2"
+      @click="$emit('cancel')">
+      {{ $t('UIActivity.label.Cancel') }}
+    </v-btn>
   </div>
 </template>
 
@@ -24,6 +31,10 @@
 export default {
   props: {
     activityId: {
+      type: String,
+      default: null,
+    },
+    parentCommentId: {
       type: String,
       default: null,
     },
@@ -50,11 +61,14 @@ export default {
       const pureText = this.$utils.htmlToText(this.message);
       return pureText && pureText.length || 0;
     },
+    commentUpdate() {
+      return !!this.commentId;
+    },
     disableButton() {
       return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorId() {
-      return `comment_${this.commentId || ''}_${this.activityId}`;
+      return `comment_${this.parentCommentId || ''}_${this.activityId}`;
     },
   },
   created() {
@@ -72,9 +86,8 @@ export default {
 
       // Used to preserve last message of user even after deleting drawer
       document.dispatchEvent(new CustomEvent('activity-comment-editor-updated', {detail: {
-        ckEditorId: String(this.ckEditorId),
         activityId: this.activityId,
-        commentId: this.commentId,
+        parentCommentId: this.parentCommentId,
         message: this.message && String(this.message),
       }}));
 
@@ -90,9 +103,11 @@ export default {
     },
     init() {
       if (this.options
-          && this.options.ckEditorId === this.ckEditorId
           && this.options.activityId === this.activityId
-          && this.options.commentId === this.commentId) {
+          && ((!this.parentCommentId && !this.parentCommentId === !this.options.parentCommentId)
+          || this.options.parentCommentId === this.parentCommentId)
+          && ((!this.commentId && !this.commentId === !this.options.commentId)
+          || this.options.commentId === this.commentId)) {
         this.message = this.options.message || null;
       }
 
@@ -119,15 +134,33 @@ export default {
         return;
       }
       this.commenting = true;
-      this.$activityService.createComment(this.activityId, this.commentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(comment => document.dispatchEvent(new CustomEvent('activity-commented', {detail: {
-          activityId: this.activityId,
-          comment: comment
-        }})))
-        .finally(() => {
-          this.message = null;
-          this.commenting = false;
-        });
+      if (this.commentUpdate) {
+        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(comment => {
+            document.dispatchEvent(new CustomEvent('activity-comment-updated', {detail: {
+              activityId: this.activityId,
+              comment: comment
+            }}));
+            this.$emit('updated', comment);
+          })
+          .finally(() => {
+            this.message = null;
+            this.commenting = false;
+          });
+      } else {
+        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(comment => {
+            document.dispatchEvent(new CustomEvent('activity-comment-created', {detail: {
+              activityId: this.activityId,
+              comment: comment
+            }}));
+            this.$emit('created', comment);
+          })
+          .finally(() => {
+            this.message = null;
+            this.commenting = false;
+          });
+      }
     },
   },
 };

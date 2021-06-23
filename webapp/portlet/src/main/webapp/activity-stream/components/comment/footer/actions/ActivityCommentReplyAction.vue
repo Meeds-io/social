@@ -40,7 +40,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-commented', (event) => {
+    document.addEventListener('activity-comment-created', (event) => {
       const activityId = event && event.detail && event.detail.activityId;
       const commentId = event && event.detail && event.detail.commentId;
       if (activityId === this.activityId && commentId === this.commentId) {
@@ -56,7 +56,7 @@ export default {
         commentId: this.commentId,
         offset: 0,
         limit: 200, // To display all
-        displayComment: true,
+        displayCommentEditor: true,
       }}));
     },
   },

@@ -43,7 +43,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-commented', (event) => {
+    document.addEventListener('activity-comment-created', (event) => {
       const activityId = event && event.detail && event.detail.activityId;
       if (activityId === this.activityId) {
         this.hasCommented = true;
@@ -57,7 +57,7 @@ export default {
         activityId: this.activityId,
         offset: 0,
         limit: 200, // To display all
-        displayComment: true,
+        displayCommentEditor: true,
       }}));
     },
   },

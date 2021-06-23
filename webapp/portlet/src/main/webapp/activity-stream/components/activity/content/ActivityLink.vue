@@ -198,7 +198,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-stream-activity-updated', event => {
+    document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
       if (activityId === this.activityId) {
         this.retrieveActivityProperties();
