@@ -111,6 +111,7 @@ export default {
     },
     resetFilter() {
       this.selectedFiler = null;
+      this.previouslySelected = null;
     },
     resetOption(selectedFiler) {
       if (selectedFiler === this.previouslySelected) {
