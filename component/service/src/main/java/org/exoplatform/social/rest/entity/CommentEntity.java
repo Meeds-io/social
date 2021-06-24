@@ -53,6 +53,15 @@ public class CommentEntity extends BaseEntity {
     return getString("title");
   }
 
+  public CommentEntity setType(String type) {
+    setProperty("type", type);
+    return this;
+  }
+
+  public String getType() {
+    return getString("type");
+  }
+
   public CommentEntity setBody(String body) {
     setProperty("body", body);
     return this;

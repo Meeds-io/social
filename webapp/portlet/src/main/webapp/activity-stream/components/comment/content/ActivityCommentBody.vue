@@ -22,14 +22,9 @@
           <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
             <activity-head-user :identity="posterIdentity" />
           </v-list-item-title>
-          <p
-            v-if="useParagraph"
-            v-sanitized-html="comment.body"
-            class="rich-editor-content"></p>
-          <div
-            v-else
-            v-sanitized-html="comment.body"
-            class="rich-editor-content"></div>
+          <activity-comment-body-text
+            :comment-types="commentTypes"
+            :comment="comment" />
         </v-list-item-content>
         <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
           <activity-comment-menu :comment="comment" :actions="commentActions" />
@@ -47,6 +42,7 @@
         v-for="subComment in subComments"
         :key="subComment.id"
         :comment="subComment"
+        :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentEditing"
         class="ms-10" />
@@ -72,6 +68,10 @@ export default {
     },
     subComments: {
       type: Array,
+      default: null,
+    },
+    commentTypes: {
+      type: Object,
       default: null,
     },
     commentActions: {
@@ -112,12 +112,6 @@ export default {
     },
     posterIdentity() {
       return this.comment && this.comment.identity;
-    },
-    commentBody() {
-      return this.comment && this.comment.body || '';
-    },
-    useParagraph() {
-      return !this.commentBody.includes('</p>');
     },
     isEditingComment() {
       return this.commentEditing && this.commentEditing.id === this.comment.id;

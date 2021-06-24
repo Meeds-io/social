@@ -7,6 +7,7 @@
       :sub-comments="comment.subComments"
       :new-reply-editor="newCommentEditor && selectedCommentIdToReply === comment.id"
       :editor-options="replyLastEditorOptions"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
       :comment-editing="commentEditing" />
     <activity-comment-rich-text
@@ -28,6 +29,10 @@ export default {
     },
     comments: {
       type: String,
+      default: null,
+    },
+    commentTypes: {
+      type: Object,
       default: null,
     },
     commentActions: {

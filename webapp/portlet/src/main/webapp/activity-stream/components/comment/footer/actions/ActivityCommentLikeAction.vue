@@ -40,7 +40,7 @@ export default {
       return this.comment && this.comment.id;
     },
     likers() {
-      return this.comment && this.comment.likes.slice().reverse() || [];
+      return this.comment && this.comment.likes && this.comment.likes.slice().reverse() || [];
     },
     likesCount() {
       return this.likers.length;
