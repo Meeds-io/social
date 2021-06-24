@@ -15,6 +15,7 @@
       :activity="activity"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
       :is-activity-detail="activityId"
       class="mb-6 contentBox" />
@@ -42,6 +43,10 @@ export default {
       default: null,
     },
     activityActions: {
+      type: Object,
+      default: null,
+    },
+    commentTypes: {
       type: Object,
       default: null,
     },

@@ -28,6 +28,7 @@
         ref="activityComments"
         :activity-id="activityId"
         :comments="comments"
+        :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
@@ -40,6 +41,10 @@
 <script>
 export default {
   props: {
+    commentTypes: {
+      type: Object,
+      default: null,
+    },
     commentActions: {
       type: Object,
       default: null,

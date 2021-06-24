@@ -333,6 +333,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setBody(model.getBody());
     comment.setTitle(model.getTitle());
+    comment.setType(model.getType());
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());

@@ -18,6 +18,7 @@
       <activity-comments-preview
         v-if="!extendedComponent.overrideComments"
         :activity-id="activityId"
+        :comment-types="commentTypes"
         :comment-actions="commentActions" />
     </template>
     <template v-else>
@@ -39,6 +40,7 @@
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         :activity-id="activityId"
+        :comment-types="commentTypes"
         :comment-actions="commentActions" />
     </template>
   </div>
@@ -56,6 +58,10 @@ export default {
       default: null,
     },
     activityActions: {
+      type: Object,
+      default: null,
+    },
+    commentTypes: {
       type: Object,
       default: null,
     },
