@@ -20,10 +20,10 @@
                   {{ $t('authentication.multifactor.second.block.description') }}
                 </div>
               </v-list-item-title>
-              <v-list-item-subtitle v-if="isMultifacorAuthenticationEnabled" class="text-sub-title infoTextStyle font-italic textSize caption my-3">
+              <v-list-item-subtitle v-if="isMultifacorAuthenticationEnabled" class="text-sub-title infoTextStyle textLigneHeight font-italic textSize caption my-3">
                 <div>
                   <v-icon
-                    class="me-1 ml-2"
+                    class="me-1"
                     color="grey"
                     size="24">
                     mdi-information-outline
@@ -31,7 +31,7 @@
                   {{ $t('authentication.multifactor.label') }}
                 </div>
               </v-list-item-subtitle>
-              <v-row v-if="isMultifacorAuthenticationEnabled" class="ml-5">
+              <v-row v-if="isMultifacorAuthenticationEnabled">
                 <v-col cols="3">
                   <v-combobox
                     v-model="select"
@@ -47,7 +47,9 @@
               <div>
                 <label class="switch">
                   <input
-                    type="checkbox">
+                    v-model="isMultifacorAuthenticationEnabled"
+                    type="checkbox"
+                    @click="switchAuthenticationStatus">
                   <div class="slider round"><span class="absolute-activate">{{ $t(`authentication.multifactor.button.yes`) }}</span></div>
                   <span class="absolute-deactivated">{{ $t(`authentication.multifactor.button.no`) }}</span>
                 </label>
@@ -83,7 +85,7 @@
         </v-list>
         <v-list v-if="isMultifacorAuthenticationEnabled">
           <v-list-item>
-            <v-list-item-content v-if="otp">
+            <v-list-item-content v-if="isOTP">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
                 <v-icon
                   color="grey"
@@ -93,7 +95,7 @@
                 {{ $t('authentication.multifactor.activated.opt.label') }}
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-content v-if="superGluu">
+            <v-list-item-content v-if="isSuperGluu">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
                 <v-icon
                   color="grey"
@@ -103,7 +105,7 @@
                 {{ $t('authentication.multifactor.activated.supergluu.label') }}
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-content v-if="fido">
+            <v-list-item-content v-if="isFido">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
                 <v-icon
                   color="grey"
@@ -115,7 +117,7 @@
             </v-list-item-content>
           </v-list-item>
           <v-list-item>
-            <v-list-item-subtitle v-if="otp" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
+            <v-list-item-subtitle v-if="isOTP" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
               <div class="textStyle">
                 {{ $t('authentication.multifactor.activated.opt.message.one') }}
               </div>
@@ -132,7 +134,7 @@
                 {{ $t('authentication.multifactor.activated.opt.message.step.three') }}
               </div>
             </v-list-item-subtitle>
-            <v-list-item-subtitle v-if="superGluu" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
+            <v-list-item-subtitle v-if="isSuperGluu" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
               <div>
                 {{ $t('authentication.multifactor.activated.supergluu.message.one') }}
               </div>
@@ -146,11 +148,11 @@
                 {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
               </div>
             </v-list-item-subtitle>
-            <v-list-item-subtitle v-if="fido" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
+            <v-list-item-subtitle v-if="isFido" class="text-sub-title text-justify font-italic textSize caption infoTextStyle textLigneHeight">
               <div>
                 {{ $t('authentication.multifactor.activated.fido2.message.one') }}
               </div>
-              <div class="mb-3">
+              <div class="mb-3 font-weight-bold">
                 {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
               </div>
             </v-list-item-subtitle>
@@ -163,15 +165,28 @@
 <script>
 export default {
   data: () => ({
-    isMultifacorAuthenticationEnabled: true,
+    isMultifacorAuthenticationEnabled: false,
     items: ['OTP', 'SuperGlu', 'Fido 2'],
     select: 'OTP',
-    fido: false,
-    superGluu: true,
-    otp: false,
   }),
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
+  computed: {
+    isFido (){
+      return this.select === 'Fido 2';
+    },
+    isOTP (){
+      return this.select === 'OTP';
+    },
+    isSuperGluu (){
+      return this.select === 'SuperGlu';
+    },
+  },
+  methods: {
+    switchAuthenticationStatus() {
+      this.isMultifacorAuthenticationEnabled = !this.isMultifacorAuthenticationEnabled;
+    }
+  }
 };
 </script>
