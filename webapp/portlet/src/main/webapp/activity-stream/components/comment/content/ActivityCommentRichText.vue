@@ -114,6 +114,7 @@ export default {
       if (this.$refs.commentEditor) {
         this.$refs.commentEditor.initCKEditor();
         this.initialized = true;
+        this.scrollToCommentEditor();
       }
     },
     handleEditorReady() {
@@ -127,7 +128,7 @@ export default {
             behavior: 'smooth'
           });
         }
-      }, 10);
+      }, 50);
     },
     postComment() {
       if (this.commenting) {

@@ -30,6 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
@@ -177,6 +178,63 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     //
     assertFalse(manager.isActivityEditable(activity, owner));
     assertFalse(manager.isActivityEditable(activity, admin));
+  }
+
+  public void testActivityViewable() {
+    ActivityStorage storage = Mockito.mock(ActivityStorage.class);
+    IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+    FileService fileService = Mockito.mock(FileService.class);
+    RelationshipManager relationshipManager = Mockito.mock(RelationshipManager.class);
+    UserACL acl = Mockito.mock(UserACL.class);
+    Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
+
+    // prepare activity
+    ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
+    Mockito.when(activity.isComment()).thenReturn(false);
+    Mockito.when(activity.getPosterId()).thenReturn("1");
+    // prepare comment
+    ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
+    Mockito.when(comment.isComment()).thenReturn(true);
+    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
+    Mockito.when(comment.getPosterId()).thenReturn("1");
+    Mockito.when(identityManager.getIdentity("1")).thenReturn(rootIdentity);
+
+    // prepare viewer
+    org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(owner.getUserId()).thenReturn("demo");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+    .thenReturn(new Identity("1"));
+    org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(admin.getUserId()).thenReturn("john");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
+    .thenReturn(johnIdentity);
+    Mockito.when(admin.getGroups()).thenReturn(Collections.singleton("/platform/administrators"));
+    Mockito.when(admin.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry("/platform/administrators")));
+    Mockito.when(admin.isMemberOf(acl.getAdminGroups())).thenReturn(true);
+    org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(mary.getUserId()).thenReturn("mary");
+    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
+    .thenReturn(maryIdentity);
+    
+    // no configuration
+    // by default: edit activity/comment are all enabled
+    ActivityManager manager = new ActivityManagerImpl(storage,
+                                                      identityManager,
+                                                      relationshipManager,
+                                                      acl,
+                                                      fileService,
+                                                      null);
+    // owner
+    assertTrue(manager.isActivityViewable(activity, owner));
+    assertTrue(manager.isActivityViewable(comment, owner));
+    Mockito.when(comment.getType()).thenReturn("TestActivityType");
+    assertTrue(manager.isActivityViewable(comment, owner));
+    assertTrue(manager.isActivityViewable(activity, admin));
+    assertFalse(manager.isActivityViewable(activity, mary));
+
+    Mockito.when(relationshipManager.getStatus(rootIdentity, maryIdentity)).thenReturn(Type.CONFIRMED);
+
+    assertTrue(manager.isActivityViewable(activity, mary));
   }
 
   public void testActivityDeletable() {

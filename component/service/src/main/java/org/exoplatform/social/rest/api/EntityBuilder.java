@@ -599,6 +599,7 @@ public class EntityBuilder {
     commentEntity.setDataIdentity(identityLink);
     commentEntity.setPoster(poster.getRemoteId());
     commentEntity.setTitle(comment.getTitle());
+    commentEntity.setType(comment.getType());
     commentEntity.setBody(comment.getBody() == null ? comment.getTitle() : comment.getBody());
     commentEntity.setParentCommentId(comment.getParentCommentId());
     commentEntity.setMentions(getActivityMentions(comment, restPath));

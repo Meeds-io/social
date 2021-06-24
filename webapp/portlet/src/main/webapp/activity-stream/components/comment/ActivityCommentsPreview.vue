@@ -8,6 +8,7 @@
     <activity-comments
       :activity-id="activityId"
       :comments="commentsPreviewList"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
       @comment-created="retrieveLastComment"
       @comment-deleted="retrieveLastComment"
@@ -28,6 +29,10 @@ export default {
   props: {
     activityId: {
       type: String,
+      default: null,
+    },
+    commentTypes: {
+      type: Object,
       default: null,
     },
     commentActions: {

@@ -6,7 +6,7 @@
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
-    :temporary="temporary"
+    :temporary="temporaryDrawer"
     :width="width"
     touchless
     height="100%"
@@ -27,12 +27,15 @@
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
                 <v-btn
-                  v-if="allowExpand"
+                  v-if="allowExpand && !isMobile"
+                  :title="expandTooltip"
                   icon
                   @click="toogleExpand">
                   <v-icon size="18">mdi-arrow-expand</v-icon>
                 </v-btn>
-                <v-btn icon>
+                <v-btn
+                  :title="$t('label.close')"
+                  icon>
                   <v-icon @click="close()">mdi-close</v-icon>
                 </v-btn>
               </v-list-item-action>
@@ -113,8 +116,12 @@ export default {
     drawer: false,
     loading: false,
     expand: false,
+    modalOpened: false,
   }),
   computed: {
+    temporaryDrawer() {
+      return this.temporary && !this.modalOpened;
+    },
     rightDrawer() {
       return this.right && eXo.env.portal.orientation === 'ltr';
     },
@@ -124,10 +131,16 @@ export default {
     width() {
       return this.expand && '100%' || this.drawerWidth;
     },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
+    expandTooltip() {
+      return this.expand && this.$t('label.expand') || this.$t('label.collapse');
+    },
   },
   watch: {
-    temporary() {
-      if (this.temporary) {
+    temporaryDrawer() {
+      if (this.temporaryDrawer) {
         this.installOverlayListener();
       }
     },
@@ -169,7 +182,13 @@ export default {
   },
   created() {
     $(document).on('keydown', this.closeByEscape);
-    document.addEventListener('drawerClosed', () => this.installOverlayListener());
+    document.dispatchEvent(new CustomEvent('modalOpened'));
+    document.dispatchEvent(new CustomEvent('modalOpened'));
+
+    document.addEventListener('modalOpened', () => this.modalOpened = this.drawer);
+    document.addEventListener('modalClosed', () => this.modalOpened = false);
+
+    document.addEventListener('drawerClosed', this.installOverlayListener);
     if (!eXo.openedDrawers) {
       eXo.openedDrawers = [];
     }
