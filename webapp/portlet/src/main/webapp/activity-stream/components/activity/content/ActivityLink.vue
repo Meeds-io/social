@@ -143,9 +143,15 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
     },
     thumbnailProperties() {
+      if (this.activityTypeExtension && this.activityTypeExtension.getThumbnailProperties) {
+        return this.activityTypeExtension.getThumbnailProperties(this.activity, this.isActivityDetail);
+      }
       return this.activityTypeExtension && this.activityTypeExtension.thumbnailProperties;
     },
     useSameViewForMobile() {
+      if (this.activityTypeExtension && this.activityTypeExtension.isUseSameViewForMobile) {
+        return this.activityTypeExtension.isUseSameViewForMobile(this.activity, this.isActivityDetail);
+      }
       return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
     },
     supportsIcon() {
@@ -198,7 +204,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-stream-activity-updated', event => {
+    document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
       if (activityId === this.activityId) {
         this.retrieveActivityProperties();

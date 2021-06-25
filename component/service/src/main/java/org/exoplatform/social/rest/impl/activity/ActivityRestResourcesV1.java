@@ -289,7 +289,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     //
     return EntityBuilder.getResponse(collectionComment, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
   @POST
   @Path("{id}/comments")
   @Produces(MediaType.APPLICATION_JSON)
@@ -307,10 +307,16 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
                               @ApiParam(value = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}", required = true) CommentEntity model) throws Exception {
     
-    if (model == null || model.getTitle() == null || model.getTitle().length() == 0) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    if (model == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("Comment entity is mandatory").build();
     }
-    
+    if (StringUtils.isNotBlank(model.getId())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("comment identifier is not expected for comment creation").build();
+    }
+    if (StringUtils.isBlank(model.getTitle())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
+    }
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
@@ -328,12 +334,70 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     comment.setBody(model.getBody());
     comment.setTitle(model.getTitle());
     comment.setParentCommentId(model.getParentCommentId());
+    comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
     activityManager.saveComment(activity, comment);
     
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  @PUT
+  @Path("{id}/comments")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @ApiOperation(value = "Updates an existing comment",
+  httpMethod = "PUT",
+  response = Response.class,
+  notes = "This updates an existing comment if the authenticated user is poster of the comment.")
+  @ApiResponses(value = { 
+      @ApiResponse (code = 200, message = "Request fulfilled"),
+      @ApiResponse (code = 500, message = "Internal server error"),
+      @ApiResponse (code = 400, message = "Invalid query input") })
+  public Response updateComment(@Context UriInfo uriInfo,
+                               @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
+                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
+                               @ApiParam(value = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}", required = true) CommentEntity model) throws Exception {
+
+    if (model == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("Comment entity is mandatory").build();
+    }
+    if (StringUtils.isBlank(model.getId())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("comment identifier id mandatory").build();
+    }
+    if (StringUtils.isBlank(model.getTitle())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
+    }
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
+    ExoSocialActivity comment = activityManager.getActivity(model.getId());
+    if (comment == null) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    if (!comment.isComment() || StringUtils.isBlank(comment.getParentId())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("activity can't be updated as a comment").build();
+    }
+    if (!StringUtils.equals(comment.getParentId(), id)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("Can't move a comment from an activity to another").build();
+    }
+    if (!StringUtils.equals(comment.getParentCommentId(), model.getParentCommentId())) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("Can't move a comment reply from a comment to another").build();
+    }
+
+    ExoSocialActivity activity = activityManager.getActivity(id);
+    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(comment, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    comment.setBody(model.getBody());
+    comment.setTitle(model.getTitle());
+    comment.setUserId(currentUser.getId());
+    comment.setPosterId(currentUser.getId());
+    activityManager.saveComment(activity, comment);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
   /**
    * {@inheritDoc}
    */

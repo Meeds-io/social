@@ -136,7 +136,7 @@ public interface ActivityManager {
   void deleteActivity(String activityId);
 
   /**
-   * Saves a new comment or comment reply to a specific activity.
+   * Creates or updates a comment or a comment reply on a specific activity.
    *
    * @param activity The activity.
    * @param newComment The comment to be saved.
