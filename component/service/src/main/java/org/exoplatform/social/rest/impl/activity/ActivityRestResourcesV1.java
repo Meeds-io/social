@@ -165,7 +165,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     
     ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
-    if (activity == null || !activityManager.isActivityEditable(activity, ConversationState.getCurrent().getIdentity())) {
+    if (!StringUtils.equals(currentUser.getId(), activity.getPosterId())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
@@ -203,7 +203,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (model.getUpdateDate() != null) {
       activity.setUpdated(Long.parseLong(model.getUpdateDate()));
     }
-    activityManager.updateActivity(activity);
+    activityManager.updateActivity(activity, true);
 
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
     return EntityBuilder.getResponse(activityInfo.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -387,15 +387,14 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       return Response.status(Response.Status.UNAUTHORIZED).entity("Can't move a comment reply from a comment to another").build();
     }
 
-    ExoSocialActivity activity = activityManager.getActivity(id);
-    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(comment, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
+    if (!StringUtils.equals(currentUser.getId(), comment.getPosterId())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     comment.setBody(model.getBody());
     comment.setTitle(model.getTitle());
     comment.setUserId(currentUser.getId());
     comment.setPosterId(currentUser.getId());
-    activityManager.saveComment(activity, comment);
+    activityManager.updateActivity(comment, true);
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 

@@ -264,7 +264,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals("test activity", result.getTitle());
 
     String input = "{\"title\":\"updated title\",\"templateParams\":{\"MESSAGE\":\"updated message\",\"NOT_EXIST_KEY\":\"any value\"}}";
-    ActivityEntity model = new ActivityEntity();
 
     response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), input);
     assertNotNull(response);

@@ -1,23 +1,27 @@
 <template>
-  <div :id="id" class="white border-radius activity-detail">
+  <div
+    :id="id"
+    class="white border-radius activity-detail">
     <template v-if="extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension" />
-      <extension-registry-component
-        :component="extendedComponentOptions"
-        :element="extendedComponent.element"
-        :element-class="extendedComponent.class"
-        :params="extendedComponentParams" />
+      <template v-if="!loading">
+        <extension-registry-component
+          :component="extendedComponentOptions"
+          :element="extendedComponent.element"
+          :element-class="extendedComponent.class"
+          :params="extendedComponentParams" />
+      </template>
       <activity-footer
         v-if="!extendedComponent.overrideFooter"
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         v-if="!extendedComponent.overrideComments"
-        :activity-id="activityId"
+        :activity="activity"
         :comment-types="commentTypes"
         :comment-actions="commentActions" />
     </template>
@@ -26,7 +30,7 @@
         :activity="activity"
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension" />
-      <v-card :loading="loading" flat>
+      <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"
           name="ActivityContent"
@@ -39,7 +43,7 @@
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
-        :activity-id="activityId"
+        :activity="activity"
         :comment-types="commentTypes"
         :comment-actions="commentActions" />
     </template>
@@ -107,32 +111,25 @@ export default {
         activity: this.activity,
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
+        loading: this.loading,
       };
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
     },
   },
-  watch: {
-    activity() {
-      this.retrieveActivityProperties();
-    },
-    activityTypeExtension() {
-      this.retrieveActivityProperties();
-    },
-  },
   created() {
-    document.addEventListener('activity-updated', event => {
-      const activityId = event && event.detail;
-      if (activityId === this.activityId) {
-        this.retrieveActivityProperties();
-      }
-    });
-
+    this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
     this.retrieveActivityProperties();
   },
+  beforeDestroy() {
+    this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
+  },
   methods: {
-    retrieveActivityProperties() {
+    retrieveActivityProperties(activityId) {
+      if (activityId && activityId !== this.activityId) {
+        return;
+      }
       if (this.init) {
         const initPromise = this.init(this.activity, this.isActivityDetail);
         if (initPromise && initPromise.then) {

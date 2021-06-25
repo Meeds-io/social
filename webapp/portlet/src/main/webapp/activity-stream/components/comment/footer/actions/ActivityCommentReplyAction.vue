@@ -17,6 +17,10 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
       type: Object,
       default: null,
@@ -45,25 +49,31 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-comment-created', comment => {
+    this.$root.$on('activity-comment-created', this.handleCommentCreated);
+    this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
+    this.checkWhetherCommented();
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-comment-created', this.handleCommentCreated);
+    this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
+  },
+  methods: {
+    handleCommentCreated(comment) {
       if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
         this.hasCommented = true;
       }
-    });
-    this.$root.$on('activity-comment-deleted', comment => {
+    },
+    handleCommentDeleted(comment) {
       if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
         this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.filter(tmp => tmp.id !== comment.id).length;
       }
-    });
-    this.checkWhetherCommented();
-  },
-  methods: {
+    },
     checkWhetherCommented() {
       this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.length;
     },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activityId: this.activityId,
+        activity: this.activity,
         commentId: this.commentId,
         newComment: true,
         offset: 0,

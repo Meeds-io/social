@@ -3,9 +3,9 @@ export function htmlToText(htmlContent) {
     return '';
   }
   try {
-    return new DOMParser().parseFromSrting(htmlContent, 'text/xml').innerText.trim();
+    return new DOMParser().parseFromSrting(htmlContent, 'text/xml').innerText.trim().replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,'');
   } catch (e) {
-    return htmlContent.replace(/<[^>]+>/g, '').trim();
+    return htmlContent.replace(/<[^>]+>/g, '').trim().replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,'');
   }
 }
 
