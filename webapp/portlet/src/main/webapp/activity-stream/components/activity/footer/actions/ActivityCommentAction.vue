@@ -43,9 +43,8 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-commented', (event) => {
-      const activityId = event && event.detail && event.detail.activityId;
-      if (activityId === this.activityId) {
+    this.$root.$on('activity-comment-created', comment => {
+      if (comment.activityId === this.activityId) {
         this.hasCommented = true;
       }
     });
@@ -55,9 +54,9 @@ export default {
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activityId: this.activityId,
+        newComment: true,
         offset: 0,
         limit: 200, // To display all
-        displayComment: true,
       }}));
     },
   },

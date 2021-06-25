@@ -18,10 +18,11 @@ import ActivityLikeAction from './components/activity/footer/actions/ActivityLik
 import ActivityCommentsPreview from './components/comment/ActivityCommentsPreview.vue';
 import ActivityCommentsDrawer from './components/comment/ActivityCommentsDrawer.vue';
 import ActivityComments from './components/comment/ActivityComments.vue';
-import ActivityComment from './components/comment/content/ActivityComment.vue';
+import ActivityCommentBody from './components/comment/content/ActivityCommentBody.vue';
 import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
+import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
 import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 
 const components = {
@@ -45,10 +46,11 @@ const components = {
   'activity-comments-preview': ActivityCommentsPreview,
   'activity-comments-drawer': ActivityCommentsDrawer,
   'activity-comments': ActivityComments,
-  'activity-comment': ActivityComment,
+  'activity-comment-body': ActivityCommentBody,
   'activity-comment-rich-text': ActivityCommentRichText,
   'activity-comment-actions': ActivityCommentActions,
   'activity-comment-reply-action': ActivityCommentReplyAction,
+  'activity-comment-like-action': ActivityCommentLikeAction,
   'activity-comment-menu': ActivityCommentMenu,
 };
 

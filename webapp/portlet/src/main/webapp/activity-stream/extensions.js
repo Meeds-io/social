@@ -86,7 +86,7 @@ if (extensionRegistry) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(activity.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-activity-deleted', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
     },
@@ -111,6 +111,7 @@ if (extensionRegistry) {
 
   extensionRegistry.registerExtension('activity', 'comment-action', {
     id: 'delete',
+    rank: 20,
     labelKey: 'UIActivity.label.Delete',
     confirmDialog: true,
     confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Comment',
@@ -122,12 +123,19 @@ if (extensionRegistry) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(comment.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-comment-deleted', {detail: {
-            activityId: comment.activityId,
-            commentId: comment.id,
-          }}));
+          document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: comment}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+    },
+  });
+
+  extensionRegistry.registerExtension('activity', 'comment-action', {
+    id: 'edit',
+    labelKey: 'UIActivity.label.Edit',
+    rank: 10,
+    isEnabled: comment => comment.canEdit === 'true',
+    click: comment => {
+      document.dispatchEvent(new CustomEvent('activity-comment-edit', {detail: comment}));
     },
   });
 
@@ -141,6 +149,12 @@ if (extensionRegistry) {
     id: 'comment',
     vueComponent: Vue.options.components['activity-comment-action'],
     rank: 20,
+  });
+
+  extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
+    id: 'like',
+    vueComponent: Vue.options.components['activity-comment-like-action'],
+    rank: 10,
   });
 
   extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {

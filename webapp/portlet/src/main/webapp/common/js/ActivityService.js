@@ -105,3 +105,25 @@ export function createComment(id, parentCommentId, message, expand) {
     }
   });
 }
+
+export function updateComment(id, parentCommentId, commentId, message, expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'PUT',
+    body: JSON.stringify({
+      id: commentId,
+      title: message,
+      body: message,
+      parentCommentId,
+    })
+  }).then(resp => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}

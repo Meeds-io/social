@@ -109,6 +109,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       // Test get a comment
       ExoSocialActivity testComment = new ExoSocialActivityImpl();
       testComment.setTitle("Test Comment");
+      testComment.setUserId(rootIdentity.getId());
+      testComment.setPosterId(rootIdentity.getId());
       activityManager.saveComment(testSpaceActivity, testComment);
       response = service("GET",
                          "/" + VersionResources.VERSION_ONE + "/social/activities/comment" + testComment.getId(),
@@ -161,8 +163,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                          null);
       assertNotNull(response);
       assertEquals(404, response.getStatus());
-    } catch (Exception exc) {
-      log.error(exc);
     } finally {
       if (space != null) {
         spaceService.deleteSpace(space);
@@ -492,6 +492,43 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CommentEntity result = getBaseEntity(response.getEntity(), CommentEntity.class);
     assertEquals("comment1", result.getTitle());
+
+    assertEquals(1, activityManager.getCommentsWithListAccess(rootActivity).getSize());
+
+    // clean data
+    activityManager.deleteActivity(rootActivity);
+  }
+
+  public void testUpdateComment() throws Exception {
+    startSessionAs("root");
+
+    // root posts one activity
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("root activity");
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+
+    // post a comment by root on the prevous activity
+    String input = "{\"body\":comment1, \"title\":comment1}";
+    ContainerResponse response = getResponse("POST",
+                                             "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId()
+                                                 + "/comments",
+                                             input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CommentEntity result = getBaseEntity(response.getEntity(), CommentEntity.class);
+    assertEquals("comment1", result.getTitle());
+
+    assertEquals(1, activityManager.getCommentsWithListAccess(rootActivity).getSize());
+
+    input = "{\"body\":\"comment2\", \"title\":\"comment2\", \"id\":\"" + result.getId() + "\"}";
+    response = getResponse("PUT",
+                           "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId()
+                               + "/comments",
+                           input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    result = getBaseEntity(response.getEntity(), CommentEntity.class);
+    assertEquals("comment2", result.getTitle());
 
     assertEquals(1, activityManager.getCommentsWithListAccess(rootActivity).getSize());
 
