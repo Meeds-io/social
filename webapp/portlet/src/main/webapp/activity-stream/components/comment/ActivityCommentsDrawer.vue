@@ -26,14 +26,17 @@
       <activity-comments
         v-show="!loading"
         ref="activityComments"
-        :activity-id="activityId"
+        :activity="activity"
         :comments="comments"
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
-        allow-edit />
+        allow-edit
+        @comment-created="addComment"
+        @comment-deleted="deleteComment"
+        @comment-updated="updateComment" />
     </template>
   </exo-drawer>
 </template>
@@ -51,8 +54,9 @@ export default {
     },
   },
   data: () => ({
-    commentsData: null,
-    activityId: null,
+    comments: [],
+    commentsSize: 0,
+    activity: null,
     loading: false,
     drawerOpened: false,
     temporaryDrawer: true,
@@ -63,14 +67,6 @@ export default {
     offset: 0,
     limit: 10,
   }),
-  computed: {
-    comments() {
-      return this.commentsData && this.commentsData.comments;
-    },
-    commentsSize() {
-      return this.commentsData && this.commentsData.size;
-    },
-  },
   watch: {
     loading() {
       if (this.loading) {
@@ -100,8 +96,25 @@ export default {
   methods: {
     reset() {
       this.comments = [];
+      this.commentsSize = 0;
       this.drawerOpened = false;
       this.hideCommentRichEditor();
+    },
+    addComment(comment) {
+      if (this.comments) {
+        this.comments.push(comment);
+        this.commentsSize++;
+      } else {
+        this.comments = [comment];
+        this.commentsSize = 1;
+      }
+    },
+    deleteComment(comment, commentIndex) {
+      this.comments.splice(commentIndex, 1);
+      this.commentsSize--;
+    },
+    updateComment(comment, commentIndex) {
+      this.comments.splice(commentIndex, 1, comment);
     },
     scrollToEnd() {
       window.setTimeout(() => {
@@ -111,13 +124,18 @@ export default {
           left: 0,
           behavior: 'smooth'
         });
-      }, 10);
+      }, 100);
     },
     editActivityComments(event) {
-      const comment = event && event.detail;
-      if (comment && comment.activityId) {
+      const comment = event && event.detail && event.detail.comment;
+      const activity = event && event.detail && event.detail.activity;
+
+      if (comment && activity) {
+        const activityBody = event && event.detail && event.detail.activityBody;
+        comment.contentToEdit = activityBody;
+
         this.displayActivityComments({options: {
-          activityId: comment.activityId,
+          activity: activity,
           editComment: comment,
           offset: 0,
           limit: 200,
@@ -126,10 +144,11 @@ export default {
     },
     displayActivityComments(event) {
       const options = event && (event.detail || event.options);
-      if (options) {
+      // Activity object with its identifier is mandatory
+      if (options && options.activity && options.activity.id) {
         this.hideCommentRichEditor();
         this.$nextTick().then(() => {
-          this.activityId = options.activityId;
+          this.activity = options.activity;
           this.offset = options.offset || 0;
           this.limit = options.limit || 10;
           if (!this.drawerOpened) {
@@ -158,14 +177,16 @@ export default {
     },
     retrieveComments() {
       this.loading = true;
-      window.setTimeout(() => {
-        this.$activityService.getActivityComments(this.activityId, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
-          .then(data => {
-            this.commentsData = data;
-            return this.$nextTick();
-          })
-          .finally(() => this.loading = false);
-      }, 50);
+      this.$activityService.getActivityComments(this.activity.id, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        .then(data => {
+          this.comments = data && data.comments || [];
+          this.commentsSize = data && data.size && Number(data.size) || 0;
+        })
+        .finally(() => {
+          window.setTimeout(() => {
+            this.loading = false;
+          }, this.commentsSize * 10 + 50);
+        });
     },
   },
 };

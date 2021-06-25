@@ -1,5 +1,5 @@
 <template>
-  <div :id="id">
+  <div v-if="commentTypeExtension" :id="id">
     <div
       v-if="isEditingComment"
       class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
@@ -23,16 +23,23 @@
             <activity-head-user :identity="posterIdentity" />
           </v-list-item-title>
           <activity-comment-body-text
-            :comment-types="commentTypes"
-            :comment="comment" />
+            :activity="activity"
+            :comment="comment"
+            :comment-type-extension="commentTypeExtension" />
         </v-list-item-content>
         <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
-          <activity-comment-menu :comment="comment" :actions="commentActions" />
+          <activity-comment-menu
+            :activity="activity"
+            :comment="comment"
+            :actions="commentActions"
+            :comment-type-extension="commentTypeExtension" />
         </v-list-item-action>
       </v-list-item>
       <div class="ps-12 py-0 my-1 align-start border-box-sizing">
         <activity-comment-actions
+          :activity="activity"
           :comment="comment"
+          :comment-type-extension="commentTypeExtension"
           class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
       </div>
     </template>
@@ -41,6 +48,7 @@
       <activity-comment-body
         v-for="subComment in subComments"
         :key="subComment.id"
+        :activity="activity"
         :comment="subComment"
         :comment-types="commentTypes"
         :comment-actions="commentActions"
@@ -62,8 +70,12 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
-      type: String,
+      type: Object,
       default: null,
     },
     subComments: {
@@ -93,7 +105,7 @@ export default {
   },
   computed: {
     activityId() {
-      return this.comment && this.comment.activityId || '';
+      return this.activity && this.activity.id || '';
     },
     parentCommentId() {
       return this.comment && (this.comment.parentCommentId || this.comment.id) || '';
@@ -116,12 +128,20 @@ export default {
     isEditingComment() {
       return this.commentEditing && this.commentEditing.id === this.comment.id;
     },
+    commentTypeExtension() {
+      return this.commentTypes && (this.commentTypes[this.comment.type] || this.commentTypes['default']);
+    },
     commentEditOptions() {
+      const commentToEdit = this.isEditingComment ? this.commentEditing : this.comment;
+      const messageToEdit = commentToEdit.contentToEdit
+                            || (this.commentTypeExtension && this.commentTypeExtension.getBodyToEdit && this.commentTypeExtension.getBodyToEdit(commentToEdit))
+                            || this.commentToEdit.title
+                            || this.commentToEdit.body;
       return {
         activityId: this.activityId,
         parentCommentId: this.comment.parentCommentId || null,
         commentId: this.comment.id,
-        message: this.comment.body,
+        message: messageToEdit,
       };
     },
   },

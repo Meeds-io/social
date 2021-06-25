@@ -413,7 +413,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
     try {
       ActivityEntity entity = activityDAO.find(Long.valueOf(activityId));
-      return convertActivityEntityToActivity(entity);
+      if (entity != null && entity.isComment()) {
+        return convertCommentEntityToComment(entity);
+      } else {
+        return convertActivityEntityToActivity(entity);
+      }
     } catch (Exception e) {
       if (PropertyManager.isDevelopping()) {
         throw new ActivityStorageException(Type.FAILED_TO_GET_ACTIVITY, e.getMessage(), e);

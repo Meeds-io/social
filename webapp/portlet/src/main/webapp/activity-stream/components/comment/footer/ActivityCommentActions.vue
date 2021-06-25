@@ -9,7 +9,15 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
+      type: Object,
+      default: null,
+    },
+    commentTypeExtension: {
       type: Object,
       default: null,
     },
@@ -17,7 +25,9 @@ export default {
   computed: {
     params() {
       return {
+        activity: this.activity,
         comment: this.comment,
+        commentTypeExtension: this.commentTypeExtension,
       };
     },
   },

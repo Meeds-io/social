@@ -723,7 +723,8 @@ public class ActivityManagerImpl implements ActivityManager {
     if (identity == null) {
       return false;
     }
-    if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
+    if (StringUtils.equals(identity.getId(), activity.getPosterId())
+        || StringUtils.equals(identity.getId(), activity.getUserId())) {
       return true;
     }
     ActivityStream activityStream = null;
@@ -736,11 +737,19 @@ public class ActivityManagerImpl implements ActivityManager {
     } else {
       activityStream = activity.getActivityStream();
     }
-    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
-      return isSpaceMember(viewer, activityStream.getPrettyId());
+    if (activityStream != null) {
+      if (ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+        return isSpaceMember(viewer, activityStream.getPrettyId());
+      } else if (ActivityStream.Type.USER.equals(activityStream.getType())
+          && (StringUtils.equals(activityStream.getPrettyId(), username)
+              || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
+        return true;
+      }
     }
-    return viewer.isMemberOf(userACL.getAdminGroups()) || hasMentioned(activity, username)
-        || isConnectedWithPoster(activity, username) || getSpaceService().isSuperManager(username);
+    return viewer.isMemberOf(userACL.getAdminGroups())
+        || hasMentioned(activity, username)
+        || isConnectedWithUserWithId(activity.getPosterId(), username)
+        || getSpaceService().isSuperManager(username);
   }
 
   @Override
@@ -824,7 +833,10 @@ public class ActivityManagerImpl implements ActivityManager {
   public boolean isAutomaticComment(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
     return activity != null
-        && ((StringUtils.isNotBlank(activity.getType()) && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType()))
+        && ((StringUtils.isNotBlank(activity.getType())
+            && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
+            && !ActivityPluginType.DEFAULT.getName().equals(activity.getType())
+            && !ActivityPluginType.LINK.getName().equals(activity.getType()))
             || (SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
                 && AUTOMATIC_EDIT_TITLE_ACTIVITIES.contains(activity.getTitleId())));
   }
@@ -886,9 +898,18 @@ public class ActivityManagerImpl implements ActivityManager {
                      || StringUtils.startsWith(mentionedId, username + "@"));
   }
 
-  private boolean isConnectedWithPoster(ExoSocialActivity activity, String username) {
+  private boolean isConnectedWithUserWithName(String posterName, String username) {
+    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, posterName);
+    return isConnectedWithUser(poster, username);
+  }
+
+  private boolean isConnectedWithUserWithId(String posterId, String username) {
+    Identity poster = identityManager.getIdentity(posterId);
+    return isConnectedWithUser(poster, username);
+  }
+
+  private boolean isConnectedWithUser(Identity poster, String username) {
     Identity user = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-    Identity poster = identityManager.getIdentity(activity.getPosterId());
     Type status = relationshipManager.getStatus(poster, user);
     return Relationship.Type.CONFIRMED.equals(status);
   }

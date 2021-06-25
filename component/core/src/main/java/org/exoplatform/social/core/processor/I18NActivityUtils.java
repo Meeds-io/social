@@ -27,9 +27,9 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 public class I18NActivityUtils {
 
   /** */
-  private final static String RESOURCE_BUNDLE_VALUES_PARAM = "RESOURCE_BUNDLE_VALUES_PARAM";
+  public final static String RESOURCE_BUNDLE_VALUES_PARAM = "RESOURCE_BUNDLE_VALUES_PARAM";
 
-  private final static String RESOURCE_BUNDLE_KEY_TO_PROCESS = "RESOURCE_BUNDLE_KEY_TO_PROCESS";
+  public final static String RESOURCE_BUNDLE_KEY_TO_PROCESS = "RESOURCE_BUNDLE_KEY_TO_PROCESS";
   
   /** */
   private final static String RESOURCE_BUNDLE_VALUES_CHARACTER = "#";
