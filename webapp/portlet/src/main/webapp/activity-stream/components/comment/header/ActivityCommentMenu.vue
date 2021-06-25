@@ -30,6 +30,10 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
       type: Object,
       default: null,
@@ -38,13 +42,17 @@ export default {
       type: Object,
       default: null,
     },
+    commentTypeExtension: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     menu: false,
   }),
   computed: {
     enabledActions() {
-      return this.actions && Object.values(this.actions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.comment));
+      return this.actions && Object.values(this.actions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.comment, this.commentTypeExtension));
     },
   },
   created() {
@@ -65,10 +73,10 @@ export default {
           message: action.confirmMessageKey,
           ok: action.confirmOkKey,
           cancel: action.confirmCancelKey,
-          callback: () => action.click(this.comment),
+          callback: () => action.click(this.activity, this.comment, this.commentTypeExtension),
         });
       } else {
-        action.click(this.comment);
+        action.click(this.activity, this.comment, this.commentTypeExtension);
       }
     },
   },

@@ -1,23 +1,39 @@
 <template>
-  <p
-    v-if="useParagraph"
-    v-sanitized-html="commentBody"
-    class="rich-editor-content"></p>
   <div
-    v-else
-    v-sanitized-html="commentBody"
-    class="rich-editor-content"></div>
+    v-if="initialized"
+    :id="id"
+    class="activity-detail activity-comment-detail">
+    <template v-if="extendedComponent">
+      <extension-registry-component
+        :component="extendedComponentOptions"
+        :element="extendedComponent.element"
+        :element-class="extendedComponent.class"
+        :params="extendedComponentParams" />
+    </template>
+    <template v-else>
+      <extension-registry-components
+        name="ActivityContent"
+        type="activity-content-extensions"
+        parent-element="div"
+        element="div"
+        :params="extendedComponentParams" />
+    </template>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    comment: {
-      type: String,
+    activity: {
+      type: Object,
       default: null,
     },
-    commentTypes: {
+    comment: {
       type: Object,
+      default: null,
+    },
+    commentTypeExtension: {
+      type: String,
       default: null,
     },
   },
@@ -25,28 +41,63 @@ export default {
     initialized: false,
   }),
   computed: {
-    commentExtensionType() {
-      return this.commentTypes && this.comment && this.comment.type && this.commentTypes[this.comment.type];
+    id() {
+      return `activity-comment-detail-${this.commentId}`;
     },
-    commentBody() {
-      if (this.commentExtensionType && this.commentExtensionType.getBody) {
-        return this.initialized && this.commentExtensionType.getBody(this.comment) || '';
-      } else {
-        return this.comment && (this.comment.body || this.comment.title) || '';
-      }
+    commentId() {
+      return this.comment && this.comment.id;
     },
-    useParagraph() {
-      return !this.commentBody.includes('</p>');
+    extendedComponent() {
+      return this.commentTypeExtension && this.commentTypeExtension.getExtendedComponent && this.commentTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
+    },
+    extendedComponentOptions() {
+      return this.extendedComponent && {
+        componentName: `Activity-${this.commentTypeExtension.id}`,
+        componentOptions: {
+          vueComponent: this.extendedComponent.component,
+        },
+      };
+    },
+    extendedComponentParams() {
+      return {
+        activity: this.comment,
+        activityTypeExtension: this.commentTypeExtension,
+      };
+    },
+    init() {
+      return this.commentTypeExtension && this.commentTypeExtension.init;
+    },
+    refresh() {
+      return this.commentTypeExtension && this.commentTypeExtension.refresh;
+    },
+  },
+  watch: {
+    activity() {
+      this.retrieveCommentProperties();
+    },
+    commentTypeExtension() {
+      this.retrieveCommentProperties();
     },
   },
   created() {
-    if (this.commentExtensionType && this.commentExtensionType.init) {
-      const initPromise = this.commentExtensionType.init(this.comment);
-      if (initPromise && initPromise.then) {
-        return initPromise.then(() => this.initialized = true);
+    this.retrieveCommentProperties();
+  },
+  methods: {
+    retrieveCommentProperties() {
+      if (this.refresh && (this.comment.updated || this.comment.added)) {
+        this.refresh(this.comment, false, this.activity);
       }
-    }
-    this.initialized = true;
+      delete this.comment.updated;
+      delete this.comment.added;
+      if (this.init) {
+        const initPromise = this.init(this.comment, false, this.activity);
+        if (initPromise && initPromise.finally) {
+          this.initialized = false;
+          return initPromise.finally(() => this.initialized = true);
+        }
+      }
+      this.initialized = true;
+    },
   },
 };
 </script>

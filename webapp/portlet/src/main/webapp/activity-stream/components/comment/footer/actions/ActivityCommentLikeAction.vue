@@ -27,6 +27,10 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
       type: Object,
       default: null,
@@ -69,6 +73,9 @@ export default {
   },
   created() {
     this.$root.$on('activity-comment-liked', this.updateCommentLikers);
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-comment-liked', this.updateCommentLikers);
   },
   methods: {
     updateCommentLikers(comment) {

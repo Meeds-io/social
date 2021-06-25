@@ -137,7 +137,7 @@ export default {
               });
 
             if (self.autofocus) {
-              self.setFocus();
+              window.setTimeout(() => self.setFocus(), 50);
             }
           },
           change: function (evt) {

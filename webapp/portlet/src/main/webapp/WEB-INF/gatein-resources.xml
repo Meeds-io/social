@@ -1290,6 +1290,9 @@
       <module>spacePopupPlugin</module>
     </depends>
     <depends>
+      <module>suggester</module>
+    </depends>
+    <depends>
       <module>commons-editor</module>
       <as>editor</as>
     </depends>
@@ -1657,6 +1660,13 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>suggester</module>
+    </depends>
+    <depends>
+      <module>commons-editor</module>
+      <as>editor</as>
     </depends>
     <depends>
       <module>commons-cometd3</module>

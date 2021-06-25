@@ -84,13 +84,15 @@ export default {
       }
       this.initialized = false;
 
-      // Used to preserve last message of user even after deleting drawer
-      this.$root.$emit('activity-comment-editor-updated', {
-        activityId: this.activityId,
-        commentId: this.commentId,
-        parentCommentId: this.parentCommentId,
-        message: this.message && String(this.message),
-      });
+      if (this.message) {
+        // Used to preserve last message of user even after deleting drawer
+        this.$root.$emit('activity-comment-editor-updated', {
+          activityId: this.activityId,
+          commentId: this.commentId,
+          parentCommentId: this.parentCommentId,
+          message: this.message && String(this.message),
+        });
+      }
 
       this.commenting = false;
       this.message = null;

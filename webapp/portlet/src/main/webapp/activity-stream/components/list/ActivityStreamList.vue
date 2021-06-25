@@ -10,7 +10,7 @@
       :space-id="spaceId"
       @addActivities="addActivities" />
     <activity-stream-activity
-      v-for="activity of activities"
+      v-for="activity of activitiesToDisplay"
       :key="activity.id"
       :activity="activity"
       :activity-types="activityTypes"
@@ -66,6 +66,9 @@ export default {
     display: false,
   }),
   computed: {
+    activitiesToDisplay() {
+      return this.activities && this.activities.filter(activity => activity && !activity.activityId) || [];
+    },
     activityStreamTypeClass() {
       return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
     },
@@ -129,7 +132,14 @@ export default {
     loadActivity() {
       this.loading = true;
       this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-        .then(activity => this.activities = activity && [activity] || [])
+        .then(activity => {
+          if (activity.activityId) { // a comment
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            this.$emit('activity-select', activity.activityId, activity.id);
+            return;
+          }
+          this.activities = activity && [activity] || [];
+        })
         .finally(() => this.loading = false);
     },
     loadActivities() {
@@ -163,7 +173,7 @@ export default {
       const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
       if (index >= 0) {
         this.activities.splice(index, 1, updatedActivity);
-        this.$forceUpdate();
+        this.$root.$emit('activity-refresh-ui', updatedActivity.id);
       }
     },
     loadMore() {

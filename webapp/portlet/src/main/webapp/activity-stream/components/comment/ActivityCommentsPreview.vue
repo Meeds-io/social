@@ -1,12 +1,12 @@
 <template>
-  <v-progress-linear
-    v-if="loading"
-    color="primary"
-    height="2"
-    indeterminate />
-  <div v-else-if="commentsSize">
+  <div>
+    <v-progress-linear
+      v-if="loading"
+      color="primary"
+      height="2"
+      indeterminate />
     <activity-comments
-      :activity-id="activityId"
+      :activity="activity"
       :comments="commentsPreviewList"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
@@ -14,6 +14,8 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
+      v-if="commentsSize"
+      :disabled="loading"
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
       link
@@ -27,8 +29,8 @@
 <script>
 export default {
   props: {
-    activityId: {
-      type: String,
+    activity: {
+      type: Object,
       default: null,
     },
     commentTypes: {
@@ -41,30 +43,27 @@ export default {
     },
   },
   data: () => ({
-    commentsData: null,
+    comments: [],
+    commentsSize: 0,
     limit: 1,
     loading: false,
   }),
   computed: {
-    comments() {
-      return this.commentsData && this.commentsData.comments;
-    },
-    commentsSize() {
-      return this.commentsData && this.commentsData.size;
-    },
     lastComment() {
-      return this.comments && this.comments.length && this.comments[0];
+      return this.commentsSize && this.comments[0];
     },
     lastSubComment() {
-      return this.comments && this.comments.length > 1 && this.comments[this.comments.length - 1];
+      return this.commentsSize > 1 && this.comments[this.comments.length - 1];
     },
     commentsPreviewList() {
       const commentsPreviewList = [];
-      if (this.lastComment) {
-        commentsPreviewList.push(this.lastComment);
-      }
-      if (this.lastSubComment) {
-        commentsPreviewList.push(this.lastSubComment);
+      if (this.commentsSize > 0) {
+        if (this.lastComment) {
+          commentsPreviewList.push(this.lastComment);
+        }
+        if (this.lastSubComment) {
+          commentsPreviewList.push(this.lastSubComment);
+        }
       }
       return commentsPreviewList;
     },
@@ -75,16 +74,20 @@ export default {
   methods: {
     retrieveLastComment() {
       this.loading = true;
-      this.$activityService.getActivityComments(this.activityId, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+      this.$activityService.getActivityComments(this.activity.id, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
         .then(data => {
-          this.commentsData = data;
-          return this.$nextTick();
+          this.comments = [];
+          this.commentsSize = 0;
+          this.$nextTick().then(() => {
+            this.comments = data && data.comments || [];
+            this.commentsSize = data && data.size && Number(data.size) || 0;
+          });
         })
         .finally(() => this.loading = false);
     },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activityId: this.activityId,
+        activity: this.activity,
         offset: 0,
         limit: this.commentsSize * 2, // To display all
       }}));
