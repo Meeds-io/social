@@ -28,7 +28,8 @@
           <activity-comment-body-text
             :activity="activity"
             :comment="comment"
-            :comment-type-extension="commentTypeExtension" />
+            :comment-type-extension="commentTypeExtension"
+            @comment-initialized="$emit('comment-initialized')" />
         </v-list-item-content>
         <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
           <activity-comment-menu
@@ -60,7 +61,8 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentEditing"
-        class="ms-10" />
+        class="ms-10"
+        @comment-initialized="$emit('comment-initialized')" />
     </template>
     <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
@@ -163,7 +165,8 @@ export default {
         const commentElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id}`);
         if (commentElement && commentElement.scrollIntoView) {
           commentElement.scrollIntoView({
-            behavior: 'smooth'
+            behavior: 'smooth',
+            block: 'start',
           });
         }
       }, 10);
