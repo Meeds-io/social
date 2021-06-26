@@ -1,7 +1,7 @@
 <template>
   <v-list
     v-if="comments"
-    :class="parentClass">
+    class="flex d-flex flex-column pb-0 pt-5">
     <activity-comment-body
       v-for="comment in commentsToDisplay"
       :key="comment.id"
@@ -65,9 +65,6 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
-    },
-    parentClass() {
-      return this.allowEdit && 'pb-0 pt-5' || 'pa-0';
     },
     replyLastEditorOptions() {
       return this.lastEditorOptions && this.lastEditorOptions.parentCommentId && this.lastEditorOptions;

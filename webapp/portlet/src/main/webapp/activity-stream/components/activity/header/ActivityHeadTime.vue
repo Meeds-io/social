@@ -1,24 +1,33 @@
 <template>
   <v-list-item-subtitle class="caption text-light-color activity-head-time">
-    <i class="uiIconClock  uiIconLightGray"></i>
+    <v-icon
+      v-if="!noIcon"
+      class="text-light-color"
+      x-small>
+      far fa-clock
+    </v-icon>
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
-        <a
+        <v-btn
           :title="absolutePostedTime"
           :href="activityLink"
-          class="hover-underline activity-head-time-link"
+          class="hover-underline width-auto text-capitalize-first-letter px-0"
+          x-small
+          link
+          text
+          plain
           v-bind="attrs"
           v-on="on">
           <relative-date-format
             v-if="isActivityEdited"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter d-inline-block"
+            class="text-capitalize-first-letter text-light-color"
             :value="activity.updateDate" />
           <relative-date-format
             v-else
-            class="text-capitalize-first-letter d-inline-block"
+            class="text-capitalize-first-letter text-light-color"
             :value="activity.createDate" />
-        </a>
+        </v-btn>
       </template>
       <date-format :value="activity.updateDate" :format="dateFormat" />
     </v-tooltip>
@@ -31,6 +40,10 @@ export default {
     activity: {
       type: Object,
       default: null,
+    },
+    noIcon: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

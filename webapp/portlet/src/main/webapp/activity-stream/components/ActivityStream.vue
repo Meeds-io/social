@@ -5,7 +5,6 @@
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
-      :comment-id="commentId"
       :comment-types="activityTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail" />
@@ -38,18 +37,22 @@ export default {
     this.refreshActivityActions();
     this.refreshCommentActions();
     if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
-      this.activityId = this.getQueryParam('id');
+      this.$root.selectedActivityId = this.getQueryParam('id');
+      if (window.location.hash) {
+        this.$root.selectedCommentId = window.location.hash.replace('#comment-', '');
+      }
     }
-    this.$nextTick().then(() => this.loaded = true);
+    this.displayActivityDetail(this.$root.selectedActivityId, this.$root.selectedCommentId);
   },
   methods: {
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;
-      this.activityId = activityId;
-      if (commentId && !this.commentId) {
-        this.commentId = commentId;
+      this.$root.selectedActivityId = this.activityId = activityId;
+      this.$root.selectedCommentId = window.location.hash.replace('#comment-', '');
+      if (commentId && !this.$root.selectedCommentId) {
+        this.$root.selectedCommentId = commentId;
+        window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
       }
-      window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}`);
       this.$nextTick().then(() => this.loaded = true);
     },
     refreshActivityTypes() {
