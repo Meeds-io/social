@@ -4,9 +4,8 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    class="d-flex flex-no-wrap activity-thumbnail-box"
-    v-bind="attrs"
-    v-on="tooltip && on">
+    :class="linkClass"
+    class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
       <div
         :class="thumbnailMobileNoBorder || 'border-color'"
@@ -88,8 +87,9 @@
         <template v-if="title">
           <ellipsis
             v-if="useEllipsisOnTitle"
+            key="title"
             :title="titleTooltip"
-            :data="title"
+            :data="titleEllipsis"
             :line-clamp="3"
             end-char="..."
             class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
@@ -102,15 +102,16 @@
         <template v-if="summary">
           <ellipsis
             v-if="useEllipsisOnSummary"
+            key="summary"
             :title="summaryTooltip"
-            :data="summary"
+            :data="summaryEllipsis"
             :line-clamp="3"
             end-char="..."
             class="caption text-light-color text-wrap text-break" />
           <div
             v-else
             v-sanitized-html="summary"
-            class="caption text-light-color text-wrap text-break reset-style-box">
+            class="caption text-color text-wrap text-break reset-style-box">
           </div>
         </template>
       </div>
@@ -144,6 +145,7 @@ export default {
     tooltip: null,
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
+    resizing: false,
   }),
   computed: {
     getTitle() {
@@ -194,6 +196,9 @@ export default {
     link() {
       return this.sourceLink !== '#' && this.sourceLink || 'javascript:void(0)';
     },
+    linkClass() {
+      return this.sourceLink === '#' ? 'not-clickable' : '';
+    },
     linkTarget() {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
@@ -233,11 +238,31 @@ export default {
     tooltipText() {
       return this.tooltip && this.$t(this.tooltip) || '';
     },
+    titleEllipsis() {
+      return this.resizing && this.title && `${this.title} ` || this.title;
+    },
+    summaryEllipsis() {
+      return this.resizing && this.summary && `${this.summary} ` || this.summary;
+    },
   },
   created() {
     this.retrieveActivityProperties();
+    // Force to redraw
+    $(window).on('resize', this.forceRefreshEllipsis);
+  },
+  beforeDestroy() {
+    $(window).off('resize', this.forceRefreshEllipsis);
   },
   methods: {
+    forceRefreshEllipsis() {
+      if (!this.resizing) {
+        this.resizing = true;
+        this.$forceUpdate();
+        window.setTimeout(() => {
+          this.resizing = false;
+        }, 500);
+      }
+    },
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
