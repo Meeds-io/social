@@ -10,6 +10,7 @@
       :comments="commentsPreviewList"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
+      :class="parentCommentClass"
       @comment-created="retrieveLastComment"
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
@@ -66,6 +67,9 @@ export default {
         }
       }
       return commentsPreviewList;
+    },
+    parentCommentClass() {
+      return this.commentsSize && 'pb-0 pt-5' || 'pa-0';
     },
   },
   created() {
