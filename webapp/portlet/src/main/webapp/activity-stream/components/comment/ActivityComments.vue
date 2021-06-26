@@ -1,7 +1,7 @@
 <template>
   <v-list
     v-if="comments"
-    class="flex d-flex flex-column pb-0 pt-5">
+    class="flex d-flex flex-column">
     <activity-comment-body
       v-for="comment in commentsToDisplay"
       :key="comment.id"
