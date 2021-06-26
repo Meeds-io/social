@@ -99,6 +99,7 @@ export default {
       this.commentsSize = 0;
       this.drawerOpened = false;
       this.hideCommentRichEditor();
+      this.$root.selectedCommentId = null;
     },
     addComment(comment) {
       if (this.comments) {
@@ -153,9 +154,9 @@ export default {
           this.limit = options.limit || 10;
           if (!this.drawerOpened) {
             this.drawerOpened = true;
-            this.scrollOnOpen = !options.editComment;
+            this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
             this.retrieveComments();
-            this.$refs.activityCommentsDrawer.open();
+            this.$nextTick().then(() => this.$refs.activityCommentsDrawer.open());
           }
           this.commentToEdit = options.editComment;
           this.newCommentEditor = !this.commentToEdit && options.newComment;
@@ -179,7 +180,14 @@ export default {
       this.loading = true;
       this.$activityService.getActivityComments(this.activity.id, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
         .then(data => {
-          this.comments = data && data.comments || [];
+          const comments = data && data.comments || [];
+          if (this.$root.selectedCommentId && this.$root.selectedActivityId === this.activity.id) {
+            const selectedComment = comments.find(comment => comment.id === this.$root.selectedCommentId);
+            if (selectedComment) {
+              selectedComment.highlight = true;
+            }
+          }
+          this.comments = comments;
           this.commentsSize = data && data.size && Number(data.size) || 0;
         })
         .finally(() => {

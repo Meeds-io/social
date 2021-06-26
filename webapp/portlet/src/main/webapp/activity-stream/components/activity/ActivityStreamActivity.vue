@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="white border-radius activity-detail">
+    class="white border-radius activity-detail flex">
     <template v-if="extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
@@ -121,6 +121,18 @@ export default {
   created() {
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
     this.retrieveActivityProperties();
+  },
+  mounted() {
+    if (this.$root.selectedCommentId && this.activity && this.activity.id === this.$root.selectedActivityId) {
+      window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+          activity: this.activity,
+          offset: 0,
+          limit: 200, // To display all
+          noAuitomaticScroll: true,
+        }}));
+      }, 50);
+    }
   },
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);

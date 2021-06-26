@@ -2,7 +2,7 @@
   <div
     v-if="initialized"
     :id="id"
-    class="activity-detail activity-comment-detail">
+    class="activity-detail activity-comment-detail flex">
     <template v-if="extendedComponent">
       <extension-registry-component
         :component="extendedComponentOptions"

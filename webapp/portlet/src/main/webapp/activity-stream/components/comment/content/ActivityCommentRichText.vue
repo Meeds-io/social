@@ -1,6 +1,6 @@
 <template>
   <div :id="ckEditorId">
-    <v-list-item-content class="col-auto px-0 pt-1 pb-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
+    <v-list-item-content class="flex px-0 pt-1 pb-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
       <exo-activity-rich-editor
         ref="commentEditor"
         v-model="message"
