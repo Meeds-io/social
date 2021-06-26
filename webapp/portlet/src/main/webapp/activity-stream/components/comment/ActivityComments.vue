@@ -12,7 +12,8 @@
       :editor-options="replyLastEditorOptions"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
-      :comment-editing="commentEditing" />
+      :comment-editing="commentEditing"
+      @comment-initialized="handleCommentInitialized" />
     <activity-comment-rich-text
       v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply"
       ref="commentRichEditor"
@@ -61,6 +62,7 @@ export default {
   },
   data: () => ({
     lastEditorOptions: null,
+    initializedComment: 0,
   }),
   computed: {
     activityId() {
@@ -91,6 +93,21 @@ export default {
       });
       return Object.values(commentsToDisplay);
     },
+    commentsSize() {
+      return this.commentsToDisplay.length;
+    },
+  },
+  watch: {
+    comments() {
+      if (!this.commentsSize) {
+        this.initializedComment = 0;
+      }
+    },
+    initializedComment(newVal, oldVal) {
+      if (oldVal < this.commentsSize && newVal >= this.commentsSize) {
+        this.$emit('initialized');
+      }
+    },
   },
   created() {
     if (this.allowEdit) {
@@ -117,6 +134,9 @@ export default {
     document.removeEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   methods: {
+    handleCommentInitialized() {
+      this.initializedComment = this.initializedComment + 1;
+    },
     handleCommentDeleted(event) {
       this.$root.$emit('activity-comment-deleted', event && event.detail);
     },

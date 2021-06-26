@@ -14,6 +14,7 @@
       :loading="commenting"
       :disabled="disableButton"
       class="btn btn-primary"
+      color="primary"
       @click="postComment">
       {{ label }}
     </v-btn>
@@ -120,14 +121,17 @@ export default {
       }
     },
     handleEditorReady() {
-      this.scrollToCommentEditor();
+      if (this.commentUpdate) {
+        this.scrollToCommentEditor();
+      }
     },
     scrollToCommentEditor() {
       window.setTimeout(() => {
         const commentElementEditor = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.ckEditorId}`);
         if (commentElementEditor && commentElementEditor.scrollIntoView) {
           commentElementEditor.scrollIntoView({
-            behavior: 'smooth'
+            behavior: 'smooth',
+            block: 'start',
           });
         }
       }, 50);

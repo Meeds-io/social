@@ -39,6 +39,7 @@ export default {
   },
   data: () => ({
     initialized: false,
+    initializedEmited: false,
   }),
   computed: {
     id() {
@@ -78,9 +79,21 @@ export default {
     commentTypeExtension() {
       this.retrieveCommentProperties();
     },
+    initialized() {
+      if (this.initialized && !this.initializedEmited) {
+        this.$emit('comment-initialized');
+        this.initializedEmited = true;
+      }
+    },
   },
   created() {
     this.retrieveCommentProperties();
+  },
+  mounted() {
+    if (this.initialized && !this.initializedEmited) {
+      this.$emit('comment-initialized');
+      this.initializedEmited = true;
+    }
   },
   methods: {
     retrieveCommentProperties() {

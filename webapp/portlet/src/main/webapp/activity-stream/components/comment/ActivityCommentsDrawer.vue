@@ -37,7 +37,8 @@
         allow-edit
         @comment-created="addComment"
         @comment-deleted="deleteComment"
-        @comment-updated="updateComment" />
+        @comment-updated="updateComment"
+        @initialized="scrollToEnd" />
     </template>
   </exo-drawer>
 </template>
@@ -74,11 +75,6 @@ export default {
         this.$refs.activityCommentsDrawer.startLoading();
       } else {
         this.$refs.activityCommentsDrawer.endLoading();
-        if (this.scrollOnOpen && (!this.newCommentEditor || !this.selectedCommentIdToReply)) {
-          this.$nextTick().then(() => this.scrollToEnd());
-          // Avoid scrolling again when loading
-          this.scrollOnOpen = false;
-        }
       }
     },
   },
@@ -119,14 +115,21 @@ export default {
       this.comments.splice(commentIndex, 1, comment);
     },
     scrollToEnd() {
-      window.setTimeout(() => {
-        const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
-        drawerContentElement.scrollTo({
-          top: drawerContentElement.scrollHeight,
-          left: 0,
-          behavior: 'smooth'
-        });
-      }, 100);
+      if (this.scrollOnOpen && (!this.newCommentEditor || !this.selectedCommentIdToReply)) {
+        // Avoid scrolling again when loading
+        this.scrollOnOpen = false;
+        this.$root.commentsDrawerInitializing = false;
+
+        window.setTimeout(() => {
+          const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
+          drawerContentElement.scrollTo({
+            top: drawerContentElement.scrollHeight,
+            left: 0,
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 100);
+      }
     },
     editActivityComments(event) {
       const comment = event && event.detail && event.detail.comment;
