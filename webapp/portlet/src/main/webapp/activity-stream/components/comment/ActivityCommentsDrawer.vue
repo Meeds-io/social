@@ -33,6 +33,7 @@
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
+        class="pb-0 pt-5"
         allow-edit
         @comment-created="addComment"
         @comment-deleted="deleteComment"
@@ -156,7 +157,11 @@ export default {
             this.drawerOpened = true;
             this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
             this.retrieveComments();
-            this.$nextTick().then(() => this.$refs.activityCommentsDrawer.open());
+            this.$nextTick().then(() => {
+              if (this.$refs.activityCommentsDrawer) {
+                this.$refs.activityCommentsDrawer.open();
+              }
+            });
           }
           this.commentToEdit = options.editComment;
           this.newCommentEditor = !this.commentToEdit && options.newComment;
@@ -185,6 +190,9 @@ export default {
             const selectedComment = comments.find(comment => comment.id === this.$root.selectedCommentId);
             if (selectedComment) {
               selectedComment.highlight = true;
+              window.setTimeout(() => {
+                selectedComment.highlight = false;
+              }, 5000);
             }
           }
           this.comments = comments;
