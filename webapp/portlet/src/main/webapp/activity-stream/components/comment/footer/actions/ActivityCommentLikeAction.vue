@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex pe-1 ms-2">
+  <div class="d-inline-flex pe-1">
     <v-btn
       :id="`LikeLink${commentId}`"
       :loading="changingLike"

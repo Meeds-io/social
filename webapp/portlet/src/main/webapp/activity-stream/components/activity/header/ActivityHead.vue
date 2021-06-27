@@ -25,7 +25,7 @@
           <activity-head-space :space="space" />
         </template>
       </v-list-item-title>
-      <activity-head-time :activity="activity" />
+      <activity-head-time :activity="activity" class="d-flex" />
     </v-list-item-content>
     <activity-head-menu
       :activity="activity"

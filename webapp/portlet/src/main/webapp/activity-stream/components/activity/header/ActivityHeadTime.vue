@@ -1,5 +1,5 @@
 <template>
-  <v-list-item-subtitle class="caption text-light-color activity-head-time">
+  <div class="caption text-light-color text-truncate activity-head-time">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
@@ -11,7 +11,8 @@
         <v-btn
           :title="absolutePostedTime"
           :href="activityLink"
-          class="hover-underline width-auto text-capitalize-first-letter px-0"
+          :height="20"
+          class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
           text
@@ -21,17 +22,17 @@
           <relative-date-format
             v-if="isActivityEdited"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color"
+            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             :value="activity.updateDate" />
           <relative-date-format
             v-else
-            class="text-capitalize-first-letter text-light-color"
+            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             :value="activity.createDate" />
         </v-btn>
       </template>
       <date-format :value="activity.updateDate" :format="dateFormat" />
     </v-tooltip>
-  </v-list-item-subtitle>
+  </div>
 </template>
 
 <script>
