@@ -1,5 +1,5 @@
 <template>
-  <div class="caption text-light-color text-truncate activity-head-time">
+  <div class="caption text-light-color text-truncate">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
