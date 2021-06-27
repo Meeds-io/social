@@ -282,7 +282,11 @@ public class ActivityManagerImpl implements ActivityManager {
       existingActivity.setTemplateParams(mentionsTemplateParams);
     }
     if (broadcast) {
-      activityLifeCycle.updateActivity(existingActivity);
+      if (existingActivity.isComment() || StringUtils.isNotBlank(existingActivity.getParentId())) {
+        activityLifeCycle.updateComment(existingActivity);
+      } else {
+        activityLifeCycle.updateActivity(existingActivity);
+      }
     }
   }
 

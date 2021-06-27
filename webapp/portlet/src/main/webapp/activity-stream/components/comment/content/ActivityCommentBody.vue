@@ -2,7 +2,7 @@
   <div
     v-if="commentTypeExtension"
     :id="id"
-    class="d-inline-flex flex-column width-auto flex">
+    class="d-inline-flex flex-column width-fit-content overflow-hidden">
     <div
       v-if="isEditingComment"
       class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
@@ -15,22 +15,35 @@
         :options="commentEditOptions" />
     </div>
     <template v-else>
-      <v-list-item :class="highlightClass" class="pe-1 flex">
+      <v-list-item :class="highlightClass" class="pe-1 width-fit-content">
         <activity-head-user
           :identity="posterIdentity"
           :size="33"
           avatar
           class="mt-0 mb-auto me-2 flex-grow-0" />
-        <v-list-item-content class="ps-2 pt-1 pb-0 flex-shrink-1 flex-grow-1 grey-background border-box-sizing rounded-lg">
-          <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
-            <activity-head-user :identity="posterIdentity" />
-          </v-list-item-title>
-          <activity-comment-body-text
-            :activity="activity"
-            :comment="comment"
-            :comment-type-extension="commentTypeExtension"
-            @comment-initialized="$emit('comment-initialized')" />
-        </v-list-item-content>
+        <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
+          <div class="px-2 py-1 flex-grow-1 grey-background border-box-sizing rounded-lg">
+            <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
+              <activity-head-user :identity="posterIdentity" />
+            </v-list-item-title>
+            <activity-comment-body-text
+              :activity="activity"
+              :comment="comment"
+              :comment-type-extension="commentTypeExtension"
+              @comment-initialized="$emit('comment-initialized')" />
+          </div>
+          <div class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
+            <activity-comment-actions
+              :activity="activity"
+              :comment="comment"
+              :comment-type-extension="commentTypeExtension"
+              class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
+            <activity-head-time
+              :activity="comment"
+              class="d-inline ps-2 ms-auto"
+              no-icon />
+          </div>
+        </div>
         <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
           <activity-comment-menu
             :activity="activity"
@@ -39,17 +52,6 @@
             :comment-type-extension="commentTypeExtension" />
         </v-list-item-action>
       </v-list-item>
-      <div class="ps-12 py-0 my-1 align-start d-inline-flex flex-row border-box-sizing">
-        <activity-comment-actions
-          :activity="activity"
-          :comment="comment"
-          :comment-type-extension="commentTypeExtension"
-          class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
-        <activity-head-time
-          :activity="comment"
-          class="d-flex ps-2"
-          no-icon />
-      </div>
     </template>
 
     <template v-if="subComments && subComments.length">
@@ -61,7 +63,7 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentEditing"
-        class="ms-10"
+        class="ps-10"
         @comment-initialized="$emit('comment-initialized')" />
     </template>
     <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
