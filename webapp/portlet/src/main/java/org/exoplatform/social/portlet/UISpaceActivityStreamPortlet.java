@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.portlet;
 
+import org.exoplatform.commons.api.settings.ExoFeatureService;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.webui.Utils;
@@ -23,8 +25,11 @@ import org.exoplatform.social.webui.composer.PopupContainer;
 import org.exoplatform.social.webui.composer.UIComposer;
 import org.exoplatform.social.webui.space.UISpaceActivitiesDisplay;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
+import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.UIPortletApplication;
 import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;
+import org.exoplatform.webui.event.Event;
+import org.exoplatform.webui.event.EventListener;
 
 /**
  * UISpaceActivityPortlet.java
@@ -36,22 +41,49 @@ import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;
  */
 @ComponentConfig(
   lifecycle = UIApplicationLifecycle.class,
-  template = "war:/groovy/social/portlet/UISpaceActivityStreamPortlet.gtmpl"
+  events = {
+    @EventConfig(listeners = UISpaceActivityStreamPortlet.SwitchStreamActionListener.class)
+  }
 )
 public class UISpaceActivityStreamPortlet extends UIPortletApplication {
+  private ExoFeatureService featureService;
   private Space space;
   private UISpaceActivitiesDisplay uiDisplaySpaceActivities;
+
+  private boolean useNewStream;
 
   /**
    * constructor
    */
   public UISpaceActivityStreamPortlet() throws Exception {
-    UIComposer uiComposer = addChild(UIComposer.class, null, null);
+    addChild(UIComposer.class, null, null);
 
     uiDisplaySpaceActivities = addChild(UISpaceActivitiesDisplay.class, null, null);
     space = getSpaceService().getSpaceByUrl(Utils.getSpaceUrlByContext());
     uiDisplaySpaceActivities.setSpace(space);
     addChild(PopupContainer.class, null, "HiddenContainer_" + hashCode());
+
+    this.featureService = getApplicationComponent(ExoFeatureService.class);
+    this.useNewStream = isNewStreamFeatureEnabled();
+  }
+
+  public void switchStream() {
+    useNewStream = !useNewStream;
+  }
+
+  public boolean isNewStreamFeatureEnabled() {
+    return this.featureService.isFeatureActiveForUser("NewActivityStream",
+                                                      ConversationState.getCurrent().getIdentity().getUserId());
+  }
+
+  public boolean isUseNewStream() {
+    return useNewStream;
+  }
+
+  @Override
+  public String getTemplate() {
+    return useNewStream ? "war:/groovy/social/portlet/NewActivityStreamPortlet.gtmpl"
+                        : "war:/groovy/social/portlet/UISpaceActivityStreamPortlet.gtmpl";
   }
 
   public SpaceService getSpaceService() {
@@ -74,5 +106,14 @@ public class UISpaceActivityStreamPortlet extends UIPortletApplication {
   public void refresh() throws Exception {
     space = getSpaceService().getSpaceByUrl(Utils.getSpaceUrlByContext());
     uiDisplaySpaceActivities.setSpace(space);
+  }
+
+  public static class SwitchStreamActionListener extends EventListener<UISpaceActivityStreamPortlet> {
+    @Override
+    public void execute(Event<UISpaceActivityStreamPortlet> event) throws Exception {
+      UISpaceActivityStreamPortlet spaceActivityStreamPortlet = event.getSource();
+      spaceActivityStreamPortlet.switchStream();
+      event.getRequestContext().addUIComponentToUpdateByAjax(spaceActivityStreamPortlet);
+    }
   }
 }

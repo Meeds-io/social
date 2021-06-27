@@ -1,6 +1,5 @@
 <template>
   <div
-    v-show="display"
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
     <activity-stream-confirm-dialog />
@@ -59,11 +58,11 @@ export default {
     activities: [],
     pageSize: 10,
     limit: 10,
+    retrievedSize: 0,
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
     hasMore: false,
     loading: false,
-    display: false,
   }),
   computed: {
     activitiesToDisplay() {
@@ -87,15 +86,6 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-stream-display', () => {
-      this.activities = [];
-      this.limit = this.pageSize;
-      this.display = true;
-      this.init();
-    });
-    this.$root.$on('activity-stream-hide', () => {
-      this.display = false;
-    });
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
       if (activityId) {
@@ -117,6 +107,11 @@ export default {
         this.updateActivityDisplayById(activityId);
       }
     });
+
+    this.activities = [];
+    this.retrievedSize = this.limit = this.pageSize;
+    this.hasMore = false;
+    this.init();
   },
   methods: {
     init() {
@@ -144,11 +139,11 @@ export default {
     },
     loadActivities() {
       this.loading = true;
-      // Load 'limit + 1' instead of only 'limit' to avoid retrieving count of user activities
+      // Load 'retrievedSize + 10' instead of only 'limit' to avoid retrieving count of user activities
       // Which can be CPU consuming in server side.
       // If the retrieved elements count > 'limit', then there are more elements to retrieve,
       // else no more elements to retrieve
-      const limitToRetrieve = this.limit + 1;
+      const limitToRetrieve = this.retrievedSize + 10;
       if (this.spaceId) {
         this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
@@ -161,7 +156,8 @@ export default {
     },
     handleRetrievedActivities(activities) {
       this.activities = activities.slice(0, this.limit);
-      this.hasMore = activities.length > this.limit;
+      this.retrievedSize = activities.length;
+      this.hasMore = this.retrievedSize > this.limit;
     },
     updateActivityDisplayById(activityId) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
