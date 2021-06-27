@@ -7,15 +7,14 @@
     :class="linkClass"
     class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
-      <div
-        :class="thumbnailMobileNoBorder || 'border-color'"
-        class="border-box-sizing col pa-4">
+      <div class="border-box-sizing flex pa-4">
         <v-avatar
           v-if="supportsThumbnail"
           :min-height="thumbnailMobileHeight"
           :height="thumbnailMobileHeight"
           :min-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
+          :class="thumbnailMobileNoBorder || 'border-color'"
           rounded
           tile>
           <v-img
@@ -31,12 +30,16 @@
             {{ defaultIconClass }}
           </v-icon>
         </v-avatar>
-        <div v-if="title" class="pa-4 grey-background border-top-color">
+        <div
+          v-if="title"
+          :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
+          class="pa-4">
           <ellipsis
             v-if="title"
             :title="title"
             :data="title"
             :line-clamp="2"
+            :delay-time="200"
             end-char="..."
             class="font-weight-bold text-color ma-0 text-wrap text-break" />
         </div>
@@ -91,6 +94,7 @@
             :title="titleTooltip"
             :data="titleEllipsis"
             :line-clamp="3"
+            :delay-time="200"
             end-char="..."
             class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
           <div
@@ -106,6 +110,7 @@
             :title="summaryTooltip"
             :data="summaryEllipsis"
             :line-clamp="3"
+            :delay-time="200"
             end-char="..."
             class="caption text-light-color text-wrap text-break" />
           <div
