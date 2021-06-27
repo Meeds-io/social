@@ -19,12 +19,14 @@ package org.exoplatform.social.portlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -32,11 +34,13 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.webui.Utils;
 import org.exoplatform.social.webui.composer.PopupContainer;
 import org.exoplatform.social.webui.composer.UIComposer;
-import org.exoplatform.social.webui.composer.UIComposer.PostContext;
 import org.exoplatform.social.webui.profile.UIUserActivitiesDisplay;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
+import org.exoplatform.webui.config.annotation.EventConfig;
 import org.exoplatform.webui.core.UIPortletApplication;
 import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;
+import org.exoplatform.webui.event.Event;
+import org.exoplatform.webui.event.EventListener;
 
 /**
  * UIUserActivityStreamPortlet.java
@@ -47,8 +51,10 @@ import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;
  * @since     Jul 25, 2010
  */
 @ComponentConfig(
-  lifecycle = UIApplicationLifecycle.class,
-  template = "war:/groovy/social/portlet/UIUserActivityStreamPortlet.gtmpl"
+    lifecycle = UIApplicationLifecycle.class,
+    events = {
+        @EventConfig(listeners = UIUserActivityStreamPortlet.SwitchStreamActionListener.class)
+    }
 )
 public class UIUserActivityStreamPortlet extends UIPortletApplication {
   private String ownerName;
@@ -61,6 +67,11 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
   private static final String SINGLE_ACTIVITY_REDIRECT_LINK_PREFIX = "activity/redirect";
   private static final String NOTIFICATION_REST_PREFIX = "/locale/portlet/social/notifications/redirectUrl";
   private static final Log LOG = ExoLogger.getLogger(UIUserActivityStreamPortlet.class.getName());
+
+  private ExoFeatureService featureService;
+
+  private boolean useNewStream;
+
   /**
    * constructor
    *
@@ -81,6 +92,28 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
 	  
     uiUserActivitiesDisplay = addChild(UIUserActivitiesDisplay.class, null, "UIUserActivitiesDisplay");
     addChild(PopupContainer.class, null, "HiddenContainer");
+
+    this.featureService = getApplicationComponent(ExoFeatureService.class);
+    this.useNewStream = isNewStreamFeatureEnabled();
+  }
+
+  public void switchStream() {
+    useNewStream = !useNewStream;
+  }
+
+  public boolean isUseNewStream() {
+    return useNewStream;
+  }
+
+  public boolean isNewStreamFeatureEnabled() {
+    return this.featureService.isFeatureActiveForUser("NewActivityStream",
+                                                      ConversationState.getCurrent().getIdentity().getUserId());
+  }
+
+  @Override
+  public String getTemplate() {
+    return useNewStream ? "war:/groovy/social/portlet/NewActivityStreamPortlet.gtmpl"
+                        : "war:/groovy/social/portlet/UIUserActivityStreamPortlet.gtmpl";
   }
 
   public boolean isComposerDisplayed() {
@@ -199,10 +232,12 @@ public class UIUserActivityStreamPortlet extends UIPortletApplication {
     return null;
   }
 
-  /**
-   * Renders popup message in case this child has not rendered in template.
-   * 
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
+  public static class SwitchStreamActionListener extends EventListener<UIUserActivityStreamPortlet> {
+    @Override
+    public void execute(Event<UIUserActivityStreamPortlet> event) throws Exception {
+      UIUserActivityStreamPortlet spaceActivityStreamPortlet = event.getSource();
+      spaceActivityStreamPortlet.switchStream();
+      event.getRequestContext().addUIComponentToUpdateByAjax(spaceActivityStreamPortlet);
+    }
+  }
 }

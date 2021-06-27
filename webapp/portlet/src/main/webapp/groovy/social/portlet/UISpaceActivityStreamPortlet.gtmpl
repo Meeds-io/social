@@ -32,20 +32,22 @@
   print("<div class=\"visible-tabletL\"></div>");
   print("<div class=\"visible-phone\"></div>");
 %>
-<% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
-<div class="uiSpaceActivityStreamPortlet uiActivityStreamPortlet" id="$uicomponent.id">
-  <div class="uiTabPane">
- 	  <div class="uiSpaceActivitiesContainer">
-      <%
-        if (Utils.isSpaceContext()) {
-          def requireJs = _ctx.getRequestContext().getJavascriptManager().getRequireJS();
-          requireJs.require("SHARED/social-ui-activity", "activity")
-                   .addScripts("activity.responsiveMobile('" + uicomponent.id + "');");
-          uicomponent.renderChildren();
-        } else {
-      %>
-      <div class="uiSpaceMenu">$labelOutOfSpaceContext</div>
-      <%}%>
+<div class="VuetifyApp" id="$uicomponent.id">
+  <% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
+  <div class="uiSpaceActivityStreamPortlet uiActivityStreamPortlet">
+    <div class="uiTabPane">
+      <div class="uiSpaceActivitiesContainer">
+        <%
+          if (Utils.isSpaceContext()) {
+            def requireJs = _ctx.getRequestContext().getJavascriptManager().getRequireJS();
+            requireJs.require("SHARED/social-ui-activity", "activity")
+                     .addScripts("activity.responsiveMobile('" + uicomponent.id + "');");
+            uicomponent.renderChildren();
+          } else {
+        %>
+        <div class="uiSpaceMenu">$labelOutOfSpaceContext</div>
+        <%}%>
+      </div>
     </div>
   </div>
 </div>
