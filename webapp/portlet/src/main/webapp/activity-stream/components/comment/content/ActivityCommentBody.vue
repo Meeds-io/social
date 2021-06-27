@@ -40,7 +40,7 @@
               class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
             <activity-head-time
               :activity="comment"
-              class="d-inline ps-2 ms-auto"
+              class="d-inline ps-2 ms-auto activity-comment-head-time"
               no-icon />
           </div>
         </div>
