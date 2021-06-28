@@ -48,6 +48,7 @@ let config = {
     shareActivity: './src/main/webapp/share-activity/main.js',
     shareActivityDrawer: './src/main/webapp/share-activity-drawer/main.js',
     activityStream: './src/main/webapp/activity-stream/main.js',
+    mobileSettings: './src/main/webapp/mobile-settings/main.js',
   },
   module: {
     rules: [
