@@ -1,6 +1,7 @@
 <template>
   <v-app v-if="loaded" class="white">
     <activity-stream-feature-switch />
+    <exo-activity-composer v-if="spaceId" id="activityComposer" />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
@@ -20,6 +21,7 @@
 export default {
   data: () => ({
     loaded: false,
+    spaceId: eXo.env.portal.spaceId,
     activityId: null,
     activityTypes: {},
     activityActions: {},
