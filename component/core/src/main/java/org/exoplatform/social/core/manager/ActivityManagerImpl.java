@@ -306,7 +306,7 @@ public class ActivityManagerImpl implements ActivityManager {
   /**
    * {@inheritDoc}
    */
-  public void saveComment(ExoSocialActivity existingActivity, ExoSocialActivity newComment) {
+  public void saveComment(ExoSocialActivity existingActivity, ExoSocialActivity comment) {
     if (existingActivity == null) {
       throw new ActivityStorageException(ActivityStorageException.Type.FAILED_TO_SAVE_COMMENT, "Activity cannot be NULL");
     }
@@ -315,8 +315,8 @@ public class ActivityManagerImpl implements ActivityManager {
       return;
     }
     String activityType = existingActivity.getType();
-    String commentActivityType = newComment.getType();
-    String commentId = newComment.getId();
+    String commentActivityType = comment.getType();
+    String commentId = comment.getId();
     // If activity Type is disabled, comment's can't be added
     // If comment activity Type is disabled, comment's can't be added
     // If existingActivity.getId() == null for the new activity if it's disabled
@@ -343,19 +343,19 @@ public class ActivityManagerImpl implements ActivityManager {
     // so,
     // as a solution we pass them throw the activity's template params
     String[] previousMentions = StringUtils.isEmpty(commentId) ? new String[0] : getActivity(commentId).getMentionedIds();
-    activityStorage.saveComment(existingActivity, newComment);
+    activityStorage.saveComment(existingActivity, comment);
 
     if (StringUtils.isEmpty(commentId)) {
-      activityLifeCycle.saveComment(newComment);
+      activityLifeCycle.saveComment(comment);
     } else {
       if (previousMentions.length > 0) {
         String mentions = String.join(",", previousMentions);
-        Map<String, String> mentionsTemplateParams = newComment.getTemplateParams() != null ? newComment.getTemplateParams() : new HashMap<>();
+        Map<String, String> mentionsTemplateParams = comment.getTemplateParams() != null ? comment.getTemplateParams() : new HashMap<>();
         mentionsTemplateParams.put("PreviousMentions", mentions);
 
-        newComment.setTemplateParams(mentionsTemplateParams);
+        comment.setTemplateParams(mentionsTemplateParams);
       }
-      activityLifeCycle.updateComment(newComment);
+      activityLifeCycle.updateComment(comment);
     }
   }
 
@@ -780,9 +780,10 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public boolean isAutomaticComment(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
-    return activity != null && (!SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
-        || (SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
-            && AUTOMATIC_EDIT_TITLE_ACTIVITIES.contains(activity.getTitleId())));
+    return activity != null
+        && ((StringUtils.isNotBlank(activity.getType()) && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType()))
+            || (SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
+                && AUTOMATIC_EDIT_TITLE_ACTIVITIES.contains(activity.getTitleId())));
   }
 
   private String[] getParameterValues(Map<String, String> activityParams, String paramName) {

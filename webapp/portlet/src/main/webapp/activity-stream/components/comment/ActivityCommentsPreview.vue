@@ -9,7 +9,9 @@
       :activity-id="activityId"
       :comments="commentsPreviewList"
       :comment-actions="commentActions"
-      @comment-deleted="retrieveLastComment" />
+      @comment-created="retrieveLastComment"
+      @comment-deleted="retrieveLastComment"
+      @comment-updated="retrieveLastComment" />
     <v-btn
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
@@ -63,12 +65,6 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-commented', (event) => {
-      const activityId = event && event.detail && event.detail.activityId;
-      if (activityId === this.activityId) {
-        this.retrieveLastComment();
-      }
-    });
     this.retrieveLastComment();
   },
   methods: {

@@ -8,7 +8,7 @@
         :max-length="$activityConstants.COMMENT_MAX_LENGTH"
         :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
         autofocus
-        @ready="$emit('editor-loaded')" />
+        @ready="handleEditorReady" />
     </v-list-item-content>
     <v-btn
       :loading="commenting"
@@ -17,6 +17,13 @@
       @click="postComment">
       {{ label }}
     </v-btn>
+    <v-btn
+      v-if="commentUpdate"
+      :disabled="commenting"
+      class="btn ms-2"
+      @click="$root.$emit('activity-comment-edit-cancel')">
+      {{ $t('UIActivity.label.Cancel') }}
+    </v-btn>
   </div>
 </template>
 
@@ -24,6 +31,10 @@
 export default {
   props: {
     activityId: {
+      type: String,
+      default: null,
+    },
+    parentCommentId: {
       type: String,
       default: null,
     },
@@ -50,18 +61,21 @@ export default {
       const pureText = this.$utils.htmlToText(this.message);
       return pureText && pureText.length || 0;
     },
+    commentUpdate() {
+      return !!this.commentId;
+    },
     disableButton() {
       return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorId() {
-      return `comment_${this.commentId || ''}_${this.activityId}`;
+      return `comment_${this.commentId || ''}_${this.parentCommentId || ''}_${this.activityId}`;
     },
   },
-  created() {
-    document.addEventListener('activity-comment-editor-init', this.init);
-    document.addEventListener('activity-comment-editor-destroy', this.reset);
-
+  mounted() {
     this.init();
+  },
+  beforeDestroy() {
+    this.reset();
   },
   methods: {
     reset() {
@@ -71,12 +85,12 @@ export default {
       this.initialized = false;
 
       // Used to preserve last message of user even after deleting drawer
-      document.dispatchEvent(new CustomEvent('activity-comment-editor-updated', {detail: {
-        ckEditorId: String(this.ckEditorId),
+      this.$root.$emit('activity-comment-editor-updated', {
         activityId: this.activityId,
         commentId: this.commentId,
+        parentCommentId: this.parentCommentId,
         message: this.message && String(this.message),
-      }}));
+      });
 
       this.commenting = false;
       this.message = null;
@@ -84,24 +98,25 @@ export default {
       if (this.$refs.commentEditor) {
         this.$refs.commentEditor.destroyCKEditor();
       }
-      document.removeEventListener('activity-comment-editor-init', this.init);
-      document.removeEventListener('activity-comment-editor-destroy', this.reset);
-      this.$destroy();
     },
     init() {
       if (this.options
-          && this.options.ckEditorId === this.ckEditorId
           && this.options.activityId === this.activityId
-          && this.options.commentId === this.commentId) {
+          && ((!this.parentCommentId && !this.parentCommentId === !this.options.parentCommentId)
+          || this.options.parentCommentId === this.parentCommentId)
+          && ((!this.commentId && !this.commentId === !this.options.commentId)
+          || this.options.commentId === this.commentId)) {
         this.message = this.options.message || null;
+      } else {
+        this.message = null;
       }
 
-      this.$nextTick(() => {
-        if (this.$refs.commentEditor) {
-          this.$refs.commentEditor.initCKEditor();
-        }
-      });
-      this.initialized = true;
+      if (this.$refs.commentEditor) {
+        this.$refs.commentEditor.initCKEditor();
+        this.initialized = true;
+      }
+    },
+    handleEditorReady() {
       this.scrollToCommentEditor();
     },
     scrollToCommentEditor() {
@@ -119,15 +134,21 @@ export default {
         return;
       }
       this.commenting = true;
-      this.$activityService.createComment(this.activityId, this.commentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
-        .then(comment => document.dispatchEvent(new CustomEvent('activity-commented', {detail: {
-          activityId: this.activityId,
-          comment: comment
-        }})))
-        .finally(() => {
-          this.message = null;
-          this.commenting = false;
-        });
+      if (this.commentUpdate) {
+        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(comment => this.$root.$emit('activity-comment-updated', comment))
+          .finally(() => {
+            this.message = null;
+            this.commenting = false;
+          });
+      } else {
+        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(comment => this.$root.$emit('activity-comment-created', comment))
+          .finally(() => {
+            this.message = null;
+            this.commenting = false;
+          });
+      }
     },
   },
 };
