@@ -259,7 +259,7 @@
               <exo.profiles>hsqldb</exo.profiles>
               <exo.files.storage.dir>${project.build.directory}/exo-files</exo.files.storage.dir>
               <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}/com.arjuna.ats.arjuna.objectstore.objectStoreDir</com.arjuna.ats.arjuna.objectstore.objectStoreDir>
-              <argLine>${argLine} -Xmx1024m -XX:MaxPermSize=512m</argLine>
+              <argLine>@{argLine} -Xmx1024m -XX:MaxPermSize=512m</argLine>
             </systemPropertyVariables>
           </configuration>
         </plugin>
