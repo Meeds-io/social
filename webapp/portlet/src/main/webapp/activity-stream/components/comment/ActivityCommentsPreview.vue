@@ -46,24 +46,46 @@ export default {
   data: () => ({
     comments: [],
     commentsSize: 0,
-    limit: 1,
+    limit: 2,
     loading: false,
   }),
   computed: {
-    lastComment() {
-      return this.commentsSize && this.comments[0];
-    },
-    lastSubComment() {
-      return this.commentsSize > 1 && this.comments[this.comments.length - 1];
-    },
     commentsPreviewList() {
       const commentsPreviewList = [];
-      if (this.commentsSize > 0) {
-        if (this.lastComment) {
-          commentsPreviewList.push(this.lastComment);
-        }
-        if (this.lastSubComment) {
-          commentsPreviewList.push(this.lastSubComment);
+      if (this.comments && this.commentsSize > 0) {
+        const commentsPerId = {};
+        this.comments.forEach(comment => {
+          if (comment.parentCommentId) {
+            let parentComment = commentsPerId[comment.parentCommentId];
+            if (parentComment) {
+              parentComment.subCommentsSize++;
+              if (parentComment.lastSubComment && new Date(comment.createDate) > new Date(parentComment.lastSubComment.createDate)) {
+                parentComment.lastSubComment = comment;
+              }
+            } else {
+              parentComment = commentsPreviewList.find(tmpComment => tmpComment.id === comment.parentCommentId);
+              if (!parentComment) {
+                return;
+              }
+              commentsPerId[comment.parentCommentId] = parentComment;
+              parentComment.subCommentsSize = 1;
+              parentComment.lastSubComment = comment;
+            }
+          } else {
+            commentsPerId[comment.parentCommentId] = comment;
+            if (!comment.subCommentsSize) {
+              comment.subCommentsSize = 0;
+            }
+            commentsPreviewList.push(comment);
+          }
+        });
+        if (commentsPreviewList.length) {
+          commentsPreviewList.forEach(comment => {
+            if (comment.lastSubComment) {
+              commentsPreviewList.push(comment.lastSubComment);
+            }
+          });
+          commentsPreviewList.sort((comment1, comment2) => new Date(comment1.createDate).getTime() - new Date(comment2.createDate));
         }
       }
       return commentsPreviewList;

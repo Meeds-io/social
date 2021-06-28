@@ -38,6 +38,7 @@ export default {
     },
   },
   data: () => ({
+    loading: false,
     initialized: false,
     initializedEmited: false,
   }),
@@ -79,10 +80,18 @@ export default {
     commentTypeExtension() {
       this.retrieveCommentProperties();
     },
+    loading() {
+      if (!this.loading) {
+        this.refreshTipTip();
+      }
+    },
     initialized() {
       if (this.initialized && !this.initializedEmited) {
         this.$emit('comment-initialized');
         this.initializedEmited = true;
+      }
+      if (this.initialized) {
+        this.refreshTipTip();
       }
     },
   },
@@ -102,14 +111,26 @@ export default {
       }
       delete this.comment.updated;
       delete this.comment.added;
-      if (this.init) {
-        const initPromise = this.init(this.comment, false, this.activity);
-        if (initPromise && initPromise.finally) {
-          this.initialized = false;
-          return initPromise.finally(() => this.initialized = true);
+      this.loading = true;
+      this.$nextTick().then(() => {
+        if (this.init) {
+          const initPromise = this.init(this.comment, false, this.activity);
+          if (initPromise && initPromise.finally) {
+            this.initialized = false;
+            return initPromise.finally(() => {
+              this.initialized = true;
+              this.loading = false;
+            });
+          }
         }
-      }
-      this.initialized = true;
+        this.loading = false;
+        this.initialized = true;
+      });
+    },
+    refreshTipTip() {
+      window.setTimeout(() => {
+        this.$utils.initTipTip(this.$el, this.$userPopupLabels);
+      }, 200);
     },
   },
 };

@@ -1,17 +1,29 @@
 <template>
-  <v-btn
-    :id="`CommentLink${activityId}`"
-    :title="$t('UIActivity.label.Comment')"
-    :class="commentTextColorClass"
-    class="pa-0 mx-2"
-    text
-    link
-    x-small
-    @click="openCommentsDrawer">
-    <span>
-      {{ $t('UIActivity.label.Reply') }}
-    </span>
-  </v-btn>
+  <div class="d-inline-flex pe-1">
+    <v-btn
+      :id="`CommentLink${activityId}`"
+      :title="$t('UIActivity.label.Comment')"
+      :class="commentTextColorClass"
+      class="pa-0 me-0"
+      text
+      link
+      x-small
+      @click="openCommentsDrawer">
+      <span>
+        {{ $t('UIActivity.label.Reply') }}
+      </span>
+    </v-btn>
+    <v-btn
+      v-if="subCommentsSize"
+      :id="`RepliesListLink${commentId}`"
+      :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
+      class="primary--text font-weight-bold"
+      x-small
+      icon
+      @click="openReplies">
+      ({{ subCommentsSize }})
+    </v-btn>
+  </div>
 </template>
 
 <script>
@@ -41,6 +53,9 @@ export default {
     },
     hasCommented() {
       return this.hasCommented && 'primary--text' || '';
+    },
+    subCommentsSize() {
+      return this.comment && this.comment.subCommentsSize || 0;
     },
   },
   watch: {
@@ -76,6 +91,15 @@ export default {
         activity: this.activity,
         commentId: this.commentId,
         newComment: true,
+        offset: 0,
+        limit: 200, // To display all
+      }}));
+    },
+    openReplies() {
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activity: this.activity,
+        commentId: this.commentId,
+        highlightRepliesCommentId: this.commentId,
         offset: 0,
         limit: 200, // To display all
       }}));
