@@ -17,6 +17,7 @@ export function getUploadProgress(uploadId) {
       }
       return data[uploadId].percent;
     }
+    return 0;
   });
 }
 
