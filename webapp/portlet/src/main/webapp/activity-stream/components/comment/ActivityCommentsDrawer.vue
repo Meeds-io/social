@@ -64,6 +64,8 @@ export default {
     temporaryDrawer: true,
     newCommentEditor: false,
     selectedCommentIdToReply: null,
+    highlightCommentId: null,
+    highlightRepliesCommentId: null,
     scrollOnOpen: true,
     commentToEdit: null,
     offset: 0,
@@ -115,7 +117,10 @@ export default {
       this.comments.splice(commentIndex, 1, comment);
     },
     scrollToEnd() {
-      if (this.scrollOnOpen && (!this.newCommentEditor || !this.selectedCommentIdToReply)) {
+      if (this.scrollOnOpen
+          && (!this.newCommentEditor || !this.selectedCommentIdToReply)
+          && !this.highlightCommentId
+          && !this.highlightRepliesCommentId) {
         // Avoid scrolling again when loading
         this.scrollOnOpen = false;
         this.$root.commentsDrawerInitializing = false;
@@ -169,6 +174,8 @@ export default {
           this.commentToEdit = options.editComment;
           this.newCommentEditor = !this.commentToEdit && options.newComment;
           this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
+          this.highlightCommentId = options.highlightCommentId;
+          this.highlightRepliesCommentId = options.highlightRepliesCommentId;
         });
       }
     },
@@ -193,9 +200,16 @@ export default {
             const selectedComment = comments.find(comment => comment.id === this.$root.selectedCommentId);
             if (selectedComment) {
               selectedComment.highlight = true;
-              window.setTimeout(() => {
-                selectedComment.highlight = false;
-              }, 5000);
+            }
+          } else if (this.highlightCommentId) {
+            const selectedComment = comments.find(comment => comment.id === this.highlightCommentId);
+            if (selectedComment) {
+              selectedComment.highlight = true;
+            }
+          } else if (this.highlightRepliesCommentId) {
+            const selectedComment = comments.find(comment => comment.id === this.highlightRepliesCommentId);
+            if (selectedComment) {
+              selectedComment.highlightReplies = true;
             }
           }
           this.comments = comments;
