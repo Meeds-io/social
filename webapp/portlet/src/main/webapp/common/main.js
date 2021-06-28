@@ -80,5 +80,18 @@ const urls = [
 ];
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-  new Vue({i18n});
+  new Vue({
+    created() {
+      this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
+        CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
+        Confirm: this.$t('spacesList.label.profile.Confirm'),
+        Connect: this.$t('spacesList.label.profile.Connect'),
+        Ignore: this.$t('spacesList.label.profile.Ignore'),
+        RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
+        StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
+        External: this.$t('spacesList.label.profile.External'),
+      };
+    },
+    i18n,
+  });
 });

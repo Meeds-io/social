@@ -173,9 +173,6 @@ export default {
         comment.highlight = true;
         comment.added = true;
         this.$emit('comment-created', comment);
-        window.setTimeout(() => {
-          comment.highlight = false;
-        }, 5000);
       }
       this.resetEditorOptions();
     },
@@ -204,9 +201,6 @@ export default {
           comment.highlight = true;
           comment.updated = true;
           this.$emit('comment-updated', comment, commentIndex);
-          window.setTimeout(() => {
-            comment.highlight = false;
-          }, 5000);
         }
       }
       this.resetEditorOptions();

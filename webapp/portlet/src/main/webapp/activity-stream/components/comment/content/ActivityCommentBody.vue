@@ -2,7 +2,7 @@
   <div
     v-if="commentTypeExtension"
     :id="id"
-    class="d-inline-flex flex-column width-fit-content overflow-hidden">
+    class="d-inline-flex flex-column width-fit-content overflow-hidden activity-comment">
     <div
       v-if="isEditingComment"
       class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
@@ -15,7 +15,7 @@
         :options="commentEditOptions" />
     </div>
     <template v-else>
-      <v-list-item :class="highlightClass" class="pe-1 width-fit-content">
+      <v-list-item :class="highlightClass" class="pe-1 width-max-content">
         <activity-head-user
           :identity="posterIdentity"
           :size="33"
@@ -43,6 +43,17 @@
               class="d-inline ps-2 ms-auto activity-comment-head-time"
               no-icon />
           </div>
+          <div v-if="hasMoreRepliesToDisplay" class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
+            <v-btn
+              class="primary--text font-weight-bold mb-1 subtitle-2 pa-0"
+              small
+              link
+              text
+              @click="openReplies">
+              <v-icon size="12" class="me-1 fa-flip-horizontal">fa-reply</v-icon>
+              {{ $t('UIActivity.label.ViewAllReplies', {0: subCommentsSize}) }}
+            </v-btn>
+          </div>
         </div>
         <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
           <activity-comment-menu
@@ -54,7 +65,10 @@
       </v-list-item>
     </template>
 
-    <template v-if="subComments && subComments.length">
+    <div
+      v-if="displayedSubCommentsSize"
+      :class="highlightRepliesClass"
+      class="flex d-flex flex-column">
       <activity-comment-body
         v-for="subComment in subComments"
         :key="subComment.id"
@@ -65,7 +79,7 @@
         :comment-editing="commentEditing"
         class="ps-10"
         @comment-initialized="$emit('comment-initialized')" />
-    </template>
+    </div>
     <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
         ref="commentRichEditor"
@@ -118,6 +132,9 @@ export default {
     activityId() {
       return this.activity && this.activity.id || '';
     },
+    commentId() {
+      return this.comment && this.comment.id || '';
+    },
     parentCommentId() {
       return this.comment && (this.comment.parentCommentId || this.comment.id) || '';
     },
@@ -131,7 +148,13 @@ export default {
       return this.comment && this.comment.highlight;
     },
     highlightClass() {
-      return this.highlight && 'light-grey-background';
+      return this.highlight && 'light-grey-background' || '';
+    },
+    highlightReplies() {
+      return this.comment && this.comment.highlightReplies;
+    },
+    highlightRepliesClass() {
+      return this.highlightReplies && 'light-grey-background' || '';
     },
     posterIdentity() {
       return this.comment && this.comment.identity;
@@ -151,22 +174,73 @@ export default {
       return {
         activityId: this.activityId,
         parentCommentId: this.comment.parentCommentId || null,
-        commentId: this.comment.id,
+        commentId: this.commentId,
         message: messageToEdit,
       };
+    },
+    displayedSubCommentsSize() {
+      return this.subComments && this.subComments.length || 0;
+    },
+    subCommentsSize() {
+      return this.comment && this.comment.subCommentsSize || 0;
+    },
+    hasMoreRepliesToDisplay() {
+      return this.subCommentsSize > this.displayedSubCommentsSize;
+    },
+  },
+  watch: {
+    highlight: {
+      immediate: true,
+      handler: function(val) {
+        if (val) {
+          window.setTimeout(() => {
+            this.comment.highlight = false;
+            this.comment.highlightReplies = false;
+          }, 5000);
+        }
+      },
+    },
+    highlightReplies: {
+      immediate: true,
+      handler: function(val) {
+        if (val) {
+          window.setTimeout(() => {
+            this.comment.highlightReplies = false;
+            this.comment.highlight = false;
+          }, 5000);
+        }
+      },
     },
   },
   mounted() {
     if (this.highlight) {
       this.$nextTick().then(this.scrollToComment);
+    } else if (this.highlightReplies) {
+      this.$nextTick().then(this.scrollToReplies);
     }
   },
   methods: {
+    openReplies() {
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activity: this.activity,
+        commentId: this.commentId,
+        highlightRepliesCommentId: this.commentId,
+        offset: 0,
+        limit: 200, // To display all
+      }}));
+    },
+    scrollToReplies() {
+      const repliesElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id} .activity-comment`);
+      this.scrollTo(repliesElement);
+    },
     scrollToComment() {
+      const commentElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id}`);
+      this.scrollTo(commentElement);
+    },
+    scrollTo(element) {
       window.setTimeout(() => {
-        const commentElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id}`);
-        if (commentElement && commentElement.scrollIntoView) {
-          commentElement.scrollIntoView({
+        if (element && element.scrollIntoView) {
+          element.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
           });

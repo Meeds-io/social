@@ -118,6 +118,13 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.init;
     },
   },
+  watch: {
+    loading() {
+      if (!this.loading) {
+        this.refreshTipTip();
+      }
+    },
+  },
   created() {
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
     this.retrieveActivityProperties();
@@ -142,18 +149,26 @@ export default {
       if (activityId && activityId !== this.activityId) {
         return;
       }
-      if (this.init) {
-        const initPromise = this.init(this.activity, this.isActivityDetail);
-        if (initPromise && initPromise.then) {
-          this.loading = true;
-          return initPromise
-            .finally(() => {
-              this.loading = false;
-              this.initialized = true;
-            });
+      this.loading = true;
+      this.$nextTick(() => {
+        if (this.init) {
+          const initPromise = this.init(this.activity, this.isActivityDetail);
+          if (initPromise && initPromise.then) {
+            return initPromise
+              .finally(() => {
+                this.loading = false;
+                this.initialized = true;
+              });
+          }
         }
-      }
-      this.initialized = true;
+        this.loading = false;
+        this.initialized = true;
+      });
+    },
+    refreshTipTip() {
+      window.setTimeout(() => {
+        this.$utils.initTipTip(this.$el, this.$userPopupLabels);
+      }, 200);
     },
   },
 };

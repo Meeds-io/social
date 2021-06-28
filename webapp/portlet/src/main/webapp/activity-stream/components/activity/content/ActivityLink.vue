@@ -36,8 +36,8 @@
           class="pa-4">
           <ellipsis
             v-if="title"
-            :title="title"
-            :data="title"
+            :title="titleTooltip"
+            :data="titleEllipsis"
             :line-clamp="2"
             :delay-time="200"
             end-char="..."
@@ -116,7 +116,7 @@
           <div
             v-else
             v-sanitized-html="summary"
-            class="caption text-color text-wrap text-break reset-style-box">
+            class="caption text-color text-wrap text-break rich-editor-content reset-style-box">
           </div>
         </template>
       </div>
@@ -187,7 +187,7 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
     },
     defaultIcon() {
-      return this.activityTypeExtension && this.activityTypeExtension.defaultIcon;
+      return this.activityTypeExtension && (this.activityTypeExtension.defaultIcon || this.activityTypeExtension.getDefaultIcon(this.comment || this.activity));
     },
     defaultIconClass() {
       return this.defaultIcon && this.defaultIcon.icon || 'far fa-image';
@@ -243,11 +243,17 @@ export default {
     tooltipText() {
       return this.tooltip && this.$t(this.tooltip) || '';
     },
+    titleText() {
+      return this.title && this.$utils.htmlToText(this.title) || '';
+    },
     titleEllipsis() {
-      return this.resizing && this.title && `${this.title} ` || this.title;
+      return this.resizing && this.titleText && `${this.titleText} ` || this.titleText;
+    },
+    summaryText() {
+      return this.summary && this.$utils.htmlToText(this.summary) || '';
     },
     summaryEllipsis() {
-      return this.resizing && this.summary && `${this.summary} ` || this.summary;
+      return this.resizing && this.summaryText && `${this.summaryText} ` || this.summaryText;
     },
   },
   created() {
@@ -260,12 +266,12 @@ export default {
   },
   methods: {
     forceRefreshEllipsis() {
-      if (!this.resizing) {
+      if ((this.useEllipsisOnTitle || this.useEllipsisOnSummary) && !this.resizing) {
         this.resizing = true;
         this.$forceUpdate();
         window.setTimeout(() => {
           this.resizing = false;
-        }, 500);
+        }, 1000);
       }
     },
     retrieveActivityProperties() {
