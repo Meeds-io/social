@@ -2,7 +2,7 @@
   <extension-registry-components
     name="ActivityCommentFooter"
     type="activity-comment-footer-action"
-    element-class="ma-0 d-flex"
+    element-class="d-flex my-0 ms-0 me-2"
     :params="params" />
 </template>
 
