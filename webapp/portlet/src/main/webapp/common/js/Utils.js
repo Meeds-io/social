@@ -1,12 +1,19 @@
+const DOM_PARSER = new DOMParser();
+const TEXTAREA = document.createElement('textarea');
+
 export function htmlToText(htmlContent) {
   if (!htmlContent) {
     return '';
   }
+  let content;
   try {
-    return new DOMParser().parseFromSrting(htmlContent, 'text/xml').innerText.trim().replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,'');
+    content = DOM_PARSER.parseFromString(htmlContent, 'text/html').documentElement.innerText.trim();
   } catch (e) {
-    return htmlContent.replace(/<[^>]+>/g, '').trim().replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,'');
+    content = htmlContent.replace(/<[^>]+>/g, '').trim();
+    TEXTAREA.innerHTML = content;
+    content = TEXTAREA.value;
   }
+  return content.replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,' ');
 }
 
 export function trim(text) {
