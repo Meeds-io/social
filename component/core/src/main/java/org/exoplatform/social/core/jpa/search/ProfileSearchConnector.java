@@ -109,19 +109,19 @@ public class ProfileSearchConnector {
     JSONObject jsonResult = (JSONObject) json.get("hits");
     if (jsonResult == null) return 0;
 
-    int count = Integer.parseInt(jsonResult.get("total").toString());
-    return count;
+    Object totalSize = ((JSONObject) jsonResult.get("total")).get("value");
+    return totalSize == null ? 0 : Integer.parseInt(totalSize.toString());
   }
   
   private List<Identity> buildResult(String jsonResponse) {
 
     LOG.debug("Search Query response from ES : {} ", jsonResponse);
-    List<Identity> results = new ArrayList<Identity>();
+    List<Identity> results = new ArrayList<>();
     JSONParser parser = new JSONParser();
 
-    Map json = null;
+    Map<?, ?> json = null;
     try {
-      json = (Map)parser.parse(jsonResponse);
+      json = (Map<?, ?>)parser.parse(jsonResponse);
     } catch (ParseException e) {
       throw new ElasticSearchException("Unable to parse JSON response", e);
     }
