@@ -2,7 +2,7 @@
   <div
     v-if="commentTypeExtension"
     :id="id"
-    class="d-inline-flex flex-column width-fit-content overflow-hidden activity-comment">
+    class="d-inline-flex flex-column width-fit-content overflow-hidden activity-comment border-box-sizing">
     <div
       v-if="isEditingComment"
       class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
