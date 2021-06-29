@@ -62,7 +62,7 @@
         <template v-if="!isMultifacorAuthenticationEnabled">
           <v-expansion-panels v-model="panel" multiple>
             <v-expansion-panel>
-              <v-expansion-panel-header expand-icon="mdi-menu-down" class="panelBlock">
+              <v-expansion-panel-header expand-icon="mdi-menu-down" class="panelBlock px-3 pt-1">
                 <div class="d-flex">
                   <v-icon
                     class="me-1"
