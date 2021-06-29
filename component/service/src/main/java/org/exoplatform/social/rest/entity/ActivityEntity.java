@@ -25,33 +25,27 @@ import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
   private static final long serialVersionUID = 8770364706590680865L;
-  public ActivityEntity() {
-  }
 
-  public ActivityEntity(String id) {
-    super(id);
+  public ActivityEntity() {
   }
 
   public ActivityEntity(ExoSocialActivity activity) {
     super(activity.getId());
     setTitle(activity.getTitle());
+    setTitleId(activity.getTitleId());
     setBody(activity.getBody());
     setLink(activity.getPermaLink());
     setType(activity.getType());
     setTemplateParams(activity.getTemplateParams());
   }
 
-  public ActivityEntity setDatIdentity(LinkEntity identity) {
+  public ActivityEntity setIdentity(LinkEntity identity) {
     setProperty("identity", identity.getData());
     return this;
   }
 
   public String getIdentity() {
     return getString("identity");
-  }
-
-  public void setIdentity(String identity) {
-    setProperty("identity", identity);
   }
 
   public ActivityEntity setTitle(String title) {
@@ -61,6 +55,15 @@ public class ActivityEntity extends BaseEntity {
 
   public String getTitle() {
     return getString("title");
+  }
+
+  public ActivityEntity setTitleId(String title) {
+    setProperty("titleId", title);
+    return this;
+  }
+  
+  public String getTitleId() {
+    return getString("titleId");
   }
 
   public ActivityEntity setBody(String body) {
@@ -221,7 +224,7 @@ public class ActivityEntity extends BaseEntity {
   
   public ActivityEntity setTemplateParams(Map<String, String> templateParamsIn) {
     DataEntity templateParams = new DataEntity();
-    templateParamsIn.forEach((name, value) -> templateParams.setProperty(name, value));
+    templateParamsIn.forEach(templateParams::setProperty);
     setProperty("templateParams", templateParams);
     return this;
   }

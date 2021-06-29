@@ -26,13 +26,19 @@
       <activity-comments
         v-show="!loading"
         ref="activityComments"
-        :activity-id="activityId"
+        :activity="activity"
         :comments="comments"
+        :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
-        allow-edit />
+        class="pb-0 pt-5"
+        allow-edit
+        @comment-created="addComment"
+        @comment-deleted="deleteComment"
+        @comment-updated="updateComment"
+        @initialized="scrollToEnd" />
     </template>
   </exo-drawer>
 </template>
@@ -40,43 +46,37 @@
 <script>
 export default {
   props: {
+    commentTypes: {
+      type: Object,
+      default: null,
+    },
     commentActions: {
       type: Object,
       default: null,
     },
   },
   data: () => ({
-    commentsData: null,
-    activityId: null,
+    comments: [],
+    commentsSize: 0,
+    activity: null,
     loading: false,
     drawerOpened: false,
     temporaryDrawer: true,
     newCommentEditor: false,
     selectedCommentIdToReply: null,
+    highlightCommentId: null,
+    highlightRepliesCommentId: null,
     scrollOnOpen: true,
     commentToEdit: null,
     offset: 0,
     limit: 10,
   }),
-  computed: {
-    comments() {
-      return this.commentsData && this.commentsData.comments;
-    },
-    commentsSize() {
-      return this.commentsData && this.commentsData.size;
-    },
-  },
   watch: {
     loading() {
       if (this.loading) {
         this.$refs.activityCommentsDrawer.startLoading();
       } else {
         this.$refs.activityCommentsDrawer.endLoading();
-        if (this.scrollOnOpen && (!this.newCommentEditor || !this.selectedCommentIdToReply)) {
-          this.$nextTick().then(() => this.scrollToEnd());
-          // Avoid scrolling again when loading
-          this.scrollOnOpen = false;
-        }
       }
     },
   },
@@ -95,24 +95,57 @@ export default {
   methods: {
     reset() {
       this.comments = [];
+      this.commentsSize = 0;
       this.drawerOpened = false;
       this.hideCommentRichEditor();
+      this.$root.selectedCommentId = null;
+    },
+    addComment(comment) {
+      if (this.comments) {
+        this.comments.push(comment);
+        this.commentsSize++;
+      } else {
+        this.comments = [comment];
+        this.commentsSize = 1;
+      }
+    },
+    deleteComment(comment, commentIndex) {
+      this.comments.splice(commentIndex, 1);
+      this.commentsSize--;
+    },
+    updateComment(comment, commentIndex) {
+      this.comments.splice(commentIndex, 1, comment);
     },
     scrollToEnd() {
-      window.setTimeout(() => {
-        const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
-        drawerContentElement.scrollTo({
-          top: drawerContentElement.scrollHeight,
-          left: 0,
-          behavior: 'smooth'
-        });
-      }, 10);
+      if (this.scrollOnOpen
+          && (!this.newCommentEditor || !this.selectedCommentIdToReply)
+          && !this.highlightCommentId
+          && !this.highlightRepliesCommentId) {
+        // Avoid scrolling again when loading
+        this.scrollOnOpen = false;
+        this.$root.commentsDrawerInitializing = false;
+
+        window.setTimeout(() => {
+          const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
+          drawerContentElement.scrollTo({
+            top: drawerContentElement.scrollHeight,
+            left: 0,
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 100);
+      }
     },
     editActivityComments(event) {
-      const comment = event && event.detail;
-      if (comment && comment.activityId) {
+      const comment = event && event.detail && event.detail.comment;
+      const activity = event && event.detail && event.detail.activity;
+
+      if (comment && activity) {
+        const activityBody = event && event.detail && event.detail.activityBody;
+        comment.contentToEdit = activityBody;
+
         this.displayActivityComments({options: {
-          activityId: comment.activityId,
+          activity: activity,
           editComment: comment,
           offset: 0,
           limit: 200,
@@ -121,21 +154,28 @@ export default {
     },
     displayActivityComments(event) {
       const options = event && (event.detail || event.options);
-      if (options) {
+      // Activity object with its identifier is mandatory
+      if (options && options.activity && options.activity.id) {
         this.hideCommentRichEditor();
         this.$nextTick().then(() => {
-          this.activityId = options.activityId;
+          this.activity = options.activity;
           this.offset = options.offset || 0;
           this.limit = options.limit || 10;
           if (!this.drawerOpened) {
             this.drawerOpened = true;
-            this.scrollOnOpen = !options.editComment;
+            this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
             this.retrieveComments();
-            this.$refs.activityCommentsDrawer.open();
+            this.$nextTick().then(() => {
+              if (this.$refs.activityCommentsDrawer) {
+                this.$refs.activityCommentsDrawer.open();
+              }
+            });
           }
           this.commentToEdit = options.editComment;
           this.newCommentEditor = !this.commentToEdit && options.newComment;
           this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
+          this.highlightCommentId = options.highlightCommentId;
+          this.highlightRepliesCommentId = options.highlightRepliesCommentId;
         });
       }
     },
@@ -153,14 +193,33 @@ export default {
     },
     retrieveComments() {
       this.loading = true;
-      window.setTimeout(() => {
-        this.$activityService.getActivityComments(this.activityId, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
-          .then(data => {
-            this.commentsData = data;
-            return this.$nextTick();
-          })
-          .finally(() => this.loading = false);
-      }, 50);
+      this.$activityService.getActivityComments(this.activity.id, false, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        .then(data => {
+          const comments = data && data.comments || [];
+          if (this.$root.selectedCommentId && this.$root.selectedActivityId === this.activity.id) {
+            const selectedComment = comments.find(comment => comment.id === this.$root.selectedCommentId);
+            if (selectedComment) {
+              selectedComment.highlight = true;
+            }
+          } else if (this.highlightCommentId) {
+            const selectedComment = comments.find(comment => comment.id === this.highlightCommentId);
+            if (selectedComment) {
+              selectedComment.highlight = true;
+            }
+          } else if (this.highlightRepliesCommentId) {
+            const selectedComment = comments.find(comment => comment.id === this.highlightRepliesCommentId);
+            if (selectedComment) {
+              selectedComment.highlightReplies = true;
+            }
+          }
+          this.comments = comments;
+          this.commentsSize = data && data.size && Number(data.size) || 0;
+        })
+        .finally(() => {
+          window.setTimeout(() => {
+            this.loading = false;
+          }, this.commentsSize * 10 + 50);
+        });
     },
   },
 };

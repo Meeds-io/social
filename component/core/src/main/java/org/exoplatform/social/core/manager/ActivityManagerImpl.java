@@ -40,6 +40,8 @@ import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -62,6 +64,8 @@ public class ActivityManagerImpl implements ActivityManager {
 
   /** identityManager to get identity for saving and getting activities */
   protected IdentityManager           identityManager;
+
+  protected RelationshipManager       relationshipManager;
 
   private UserACL                     userACL;
 
@@ -133,19 +137,15 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
-  /**
-   * Instantiates a new activity manager.
-   *
-   * @param activityStorage
-   * @param identityManager
-   */
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
+                             RelationshipManager relationshipManager,
                              UserACL userACL,
                              FileService fileService,
                              InitParams params) {
     this.activityStorage = activityStorage;
     this.identityManager = identityManager;
+    this.relationshipManager = relationshipManager;
     this.userACL = userACL;
     this.fileService = fileService;
     initActivityTypes();
@@ -173,6 +173,14 @@ public class ActivityManagerImpl implements ActivityManager {
         maxUploadSize = Integer.parseInt(maxUploadString);
       }
     }
+  }
+
+  public ActivityManagerImpl(ActivityStorage activityStorage,
+                             IdentityManager identityManager,
+                             UserACL userACL,
+                             FileService fileService,
+                             InitParams params) {
+    this(activityStorage, identityManager, null, userACL, fileService, params);
   }
 
   /**
@@ -274,7 +282,11 @@ public class ActivityManagerImpl implements ActivityManager {
       existingActivity.setTemplateParams(mentionsTemplateParams);
     }
     if (broadcast) {
-      activityLifeCycle.updateActivity(existingActivity);
+      if (existingActivity.isComment() || StringUtils.isNotBlank(existingActivity.getParentId())) {
+        activityLifeCycle.updateComment(existingActivity);
+      } else {
+        activityLifeCycle.updateActivity(existingActivity);
+      }
     }
   }
 
@@ -690,7 +702,7 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   private Identity getStreamOwner(ExoSocialActivity newActivity) {
     Validate.notNull(newActivity.getUserId(), "activity.getUserId() must not be null!");
-    return identityManager.getIdentity(newActivity.getUserId(), false);
+    return identityManager.getIdentity(newActivity.getUserId());
   }
 
   @Override
@@ -706,6 +718,42 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public List<ExoSocialActivity> getActivities(List<String> activityIdList) {
     return activityStorage.getActivities(activityIdList);
+  }
+
+  @Override
+  public boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+    String username = viewer.getUserId();
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    if (identity == null) {
+      return false;
+    }
+    if (StringUtils.equals(identity.getId(), activity.getPosterId())
+        || StringUtils.equals(identity.getId(), activity.getUserId())) {
+      return true;
+    }
+    ActivityStream activityStream = null;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = getActivity(activity.getParentId());
+      if (parentActivity == null) {
+        return false;
+      }
+      return isActivityViewable(parentActivity, viewer);
+    } else {
+      activityStream = activity.getActivityStream();
+    }
+    if (activityStream != null) {
+      if (ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+        return isSpaceMember(viewer, activityStream.getPrettyId());
+      } else if (ActivityStream.Type.USER.equals(activityStream.getType())
+          && (StringUtils.equals(activityStream.getPrettyId(), username)
+              || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
+        return true;
+      }
+    }
+    return viewer.isMemberOf(userACL.getAdminGroups())
+        || hasMentioned(activity, username)
+        || isConnectedWithUserWithId(activity.getPosterId(), username)
+        || getSpaceService().isSuperManager(username);
   }
 
   @Override
@@ -745,7 +793,7 @@ public class ActivityManagerImpl implements ActivityManager {
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isSpaceManager(viewer, activityStream.getPrettyId());
     }
-    return getSpaceService().isSuperManager(username);
+    return viewer.isMemberOf(userACL.getAdminGroups()) || getSpaceService().isSuperManager(username);
   }
 
   @Override
@@ -769,19 +817,30 @@ public class ActivityManagerImpl implements ActivityManager {
 
   @Override
   public ActivityFile getActivityFileById(long fileId) throws Exception {
-    FileItem file = null;
     try {
-      file = fileService.getFile(fileId);
+      FileItem file = fileService.getFile(fileId);
+      return convertFileItemToActivityFile(file);
     } catch (FileStorageException e) {
       LOG.error("Failed to  get the file with id : " + fileId, e);
+      return null;
     }
-    return convertFileItemToActivityFile(file);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isActivityTypeEnabled(String activityType) {
+    return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
   }
 
   public boolean isAutomaticComment(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
     return activity != null
-        && ((StringUtils.isNotBlank(activity.getType()) && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType()))
+        && ((StringUtils.isNotBlank(activity.getType())
+            && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
+            && !ActivityPluginType.DEFAULT.getName().equals(activity.getType())
+            && !ActivityPluginType.LINK.getName().equals(activity.getType()))
             || (SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
                 && AUTOMATIC_EDIT_TITLE_ACTIVITIES.contains(activity.getTitleId())));
   }
@@ -810,27 +869,53 @@ public class ActivityManagerImpl implements ActivityManager {
     return activityFile;
   }
 
-  /**
-   * Checks if the Activity Type is enabled or not
-   * @param activityType the name of activity type to check
-   * @return
-   */
-  public boolean isActivityTypeEnabled (String activityType) {
-    return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
-  }
-
   public void setSpaceService(SpaceService spaceService) {
     this.spaceService = spaceService;
   }
 
   private boolean isSpaceManager(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
     String username = viewer.getUserId();
+    if (viewer.isMemberOf(userACL.getAdminGroups())) {
+      return true;
+    }
+    if (getSpaceService().isSuperManager(username)) {
+      return true;
+    }
+    Space space = getSpaceService().getSpaceByPrettyName(spacePrettyName);
+    return space != null && getSpaceService().isManager(space, username);
+  }
+
+  private boolean isSpaceMember(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
+    String username = viewer.getUserId();
     Space space = getSpaceService().getSpaceByPrettyName(spacePrettyName);
     boolean isSpacesManager = getSpaceService().isSuperManager(username);
     if (space == null) {
       return isSpacesManager;
     }
-    return isSpacesManager || getSpaceService().isManager(space, username) || viewer.isMemberOf(userACL.getAdminGroups());
+    return isSpacesManager || getSpaceService().isMember(space, username) || viewer.isMemberOf(userACL.getAdminGroups());
+  }
+
+  private boolean hasMentioned(ExoSocialActivity activity, String username) {
+    return activity.getMentionedIds() != null
+        && Arrays.stream(activity.getMentionedIds())
+                 .anyMatch(mentionedId -> StringUtils.equals(mentionedId, username)
+                     || StringUtils.startsWith(mentionedId, username + "@"));
+  }
+
+  private boolean isConnectedWithUserWithName(String posterName, String username) {
+    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, posterName);
+    return isConnectedWithUser(poster, username);
+  }
+
+  private boolean isConnectedWithUserWithId(String posterId, String username) {
+    Identity poster = identityManager.getIdentity(posterId);
+    return isConnectedWithUser(poster, username);
+  }
+
+  private boolean isConnectedWithUser(Identity poster, String username) {
+    Identity user = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Type status = relationshipManager.getStatus(poster, user);
+    return Relationship.Type.CONFIRMED.equals(status);
   }
 
   private SpaceService getSpaceService() {

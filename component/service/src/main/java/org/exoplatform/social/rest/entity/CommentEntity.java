@@ -17,49 +17,16 @@
 
 package org.exoplatform.social.rest.entity;
 
-import java.util.List;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
-import org.exoplatform.social.rest.api.RestProperties;
-
-public class CommentEntity extends BaseEntity {
+public class CommentEntity extends ActivityEntity {
   private static final long serialVersionUID = -2508420154905846726L;
 
   public CommentEntity() {
   }
 
-  public CommentEntity(String id) {
-    super(id);
-  }
-
-  public CommentEntity setDataIdentity(LinkEntity identity) {
-    setProperty("identity", identity.getData());
-    return this;
-  }
-
-  public String getIdentity() {
-    return getString("identity");
-  }
-
-  public void setIdentity(String identity) {
-    setProperty("identity", identity);
-  }
-  
-  public CommentEntity setTitle(String title) {
-    setProperty("title", title);
-    return this;
-  }
-
-  public String getTitle() {
-    return getString("title");
-  }
-
-  public CommentEntity setBody(String body) {
-    setProperty("body", body);
-    return this;
-  }
-
-  public String getBody() {
-    return getString("body");
+  public CommentEntity(ExoSocialActivity comment) {
+    super(comment);
   }
 
   public CommentEntity setPoster(String poster) {
@@ -69,29 +36,6 @@ public class CommentEntity extends BaseEntity {
 
   public String getPoster() {
     return getString("poster");
-  }
-
-  public CommentEntity setCreateDate(String createDate) {
-    setProperty("createDate", createDate);
-    return this;
-  }
-
-  public String getCreateDate() {
-    return getString("createDate");
-  }
-
-  public CommentEntity setUpdateDate(String updateDate) {
-    setProperty("updateDate", updateDate);
-    return this;
-  }
-
-  public String getUpdateDate() {
-    return getString("updateDate");
-  }
-
-  public CommentEntity setMentions(List<DataEntity> mentions) {
-    setProperty("mentions", mentions);
-    return this;
   }
 
   public CommentEntity setActivity(String activity) {
@@ -110,33 +54,6 @@ public class CommentEntity extends BaseEntity {
   public CommentEntity setActivityId(String activityId) {
     setProperty("activityId", activityId);
     return this;
-  }
-
-  public void setCanEdit(boolean canEdit) {
-    setProperty(RestProperties.CAN_EDIT, String.valueOf(canEdit));
-  }
-
-  public boolean isCanEdit() {
-    Object canEdit = getProperty(RestProperties.CAN_EDIT);
-    return canEdit != null && Boolean.parseBoolean(canEdit.toString());
-  }
-
-  public void setCanDelete(boolean canDelete) {
-    setProperty(RestProperties.CAN_DELETE, String.valueOf(canDelete));
-  }
-
-  public boolean isCanDelete() {
-    Object canDelete = getProperty(RestProperties.CAN_DELETE);
-    return canDelete != null && Boolean.parseBoolean(canDelete.toString());
-  }
-
-  public CommentEntity setLikes(LinkEntity likes) {
-    setProperty("likes", likes.getData());
-    return this;
-  }
-
-  public String getLikes() {
-    return getString("likes");
   }
 
   public CommentEntity setParentCommentId(String parentCommentId) {

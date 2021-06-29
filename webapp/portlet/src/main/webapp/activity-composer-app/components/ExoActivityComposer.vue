@@ -289,7 +289,7 @@ export default {
       if (this.composerAction === 'update') {
         composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
           .then(() => {
-            document.dispatchEvent(new CustomEvent('activity-stream-activity-updated', {detail: this.activityId}));
+            document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.closeMessageComposer();
           })
           .then(() => this.refreshCurrentActivity())
@@ -305,7 +305,7 @@ export default {
         if (eXo.env.portal.spaceId) {
           composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
             .then(() => {
-              document.dispatchEvent(new CustomEvent('activity-stream-activity-updated', {detail: this.activityId}));
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.refreshActivityStream();
             })
             .then(() => this.closeMessageComposer())

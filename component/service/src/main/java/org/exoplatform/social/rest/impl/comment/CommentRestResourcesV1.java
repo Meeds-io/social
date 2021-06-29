@@ -139,7 +139,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
     
     //update comment's title
     act.setTitle(model.getTitle());
-    activityManager.updateActivity(act);
+    activityManager.updateActivity(act, true);
     
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(act, currentUser, uriInfo.getPath(), expand);
     
