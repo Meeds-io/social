@@ -37,7 +37,7 @@
           <ellipsis
             v-if="title"
             :title="titleTooltip"
-            :data="titleEllipsis"
+            :data="titleText"
             :line-clamp="2"
             :delay-time="200"
             end-char="..."
@@ -92,7 +92,7 @@
             v-if="useEllipsisOnTitle"
             key="title"
             :title="titleTooltip"
-            :data="titleEllipsis"
+            :data="titleText"
             :line-clamp="3"
             :delay-time="200"
             end-char="..."
@@ -108,7 +108,7 @@
             v-if="useEllipsisOnSummary"
             key="summary"
             :title="summaryTooltip"
-            :data="summaryEllipsis"
+            :data="summaryText"
             :line-clamp="3"
             :delay-time="200"
             end-char="..."
@@ -150,7 +150,6 @@ export default {
     tooltip: null,
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
-    resizing: false,
   }),
   computed: {
     getTitle() {
@@ -246,34 +245,14 @@ export default {
     titleText() {
       return this.title && this.$utils.htmlToText(this.title) || '';
     },
-    titleEllipsis() {
-      return this.resizing && this.titleText && `${this.titleText} ` || this.titleText;
-    },
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
-    },
-    summaryEllipsis() {
-      return this.resizing && this.summaryText && `${this.summaryText} ` || this.summaryText;
     },
   },
   created() {
     this.retrieveActivityProperties();
-    // Force to redraw
-    $(window).on('resize', this.forceRefreshEllipsis);
-  },
-  beforeDestroy() {
-    $(window).off('resize', this.forceRefreshEllipsis);
   },
   methods: {
-    forceRefreshEllipsis() {
-      if ((this.useEllipsisOnTitle || this.useEllipsisOnSummary) && !this.resizing) {
-        this.resizing = true;
-        this.$forceUpdate();
-        window.setTimeout(() => {
-          this.resizing = false;
-        }, 1000);
-      }
-    },
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
