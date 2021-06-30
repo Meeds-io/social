@@ -10,9 +10,11 @@
         <div v-if="screen === 'registration'">
           <div class="messageClass">1. {{ $t('mfa.otp.registration.step1') }}</div>
           <div class="messageClass">2. {{ $t('mfa.otp.registration.step2') }}</div>
-          <img :src="secretSrc">
+        </div>
+        <div id="qrCode"></div>
+        <div v-if="screen === 'registration'">
           <div class="messageClass">
-            {{ $t('mfa.otp.registration.alternativeStep2') }}<br />
+            {{ $t('mfa.otp.registration.alternativeStep2') }}<br>
             {{ secret }}
           </div>
           <div class="messageClass">3. {{ $t('mfa.otp.registration.step3') }}</div>
@@ -95,8 +97,8 @@ export default {
           if (data.secret) {
             window.require(['SHARED/qrcode'], () => {
               this.secret=data.secret;
-              this.secretSrc = window.QRCode.generatePNG(data.url, {});
               this.changeScreen('registration');
+              new window.QRCode(document.getElementById('qrCode'), {text: data.url});
             });
           } else {
             this.changeScreen('error');
