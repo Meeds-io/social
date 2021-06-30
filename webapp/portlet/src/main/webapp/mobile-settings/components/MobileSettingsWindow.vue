@@ -22,35 +22,35 @@
     </v-toolbar>
     <v-list-item>
       <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-5">
-        <v-list-item-title class="subtitle">
+        <v-list-item-title class="px-0 pb-0 pt-2 mt-auto mb-2">
           <span>To use eXo platform on your phone</span>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-item>
       <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-        <v-list-item-title class="item">
+        <v-list-item-title class="px-0 pb-0 pt-2 mt-auto mb-2">
           <span>1. Open the eXo app in your phone</span>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-item>
       <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-        <v-list-item-title class="item">
+        <v-list-item-title class="px-0 pb-0 pt-2 mt-auto mb-2">
           <span>2. Press this button <img src="/mobile-settings/images/scan-helper.png"></span>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-item>
       <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-        <v-list-item-title class="item">
+        <v-list-item-title class="px-0 pb-0 pt-2 mt-auto mb-2">
           <span>3. Position your phone in front of this screen to scan the code</span>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
   </v-card>
 </template>
-
+<!--
 <style>
   .subtitle{
     font-family: Helvetica;
@@ -65,3 +65,4 @@
     font-weight: regular;
   }
 </style>
+-->
