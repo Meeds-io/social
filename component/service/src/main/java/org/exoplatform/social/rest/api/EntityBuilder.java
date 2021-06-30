@@ -34,12 +34,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -54,6 +52,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
@@ -511,19 +510,24 @@ public class EntityBuilder {
     return spaceMembership;
   }
 
-  /**
-   * Get a ActivityEntity from an activity in order to build a json object for the rest service
-   * 
-   * @param activity the provided activity
-   * @param expand
-   * @return a hash map
-   */
   public static ActivityEntity buildEntityFromActivity(ExoSocialActivity activity, Identity authentiatedUser, String restPath, String expand) {
+    if (activity.isComment() || activity.getParentId() != null) {
+      CommentEntity commentEntity = buildEntityFromComment(activity, restPath, expand, false);
+      DataEntity as = getActivityStream(activityManager.getParentActivity(activity), restPath, authentiatedUser);
+      commentEntity.setActivityStream(as);
+      return commentEntity;
+    }
     List<String> expandFields;
     if (StringUtils.isBlank(expand)) {
       expandFields = Collections.emptyList();
     } else {
       expandFields = Arrays.asList(expand.split(","));
+    }
+
+    if (activity.getTitleId() != null) {
+      Locale userLocale = LocalizationFilter.getCurrentLocale();
+      I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
+      activity = i18NActivityProcessor.process(activity, userLocale);
     }
 
     Identity poster = getIdentityManager().getIdentity(activity.getPosterId(), true);
@@ -535,7 +539,7 @@ public class EntityBuilder {
     } else {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     }
-    activityEntity.setDatIdentity(identityLink);
+    activityEntity.setIdentity(identityLink);
     activityEntity.setOwner(getActivityOwner(poster, restPath));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<DataEntity>());
@@ -567,7 +571,7 @@ public class EntityBuilder {
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
 
-    DataEntity as = getActivityStream(activity.isComment() ? activityManager.getParentActivity(activity) : activity, restPath, authentiatedUser);
+    DataEntity as = getActivityStream(activity, restPath, authentiatedUser);
     activityEntity.setActivityStream(as);
 
     //
@@ -585,8 +589,15 @@ public class EntityBuilder {
   }
 
   public static CommentEntity buildEntityFromComment(ExoSocialActivity comment, String restPath, String expand, boolean isBuildList) {
-    Identity poster = getIdentityManager().getIdentity(comment.getPosterId(), true);
-    CommentEntity commentEntity = new CommentEntity(comment.getId());
+    Identity poster = getIdentityManager().getIdentity(comment.getPosterId());
+
+    if (comment.getTitleId() != null) {
+      Locale userLocale = LocalizationFilter.getCurrentLocale();
+      I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
+      comment = i18NActivityProcessor.process(comment, userLocale);
+    }
+
+    CommentEntity commentEntity = new CommentEntity(comment);
     commentEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getId(), restPath));
 
     List expandFields = new ArrayList();
@@ -600,10 +611,12 @@ public class EntityBuilder {
     } else {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, comment.getPosterId(), restPath));
     }
-    commentEntity.setDataIdentity(identityLink);
+    commentEntity.setIdentity(identityLink);
     commentEntity.setPoster(poster.getRemoteId());
-    commentEntity.setTitle(comment.getTitle());
-    commentEntity.setBody(comment.getBody() == null ? comment.getTitle() : comment.getBody());
+    commentEntity.setOwner(getActivityOwner(poster, restPath));
+    if (comment.getBody() == null) {
+      commentEntity.setBody(comment.getTitle());
+    }
     commentEntity.setParentCommentId(comment.getParentCommentId());
     commentEntity.setMentions(getActivityMentions(comment, restPath));
     if(expandFields.contains(RestProperties.LIKES)) {
@@ -776,26 +789,21 @@ public class EntityBuilder {
       activity = activityManager.getParentActivity(activity);
     }
 
+    if (!getActivityManager().isActivityViewable(activity, ConversationState.getCurrent().getIdentity())) {
+      return null;
+    }
+
     DataEntity as = new DataEntity();
     IdentityManager identityManager = getIdentityManager();
     Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner());
     SpaceService spaceService = getSpaceService();
     if (owner != null) { //case of user activity
-      Relationship relationship = getRelationshipManager().get(authentiatedUser, owner);
-      if (! authentiatedUser.getId().equals(activity.getPosterId()) //the viewer is not the poster
-          && ! authentiatedUser.getRemoteId().equals(activity.getStreamOwner()) //the viewer is not the owner
-          && (relationship == null || ! relationship.getStatus().equals(Relationship.Type.CONFIRMED)) //the viewer has no relationship with the given user
-          && ! RestUtils.isMemberOfAdminGroup()) { //current user is not an administrator
-        return null;
-      }
       as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
     } else { //case of space activity
       owner = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
-      Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
-      if (space == null || !(spaceService.isSuperManager(authentiatedUser.getRemoteId()) || spaceService.isMember(space, authentiatedUser.getRemoteId()))) { //the viewer is not member of space
-        return null;
-      }
       as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
+
+      Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
       as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
     }
     //

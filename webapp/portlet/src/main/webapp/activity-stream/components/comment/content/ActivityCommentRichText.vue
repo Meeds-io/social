@@ -1,6 +1,6 @@
 <template>
   <div :id="ckEditorId">
-    <v-list-item-content class="col-auto px-0 pt-1 pb-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
+    <v-list-item-content class="flex px-0 pt-1 pb-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
       <exo-activity-rich-editor
         ref="commentEditor"
         v-model="message"
@@ -14,6 +14,7 @@
       :loading="commenting"
       :disabled="disableButton"
       class="btn btn-primary"
+      color="primary"
       @click="postComment">
       {{ label }}
     </v-btn>
@@ -84,13 +85,15 @@ export default {
       }
       this.initialized = false;
 
-      // Used to preserve last message of user even after deleting drawer
-      this.$root.$emit('activity-comment-editor-updated', {
-        activityId: this.activityId,
-        commentId: this.commentId,
-        parentCommentId: this.parentCommentId,
-        message: this.message && String(this.message),
-      });
+      if (this.message) {
+        // Used to preserve last message of user even after deleting drawer
+        this.$root.$emit('activity-comment-editor-updated', {
+          activityId: this.activityId,
+          commentId: this.commentId,
+          parentCommentId: this.parentCommentId,
+          message: this.message && String(this.message),
+        });
+      }
 
       this.commenting = false;
       this.message = null;
@@ -114,20 +117,24 @@ export default {
       if (this.$refs.commentEditor) {
         this.$refs.commentEditor.initCKEditor();
         this.initialized = true;
+        this.scrollToCommentEditor();
       }
     },
     handleEditorReady() {
-      this.scrollToCommentEditor();
+      if (this.commentUpdate) {
+        this.scrollToCommentEditor();
+      }
     },
     scrollToCommentEditor() {
       window.setTimeout(() => {
         const commentElementEditor = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.ckEditorId}`);
         if (commentElementEditor && commentElementEditor.scrollIntoView) {
           commentElementEditor.scrollIntoView({
-            behavior: 'smooth'
+            behavior: 'smooth',
+            block: 'start',
           });
         }
-      }, 10);
+      }, 50);
     },
     postComment() {
       if (this.commenting) {

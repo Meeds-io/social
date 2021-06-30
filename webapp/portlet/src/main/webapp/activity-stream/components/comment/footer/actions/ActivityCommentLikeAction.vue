@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex pe-1 ms-2">
+  <div class="d-inline-flex pe-1">
     <v-btn
       :id="`LikeLink${commentId}`"
       :loading="changingLike"
@@ -27,6 +27,10 @@
 <script>
 export default {
   props: {
+    activity: {
+      type: Object,
+      default: null,
+    },
     comment: {
       type: Object,
       default: null,
@@ -40,7 +44,7 @@ export default {
       return this.comment && this.comment.id;
     },
     likers() {
-      return this.comment && this.comment.likes.slice().reverse() || [];
+      return this.comment && this.comment.likes && this.comment.likes.slice().reverse() || [];
     },
     likesCount() {
       return this.likers.length;
@@ -69,6 +73,9 @@ export default {
   },
   created() {
     this.$root.$on('activity-comment-liked', this.updateCommentLikers);
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-comment-liked', this.updateCommentLikers);
   },
   methods: {
     updateCommentLikers(comment) {

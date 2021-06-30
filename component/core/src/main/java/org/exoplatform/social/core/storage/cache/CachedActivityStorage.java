@@ -312,7 +312,7 @@ public class CachedActivityStorage implements ActivityStorage {
    * {@inheritDoc}
    */
   public ExoSocialActivity getParentActivity(final ExoSocialActivity comment) throws ActivityStorageException {
-    return getActivity(getActivity(comment.getId()).getParentId());
+    return getActivity(comment.getParentId());
   }
 
   /**

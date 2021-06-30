@@ -37,7 +37,7 @@ export default {
       return this.activity && this.activity.id;
     },
     likers() {
-      return this.activity && this.activity.likes.slice().reverse() || [];
+      return this.activity && this.activity.likes && this.activity.likes.slice().reverse() || [];
     },
     hasLiked() {
       return this.likers.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;

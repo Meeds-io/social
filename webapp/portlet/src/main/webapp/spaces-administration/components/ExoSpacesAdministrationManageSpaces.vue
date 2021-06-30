@@ -120,7 +120,7 @@
         </li>
       </ul>
     </div> 
-    <exo-modal
+    <exo-spaces-administration-modal
       v-show="showConfirmMessageModal"
       :title="$t('social.spaces.administration.delete.spaces.confirm.title')"
       @modal-closed="closeModal">
@@ -129,7 +129,7 @@
         <div class="btn btn-primary" @click="confirmDelete">{{ $t('social.spaces.administration.delete.spaces.button.delete') }}</div>
         <div class="btn" @click="closeModal">{{ $t('social.spaces.administration.delete.spaces.button.cancel') }}</div>
       </div>
-    </exo-modal>
+    </exo-spaces-administration-modal>
     <v-navigation-drawer
       id="GroupBindingDrawer"        
       v-model="showGroupBindingForm"
@@ -148,7 +148,7 @@
         @openBindingModal="openBindingModal"
         @openRemoveBindingModal="openRemoveBindingModal" />
     </v-navigation-drawer>
-    <exo-modal 
+    <exo-spaces-administration-modal 
       v-show="showConfirmMessageBindingModal"
       :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.confirmation.title')"
       :display-close="false"
@@ -159,8 +159,8 @@
         <div class="btn btn-primary" @click="confirmBinding">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.confirmation.confirm') }}</div>
         <div class="btn" @click="closeBindingModal">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</div>
       </div>
-    </exo-modal>
-    <exo-modal
+    </exo-spaces-administration-modal>
+    <exo-spaces-administration-modal
       v-show="showConfirmMessageRemoveBindingModal"
       :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.confirmation.title')"
       :display-close="false"
@@ -171,7 +171,7 @@
         <div class="btn btn-primary" @click="confirmRemoveBinding">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.removeBinding.confirm') }}</div>
         <div class="btn" @click="closeRemoveBindingModal">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</div>
       </div>
-    </exo-modal>
+    </exo-spaces-administration-modal>
   </div>
 </template>
 <script>
