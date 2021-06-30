@@ -43,8 +43,8 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         @NamedQuery(name = "SocActivity.migrateOwnerId", query = "UPDATE SocActivity a SET a.ownerId = :newId WHERE a.ownerId = :oldId"),
 
         @NamedQuery(name = "SocActivity.getAllActivities", query = "SELECT a FROM SocActivity a WHERE a.isComment = false AND a.parent IS NULL"),
-        @NamedQuery(name = "SocActivity.findCommentsOfActivity", query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId ORDER BY a.id ASC"),
-        @NamedQuery(name = "SocActivity.findLastCommentsOfActivity", query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId ORDER BY a.id DESC"),
+        @NamedQuery(name = "SocActivity.findCommentsOfActivity", query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId ORDER BY a.posted ASC"),
+        @NamedQuery(name = "SocActivity.findLastCommentsOfActivity", query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId ORDER BY a.posted DESC"),
         @NamedQuery(name = "SocActivity.findActivities", query = "SELECT a FROM SocActivity a WHERE a.id IN (:ids)"),
         @NamedQuery(name = "SocActivity.findCommentsOfActivities", query = "SELECT a FROM SocActivity a "
             + " WHERE a.parent.id IN (:ids) "

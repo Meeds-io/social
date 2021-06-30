@@ -57,15 +57,17 @@
   }
   
 %>
-<% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
-<div class="uiUserActivityStreamPortlet uiUserActivityDetail uiActivityStreamPortlet" id="$uicomponent.id">
-  <div class="uiTabPane $uiTabClazz">
- 	 <div class="uiUserActivitiesContainer">
-      <% uicomponent.renderChild(PopupContainer.class); %>
-      <%if (uicomponent.isComposerDisplayed()) {%>  
-         <% uicomponent.renderChild(UIComposer.class); %>
-      <%}%>
-      <% uicomponent.renderChild(UIUserActivitiesDisplay.class); %>
+<div class="VuetifyApp" id="$uicomponent.id">
+  <% _ctx.include("war:/groovy/social/portlet/UIActivityStreamVersionSwitch.gtmpl") %>
+  <div class="uiUserActivityStreamPortlet uiUserActivityDetail uiActivityStreamPortlet">
+    <div class="uiTabPane $uiTabClazz">
+     <div class="uiUserActivitiesContainer">
+        <% uicomponent.renderChild(PopupContainer.class); %>
+        <%if (uicomponent.isComposerDisplayed()) {%>  
+           <% uicomponent.renderChild(UIComposer.class); %>
+        <%}%>
+        <% uicomponent.renderChild(UIUserActivitiesDisplay.class); %>
+      </div>
     </div>
   </div>
 </div>

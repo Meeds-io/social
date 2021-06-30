@@ -6,7 +6,7 @@ if (extensionRegistry) {
     id: 'body',
     isEnabled: () => true,
     vueComponent: Vue.options.components['activity-body'],
-    rank: -1,
+    rank: 1,
   });
 
   extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
@@ -18,7 +18,7 @@ if (extensionRegistry) {
       return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail);
     },
     vueComponent: Vue.options.components['activity-link'],
-    rank: 0,
+    rank: 5,
   });
 
   const defaultActivityOptions = {
@@ -27,7 +27,12 @@ if (extensionRegistry) {
     getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
     getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
     supportsThumbnail: true,
-    getBody: activity => (activity.templateParams && activity.templateParams.comment) || (activity && activity.title) || '',
+    getBody: activity => {
+      return (activity.templateParams && activity.templateParams.comment)
+             || (activity && activity.title)
+             || (activity && activity.body)
+             || '';
+    },
     getBodyToEdit: activity => {
       const body = activity && activity.templateParams && activity.templateParams.default_title && activity.templateParams.default_title.split('<oembed>')[0] || '';
       const link = activity && activity.templateParams && activity.templateParams.link || '';
@@ -36,7 +41,7 @@ if (extensionRegistry) {
       } else if (body) {
         return body;
       } else {
-        return activity && activity.title;
+        return activity && (activity.title || activity.body);
       }
     },
     canShare: () => true,
@@ -52,8 +57,12 @@ if (extensionRegistry) {
     id: 'edit',
     labelKey: 'UIActivity.label.Edit',
     isEnabled: (activity, activityTypeExtension) => {
-      if (activityTypeExtension.canEdit && !activityTypeExtension.canEdit(activity)) {
-        return false;
+      if (activityTypeExtension.canEdit) {
+        if (activityTypeExtension.forceCanEditOverwrite) {
+          return activityTypeExtension.canEdit(activity);
+        } else if (!activityTypeExtension.canEdit(activity)) {
+          return false;
+        }
       }
       return activity.canEdit === 'true';
     },
@@ -86,7 +95,7 @@ if (extensionRegistry) {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(activity.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-activity-deleted', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
     },
@@ -111,23 +120,45 @@ if (extensionRegistry) {
 
   extensionRegistry.registerExtension('activity', 'comment-action', {
     id: 'delete',
+    rank: 20,
     labelKey: 'UIActivity.label.Delete',
     confirmDialog: true,
     confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Comment',
     confirmTitleKey: 'UIActivity.label.Confirmation',
     confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
     confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
-    isEnabled: comment => comment.canDelete === 'true',
-    click: comment => {
+    isEnabled: (activity, comment) => comment.canDelete === 'true',
+    click: (activity, comment) => {
       document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       return Vue.prototype.$activityService.deleteActivity(comment.id)
         .then(() => {
-          document.dispatchEvent(new CustomEvent('activity-stream-comment-deleted', {detail: {
-            activityId: comment.activityId,
-            commentId: comment.id,
-          }}));
+          document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: comment}));
         })
         .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+    },
+  });
+
+  extensionRegistry.registerExtension('activity', 'comment-action', {
+    id: 'edit',
+    labelKey: 'UIActivity.label.Edit',
+    rank: 10,
+    isEnabled: (activity, comment, activityTypeExtension) => {
+      if (activityTypeExtension.canEdit) {
+        if (activityTypeExtension.forceCanEditOverwrite) {
+          return activityTypeExtension.canEdit(comment);
+        } else if (!activityTypeExtension.canEdit(comment)) {
+          return false;
+        }
+      }
+      return comment.canEdit === 'true';
+    },
+    click: (activity, comment, activityTypeExtension) => {
+      const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(comment) || activityTypeExtension.getBody(comment);
+      document.dispatchEvent(new CustomEvent('activity-comment-edit', {detail: {
+        activity,
+        comment,
+        activityBody: bodyToEdit,
+      }}));
     },
   });
 
@@ -141,6 +172,12 @@ if (extensionRegistry) {
     id: 'comment',
     vueComponent: Vue.options.components['activity-comment-action'],
     rank: 20,
+  });
+
+  extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
+    id: 'like',
+    vueComponent: Vue.options.components['activity-comment-like-action'],
+    rank: 10,
   });
 
   extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {

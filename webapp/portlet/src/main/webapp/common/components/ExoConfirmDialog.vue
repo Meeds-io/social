@@ -100,8 +100,10 @@ export default {
     dialog() {
       if (this.dialog) {
         this.$emit('dialog-opened');
+        document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
         this.$emit('dialog-closed');
+        document.dispatchEvent(new CustomEvent('modalClosed'));
       }
     },
   },

@@ -1,8 +1,14 @@
 <template>
-  <v-card-text
-    v-if="isBodyNotEmpty"
+  <p
+    v-if="isBodyNotEmpty && useParagraph"
     v-sanitized-html="body"
-    class="postContent text-color pt-0 pe-7" />
+    :class="bodyClass"
+    class="reset-style-box"></p>
+  <div
+    v-else-if="isBodyNotEmpty"
+    v-sanitized-html="body"
+    :class="bodyClass"
+    class="reset-style-box"></div>
 </template>
 
 <script>
@@ -20,6 +26,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     body: null,
@@ -34,15 +44,24 @@ export default {
     isBodyNotEmpty() {
       return this.body && this.body.trim() !== '<p></p>';
     },
+    useParagraph() {
+      return !this.body.includes('</p>');
+    },
+    isComment() {
+      return this.activity && this.activity.activityId;
+    },
+    bodyClass() {
+      return this.isComment && 'rich-editor-content' || 'postContent text-color pt-0 pe-7 pb-4 ps-4';
+    },
+  },
+  watch: {
+    loading() {
+      if (this.loading) {
+        this.$nextTick().then(() => this.retrieveActivityProperties());
+      }
+    },
   },
   created() {
-    document.addEventListener('activity-stream-activity-updated', event => {
-      const activityId = event && event.detail;
-      if (activityId === this.activityId) {
-        this.retrieveActivityProperties();
-      }
-    });
-
     this.retrieveActivityProperties();
   },
   methods: {

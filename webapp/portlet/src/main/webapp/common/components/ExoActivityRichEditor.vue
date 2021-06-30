@@ -14,7 +14,8 @@
       indeterminate
       class="loadingRing" />
     <div
-      v-show="editorReady"
+      :v-show="editorReady"
+      :id="buttonId"
       :class="charsCount > maxLength ? 'tooManyChars' : ''"
       class="activityCharsCount">
       {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
@@ -54,6 +55,11 @@ export default {
       charsCount: 0,
       editorReady: false
     };
+  },
+  computed: {
+    buttonId() {
+      return `btn_${this.ckEditorType}`;
+    },
   },
   watch: {
     inputVal(val) {
@@ -95,9 +101,6 @@ export default {
           CKEDITOR.instances[this.ckEditorType].destroy(true);
         } else {
           this.setEditorReady();
-          if (this.autofocus) {
-            this.setFocus();
-          }
           return;
         }
       }
@@ -137,7 +140,7 @@ export default {
               });
 
             if (self.autofocus) {
-              self.setFocus();
+              window.setTimeout(() => self.setFocus(), 50);
             }
           },
           change: function (evt) {
@@ -191,8 +194,9 @@ export default {
     },
     setFocus: function() {
       if (CKEDITOR.instances[this.ckEditorType]) {
+        CKEDITOR.instances[this.ckEditorType].status = 'ready';
         window.setTimeout(() => {
-          CKEDITOR.instances[this.ckEditorType].focus();
+          this.$nextTick().then(() => CKEDITOR.instances[this.ckEditorType].focus());
         }, 200);
       }
     },

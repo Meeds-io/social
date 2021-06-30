@@ -1,18 +1,25 @@
+<% if (uicomponent.isNewStreamFeatureEnabled()) { %>
 <%
-  import org.exoplatform.commons.api.settings.ExoFeatureService;
-
-  ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
-  if (featureService.isFeatureActiveForUser("NewActivityStream", _ctx.getRequestContext().getRemoteUser())) {
+  String buttonLabel = uicomponent.isUseNewStream() ? _ctx.appRes("activityStream.switchToOldApp") : _ctx.appRes("activityStream.switchToNewApp");
+  String buttonId = uicomponent.isUseNewStream() ? "switchToOldActivityStream" : "switchToNewActivityStream";
 %>
-<div class="VuetifyApp">
-  <div id="ActivityStream"
-    class="v-application transparent v-application--is-ltr theme--light peopleList"
-    data-app="true" flat="">
-    <script type="text/javascript">
-      require(['SHARED/ActivityStream'], app => app.init());
-    </script>
+  <div class="VuetifyApp">
+    <div data-app="true" class="v-application white v-application--is-ltr theme--light">
+      <div class="v-application--wrap">
+        <div class="white mb-3 py-2 primary--text">
+          <button type="button"
+            class="primary--text font-weight-bold text-capitalize v-btn v-btn--flat v-btn--text theme--light v-size--default"
+            id="$buttonId"
+            onclick="<%=uicomponent.event("SwitchStream")%>">
+            <span class="v-btn__content">
+              <i aria-hidden="true"
+                class="v-icon notranslate me-3 far fa-window-restore theme--light"
+                style="font-size: 16px;"></i>
+              $buttonLabel
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
-<%
-  }
-%>
+<% } %>

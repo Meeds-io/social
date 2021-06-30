@@ -136,7 +136,7 @@ public interface ActivityManager {
   void deleteActivity(String activityId);
 
   /**
-   * Saves a new comment or comment reply to a specific activity.
+   * Creates or updates a comment or a comment reply on a specific activity.
    *
    * @param activity The activity.
    * @param newComment The comment to be saved.
@@ -533,6 +533,17 @@ public interface ActivityManager {
   boolean isActivityEditable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer);
 
   /**
+   * Determines whether a user can view an activity or not
+   * 
+   * @param activity {@link ExoSocialActivity}
+   * @param viewer {@link org.exoplatform.services.security.Identity}
+   * @return true if has access, else return false
+   */
+  default boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+    return true;
+  }
+
+  /**
    * Return whether an activity is deletable or not
    * 
    * @param activity checked activity
@@ -571,5 +582,6 @@ public interface ActivityManager {
   default boolean isActivityTypeEnabled(String activityType) {
     return true;
   }
+
 
 }

@@ -22,7 +22,7 @@
   <parent>
     <artifactId>maven-parent-pom</artifactId>
     <groupId>org.exoplatform</groupId>
-    <version>23-M13</version>
+    <version>23-M15</version>
     <relativePath />
   </parent>
   <groupId>org.exoplatform.social</groupId>
@@ -50,8 +50,6 @@
     <!-- **************************************** -->
     <org.exoplatform.commons.version>6.2.x-maintenance-SNAPSHOT</org.exoplatform.commons.version>
 
-    <!-- For surefire and failsafe to be compatible with jacoco -->
-    <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
     
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
@@ -262,6 +260,7 @@
               <exo.profiles>hsqldb</exo.profiles>
               <exo.files.storage.dir>${project.build.directory}/exo-files</exo.files.storage.dir>
               <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}/com.arjuna.ats.arjuna.objectstore.objectStoreDir</com.arjuna.ats.arjuna.objectstore.objectStoreDir>
+              <argLine>@{argLine} -Xmx1024m -XX:MaxPermSize=512m</argLine>
             </systemPropertyVariables>
           </configuration>
         </plugin>
