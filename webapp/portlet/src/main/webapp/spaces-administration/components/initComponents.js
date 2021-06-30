@@ -1,4 +1,4 @@
-import ExoModal from './modal/ExoModal.vue';
+import ExoSpacesAdministrationModal from './modal/ExoSpacesAdministrationModal.vue';
 import ExoSpacesAdministrationManageSpaces from './ExoSpacesAdministrationManageSpaces.vue';
 import ExoSpacesAdministrationSpacesPermissions from './ExoSpacesAdministrationSpacesPermissions.vue';
 import ExoSpacesAdministrationSpaces  from './ExoSpacesAdministrationSpaces.vue';
@@ -17,7 +17,7 @@ const components = {
   'exo-spaces-administration-manage-spaces': ExoSpacesAdministrationManageSpaces,
   'exo-spaces-administration-manage-permissions': ExoSpacesAdministrationSpacesPermissions,
   'exo-spaces-administration-spaces': ExoSpacesAdministrationSpaces,
-  'exo-modal': ExoModal,
+  'exo-spaces-administration-modal': ExoSpacesAdministrationModal,
   'exo-group-binding-drawer': ExoGroupBindingDrawer,
   'exo-group-binding-second-level-drawer': ExoGroupBindingSecondLevelDrawer,
   'exo-spaces-administration-binding-reports': ExoSpacesAdministrationBindingReports,

@@ -2,6 +2,7 @@
   <v-dialog
     v-model="dialog"
     :width="width"
+    :persistent="persistent"
     content-class="uiPopup"
     max-width="100vw">
     <v-card class="elevation-12">
@@ -55,6 +56,12 @@ export default {
         return false;
       },
     },
+    persistent: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
     width: {
       type: String,
       default: function() {
@@ -69,8 +76,10 @@ export default {
     dialog() {
       if (this.dialog) {
         this.$emit('dialog-opened');
+        document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
         this.$emit('dialog-closed');
+        document.dispatchEvent(new CustomEvent('modalClosed'));
       }
     }
   },

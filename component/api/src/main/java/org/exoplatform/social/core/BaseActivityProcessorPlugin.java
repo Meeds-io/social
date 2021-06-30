@@ -81,7 +81,10 @@ public abstract class BaseActivityProcessorPlugin extends BaseComponentPlugin im
     if(templateParams != null && templateParams.containsKey(TEMPLATE_PARAM_TO_PROCESS)){
       String[] templateParamKeys = activity.getTemplateParams().get(TEMPLATE_PARAM_TO_PROCESS).split(TEMPLATE_PARAM_LIST_DELIM);
       for(String key : templateParamKeys){
-        if(templateParams.containsKey(key)){
+        if (key.endsWith("\\")) {
+          key = key.replace("\\", "");
+        }
+        if(templateParams.containsKey(key.replace("\\", ""))){
           keys.add(key);
         }
       }

@@ -607,8 +607,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       comment.setTitle("john comment " + i);
       comment.setUserId(johnIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 1 ms to make sure that the comments are not created on the same time
-      sleep(1);
+      //Wait for 10 ms to make sure that the comments are not created on the same time
+      sleep(10);
     }
     
     for (int i = 0; i < totalNumber; i ++) {
@@ -617,8 +617,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       comment.setTitle("demo comment " + i);
       comment.setUserId(demoIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 1 ms to make sure that the comments are not created on the same time
-      sleep(1);
+      //Wait for 10 ms to make sure that the comments are not created on the same time
+      sleep(10);
     }
     
     List<ExoSocialActivity> comments = activityStorage.getComments(activity, false,0, 20);

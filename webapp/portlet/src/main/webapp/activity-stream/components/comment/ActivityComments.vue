@@ -1,16 +1,21 @@
 <template>
-  <v-list v-if="comments" class="pb-0 pt-5">
+  <v-list
+    v-if="comments"
+    class="flex d-flex flex-column">
     <activity-comment-body
       v-for="comment in commentsToDisplay"
       :key="comment.id"
+      :activity="activity"
       :comment="comment"
       :sub-comments="comment.subComments"
       :new-reply-editor="newCommentEditor && selectedCommentIdToReply === comment.id"
       :editor-options="replyLastEditorOptions"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
-      :comment-editing="commentEditing" />
+      :comment-editing="commentEditing"
+      @comment-initialized="handleCommentInitialized" />
     <activity-comment-rich-text
-      v-if="newCommentEditor && !selectedCommentIdToReply"
+      v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply"
       ref="commentRichEditor"
       class="me-4 ms-14 mb-6"
       :activity-id="activityId"
@@ -22,12 +27,16 @@
 <script>
 export default {
   props: {
-    activityId: {
-      type: String,
+    activity: {
+      type: Object,
       default: null,
     },
     comments: {
-      type: String,
+      type: Array,
+      default: null,
+    },
+    commentTypes: {
+      type: Object,
       default: null,
     },
     commentActions: {
@@ -53,8 +62,12 @@ export default {
   },
   data: () => ({
     lastEditorOptions: null,
+    initializedComment: 0,
   }),
   computed: {
+    activityId() {
+      return this.activity && this.activity.id;
+    },
     replyLastEditorOptions() {
       return this.lastEditorOptions && this.lastEditorOptions.parentCommentId && this.lastEditorOptions;
     },
@@ -80,6 +93,21 @@ export default {
       });
       return Object.values(commentsToDisplay);
     },
+    commentsSize() {
+      return this.commentsToDisplay.length;
+    },
+  },
+  watch: {
+    comments() {
+      if (!this.commentsSize) {
+        this.initializedComment = 0;
+      }
+    },
+    initializedComment(newVal, oldVal) {
+      if (oldVal < this.commentsSize && newVal >= this.commentsSize) {
+        this.$emit('initialized');
+      }
+    },
   },
   created() {
     if (this.allowEdit) {
@@ -94,11 +122,21 @@ export default {
     document.addEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   beforeDestroy() {
+    if (this.allowEdit) {
+      this.$root.$off('activity-comment-editor-updated', this.updateEditorOptions);
+    }
+    this.$root.$off('activity-comment-created', this.addComment);
+    this.$root.$off('activity-comment-updated', this.updateComment);
+    this.$root.$off('activity-comment-deleted', this.deleteComment);
+
     document.removeEventListener('activity-comment-created', this.handleCommentCreated);
     document.removeEventListener('activity-comment-updated', this.handleCommentUpdated);
     document.removeEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   methods: {
+    handleCommentInitialized() {
+      this.initializedComment = this.initializedComment + 1;
+    },
     handleCommentDeleted(event) {
       this.$root.$emit('activity-comment-deleted', event && event.detail);
     },
@@ -108,30 +146,52 @@ export default {
         const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
         if (commentIndex >= 0) {
           const comment = this.comments[commentIndex];
-          this.comments.splice(commentIndex, 1);
-          this.$emit('comment-deleted', comment);
+          this.$emit('comment-deleted', comment, commentIndex);
         }
       }
     },
     handleCommentCreated(event) {
-      this.$root.$emit('activity-comment-created', event && event.detail);
+      const comment = event && event.detail;
+      if (!comment || !comment.id) {
+        console.error('no comment was sent in triggered event');
+        return;
+      }
+      const activityId = comment.activityId;
+      if (activityId !== this.activityId) {
+        return;
+      }
+      if (comment.templateParams) {
+        this.$root.$emit('activity-comment-created', comment);
+      } else { // Comment not completely loaded
+        this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(activity => this.$root.$emit('activity-comment-created', activity));
+      }
     },
     addComment(comment) {
       const activityId = comment && comment.activityId;
       if (activityId === this.activityId) {
         comment.highlight = true;
-        this.comments.push(comment);
-        window.setTimeout(() => {
-          comment.highlight = false;
-        }, 5000);
+        comment.added = true;
         this.$emit('comment-created', comment);
       }
-      // Delete preserved comment or reply content
-      // When a new comment is added in any activity
-      this.lastEditorOptions = null;
+      this.resetEditorOptions();
     },
     handleCommentUpdated(event) {
-      this.$root.$emit('activity-comment-updated', event && event.detail);
+      const comment = event && event.detail;
+      if (!comment || !comment.id) {
+        console.error('no comment was sent in triggered event');
+        return;
+      }
+      const activityId = comment.activityId;
+      if (activityId !== this.activityId) {
+        return;
+      }
+      if (comment.templateParams) {
+        this.$root.$emit('activity-comment-updated', comment);
+      } else { // Comment not completely loaded
+        this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(activity => this.$root.$emit('activity-comment-updated', activity));
+      }
     },
     updateComment(comment) {
       const activityId = comment && comment.activityId;
@@ -139,19 +199,22 @@ export default {
         const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
         if (commentIndex >= 0) {
           comment.highlight = true;
-          this.comments.splice(commentIndex, 1, comment);
-          this.$emit('comment-updated', comment);
-          window.setTimeout(() => {
-            comment.highlight = false;
-          }, 5000);
+          comment.updated = true;
+          this.$emit('comment-updated', comment, commentIndex);
         }
       }
+      this.resetEditorOptions();
+    },
+    resetEditorOptions() {
       // Delete preserved comment or reply content
       // When a comment is added or updated in any activity
-      this.lastEditorOptions = null;
+      this.lastEditorOptions = false;
+      window.setTimeout(() => {
+        this.lastEditorOptions = null;
+      }, 5000);
     },
     updateEditorOptions(lastEditorOptions) {
-      if (lastEditorOptions && lastEditorOptions.activityId === this.activityId) {
+      if (lastEditorOptions && this.lastEditorOptions !== false && lastEditorOptions.activityId === this.activityId) {
         this.lastEditorOptions = lastEditorOptions;
       }
     },

@@ -1,22 +1,20 @@
 <template>
   <a
     v-if="sourceLink"
-    :href="sourceLink"
-    :target="sourceLinkTarget"
+    :href="link"
+    :target="linkTarget"
     :title="tooltipText"
-    class="d-flex flex-no-wrap activity-thumbnail-box"
-    v-bind="attrs"
-    v-on="tooltip && on">
+    :class="linkClass"
+    class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
-      <div
-        :class="thumbnailMobileNoBorder || 'border-color'"
-        class="border-box-sizing col pa-4">
+      <div class="border-box-sizing flex pa-4">
         <v-avatar
           v-if="supportsThumbnail"
           :min-height="thumbnailMobileHeight"
           :height="thumbnailMobileHeight"
           :min-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
+          :class="thumbnailMobileNoBorder || 'border-color'"
           rounded
           tile>
           <v-img
@@ -32,12 +30,16 @@
             {{ defaultIconClass }}
           </v-icon>
         </v-avatar>
-        <div v-if="title" class="pa-4 grey-background border-top-color">
+        <div
+          v-if="title"
+          :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
+          class="pa-4">
           <ellipsis
             v-if="title"
-            :title="title"
-            :data="title"
+            :title="titleTooltip"
+            :data="titleText"
             :line-clamp="2"
+            :delay-time="200"
             end-char="..."
             class="font-weight-bold text-color ma-0 text-wrap text-break" />
         </div>
@@ -51,7 +53,7 @@
         :min-width="thumbnailWidth"
         :width="thumbnailWidth"
         :class="thumbnailNoBorder || 'border-color'"
-        class="border-box-sizing ma-4"
+        class="border-box-sizing align-start ma-4"
         rounded
         tile>
         <v-img
@@ -69,11 +71,12 @@
       </v-avatar>
       <v-avatar
         v-else-if="supportsIcon"
-        class="border-color border-box-sizing ma-4"
-        min-height="150px"
-        height="150px"
-        min-width="90px"
-        width="90px"
+        :min-height="iconHeight"
+        :height="iconHeight"
+        :min-width="iconWidth"
+        :width="iconWidth"
+        :class="iconNoBorder || 'border-color'"
+        class="border-box-sizing align-start ma-4"
         rounded
         tile>
         <v-icon
@@ -84,20 +87,38 @@
         </v-icon>
       </v-avatar>
       <div class="me-4 my-4">
-        <ellipsis
-          v-if="title"
-          :title="title"
-          :data="title"
-          :line-clamp="3"
-          end-char="..."
-          class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
-        <ellipsis
-          v-if="summary"
-          :title="summary"
-          :data="summary"
-          :line-clamp="3"
-          end-char="..."
-          class="caption text-light-color text-wrap text-break" />
+        <template v-if="title">
+          <ellipsis
+            v-if="useEllipsisOnTitle"
+            key="title"
+            :title="titleTooltip"
+            :data="titleText"
+            :line-clamp="3"
+            :delay-time="200"
+            end-char="..."
+            class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
+          <div
+            v-else
+            v-sanitized-html="title"
+            class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break">
+          </div>
+        </template>
+        <template v-if="summary">
+          <ellipsis
+            v-if="useEllipsisOnSummary"
+            key="summary"
+            :title="summaryTooltip"
+            :data="summaryText"
+            :line-clamp="3"
+            :delay-time="200"
+            end-char="..."
+            class="caption text-light-color text-wrap text-break" />
+          <div
+            v-else
+            v-sanitized-html="summary"
+            class="caption text-color text-wrap text-break rich-editor-content reset-style-box">
+          </div>
+        </template>
       </div>
     </template>
   </a>
@@ -107,7 +128,7 @@
 export default {
   props: {
     activity: {
-      type: String,
+      type: Object,
       default: null,
     },
     activityTypeExtension: {
@@ -121,10 +142,14 @@ export default {
   },
   data: () => ({
     title: null,
+    titleTooltip: null,
     summary: null,
+    summaryTooltip: null,
     thumbnail: null,
     sourceLink: null,
     tooltip: null,
+    useEllipsisOnSummary: true,
+    useEllipsisOnTitle: true,
   }),
   computed: {
     getTitle() {
@@ -161,7 +186,7 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
     },
     defaultIcon() {
-      return this.activityTypeExtension && this.activityTypeExtension.defaultIcon;
+      return this.activityTypeExtension && (this.activityTypeExtension.defaultIcon || (this.activityTypeExtension.getDefaultIcon && this.activityTypeExtension.getDefaultIcon(this.comment || this.activity)));
     },
     defaultIconClass() {
       return this.defaultIcon && this.defaultIcon.icon || 'far fa-image';
@@ -172,8 +197,14 @@ export default {
     useMobileView() {
       return this.$vuetify.breakpoint.name === 'xs' && !this.useSameViewForMobile;
     },
-    sourceLinkTarget() {
-      return this.sourceLink && this.sourceLink.indexOf('/') === 0 && '_self' || '_blank';
+    link() {
+      return this.sourceLink !== '#' && this.sourceLink || 'javascript:void(0)';
+    },
+    linkClass() {
+      return this.sourceLink === '#' ? 'not-clickable' : '';
+    },
+    linkTarget() {
+      return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
       return this.thumbnailProperties && this.thumbnailProperties.height || '150px';
@@ -183,6 +214,15 @@ export default {
     },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
+    },
+    iconHeight() {
+      return this.defaultIcon && this.defaultIcon.height || '150px';
+    },
+    iconWidth() {
+      return this.defaultIcon && this.defaultIcon.width || '90px';
+    },
+    iconNoBorder() {
+      return this.defaultIcon && this.defaultIcon.noBorder;
     },
     thumbnailMobileHeight() {
       return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '75vw';
@@ -202,21 +242,29 @@ export default {
     tooltipText() {
       return this.tooltip && this.$t(this.tooltip) || '';
     },
+    titleText() {
+      return this.title && this.$utils.htmlToText(this.title) || '';
+    },
+    summaryText() {
+      return this.summary && this.$utils.htmlToText(this.summary) || '';
+    },
   },
   created() {
-    document.addEventListener('activity-updated', event => {
-      const activityId = event && event.detail;
-      if (activityId === this.activityId) {
-        this.retrieveActivityProperties();
-      }
-    });
-
     this.retrieveActivityProperties();
   },
   methods: {
     retrieveActivityProperties() {
-      this.title = this.getTitle && this.$utils.trim(this.getTitle(this.activity, this.isActivityDetail));
+      this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
+      this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
+      this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
+      if (this.title && this.title.key) {
+        this.title = this.$t(this.title.key, this.title.params || {});
+      } else {
+        this.title = this.$utils.trim(this.title);
+      }
+      this.titleTooltip = this.$utils.htmlToText(this.title);
       this.summary = this.getSummary && this.$utils.trim(this.getSummary(this.activity, this.isActivityDetail));
+      this.summaryTooltip = this.$utils.htmlToText(this.summary);
       this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
       this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {

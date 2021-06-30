@@ -1524,6 +1524,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     files.add(activityFile);
     demoActivity.setFiles(files);
     activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    Thread.sleep(10); // NOSONAR needed to ensure that hsql database is updated
     assertEquals(1 , activityManager.getActivityFilesIds(demoActivity).size());
 
   }
@@ -1545,6 +1546,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     files.add(activityFile);
     demoActivity.setFiles(files);
     activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    Thread.sleep(10); // NOSONAR needed to ensure that hsql database is updated
     assertEquals(1 , activityManager.getActivityFilesIds(demoActivity).size());
     String  fileID =activityManager.getActivityFilesIds(demoActivity).stream().findAny().orElse(null);
     assertNotNull(fileID);

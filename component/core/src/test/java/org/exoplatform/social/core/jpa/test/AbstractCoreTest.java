@@ -271,18 +271,32 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
             .forEach(identity -> {
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesWithListAccess(identity);
               Arrays.stream(identityActivities.load(0, identityActivities.getSize()))
-                      .forEach(activity -> activityManager.deleteActivity(activity));
+                      .forEach(activity -> {
+                        begin();
+                        activityManager.deleteActivity(activity);
+                        end();
+                      });
+              begin();
               identityManager.deleteIdentity(identity);
+              end();
             });
 
+    begin();
     ListAccess<Identity> spaceIdentities = identityManager.getIdentitiesByProfileFilter(SpaceIdentityProvider.NAME, new ProfileFilter(), false);
     Arrays.stream(spaceIdentities.load(0, spaceIdentities.getSize()))
             .forEach(identity -> {
+              begin();
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesOfSpaceWithListAccess(identity);
               Arrays.stream(identityActivities.load(0, identityActivities.getSize()))
-                      .forEach(activity -> activityManager.deleteActivity(activity));
+                      .forEach(activity -> {
+                        begin();
+                        activityManager.deleteActivity(activity);
+                        end();
+                      });
               identityManager.deleteIdentity(identity);
+              end();
             });
+    end();
   }
 
   protected void deleteAllSpaces() throws Exception {
