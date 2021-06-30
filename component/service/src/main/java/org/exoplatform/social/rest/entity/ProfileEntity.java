@@ -90,6 +90,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String CREATED_DATE   = "createdDate";
 
+  public static final String GROUPS_IDS            = "groupsIds";
+
   public ProfileEntity() {
   }
 
@@ -510,9 +512,19 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
 
-  public String getSynchronizedDate() { 
-    return getString(SYNCHRONIZED_DATE); 
+  public String getSynchronizedDate() {
+    return getString(SYNCHRONIZED_DATE);
   }
+
+  public ProfileEntity setGroupsIds(String groupsIds) {
+    setProperty(GROUPS_IDS, groupsIds);
+    return this;
+  }
+
+  public String getGroupsIds() {
+    return getString(GROUPS_IDS);
+  }
+
 
   public static String getFieldName(String name) {
     if (StringUtils.equals(FIRSTNAME, name)) {

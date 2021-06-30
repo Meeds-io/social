@@ -206,6 +206,9 @@ public class EntityBuilder {
     if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
       userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
     }
+    if (profile.getProperty(Profile.GROUPS_IDS) != null) {
+      userEntity.setGroupsIds((String) profile.getProperty(Profile.GROUPS_IDS));
+    }
     try {
       OrganizationService organizationService = getOrganizationService();
       User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername(), UserStatus.ANY);

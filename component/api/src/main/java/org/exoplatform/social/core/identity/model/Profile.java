@@ -131,7 +131,10 @@ public class Profile {
 
   /** LAST LOGIN TIME. */
   public static final String LAST_LOGIN_TIME            = "lastLoginTime";
-  
+
+  /** USER GROUPS IDS. */
+  public static final String GROUPS_IDS            = "groupsIds";
+
   /**
    * An optional url for this profile
    */
