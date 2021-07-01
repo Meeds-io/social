@@ -20,8 +20,6 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -33,11 +31,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * SocialMembershipListenerImpl is registered to OrganizationService to handle membership operation associated
@@ -49,41 +43,20 @@ import java.util.stream.Collectors;
  * @since Jan 11, 2012
  */
 public class SocialMembershipListenerImpl extends MembershipEventListener {
-
-  private static final Log LOG = ExoLogger.getLogger(ExternalUsersListenerImpl.class);
-
+  
   private static final String PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
-
-  private IdentityManager identityManager;
-
+  
   public SocialMembershipListenerImpl() {
-
+    
   }
-
+  
   @Override
   public void postDelete(Membership m) throws Exception {
-    Identity userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
-    Profile profile = userIdentity.getProfile();
-    if (profile != null) {
-      List<String> list = new LinkedList<>();
-      if(profile.getProperty(Profile.GROUPS_IDS) != null && !profile.getProperty(Profile.GROUPS_IDS).toString().isEmpty()) {
-        String groupsIds = profile.getProperty(Profile.GROUPS_IDS).toString();
-        if(groupsIds.contains(m.getGroupId())) {
-          list = Arrays.asList(groupsIds.split(",")).stream().filter(g-> !g.equals(m.getGroupId())).collect(Collectors.toList());
-        }
-      }
-      profile.setProperty(Profile.GROUPS_IDS, String.join(",", list));
-      try {
-        getIdentityManager().updateProfile(profile, true);
-      } catch (Exception e) {
-        LOG.error("Error while deleting groups ids property for user profile {}", m.getUserName(), e);
-      }
-    }
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
       OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
       UserACL acl =  CommonsUtils.getService(UserACL.class);
-
-      //only handles these memberships have types likes 'manager'
+      
+      //only handles these memberships have types likes 'manager' 
       //and 'member', except 'validator', ...so on.
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
       Space space = spaceService.getSpaceByGroupId(m.getGroupId());
@@ -110,26 +83,9 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
       clearIdentityCaching();
     }
   }
-
+	
   @Override
   public void postSave(Membership m, boolean isNew) throws Exception {
-    Identity userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, m.getUserName());
-    Profile profile = userIdentity.getProfile();
-    if (profile != null) {
-      List<String> list = new LinkedList<>();
-      if(profile.getProperty(Profile.GROUPS_IDS) != null && !profile.getProperty(Profile.GROUPS_IDS).toString().isEmpty()) {
-        list.addAll(Arrays.asList(profile.getProperty(Profile.GROUPS_IDS).toString().split(",")));
-        list.add(m.getGroupId());
-      } else {
-        list.add(m.getGroupId());
-      }
-      profile.setProperty(Profile.GROUPS_IDS, String.join(",", list));
-      try {
-        getIdentityManager().updateProfile(profile, true);
-      } catch (Exception e) {
-        LOG.error("Error while saving groups ids property for user profile {}", m.getUserName(), e);
-      }
-    }
     //only trigger when the Organization service adds new membership to existing SpaceGroup
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
 
@@ -163,7 +119,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           }
           spaceService.addMember(space, userName);
         }
-
+        
         //Refresh GroupNavigation
         SpaceUtils.refreshNavigation();
       }
@@ -187,18 +143,11 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
       clearIdentityCaching();
     }
   }
-
+  
   private void clearIdentityCaching() {
     IdentityStorage storage = (IdentityStorage) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityStorage.class);
-
+    
     //clear caching for identity
     storage.updateIdentityMembership(null);
-  }
-
-  private IdentityManager getIdentityManager() {
-    if (identityManager == null) {
-      identityManager = CommonsUtils.getService(IdentityManager.class);
-    }
-    return identityManager;
   }
 }
