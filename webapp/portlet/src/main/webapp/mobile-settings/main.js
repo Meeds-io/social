@@ -18,7 +18,7 @@ const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.Mobile-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.MobileSettings-${lang}.json`;
 
 const appId = 'MobileSettingsApplication';
 
