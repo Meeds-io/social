@@ -186,7 +186,7 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.getTooltip;
     },
     defaultIcon() {
-      return this.activityTypeExtension && (this.activityTypeExtension.defaultIcon || this.activityTypeExtension.getDefaultIcon(this.comment || this.activity));
+      return this.activityTypeExtension && (this.activityTypeExtension.defaultIcon || (this.activityTypeExtension.getDefaultIcon && this.activityTypeExtension.getDefaultIcon(this.comment || this.activity)));
     },
     defaultIconClass() {
       return this.defaultIcon && this.defaultIcon.icon || 'far fa-image';
