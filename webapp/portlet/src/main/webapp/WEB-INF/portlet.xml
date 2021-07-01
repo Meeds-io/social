@@ -343,17 +343,17 @@
   </portlet>
 
   <portlet>
-    <portlet-name>MobileSettings</portlet-name>
+    <portlet-name>userSettingsMobile</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/mobile-settings/mobileSettings.html</value>
+      <value>/WEB-INF/jsp/userSettingMobile.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Mobile Settings</title>
+      <title>User Setting for Mobile</title>
     </portlet-info>
   </portlet>
 

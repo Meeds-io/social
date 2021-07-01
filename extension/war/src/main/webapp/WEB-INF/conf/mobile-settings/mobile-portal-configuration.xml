@@ -21,7 +21,7 @@
                     <description></description>
                     <object type="org.exoplatform.commons.addons.PortletModel">
                         <field name="contentId">
-                            <string>mobile-settings/MobileSettings</string>
+                            <string>social-portlet/userSettingsMobile</string>
                         </field>
                         <field name="permissions">
                             <collection type="java.util.ArrayList">
