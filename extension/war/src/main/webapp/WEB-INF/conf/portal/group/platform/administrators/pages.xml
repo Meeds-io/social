@@ -93,4 +93,20 @@
       <show-application-mode>false</show-application-mode>
     </portlet-application>
   </page>
+  <page>
+    <name>multifactor-authentication</name>
+    <title>Multifactor authentication</title>
+    <access-permissions>*:/platform/administrators</access-permissions>
+    <edit-permission>manager:/platform/administrators</edit-permission>
+    <show-max-window>false</show-max-window>
+    <portlet-application>
+      <portlet>
+        <application-ref>social-portlet</application-ref>
+        <portlet-ref>multifactorAuthentication</portlet-ref>
+      </portlet>
+      <title>Multifactor authentication</title>
+      <access-permissions>*:/platform/administrators</access-permissions>
+      <show-info-bar>false</show-info-bar>
+    </portlet-application>
+  </page>
 </page-set>

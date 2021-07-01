@@ -1564,7 +1564,34 @@
       <role-link>admin</role-link>
     </security-role-ref>
   </portlet>
-  
+
+  <portlet>
+    <description xml:lang="EN">Multifactor authentication portlet</description>
+    <portlet-name>multifactorAuthentication</portlet-name>
+    <display-name xml:lang="EN">Multifactor authentication portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/multi-factor-authentication/multifactorAuthentication.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.multifactorAuthentication.multifactorAuthentication</resource-bundle>
+    <portlet-info>
+      <title>Multifactor authentication portlet for eXo Platform</title>
+      <short-title>multifactor-authentication</short-title>
+      <keywords>multifactor-authentication</keywords>
+    </portlet-info>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+
   <portlet>
     <description xml:lang="EN">Mfa Access portlet</description>
     <portlet-name>mfaAccess</portlet-name>
