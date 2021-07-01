@@ -492,16 +492,6 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
-          <portlet-ref>MobileSettings</portlet-ref>
-        </portlet>
-        <title>Mobile Settings</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingSecurity</portlet-ref>
         </portlet>
         <title>User Setting Security</title>
