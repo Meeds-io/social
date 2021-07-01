@@ -12,7 +12,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="title text-color">
-                <span> Mobile </span>
+                {{ $t('MobileSettings.title') }}
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -20,7 +20,7 @@
           <v-list-item>
             <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
               <v-list-item-title class="text-color text-wrap">
-                <span>Se connecter à l'application eXo mobile via QR Code</span>
+                {{ $t('MobileSettings.connect') }}
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
@@ -49,6 +49,15 @@ export default {
     displayed: true,
     displayDetails: false,
   }),
+  created() {
+    document.addEventListener('hideSettingsApps', (event) => {
+      if (event && event.detail && this.id !== event.detail) {
+        this.displayed = false;
+      }
+    });
+    document.addEventListener('showSettingsApps', () => this.displayed = true);
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  },
   methods: {
     openDetail() {
       document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
