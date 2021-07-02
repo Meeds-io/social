@@ -4,8 +4,10 @@
       <div
         align="center"
         justify="center">
-        <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
-        <div class="otpAccessBlock lockIcon">
+        <div v-if="screen === 'askToken' || screen === 'registration'">
+          <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
+          <div class="otpAccessBlock lockIcon">
+          </div>
         </div>
         <div v-if="screen === 'registration'">
           <div class="messageClass">1. {{ $t('mfa.otp.registration.step1') }}</div>
@@ -22,13 +24,7 @@
         <div v-if="screen === 'askToken'">
           <div class="messageClass">{{ $t('mfa.otp.registration.step3') }}</div>
         </div>
-        <div v-if="screen === 'error'">
-          <div class="otpAccessBlock lockIcon">
-            <i class="uiIconCloseCircled closeCircledIconColor"></i>
-          </div>
-          <div class="font-italic messageClass">{{ $t('mfa.otp.access.echec') }}</div>
-        </div>
-        <div v-if="screen === 'askToken' || 'registration'">
+        <div v-if="screen === 'askToken' || screen === 'registration'">
           <form id="otpForm">
             <input
               id="tokenInput"
@@ -42,6 +38,12 @@
               {{ $t('mfa.otp.access.button.confirm') }}
             </button>
           </form>
+        </div>
+        <div v-if="screen === 'error'">
+          <div class="otpAccessBlock lockIcon">
+            <i class="uiIconCloseCircled closeCircledIconColor"></i>
+          </div>
+          <div class="font-italic messageClass">{{ $t('mfa.otp.access.echec') }}</div>
         </div>
       </div>
     </v-container>
@@ -61,7 +63,6 @@ export default {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   created() {
-    this.changeScreen('initial');
     window.setTimeout(() => {
       this.checkRegistration();
     }, 1000);
