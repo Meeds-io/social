@@ -10,9 +10,9 @@ export function htmlToText(htmlContent) {
     content = DOM_PARSER.parseFromString(htmlContent, 'text/html').documentElement.innerText.trim();
   } catch (e) {
     content = htmlContent.replace(/<[^>]+>/g, '').trim();
-    TEXTAREA.innerHTML = content;
-    content = TEXTAREA.value;
   }
+  TEXTAREA.innerHTML = content;
+  content = TEXTAREA.value;
   return content.replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,' ');
 }
 
