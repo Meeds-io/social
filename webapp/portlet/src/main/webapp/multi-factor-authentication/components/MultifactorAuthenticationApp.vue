@@ -34,7 +34,7 @@
             </v-scale-transition>
           </div>
           <v-row no-gutters>
-            <div class="my-auto col-2 ml-4">
+            <div class="my-auto col-3 ml-4">
               <h4 class="title text-color font-weight-bold subtitle-1 ml-2 infoTextStyle">{{ $t('authentication.multifactor.protected.resources') }}</h4>
             </div>
             <div class="my-auto">

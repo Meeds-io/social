@@ -57,7 +57,7 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <div class="mt-6">
+        <div v-if="isMultifacorAuthenticationEnabled" class="mt-6">
           <v-list>
             <div class="d-flex ml-6">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
@@ -82,7 +82,7 @@
             </v-list-item-subtitle>
           </v-list>
         </div>
-        <div class="mt-6">
+        <div v-if="isMultifacorAuthenticationEnabled" class="mt-6">
           <v-list>
             <div class="d-flex ml-6">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
@@ -104,6 +104,21 @@
                 {{ $t('authentication.multifactor.protected.group.label') }}
               </div>
             </v-list-item-subtitle>
+            <div class="ml-5">
+              <v-chip-group
+                active-class="primary--text"
+                column>
+                <v-row no-gutters>
+                  <v-chip
+                    v-for="group in selectedGroups"
+                    :key="group"
+                    outlined
+                    class="my-1">
+                    {{ group.groupName }}
+                  </v-chip>
+                </v-row>
+              </v-chip-group>
+            </div>
           </v-list>
         </div>
       </v-card>
@@ -231,6 +246,7 @@ export default {
     isMultifacorAuthenticationEnabled: false,
     isManage2faPage: false,
     protectedGroupsUsers: null,
+    selectedGroups: null,
     items: ['OTP', 'SuperGluu', 'Fido 2'],
     select: 'OTP',
     panel: [0, 1],
@@ -238,6 +254,9 @@ export default {
   }),
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  },
+  created() {
+    this.$root.$on('protectedGroupsList', this.protectedGroupsList);
   },
   computed: {
     isFido (){
@@ -253,6 +272,9 @@ export default {
   methods: {
     switchAuthenticationStatus() {
       this.isMultifacorAuthenticationEnabled = !this.isMultifacorAuthenticationEnabled;
+    },
+    protectedGroupsList(selectedGroups) {
+      this.selectedGroups = selectedGroups;
     },
   }
 };

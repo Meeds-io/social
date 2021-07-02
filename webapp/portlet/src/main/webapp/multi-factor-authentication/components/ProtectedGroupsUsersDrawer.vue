@@ -141,6 +141,7 @@ export default {
     },
     save() {
       this.$refs.protectedGroupsUsersDrawer.close();
+      this.$root.$emit('protectedGroupsList', this.selectedItems);
     },
     async querySelections(query) {
       this.searchLoading = true;
