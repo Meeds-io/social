@@ -7,6 +7,8 @@
         :ck-editor-type="ckEditorId"
         :max-length="$activityConstants.COMMENT_MAX_LENGTH"
         :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
+        :activity-id="activityId"
+        suggestor-type-of-relation="mention_comment"
         autofocus
         @ready="handleEditorReady" />
     </v-list-item-content>
