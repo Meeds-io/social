@@ -22,7 +22,7 @@
           avatar
           class="mt-0 mb-auto me-2 flex-grow-0" />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
-          <div class="px-2 py-1 flex-grow-1 grey-background border-box-sizing rounded-lg">
+          <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
             <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
               <activity-head-user :identity="posterIdentity" />
             </v-list-item-title>
