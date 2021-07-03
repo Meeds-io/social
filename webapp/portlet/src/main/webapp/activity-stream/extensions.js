@@ -21,8 +21,21 @@ if (extensionRegistry) {
     rank: 5,
   });
 
+  extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+    id: 'embedded-html',
+    isEnabled: (params) => {
+      const activityTypeExtension = params && params.activityTypeExtension;
+      const activity = params && params.activity;
+      const isActivityDetail = params && params.isActivityDetail;
+      return activityTypeExtension.getEmbeddedHtml && activityTypeExtension.getEmbeddedHtml(activity, isActivityDetail);
+    },
+    vueComponent: Vue.options.components['activity-embedded-html'],
+    rank: 5,
+  });
+
   const defaultActivityOptions = {
-    getSourceLink: activity => activity && activity.templateParams && activity.templateParams.link,
+    getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
+    getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
     getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
     getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
     getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',

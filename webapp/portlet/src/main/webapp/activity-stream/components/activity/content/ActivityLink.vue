@@ -16,6 +16,7 @@
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
           rounded
+          eager
           tile>
           <v-img
             v-if="thumbnail"
@@ -55,6 +56,7 @@
         :class="thumbnailNoBorder || 'border-color'"
         class="border-box-sizing align-start ma-4"
         rounded
+        eager
         tile>
         <v-img
           v-if="thumbnail"
@@ -78,6 +80,7 @@
         :class="iconNoBorder || 'border-color'"
         class="border-box-sizing align-start ma-4"
         rounded
+        eager
         tile>
         <v-icon
           :size="defaultIconSize"
@@ -247,6 +250,13 @@ export default {
     },
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
+    },
+  },
+  watch: {
+    activityTypeExtension(newVal, oldVal) {
+      if (!oldVal || newVal !== oldVal) {
+        this.retrieveActivityProperties();
+      }
     },
   },
   created() {

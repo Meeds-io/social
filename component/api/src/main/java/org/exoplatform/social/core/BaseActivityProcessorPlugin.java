@@ -91,5 +91,6 @@ public abstract class BaseActivityProcessorPlugin extends BaseComponentPlugin im
     }
     return keys;
   }
+
   public abstract void processActivity(ExoSocialActivity activity);
 }
