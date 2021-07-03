@@ -179,7 +179,11 @@ export default {
       this.loadActivities();
     },
     addActivities(activities) {
-      this.activities.unshift(...activities);
+      if (activities && activities.length) {
+        const activity = activities[0];
+        activity.highlight = true;
+        this.activities.unshift(...activities);
+      }
     },
   },
 };
