@@ -43,6 +43,18 @@ export default {
       type: String,
       default: 'activityContent'
     },
+    suggestorTypeOfRelation: {
+      type: String,
+      default: 'mention_activity_stream'
+    },
+    suggesterSpaceURL: {
+      type: String,
+      default: eXo.env.portal.spaceUrl
+    },
+    activityId: {
+      type: String,
+      default: null,
+    },
     autofocus: {
       type: Boolean,
       default: false
@@ -125,8 +137,9 @@ export default {
         toolbar: [
           ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],
-        typeOfRelation: 'mention_activity_stream',
-        spaceURL: eXo.env.portal.spaceUrl,
+        typeOfRelation: this.suggestorTypeOfRelation,
+        spaceURL: this.suggesterSpaceURL,
+        activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         on: {
