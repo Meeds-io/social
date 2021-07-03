@@ -11,6 +11,7 @@ import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue'
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
 import ActivityBody from './components/activity/content/ActivityBody.vue';
 import ActivityLink from './components/activity/content/ActivityLink.vue';
+import ActivityEmbeddedHTML from './components/activity/content/ActivityEmbeddedHTML.vue';
 import ActivityFooter from './components/activity/footer/ActivityFooter.vue';
 import ActivityActions from './components/activity/footer/ActivityActions.vue';
 import ActivityCommentAction from './components/activity/footer/actions/ActivityCommentAction.vue';
@@ -40,6 +41,7 @@ const components = {
   'activity-head-menu': ActivityHeadMenu,
   'activity-body': ActivityBody,
   'activity-link': ActivityLink,
+  'activity-embedded-html': ActivityEmbeddedHTML,
   'activity-footer': ActivityFooter,
   'activity-actions': ActivityActions,
   'activity-comment-action': ActivityCommentAction,
