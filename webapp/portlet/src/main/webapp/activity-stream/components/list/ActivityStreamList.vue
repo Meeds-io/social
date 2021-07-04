@@ -147,10 +147,12 @@ export default {
       if (this.spaceId) {
         this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
+          .catch(() => this.error = true)
           .finally(() => this.loading = false);
       } else {
         this.$activityService.getUserActivities(this.userName, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(data => this.handleRetrievedActivities(data && data.activities || []))
+          .catch(() => this.error = true)
           .finally(() => this.loading = false);
       }
     },

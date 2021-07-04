@@ -17,12 +17,15 @@
 package org.exoplatform.social.core.manager;
 
 
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.upload.UploadService;
 import org.junit.Test;
 
 import org.exoplatform.commons.utils.PropertyManager;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
@@ -274,6 +277,15 @@ public class ActivityManagerTest extends AbstractCoreTest {
     activity.setUserId(userId);
     activityManager.saveActivityNoReturn(activity);
     activity = activityManager.getActivity(activity.getId());
+
+    InitParams params = new InitParams();
+    ValuesParam param = new ValuesParam();
+    param.setName(ActivitySystemTypePlugin.SYSTEM_TYPES_PARAM);
+    param.setValues(Collections.singletonList("ks-wiki:spaces"));
+    params.addParameter(param);
+    ActivitySystemTypePlugin plugin = new ActivitySystemTypePlugin(params);
+    activityManager.addSystemActivityDefinition(plugin);
+
     ExoSocialActivity comment = createComment(activity, "ks-wiki:spaces", "text comment");
 
     // When

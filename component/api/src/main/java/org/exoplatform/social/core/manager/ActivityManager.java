@@ -22,6 +22,7 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -325,12 +326,20 @@ public interface ActivityManager {
    * Adds a new activity processor plugin.
    *
    * @param activityProcessorPlugin The activity processor plugin to be added.
-   * @LevelAPI Platform
+   * @LevelAPI Platform 
    */
   void addProcessorPlugin(BaseActivityProcessorPlugin activityProcessorPlugin);
 
   void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin);
-  
+
+  /**
+   * Add a new Type(s) or Title(s) definition marked as system to not allow to
+   * edit them
+   * 
+   * @param activitySystemTypePlugin plugin to retrieve types & titleIds
+   */
+  void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin);
+
   /**
    * Saves a newly created activity to a stream. Note that the Activity.userId will be set to the owner identity if it
    * has not already been set.
@@ -582,6 +591,5 @@ public interface ActivityManager {
   default boolean isActivityTypeEnabled(String activityType) {
     return true;
   }
-
 
 }

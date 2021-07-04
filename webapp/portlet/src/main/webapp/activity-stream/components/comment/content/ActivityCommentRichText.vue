@@ -8,6 +8,7 @@
         :max-length="$activityConstants.COMMENT_MAX_LENGTH"
         :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
         :activity-id="activityId"
+        :template-params="templateParams"
         suggestor-type-of-relation="mention_comment"
         autofocus
         @ready="handleEditorReady" />
@@ -45,6 +46,10 @@ export default {
       type: String,
       default: null,
     },
+    templateParams: {
+      type: Object,
+      default: () => ({}),
+    },
     label: {
       type: String,
       default: null,
@@ -68,7 +73,7 @@ export default {
       return !!this.commentId;
     },
     disableButton() {
-      return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
+      return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorId() {
       return `comment_${this.commentId || ''}_${this.parentCommentId || ''}_${this.activityId}`;
@@ -94,6 +99,7 @@ export default {
           commentId: this.commentId,
           parentCommentId: this.parentCommentId,
           message: this.message && String(this.message),
+          templateParams: this.templateParams,
         });
       }
 
@@ -144,14 +150,14 @@ export default {
       }
       this.commenting = true;
       if (this.commentUpdate) {
-        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.templateParams,this.$activityConstants.FULL_COMMENT_EXPAND)
           .then(comment => this.$root.$emit('activity-comment-updated', comment))
           .finally(() => {
             this.message = null;
             this.commenting = false;
           });
       } else {
-        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message, this.$activityConstants.FULL_COMMENT_EXPAND)
+        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
           .then(comment => this.$root.$emit('activity-comment-created', comment))
           .finally(() => {
             this.message = null;

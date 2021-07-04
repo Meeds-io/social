@@ -23,8 +23,7 @@ import org.mockito.*;
 
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -32,6 +31,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -137,6 +137,15 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertTrue(manager.isActivityEditable(comment, owner));
     // do not allow edit automatic comment
     Mockito.when(comment.getType()).thenReturn("TestActivityType");
+
+    InitParams params = new InitParams();
+    ValuesParam param = new ValuesParam();
+    param.setName(ActivitySystemTypePlugin.SYSTEM_TYPES_PARAM);
+    param.setValues(Collections.singletonList("TestActivityType"));
+    params.addParameter(param);
+    ActivitySystemTypePlugin plugin = new ActivitySystemTypePlugin(params);
+    manager.addSystemActivityDefinition(plugin);
+
     assertFalse(manager.isActivityEditable(comment, owner));
 
     // manager is not able to edit other activity
@@ -145,7 +154,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(manager.isActivityEditable(activity, mary));
 
     // InitParams configuration
-    InitParams params = Mockito.mock(InitParams.class);
+    params = Mockito.mock(InitParams.class);
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_MANAGER_EDIT_COMMENT)).thenReturn(true);
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_EDIT_COMMENT)).thenReturn(true);
     ValueParam falseVal = new ValueParam();

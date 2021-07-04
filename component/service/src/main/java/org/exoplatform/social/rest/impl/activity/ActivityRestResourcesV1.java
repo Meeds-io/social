@@ -17,16 +17,13 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,9 +44,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.exoplatform.social.rest.api.ActivityRestResources;
-import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -63,8 +58,11 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
 
   private static final Log LOG = ExoLogger.getLogger(ActivityRestResourcesV1.class);
 
-  private static final String TYPE = "space";
+  private ActivityManager activityManager;
 
+  public ActivityRestResourcesV1(ActivityManager activityManager) {
+    this.activityManager = activityManager;
+  }
   
   @GET
   @RolesAllowed("users")
@@ -89,7 +87,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
 
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivityFeedWithListAccess(currentUser);
     List<ExoSocialActivity> activities = listAccess.loadAsList(offset, limit);
     
@@ -125,7 +122,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -155,54 +151,17 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
                                      @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
                                      @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
                                      @ApiParam(value = "Activity object to be updated, ex: <br/>{<br/>\"title\" : \"My activity\"<br/>}", required = true) ActivityEntity model) throws Exception {
-  
+
     if (model == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     //
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
-    
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
+
     ExoSocialActivity activity = activityManager.getActivity(id);
-    if (!StringUtils.equals(currentUser.getId(), activity.getPosterId())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
-    ActivityStream activityStream = activity.getActivityStream();
-    if("true".equals(model.getRead())
-            && "news".equals(activity.getType())
-            && activityStream != null && activityStream.getType().equals(ActivityStream.Type.SPACE)) {
-      LOG.info("service=news operation=read_news parameters=\"activity_id:{},space_name:{},space_id:{},user_id:{}\"",
-              activity.getId(),
-              activityStream.getPrettyId(),
-              activityStream.getId(),
-              currentUser.getId());
-    }
-
-    if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
-      activity.setTitle(model.getTitle());
-    }
-    if (model.getBody() != null && !model.getBody().equals(activity.getBody())) {
-      activity.setBody(model.getBody());
-    }
-    if(model.getTemplateParams() != null) {
-      Map<String, String> newTemplateParams = new HashMap<>();
-      Map<String, String> currentTemplateParams = activity.getTemplateParams();
-      model.getTemplateParams().forEach((name, value) -> newTemplateParams.put(name, (String) value));
-      // merge the new updated template params with the old params
-      Map<String, String> updatedTemplateParams = newTemplateParams.entrySet().stream()
-              .filter(param -> currentTemplateParams.containsKey(param.getKey()))
-              .collect(Collectors.toMap(
-                      Map.Entry::getKey,
-                      Map.Entry::getValue,
-                      (oldParamValue, newParamValue) -> newParamValue,
-                      () -> new HashMap<>(currentTemplateParams)));
-      activity.setTemplateParams(updatedTemplateParams);
-    }
-    if (model.getUpdateDate() != null) {
-      activity.setUpdated(Long.parseLong(model.getUpdateDate()));
-    }
+    fillActivityToUpdate(model, activity, authenticatedUserIdentity);
     activityManager.updateActivity(activity, true);
 
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
@@ -227,7 +186,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null || !activityManager.isActivityDeletable(activity, ConversationState.getCurrent().getIdentity())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -264,7 +222,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -317,10 +274,10 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
     }
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -331,9 +288,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }
     
     ExoSocialActivity comment = new ExoSocialActivityImpl();
-    comment.setBody(model.getBody());
-    comment.setTitle(model.getTitle());
-    comment.setType(model.getType());
+    fillActivityToUpdate(model, comment, authenticatedUserIdentity);
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
@@ -369,10 +324,10 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
     }
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity comment = activityManager.getActivity(model.getId());
     if (comment == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -387,13 +342,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       return Response.status(Response.Status.UNAUTHORIZED).entity("Can't move a comment reply from a comment to another").build();
     }
 
-    if (!StringUtils.equals(currentUser.getId(), comment.getPosterId())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    comment.setBody(model.getBody());
-    comment.setTitle(model.getTitle());
-    comment.setUserId(currentUser.getId());
-    comment.setPosterId(currentUser.getId());
+    fillActivityToUpdate(model, comment, authenticatedUserIdentity);
     activityManager.updateActivity(comment, true);
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -418,7 +367,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
                                       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
                                       @ApiParam(value = "Share target spaces", required = true) SharedActivityRestIn sharedActivityRestIn) throws Exception {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     if (activityManager.getActivity(activityId) == null) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
@@ -479,7 +427,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -512,7 +459,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -543,7 +489,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     
     Identity userToGetLike = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
     
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -577,7 +522,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
 
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null
             || (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId()))) {
@@ -650,6 +594,43 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }).collect(Collectors.toList());
 
     return Response.ok(results).build();
+  }
+
+  private void fillActivityToUpdate(ActivityEntity model,
+                                    ExoSocialActivity activity,
+                                    org.exoplatform.services.security.Identity authenticatedUserIdentity) {
+    if (!activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
+      activity.setTitle(model.getTitle());
+    }
+    if (model.getBody() != null && !model.getBody().equals(activity.getBody())) {
+      activity.setBody(model.getBody());
+    }
+    if (StringUtils.isNotBlank(model.getType())) {
+      activity.setType(model.getType());
+    }
+    Map<String, String> currentTemplateParams = new HashMap<>(activity.getTemplateParams());
+    activity.setTemplateParams(currentTemplateParams);
+    Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
+    while (entries.hasNext()) {
+      Map.Entry<String, String> entry = entries.next();
+      if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
+        entries.remove();
+      }
+    }
+    if(model.getTemplateParams() != null) {
+      model.getTemplateParams().forEach((name, value) -> {
+        String valueString = (String) value;
+        if (StringUtils.isBlank(valueString) || StringUtils.equals(valueString, "-")) {
+          currentTemplateParams.remove(name);
+        } else {
+          currentTemplateParams.put(name, valueString);
+        }
+      });
+    }
   }
 
 }
