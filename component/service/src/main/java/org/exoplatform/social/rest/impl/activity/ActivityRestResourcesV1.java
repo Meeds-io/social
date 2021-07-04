@@ -161,7 +161,11 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
 
     ExoSocialActivity activity = activityManager.getActivity(id);
-    fillActivityToUpdate(model, activity, authenticatedUserIdentity);
+    if (!activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    fillActivity(model, activity, authenticatedUserIdentity);
+    activity.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(activity, true);
 
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
@@ -220,7 +224,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser, true);
+    Identity currentUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     
     ExoSocialActivity activity = activityManager.getActivity(id);
     if (activity == null) {
@@ -230,17 +234,11 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null && !Util.hasMentioned(activity, currentUser.getRemoteId())) { //current user doesn't have permission to view activity
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    
-    List<DataEntity> commentsEntity = new ArrayList<DataEntity>();
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, EntityBuilder.expandSubComments(expand), sortDescending);
-    List<ExoSocialActivity> comments = listAccess.loadAsList(offset, limit);
-    for (ExoSocialActivity comment : comments) {
-      CommentEntity commentInfo = EntityBuilder.buildEntityFromComment(comment, uriInfo.getPath(), expand, true);
-      commentsEntity.add(commentInfo.getDataEntity());
-    }
-    
+    List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity, currentUser, uriInfo.getPath(), expand, sortDescending, offset, limit);
     CollectionEntity collectionComment = new CollectionEntity(commentsEntity, EntityBuilder.COMMENTS_TYPE, offset, limit);    
     if(returnSize) {
+      boolean expandSubComments = EntityBuilder.expandSubComments(expand);
+      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, expandSubComments);
       collectionComment.setSize(listAccess.getSize());
     }
     //
@@ -288,13 +286,13 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }
     
     ExoSocialActivity comment = new ExoSocialActivityImpl();
-    fillActivityToUpdate(model, comment, authenticatedUserIdentity);
+    fillActivity(model, comment, authenticatedUserIdentity);
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
     activityManager.saveComment(activity, comment);
     
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), currentUser, uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @PUT
@@ -341,10 +339,14 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (!StringUtils.equals(comment.getParentCommentId(), model.getParentCommentId())) {
       return Response.status(Response.Status.UNAUTHORIZED).entity("Can't move a comment reply from a comment to another").build();
     }
+    if (!activityManager.isActivityEditable(comment, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
 
-    fillActivityToUpdate(model, comment, authenticatedUserIdentity);
+    fillActivity(model, comment, authenticatedUserIdentity);
+    comment.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(comment, true);
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), currentUser, uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   /**
@@ -596,13 +598,9 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     return Response.ok(results).build();
   }
 
-  private void fillActivityToUpdate(ActivityEntity model,
+  private void fillActivity(ActivityEntity model,
                                     ExoSocialActivity activity,
                                     org.exoplatform.services.security.Identity authenticatedUserIdentity) {
-    if (!activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
       activity.setTitle(model.getTitle());
     }
@@ -612,7 +610,8 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (StringUtils.isNotBlank(model.getType())) {
       activity.setType(model.getType());
     }
-    Map<String, String> currentTemplateParams = new HashMap<>(activity.getTemplateParams());
+    Map<String, String> currentTemplateParams = activity.getTemplateParams() == null ? new HashMap<>()
+                                                                                     : new HashMap<>(activity.getTemplateParams());
     activity.setTemplateParams(currentTemplateParams);
     Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
     while (entries.hasNext()) {

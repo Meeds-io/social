@@ -51,9 +51,6 @@ export default {
     commentTextColorClass() {
       return this.hasCommented && 'primary--text' || '';
     },
-    hasCommented() {
-      return this.hasCommented && 'primary--text' || '';
-    },
     subCommentsSize() {
       return this.comment && this.comment.subCommentsSize || 0;
     },
@@ -80,11 +77,11 @@ export default {
     },
     handleCommentDeleted(comment) {
       if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
-        this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.filter(tmp => tmp.id !== comment.id).length;
+        this.checkWhetherCommented();
       }
     },
     checkWhetherCommented() {
-      this.hasCommented = this.comment && this.comment.subComments && this.comment.subComments.length;
+      this.hasCommented = this.comment && this.comment.hasCommented === 'true';
     },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
