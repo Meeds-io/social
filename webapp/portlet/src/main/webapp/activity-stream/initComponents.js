@@ -1,6 +1,8 @@
 import ActivityStream from './components/ActivityStream.vue';
 import ActivityStreamFeatureSwitch from './components/ActivityStreamFeatureSwitch.vue';
 import ActivityStreamList from './components/list/ActivityStreamList.vue';
+import ActivityStreamEmptyMessageSpace from './components/list/ActivityStreamEmptyMessageSpace.vue';
+import ActivityStreamEmptyMessageUser from './components/list/ActivityStreamEmptyMessageUser.vue';
 import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
@@ -31,6 +33,8 @@ const components = {
   'activity-stream': ActivityStream,
   'activity-stream-feature-switch': ActivityStreamFeatureSwitch,
   'activity-stream-list': ActivityStreamList,
+  'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
+  'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
   'activity-stream-updater': ActivityStreamUpdater,
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
   'activity-stream-activity': ActivityStreamActivity,
