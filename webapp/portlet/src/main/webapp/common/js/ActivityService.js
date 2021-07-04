@@ -85,7 +85,7 @@ export function unlikeActivity(id) {
   });
 }
 
-export function createComment(id, parentCommentId, message, expand) {
+export function createComment(id, parentCommentId, message, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -96,6 +96,7 @@ export function createComment(id, parentCommentId, message, expand) {
       title: message,
       body: message,
       parentCommentId,
+      templateParams: templateParams,
     })
   }).then(resp => {
     if (resp && resp.ok) {
@@ -106,7 +107,7 @@ export function createComment(id, parentCommentId, message, expand) {
   });
 }
 
-export function updateComment(id, parentCommentId, commentId, message, expand) {
+export function updateComment(id, parentCommentId, commentId, message, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -118,6 +119,7 @@ export function updateComment(id, parentCommentId, commentId, message, expand) {
       title: message,
       body: message,
       parentCommentId,
+      templateParams: templateParams,
     })
   }).then(resp => {
     if (resp && resp.ok) {

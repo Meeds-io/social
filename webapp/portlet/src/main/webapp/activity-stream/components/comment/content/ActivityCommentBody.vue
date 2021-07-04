@@ -11,6 +11,7 @@
         :activity-id="activityId"
         :parent-comment-id="comment.parentCommentId"
         :comment-id="comment.id"
+        :template-params="templateParams"
         :label="$t('UIActivity.label.Update')"
         :options="commentEditOptions" />
     </div>

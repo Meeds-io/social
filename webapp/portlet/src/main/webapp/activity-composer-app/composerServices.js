@@ -1,4 +1,4 @@
-export function postMessageInSpace(message, activityType, attachments, spaceId) {
+export function postMessageInSpace(message, activityType, attachments, spaceId, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/activities`, {
     headers: {
       'Content-Type': 'application/json'
@@ -8,7 +8,7 @@ export function postMessageInSpace(message, activityType, attachments, spaceId) 
     body: JSON.stringify({
       'title': message,
       'type': activityType,
-      'templateParams': {},
+      'templateParams': templateParams || {},
       'files': attachments
     })
   }).then((data) => {
@@ -16,7 +16,8 @@ export function postMessageInSpace(message, activityType, attachments, spaceId) 
   });
 }
 
-export function postMessageInUserStream(message, activityType, attachments, userName) {
+export function postMessageInUserStream(message, activityType, attachments, userName, templateParams) {
+  const params = templateParams || {};
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${userName}/activities`, {
     headers: {
       'Content-Type': 'application/json'
@@ -26,14 +27,17 @@ export function postMessageInUserStream(message, activityType, attachments, user
     body: JSON.stringify({
       'title': message,
       'type': activityType,
-      'templateParams': {},
+      'templateParams': params,
       'files': attachments
     })
   }).then((data) => {
     return data.json();
   });
 }
-export function updateActivityInUserStream(message, activityId, activityType, attachments) {
+export function updateActivityInUserStream(message, activityId, activityType, attachments, templateParams) {
+  const params = Object.assign({
+    'MESSAGE': message
+  }, templateParams || {});
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -43,11 +47,9 @@ export function updateActivityInUserStream(message, activityId, activityType, at
     body: JSON.stringify({
       'updateDate': Date.now(),
       'title': message,
-      'templateParams': {
-        'MESSAGE': message
-      },
+      'templateParams': params,
       'type': activityType,
-      'files': attachments
+      'files': attachments,
     })
   }).then((data) => {
     return data.json();

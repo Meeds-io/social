@@ -4,16 +4,17 @@
     :style="parentStyle"
     class="d-flex flex-column activity-embedded-box mx-auto">
     <div
+      v-if="elementReady"
       v-html="embeddedHTML"
       :style="embeddedHTMLStyle"
       class="border-radius">
     </div>
-    <div
+    <a
       v-if="title"
       :href="link"
       :target="linkTarget"
       :title="tooltipText"
-      class="pb-4 pt-3">
+      class="pb-4 pt-3 text-color">
       <ellipsis
         v-if="title"
         :title="titleTooltip"
@@ -22,7 +23,7 @@
         :delay-time="200"
         end-char="..."
         class="font-weight-bold text-color ma-0 text-wrap text-break" />
-    </div>
+    </a>
   </div>
 </template>
 
@@ -42,6 +43,10 @@ export default {
       default: false,
     },
   },
+  data: () => ({
+    maxWidth: 450,
+    elementReady: false,
+  }),
   computed: {
     embeddedHTML() {
       return this.activity && this.activity.templateParams && this.activity.templateParams.html;
@@ -64,19 +69,28 @@ export default {
     titleText() {
       return this.title && this.$utils.htmlToText(this.title) || '';
     },
+    previewWidth() {
+      return Number(this.activity.templateParams && this.activity.templateParams.previewWidth || this.maxWidth);
+    },
     parentStyle() {
+      const width = this.previewWidth > this.maxWidth && this.maxWidth || this.previewWidth;
       return {
-        width: '450px',
-        maxWidth: '450px',
+        width: `${width}px`,
+        maxWidth: `${this.maxWidth}px`,
       };
     },
     embeddedHTMLStyle() {
+      const width = this.previewWidth > this.maxWidth && this.maxWidth || this.previewWidth;
       return {
-        maxHeight: '250px',
-        width: '450px',
-        maxWidth: '450px',
+        width: `${width}px`,
+        maxWidth: `${this.maxWidth}px`,
+        maxHeight: `${this.maxWidth}px`,
       };
     },
+  },
+  mounted() {
+    this.maxWidth = this.$el && this.$el.parentElement.offsetWidth < this.maxWidth && String(this.$el.parentElement.offsetWidth - 2) || `${this.maxWidth}`;
+    this.elementReady = true;
   },
 };
 </script>

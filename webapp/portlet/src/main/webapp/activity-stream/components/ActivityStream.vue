@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="loaded" class="white">
+  <v-app v-if="loaded">
     <activity-stream-feature-switch />
     <exo-activity-composer v-if="spaceId" id="activityComposer" />
     <activity-stream-list

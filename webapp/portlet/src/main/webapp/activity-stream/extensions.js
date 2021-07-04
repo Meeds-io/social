@@ -41,21 +41,19 @@ if (extensionRegistry) {
     getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
     supportsThumbnail: true,
     getBody: activity => {
-      return (activity.templateParams && activity.templateParams.comment)
+      return Vue.prototype.$utils.trim((activity.templateParams && activity.templateParams.comment)
              || (activity && activity.title)
              || (activity && activity.body)
-             || '';
+             || '');
     },
     getBodyToEdit: activity => {
-      const body = activity && activity.templateParams && activity.templateParams.default_title && activity.templateParams.default_title.split('<oembed>')[0] || '';
-      const link = activity && activity.templateParams && activity.templateParams.link || '';
-      if (link) {
-        return `${body}<p><a id='editActivityLinkPreview' href='${link}'>${link}</a></p>`;
-      } else if (body) {
-        return body;
-      } else {
-        return activity && (activity.title || activity.body);
-      }
+      const templateParams = activity.templateParams;
+      return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
+        && templateParams.default_title
+        && templateParams.default_title
+        || activity.title
+        || activity.body
+        || ''));
     },
     canShare: () => true,
   };
@@ -70,14 +68,7 @@ if (extensionRegistry) {
     id: 'edit',
     labelKey: 'UIActivity.label.Edit',
     isEnabled: (activity, activityTypeExtension) => {
-      if (activityTypeExtension.canEdit) {
-        if (activityTypeExtension.forceCanEditOverwrite) {
-          return activityTypeExtension.canEdit(activity);
-        } else if (!activityTypeExtension.canEdit(activity)) {
-          return false;
-        }
-      }
-      return activity.canEdit === 'true';
+      return activity.canEdit === 'true' && (!activityTypeExtension.canEdit || activityTypeExtension.canEdit(activity));
     },
     click: (activity, activityTypeExtension) => {
       const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(activity) || activityTypeExtension.getBody(activity);
@@ -86,6 +77,7 @@ if (extensionRegistry) {
         composerAction: 'update',
         ckEditorType: `editActivity${activity.id}`,
         activityBody: bodyToEdit,
+        templateParams: activity.templateParams,
       });
     },
   });

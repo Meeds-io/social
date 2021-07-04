@@ -39,6 +39,11 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
     super(params);
   }
    public void processActivity(ExoSocialActivity activity) {
+     if (activity.getTemplateParams() != null &&
+         (activity.getTemplateParams().containsKey(HTML_PARAM)
+             || activity.getTemplateParams().containsKey(LINK))) {
+       return;
+     }
      boolean hasLinkProperties = false;
      try {
        Map<String, String> templateParams = new HashMap<>();
