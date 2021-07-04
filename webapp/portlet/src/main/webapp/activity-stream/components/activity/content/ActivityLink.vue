@@ -1,10 +1,10 @@
 <template>
-  <a
+  <dynamic-html-element
     v-if="sourceLink"
+    :element="htmlElement"
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    :class="linkClass"
     class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex pa-4">
@@ -124,7 +124,7 @@
         </template>
       </div>
     </template>
-  </a>
+  </dynamic-html-element>
 </template>
 
 <script>
@@ -200,11 +200,11 @@ export default {
     useMobileView() {
       return this.$vuetify.breakpoint.name === 'xs' && !this.useSameViewForMobile;
     },
+    htmlElement() {
+      return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
+    },
     link() {
       return this.sourceLink !== '#' && this.sourceLink || 'javascript:void(0)';
-    },
-    linkClass() {
-      return this.sourceLink === '#' ? 'not-clickable' : '';
     },
     linkTarget() {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
