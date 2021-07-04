@@ -15,7 +15,7 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
-      v-if="commentsSize"
+      v-if="commentsSize > 2"
       :disabled="loading"
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
