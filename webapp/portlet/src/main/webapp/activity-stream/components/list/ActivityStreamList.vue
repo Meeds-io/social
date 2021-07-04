@@ -8,16 +8,22 @@
       v-if="!activityId"
       :space-id="spaceId"
       @addActivities="addActivities" />
-    <activity-stream-activity
-      v-for="activity of activitiesToDisplay"
-      :key="activity.id"
-      :activity="activity"
-      :activity-types="activityTypes"
-      :activity-actions="activityActions"
-      :comment-types="commentTypes"
-      :comment-actions="commentActions"
-      :is-activity-detail="activityId"
-      class="mb-6 contentBox" />
+    <template v-if="activitiesToDisplay.length">
+      <activity-stream-activity
+        v-for="activity of activitiesToDisplay"
+        :key="activity.id"
+        :activity="activity"
+        :activity-types="activityTypes"
+        :activity-actions="activityActions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        :is-activity-detail="activityId"
+        class="mb-6 contentBox" />
+    </template>
+    <template v-else-if="!loading && !error">
+      <activity-stream-empty-message-space v-if="spaceId" />
+      <activity-stream-empty-message-user v-else />
+    </template>
     <v-btn
       v-if="hasMore"
       :loading="loading"
@@ -63,6 +69,7 @@ export default {
     userName: eXo.env.portal.userName,
     hasMore: false,
     loading: false,
+    error: false,
   }),
   computed: {
     activitiesToDisplay() {
@@ -135,6 +142,7 @@ export default {
           }
           this.activities = activity && [activity] || [];
         })
+        .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
     loadActivities() {
