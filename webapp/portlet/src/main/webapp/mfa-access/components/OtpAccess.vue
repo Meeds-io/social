@@ -107,7 +107,7 @@ export default {
         });
     },
     onSubmit() {
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/verify/?token=${this.token}`, {
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/verify?token=${this.token}`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => resp && resp.ok && resp.json())
