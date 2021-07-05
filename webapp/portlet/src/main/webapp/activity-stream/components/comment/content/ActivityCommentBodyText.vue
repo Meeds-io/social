@@ -83,6 +83,7 @@ export default {
     loading() {
       if (!this.loading) {
         this.refreshTipTip();
+        this.$root.$emit('activity-comment-refreshed');
       }
     },
     initialized() {
