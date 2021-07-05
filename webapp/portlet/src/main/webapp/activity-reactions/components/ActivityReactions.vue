@@ -48,6 +48,7 @@
         @reactions="reactionsNumber" />
     </div>
     <activity-reactions-mobile
+      :activity="activity"
       :kudos-number="kudosNumber"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
@@ -60,6 +61,10 @@ export default {
     activityId: {
       type: String,
       default: () => ''
+    },
+    activity: {
+      type: Object,
+      default: null,
     },
     likers: {
       type: Array,
