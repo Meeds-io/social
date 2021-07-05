@@ -26,7 +26,6 @@ import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
@@ -338,7 +337,9 @@ public interface ActivityManager {
    * 
    * @param activitySystemTypePlugin plugin to retrieve types & titleIds
    */
-  void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin);
+  default void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin) {
+    // nothing to do by default
+  }
 
   /**
    * Saves a newly created activity to a stream. Note that the Activity.userId will be set to the owner identity if it
