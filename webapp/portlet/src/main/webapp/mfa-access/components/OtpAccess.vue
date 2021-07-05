@@ -114,10 +114,10 @@ export default {
         credentials: 'include',
       }).then(resp => resp && resp.ok && resp.json())
         .then(data => {
-        if (data.result) {
-          window.location.href=this.getQueryParam('initialUri');
-        }
-      });
+          if (data.result) {
+            window.location.href=this.getQueryParam('initialUri');
+          }
+        });
     }
   },
 };
