@@ -25,7 +25,9 @@
           <div class="messageClass">{{ $t('mfa.otp.registration.step3') }}</div>
         </div>
         <div v-if="screen === 'askToken' || screen === 'registration'">
-          <form id="otpForm">
+          <form
+            id="otpForm"
+            @submit.prevent="onSubmit">
             <input
               id="tokenInput"
               v-model="token"
@@ -34,7 +36,7 @@
               required
               type="text"
               name="token">
-            <button class="btn btn-primary" @click="onSubmit()">
+            <button class="btn btn-primary">
               {{ $t('mfa.otp.access.button.confirm') }}
             </button>
           </form>
@@ -112,10 +114,10 @@ export default {
         credentials: 'include',
       }).then(resp => resp && resp.ok && resp.json())
         .then(data => {
-          if (data.result) {
-            window.location.href=this.getQueryParam('initialUri');
-          }
-        });
+        if (data.result) {
+          window.location.href=this.getQueryParam('initialUri');
+        }
+      });
     }
   },
 };
