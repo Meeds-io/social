@@ -22,9 +22,9 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -575,6 +575,38 @@ public class EntityBuilder {
     //
     updateCachedLastModifiedValue(activity.getUpdated());
     return activityEntity;
+  }
+
+  public static void buildActivityFromEntity(ActivityEntity model,
+                                             ExoSocialActivity activity) {
+    if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
+      activity.setTitle(model.getTitle());
+    }
+    if (model.getBody() != null && !model.getBody().equals(activity.getBody())) {
+      activity.setBody(model.getBody());
+    }
+    if (StringUtils.isNotBlank(model.getType())) {
+      activity.setType(model.getType());
+    }
+    Map<String, Object> templateParams = model.getTemplateParams();
+
+    buildActivityParamsFromEntity(activity, templateParams);
+  }
+
+  public static void buildActivityParamsFromEntity(ExoSocialActivity activity, Map<String, ?> templateParams) {
+    Map<String, String> currentTemplateParams = activity.getTemplateParams() == null ? new HashMap<>()
+                                                                                     : new HashMap<>(activity.getTemplateParams());
+    if (templateParams != null) {
+      templateParams.forEach((name, value) -> currentTemplateParams.put(name, (String) value));
+    }
+    Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
+    while (entries.hasNext()) {
+      Map.Entry<String, String> entry = entries.next();
+      if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
+        entries.remove();
+      }
+    }
+    activity.setTemplateParams(currentTemplateParams);
   }
 
   public static boolean expandSubComments(String expand) {
