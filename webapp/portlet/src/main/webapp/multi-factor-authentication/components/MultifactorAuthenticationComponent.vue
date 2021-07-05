@@ -241,6 +241,7 @@
   </v-app>
 </template>
 <script>
+import {changeMfaFeatureActivation, getMfaStatus} from '../multiFactorServices';
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
@@ -257,6 +258,7 @@ export default {
   },
   created() {
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
+    this.getMfaStatus();
   },
   computed: {
     isFido (){
@@ -271,10 +273,16 @@ export default {
   },
   methods: {
     switchAuthenticationStatus() {
+      changeMfaFeatureActivation( !this.isMultifacorAuthenticationEnabled);
       this.isMultifacorAuthenticationEnabled = !this.isMultifacorAuthenticationEnabled;
     },
     protectedGroupsList(selectedGroups) {
       this.selectedGroups = selectedGroups;
+    },
+    getMfaStatus() {
+      getMfaStatus().then(status => {
+        this.isMultifacorAuthenticationEnabled = status.mfaStatus === 'true';
+      });
     },
   }
 };
