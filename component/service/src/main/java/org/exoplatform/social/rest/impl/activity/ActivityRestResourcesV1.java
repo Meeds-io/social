@@ -17,7 +17,6 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
@@ -164,7 +163,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     if (!activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    fillActivity(model, activity, authenticatedUserIdentity);
+    EntityBuilder.buildActivityFromEntity(model, activity);
     activity.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(activity, true);
 
@@ -286,10 +285,10 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }
     
     ExoSocialActivity comment = new ExoSocialActivityImpl();
-    fillActivity(model, comment, authenticatedUserIdentity);
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
+    EntityBuilder.buildActivityFromEntity(model, comment);
     activityManager.saveComment(activity, comment);
     
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), currentUser, uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -343,7 +342,7 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    fillActivity(model, comment, authenticatedUserIdentity);
+    EntityBuilder.buildActivityFromEntity(model, comment);
     comment.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(comment, true);
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()), currentUser, uriInfo.getPath(), expand, false), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -596,40 +595,6 @@ public class ActivityRestResourcesV1 implements ActivityRestResources {
     }).collect(Collectors.toList());
 
     return Response.ok(results).build();
-  }
-
-  private void fillActivity(ActivityEntity model,
-                                    ExoSocialActivity activity,
-                                    org.exoplatform.services.security.Identity authenticatedUserIdentity) {
-    if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
-      activity.setTitle(model.getTitle());
-    }
-    if (model.getBody() != null && !model.getBody().equals(activity.getBody())) {
-      activity.setBody(model.getBody());
-    }
-    if (StringUtils.isNotBlank(model.getType())) {
-      activity.setType(model.getType());
-    }
-    Map<String, String> currentTemplateParams = activity.getTemplateParams() == null ? new HashMap<>()
-                                                                                     : new HashMap<>(activity.getTemplateParams());
-    activity.setTemplateParams(currentTemplateParams);
-    Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry<String, String> entry = entries.next();
-      if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
-        entries.remove();
-      }
-    }
-    if(model.getTemplateParams() != null) {
-      model.getTemplateParams().forEach((name, value) -> {
-        String valueString = (String) value;
-        if (StringUtils.isBlank(valueString) || StringUtils.equals(valueString, "-")) {
-          currentTemplateParams.remove(name);
-        } else {
-          currentTemplateParams.put(name, valueString);
-        }
-      });
-    }
   }
 
 }
