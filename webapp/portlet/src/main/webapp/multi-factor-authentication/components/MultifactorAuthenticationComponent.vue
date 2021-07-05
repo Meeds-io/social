@@ -114,7 +114,7 @@
                     :key="group"
                     outlined
                     class="my-1">
-                    {{ group.groupName }}
+                    {{ group }}
                   </v-chip>
                 </v-row>
               </v-chip-group>
@@ -243,7 +243,7 @@
 <script>
 export default {
   data: () => ({
-    isMultifacorAuthenticationEnabled: false,
+    isMultifacorAuthenticationEnabled: true,
     isManage2faPage: false,
     protectedGroupsUsers: null,
     selectedGroups: null,

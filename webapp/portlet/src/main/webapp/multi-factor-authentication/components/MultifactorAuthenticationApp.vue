@@ -15,7 +15,7 @@
                   small
                   icon
                   @click="openManage2fa">
-                  <v-icon class="text-sub-title">
+                  <v-icon size="20" class="text-sub-title">
                     {{ $vuetify.rtl && 'mdi-arrow-right' || ' mdi-arrow-left' }}
                   </v-icon>
                 </v-btn>
@@ -30,21 +30,23 @@
               <v-text-field
                 :placeholder="$t('authentication.multifactor.manage.filter')"
                 prepend-inner-icon="fa-filter"
+                single-line
+                hide-details
                 class="inputFilter pa-0 me-3 my-auto" />
             </v-scale-transition>
           </div>
           <v-row no-gutters>
-            <div class="my-auto col-3 ml-4">
+            <div class="my-auto col-3 ml-4 d-flex">
               <h4 class="title text-color font-weight-bold subtitle-1 ml-2 infoTextStyle">{{ $t('authentication.multifactor.protected.resources') }}</h4>
-            </div>
-            <div class="my-auto">
-              <v-btn
-                icon
-                outlined
-                small
-                @click="$root.$emit('protectedResource', protectedResource)">
-                <i class="uiIconSocSimplePlus uiIconLightBlue"></i>
-              </v-btn>
+              <div class="my-auto ml-5">
+                <v-btn
+                  icon
+                  outlined
+                  small
+                  @click="$root.$emit('protectedResource', protectedResource)">
+                  <i class="uiIconSocSimplePlus uiIconLightBlue"></i>
+                </v-btn>
+              </div>
             </div>
           </v-row>
           <protected-resource-component v-if="isManage2faPage" />

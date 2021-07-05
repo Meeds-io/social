@@ -8,74 +8,13 @@
       {{ $t('authentication.multifactor.protected.groups.users.title') }}
     </template>
     <template slot="content">
-      <v-card-text class="pa-4">
-        <v-container class="px-0">
-          <v-autocomplete
-            ref="permissionsInput"
-            v-model="selectedItems"
-            :loading="searchLoading"
-            :items="searchResults"
-            :search-input.sync="searchFiled"
-            :placeholder="$t('authentication.multifactor.protected.groups.users.placeholder')"
-            menu-props="closeOnClick, maxHeight = 100"
-            return-object
-            class="inputGroups pt-0"
-            flat
-            hide-no-data
-            hide-details
-            solo-inverted
-            hide-selected
-            chips
-            multiple
-            attach
-            dense
-            dark
-            item-text="groupName"
-            item-value="id"
-            @input="selectionChange"
-            @change="clearSearch"
-            @update:search-input="searchFiled = $event">
-            <template slot="selection" slot-scope="data">
-              <v-chip-group
-                active-class="primary--text"
-                column>
-                <v-chip
-                  :input-value="data"
-                  close
-                  light
-                  small
-                  class="chip--select-multi"
-                  @click:close="removeSelection(data.item)">
-                  {{ data.item.groupName }}
-                </v-chip>
-              </v-chip-group>
-            </template>
-            <template
-              slot="item"
-              slot-scope="{ item, parent }"
-              class="permissionsItem">
-              <v-list-tile-content class="permissionsItemName">
-                <v-list-tile-title v-sanitized-html="parent.genFilteredText(item.groupName)" />
-              </v-list-tile-content>
-            </template>
-          </v-autocomplete>
-        </v-container>
-      </v-card-text>
-      <v-card-text>
-        <v-chip-group
-          active-class="primary--text"
-          column>
-          <v-chip
-            v-for="group in selectedItems"
-            :key="group"
-            close
-            outlined
-            class="my-1"
-            @click:close="removeSelection(group)">
-            {{ group.groupName }}
-          </v-chip>
-        </v-chip-group>
-      </v-card-text>
+      <v-flex xs12 class="pa-3">
+        <exo-group-suggester
+          v-model="groups"
+          :options="suggesterOptions"
+          :source-providers="[findGroups]"
+          :placeholder="$t('authentication.multifactor.protected.groups.users.placeholder')" />
+      </v-flex>
       <v-card-text v-if="error">
         <v-alert type="error">
           {{ error }}
@@ -103,16 +42,34 @@
 <script>
 import {getGroups} from '../multiFactorServices';
 export default {
-  data: () => ({
-    drawer: false,
-    selectedItems: [],
-    groups: [],
-    searchLoading: false,
-    searchResults: [],
-    existingGroups: [],
-    searchFiled: null,
-    error: null,
-  }),
+  data () {
+    const component = this;
+    return {
+      drawer: false,
+      groups: [],
+      selectedGroups: [],
+      searchLoading: false,
+      error: null,
+      suggesterOptions: {
+        type: 'tag',
+        plugins: ['remove_button', 'restore_on_backspace'],
+        create: false,
+        createOnBlur: false,
+        highlight: false,
+        openOnFocus: false,
+        valueField: 'value',
+        labelField: 'text',
+        searchField: ['text'],
+        closeAfterSelect: false,
+        dropdownParent: 'body',
+        hideSelected: true,
+        renderMenuItem(item, escape) {
+          return component.renderMenuItem(item, escape);
+        },
+        sortField: [{field: 'order'}, {field: '$score'}],
+      }
+    };
+  },
   watch: {
     drawer() {
       if (this.drawer) {
@@ -120,9 +77,6 @@ export default {
       } else {
         this.$refs.protectedGroupsUsersDrawer.close();
       }
-    },
-    searchFiled(value) {
-      return value && value !== this.selectedItems && this.querySelections(value);
     },
   },
   created() {
@@ -134,35 +88,33 @@ export default {
     },
     cancel() {
       this.drawer = false;
-      this.searchResults = '';
-      this.searchFiled = '';
-      this.selectedItems = this.groups;
       this.error = null;
     },
     save() {
       this.$refs.protectedGroupsUsersDrawer.close();
-      this.$root.$emit('protectedGroupsList', this.selectedItems);
+      this.$root.$emit('protectedGroupsList', this.groups);
     },
-    async querySelections(query) {
-      this.searchLoading = true;
-      try {
-        const data = await getGroups(`${query}`);
-        this.searchResults = data.entities.filter(
-          ({ groupName }) => (groupName || '').toLowerCase().indexOf((query || '').toLowerCase()) > -1
-        ).filter(el =>  el.id !== '/spaces' && !(el.parentId !== null && el.parentId === '/spaces'))
-          .filter(el => !this.existingGroups.map(item => item.id).includes(el.id));
-        this.searchLoading = false;
-      } catch (err) {
-        this.error = err.message;
+    findGroups (query, callback) {
+      if (!query.length) {
+        return callback();
       }
+      getGroups(query).then(data => {
+        const groups = [];
+        for (const group of data.entities) {
+          groups.push({
+            avatarUrl: null,
+            text: group.label,
+            value: group.id,
+            type: 'group'
+          });
+        }
+        callback(groups);
+      });
     },
-    removeSelection(value) {
-      this.selectedItems = this.selectedItems.filter(({ id }) => id !== value.id);
-    },
-    cleanInput() {
-      this.searchResults = '';
-      this.searchFiled = '';
-      this.error = null;
+    renderMenuItem (item, escape) {
+      return `
+        <div class="item" title="${escape(item.value)}" rel="tooltip" data-placement="bottom">${escape(item.value)}</div>
+      `;
     },
   },
 };
