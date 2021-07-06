@@ -276,7 +276,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals( "path to a document", result.getTemplateParams().get("DOCPATH"));
     assertTrue(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
     assertFalse(result.getTemplateParams().containsKey("FAKE_PARAM"));
-    assertEquals(5, result.getTemplateParams().size());
+    // params length is 5 + 1 (The "processorEmbedProcessor" param)
+    assertEquals(6, result.getTemplateParams().size());
   }
 
   public void testGetUpdatedDeletedActivityById() throws Exception {
