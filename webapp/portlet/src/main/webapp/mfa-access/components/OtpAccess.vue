@@ -1,30 +1,73 @@
 <template>
   <v-app>
-    <div class="otpAccessBlock lockIcon">
-      <h3>{{ $t('mfa.otp.access.title') }}</h3>
-      <div class="otpAccessInfo">{{ $t('mfa.otp.access.info') }}</div>
-      <form id="otpForm">
-        <input
-          id="tokenInput"
-          v-model="token"
-          :placeholder="$t('mfa.otp.access.token.placeholder')"
-          class="ignore-vuetify-classes"
-          required
-          type="text"
-          name="token">
-        <button class="btn btn-primary" @click="onSubmit()">
-          {{ $t('mfa.otp.access.button.confirm') }}
-        </button>
-      </form>
-    </div>
+    <v-container class="pa-0">
+      <div
+        align="center"
+        justify="center">
+        <div v-if="screen === 'askToken' || screen === 'registration'">
+          <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
+          <div class="otpAccessBlock lockIcon">
+          </div>
+        </div>
+        <div v-if="screen === 'registration'">
+          <div class="messageClass">1. {{ $t('mfa.otp.registration.step1') }}</div>
+          <div class="messageClass">2. {{ $t('mfa.otp.registration.step2') }}</div>
+        </div>
+        <div id="qrCode"></div>
+        <div v-if="screen === 'registration'">
+          <div class="messageClass">
+            {{ $t('mfa.otp.registration.alternativeStep2') }}<br>
+            {{ secret }}
+          </div>
+          <div class="messageClass">3. {{ $t('mfa.otp.registration.step3') }}</div>
+        </div>
+        <div v-if="screen === 'askToken'">
+          <div class="messageClass">{{ $t('mfa.otp.registration.step3') }}</div>
+        </div>
+        <div v-if="screen === 'askToken' || screen === 'registration'">
+          <form
+            id="otpForm"
+            @submit.prevent="onSubmit">
+            <input
+              id="tokenInput"
+              v-model="token"
+              :placeholder="$t('mfa.otp.access.token.placeholder')"
+              class="ignore-vuetify-classes"
+              required
+              type="text"
+              name="token">
+            <button class="btn btn-primary">
+              {{ $t('mfa.otp.access.button.confirm') }}
+            </button>
+          </form>
+        </div>
+        <div v-if="screen === 'error'">
+          <div class="otpAccessBlock lockIcon">
+            <i class="uiIconCloseCircled closeCircledIconColor"></i>
+          </div>
+          <div class="font-italic messageClass">{{ $t('mfa.otp.access.echec') }}</div>
+        </div>
+      </div>
+    </v-container>
   </v-app>
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       token: '',
+      screen: '',
+      secret: '',
+      secretSrc: ''
     };
+  },
+  mounted() {
+    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+  },
+  created() {
+    window.setTimeout(() => {
+      this.checkRegistration();
+    }, 1000);
   },
   methods: {
     getQueryParam(paramName) {
@@ -32,8 +75,41 @@ export default {
       const params = new URLSearchParams(uri);
       return params.get(paramName);
     },
+    changeScreen(screen) {
+      this.screen = screen;
+    },
+    checkRegistration() {
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/checkRegistration`, {
+        method: 'GET',
+        credentials: 'include',
+      }).then(resp => resp && resp.ok && resp.json())
+        .then(data => {
+          if (data.result && data.result === 'true') {
+            this.changeScreen('askToken');
+          } else {
+            this.startRegistration();
+          }
+        });
+    },
+    startRegistration() {
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/generateSecret`, {
+        method: 'GET',
+        credentials: 'include',
+      }).then(resp => resp && resp.ok && resp.json())
+        .then(data => {
+          if (data.secret) {
+            window.require(['SHARED/qrcode'], () => {
+              this.secret=data.secret;
+              this.changeScreen('registration');
+              new window.QRCode(document.getElementById('qrCode'), {text: data.url});
+            });
+          } else {
+            this.changeScreen('error');
+          }
+        });
+    },
     onSubmit() {
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/verify/?token=${this.token}`, {
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/otp/verify?token=${this.token}`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => resp && resp.ok && resp.json())
