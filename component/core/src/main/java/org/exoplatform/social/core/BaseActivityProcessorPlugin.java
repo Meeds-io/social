@@ -41,6 +41,7 @@ public abstract class BaseActivityProcessorPlugin extends BaseComponentPlugin im
   private static final Log LOG = ExoLogger.getLogger(BaseActivityProcessorPlugin.class);
 
   public static final String TEMPLATE_PARAM_TO_PROCESS = "registeredKeysForProcessor";
+  public static final String MESSAGE_PARAM = "MESSAGE";
   public static final String TEMPLATE_PARAM_LIST_DELIM = "\\|";
   
   public BaseActivityProcessorPlugin(InitParams params) {

@@ -275,8 +275,14 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     result = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertEquals( "updated title", result.getTitle());
     assertEquals( "updated message", result.getTemplateParams().get("MESSAGE"));
+    assertEquals( "collaboration", result.getTemplateParams().get("WORKSPACE"));
+    assertEquals( "path to a document", result.getTemplateParams().get("DOCPATH"));
     assertFalse(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
-    assertEquals( 4, result.getTemplateParams().size());
+    /*
+      New param will be added to allow the MESSAGE param to be processed
+      registeredKeysForProcessor = MESSAGE
+     */
+    assertEquals(5, result.getTemplateParams().size());
   }
 
   public void testGetUpdatedDeletedActivityById() throws Exception {

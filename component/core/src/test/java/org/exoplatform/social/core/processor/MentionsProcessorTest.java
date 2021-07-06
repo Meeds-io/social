@@ -103,6 +103,7 @@ public class MentionsProcessorTest extends AbstractCoreTest {
     templateParams.put("a", "@root and @john");
     templateParams.put("b", "@john");
     templateParams.put("d", "@mary");
+    templateParams.put("MESSAGE", "@jhon test mention in activity with attached files");
     templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, keysToProcess);
     activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
@@ -112,7 +113,10 @@ public class MentionsProcessorTest extends AbstractCoreTest {
                  LinkProvider.getProfileLink("john", userPortalConfigService.getDefaultPortal()),
                  templateParams.get("a"));
     assertEquals(LinkProvider.getProfileLink("john", userPortalConfigService.getDefaultPortal()),
-                 templateParams.get("b"));    
-    assertEquals("@mary", templateParams.get("d"));  
+                 templateParams.get("b"));
+    String jhonProfileLink = LinkProvider.getProfileLink("john", userPortalConfigService.getDefaultPortal());
+    assertEquals(jhonProfileLink + " test mention in activity with attached files",
+            templateParams.get("MESSAGE"));
+    assertEquals("@mary", templateParams.get("d"));
   }
 }

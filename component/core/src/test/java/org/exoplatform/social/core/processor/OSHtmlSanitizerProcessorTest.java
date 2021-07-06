@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.processor;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -54,42 +55,58 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     String sample = "this is a <strong> tag to keep</strong>";
     activity.setTitle(sample);
     activity.setBody(sample);
+    Map<String, String> templateParams = new HashMap<>();
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
 
     assertEquals(sample, activity.getTitle());
     assertEquals(sample, activity.getBody());
+    assertEquals(sample, activity.getTemplateParams().get("MESSAGE"));
 
     // tags with attributes
     sample = "text <a href='#'>bar</a> zed";
 
     activity.setTitle(sample);
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
 
     assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTitle());
-
+    assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTemplateParams().get("MESSAGE"));
     // only with open tag
     sample = "<strong> only open!!!";
     activity.setTitle(sample);
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
     assertEquals("<strong> only open!!!</strong>", activity.getTitle());
+    assertEquals("<strong> only open!!!</strong>", activity.getTemplateParams().get("MESSAGE"));
 
     // self closing tags
     sample = "<script href='#' />bar</a>";
     activity.setTitle(sample);
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
     assertEquals("bar&lt;/a&gt;", activity.getTitle());
-
+    assertEquals("bar&lt;/a&gt;", activity.getTemplateParams().get("MESSAGE"));
     // forbidden tag
     sample = "<script>foo</script>";
     activity.setTitle(sample);
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
     assertEquals("", activity.getTitle());
-
+    assertEquals("", activity.getTemplateParams().get("MESSAGE"));
     // embedded
     sample = "<span><strong>foo</strong>bar<script>zed</script></span>";
     activity.setTitle(sample);
+    templateParams.put("MESSAGE", sample);
+    activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
     assertEquals("<strong>foo</strong>bar", activity.getTitle());
+    assertEquals("<strong>foo</strong>bar", activity.getTemplateParams().get("MESSAGE"));
   }
   
   public void testProcessActivityWithTemplateParam() throws Exception {
