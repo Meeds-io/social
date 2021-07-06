@@ -274,7 +274,7 @@
       </plugins>
     </pluginManagement>
   </build>
-
+  
   <!-- This profile is used to allow github action to build branches. The github action is used for sonar analysis -->
   <profiles>
     <profile>
