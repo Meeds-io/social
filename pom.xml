@@ -49,7 +49,7 @@
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
 
-    <org.exoplatform.commons.version>6.2.x-maintenance-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.commons.version>6.2.x-SNAPSHOT</org.exoplatform.commons.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
