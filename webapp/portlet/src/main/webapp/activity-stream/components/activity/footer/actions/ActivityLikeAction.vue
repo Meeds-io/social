@@ -70,7 +70,7 @@ export default {
           const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
           this.activity.likes = [...this.likers, liker];
           this.activity.likesCount++;
-          this.$root.$emit('activity-updated', this.activityId, this.activity);
+          this.$root.$emit('activity-liked', this.activity);
         })
         .finally(() => this.changingLike = false);
     },
@@ -80,7 +80,7 @@ export default {
         .then(() => {
           this.activity.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
           this.activity.likesCount--;
-          this.$root.$emit('activity-updated', this.activityId, this.activity);
+          this.$root.$emit('activity-liked', this.activity);
         })
         .finally(() => this.changingLike = false);
     },

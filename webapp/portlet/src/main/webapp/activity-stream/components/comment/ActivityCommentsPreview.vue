@@ -15,7 +15,7 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
-      v-if="commentsSize"
+      v-if="commentsSize > 2"
       :disabled="loading"
       class="primary--text font-weight-bold mb-1 subtitle-2"
       small
@@ -106,7 +106,8 @@ export default {
           this.commentsSize = 0;
           this.$nextTick().then(() => {
             this.comments = data && data.comments || [];
-            this.commentsSize = data && data.size && Number(data.size) || 0;
+            this.activity.commentsSize = this.commentsSize = data && data.size && Number(data.size) || 0;
+            this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
           });
         })
         .finally(() => this.loading = false);

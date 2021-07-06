@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core;
 
+import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
 
@@ -23,7 +24,15 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
  * An activity processor is responsible to pre-process an activity
  * before it is returned by the {@link org.exoplatform.social.core.manager.ActivityManager}
  */
-public interface ActivityProcessor {
+public interface ActivityProcessor extends ComponentPlugin {
   void processActivity(ExoSocialActivity activity);
   int getPriority();
+
+  /**
+   * @return true if the Activity Processor is to use before saving activity,
+   *         else false
+   */
+  default boolean isPreActivityProcessor() {
+    return false;
+  }
 }
