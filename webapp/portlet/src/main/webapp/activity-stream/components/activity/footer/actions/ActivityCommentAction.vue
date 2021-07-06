@@ -42,18 +42,33 @@ export default {
       return this.hasCommented && 'primary--text' || '';
     },
   },
+  watch: {
+    activity() {
+      this.checkWhetherCommented();
+    },
+  },
   created() {
     this.$root.$on('activity-comment-created', this.handleCommentCreated);
-    this.hasCommented = this.activity && this.activity.hasCommented === 'true';
+    this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
+    this.checkWhetherCommented();
   },
   beforeDestroy() {
     this.$root.$off('activity-comment-created', this.handleCommentCreated);
+    this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
   },
   methods: {
     handleCommentCreated(comment) {
       if (comment.activityId === this.activityId) {
         this.hasCommented = true;
       }
+    },
+    handleCommentDeleted(comment) {
+      if (comment.activityId === this.activityId) {
+        this.checkWhetherCommented();
+      }
+    },
+    checkWhetherCommented() {
+      this.hasCommented = this.activity && this.activity.hasCommented === 'true';
     },
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {

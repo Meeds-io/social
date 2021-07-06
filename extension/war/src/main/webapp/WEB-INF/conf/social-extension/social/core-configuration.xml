@@ -240,16 +240,6 @@
                 <description>enable/disable edit comment</description>
                 <value>${exo.edit.comment.enabled:true}</value>
             </value-param>
-            <value-param>
-                <name>exo.manager.edit.activity.enabled</name>
-                <description>enable/disable manger edit activity</description>
-                <value>${exo.manager.edit.activity.enabled:true}</value>
-            </value-param>
-            <value-param>
-                <name>exo.manager.edit.comment.enabled</name>
-                <description>enable/disable manager edit comment</description>
-                <value>${exo.manager.edit.comment.enabled:true}</value>
-            </value-param>
         </init-params>
     </component>
     
