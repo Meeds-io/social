@@ -39,7 +39,7 @@
         <v-list-item>
           <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
             <v-list-item-title class="text-color px-0 pb-0 pt-2 mt-auto mb-2">
-              {{ $t('MobileSettings.step.two') }}<img src="/social-portlet/images/scanhelper.png"><span class="logoTitle subtitle-2 font-weight-bold text-truncate">{{ $t('MobileSettings.bg') }}</span>
+              {{ $t('MobileSettings.step.two') }}<img src="/social-portlet/images/scanhelper.png" :alt="$t('MobileSettings.icon')"><span class="logoTitle subtitle-2 font-weight-bold text-truncate">{{ $t('MobileSettings.bg') }}</span>
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -54,6 +54,7 @@
       <div>
         <img
           src="/social-portlet/images/qr_code_scanner.png"
+          :alt="$t('MobileSettings.image')"
           class="mx-16"
           height="180"
           width="180">
