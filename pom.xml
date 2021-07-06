@@ -48,7 +48,6 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-
     <org.exoplatform.commons.version>6.2.x-SNAPSHOT</org.exoplatform.commons.version>
 
     <!-- Sonar properties -->
