@@ -601,15 +601,21 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(rootIdentity, activity);
     tearDownActivityList.add(activity);
     
+    //Wait for 1s to make sure that the comments are not created on the same time
+    sleep(1000);
+
     for (int i = 0; i < totalNumber; i ++) {
       //John comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("john comment " + i);
       comment.setUserId(johnIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 10 ms to make sure that the comments are not created on the same time
-      sleep(10);
+      //Wait for 1s to make sure that the comments are not created on the same time
+      sleep(1000);
     }
+
+    //Wait for 1s to make sure that the comments are not created on the same time
+    sleep(1000);
     
     for (int i = 0; i < totalNumber; i ++) {
       //John comments on Root's activity
@@ -617,10 +623,13 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       comment.setTitle("demo comment " + i);
       comment.setUserId(demoIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 10 ms to make sure that the comments are not created on the same time
-      sleep(10);
+      //Wait for 1s to make sure that the comments are not created on the same time
+      sleep(1000);
     }
-    
+
+    end();
+    begin();
+
     List<ExoSocialActivity> comments = activityStorage.getComments(activity, false,0, 20);
     assertEquals(20, comments.size());
     

@@ -16,8 +16,10 @@
  */
 package org.exoplatform.social.core.manager;
 
+import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +39,6 @@ import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.*;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess.ActivityType;
 import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.relationship.model.Relationship;
@@ -112,22 +113,20 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
 
+  private Set<String>                 systemActivityTypes            = new HashSet<>();
+
+  private Set<String>                 systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
+                                                                                                   "space_avatar_edited",
+                                                                                                   "space_description_edited",
+                                                                                                   "space_renamed",
+                                                                                                   "manager_role_revoked",
+                                                                                                   "manager_role_granted"));
+
   private int                         maxUploadSize                   = 10;
 
   private boolean                     enableEditActivity              = true;
 
   private boolean                     enableEditComment               = true;
-
-  private boolean                     enableManagerEditActivity       = true;
-
-  private boolean                     enableManagerEditComment        = true;
-
-  public static final List<String>    AUTOMATIC_EDIT_TITLE_ACTIVITIES = Arrays.asList("has_joined",
-                                                                                      "space_avatar_edited",
-                                                                                      "space_description_edited",
-                                                                                      "space_renamed",
-                                                                                      "manager_role_revoked",
-                                                                                      "manager_role_granted");
 
   public static final String          SEPARATOR_REGEX                 = "\\|@\\|";
 
@@ -161,12 +160,6 @@ public class ActivityManagerImpl implements ActivityManager {
       if (params.containsKey(ENABLE_EDIT_COMMENT)) {
         enableEditComment = Boolean.parseBoolean(params.getValueParam(ENABLE_EDIT_COMMENT).getValue());
       }
-      if (params.containsKey(ENABLE_MANAGER_EDIT_ACTIVITY)) {
-        enableManagerEditActivity = Boolean.parseBoolean(params.getValueParam(ENABLE_MANAGER_EDIT_ACTIVITY).getValue());
-      }
-      if (params.containsKey(ENABLE_MANAGER_EDIT_COMMENT)) {
-        enableManagerEditComment = Boolean.parseBoolean(params.getValueParam(ENABLE_MANAGER_EDIT_COMMENT).getValue());
-      }
     } else {
       String maxUploadString = System.getProperty("wcm.connector.drives.uploadLimit");
       if (StringUtils.isNotBlank(maxUploadString)) {
@@ -193,7 +186,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
 
     if (newActivity.getType() != null && activityTypesRegistry.get(newActivity.getType()) != null
-        && !activityTypesRegistry.get(newActivity.getType())) {
+        && !activityTypesRegistry.get(newActivity.getType()).booleanValue()) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Activity could not be saved. Activity Type {} has been disabled.", newActivity.getType());
       }
@@ -216,7 +209,7 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   public void saveActivity(Identity streamOwner, String activityType, String activityTitle) {
-    if (activityType != null && activityTypesRegistry.get(activityType) != null && !activityTypesRegistry.get(activityType)) {
+    if (activityType != null && activityTypesRegistry.get(activityType) != null && !activityTypesRegistry.get(activityType).booleanValue()) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Activity could not be saved. Activity Type {} has been disabled.", activityType);
       }
@@ -263,6 +256,7 @@ public class ActivityManagerImpl implements ActivityManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void updateActivity(ExoSocialActivity existingActivity, boolean broadcast) {
     String activityId = existingActivity.getId();
 
@@ -470,16 +464,10 @@ public class ActivityManagerImpl implements ActivityManager {
     registerActivityListener(activityListenerPlugin);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public void registerActivityListener(ActivityListener listener) {
     activityLifeCycle.addListener(listener);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public void unregisterActivityListener(ActivityListener listener) {
     activityLifeCycle.removeListener(listener);
   }
@@ -554,8 +542,22 @@ public class ActivityManagerImpl implements ActivityManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void addProcessorPlugin(BaseActivityProcessorPlugin plugin) {
     this.addProcessor(plugin);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin) {
+    if (CollectionUtils.isNotEmpty(activitySystemTypePlugin.getSystemActivityTitleIds())) {
+      systemActivityTitleIds.addAll(activitySystemTypePlugin.getSystemActivityTitleIds());
+    }
+    if (CollectionUtils.isNotEmpty(activitySystemTypePlugin.getSystemActivityTypes())) {
+      systemActivityTypes.addAll(activitySystemTypePlugin.getSystemActivityTypes());
+    }
   }
 
   public void initActivityTypes() {
@@ -767,7 +769,7 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, viewer.getUserId());
       if (enableEdit && identity != null && StringUtils.equals(identity.getId(), activity.getPosterId())) {
-        return !activity.isComment() || !isAutomaticComment(activity);
+        return !isAutomaticActivity(activity);
       }
     }
     return false;
@@ -834,15 +836,11 @@ public class ActivityManagerImpl implements ActivityManager {
     return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
   }
 
-  public boolean isAutomaticComment(ExoSocialActivity activity) {
+  public boolean isAutomaticActivity(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
     return activity != null
-        && ((StringUtils.isNotBlank(activity.getType())
-            && !SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
-            && !ActivityPluginType.DEFAULT.getName().equals(activity.getType())
-            && !ActivityPluginType.LINK.getName().equals(activity.getType()))
-            || (SpaceActivityPublisher.SPACE_APP_ID.equals(activity.getType())
-                && AUTOMATIC_EDIT_TITLE_ACTIVITIES.contains(activity.getTitleId())));
+        && ((activity.getType() != null && systemActivityTypes.contains(activity.getType()))
+            || (activity.getTitleId() != null && systemActivityTitleIds.contains(activity.getTitleId())));
   }
 
   private String[] getParameterValues(Map<String, String> activityParams, String paramName) {
@@ -857,7 +855,7 @@ public class ActivityManagerImpl implements ActivityManager {
     return values;
   }
 
-  private ActivityFile convertFileItemToActivityFile(FileItem fileItem) throws Exception {
+  private ActivityFile convertFileItemToActivityFile(FileItem fileItem) throws IOException {
     ActivityFile activityFile = new ActivityFile();
 
     activityFile.setInputStream(fileItem.getAsStream());
