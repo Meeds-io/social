@@ -19,11 +19,14 @@
         </div>
         <div class="content">
           <exo-activity-rich-editor
+            v-if="showMessageComposer"
             :ref="ckEditorId"
             v-model="message"
             :ck-editor-type="ckEditorId"
             :max-length="MESSAGE_MAX_LENGTH"
-            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)" />
+            :template-params="templateParams"
+            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"
+            autofocus />
           <div class="composerButtons">
             <div v-if="displayHintMessage" class="action">
               <i class="fas fa-pencil-alt fa-sm colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
@@ -35,13 +38,14 @@
             <div v-else class="emptyMessage">
             </div>
             <div>
-              <button
+              <v-btn
                 :disabled="postDisabled"
+                :loading="loading"
                 type="button"
-                class="btn btn-primary ignore-vuetify-classes btnStyle"
+                class="primary btn no-box-shadow"
                 @click="postMessage()">
                 {{ $t(`activity.composer.${composerAction}`) }}
-              </button>
+              </v-btn>
             </div>
           </div>
           <transition name="fade">
@@ -131,6 +135,10 @@ export default {
       type: String,
       default: ''
     },
+    activityParams: {
+      type: Object,
+      default: null
+    },
     composerAction: {
       type: String,
       default: 'post'
@@ -147,6 +155,7 @@ export default {
       postTarget: '',
       showMessageComposer: false,
       message: '',
+      loading: false,
       showErrorMessage: false,
       activityComposerActions: [],
       activityComposerHintAction: null,
@@ -154,6 +163,7 @@ export default {
       percent: 100,
       actionsData: [],
       actionsEvents: [],
+      templateParams: {},
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
     };
@@ -165,7 +175,7 @@ export default {
     },
     postDisabled: function() {
       const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.activityBodyEdited;
+      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || this.activityBodyEdited;
     },
     activityType: function() {
       return this.attachments.length ? 'files:spaces' : '';
@@ -199,6 +209,8 @@ export default {
   created() {
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
+
+    this.templateParams = this.activityParams || {};
 
     this.postTarget = eXo.env.portal.spaceDisplayName || '';
     if (!eXo.env.portal.spaceDisplayName){
@@ -249,6 +261,7 @@ export default {
         this.message = params.activityBody;
         this.activityId = params.activityId;
         this.composerAction = params.composerAction;
+        this.templateParams = params.activityParams || {};
       }
 
       this.showMessageComposer = true;
@@ -267,16 +280,6 @@ export default {
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
-
-      // Send metric
-      let url = '/portal/rest/v1/social/metrics/composer/click?composer=new';
-      if (eXo.env.portal.spaceId) {
-        url += `&spaceId=${eXo.env.portal.spaceId}`;
-      }
-      fetch(url, {
-        credentials: 'include',
-        method: 'POST'
-      });
     },
     getLabel: function(labelKey) {
       const label = this.$t(labelKey);
@@ -287,7 +290,12 @@ export default {
       // be sure to get the most up to date value of the message
       const msg = this.$refs[this.ckEditorId].getMessage();
       if (this.composerAction === 'update') {
-        composerServices.updateActivityInUserStream(msg, this.activityId, this.activityType, this.attachments)
+        let activityType = this.activityType;
+        if (this.templateParams && this.templateParams.link && !this.activityType) {
+          activityType = 'LINK_ACTIVITY';
+        }
+        this.loading = true;
+        composerServices.updateActivityInUserStream(msg, this.activityId, activityType, this.attachments, this.templateParams)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.closeMessageComposer();
@@ -300,10 +308,16 @@ export default {
             // eslint-disable-next-line no-console
             console.error(`Error when updating the activity: ${error}`);
             this.showErrorMessage = true;
-          });
+          })
+          .finally(() => this.loading = false);
       } else {
         if (eXo.env.portal.spaceId) {
-          composerServices.postMessageInSpace(msg, this.activityType, this.attachments, eXo.env.portal.spaceId)
+          let activityType = this.activityType;
+          if (this.templateParams && this.templateParams.link && !this.activityType) {
+            activityType = 'LINK_ACTIVITY';
+          }
+          this.loading = true;
+          composerServices.postMessageInSpace(msg, activityType, this.attachments, eXo.env.portal.spaceId, this.templateParams)
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.refreshActivityStream();
@@ -316,9 +330,15 @@ export default {
               // eslint-disable-next-line no-console
               console.error(`Error when posting message: ${error}`);
               this.showErrorMessage = true;
-            });
+            })
+            .finally(() => this.loading = false);
         } else {
-          composerServices.postMessageInUserStream(msg, this.activityType, this.attachments, eXo.env.portal.userName)
+          let activityType = this.activityType;
+          if (this.templateParams && this.templateParams.link && !this.activityType) {
+            activityType = 'LINK_ACTIVITY';
+          }
+          this.loading = true;
+          composerServices.postMessageInUserStream(msg, activityType, this.attachments, eXo.env.portal.userName, this.templateParams)
             .then(() => this.refreshActivityStream())
             .then(() => this.closeMessageComposer())
             .then(() => {
@@ -328,7 +348,8 @@ export default {
               // eslint-disable-next-line no-console
               console.error(`Error when posting message: ${error}`);
               this.showErrorMessage = true;
-            });
+            })
+            .finally(() => this.loading = false);
         }
       }
     },

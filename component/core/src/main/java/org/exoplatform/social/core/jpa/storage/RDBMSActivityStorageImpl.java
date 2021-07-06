@@ -184,6 +184,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private ActivityEntity convertActivityToActivityEntity(ExoSocialActivity activity, String ownerId) {
+    preSaveProcessActivity(activity);
+
     ActivityEntity activityEntity = new ActivityEntity();
     if (activity.getId() != null) {
       activityEntity = activityDAO.find(Long.valueOf(activity.getId()));
@@ -310,6 +312,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private ActivityEntity convertCommentToCommentEntity(ActivityEntity activityEntity, ExoSocialActivity comment) {
+    if (comment.getTemplateParams() != null) {
+      preSaveProcessActivity(comment);
+    }
+
     ActivityEntity commentEntity = new ActivityEntity();
     if (comment.getId() != null) {
       commentEntity = activityDAO.find(getCommentID(comment.getId()));
@@ -1123,6 +1129,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
 
     if (updatedActivity != null) {
+      if (existingActivity.getTemplateParams() != null) {
+        preSaveProcessActivity(existingActivity);
+      }
+
       if (isComment) {
         // update comment
         updatedActivity.setUpdatedDate(new Date());
@@ -1142,6 +1152,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
       if (existingActivity.getTitleId() != null)
         updatedActivity.setTitleId(existingActivity.getTitleId());
+      if (existingActivity.getType() != null)
+        updatedActivity.setType(existingActivity.getType());
       if (existingActivity.getTitle() != null)
         updatedActivity.setTitle(existingActivity.getTitle());
       if (existingActivity.getBody() != null)
@@ -1396,11 +1408,33 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return String.valueOf(COMMENT_PREFIX + commentId);
   }
 
+  private void preSaveProcessActivity(ExoSocialActivity existingActivity) {
+    processActivity(existingActivity, true);
+  }
+
   private void processActivity(ExoSocialActivity existingActivity) {
+    processActivity(existingActivity, false);
+  }
+
+  private void processActivity(ExoSocialActivity existingActivity, boolean preSave) {
     Iterator<ActivityProcessor> it = activityProcessors.iterator();
     while (it.hasNext()) {
+      ActivityProcessor processor = it.next();
+      Map<String, String> templateParams = existingActivity.getTemplateParams();
+      String processorFlag = "processor" + processor.getName();
+      if ((preSave && !processor.isPreActivityProcessor())
+          || (!preSave && templateParams != null && templateParams.containsKey(processorFlag))) {
+        continue;
+      }
       try {
-        it.next().processActivity(existingActivity);
+        processor.processActivity(existingActivity);
+        if (preSave) {
+          if (templateParams == null) {
+            templateParams = new HashMap<>();
+            existingActivity.setTemplateParams(templateParams);
+          }
+          templateParams.put(processorFlag, "true");
+        }
       } catch (Exception e) {
         LOG.debug("activity processing failed ");
       }

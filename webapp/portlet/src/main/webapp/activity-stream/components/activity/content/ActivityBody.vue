@@ -42,7 +42,7 @@ export default {
       return this.activity && this.activity.id;
     },
     isBodyNotEmpty() {
-      return this.body && this.body.trim() !== '<p></p>';
+      return this.body && this.$utils.trim(this.body).length;
     },
     useParagraph() {
       return !this.body.includes('</p>');
@@ -51,7 +51,7 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return this.isComment && 'rich-editor-content' || 'postContent text-color pt-0 pe-7 pb-4 ps-4';
+      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0 pe-7 ps-4';
     },
   },
   watch: {
@@ -66,8 +66,7 @@ export default {
   },
   methods: {
     retrieveActivityProperties() {
-      const body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
-      this.body = this.$utils.trim(body);
+      this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
   },
 };

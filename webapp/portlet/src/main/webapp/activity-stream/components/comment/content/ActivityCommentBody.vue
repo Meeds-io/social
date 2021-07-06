@@ -11,6 +11,7 @@
         :activity-id="activityId"
         :parent-comment-id="comment.parentCommentId"
         :comment-id="comment.id"
+        :template-params="templateParams"
         :label="$t('UIActivity.label.Update')"
         :options="commentEditOptions" />
     </div>
@@ -22,7 +23,7 @@
           avatar
           class="mt-0 mb-auto me-2 flex-grow-0" />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
-          <div class="px-2 py-1 flex-grow-1 grey-background border-box-sizing rounded-lg">
+          <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
             <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
               <activity-head-user :identity="posterIdentity" />
             </v-list-item-title>
@@ -40,7 +41,7 @@
               class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
             <activity-head-time
               :activity="comment"
-              class="d-inline ps-2 ms-auto activity-comment-head-time"
+              class="d-inline ps-2 activity-comment-head-time"
               no-icon />
           </div>
           <div v-if="hasMoreRepliesToDisplay" class="py-0 my-1 align-start d-flex flex-row border-box-sizing">

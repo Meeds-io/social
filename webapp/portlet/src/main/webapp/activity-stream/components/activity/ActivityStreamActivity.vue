@@ -140,6 +140,9 @@ export default {
         }}));
       }, 50);
     }
+    if (this.activity.highlight) {
+      this.scrollTo(this.$el);
+    }
   },
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
@@ -169,6 +172,16 @@ export default {
       window.setTimeout(() => {
         this.$utils.initTipTip(this.$el, this.$userPopupLabels);
       }, 200);
+    },
+    scrollTo(element) {
+      window.setTimeout(() => {
+        if (element && element.scrollIntoView) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 10);
     },
   },
 };

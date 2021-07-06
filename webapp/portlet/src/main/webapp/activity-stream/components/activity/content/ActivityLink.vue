@@ -1,10 +1,10 @@
 <template>
-  <a
+  <dynamic-html-element
     v-if="sourceLink"
+    :element="htmlElement"
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    :class="linkClass"
     class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex pa-4">
@@ -16,6 +16,7 @@
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
           rounded
+          eager
           tile>
           <v-img
             v-if="thumbnail"
@@ -55,6 +56,7 @@
         :class="thumbnailNoBorder || 'border-color'"
         class="border-box-sizing align-start ma-4"
         rounded
+        eager
         tile>
         <v-img
           v-if="thumbnail"
@@ -78,6 +80,7 @@
         :class="iconNoBorder || 'border-color'"
         class="border-box-sizing align-start ma-4"
         rounded
+        eager
         tile>
         <v-icon
           :size="defaultIconSize"
@@ -121,7 +124,7 @@
         </template>
       </div>
     </template>
-  </a>
+  </dynamic-html-element>
 </template>
 
 <script>
@@ -197,11 +200,11 @@ export default {
     useMobileView() {
       return this.$vuetify.breakpoint.name === 'xs' && !this.useSameViewForMobile;
     },
+    htmlElement() {
+      return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
+    },
     link() {
       return this.sourceLink !== '#' && this.sourceLink || 'javascript:void(0)';
-    },
-    linkClass() {
-      return this.sourceLink === '#' ? 'not-clickable' : '';
     },
     linkTarget() {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
@@ -247,6 +250,13 @@ export default {
     },
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
+    },
+  },
+  watch: {
+    activityTypeExtension(newVal, oldVal) {
+      if (!oldVal || newVal !== oldVal) {
+        this.retrieveActivityProperties();
+      }
     },
   },
   created() {

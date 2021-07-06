@@ -1164,7 +1164,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = currentUser.getUserId();
     Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     //
     Space space = spaceService.getSpaceById(id);
@@ -1180,13 +1181,13 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     activity.setBody(model.getBody());
     activity.setType(model.getType());
     activity.setUserId(poster.getId());
-    activity.setTemplateParams(model.getTemplateParams());
     if(model.getFiles() != null) {
       activity.setFiles(model.getFiles()
               .stream()
               .map(fileModel -> new ActivityFile(fileModel.getId(),fileModel.getUploadId(), fileModel.getStorage(), fileModel.getDestinationFolder()))
               .collect(Collectors.toList()));
     }
+    EntityBuilder.buildActivityParamsFromEntity(activity, model.getTemplateParams());
     CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(spaceIdentity, activity);
 
     logMetrics(activity, space);

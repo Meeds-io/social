@@ -102,7 +102,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     
-    CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(act, uriInfo.getPath(), expand, false);
+    CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(act, currentUser, uriInfo.getPath(), expand, false);
 
     return EntityBuilder.getResponse(commentEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -251,7 +251,7 @@ public class CommentRestResourcesV1 implements CommentRestResources {
 
     activityManager.saveLike(comment, currentUser);
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(comment, uriInfo.getPath(), expand, true), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(comment, currentUser, uriInfo.getPath(), expand, true), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
 
   }
 
