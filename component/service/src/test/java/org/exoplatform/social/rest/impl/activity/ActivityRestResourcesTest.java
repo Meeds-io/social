@@ -72,7 +72,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     identityStorage.saveIdentity(maryIdentity);
     identityStorage.saveIdentity(demoIdentity);
 
-    activityRestResourcesV1 = new ActivityRestResourcesV1();
+    activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager);
     registry(activityRestResourcesV1);
   }
 
@@ -254,6 +254,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     templateParams.put("MESSAGE", "old message");
     templateParams.put("description", "description of the activity");
     templateParams.put("DOCPATH", "path to a document");
+    templateParams.put("FAKE_PARAM", "fake param");
     rootActivity.setTemplateParams(templateParams);
     activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
     ContainerResponse response = service("GET",
@@ -263,7 +264,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertEquals("test activity", result.getTitle());
 
-    String input = "{\"title\":\"updated title\",\"templateParams\":{\"MESSAGE\":\"updated message\",\"NOT_EXIST_KEY\":\"any value\"}}";
+    String input = "{\"title\":\"updated title\",\"templateParams\":{\"MESSAGE\":\"updated message\",\"NOT_EXIST_KEY\":\"any value\",\"FAKE_PARAM\":\"-\"}}";
 
     response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), input);
     assertNotNull(response);
@@ -271,8 +272,11 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     result = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertEquals( "updated title", result.getTitle());
     assertEquals( "updated message", result.getTemplateParams().get("MESSAGE"));
-    assertFalse(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
-    assertEquals( 4, result.getTemplateParams().size());
+    assertEquals( "collaboration", result.getTemplateParams().get("WORKSPACE"));
+    assertEquals( "path to a document", result.getTemplateParams().get("DOCPATH"));
+    assertTrue(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
+    assertFalse(result.getTemplateParams().containsKey("FAKE_PARAM"));
+    assertEquals(5, result.getTemplateParams().size());
   }
 
   public void testGetUpdatedDeletedActivityById() throws Exception {

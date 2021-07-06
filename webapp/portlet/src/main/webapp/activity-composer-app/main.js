@@ -54,6 +54,7 @@ export function init(params) {
           composerAction: params && params.composerAction || 'post',
           activityBody: params && params.activityBody || '',
           activityId: params && params.activityId || '',
+          activityParams: params && params.activityParams || '',
           standalone: !!(params && params.activityId),
         }),
         template: `<exo-activity-composer

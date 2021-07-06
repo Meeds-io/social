@@ -7,6 +7,8 @@
       offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
+          :disabled="loading"
+          :loading="loading"
           icon
           small
           v-bind="attrs"
@@ -45,6 +47,7 @@ export default {
   },
   data: () => ({
     menu: false,
+    loading: false,
   }),
   computed: {
     enabledActions() {
@@ -69,10 +72,21 @@ export default {
           message: action.confirmMessageKey,
           ok: action.confirmOkKey,
           cancel: action.confirmCancelKey,
-          callback: () => action.click(this.activity, this.activityTypeExtension),
+          callback: () => this.confirmAction(action),
         });
       } else {
-        action.click(this.activity, this.activityTypeExtension);
+        this.confirmAction(action);
+      }
+    },
+    confirmAction(action) {
+      const result = action.click(this.activity, this.activityTypeExtension);
+      if (result && result.finally && result.then) {
+        this.loading = true;
+        result.finally(() => {
+          window.setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        });
       }
     },
   },

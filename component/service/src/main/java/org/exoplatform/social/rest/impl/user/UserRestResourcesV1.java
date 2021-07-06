@@ -1310,7 +1310,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               .map(fileModel -> new ActivityFile(fileModel.getId(), fileModel.getUploadId(), fileModel.getStorage(), fileModel.getDestinationFolder()))
               .collect(Collectors.toList()));
     }
-    activity.setTemplateParams(model.getTemplateParams());
+    EntityBuilder.buildActivityParamsFromEntity(activity, model.getTemplateParams());
     CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(target, activity);
 
     logMetrics(activity);
