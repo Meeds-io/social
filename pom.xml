@@ -227,7 +227,7 @@
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
-    </dependencies>
+     </dependencies>
   </dependencyManagement>
 
   <dependencies>
