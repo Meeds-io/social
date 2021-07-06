@@ -37,7 +37,7 @@
     <v-list-item>
       <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
         <v-list-item-title class="px-0 pb-0 pt-2 mt-auto mb-2">
-          {{ $t('MobileSettings.step.two') }}<img src="/social/images/scan-helper.png" alt="scan helper icon"> {{ $t('MobileSettings.bg') }}
+          {{ $t('MobileSettings.step.two') }}<img src="/social-portlet/images/scan-helper.png" :alt="$t('MobileSettings.icon')"> {{ $t('MobileSettings.bg') }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
