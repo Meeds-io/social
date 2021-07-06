@@ -72,8 +72,6 @@ public class RestUtils {
 
   public static final String ACTIVITIES_TYPE         = "activities";
   
-  public static final String COMMENTS_TYPE           = "comments";
-  
   public static final String LIKES_TYPE              = "likes";
 
   public static final String KEY                     = "key";

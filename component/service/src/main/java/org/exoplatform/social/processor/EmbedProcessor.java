@@ -19,8 +19,10 @@ import org.exoplatform.social.service.rest.LinkShare;
 
 /**
  * A processor if it found a tag oembed it transform this content to iframe to show the media
+ * @deprecated this processor is kept for backward compatibility for old activities where preview
+ * is generated in server side instead of generating template params from client/browser side
  */
-
+@Deprecated
 public class EmbedProcessor extends BaseActivityProcessorPlugin {
   private static final Log LOG = ExoLogger.getLogger(EmbedProcessor.class);
   private static final String OPENING_OEMBED = "<oembed>";
@@ -127,7 +129,8 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
    }
 
    @Override
-  public boolean isPreActivityProcessor() {
-    return true;
-  }
+   public boolean isPreActivityProcessor() {
+     return true;
+   }
+
 }

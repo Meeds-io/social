@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -24,11 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.commons.file.services.FileService;
-import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.commons.utils.PropertyManager;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -73,14 +68,7 @@ public class ActivityManagerImpl implements ActivityManager {
   /** spaceService */
   protected SpaceService              spaceService;
 
-  private FileService                 fileService;
-
   protected ActivityLifeCycle         activityLifeCycle               = new ActivityLifeCycle();
-
-  /**
-   * Default limit for deprecated methods to get maximum number of activities.
-   */
-  private static final int            DEFAULT_LIMIT                   = 20;
 
   /**
    * The list of enabled/disabled activity types by exo properties.
@@ -138,15 +126,15 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
+                             SpaceService spaceService,
                              RelationshipManager relationshipManager,
                              UserACL userACL,
-                             FileService fileService,
                              InitParams params) {
     this.activityStorage = activityStorage;
     this.identityManager = identityManager;
+    this.spaceService = spaceService;
     this.relationshipManager = relationshipManager;
     this.userACL = userACL;
-    this.fileService = fileService;
     initActivityTypes();
 
     if (params != null) {
@@ -170,10 +158,10 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
+                             SpaceService spaceService,
                              UserACL userACL,
-                             FileService fileService,
                              InitParams params) {
-    this(activityStorage, identityManager, null, userACL, fileService, params);
+    this(activityStorage, identityManager, spaceService, null, userACL, params);
   }
 
   /**
@@ -203,22 +191,6 @@ public class ActivityManagerImpl implements ActivityManager {
   public void saveActivityNoReturn(ExoSocialActivity newActivity) {
     Identity owner = getStreamOwner(newActivity);
     saveActivityNoReturn(owner, newActivity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void saveActivity(Identity streamOwner, String activityType, String activityTitle) {
-    if (activityType != null && activityTypesRegistry.get(activityType) != null && !activityTypesRegistry.get(activityType).booleanValue()) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Activity could not be saved. Activity Type {} has been disabled.", activityType);
-      }
-      return;
-    }
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setType(activityType);
-    activity.setTitle(activityTitle);
-    saveActivity(streamOwner, activity);
   }
 
   /**
@@ -454,8 +426,6 @@ public class ActivityManagerImpl implements ActivityManager {
       activity.setLikeIdentityIds(identityIds);
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
-    } else {
-      LOG.warn("activity is not liked by identity: " + identity);
     }
   }
 
@@ -576,127 +546,6 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity saveActivity(Identity streamOwner, ExoSocialActivity newActivity) {
-    ExoSocialActivity created = activityStorage.saveActivity(streamOwner, newActivity);
-    activityLifeCycle.saveActivity(getActivity(created.getId()));
-    return created;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity saveActivity(ExoSocialActivity newActivity) {
-    saveActivityNoReturn(newActivity);
-    return newActivity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getActivities(Identity identity) {
-    List<ExoSocialActivity> activityList = Collections.emptyList();
-    try {
-      ExoSocialActivity[] activities = getActivitiesWithListAccess(identity).load(0, DEFAULT_LIMIT);
-      activityList = Arrays.asList(activities);
-    } catch (Exception e) {
-      LOG.warn("Failed to get activities by identity: " + identity);
-    }
-    return activityList;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getActivities(Identity identity,
-                                               long start,
-                                               long limit) {
-    return activityStorage.getUserActivities(identity, start, limit);
-  }
-
-  /**
-   * {@inheritDoc} The result list is returned with 30 maximum activities.
-   */
-  public List<ExoSocialActivity> getActivitiesOfConnections(Identity ownerIdentity) {
-    List<ExoSocialActivity> activityList = Collections.emptyList();
-    try {
-      ExoSocialActivity[] activities = getActivitiesOfConnectionsWithListAccess(ownerIdentity).load(0, 30);
-      activityList = Arrays.asList(activities);
-    } catch (Exception e) {
-      LOG.warn("Failed to get activities of connections!");
-    }
-    return activityList;
-  }
-
-  /**
-   * {@inheritDoc} By default, the activity list is composed of all spaces'
-   * activities. Each activity list of the space contains maximum 20 activities
-   * and are returned sorted starting from the most recent.
-   */
-  public List<ExoSocialActivity> getActivitiesOfUserSpaces(Identity ownerIdentity) {
-    return getActivitiesOfUserSpacesWithListAccess(ownerIdentity).loadAsList(0, DEFAULT_LIMIT);
-  }
-
-  /**
-   * {@inheritDoc} Return maximum number of activities: 40
-   */
-  public List<ExoSocialActivity> getActivityFeed(Identity identity) {
-    return getActivityFeedWithListAccess(identity).loadAsList(0, DEFAULT_LIMIT * 2);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void removeLike(ExoSocialActivity existingActivity, Identity existingIdentity) {
-    deleteLike(existingActivity, existingIdentity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity) {
-    return getCommentsWithListAccess(existingActivity).loadAsList(0, DEFAULT_LIMIT * 2);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner, String type, String title) {
-    ExoSocialActivity newActivity = new ExoSocialActivityImpl(owner.getId(), type, title);
-    saveActivity(owner, newActivity);
-    return newActivity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getActivitiesCount(Identity owner) {
-    return activityStorage.getNumberOfUserActivities(owner);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner, ExoSocialActivity activity) throws Exception {
-    saveActivity(owner, activity);
-    return activity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner,
-                                          String type,
-                                          String title,
-                                          String body) {
-    String userId = owner.getId();
-    ExoSocialActivity activity = new ExoSocialActivityImpl(userId, type, title, body);
-    saveActivity(owner, activity);
-    return activity;
-  }
-
-  /**
    * Gets stream owner from identityId = newActivity.userId.
    * 
    * @param newActivity the new activity
@@ -752,10 +601,11 @@ public class ActivityManagerImpl implements ActivityManager {
         return true;
       }
     }
-    return viewer.isMemberOf(userACL.getAdminGroups())
+    return StringUtils.equals(userACL.getSuperUser(), username)
+        || viewer.isMemberOf(userACL.getAdminGroups())
         || hasMentioned(activity, username)
         || isConnectedWithUserWithId(activity.getPosterId(), username)
-        || getSpaceService().isSuperManager(username);
+        || spaceService.isSuperManager(username);
   }
 
   @Override
@@ -795,37 +645,8 @@ public class ActivityManagerImpl implements ActivityManager {
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isSpaceManager(viewer, activityStream.getPrettyId());
     }
-    return viewer.isMemberOf(userACL.getAdminGroups()) || getSpaceService().isSuperManager(username);
-  }
-
-  @Override
-  public List<String> getActivityFilesIds(ExoSocialActivity activity) {
-    List<String> values = new ArrayList<>();
-    if (activity != null) {
-      String[] ids = getParameterValues(activity.getTemplateParams(), ID);
-      String[] storages = getParameterValues(activity.getTemplateParams(), STORAGE);
-      if (ids != null && ids.length > 0) {
-        for (int i = 0; i < ids.length; i++) {
-          if (storages != null
-              && storages.length > i
-              && storages[i].equals(FILE)) {
-            values.add(ids[i]);
-          }
-        }
-      }
-    }
-    return values;
-  }
-
-  @Override
-  public ActivityFile getActivityFileById(long fileId) throws Exception {
-    try {
-      FileItem file = fileService.getFile(fileId);
-      return convertFileItemToActivityFile(file);
-    } catch (FileStorageException e) {
-      LOG.error("Failed to  get the file with id : " + fileId, e);
-      return null;
-    }
+    return StringUtils.equals(userACL.getSuperUser(), username) || viewer.isMemberOf(userACL.getAdminGroups())
+        || spaceService.isSuperManager(username);
   }
 
   /**
@@ -843,54 +664,29 @@ public class ActivityManagerImpl implements ActivityManager {
             || (activity.getTitleId() != null && systemActivityTitleIds.contains(activity.getTitleId())));
   }
 
-  private String[] getParameterValues(Map<String, String> activityParams, String paramName) {
-    String[] values = null;
-    String value = activityParams.get(paramName);
-    if (value == null) {
-      value = activityParams.get(paramName.toLowerCase());
-    }
-    if (value != null) {
-      values = value.split(SEPARATOR_REGEX);
-    }
-    return values;
-  }
-
-  private ActivityFile convertFileItemToActivityFile(FileItem fileItem) throws IOException {
-    ActivityFile activityFile = new ActivityFile();
-
-    activityFile.setInputStream(fileItem.getAsStream());
-    activityFile.setName(fileItem.getFileInfo().getName());
-    activityFile.setMimeType(fileItem.getFileInfo().getMimetype());
-    long lastUpdated = fileItem.getFileInfo().getUpdatedDate() != null ? fileItem.getFileInfo().getUpdatedDate().getTime()
-                                                                       : (new Date().getTime());
-    activityFile.setLastModified(lastUpdated);
-    return activityFile;
-  }
-
-  public void setSpaceService(SpaceService spaceService) {
-    this.spaceService = spaceService;
-  }
-
   private boolean isSpaceManager(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
     String username = viewer.getUserId();
-    if (viewer.isMemberOf(userACL.getAdminGroups())) {
+    if (viewer.isMemberOf(userACL.getAdminGroups()) || StringUtils.equals(userACL.getSuperUser(), username)) {
       return true;
     }
-    if (getSpaceService().isSuperManager(username)) {
+    if (spaceService.isSuperManager(username)) {
       return true;
     }
-    Space space = getSpaceService().getSpaceByPrettyName(spacePrettyName);
-    return space != null && getSpaceService().isManager(space, username);
+    Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
+    return space != null && spaceService.isManager(space, username);
   }
 
   private boolean isSpaceMember(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
     String username = viewer.getUserId();
-    Space space = getSpaceService().getSpaceByPrettyName(spacePrettyName);
-    boolean isSpacesManager = getSpaceService().isSuperManager(username);
+    if (StringUtils.equals(userACL.getSuperUser(), username) || viewer.isMemberOf(userACL.getAdminGroups())) {
+      return true;
+    }
+    Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
+    boolean isSpacesManager = spaceService.isSuperManager(username);
     if (space == null) {
       return isSpacesManager;
     }
-    return isSpacesManager || getSpaceService().isMember(space, username) || viewer.isMemberOf(userACL.getAdminGroups());
+    return isSpacesManager || spaceService.isMember(space, username);
   }
 
   private boolean hasMentioned(ExoSocialActivity activity, String username) {
@@ -914,12 +710,5 @@ public class ActivityManagerImpl implements ActivityManager {
     Identity user = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     Type status = relationshipManager.getStatus(poster, user);
     return Relationship.Type.CONFIRMED.equals(status);
-  }
-
-  private SpaceService getSpaceService() {
-    if (spaceService == null) {
-      spaceService = ExoContainerContext.getService(SpaceService.class);
-    }
-    return spaceService;
   }
 }

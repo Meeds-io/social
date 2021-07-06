@@ -594,58 +594,48 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   @MaxQueryNumber(213)
   public void testGetNewerComments() {
     int totalNumber = 10;
-    
+
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("activity title");
     activity.setUserId(rootIdentity.getId());
     activityStorage.saveActivity(rootIdentity, activity);
     tearDownActivityList.add(activity);
-    
-    //Wait for 1s to make sure that the comments are not created on the same time
-    sleep(1000);
 
-    for (int i = 0; i < totalNumber; i ++) {
-      //John comments on Root's activity
+    for (int i = 0; i < totalNumber; i++) {
+      // John comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("john comment " + i);
       comment.setUserId(johnIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 1s to make sure that the comments are not created on the same time
-      sleep(1000);
     }
 
-    //Wait for 1s to make sure that the comments are not created on the same time
-    sleep(1000);
-    
-    for (int i = 0; i < totalNumber; i ++) {
-      //John comments on Root's activity
+    for (int i = 0; i < totalNumber; i++) {
+      // John comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("demo comment " + i);
       comment.setUserId(demoIdentity.getId());
       activityStorage.saveComment(activity, comment);
-      //Wait for 1s to make sure that the comments are not created on the same time
-      sleep(1000);
     }
 
-    end();
-    begin();
+    restartTransaction();
 
-    List<ExoSocialActivity> comments = activityStorage.getComments(activity, false,0, 20);
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, false, 0, 20);
     assertEquals(20, comments.size());
-    
+
     ExoSocialActivity baseComment = comments.get(0);
-    
+
     assertEquals(19, activityStorage.getNewerComments(activity, baseComment, 20).size());
     assertEquals(19, activityStorage.getNumberOfNewerComments(activity, baseComment));
-    
+
     baseComment = comments.get(9);
     assertEquals(10, activityStorage.getNewerComments(activity, baseComment, 20).size());
     assertEquals(10, activityStorage.getNumberOfNewerComments(activity, baseComment));
-    
+
     baseComment = comments.get(19);
     assertEquals(0, activityStorage.getNewerComments(activity, baseComment, 20).size());
     assertEquals(0, activityStorage.getNumberOfNewerComments(activity, baseComment));
   }
+
   @MaxQueryNumber(690)
   public void testGetOlderComments() {
     int totalNumber = 10;

@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.impl.RuntimeDelegateImpl;
@@ -45,7 +46,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
  */
 @Path("/homepage/intranet/invitations/")
 @Produces("application/json")
-
+@Deprecated
 public class PeopleAndSpacesRestService implements ResourceContainer {
     private static final Log LOG = ExoLogger.getLogger(PeopleAndSpacesRestService.class);
 
@@ -84,8 +85,8 @@ public class PeopleAndSpacesRestService implements ResourceContainer {
 
     @GET
     @Path("allInvitations")
+    @DeprecatedAPI("Use UserRestResourcesV1.getInvitationsOfUser and SpaceMembershipRestResourcesV1.getInvitedSpacesWithListAccess instead")
     public Response getAllInvitations(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-
         try {
 
             String userId = getUserId(sc, uriInfo);
