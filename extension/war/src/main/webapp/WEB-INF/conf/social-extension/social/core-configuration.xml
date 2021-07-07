@@ -240,6 +240,11 @@
                 <description>enable/disable edit comment</description>
                 <value>${exo.edit.comment.enabled:true}</value>
             </value-param>
+            <value-param>
+                <name>userStreamComposer.enabled</name>
+                <description>enable/disable user stream composer button</description>
+                <value>${exo.config.mainStreamComposer.enabled:false}</value>
+            </value-param>
         </init-params>
     </component>
     

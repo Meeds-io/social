@@ -1443,6 +1443,18 @@ public class SpaceServiceImpl implements SpaceService {
     return ArrayUtils.contains(space.getRedactors(), userId);
   }
 
+  @Override
+  public boolean hasRedactor(Space space) {
+    return space.getRedactors() != null && space.getRedactors().length > 0;
+  }
+
+  @Override
+  public boolean canRedactOnSpace(Space space, org.exoplatform.services.security.Identity viewer) {
+    String username = viewer.getUserId();
+    return (isMember(space, username) && (!hasRedactor(space) || isRedactor(space, username)))
+        || isManagerOrSpaceManager(viewer, space);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -1772,4 +1784,16 @@ public class SpaceServiceImpl implements SpaceService {
     }
     return editor;
   }
+
+  private boolean isManagerOrSpaceManager(org.exoplatform.services.security.Identity viewer, Space space) {
+    String username = viewer.getUserId();
+    if (viewer.isMemberOf(userACL.getAdminGroups()) || StringUtils.equals(userACL.getSuperUser(), username)) {
+      return true;
+    }
+    if (isSuperManager(username)) {
+      return true;
+    }
+    return isManager(space, username);
+  }
+
 }

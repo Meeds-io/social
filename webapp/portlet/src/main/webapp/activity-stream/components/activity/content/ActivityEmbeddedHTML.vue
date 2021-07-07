@@ -13,11 +13,10 @@
       v-if="title"
       :href="link"
       :target="linkTarget"
-      :title="tooltipText"
+      :title="titleText"
       class="pb-4 pt-3 text-color">
       <ellipsis
-        v-if="title"
-        :title="titleTooltip"
+        v-if="titleText"
         :data="titleText"
         :line-clamp="2"
         :delay-time="200"
@@ -44,7 +43,7 @@ export default {
     },
   },
   data: () => ({
-    maxWidth: 450,
+    maxWidth: 320,
     elementReady: false,
   }),
   computed: {

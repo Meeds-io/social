@@ -16,6 +16,9 @@
  */
 package org.exoplatform.social.core.identity.model;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.profile.ProfileLoader;
 
 /**
@@ -210,6 +213,20 @@ public class Identity implements Cloneable {
    */
   public String getProviderId() {
     return providerId;
+  }
+
+  /**
+   * @return true if the providerId is about a space
+   */
+  public boolean isSpace() {
+    return StringUtils.equals(providerId, ActivityStream.SPACE_PROVIDER_ID);
+  }
+
+  /**
+   * @return true if the providerId is about a user
+   */
+  public boolean isUser() {
+    return StringUtils.equals(providerId, ActivityStream.ORGANIZATION_PROVIDER_ID);
   }
 
   /**

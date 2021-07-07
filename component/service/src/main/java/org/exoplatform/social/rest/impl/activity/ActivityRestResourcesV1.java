@@ -148,16 +148,19 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = currentUser.getUserId();
     // Check if the given user doesn't exist
     Identity currentUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     if (currentUserIdentity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
+    boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
       listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+      canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
     } else {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null
@@ -166,6 +169,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       }
       Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
       listAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
+      canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
     }
 
     List<DataEntity> activityEntities = new ArrayList<>();
@@ -196,9 +200,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (returnSize) {
       collectionActivity.setSize(listAccess.getSize());
     }
-    if (StringUtils.contains(expand, "canPost")) {
-      collectionActivity.put("canPost", activityManager.canPostActivity(currentUserIdentity, spaceId));
-    }
+    collectionActivity.put("canPost", canPost);
     return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
@@ -237,9 +239,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
     //
     org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
+
     String authenticatedUser = currentUser.getUserId();
-    Identity authenticatedUserIdentity =
-                                       identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     Identity spaceIdentity = null;
     if (StringUtils.isNotBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
@@ -247,9 +249,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-    }
-
-    if (!activityManager.canPostActivity(authenticatedUserIdentity, spaceId)) {
+      if (!activityManager.canPostActivityInStream(currentUser, spaceIdentity)) {
+        throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+      }
+    } else if (!activityManager.canPostActivityInStream(currentUser, authenticatedUserIdentity)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 

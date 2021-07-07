@@ -19,10 +19,11 @@ package org.exoplatform.social.core.manager;
 import java.util.*;
 
 import org.exoplatform.commons.utils.PropertyManager;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValuesParam;
+import org.exoplatform.container.xml.*;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -30,8 +31,10 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 /**
@@ -66,16 +69,22 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
   private ActivityManager         activityManager;
 
+  private ActivityStorage         activityStorage;
+
   private SpaceService            spaceService;
+
+  private UserACL                 userACL;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    spaceService = (SpaceService) getContainer().getComponentInstanceOfType(SpaceService.class);
-    tearDownActivityList = new ArrayList<ExoSocialActivity>();
-    tearDownSpaceList = new ArrayList<Space>();
+    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+    activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
+    activityStorage = getContainer().getComponentInstanceOfType(ActivityStorage.class);
+    userACL = getContainer().getComponentInstanceOfType(UserACL.class);
+    spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+    tearDownActivityList = new ArrayList<>();
+    tearDownSpaceList = new ArrayList<>();
     rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
@@ -282,6 +291,72 @@ public class ActivityManagerTest extends AbstractCoreTest {
     // Finally
     activityManager.deleteComment(activity, comment);
     activityManager.deleteActivity(activity);
+  }
+
+  public void testCanPostOnStream() throws Exception {
+    org.exoplatform.services.security.Identity rootACLIdentity = new org.exoplatform.services.security.Identity("root");
+    org.exoplatform.services.security.Identity johnACLIdentity = new org.exoplatform.services.security.Identity("john",
+                                                                                                                Collections.singleton(new MembershipEntry("/platform/administrators",
+                                                                                                                                                          "*")));
+    org.exoplatform.services.security.Identity demoACLIdentity = new org.exoplatform.services.security.Identity("demo");
+    org.exoplatform.services.security.Identity jamesACLIdentity = new org.exoplatform.services.security.Identity("james");
+    org.exoplatform.services.security.Identity maryACLIdentity = new org.exoplatform.services.security.Identity("mary");
+
+    InitParams params = new InitParams();
+    ValueParam param = new ValueParam();
+    param.setName(ActivityManagerImpl.ENABLE_USER_COMPOSER);
+    params.addParameter(param);
+
+    param.setValue("false");
+    ActivityManager activityManager = new ActivityManagerImpl(activityStorage, identityManager, spaceService, userACL, params);
+    assertFalse(activityManager.isEnableUserComposer());
+
+    // User can't post on his own stream
+    assertFalse(activityManager.canPostActivityInStream(demoACLIdentity, demoIdentity));
+    // super user can't post his own stream
+    assertFalse(activityManager.canPostActivityInStream(rootACLIdentity, rootIdentity));
+    // super user can't post on stream of others
+    assertFalse(activityManager.canPostActivityInStream(rootACLIdentity, demoIdentity));
+
+    param.setValue("true");
+    activityManager = new ActivityManagerImpl(activityStorage, identityManager, spaceService, userACL, params);
+    assertTrue(activityManager.isEnableUserComposer());
+
+    // User can't post on his own stream
+    assertTrue(activityManager.canPostActivityInStream(demoACLIdentity, demoIdentity));
+    // super user can't post on others stream
+    assertFalse(activityManager.canPostActivityInStream(rootACLIdentity, demoIdentity));
+
+    Space space = createSpace("spaceTest", "demo");
+    space.setMembers(new String[]{"demo", "james"});
+    spaceService.updateSpace(space);
+
+    Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    // Super Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(rootACLIdentity, spaceIdentity));
+    // Platform Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(johnACLIdentity, spaceIdentity));
+    // Space Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(demoACLIdentity, spaceIdentity));
+    // Member can redact
+    assertTrue(activityManager.canPostActivityInStream(jamesACLIdentity, spaceIdentity));
+    // Outside space can't redact
+    assertFalse(activityManager.canPostActivityInStream(maryACLIdentity, spaceIdentity));
+
+    space.setMembers(new String[]{"demo", "james", "mary"});
+    space.setRedactors(new String[]{"james"});
+    spaceService.updateSpace(space);
+
+    // Super Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(rootACLIdentity, spaceIdentity));
+    // Platform Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(johnACLIdentity, spaceIdentity));
+    // Space Manager can redact
+    assertTrue(activityManager.canPostActivityInStream(demoACLIdentity, spaceIdentity));
+    // Redactor can redact
+    assertTrue(activityManager.canPostActivityInStream(jamesACLIdentity, spaceIdentity));
+    // space member can't redact
+    assertFalse(activityManager.canPostActivityInStream(maryACLIdentity, spaceIdentity));
   }
 
   /**
@@ -772,6 +847,26 @@ public class ActivityManagerTest extends AbstractCoreTest {
     comment.setTitleId(titleId);
     activityManager.saveComment(activity, comment);
     return activityManager.getActivity(comment.getId());
+  }
+
+  private Space createSpace(String spaceName, String creator) throws Exception {
+    Space space = new Space();
+    space.setDisplayName(spaceName);
+    space.setPrettyName(spaceName);
+    space.setGroupId("/spaces/" + space.getPrettyName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("description of space" + spaceName);
+    space.setType(DefaultSpaceApplicationHandler.NAME);
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.OPEN);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    String[] managers = new String[] { creator };
+    String[] members = new String[] { creator };
+    space.setManagers(managers);
+    space.setMembers(members);
+    spaceService.saveSpace(space, true);
+    tearDownSpaceList.add(space);
+    return space;
   }
 
 }

@@ -593,7 +593,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
   @MaxQueryNumber(213)
   public void testGetNewerComments() {
-    int totalNumber = 10;
+    int totalNumber = 3;
 
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("activity title");
@@ -602,6 +602,9 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList.add(activity);
 
     for (int i = 0; i < totalNumber; i++) {
+      // To add different update times
+      sleep(1);
+      restartTransaction();
       // John comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("john comment " + i);
@@ -610,6 +613,9 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     }
 
     for (int i = 0; i < totalNumber; i++) {
+      // To add different update times
+      sleep(1);
+      restartTransaction();
       // John comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("demo comment " + i);
@@ -620,18 +626,18 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     restartTransaction();
 
     List<ExoSocialActivity> comments = activityStorage.getComments(activity, false, 0, 20);
-    assertEquals(20, comments.size());
+    assertEquals(6, comments.size());
 
     ExoSocialActivity baseComment = comments.get(0);
 
-    assertEquals(19, activityStorage.getNewerComments(activity, baseComment, 20).size());
-    assertEquals(19, activityStorage.getNumberOfNewerComments(activity, baseComment));
+    assertEquals(5, activityStorage.getNewerComments(activity, baseComment, 20).size());
+    assertEquals(5, activityStorage.getNumberOfNewerComments(activity, baseComment));
 
-    baseComment = comments.get(9);
-    assertEquals(10, activityStorage.getNewerComments(activity, baseComment, 20).size());
-    assertEquals(10, activityStorage.getNumberOfNewerComments(activity, baseComment));
+    baseComment = comments.get(2);
+    assertEquals(3, activityStorage.getNewerComments(activity, baseComment, 20).size());
+    assertEquals(3, activityStorage.getNumberOfNewerComments(activity, baseComment));
 
-    baseComment = comments.get(19);
+    baseComment = comments.get(5);
     assertEquals(0, activityStorage.getNewerComments(activity, baseComment, 20).size());
     assertEquals(0, activityStorage.getNumberOfNewerComments(activity, baseComment));
   }

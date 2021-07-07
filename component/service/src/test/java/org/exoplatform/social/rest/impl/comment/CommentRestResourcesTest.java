@@ -53,9 +53,13 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     ActivityRestResourcesV1 activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null);
     commentRestResourcesV1 = new CommentRestResourcesV1(activityRestResourcesV1);
     registry(commentRestResourcesV1);
+
+    restartTransaction();
+    begin();
   }
 
   public void tearDown() throws Exception {
+    end();
     super.tearDown();
     removeResource(commentRestResourcesV1.getClass());
   }

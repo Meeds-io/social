@@ -23,6 +23,8 @@ import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
@@ -38,8 +40,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
-import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -530,6 +531,46 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testGetEditableSpaces() throws Exception {
     populateData();
     assertEquals(1, spaceService.getEditableSpaces("root").size());
+  }
+
+  public void testCanRedact() throws Exception {
+    org.exoplatform.services.security.Identity rootACLIdentity = new org.exoplatform.services.security.Identity("root");
+    org.exoplatform.services.security.Identity johnACLIdentity = new org.exoplatform.services.security.Identity("john",
+                                                                                                                Collections.singleton(new MembershipEntry("/platform/administrators",
+                                                                                                                                                          "*")));
+    org.exoplatform.services.security.Identity demoACLIdentity = new org.exoplatform.services.security.Identity("demo");
+    org.exoplatform.services.security.Identity jamesACLIdentity = new org.exoplatform.services.security.Identity("james");
+    org.exoplatform.services.security.Identity maryACLIdentity = new org.exoplatform.services.security.Identity("mary");
+
+    Space space = createSpace("spaceTest", "demo");
+    space.setMembers(new String[]{"demo", "james"});
+    spaceService.updateSpace(space);
+
+    // Super Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, rootACLIdentity));
+    // Platform Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, johnACLIdentity));
+    // Space Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, demoACLIdentity));
+    // Member can redact
+    assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
+    // Outside space can't redact
+    assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
+
+    space.setMembers(new String[]{"demo", "james", "mary"});
+    space.setRedactors(new String[]{"james"});
+    spaceService.updateSpace(space);
+
+    // Super Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, rootACLIdentity));
+    // Platform Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, johnACLIdentity));
+    // Space Manager can redact
+    assertTrue(spaceService.canRedactOnSpace(space, demoACLIdentity));
+    // Redactor can redact
+    assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
+    // space member can't redact
+    assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
   }
 
   /**

@@ -204,21 +204,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityEntity.setTemplateParams(params);
     }
 
-    //
-    if (activityEntity.getPosted() == null) {
-      activityEntity.setPosted(new Date());
-    }
-
-    // update time have to be same as post time when activity not updated
-    if (activityEntity.getPosted() == null) {
-      activityEntity.setUpdatedDate(activityEntity.getPosted());
-    } else {
-      activityEntity.setUpdatedDate(new Date());
-    }
-    activityEntity.setPosted(new Date(activity.getPostedTime()));
+    processDates(activityEntity);
     activityEntity.setLocked(activity.isLocked());
     activityEntity.setHidden(activity.isHidden());
-    activityEntity.setUpdatedDate(activity.getUpdated());
     activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentions(activity.getTitle(),
                                                                                      activity.getTemplateParams()))));
     //
@@ -338,15 +326,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     commentEntity.setLocked(comment.isLocked());
     commentEntity.setHidden(comment.isHidden());
     //
-    if (commentEntity.getPosted() == null) {
-      commentEntity.setPosted(new Date());
-    }
-    // update time have to be same as post time when activity not updated
-    if (commentEntity.getUpdatedDate() == null) {
-      commentEntity.setUpdatedDate(commentEntity.getPosted());
-    } else {
-      commentEntity.setUpdatedDate(new Date());
-    }
+    processDates(commentEntity);
     commentEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentions(comment.getTitle(), comment.getTemplateParams()))));
     //
     return commentEntity;
@@ -1142,10 +1122,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         preSaveProcessActivity(existingActivity);
       }
 
-      if (isComment) {
-        // update comment
-        updatedActivity.setUpdatedDate(new Date());
-      }
       // only raise the activity in stream when activity date updated
       if (existingActivity.getUpdated() != null && updatedActivity.getUpdatedDate() != null
           && existingActivity.getUpdated().getTime() != updatedActivity.getUpdatedDate().getTime()) {
@@ -1167,8 +1143,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         updatedActivity.setTitle(existingActivity.getTitle());
       if (existingActivity.getBody() != null)
         updatedActivity.setBody(existingActivity.getBody());
-      if (existingActivity.getUpdated() != null)
-        updatedActivity.setUpdatedDate(existingActivity.getUpdated());
       if (existingActivity.getLikeIdentityIds() != null)
         updatedActivity.setLikerIds(new HashSet<>(Arrays.asList(existingActivity.getLikeIdentityIds())));
       if (existingActivity.getPermaLink() != null)
@@ -1558,6 +1532,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityDTOs.add(convertActivityEntityToActivity(activityEntity));
     }
     return activityDTOs;
+  }
+
+  private void processDates(ActivityEntity activityEntity) {
+    Date newPosted = new Date();
+    // post time should never change once added
+    if (activityEntity.getPosted() == null) {
+      activityEntity.setPosted(newPosted);
+    }
+    // update time have to be same as post time when activity not updated
+    activityEntity.setUpdatedDate(newPosted);
   }
 
 }

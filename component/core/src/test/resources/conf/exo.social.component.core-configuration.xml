@@ -1712,4 +1712,5 @@
     </component-plugin>
   </external-component-plugins>
 
+  <remove-configuration>org.exoplatform.mfa.impl.otp.ExoOtpConnector</remove-configuration>
 </configuration>

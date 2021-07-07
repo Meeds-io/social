@@ -50,14 +50,18 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
   @Override
   public void saveComment(ActivityLifeCycleEvent event) {
     String activityId = getActivityId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "createComment");
+    String commentId = getCommentId(event);
+    String parentCommentId = getParentCommentId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "createComment");
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
   @Override
   public void updateComment(ActivityLifeCycleEvent event) {
     String activityId = getActivityId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "updateComment");
+    String commentId = getCommentId(event);
+    String parentCommentId = getParentCommentId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "updateComment");
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
@@ -71,13 +75,21 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
   @Override
   public void likeComment(ActivityLifeCycleEvent event) {
     String activityId = getActivityId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "likeComment");
+    String commentId = getCommentId(event);
+    String parentCommentId = getParentCommentId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "likeComment");
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
   private String getActivityId(ActivityLifeCycleEvent event) {
-    String activityId = event.getActivity().getId();
-    return activityId;
+    return event.getActivity().isComment() ? event.getActivity().getParentId() : event.getActivity().getId();
   }
 
+  private String getCommentId(ActivityLifeCycleEvent event) {
+    return event.getActivity().getParentId() == null ? null : event.getActivity().getId();
+  }
+
+  private String getParentCommentId(ActivityLifeCycleEvent event) {
+    return event.getActivity().getParentCommentId();
+  }
 }
