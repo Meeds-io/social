@@ -273,7 +273,7 @@ export default {
   },
   methods: {
     switchAuthenticationStatus() {
-      changeMfaFeatureActivation( !this.isMultifacorAuthenticationEnabled);
+      changeMfaFeatureActivation(!this.isMultifacorAuthenticationEnabled);
       this.isMultifacorAuthenticationEnabled = !this.isMultifacorAuthenticationEnabled;
     },
     protectedGroupsList(selectedGroups) {
