@@ -20,10 +20,12 @@ package org.exoplatform.social.rest.entity;
 import java.util.List;
 import java.util.Map;
 
+import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
+
   private static final long serialVersionUID = 8770364706590680865L;
 
   public ActivityEntity() {
@@ -232,5 +234,15 @@ public class ActivityEntity extends BaseEntity {
   public DataEntity getTemplateParams() {
     return (DataEntity) getProperty("templateParams");
   }
-  
+
+  @SuppressWarnings("unchecked")
+  public List<ActivityFile> getFiles() {
+    return (List<ActivityFile>) getProperty("files");
+  }
+
+  public ActivityEntity setFiles(List<ActivityFile> files) {
+    setProperty("files", files);
+    return this;
+  }
+
 }
