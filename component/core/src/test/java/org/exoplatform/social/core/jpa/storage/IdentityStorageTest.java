@@ -311,6 +311,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     // Test in case loading an user has dot characters in name.
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
     AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
+    inputStream = getClass().getResourceAsStream("/eXo-Social.png");
     BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, System.currentTimeMillis());
     String userDotName = "user.name";
     Identity identity = new Identity(OrganizationIdentityProvider.NAME, userDotName);

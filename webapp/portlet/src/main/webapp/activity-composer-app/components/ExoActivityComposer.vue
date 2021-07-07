@@ -102,7 +102,6 @@
 </template>
 
 <script>
-import * as composerServices from '../composerServices';
 import {getActivityComposerActionExtensions, getActivityComposerHintActionExtensions, executeExtensionAction} from '../extension';
 
 export default {
@@ -295,7 +294,7 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         this.loading = true;
-        composerServices.updateActivityInUserStream(msg, this.activityId, activityType, this.attachments, this.templateParams)
+        this.$activityService.updateActivity(this.activityId, msg, activityType, this.attachments, this.templateParams)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.closeMessageComposer();
@@ -311,46 +310,26 @@ export default {
           })
           .finally(() => this.loading = false);
       } else {
-        if (eXo.env.portal.spaceId) {
-          let activityType = this.activityType;
-          if (this.templateParams && this.templateParams.link && !this.activityType) {
-            activityType = 'LINK_ACTIVITY';
-          }
-          this.loading = true;
-          composerServices.postMessageInSpace(msg, activityType, this.attachments, eXo.env.portal.spaceId, this.templateParams)
-            .then(() => {
-              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
-              this.refreshActivityStream();
-            })
-            .then(() => this.closeMessageComposer())
-            .then(() => {
-              this.resetComposer();
-            })
-            .catch(error => {
-              // eslint-disable-next-line no-console
-              console.error(`Error when posting message: ${error}`);
-              this.showErrorMessage = true;
-            })
-            .finally(() => this.loading = false);
-        } else {
-          let activityType = this.activityType;
-          if (this.templateParams && this.templateParams.link && !this.activityType) {
-            activityType = 'LINK_ACTIVITY';
-          }
-          this.loading = true;
-          composerServices.postMessageInUserStream(msg, activityType, this.attachments, eXo.env.portal.userName, this.templateParams)
-            .then(() => this.refreshActivityStream())
-            .then(() => this.closeMessageComposer())
-            .then(() => {
-              this.resetComposer();
-            })
-            .catch(error => {
-              // eslint-disable-next-line no-console
-              console.error(`Error when posting message: ${error}`);
-              this.showErrorMessage = true;
-            })
-            .finally(() => this.loading = false);
+        let activityType = this.activityType;
+        if (this.templateParams && this.templateParams.link && !this.activityType) {
+          activityType = 'LINK_ACTIVITY';
         }
+        this.loading = true;
+        this.$activityService.createActivity(msg, activityType, this.attachments, eXo.env.portal.spaceId, this.templateParams)
+          .then(() => {
+            document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+            this.refreshActivityStream();
+          })
+          .then(() => this.closeMessageComposer())
+          .then(() => {
+            this.resetComposer();
+          })
+          .catch(error => {
+            // eslint-disable-next-line no-console
+            console.error(`Error when posting message: ${error}`);
+            this.showErrorMessage = true;
+          })
+          .finally(() => this.loading = false);
       }
     },
     resetComposer() {

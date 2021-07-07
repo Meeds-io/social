@@ -1,26 +1,19 @@
 package org.exoplatform.social.rest.impl.comment;
 
 import org.exoplatform.services.rest.impl.ContainerResponse;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
-
-import org.exoplatform.services.rest.impl.ContainerResponse;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.rest.entity.CommentEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
@@ -28,6 +21,8 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
   private CommentRestResourcesV1 commentRestResourcesV1;
 
   private IdentityStorage        identityStorage;
+
+  private IdentityManager        identityManager;
 
   private ActivityManager        activityManager;
 
@@ -45,6 +40,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
+    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
 
@@ -54,7 +50,8 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     identityStorage.saveIdentity(rootIdentity);
     identityStorage.saveIdentity(johnIdentity);
 
-    commentRestResourcesV1 = new CommentRestResourcesV1(activityManager, null);
+    ActivityRestResourcesV1 activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null);
+    commentRestResourcesV1 = new CommentRestResourcesV1(activityRestResourcesV1);
     registry(commentRestResourcesV1);
   }
 
@@ -149,13 +146,14 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(404, response.getStatus());
 
     // Finally
     if (space != null) {
       spaceService.deleteSpace(space);
     }
   }
+
   public void testGetSpaceActivity() throws Exception {
     startSessionAs("root");
 
@@ -169,6 +167,8 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
       activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
       ExoSocialActivity testComment = new ExoSocialActivityImpl();
       testComment.setTitle("Test Comment");
+      testComment.setUserId("root");
+      testComment.setPosterId("root");
       ContainerResponse response = null;
       activityManager.saveComment(testSpaceActivity, testComment);
       // Test get a comment
@@ -187,7 +187,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
                          null,
                          null);
       assertNotNull(response);
-      assertEquals(404, response.getStatus());
+      assertEquals(200, response.getStatus());
 
       // Test get a comment when logged user is not a member of space in which
       // the comment is posted
@@ -198,7 +198,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
                          null,
                          null);
       assertNotNull(response);
-      assertEquals(401, response.getStatus());
+      assertEquals(404, response.getStatus());
     } catch (Exception exc) {
       log.error(exc);
     } finally {
