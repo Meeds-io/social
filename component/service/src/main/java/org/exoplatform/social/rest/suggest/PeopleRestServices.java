@@ -8,12 +8,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.RuntimeDelegate;
 
-import org.exoplatform.social.service.rest.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -25,9 +25,11 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.service.rest.Util;
 
 @Path("/homepage/intranet/people/")
 @Produces("application/json")
+@Deprecated
 public class PeopleRestServices implements ResourceContainer {
 
   private static final int NUMBER_OF_SUGGESTIONS = 10;
@@ -59,6 +61,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/pending")
+  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.getUsersRelationships instead")
   public Response getPending(@Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {
@@ -100,6 +103,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/incoming")
+  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.getUsersRelationships instead")
   public Response getIncoming(@Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {
@@ -143,6 +147,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/confirm/{relationId}")
+  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
   public Response confirm(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {
@@ -167,6 +172,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/deny/{relationId}")
+  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
   public Response deny(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {
@@ -190,6 +196,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/connect/{relationId}")
+  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
   public Response connect(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {
@@ -213,6 +220,7 @@ public class PeopleRestServices implements ResourceContainer {
 
   @GET
   @Path("contacts/suggestions")
+  @DeprecatedAPI("Use UserRestResourcesV1.getUsers instead")
   public Response getSuggestions(@Context SecurityContext sc, @Context UriInfo uriInfo) {
 
     try {

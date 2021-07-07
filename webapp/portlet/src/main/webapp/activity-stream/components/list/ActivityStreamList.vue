@@ -33,6 +33,7 @@
       @click="loadMore">
       {{ $t('Search.button.loadMore') }}
     </v-btn>
+    <activity-auto-link />
   </div>
 </template>
 
@@ -146,23 +147,17 @@ export default {
         .finally(() => this.loading = false);
     },
     loadActivities() {
-      this.loading = true;
       // Load 'retrievedSize + 10' instead of only 'limit' to avoid retrieving count of user activities
       // Which can be CPU consuming in server side.
       // If the retrieved elements count > 'limit', then there are more elements to retrieve,
       // else no more elements to retrieve
       const limitToRetrieve = this.retrievedSize + 10;
-      if (this.spaceId) {
-        this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-          .then(data => this.handleRetrievedActivities(data && data.activities || []))
-          .catch(() => this.error = true)
-          .finally(() => this.loading = false);
-      } else {
-        this.$activityService.getUserActivities(this.userName, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-          .then(data => this.handleRetrievedActivities(data && data.activities || []))
-          .catch(() => this.error = true)
-          .finally(() => this.loading = false);
-      }
+
+      this.loading = true;
+      this.$activityService.getActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        .then(data => this.handleRetrievedActivities(data && data.activities || []))
+        .catch(() => this.error = true)
+        .finally(() => this.loading = false);
     },
     handleRetrievedActivities(activities) {
       this.activities = activities.slice(0, this.limit);

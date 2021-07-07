@@ -143,6 +143,7 @@ export default {
     if (this.activity.highlight) {
       this.scrollTo(this.$el);
     }
+    this.$root.$emit('activity-refreshed');
   },
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);

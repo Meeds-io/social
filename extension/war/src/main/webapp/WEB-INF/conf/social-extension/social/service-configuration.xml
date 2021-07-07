@@ -22,35 +22,37 @@
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
-<!-- REST service -->
-  <component>
-    <type>org.exoplatform.social.service.rest.AppsRestService</type>
-  </component>
-
+  <!-- Deprecated REST service (will be removed in next versions) -->
   <component>
     <type>org.exoplatform.social.service.rest.SpacesRestService</type>
   </component>
-
   <component>
     <type>org.exoplatform.social.service.rest.IdentityRestService</type>
   </component>
-
   <component>
     <type>org.exoplatform.social.service.rest.PeopleRestService</type>
   </component>
-
   <component>
     <type>org.exoplatform.social.rest.api.LegacySpaceRestServiceImpl</type>
   </component>
-  
   <component>
     <type>org.exoplatform.social.service.rest.NotificationsRestService</type>
   </component>
-
   <component>
     <type>org.exoplatform.social.service.rest.IntranetNotificationRestService</type>
   </component>
+  <component>
+    <type>org.exoplatform.social.rest.suggest.PeopleRestServices</type>
+  </component>
+  <component>
+    <type>org.exoplatform.social.rest.suggest.SpaceRestServices</type>
+  </component>
+  <component>
+    <type>org.exoplatform.social.rest.invitation.PeopleAndSpacesRestService</type>
+  </component>
+  <!-- END: Deprecated REST service -->
 
+  <!-- Supported REST services -->
   <component>
     <type>org.exoplatform.social.rest.impl.identity.IdentityRestResourcesV1</type>
   </component>
@@ -84,39 +86,14 @@
   <component>
     <type>org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1</type>
   </component>
-<!-- REST service -->
+  <component>
+    <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
+  </component>
+  <component>
+    <type>org.exoplatform.social.service.malwareDetection.rest.MalwareDetectionRestService</type>
+  </component>
+  <!-- END: Supported REST service -->
 
-  <component>
-    <type>org.exoplatform.social.rest.impl.metric.ActivityMetricResources</type>
-  </component>
-
-  <!-- SUGGESTED PEOPLE -->
-  <component>
-    <type>org.exoplatform.social.rest.suggest.PeopleRestServices</type>
-  </component>
-  <!-- SUGGEST SPACES -->
-  <component>
-    <type>org.exoplatform.social.rest.suggest.SpaceRestServices</type>
-  </component>
-  <!-- INVITATIONS -->
-  <component>
-    <type>org.exoplatform.social.rest.invitation.PeopleAndSpacesRestService</type>
-  </component>
-
-  <!-- Social Rest API resources for latest -->
-  <component>
-    <type>org.exoplatform.social.service.rest.api.VersionResources</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.service.rest.api.ActivityResources</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.service.rest.api.IdentityResources</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.service.rest.api.ActivityStreamResources</type>
-  </component>
-<!-- Social Rest API resources for latest -->
   <!-- -->
   <component>
     <type>org.exoplatform.social.processor.EmbedProcessor</type>
@@ -126,17 +103,11 @@
   <component>
     <type>org.exoplatform.social.core.service.GettingStartedService</type>
   </component>
-  <component>
-    <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
-  </component>
 <!-- Getting Started Services -->
 
 <!-- Malware Detection Services -->
   <component>
     <type>org.exoplatform.social.service.malwareDetection.MalwareDetectionService</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.service.malwareDetection.rest.MalwareDetectionRestService</type>
   </component>
 <!-- Malware Detection Services -->
 

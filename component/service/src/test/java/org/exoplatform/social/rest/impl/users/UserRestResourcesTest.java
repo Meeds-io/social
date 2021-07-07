@@ -35,6 +35,8 @@ import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
+import org.exoplatform.social.rest.impl.space.SpaceRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
@@ -96,7 +98,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     identityManager.saveIdentity(maryIdentity);
     identityManager.saveIdentity(demoIdentity);
 
-    addResource(UserRestResourcesV1.class, null);
+    UserRestResourcesV1 userRestResourcesV1 = new UserRestResourcesV1(
+                                                                      new ActivityRestResourcesV1(activityManager,
+                                                                                                  identityManager,
+                                                                                                  spaceService,
+                                                                                                  null),
+                                                                      userACL,
+                                                                      organizationService,
+                                                                      identityManager,
+                                                                      relationshipManager,
+                                                                      userStateService,
+                                                                      spaceService,
+                                                                      uploadService,
+                                                                      userSearchService);
+    registry(userRestResourcesV1);
   }
 
   public void tearDown() throws Exception {
@@ -160,15 +175,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
 
-    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(
-            userACL,
-            organizationService,
-            identityManager,
-            relationshipManager,
-            userStateService,
-            spaceService,
-            uploadService,
-            userSearchService);
+    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null),
+                                                                    userACL,
+                                                                    organizationService,
+                                                                    identityManager,
+                                                                    relationshipManager,
+                                                                    userStateService,
+                                                                    spaceService,
+                                                                    uploadService,
+                                                                    userSearchService);
     registry(userRestResources);
 
     //when
@@ -503,45 +518,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("demo", userEntity.getUsername());
   }
 
-  public void testGetActivitiesOfUser() throws Exception {
-    startSessionAs("root");
-    relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
-    relationshipManager.confirm(demoIdentity, rootIdentity);
-
-    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
-    rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
-
-    // wait to make sure the order of activities
-    Thread.sleep(10);
-    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
-    demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-
-    ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
-    maryActivity.setTitle("mary activity");
-    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
-
-    end();
-    begin();
-
-    ContainerResponse response = service("GET", getURLResource("users/root/activities?limit=5&offset=0"), "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    CollectionEntity collections = (CollectionEntity) response.getEntity();
-    // must return one activity of root and one of demo
-    assertEquals(2, collections.getEntities().size());
-    ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
-    assertEquals("demo activity", activityEntity.getTitle());
-    activityEntity = getBaseEntity(collections.getEntities().get(1), ActivityEntity.class);
-    assertEquals("root activity", activityEntity.getTitle());
-
-    activityManager.deleteActivity(maryActivity);
-    activityManager.deleteActivity(demoActivity);
-    activityManager.deleteActivity(rootActivity);
-  }
-
   public void testGetSpacesOfUser() throws Exception {
     getSpaceInstance(0, "root");
     getSpaceInstance(1, "john");
@@ -629,21 +605,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(403, response.getStatus());
-  }
-
-  public void testAddActivityByUser() throws Exception {
-    String input = "{\"title\":titleOfActivity,\"templateParams\":{\"param1\": value1,\"param2\":value2}}";
-    startSessionAs("john");
-    ContainerResponse response = getResponse("POST", getURLResource("users/john/activities"), input);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    DataEntity responseEntity = (DataEntity) response.getEntity();
-    String title = (String) responseEntity.get("title");
-    assertNotNull(title);
-    assertEquals("titleOfActivity", title);
-    DataEntity templateParams = (DataEntity) responseEntity.get("templateParams");
-    assertNotNull(templateParams);
-    assertEquals(2, templateParams.size());
   }
 
   public void testUpdateProfileAtribute() throws Exception {

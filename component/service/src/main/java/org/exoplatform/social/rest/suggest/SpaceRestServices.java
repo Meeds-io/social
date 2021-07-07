@@ -13,6 +13,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.impl.RuntimeDelegateImpl;
@@ -23,13 +24,13 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.entity.SpaceEntity;
 
 import io.swagger.annotations.*;
 
 
 @Path("/homepage/intranet/spaces/")
 @Produces("application/json")
+@Deprecated
 public class SpaceRestServices implements ResourceContainer {
 
     private static final Log LOG = ExoLogger.getLogger(SpaceRestServices.class);
@@ -62,8 +63,9 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("suggestions")
+    @DeprecatedAPI("Use SpaceRestResourcesV1.getSpaces instead")
     public Response getSuggestions(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-        
+
         try {
             JSONArray jsonArray = new JSONArray();
             JSONObject jsonGlobal = new JSONObject();
@@ -223,6 +225,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("accept/{spaceName}")
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
     public Response accept(@PathParam("spaceName") String spaceName, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
@@ -247,6 +250,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("deny/{spaceName}")
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
     public Response deny(@PathParam("spaceName") String spaceName, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
@@ -268,6 +272,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("request/{spaceName}")
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
     public Response request(@PathParam("spaceName") String spaceName, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
@@ -295,6 +300,7 @@ public class SpaceRestServices implements ResourceContainer {
         @ApiResponse(code = 200, message = "Request fulfilled"),
         @ApiResponse(code = 500, message = "Internal server error"),
         @ApiResponse(code = 404, message = "Space not found") })
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
     public Response leave(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
                           @Context SecurityContext sc,
                           @Context UriInfo uriInfo) {
@@ -329,6 +335,7 @@ public class SpaceRestServices implements ResourceContainer {
         @ApiResponse(code = 200, message = "Request fulfilled"),
         @ApiResponse(code = 500, message = "Internal server error"),
         @ApiResponse(code = 404, message = "Space not found") })
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
     public Response cancel(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
                           @Context SecurityContext sc,
                           @Context UriInfo uriInfo) {
@@ -357,6 +364,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("join/{spaceName}")
+    @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.addSpacesMemberships instead")
     public Response join(@PathParam("spaceName") String spaceName, @Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
@@ -380,6 +388,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("myspaces")
+    @DeprecatedAPI("Use SpaceRestResourcesV1.getSpaces instead")
     public Response request(@Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
@@ -415,6 +424,7 @@ public class SpaceRestServices implements ResourceContainer {
 
     @GET
     @Path("public")
+    @DeprecatedAPI("Use SpaceRestResourcesV1.getSpaces instead")
     public Response getPublicSpaces(@Context SecurityContext sc, @Context UriInfo uriInfo) {
 
         try {
