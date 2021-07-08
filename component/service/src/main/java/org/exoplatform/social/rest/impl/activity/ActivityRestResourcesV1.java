@@ -254,7 +254,11 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(model.getTitle());
+    if (StringUtils.isBlank(model.getTitle())) {
+      activity.setTitle("");
+    } else {
+      activity.setTitle(model.getTitle());
+    }
     activity.setBody(model.getBody());
     activity.setType(model.getType());
     activity.setUserId(authenticatedUserIdentity.getId());
