@@ -23,10 +23,8 @@ import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
-import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
  * Provides APIs to manage activities.
@@ -65,17 +63,6 @@ public interface ActivityManager {
    * @since 1.2.0-GA
    */
   void saveActivityNoReturn(ExoSocialActivity activity);
-
-  /**
-   * Saves a new activity by indicating stream owner, activity type and title. 
-   * This is shorthand to save an activity without creating a new {@link ExoSocialActivity} instance.
-   *
-   * @param streamOwner The activity stream owner.
-   * @param type Type of the activity.
-   * @param title Title of the activity.
-   * @LevelAPI Platform
-   */
-  void saveActivity(Identity streamOwner, String type, String title);
 
   /**
    * Gets an activity by its Id.
@@ -342,173 +329,6 @@ public interface ActivityManager {
   }
 
   /**
-   * Saves a newly created activity to a stream. Note that the Activity.userId will be set to the owner identity if it
-   * has not already been set.
-   *
-   * @param streamOwner The activity stream owner.
-   * @param activity The activity to be saved.
-   * @return The saved activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivityNoReturn(Identity, ExoSocialActivity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity saveActivity(Identity streamOwner, ExoSocialActivity activity);
-
-
-  /**
-   * Saves a newly created activity to the stream of that activity's userId stream. The userId of the created activity
-   * must be set to indicate the owner stream.
-   *
-   * @param activity The activity to be saved.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivityNoReturn(org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity saveActivity(ExoSocialActivity activity);
-
-  /**
-   * Gets all activities by an identity.
-   *
-   * @param identity The identity.
-   * @return The activities.
-   * @see #getActivities(Identity, long, long)
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesWithListAccess(org.exoplatform.social.core.identity.model.Identity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivities(Identity identity) throws ActivityStorageException;
-
-  /**
-   * Gets the latest activities of a given identity, specifying the start that is an offset index and the limit.
-   *
-   * @param identity The identity.
-   * @param start The offset index.
-   * @param limit The end-point index.
-   * @return The activities.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivities(Identity identity, long start, long limit) throws ActivityStorageException;
-
-  /**
-   * Gets activities of connections from an identity.
-   *
-   * @param ownerIdentity The identity information to get activities.
-   * @return The activities.
-   * @since 1.1.1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesOfConnectionsWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivitiesOfConnections(Identity ownerIdentity) throws ActivityStorageException;
-
-
-  /**
-   * Gets activities from all spaces of a user.
-   *
-   * @param ownerIdentity The identity information to get activities.
-   * @return The activities.
-   * @since 1.1.1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesOfUserSpacesWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivitiesOfUserSpaces(Identity ownerIdentity);
-
-  /**
-   * Gets activity feed of an identity. This feed is combination of all activities of his own activities,
-   * his connections' activities and his spaces' activities, which are returned, are sorted starting from the most recent.
-   *
-   * @param identity The identity information to get the activity.
-   * @return All related to the identity, such as his activities, connections' activities, and spaces' activities.
-   * @since 1.1.2
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivityFeedWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivityFeed(Identity identity) throws ActivityStorageException;
-
-  /**
-   * Removes an identity who likes an activity.
-   *
-   * @param activity The activity liked by the identity.
-   * @param identity The identity who liked the activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #deleteLike(ExoSocialActivity, Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  void removeLike(ExoSocialActivity activity, Identity identity) throws ActivityStorageException;
-
-  /**
-   * Gets all comments of an activity.
-   *
-   * @param activity The activity which you want to get comments.
-   * @return The comments.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getCommentsWithListAccess(ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getComments(ExoSocialActivity activity) throws ActivityStorageException;
-
-  /**
-   * Records an activity.
-   *
-   * @param owner Owner of the recorded activity.
-   * @param type Type of the recorded activity.
-   * @param title Title of the recorded activity.
-   * @return The recorded activity.
-   * @throws ActivityStorageException
-   * @since 1.2.0-Beta1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivity(Identity, String, String)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, String type, String title) throws ActivityStorageException;
-
-  /**
-   * Saves an activity.
-   *
-   * @param owner Owner of the saved activity.
-   * @param activity The activity to be saved.
-   * @return The saved activity.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated use {@link #saveActivity(Identity, ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, ExoSocialActivity activity) throws Exception;
-
-  /**
-   * Records an activity.
-   *
-   * @param owner Owner of the target stream for the recorded activity.
-   * @param type  Type of the activity which uses the custom UI for rendering.
-   * @param title The title.
-   * @param body  The body.
-   * @return The recorded activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivity(Identity, ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, String type, String title,
-                                   String body) throws ActivityStorageException;
-
-  /**
-   * Gets the number of activities from a stream owner.
-   *
-   * @param owner The identity.
-   * @return The number of activities.
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  @Deprecated
-  int getActivitiesCount(Identity owner) throws ActivityStorageException;
-
-  /**
    * Get the list access of all activities
    * 
    * @return
@@ -565,31 +385,15 @@ public interface ActivityManager {
   }
 
   /**
-   * Get all files ids of an activity
-   * @param activity
-   * @return
-   */
-  default List<String> getActivityFilesIds(ExoSocialActivity activity){
-    return null;
-  }
-
-  /**
-   * Get activity file by its id
-   * @param fileId
-   * @return
-   * @throws Exception
-   */
-
-  default ActivityFile getActivityFileById(long fileId) throws Exception{
-    return null;
-  }
-
-  /**
    * Checks if the Activity Type is enabled or not
    * @param activityType the name of activity type to check
    * @return true if the activity type is enabled
    */
   default boolean isActivityTypeEnabled(String activityType) {
+    return true;
+  }
+
+  default boolean canPostActivity(Identity currentUserIdentity, String spaceId) {
     return true;
   }
 

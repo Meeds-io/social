@@ -31,6 +31,7 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
@@ -64,7 +65,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     maryIdentity = identityManager.getOrCreateIdentity("organization", "mary");
     demoIdentity = identityManager.getOrCreateIdentity("organization", "demo");
 
-    spaceRestResources = new SpaceRestResourcesV1(spaceService, identityManager, uploadService);
+    spaceRestResources = new SpaceRestResourcesV1(new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null),
+                                                  spaceService,
+                                                  identityManager,
+                                                  uploadService);
     registry(spaceRestResources);
   }
 
@@ -584,70 +588,6 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals(true, rootDataEntity.containsKey("enabled"));
     assertEquals(johnIdentity.isDeleted(), rootDataEntity.get("deleted"));
     assertEquals(johnIdentity.isEnable(), rootDataEntity.get("enabled"));
-  }
-
-  public void testGetActivitiesSpaceById() throws Exception {
-    //root creates 1 spaces and post 5 activities on it
-    Space space = getSpaceInstance(1, "root");
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    for (int i = 0; i < 5 ; i++) {
-      ExoSocialActivity activity = new ExoSocialActivityImpl();
-      activity.setTitle("title " + i);
-      activity.setUserId(rootIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
-    }
-
-    startSessionAs("root");
-    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId() + "/activities"), "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    CollectionEntity activitiesCollections = (CollectionEntity) response.getEntity();
-    assertEquals(6, activitiesCollections.getEntities().size());
-
-    //root posts another activity
-    String input = "{\"title\":title6}";
-    response = getResponse("POST", getURLResource("spaces/" + space.getId() + "/activities"), input);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
-    assertEquals(7, listAccess.getSize());
-    ExoSocialActivity activity = listAccess.load(0, 10)[0];
-    assertEquals("title6", activity.getTitle());
-  }
-
-  public void testGetSpaceActivityFileByFileId() throws Exception {
-    // Given
-    startSessionAs("root");
-    Space space = getSpaceInstance(1, "root");
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    try {
-      ExoSocialActivity activity = new ExoSocialActivityImpl();
-      Map<String, String> templateParams = new HashMap<>();
-      activity.setType("DOC_ACTIVITY");
-      activity.setTitle("Activity Title");
-      activity.setBody("Activity Content");
-      activity.setTemplateParams(templateParams);
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
-
-      // When
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
-      ExoSocialActivity createdActivity = activityManager.getActivity(activity.getId());
-
-      // Then
-      assertEquals(0 , activityManager.getActivityFilesIds(activity).size());
-      ContainerResponse response = service("GET",
-                                           getURLResource("spaces/" + createdActivity.getId() + "/files/1"),
-                                           "",
-                                           null,
-                                           null);
-      assertNotNull(response);
-      assertEquals(404, response.getStatus());
-    } finally {
-      if (space != null) {
-        spaceService.deleteSpace(space);
-      }
-    }
   }
 
   public void testSpacesApplications() throws Exception {

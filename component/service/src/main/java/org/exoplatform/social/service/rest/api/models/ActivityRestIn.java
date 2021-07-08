@@ -25,6 +25,7 @@ import java.util.Map;
  * @author <a href="http://phuonglm.net">phuonglm</a>
  * @since 1.2.3
  */
+@Deprecated
 public class ActivityRestIn {
   /**
    * The title.

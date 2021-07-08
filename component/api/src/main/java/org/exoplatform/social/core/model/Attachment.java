@@ -16,58 +16,40 @@
  */
 package org.exoplatform.social.core.model;
 
+import java.io.IOException;
 import java.io.InputStream;
 
-public abstract  class Attachment {
+import org.exoplatform.commons.utils.IOUtil;
 
-  /**
-   * The id.
-   */
-  private String id;
+public abstract class Attachment {
+  private static final int KB_SIZE = 1024;
 
-  /**
-   * The file name.
-   */
-  private String fileName;
+  private static final int MB_SIZE = 1024 * KB_SIZE;
 
-  /**
-   * The mime type.
-   */
-  private String mimeType;
+  private String           id;
 
-  /**
-   * The image bytes.
-   */
-  private byte[] imageBytes;
+  private String           fileName;
 
-  /**
-   * The last modified.
-   */
-  private long lastModified;
+  private String           mimeType;
 
-  public Attachment() {
+  private byte[]           imageBytes;
+
+  private long             lastModified;
+
+  protected Attachment() {
   }
 
-  /**
-   * Constructor.
-   *
-   * @param id
-   * @param fileName
-   * @param mimeType
-   * @param inputStream
-   * @param lastModified
-   * @throws Exception
-   */
-  public Attachment(String id,
-                    String fileName,
-                    String mimeType,
-                    InputStream inputStream,
-                    long lastModified) throws Exception {
+  protected Attachment(String id,
+                       String fileName,
+                       String mimeType,
+                       InputStream inputStream,
+                       long lastModified)
+      throws IOException {
     this.id = id;
     this.fileName = fileName;
-    setInputStream(inputStream);
     this.mimeType = mimeType;
     this.lastModified = lastModified;
+    setInputStream(inputStream);
   }
 
   public abstract String getAttachmentType();
@@ -150,40 +132,32 @@ public abstract  class Attachment {
    * @return image size string
    */
   public String getSize() {
-    int KB_SIZE = 1024;
-    int MB_SIZE = 1024 * KB_SIZE;
     int length = imageBytes.length;
     double size;
     if (length >= MB_SIZE) {
-      size = length / MB_SIZE;
+      size = ((double) length) / MB_SIZE;
       return size + " MB";
     } else if (length >= KB_SIZE) {
-      size = length / KB_SIZE;
+      size = ((double) length) / KB_SIZE;
       return size + " KB";
-    } else { //Bytes size
+    } else { // Bytes size
       return length + " Bytes";
     }
   }
 
-  /**
-   * Gets imageBytes.
-   *
-   * @return
-   */
   public byte[] getImageBytes() {
     return imageBytes;
   }
 
   /**
-   * Sets the input stream.
+   * Read image bytes from input stream
    *
    * @param input the new input stream
-   * @throws Exception the exception
+   * @throws IOException the exception
    */
-  public void setInputStream(InputStream input) throws Exception {
+  public void setInputStream(InputStream input) throws IOException {
     if (input != null) {
-      imageBytes = new byte[input.available()];
-      input.read(imageBytes);
+      imageBytes = IOUtil.getStreamContentAsBytes(input);
     } else {
       imageBytes = null;
     }

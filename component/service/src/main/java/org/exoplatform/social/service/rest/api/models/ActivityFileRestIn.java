@@ -17,6 +17,7 @@
 
 package org.exoplatform.social.service.rest.api.models;
 
+@Deprecated
 public class ActivityFileRestIn {
   private String id;
 

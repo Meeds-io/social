@@ -17,21 +17,10 @@
 
 package org.exoplatform.social.rest.api;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
-import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.UserEntity;
-import org.exoplatform.social.rest.impl.user.UserRestResourcesV1.ACTIVITY_STREAM_TYPE;
-import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 
 public interface UserRestResources extends SocialRest {
 
@@ -121,24 +110,5 @@ public interface UserRestResources extends SocialRest {
                                            @QueryParam("limit") int limit,
                                            @QueryParam("returnSize") boolean returnSize,
                                            @QueryParam("expand") String expand) throws Exception;
-
-  @GET
-  @Path("{id}/activities")
-  public abstract Response getActivitiesOfUser(@Context UriInfo uriInfo,
-                                               @PathParam("id") String id,
-                                               @QueryParam("type") String type,
-                                               @QueryParam("offset") int offset,
-                                               @QueryParam("limit") int limit,
-                                               @QueryParam("before") String before,
-                                               @QueryParam("after") String after,
-                                               @QueryParam("returnSize") boolean returnSize,
-                                               @QueryParam("expand") String expand) throws Exception;
-
-  @POST
-  @Path("{id}/activities")
-  public abstract Response addActivityByUser(@Context UriInfo uriInfo, 
-                                             @PathParam("id") String id,
-                                             @QueryParam("expand") String expand, 
-                                             ActivityRestIn model) throws Exception;
 
 }
