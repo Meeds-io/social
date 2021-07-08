@@ -51,14 +51,22 @@
           </v-list-item-content>
         </v-list-item>
       </div>
-      <div>
-        <img
-          src="/social-portlet/images/qr_code_scanner.png"
-          :alt="$t('MobileSettings.image')"
-          class="mx-16"
-          height="180"
-          width="180">
-      </div>
+      <div class="mx-16" id="qrcode"></div>
     </div>
   </v-card>
 </template>
+
+<script>
+export default {
+  mounted(){
+    // Options
+    const options = {
+      text: ((window.location.port > 0) ? `${window.location.protocol}//${window.location.hostname}:${window.location.port}/portal/login?username=${eXo.env.portal.userName}` : `${window.location.protocol}//${window.location.hostname}/portal/login?username=${eXo.env.portal.userName}`)
+    };
+
+    // Create new QRCode Object
+    new QRCode(document.getElementById('qrcode'), options);
+  },
+};
+</script>
+
