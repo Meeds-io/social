@@ -791,6 +791,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>qrcode</module>
+      </depends>
     </module>
   </portlet>
 
