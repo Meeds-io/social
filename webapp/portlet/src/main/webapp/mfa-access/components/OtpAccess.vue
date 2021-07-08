@@ -12,7 +12,7 @@
         justify="center">
         <div v-if="screen === 'askToken' || screen === 'registration'">
           <h class="font-weight-bold titleClass pb-3">{{ $t('mfa.otp.access.title') }}</h>
-          <div class="otpAccessBlock lockIcon">
+          <div class="otpAccessBlock lockIcon mt-5">
           </div>
         </div>
         <div v-if="screen === 'registration'">
@@ -47,12 +47,13 @@
             </button>
           </form>
           <div
-            class="messageClass mt-5"
+            class="helpMessageClass mt-5 font-italic"
             v-if="screen === 'askToken'">
             {{ $t('mfa.otp.access.help.line1') }}<br>
-            {{ $t('mfa.otp.access.help.line2') }}<br>
+            {{ $t('mfa.otp.access.help.line2') }}
             <a
               href="javascript:void(0)"
+              class="font-weight-bold"
               @click="askRevocation">
               {{ $t('mfa.otp.access.help.link') }}
             </a>{{ $t('mfa.otp.access.help.line3') }}
