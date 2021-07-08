@@ -1364,6 +1364,13 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  public ListAccess<Space> getRedactorSpaces(String userId) {
+    return new SpaceListAccess(this.spaceStorage, userId, SpaceListAccess.Type.REDACTOR);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public ListAccess<Space> getManagerSpaces(String userId) {
     return new SpaceListAccess(this.spaceStorage, userId, SpaceListAccess.Type.MANAGER);
   }

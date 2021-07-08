@@ -75,6 +75,8 @@ public class SpaceListAccess implements ListAccess<Space> {
     /** Gets the spaces which the user has the "manager" role. */
     MANAGER,
     /** Gets the spaces which the user has the "manager" role by filter. */
+    REDACTOR,
+    /** Gets the spaces which the user has the "redactor" role by filter. */
     MANAGER_FILTER,
     /** Gets the spaces which are visible and not include these spaces hidden */
     VISIBLE,
@@ -239,6 +241,8 @@ public class SpaceListAccess implements ListAccess<Space> {
       case MEMBER_FILTER: listSpaces = spaceStorage.getMemberSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
         break;
       case MANAGER: listSpaces = spaceStorage.getManagerSpaces(this.userId, offset, limit);
+      break;
+      case REDACTOR: listSpaces = spaceStorage.getRedactorSpaces(this.userId, offset, limit);
       break;
       case MANAGER_FILTER: listSpaces = spaceStorage.getManagerSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
       break;

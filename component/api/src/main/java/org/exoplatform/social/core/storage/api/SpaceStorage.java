@@ -121,6 +121,18 @@ public interface SpaceStorage {
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
 
   /**
+   * Gets the spaces that a user has the "redactor" role with offset, limit.
+   *
+   * @param userId
+   * @param offset
+   * @param limit
+   * @return a list of the manager spaces with offset, limit
+   * @throws SpaceStorageException
+   * @since 1.2.0-GA
+   */
+  public List<Space> getRedactorSpaces(String userId, long offset, long limit);
+
+  /**
    * Gets the spaces that a user has the "manager" role with offset, limit.
    *
    * @param userId
@@ -143,6 +155,18 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
+
+  /**
+   * Gets the redactor spaces of the user id by the filter with offset, limit.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @param offset
+   * @param limit
+   * @return
+   * @since 1.2.0-GA
+   */
+  public List<Space> getRedactorSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
 
   /**
    * Gets the count of the spaces that a user has the "member" role.

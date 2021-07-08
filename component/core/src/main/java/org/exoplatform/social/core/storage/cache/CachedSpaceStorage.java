@@ -379,6 +379,26 @@ public class CachedSpaceStorage implements SpaceStorage {
   /**
    * {@inheritDoc}
    */
+  public List<Space> getRedactorSpaces(final String userId, final long offset, final long limit) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.REDACTOR);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+    ListSpacesData keys = spacesCache.get(
+            new ServiceContext<ListSpacesData>() {
+              public ListSpacesData execute() {
+                if (limit == 0) {
+                  return buildIds(Collections.emptyList());
+                }
+                List<Space> got = storage.getRedactorSpaces(userId, offset, limit);
+                return buildIds(got);
+              }
+            },
+            listKey);
+    return buildSpaces(keys);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public List<Space> getManagerSpaces(final String userId, final long offset, final long limit) {
     SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MANAGER);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
@@ -416,6 +436,35 @@ public class CachedSpaceStorage implements SpaceStorage {
                                                                                                  spaceFilter,
                                                                                                  offset,
                                                                                                  limit);
+                                              return buildIds(got);
+                                            }
+                                          },
+                                          listKey);
+    return buildSpaces(keys);
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<Space> getRedactorSpacesByFilter(
+                                               final String userId,
+                                               final SpaceFilter spaceFilter,
+                                               final long offset,
+                                               final long limit) {
+    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+    ListSpacesData keys = spacesCache.get(
+                                          new ServiceContext<ListSpacesData>() {
+                                            public ListSpacesData execute() {
+                                              if (limit == 0) {
+                                                return buildIds(Collections.emptyList());
+                                              }
+                                              List<Space> got = storage.getRedactorSpacesByFilter(
+                                                                                                  userId,
+                                                                                                  spaceFilter,
+                                                                                                  offset,
+                                                                                                  limit);
                                               return buildIds(got);
                                             }
                                           },
