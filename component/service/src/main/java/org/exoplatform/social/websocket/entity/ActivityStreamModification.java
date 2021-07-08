@@ -31,7 +31,16 @@ public class ActivityStreamModification {
 
   private String activityId;
 
+  private String commentId;
+
+  private String parentCommentId;
+
   private String eventName;
+
+  public ActivityStreamModification(String activityId, String eventName) {
+    this.activityId = activityId;
+    this.eventName = eventName;
+  }
 
   @Override
   public String toString() {

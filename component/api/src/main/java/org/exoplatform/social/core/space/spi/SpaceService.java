@@ -456,7 +456,28 @@ public interface SpaceService {
   default boolean isRedactor(Space space, String userId) {
     return false;
   }
-  
+
+  /**
+   * Checks if a given space has at least one "redactor"
+   *
+   * @param space The space that its user is checked if he has the "redactor" role or not.
+   * @return true if the user has a "redactor" role into it
+   */
+  default boolean hasRedactor(Space space) {
+    return false;
+  }
+
+  /**
+   * checks whether the user can add content on space or not
+   * 
+   * @param space {@link Space}
+   * @param viewer {@link org.exoplatform.services.security.Identity}
+   * @return true if can add content, else false
+   */
+  default boolean canRedactOnSpace(Space space, org.exoplatform.services.security.Identity viewer) {
+    return false;
+  }
+
   /**
    * Assigns the "manager" role to a user in a space.
    *

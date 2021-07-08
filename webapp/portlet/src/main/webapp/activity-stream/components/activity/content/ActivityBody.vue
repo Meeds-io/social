@@ -1,14 +1,10 @@
 <template>
-  <p
-    v-if="isBodyNotEmpty && useParagraph"
+  <dynamic-html-element
+    v-if="isBodyNotEmpty"
     v-sanitized-html="body"
+    :element="element"
     :class="bodyClass"
-    class="reset-style-box"></p>
-  <div
-    v-else-if="isBodyNotEmpty"
-    v-sanitized-html="body"
-    :class="bodyClass"
-    class="reset-style-box"></div>
+    class="reset-style-box" />
 </template>
 
 <script>
@@ -46,6 +42,9 @@ export default {
     },
     useParagraph() {
       return !this.body.includes('</p>');
+    },
+    element() {
+      return this.useParagraph && 'p' || 'div';
     },
     isComment() {
       return this.activity && this.activity.activityId;

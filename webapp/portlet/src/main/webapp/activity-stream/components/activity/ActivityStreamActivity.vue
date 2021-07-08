@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="white border-radius activity-detail flex">
+    class="white border-radius activity-detail flex d-flex flex-column">
     <template v-if="extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
@@ -13,7 +13,8 @@
           :component="extendedComponentOptions"
           :element="extendedComponent.element"
           :element-class="extendedComponent.class"
-          :params="extendedComponentParams" />
+          :params="extendedComponentParams"
+          class=" d-flex flex-column" />
       </template>
       <activity-footer
         v-if="!extendedComponent.overrideFooter"
@@ -33,11 +34,12 @@
       <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"
+          :params="extendedComponentParams"
           name="ActivityContent"
           type="activity-content-extensions"
           parent-element="div"
           element="div"
-          :params="extendedComponentParams" />
+          class=" d-flex flex-column" />
       </v-card>
       <activity-footer
         :activity="activity"

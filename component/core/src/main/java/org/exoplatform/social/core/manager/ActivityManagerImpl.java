@@ -97,6 +97,8 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          ENABLE_EDIT_COMMENT             = "exo.edit.comment.enabled";
 
+  public static final String          ENABLE_USER_COMPOSER           = "userStreamComposer.enabled";
+
   public static final String          ENABLE_MANAGER_EDIT_ACTIVITY    = "exo.manager.edit.activity.enabled";
 
   public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
@@ -115,6 +117,8 @@ public class ActivityManagerImpl implements ActivityManager {
   private boolean                     enableEditActivity              = true;
 
   private boolean                     enableEditComment               = true;
+
+  private boolean                     enableUserComposer              = true;
 
   public static final String          SEPARATOR_REGEX                 = "\\|@\\|";
 
@@ -147,6 +151,9 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       if (params.containsKey(ENABLE_EDIT_COMMENT)) {
         enableEditComment = Boolean.parseBoolean(params.getValueParam(ENABLE_EDIT_COMMENT).getValue());
+      }
+      if (params.containsKey(ENABLE_USER_COMPOSER)) {
+        enableUserComposer = Boolean.parseBoolean(params.getValueParam(ENABLE_USER_COMPOSER).getValue());
       }
     } else {
       String maxUploadString = System.getProperty("wcm.connector.drives.uploadLimit");
@@ -530,6 +537,11 @@ public class ActivityManagerImpl implements ActivityManager {
     }
   }
 
+  @Override
+  public boolean isEnableUserComposer() {
+    return enableUserComposer;
+  }
+
   public void initActivityTypes() {
     Properties properties = PropertyManager.getPropertiesByPattern(ACTIVITY_TYPE_PROPERTY_PATTERN);
     properties.forEach((k, v) -> {
@@ -643,7 +655,7 @@ public class ActivityManagerImpl implements ActivityManager {
       activityStream = activity.getActivityStream();
     }
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
-      return isSpaceManager(viewer, activityStream.getPrettyId());
+      return isManagerOrSpaceManager(viewer, activityStream.getPrettyId());
     }
     return StringUtils.equals(userACL.getSuperUser(), username) || viewer.isMemberOf(userACL.getAdminGroups())
         || spaceService.isSuperManager(username);
@@ -657,6 +669,24 @@ public class ActivityManagerImpl implements ActivityManager {
     return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
   }
 
+  @Override
+  public boolean canPostActivityInStream(org.exoplatform.services.security.Identity viewer, Identity streamOwner) {
+    if (viewer == null) {
+      throw new IllegalArgumentException("currentUserIdentity is mandatory");
+    }
+    if (streamOwner == null) {
+      throw new IllegalArgumentException("streamOwner is mandatory");
+    }
+    if (streamOwner.isSpace()) {
+      String spacePrettyName = streamOwner.getRemoteId();
+      Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
+      return space != null && spaceService.canRedactOnSpace(space, viewer);
+    } else if (streamOwner.isUser()) {
+      return isEnableUserComposer() && StringUtils.equals(viewer.getUserId(), streamOwner.getRemoteId());
+    }
+    return false;
+  }
+
   public boolean isAutomaticActivity(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
     return activity != null
@@ -664,7 +694,7 @@ public class ActivityManagerImpl implements ActivityManager {
             || (activity.getTitleId() != null && systemActivityTitleIds.contains(activity.getTitleId())));
   }
 
-  private boolean isSpaceManager(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
+  private boolean isManagerOrSpaceManager(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
     String username = viewer.getUserId();
     if (viewer.isMemberOf(userACL.getAdminGroups()) || StringUtils.equals(userACL.getSuperUser(), username)) {
       return true;

@@ -89,7 +89,16 @@ public class SecurityManagerTest extends AbstractServiceTest {
     identityManager.saveIdentity(maryIdentity);
     identityManager.saveIdentity(demoIdentity);
 
+    restartTransaction();
+    begin();
     deleteAllRelationships();
+    restartTransaction();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    end();
+    super.tearDown();
   }
 
   /**

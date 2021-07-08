@@ -1,13 +1,9 @@
 package org.exoplatform.social.rest.impl.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
-
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -15,17 +11,12 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.CommentEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
-import org.junit.Test;
 
 public class ActivityRestResourcesTest extends AbstractResourceTest {
 
@@ -51,9 +42,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   private Identity                testSpaceIdentity;
 
-  private final Logger            log = LoggerFactory.getLogger(ActivityRestResourcesTest.class);
-
-  public void setUp() throws Exception {
+    public void setUp() throws Exception {
     super.setUp();
 
     System.setProperty("gatein.email.domain.url", "localhost:8080");
@@ -76,9 +65,14 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null);
     registry(activityRestResourcesV1);
+
+    ExoContainerContext.setCurrentContainer(getContainer());
+    restartTransaction();
+    begin();
   }
 
   public void tearDown() throws Exception {
+    end();
     super.tearDown();
     removeResource(activityRestResourcesV1.getClass());
   }
@@ -98,6 +92,21 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, templateParams.size());
   }
 
+  public void testAddActivityByUserWhenPostOnUserStreamDisabled() throws Exception {
+    Field field = ActivityManagerImpl.class.getDeclaredField("enableUserComposer");
+    field.setAccessible(true);
+    field.set(activityManager, false);
+    try {
+      startSessionAs("john");
+      String input = "{\"title\":titleOfActivity,\"templateParams\":{\"param1\": value1,\"param2\":value2}}";
+      ContainerResponse response = getResponse("POST", getURLResource("activities"), input);
+      assertNotNull(response);
+      assertEquals(401, response.getStatus());
+    } finally {
+      field.set(activityManager, true);
+    }
+  }
+
   public void testGetActivitiesOfUser() throws Exception {
     startSessionAs("root");
     relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
@@ -107,8 +116,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     rootActivity.setTitle("root activity");
     activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
 
-    // wait to make sure the order of activities
-    Thread.sleep(10);
+    restartTransaction();
+
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
@@ -117,8 +126,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     maryActivity.setTitle("mary activity");
     activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
 
-    end();
-    begin();
+    restartTransaction();
 
     ContainerResponse response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
@@ -131,6 +139,24 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals("demo activity", activityEntity.getTitle());
     activityEntity = getBaseEntity(collections.getEntities().get(1), ActivityEntity.class);
     assertEquals("root activity", activityEntity.getTitle());
+    Boolean canPost = (boolean) collections.get("canPost");
+    assertNotNull(canPost);
+    assertTrue(canPost);
+
+    Field field = ActivityManagerImpl.class.getDeclaredField("enableUserComposer");
+    field.setAccessible(true);
+    field.set(activityManager, false);
+    try {
+      response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+      collections = (CollectionEntity) response.getEntity();
+      canPost = (boolean) collections.get("canPost");
+      assertNotNull(canPost);
+      assertFalse(canPost);
+    } finally {
+      field.set(activityManager, true);
+    }
 
     activityManager.deleteActivity(maryActivity);
     activityManager.deleteActivity(demoActivity);
@@ -177,6 +203,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
       testSpaceActivity.setTitle("Test space activity");
       activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+      restartTransaction();
 
       assertNotNull(testSpaceIdentity.getId());
       // Test get an activity(which is not a comment)
@@ -193,6 +220,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       assertTrue(activityEntity.getOwner().contains("/social/spaces/" + space.getId()));
 
       // Test get a comment
+      restartTransaction();
       ExoSocialActivity testComment = new ExoSocialActivityImpl();
       testComment.setTitle("Test Comment");
       testComment.setUserId(rootIdentity.getId());
@@ -827,7 +855,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + prettyName);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
@@ -841,7 +868,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);

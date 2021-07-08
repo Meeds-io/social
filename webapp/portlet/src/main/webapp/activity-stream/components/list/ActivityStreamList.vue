@@ -2,11 +2,15 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
+    <exo-activity-composer
+      v-if="canPost"
+      id="activityComposer" />
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
       v-if="!activityId"
       :space-id="spaceId"
+      :activities="activities"
       @addActivities="addActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-activity
@@ -68,6 +72,7 @@ export default {
     retrievedSize: 0,
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
+    canPost: false,
     hasMore: false,
     loading: false,
     error: false,
@@ -155,7 +160,10 @@ export default {
 
       this.loading = true;
       this.$activityService.getActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-        .then(data => this.handleRetrievedActivities(data && data.activities || []))
+        .then(data => {
+          this.canPost = data.canPost;
+          this.handleRetrievedActivities(data && data.activities || []);
+        })
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
