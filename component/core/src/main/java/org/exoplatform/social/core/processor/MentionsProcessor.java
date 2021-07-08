@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.webui.util.Util;
@@ -42,6 +43,7 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
 
   private static final Pattern pattern = Pattern.compile("@([^\\s]+)|@([^\\s]+)$");
 
+
   private UserPortalConfigService userPortalConfigService;
 
   public MentionsProcessor(InitParams params, UserPortalConfigService userPortalConfigService) {
@@ -51,16 +53,13 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
 
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
-      String portalOwner = null;
-      try{
-        portalOwner = Util.getPortalRequestContext().getPortalOwner();
-      } catch (Exception e){
-        //default value for testing and social
-        portalOwner = userPortalConfigService.getDefaultPortal();
-      }
+      String portalOwner = CommonsUtils.getCurrentPortalOwner();
       activity.setTitle(MentionUtils.substituteUsernames(portalOwner, activity.getTitle()));
       activity.setBody(MentionUtils.substituteUsernames(portalOwner, activity.getBody()));
       Map<String, String> templateParams = activity.getTemplateParams();
+      if(templateParams.containsKey(MESSAGE_PARAM)) {
+        templateParams.put(TEMPLATE_PARAM_TO_PROCESS, MESSAGE_PARAM);
+      }
       List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
       for(String key : templateParamKeys){
         templateParams.put(key, MentionUtils.substituteUsernames(portalOwner, templateParams.get(key)));
