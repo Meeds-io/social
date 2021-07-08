@@ -135,6 +135,7 @@ public class ProfileSearchConnector {
     for(Object jsonHit : jsonHits) {
       JSONObject hitSource = (JSONObject) ((JSONObject) jsonHit).get("_source");
       String position = (String) hitSource.get("position");
+      String aboutMe = (String) hitSource.get("aboutMe");
       String name = (String) hitSource.get("name");
       String userName = (String) hitSource.get("userName");
       String firstName = (String) hitSource.get("firstName");
@@ -142,7 +143,6 @@ public class ProfileSearchConnector {
       String avatarUrl = (String) hitSource.get("avatarUrl");
       String email = (String) hitSource.get("email");
       String identityId = (String) ((JSONObject) jsonHit).get("_id");
-      String aboutMe = (String) hitSource.get("aboutMe");
       identity = new Identity(OrganizationIdentityProvider.NAME, userName);
       identity.setId(identityId);
       p = new Profile(identity);

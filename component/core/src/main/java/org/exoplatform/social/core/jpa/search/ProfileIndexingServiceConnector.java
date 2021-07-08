@@ -198,6 +198,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
             .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+            .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
             .append("  }\n")
             .append("}");
@@ -222,6 +223,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     fields.put("firstName", removeAccents((String) profile.getProperty(Profile.FIRST_NAME)));
     fields.put("lastName", removeAccents((String) profile.getProperty(Profile.LAST_NAME)));
     fields.put("position", removeAccents(profile.getPosition()));
+    fields.put("aboutMe", removeAccents(profile.getAboutMe()));
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
