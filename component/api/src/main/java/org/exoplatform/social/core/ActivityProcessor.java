@@ -35,4 +35,12 @@ public interface ActivityProcessor extends ComponentPlugin {
   default boolean isPreActivityProcessor() {
     return false;
   }
+
+  /**
+   * @return true if the Activity Processor is to use when retrieving activity,
+   *         else false
+   */
+  default boolean isReadActivityProcessor() {
+    return true;
+  }
 }

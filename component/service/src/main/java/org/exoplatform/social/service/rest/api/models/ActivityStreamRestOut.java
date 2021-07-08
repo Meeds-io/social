@@ -33,6 +33,7 @@ import org.exoplatform.social.service.rest.Util;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since 1.2.3
  */
+@Deprecated
 public class ActivityStreamRestOut extends HashMap<String, Object> {
 
   /**

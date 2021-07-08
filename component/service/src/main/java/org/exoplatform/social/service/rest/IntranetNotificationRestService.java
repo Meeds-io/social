@@ -16,37 +16,25 @@
  */
 package org.exoplatform.social.service.rest;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.exoplatform.social.service.rest.RestChecker.checkAuthenticatedUserPermission;
+
+import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
-import static org.exoplatform.social.service.rest.RestChecker.checkAuthenticatedUserPermission;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.NotificationMessageUtils;
 import org.exoplatform.commons.api.notification.channel.AbstractChannel;
 import org.exoplatform.commons.api.notification.channel.template.AbstractTemplateBuilder;
-import org.exoplatform.commons.api.notification.model.ChannelKey;
-import org.exoplatform.commons.api.notification.model.MessageInfo;
-import org.exoplatform.commons.api.notification.model.NotificationInfo;
-import org.exoplatform.commons.api.notification.model.PluginKey;
-import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
+import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage;
-import org.exoplatform.web.security.csrf.ExoCSRFCheck;
 import org.exoplatform.commons.notification.channel.WebChannel;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
 import org.exoplatform.commons.notification.net.WebNotificationSender;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -57,14 +45,20 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesV1;
+import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesV1;
+import org.exoplatform.web.security.csrf.ExoCSRFCheck;
 
 /**
  * Created by The eXo Platform SAS
  * Author : eXoPlatform
  *          exo@exoplatform.com
  * Nov 26, 2014  
+ * 
+ * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResourcesV1}
  */
 @Path("social/intranet-notification")
+@Deprecated
 public class IntranetNotificationRestService implements ResourceContainer {
 
   private static final Log LOG = ExoLogger.getLogger(IntranetNotificationRestService.class);
@@ -99,11 +93,13 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("confirmInvitationToConnect/{senderId}/{receiverId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response confirmInvitationToConnect(@Context UriInfo uriInfo,
                                              @PathParam("senderId") String senderId,
                                              @PathParam("receiverId") String receiverId,
                                              @PathParam("notificationId") String notificationId,
                                              @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(receiverId);
 
@@ -153,11 +149,13 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("ignoreInvitationToConnect/{senderId}/{receiverId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response ignoreInvitationToConnect(@Context UriInfo uriInfo,
                                           @PathParam("senderId") String senderId,
                                           @PathParam("receiverId") String receiverId,
                                           @PathParam("notificationId") String notificationId,
                                           @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(receiverId);
     //
@@ -190,11 +188,13 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("acceptInvitationToJoinSpace/{spaceId}/{userId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response acceptInvitationToJoinSpace(@Context UriInfo uriInfo,
                                               @PathParam("spaceId") String spaceId,
                                                @PathParam("userId") String userId,
                                                @PathParam("notificationId") String notificationId,
                                                @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(userId);
     //
@@ -242,11 +242,13 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("ignoreInvitationToJoinSpace/{spaceId}/{userId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response ignoreInvitationToJoinSpace(@Context UriInfo uriInfo,
                                            @PathParam("spaceId") String spaceId,
                                            @PathParam("userId") String userId,
                                            @PathParam("notificationId") String notificationId,
                                            @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(userId);
     //
@@ -283,12 +285,14 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("validateRequestToJoinSpace/{spaceId}/{requestUserId}/{currentUserId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response validateRequestToJoinSpace(@Context UriInfo uriInfo,
                                          @PathParam("spaceId") String spaceId,
                                          @PathParam("requestUserId") String requestUserId,
                                          @PathParam("currentUserId") String currentUserId,
                                          @PathParam("notificationId") String notificationId,
                                          @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(currentUserId);
 
@@ -350,12 +354,14 @@ public class IntranetNotificationRestService implements ResourceContainer {
   @RolesAllowed("users")
   @ExoCSRFCheck
   @Path("refuseRequestToJoinSpace/{spaceId}/{requestUserId}/{currentUserId}/{notificationId}/message.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response refuseRequestToJoinSpace(@Context UriInfo uriInfo,
                                         @PathParam("spaceId") String spaceId,
                                         @PathParam("requestUserId") String requestUserId,
                                         @PathParam("currentUserId") String currentUserId,
                                         @PathParam("notificationId") String notificationId,
                                         @PathParam("format") String format) throws Exception {
+
     //Check authenticated user
     checkAuthenticatedUserPermission(currentUserId);
     //

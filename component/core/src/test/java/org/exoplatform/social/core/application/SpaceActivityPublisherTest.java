@@ -109,11 +109,10 @@ public class SpaceActivityPublisherTest extends  AbstractCoreTest {
       Thread.sleep(3000);
 
       Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-      List<ExoSocialActivity> activities = activityManager.getActivities(identity);
-      assertEquals(1, activities.size());
-      tearDownActivityList.add(activities.get(0));
-
-      ActivityStream activityStream = activities.get(0).getActivityStream();
+      assertEquals(1, activityManager.getActivitiesWithListAccess(identity).getSize());
+      ExoSocialActivity activity = activityManager.getActivitiesWithListAccess(identity).load(0, 1)[0];
+      tearDownActivityList.add(activity);
+      ActivityStream activityStream = activity.getActivityStream();
 
       assertNotNull("activityStream.getId() must not be null", activityStream.getId());
 

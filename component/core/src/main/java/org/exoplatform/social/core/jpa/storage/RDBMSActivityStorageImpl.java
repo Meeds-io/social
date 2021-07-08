@@ -42,7 +42,6 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.*;
-import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
@@ -496,6 +495,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activity.getId()));
     EntityManagerHolder.get().lock(activityEntity, LockModeType.PESSIMISTIC_WRITE);
     try {
+      if (CollectionUtils.isNotEmpty(eXoComment.getFiles())) {
+        String ownerIdentityId = activityEntity.getOwnerId();
+        try {
+          Identity owner = identityStorage.findIdentityById(ownerIdentityId);
+          storeFile(owner, eXoComment);
+        } catch (Exception e) {
+          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + eXoComment.getId(), e);
+        }
+      }
+
       ActivityEntity commentEntity = convertCommentToCommentEntity(activityEntity, eXoComment);
       commentEntity = activityDAO.create(commentEntity);
 
@@ -600,7 +609,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       try {
         storeFile(owner, activity);
       } catch (Exception e) {
-        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity", e);
+        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + activity.getId(), e);
       }
     }
 
@@ -1424,6 +1433,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       String processorFlag = "processor" + processor.getName();
       if ((preSave && !processor.isPreActivityProcessor())
           || (!preSave && templateParams != null && templateParams.containsKey(processorFlag))) {
+        continue;
+      }
+      if (!preSave && !processor.isReadActivityProcessor()) {
         continue;
       }
       try {

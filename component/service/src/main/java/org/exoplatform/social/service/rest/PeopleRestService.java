@@ -24,6 +24,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -64,10 +65,12 @@ import java.util.*;
  * 
  * Provides REST Services for manipulating jobs relates to people.
  *
+ *  @deprecated user {@link UserRestResourcesV1}
  * @anchor PeopleRestService
  */
 
 @Path("social/people")
+@Deprecated
 public class PeopleRestService implements ResourceContainer{
   private static final String SPACE_PREFIX = "space::";
   /** Confirmed Status information */
@@ -138,10 +141,10 @@ public class PeopleRestService implements ResourceContainer{
    * @LevelAPI Platform
    * @anchor PeopleRestService.suggestUsernames
    */
-  @SuppressWarnings("deprecation")
   @RolesAllowed("users")
   @GET
   @Path("suggest.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use UserRestResourcesV1.getUsers instead ")
   public Response suggestUsernames(@Context UriInfo uriInfo,
                                    @Context HttpServletRequest request,
                     @QueryParam("nameToSearch") String name,
@@ -632,6 +635,7 @@ public class PeopleRestService implements ResourceContainer{
   @GET
   @Path("getprofile/data.json")
   @RolesAllowed("users")
+  @DeprecatedAPI(value = "The endpoint is deprecated, use UserRestResourcesV1.getUsers instead ", insist = true)
   public Response suggestUsernames(@Context UriInfo uriInfo,
                                    @Context SecurityContext securityContext,
                     @QueryParam("search") String query) throws Exception {
@@ -682,6 +686,7 @@ public class PeopleRestService implements ResourceContainer{
   @GET
   @Path("{portalName}/getConnections.{format}")
   @RolesAllowed("users")
+  @DeprecatedAPI(value = "The endpoint is deprecated, use UserRestResourcesV1.getUsers instead ", insist = true)
   public Response searchConnection(@Context UriInfo uriInfo,
                                    @Context SecurityContext securityContext,
                     @PathParam("portalName") String portalName,
@@ -751,6 +756,7 @@ public class PeopleRestService implements ResourceContainer{
   @GET
   @Path("/getPeopleInfo/{userId}.{format}")
   @RolesAllowed("users")
+  @DeprecatedAPI(value = "The endpoint is deprecated, use UserRestResourcesV1.getUsers instead ", insist = true)
   public Response getPeopleInfo(@Context UriInfo uriInfo,
                                 @Context SecurityContext securityContext,
                                 @PathParam("userId") String userId,

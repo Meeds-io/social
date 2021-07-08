@@ -30,6 +30,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -51,10 +52,12 @@ import org.exoplatform.web.controller.router.URIWriter;
  *
  * Provides services for the space gadget to display a user's spaces and pending spaces.
  *
+ * @deprecated use {@link SpaceRestResourcesV1}
  * @anchor SpacesRestService
  *
  */
 @Path("{portalName}/social/spaces")
+@Deprecated
 public class SpacesRestService implements ResourceContainer {
   private static final Log           LOG               = ExoLogger.getLogger(SpacesRestService.class);
 
@@ -144,6 +147,7 @@ public class SpacesRestService implements ResourceContainer {
    */
   @GET
   @Path("mySpaces/show.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response showMySpaceList(@Context UriInfo uriInfo,
                                   @PathParam("portalName") String portalName,
                                   @PathParam("format") String format) throws Exception {
@@ -190,6 +194,7 @@ public class SpacesRestService implements ResourceContainer {
    */
   @GET
   @Path("lastVisitedSpace/list.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response getLastVisitedSpace(@Context UriInfo uriInfo,
                                   @PathParam("portalName") String portalName,
                                   @PathParam("format") String format,
@@ -244,6 +249,7 @@ public class SpacesRestService implements ResourceContainer {
    */
   @GET
   @Path("spaceInfo")
+  @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response getSpaceInfo(@Context UriInfo uriInfo,
           @PathParam("portalName") String portalName,
           @QueryParam("spaceName") String spaceName) throws Exception {
@@ -296,6 +302,7 @@ public class SpacesRestService implements ResourceContainer {
    */
   @GET
   @Path("pendingSpaces/show.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response showPendingSpaceList(@Context UriInfo uriInfo,
                                        @PathParam("portalName") String portalName,
                                        @PathParam("format") String format) throws Exception {
@@ -325,6 +332,7 @@ public class SpacesRestService implements ResourceContainer {
   @GET
   @RolesAllowed("users")
   @Path("suggest.{format}")
+  @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response suggestSpacenames(@Context UriInfo uriInfo,
                                     @Context HttpServletRequest request,
                                     @PathParam("portalName") String portalName,

@@ -16,30 +16,28 @@
  */
 package org.exoplatform.social.service.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 
 /**
  * Provides services to work with identities.
  *
+ *  @deprecated use {@link UserRestResourcesV1}
  * @anchor IdentityRestService
  */
 @Path("{portalName}/social/identity/{username}/id")
+@Deprecated
 public class IdentityRestService implements ResourceContainer {
   private IdentityManager _identityManager;
   private static final Log LOG = ExoLogger.getLogger(IdentityRestService.class);
@@ -65,6 +63,7 @@ public class IdentityRestService implements ResourceContainer {
   @GET
   @Path("show.json")
   @Produces({MediaType.APPLICATION_JSON})
+  @DeprecatedAPI(value = "The endpoint is deprecated, use IdentityRestResourcesV1 instead", insist = true)
   public Response getId(@Context UriInfo uriInfo,
                       @PathParam("username") String username,
                       @PathParam("portalName") String portalName) throws Exception {

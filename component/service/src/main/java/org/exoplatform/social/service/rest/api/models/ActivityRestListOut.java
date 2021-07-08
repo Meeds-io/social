@@ -28,6 +28,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since 1.2.3
  */
+@Deprecated
 public class ActivityRestListOut extends HashMap<String, Object> {
 
   private static final int MAX_LIMIT = 100;

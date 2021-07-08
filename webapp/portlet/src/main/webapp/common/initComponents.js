@@ -15,6 +15,7 @@ import ExoNotificationAlert from './components/ExoNotificationAlert.vue';
 import ExtensionRegistryComponent from './components/ExtensionRegistryComponent.vue';
 import ExtensionRegistryComponents from './components/ExtensionRegistryComponents.vue';
 import DynamicHTMLElement from './components/DynamicHTMLElement.vue';
+import ExoGroupSuggester from './components/ExoGroupSuggester.vue';
 
 const components = {
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -34,6 +35,7 @@ const components = {
   'extension-registry-component': ExtensionRegistryComponent,
   'extension-registry-components': ExtensionRegistryComponents,
   'dynamic-html-element': DynamicHTMLElement,
+  'exo-group-suggester': ExoGroupSuggester,
 };
 
 for (const key in components) {
