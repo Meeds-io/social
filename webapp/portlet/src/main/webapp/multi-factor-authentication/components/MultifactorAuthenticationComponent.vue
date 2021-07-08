@@ -290,13 +290,15 @@
   </v-app>
 </template>
 <script>
-import {changeMfaFeatureActivation, getMfaStatus, getRevocationRequests, updateRevocationRequest} from '../multiFactorServices';
+import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest} from '../multiFactorServices';
+
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
     isManage2faPage: false,
     protectedGroupsUsers: null,
     revocationRequests: [],
+    featureName: 'mfa',
     selectedGroups: null,
     items: ['OTP', 'SuperGluu', 'Fido 2'],
     select: 'OTP',
@@ -315,7 +317,7 @@ export default {
     });
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
     this.getRevocationRequest();
-    this.getMfaStatus();
+    this.getMfaFeatureStatus();
   },
   computed: {
     isFido (){
@@ -336,9 +338,9 @@ export default {
     protectedGroupsList(selectedGroups) {
       this.selectedGroups = selectedGroups;
     },
-    getMfaStatus() {
-      getMfaStatus().then(status => {
-        this.isMultifacorAuthenticationEnabled = status.mfaStatus === 'true';
+    getMfaFeatureStatus() {
+      this.$featureService.isFeatureEnabled(this.featureName).then(status => {
+        this.isMultifacorAuthenticationEnabled = status;
       });
     },
     getRevocationRequest() {
