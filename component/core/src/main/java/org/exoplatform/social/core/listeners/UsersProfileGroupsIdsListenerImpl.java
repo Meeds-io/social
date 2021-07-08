@@ -32,13 +32,9 @@ import java.util.stream.Collectors;
 
 public class UsersProfileGroupsIdsListenerImpl extends MembershipEventListener {
 
-  private static final Log LOG = ExoLogger.getLogger(ExternalUsersListenerImpl.class);
+  private static final Log LOG = ExoLogger.getLogger(UsersProfileGroupsIdsListenerImpl.class);
 
   private IdentityManager identityManager;
-
-  public UsersProfileGroupsIdsListenerImpl() {
-
-  }
 
   @Override
   public void postDelete(Membership m) throws Exception {
