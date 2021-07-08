@@ -69,7 +69,7 @@ public class PeopleElasticUnifiedSearchServiceConnector extends ElasticSearchSer
     fields.add("lastName");
     fields.add("position");
     fields.add("skills");
-
+    fields.add("aboutMe");
     List<String> sourceFields = new ArrayList<>();
     for (String sourceField : fields) {
       sourceFields.add("\"" + sourceField + "\"");
