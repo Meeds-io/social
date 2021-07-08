@@ -57,10 +57,7 @@
 </template>
 
 <script>
-import * as QRCode from 'easyqrcodejs';
-
 export default {
-
   mounted(){
     // Options
     const options = {
