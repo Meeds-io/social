@@ -53,8 +53,9 @@
                 <v-col cols="3">
                   <v-select
                     ref="selectItem"
-                    v-model="select"
+                    v-model="currentMfaSystem"
                     :items="items"
+                    @change="switchMfaSystem"
                     class="authenticationInput"
                     outlined
                     dense />
@@ -290,8 +291,7 @@
   </v-app>
 </template>
 <script>
-import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest} from '../multiFactorServices';
-
+import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest, getCurrentMfaSystem, changeMfaSytem} from '../multiFactorServices';
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
@@ -299,9 +299,12 @@ export default {
     protectedGroupsUsers: null,
     revocationRequests: [],
     featureName: 'mfa',
+    fido: 'Fido 2',
+    superGluu: 'SuperGluu',
+    otp: 'OTP',
     selectedGroups: null,
     items: ['OTP', 'SuperGluu', 'Fido 2'],
-    select: 'OTP',
+    currentMfaSystem: null,
     panel: [0, 1],
     panel1: [0, 1],
     alert: false,
@@ -318,16 +321,17 @@ export default {
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
     this.getRevocationRequest();
     this.getMfaFeatureStatus();
+    this.getCurrentMfaSystem();
   },
   computed: {
     isFido (){
-      return this.select === 'Fido 2';
+      return this.currentMfaSystem === this.fido;
     },
     isOTP (){
-      return this.select === 'OTP';
+      return this.currentMfaSystem === this.oth;
     },
     isSuperGluu (){
-      return this.select === 'SuperGluu';
+      return this.currentMfaSystem === this.superGluu;
     },
   },
   methods: {
@@ -341,6 +345,20 @@ export default {
     getMfaFeatureStatus() {
       this.$featureService.isFeatureEnabled(this.featureName).then(status => {
         this.isMultifacorAuthenticationEnabled = status;
+      });
+    },
+    switchMfaSystem() {
+      changeMfaSytem(this.currentMfaSystem);
+    },
+    getCurrentMfaSystem() {
+      getCurrentMfaSystem().then(system => {
+        if (system.includes('otp')) {
+          return this.currentMfaSystem = this.otp;
+        } else if (system.includes('oidc')){
+          return this.currentMfaSystem = this.superGluu;
+        } else {
+          return this.currentMfaSystem = this.fido;
+        }
       });
     },
     getRevocationRequest() {
