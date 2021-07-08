@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.inject.Provider;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
@@ -69,7 +71,9 @@ public class UIActivityFactory extends BaseComponentPlugin {
   }
 
   public BaseUIActivity buildActivity(ExoSocialActivity activity, UIContainer parent, String type) throws Exception {
-    
+    if (StringUtils.isBlank(type)) {
+      type = UIDefaultActivity.ACTIVITY_TYPE;
+    }
     UIExtension activityExtension = extensionManager.getUIExtension(BaseUIActivity.class.getName(), type);
     if (activityExtension == null) {
       activityExtension = extensionManager.getUIExtension(BaseUIActivity.class.getName(), UIDefaultActivity.ACTIVITY_TYPE);
