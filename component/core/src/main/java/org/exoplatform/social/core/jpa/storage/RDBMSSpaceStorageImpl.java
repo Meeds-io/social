@@ -208,6 +208,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
+  public List<Space> getRedactorSpaces(String userId, long offset, long limit) {
+    return getRedactorSpacesByFilter(userId, null, offset, limit);
+  }
+
+  @Override
   public List<Space> getManagerSpaces(String userId, long offset, long limit) {
     return getManagerSpacesByFilter(userId, null, offset, limit);
   }
@@ -215,6 +220,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   @Override
   public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
   return getSpaces(userId, Arrays.asList(Status.MANAGER), spaceFilter, offset, limit);
+  }
+
+  @Override
+  public List<Space> getRedactorSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
+    return getSpaces(userId, Arrays.asList(Status.REDACTOR), spaceFilter, offset, limit);
   }
 
   @Override

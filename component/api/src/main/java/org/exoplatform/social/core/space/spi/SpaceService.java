@@ -112,6 +112,17 @@ public interface SpaceService {
   ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter);
 
   /**
+   * Gets a list access containing all spaces that a user has the "redactor" role.
+   *
+   * @param userId The remote user Id.
+   * @return The list access.
+   * @LevelAPI Platform
+   */
+  default ListAccess<Space> getRedactorSpaces(String userId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access containing all spaces that a user has the "manager" role.
    *
    * @param userId The remote user Id.
