@@ -45,7 +45,7 @@
           class="pt-5 ps-3 mb-4"
           wrap>
           <v-flex xs9>
-            <exo-suggester 
+            <exo-group-suggester
               v-model="groups"
               :options="suggesterOptions"
               :source-providers="[findGroups]"
