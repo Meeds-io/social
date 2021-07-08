@@ -35,6 +35,7 @@ import org.exoplatform.social.service.rest.Util;
  * @author <a href="http://phuonglm.net">phuonglm</a>
  * @since 1.2.3
  */
+@Deprecated
 public class ActivityRestOut extends HashMap<String, Object>{
   public static enum Field {
     /**

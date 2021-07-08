@@ -1925,19 +1925,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.setManager(savedSpace, "demo", false);
     savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
     assertEquals("savedSpace.getManagers().length must return: " + managers, managers, savedSpace.getManagers().length);
-
-    IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**
@@ -2129,18 +2116,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(savedSpace, "john");
     savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
-    IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**
@@ -2240,16 +2215,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("savedSpace.getMembers().length must return 1", 1, savedSpace.getMembers().length);
     IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**
@@ -2315,16 +2280,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**
@@ -2767,16 +2722,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
     IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**
@@ -2843,18 +2788,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.validateRequest(savedSpace, "john");
     savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
-    IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-    restartTransaction();
-    List<ExoSocialActivity> broadCastActivities =
-                                                activityManager.getActivities(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME,
-                                                                                                                  savedSpace.getPrettyName(),
-                                                                                                                  false),
-                                                                              0,
-                                                                              10);
-    for (ExoSocialActivity activity : broadCastActivities) {
-      activityManager.deleteActivity(activity);
-    }
   }
 
   /**

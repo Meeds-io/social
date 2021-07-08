@@ -30,9 +30,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
-
-import io.swagger.annotations.ApiParam;
 
 public interface SpaceRestResources extends SocialRest {
 
@@ -172,29 +169,5 @@ public interface SpaceRestResources extends SocialRest {
                                            @QueryParam("returnSize") boolean returnSize,
                                            @QueryParam("expand") String expand) throws Exception;
 
-  /**
-   * Process to return a space by id
-   * 
-   * @param uriInfo
-   * @return
-   * @throws Exception
-   */
-  @GET
-  @Path("{id}/activities")
-  public abstract Response getSpaceActivitiesById(@Context UriInfo uriInfo,
-                                                  @PathParam("id") String id,
-                                                  @QueryParam("offset") int offset,
-                                                  @QueryParam("limit") int limit,
-                                                  @QueryParam("before") String before,
-                                                  @QueryParam("after") String after,
-                                                  @QueryParam("returnSize") boolean returnSize,
-                                                  @QueryParam("expand") String expand) throws Exception;
-
-  @POST
-  @Path("{id}/activities")
-  public abstract Response postActivityOnSpace(@Context UriInfo uriInfo,
-                                               @PathParam("id") String id,
-                                               @QueryParam("expand") String expand,  
-                                               ActivityRestIn model) throws Exception;
 
 }

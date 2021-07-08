@@ -16,19 +16,18 @@
  */
 package org.exoplatform.social.service.rest;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManagerImpl;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.impl.SpaceServiceImpl;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.service.test.AbstractResourceTest;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class NotificationsRestServiceTest extends AbstractResourceTest {
 
@@ -71,7 +70,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     startSessionAs("root");
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("activity");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
     ContainerResponse response = service("GET", "/social/notifications/redirectUrl/reply_activity/" + activity.getId(), "", null, null);
     assertNotNull(response);
     assertEquals(303, response.getStatus());
@@ -83,7 +82,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     startSessionAs("root");
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("activity");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
     ContainerResponse response = service("GET", "/social/notifications/redirectUrl/view_full_activity/" + activity.getId(), "", null, null);
     assertNotNull(response);
     assertEquals(303, response.getStatus());
@@ -321,7 +320,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("activity");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
     ContainerResponse response = service("GET", "/social/notifications/redirectUrl/view_full_activity/" + activity.getId(), "", null, null);
     assertEquals(303, response.getStatus());
     
@@ -342,7 +341,6 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/my_space_" + number);

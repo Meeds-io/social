@@ -29,7 +29,7 @@
   <name>eXo PLF:: Social Service Component</name>
   <description>eXo Social Service Component</description>
   <properties>
-    <exo.test.coverage.ratio>0.46</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.44</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
@@ -85,6 +85,10 @@
       </exclusions>
     </dependency>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
+    <dependency>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-common</artifactId>
@@ -303,6 +307,10 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
+      <plugin>
+        <groupId>com.jcabi</groupId>
+        <artifactId>jcabi-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
