@@ -143,7 +143,6 @@ public class ProfileSearchConnector {
       String avatarUrl = (String) hitSource.get("avatarUrl");
       String email = (String) hitSource.get("email");
       String identityId = (String) ((JSONObject) jsonHit).get("_id");
-      String aboutMe = (String) hitSource.get("aboutMe");
       identity = new Identity(OrganizationIdentityProvider.NAME, userName);
       identity.setId(identityId);
       p = new Profile(identity);
