@@ -53,7 +53,7 @@
         <td v-html="space.description"></td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
-        <td class="center"> {{ space.totalBoundUsers }}/{{ space.members.length }} </td>
+        <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
         <td class="center actionContainer">
           <a
             v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')"
