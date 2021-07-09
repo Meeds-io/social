@@ -196,19 +196,17 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("demo"))
     .thenReturn(new Identity("1"));
     org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(admin.getUserId()).thenReturn("john");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
-    .thenReturn(johnIdentity);
+    Mockito.when(identityManager.getOrCreateUserIdentity("john")).thenReturn(johnIdentity);
     Mockito.when(admin.getGroups()).thenReturn(Collections.singleton("/platform/administrators"));
     Mockito.when(admin.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry("/platform/administrators")));
     Mockito.when(admin.isMemberOf(acl.getAdminGroups())).thenReturn(true);
     org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(mary.getUserId()).thenReturn("mary");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
-    .thenReturn(maryIdentity);
+    Mockito.when(identityManager.getOrCreateUserIdentity("mary")).thenReturn(maryIdentity);
     
     // no configuration
     // by default: edit activity/comment are all enabled

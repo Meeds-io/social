@@ -760,4 +760,55 @@
       <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-79" dbms="oracle,postgresql">
+    <createSequence sequenceName="SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID" startValue="1"/>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-80">
+    <createTable tableName="SOC_ACTIVITY_SHARE_ACTIONS">
+      <column name="ACTIVITY_SHARE_ACTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_ACTIVITY_SHARE_ACTION" />
+      </column>
+      <column name="ACTIVITY_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="USER_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="TITLE" type="TEXT" />
+      <column name="SHARE_DATE" type="TIMESTAMP" defaultValueComputed="NULL" />
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-81">
+    <createTable tableName="SOC_ACTIVITY_SHARE_ACTION_SPACE">
+      <column name="ACTIVITY_SHARE_ACTION_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_ACTIVITY_SHARE_SPACE" references="SOC_ACTIVITY_SHARE_ACTIONS(ACTIVITY_SHARE_ACTION_ID)" nullable="false" />
+      </column>
+      <column name="SHARED_SPACE_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <createIndex tableName="SOC_ACTIVITY_SHARE_ACTION_SPACE" indexName="IDX_SOC_ACTIVITY_SHARE_ACTION_SPACE_01">
+      <column name="ACTIVITY_SHARE_ACTION_ID" />
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-82">
+    <createTable tableName="SOC_ACTIVITY_SHARE_ACTION_ACTIVITY">
+      <column name="ACTIVITY_SHARE_ACTION_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_ACTIVITY_SHARE_ACTIVITY" references="SOC_ACTIVITY_SHARE_ACTIONS(ACTIVITY_SHARE_ACTION_ID)" nullable="false" />
+      </column>
+      <column name="SHARED_ACTIVITY_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <createIndex tableName="SOC_ACTIVITY_SHARE_ACTION_ACTIVITY" indexName="IDX_SOC_ACTIVITY_SHARE_ACTION_ACTIVITY_01">
+      <column name="ACTIVITY_SHARE_ACTION_ID" />
+    </createIndex>
+  </changeSet>
+
 </databaseChangeLog>

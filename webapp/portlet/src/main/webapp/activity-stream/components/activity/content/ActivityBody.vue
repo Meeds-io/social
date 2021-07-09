@@ -11,11 +11,11 @@
 export default {
   props: {
     activity: {
-      type: String,
+      type: Object,
       default: null,
     },
     activityTypeExtension: {
-      type: String,
+      type: Object,
       default: null,
     },
     isActivityDetail: {

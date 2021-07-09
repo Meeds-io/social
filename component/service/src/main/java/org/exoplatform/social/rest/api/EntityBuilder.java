@@ -619,6 +619,23 @@ public class EntityBuilder {
 
     //
     updateCachedLastModifiedValue(activity.getUpdated());
+    if (expandFields.contains(RestProperties.SHARED) && activity.getTemplateParams() != null
+        && activity.getTemplateParams().containsKey("originalActivityId")) {
+      String originalActivityId = activity.getTemplateParams().get("originalActivityId");
+      if (StringUtils.isNotBlank(originalActivityId)) {
+        ExoSocialActivity originalActivity = getActivityManager().getActivity(originalActivityId);
+        if (originalActivity != null) {
+          ActivityEntity originalActivityEntity = buildEntityFromActivity(originalActivity,
+                                                                          authentiatedUser,
+                                                                          restPath,
+                                                                          expand);
+          if (originalActivityEntity.getTemplateParams() != null) {
+            activityEntity.getTemplateParams().putAll(originalActivityEntity.getTemplateParams());
+          }
+          activityEntity.setOriginalActivity(originalActivityEntity);
+        }
+      }
+    }
     return activityEntity;
   }
 

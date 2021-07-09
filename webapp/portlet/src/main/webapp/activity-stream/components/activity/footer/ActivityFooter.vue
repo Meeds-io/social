@@ -1,5 +1,9 @@
 <template>
   <div class="actionsDetailsWrapper mb-0 py-0 pe-4 no-border-bottom">
+    <activity-share-information
+      v-if="displayShareInformation"
+      :activity="activity"
+      :original-activity="activity.originalSharedActivity" />
     <activity-reactions
       :activity-id="activityId"
       :activity="activity"
@@ -21,6 +25,10 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
     activityTypeExtension: {
       type: Object,
       default: null,
@@ -33,6 +41,13 @@ export default {
     likers: [],
   }),
   computed: {
+    displayShareInformation() {
+      return this.activity
+        && this.activity.originalSharedActivity
+        && this.activityTypeExtension
+        && this.activityTypeExtension.showSharedInformationFooter
+        && this.activityTypeExtension.showSharedInformationFooter(this.activity, this.isActivityDetail);
+    },
     activityId() {
       return this.activity && this.activity.id;
     },

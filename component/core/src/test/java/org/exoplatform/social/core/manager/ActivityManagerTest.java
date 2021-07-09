@@ -18,6 +18,7 @@ package org.exoplatform.social.core.manager;
 
 import java.util.*;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
@@ -31,7 +32,6 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
@@ -357,6 +357,173 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertTrue(activityManager.canPostActivityInStream(jamesACLIdentity, spaceIdentity));
     // space member can't redact
     assertFalse(activityManager.canPostActivityInStream(maryACLIdentity, spaceIdentity));
+  }
+
+  public void testShareActivity() throws Exception { // NOSONAR
+    Space originalSpace = createSpace("OriginalSpace", "john", "john", "demo");
+    ExoSocialActivity originalActivity = new ExoSocialActivityImpl();
+    originalActivity.setTitle("Test original Activity");
+    originalActivity.setUserId(johnIdentity.getId());
+
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(originalSpace.getPrettyName());
+    activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
+
+    Space targetSpace = createSpace("TargetSpace", "james", "james", "mary", "demo");
+    String shareMessage = "share Message";
+    String type = "sharedActivityTest"; // No matter, will be removed from API
+                                        // anyway
+
+    org.exoplatform.services.security.Identity johnSecurityIdentity = new org.exoplatform.services.security.Identity("john");
+    org.exoplatform.services.security.Identity demoSecurityIdentity = new org.exoplatform.services.security.Identity("demo");
+    org.exoplatform.services.security.Identity jamesSecurityIdentity = new org.exoplatform.services.security.Identity("james");
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList(targetSpace.getPrettyName()),
+                                    johnSecurityIdentity);
+      fail("John is not member of target space");
+    } catch (IllegalAccessException e) {
+      // Expected
+    }
+
+    try {
+      activityManager.shareActivity("25556",
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList(targetSpace.getPrettyName()),
+                                    demoSecurityIdentity);
+      fail("Activity id shouldn't be found");
+    } catch (ObjectNotFoundException e) {
+      // Expected
+    }
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList(targetSpace.getPrettyName()),
+                                    jamesSecurityIdentity);
+      fail("James shouldn't be able to access original activity");
+    } catch (IllegalAccessException e) {
+      // Expected
+    }
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList("5496632"),
+                                    demoSecurityIdentity);
+      fail("Fake space pretty name shouldn't be found");
+    } catch (ObjectNotFoundException e) {
+      // Expected
+    }
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList("5496632"),
+                                    demoSecurityIdentity);
+      fail("Fake space pretty name shouldn't be found");
+    } catch (ObjectNotFoundException e) {
+      // Expected
+    }
+    
+    try {
+      activityManager.shareActivity(null,
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList("5496632"),
+                                    demoSecurityIdentity);
+      fail("Activity id should be mandatory");
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    new ArrayList<>(),
+                                    demoSecurityIdentity);
+      fail("Spaces should be mandatory");
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList("5496632"),
+                                    null);
+      fail("User identity is mandatory");
+    } catch (IllegalAccessException e) {
+      // Expected
+    }
+
+    List<ExoSocialActivity> sharedActivities = activityManager.shareActivity(originalActivity.getId(),
+                                                                             shareMessage,
+                                                                             type,
+                                                                             Arrays.asList(targetSpace.getPrettyName()),
+                                                                             demoSecurityIdentity);
+    assertNotNull(sharedActivities);
+    assertEquals(1, sharedActivities.size());
+
+    ExoSocialActivity sharedactivity = sharedActivities.get(0);
+    assertNotNull(sharedactivity);
+    assertNotNull(sharedactivity.getId());
+    assertNotNull(sharedactivity.getTitle());
+    assertEquals(type, sharedactivity.getType());
+    assertEquals(shareMessage, sharedactivity.getTitle());
+    assertEquals(targetSpace.getPrettyName(), sharedactivity.getStreamOwner());
+    assertNotNull(sharedactivity.getTemplateParams());
+    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get("originalActivityId"));
+
+    // Verify again from storage
+    sharedactivity = activityManager.getActivity(sharedactivity.getId());
+    assertNotNull(sharedactivity.getTitle());
+    assertEquals(type, sharedactivity.getType());
+    assertEquals(shareMessage, sharedactivity.getTitle());
+    assertEquals(targetSpace.getPrettyName(), sharedactivity.getStreamOwner());
+    assertNotNull(sharedactivity.getTemplateParams());
+    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get("originalActivityId"));
+
+    sharedActivities = activityManager.shareActivity(originalActivity.getId(),
+                                                     null,
+                                                     null,
+                                                     Arrays.asList(targetSpace.getPrettyName()),
+                                                     demoSecurityIdentity);
+    assertNotNull(sharedActivities);
+    assertEquals(1, sharedActivities.size());
+
+    targetSpace.setRedactors(new String[] { "james" });
+    spaceService.updateSpace(targetSpace);
+
+    try {
+      activityManager.shareActivity(originalActivity.getId(),
+                                    shareMessage,
+                                    type,
+                                    Arrays.asList(targetSpace.getPrettyName()),
+                                    demoSecurityIdentity);
+      fail("Demo is not redactor of target space anymore");
+    } catch (IllegalAccessException e) {
+      // Expected
+    }
+
+    targetSpace.setRedactors(new String[] { "james", "demo" });
+    spaceService.updateSpace(targetSpace);
+
+    sharedActivities = activityManager.shareActivity(originalActivity.getId(),
+                                                     null,
+                                                     null,
+                                                     Arrays.asList(targetSpace.getPrettyName()),
+                                                     demoSecurityIdentity);
+    assertNotNull(sharedActivities);
+    assertEquals(1, sharedActivities.size());
   }
 
   /**
@@ -849,21 +1016,20 @@ public class ActivityManagerTest extends AbstractCoreTest {
     return activityManager.getActivity(comment.getId());
   }
 
-  private Space createSpace(String spaceName, String creator) throws Exception {
+  private Space createSpace(String spaceName, String creator, String ...members) throws Exception {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
     space.setGroupId("/spaces/" + space.getPrettyName());
     space.setRegistration(Space.OPEN);
     space.setDescription("description of space" + spaceName);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { creator };
-    String[] members = new String[] { creator };
+    String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);
-    space.setMembers(members);
+    space.setMembers(spaceMembers);
     spaceService.saveSpace(space, true);
     tearDownSpaceList.add(space);
     return space;

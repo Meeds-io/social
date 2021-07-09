@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.manager;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.*;
 import org.exoplatform.social.core.identity.model.GlobalId;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -660,6 +661,26 @@ public interface IdentityManager {
    */
   default int getImageUploadLimit() {
     return IdentityStorage.DEFAULT_UPLOAD_IMAGE_LIMIT;
+  }
+
+  /**
+   * Retrieves the identity of a given space identified by its prettyName
+   * 
+   * @param spacePrettyName {@link Space} prettyName
+   * @return {@link Identity} if found, else null
+   */
+  default Identity getOrCreateSpaceIdentity(String spacePrettyName) {
+    return getOrCreateIdentity(ActivityStream.SPACE_PROVIDER_ID, spacePrettyName);
+  }
+
+  /**
+   * Retrieves the identity of a given user identified by his username/login
+   * 
+   * @param username login identifier of the user
+   * @return {@link Identity} if found, else null
+   */
+  default Identity getOrCreateUserIdentity(String username) {
+    return getOrCreateIdentity(ActivityStream.ORGANIZATION_PROVIDER_ID, username);
   }
 
 }

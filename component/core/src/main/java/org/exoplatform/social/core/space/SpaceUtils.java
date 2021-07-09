@@ -1806,13 +1806,15 @@ public class SpaceUtils {
 
   /**
    * Check if the user has the role redactor in that space or that the space is not redactional
+   * 
    * @param userName
    * @param spaceGroupId
    * @return boolean true if the user has that role Or the role is not present in the space
    */
   public static boolean isRedactor(String userName, String spaceGroupId) {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return space != null && (getSpaceService().isRedactor(space, userName) || ArrayUtils.isEmpty(space.getRedactors()));
+    return space != null && (getSpaceService().isRedactor(space, userName)
+        || (ArrayUtils.isEmpty(space.getRedactors()) && getSpaceService().isMember(space, userName)));
   }
 
   /**

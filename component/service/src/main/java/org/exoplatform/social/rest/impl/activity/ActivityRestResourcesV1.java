@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -172,7 +173,6 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
     }
 
-    List<DataEntity> activityEntities = new ArrayList<>();
     List<ExoSocialActivity> activities = null;
     if (StringUtils.isNotBlank(afterTime)) {
       try {
@@ -189,13 +189,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     } else {
       activities = listAccess.loadAsList(offset, limit);
     }
-    for (ExoSocialActivity activity : activities) {
-      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity,
-                                                                            currentUserIdentity,
-                                                                            uriInfo.getPath(),
-                                                                            expand);
-      activityEntities.add(activityEntity.getDataEntity());
-    }
+    List<DataEntity> activityEntities = convertToEntities(activities, currentUserIdentity, uriInfo, expand);
     CollectionEntity collectionActivity = new CollectionEntity(activityEntities, EntityBuilder.ACTIVITIES_TYPE, offset, limit);
     if (returnSize) {
       collectionActivity.setSize(listAccess.getSize());
@@ -654,66 +648,57 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @ApiResponses(
       value = {
           @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 401, message = "Unauthorized"),
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
-  public Response shareActivityOnSpaces(
-                                        @Context
-                                        UriInfo uriInfo,
-                                        @ApiParam(value = "Activity id", required = true)
-                                        @PathParam("activityId")
-                                        String activityId,
-                                        @ApiParam(
-                                            value = "Asking for a full representation of a specific subresource, ex: comments or likes",
-                                            required = false
-                                        )
-                                        @QueryParam("expand")
-                                        String expand,
-                                        @ApiParam(value = "Share target spaces", required = true)
-                                        SharedActivityRestIn sharedActivityRestIn) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (activityManager.getActivity(activityId) == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    if (sharedActivityRestIn == null || sharedActivityRestIn.getTargetSpaces() == null
-        || sharedActivityRestIn.getTargetSpaces().isEmpty() || sharedActivityRestIn.getType() == null) {
+  public Response shareActivity(
+                                @Context
+                                UriInfo uriInfo,
+                                @ApiParam(value = "Activity id", required = true)
+                                @PathParam("activityId")
+                                String activityId,
+                                @ApiParam(
+                                    value = "Asking for a full representation of a specific subresource, ex: comments or likes",
+                                    required = false
+                                )
+                                @QueryParam("expand")
+                                String expand,
+                                @ApiParam(value = "Share target spaces", required = true)
+                                SharedActivityRestIn sharedActivityRestIn) {
+    if (StringUtils.isBlank(activityId)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    Identity authenticatedUserIdentity =
-                                       identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    List<ActivityEntity> sharedActivitiesEntities = new ArrayList<>();
-    for (String targetSpaceName : sharedActivityRestIn.getTargetSpaces()) {
-      Space targetSpace = spaceService.getSpaceByPrettyName(targetSpaceName);
-      if (SpaceUtils.isSpaceManagerOrSuperManager(authenticatedUser, targetSpace.getGroupId())
-          || (spaceService.isMember(targetSpace, authenticatedUser)
-              && SpaceUtils.isRedactor(authenticatedUser, targetSpace.getGroupId()))) {
-        // create activity
-        ExoSocialActivity sharedActivity = new ExoSocialActivityImpl();
-        sharedActivity.setTitle(sharedActivityRestIn.getTitle());
-        sharedActivity.setType(sharedActivityRestIn.getType());
-        sharedActivity.setUserId(authenticatedUserIdentity.getId());
-        Map<String, String> templateParams = new HashMap<>();
-        templateParams.put("originalActivityId", activityId);
-        sharedActivity.setTemplateParams(templateParams);
-        Identity targetSpaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, targetSpaceName);
-        if (targetSpaceIdentity != null) {
-          activityManager.saveActivityNoReturn(targetSpaceIdentity, sharedActivity);
-          ActivityEntity sharedActivityEntity = EntityBuilder.buildEntityFromActivity(sharedActivity,
-                                                                                      authenticatedUserIdentity,
-                                                                                      uriInfo.getPath(),
-                                                                                      expand);
-          sharedActivitiesEntities.add(sharedActivityEntity);
-          LOG.info("service=activity operation=share parameters=\"activity_type:{},activity_id:{},space_id:{},user_id:{}\"",
-                   sharedActivity.getType(),
-                   sharedActivity.getId(),
-                   targetSpace.getId(),
-                   sharedActivity.getPosterId());
-        }
-      }
+    if (sharedActivityRestIn == null) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
     }
-    return EntityBuilder.getResponse(sharedActivitiesEntities, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    List<String> targetSpaces = sharedActivityRestIn.getTargetSpaces();
+    if (targetSpaces == null || targetSpaces.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    org.exoplatform.services.security.Identity currentIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = currentIdentity.getUserId();
+    List<ExoSocialActivity> sharedActivities;
+    try {
+      sharedActivities = activityManager.shareActivity(activityId,
+                                                       sharedActivityRestIn.getTitle(),
+                                                       sharedActivityRestIn.getType(),
+                                                       targetSpaces,
+                                                       currentIdentity);
+    } catch (IllegalAccessException e) {
+      LOG.warn("User {} doesn't have access to share activity {}", authenticatedUser, activityId, e);
+      return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+    }
+
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    List<DataEntity> sharedActivityEntities = convertToEntities(sharedActivities, authenticatedUserIdentity, uriInfo, expand);
+    CollectionEntity collectionActivity = new CollectionEntity(sharedActivityEntities, EntityBuilder.ACTIVITIES_TYPE, 0, sharedActivityEntities.size());
+    return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @GET
@@ -905,6 +890,21 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }).collect(Collectors.toList());
 
     return Response.ok(results).build();
+  }
+
+  private List<DataEntity> convertToEntities(List<ExoSocialActivity> activities,
+                                             Identity currentUserIdentity,
+                                             UriInfo uriInfo,
+                                             String expand) {
+    List<DataEntity> activityEntities = new ArrayList<>();
+    for (ExoSocialActivity activity : activities) {
+      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity,
+                                                                            currentUserIdentity,
+                                                                            uriInfo.getPath(),
+                                                                            expand);
+      activityEntities.add(activityEntity.getDataEntity());
+    }
+    return activityEntities;
   }
 
 }
