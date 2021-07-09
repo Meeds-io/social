@@ -238,6 +238,10 @@
   </component>
 
   <component>
+    <type>org.exoplatform.social.core.jpa.storage.dao.ActivityShareActionDAO</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO</key>
     <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceExternalInvitationDAOImpl</type>
   </component>

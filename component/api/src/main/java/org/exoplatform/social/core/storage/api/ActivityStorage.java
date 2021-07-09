@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.api;
 import java.util.*;
 
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -1086,6 +1087,16 @@ public interface ActivityStorage {
    * @return {@link Set} of {@link Identity} technical identifier
    */
   default Set<Long> getStreamFeedOwnerIds(Identity identity) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Stores in database the share activity action detail
+   * 
+   * @param activityShareAction {@link ActivityShareAction} to store
+   * @return created {@link ActivityShareAction}
+   */
+  default ActivityShareAction createShareActivityAction(ActivityShareAction activityShareAction) {
     throw new UnsupportedOperationException();
   }
 

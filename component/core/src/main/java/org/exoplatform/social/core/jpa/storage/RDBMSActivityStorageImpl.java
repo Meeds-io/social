@@ -39,8 +39,7 @@ import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
-import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
+import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -55,6 +54,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   public static final Pattern                    MENTION_PATTERN             = Pattern.compile("@([^\\s<]+)|@([^\\s<]+)$");
 
   public static final String                     COMMENT_PREFIX              = "comment";
+
+  private final ActivityShareActionDAO           activityShareActionDAO;
 
   private final ActivityDAO                      activityDAO;
 
@@ -80,11 +81,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
+                                  ActivityShareActionDAO activityShareActionDAO,
                                   ActivityDAO activityDAO,
                                   ConnectionDAO connectionDAO) {
     this.identityStorage = identityStorage;
     this.activityProcessors = new TreeSet<>(processorComparator());
     this.activityDAO = activityDAO;
+    this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
   }
@@ -1383,6 +1386,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return owners;
   }
 
+  @Override
+  public ActivityShareAction createShareActivityAction(ActivityShareAction activityShareAction) {
+    ActivityShareActionEntity actionEntity = toEntity(activityShareAction);
+    actionEntity.setId(null);
+    actionEntity.setShareDate(new Date());
+    actionEntity = activityShareActionDAO.create(actionEntity);
+    return fromEntity(actionEntity);
+  }
+
   private Long getCommentID(String commentId) {
     return (commentId == null || commentId.trim().isEmpty()) ? null : Long.valueOf(commentId.replace(COMMENT_PREFIX, ""));
   }
@@ -1542,6 +1554,30 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
     // update time have to be same as post time when activity not updated
     activityEntity.setUpdatedDate(newPosted);
+  }
+
+  private ActivityShareActionEntity toEntity(ActivityShareAction activityShareAction) {
+    ActivityShareActionEntity actionEntity = new ActivityShareActionEntity();
+    actionEntity.setActivityId(activityShareAction.getActivityId());
+    actionEntity.setUserId(activityShareAction.getUserIdentityId());
+    actionEntity.setShareDate(new Date(activityShareAction.getShareDate()));
+    actionEntity.setSharedActivityIds(activityShareAction.getSharedActivityIds());
+    actionEntity.setSharedSpaceIds(activityShareAction.getSpaceIds());
+    actionEntity.setTitle(activityShareAction.getMessage());
+    actionEntity.setId(activityShareAction.getId());
+    return actionEntity;
+  }
+
+  private ActivityShareAction fromEntity(ActivityShareActionEntity actionEntity) {
+    ActivityShareAction activityShareAction = new ActivityShareAction();
+    activityShareAction.setActivityId(actionEntity.getActivityId());
+    activityShareAction.setUserIdentityId(actionEntity.getUserId());
+    activityShareAction.setShareDate(actionEntity.getShareDate().getTime());
+    activityShareAction.setSharedActivityIds(actionEntity.getSharedActivityIds());
+    activityShareAction.setSpaceIds(actionEntity.getSharedSpaceIds());
+    activityShareAction.setMessage(actionEntity.getTitle());
+    activityShareAction.setId(actionEntity.getId());
+    return activityShareAction;
   }
 
 }

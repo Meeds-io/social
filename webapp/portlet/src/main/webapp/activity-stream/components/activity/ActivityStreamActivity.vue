@@ -43,6 +43,7 @@
       </v-card>
       <activity-footer
         :activity="activity"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         :activity="activity"
@@ -111,6 +112,7 @@ export default {
     extendedComponentParams() {
       return {
         activity: this.activity,
+        originalSharedActivity: this.originalSharedActivity,
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
         loading: this.loading,
@@ -118,6 +120,9 @@ export default {
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
+    },
+    sharedActivityId() {
+      return this.activity && this.activity.templateParams && this.activity.templateParams.originalActivityId;
     },
   },
   watch: {

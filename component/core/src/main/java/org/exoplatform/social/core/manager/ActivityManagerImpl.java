@@ -17,14 +17,17 @@
 package org.exoplatform.social.core.manager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -188,7 +191,8 @@ public class ActivityManagerImpl implements ActivityManager {
       return;
     }
 
-    activityStorage.saveActivity(streamOwner, newActivity);
+    ExoSocialActivity savedActivity = activityStorage.saveActivity(streamOwner, newActivity);
+    newActivity.setId(savedActivity.getId());
     activityLifeCycle.saveActivity(newActivity);
   }
 
@@ -198,6 +202,71 @@ public class ActivityManagerImpl implements ActivityManager {
   public void saveActivityNoReturn(ExoSocialActivity newActivity) {
     Identity owner = getStreamOwner(newActivity);
     saveActivityNoReturn(owner, newActivity);
+  }
+
+  @Override
+  public List<ExoSocialActivity> shareActivity(String activityId,
+                                               String title,
+                                               String type,
+                                               List<String> targetSpaces,
+                                               org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                  IllegalAccessException {
+    ActivityShareAction activityShareAction = new ActivityShareAction();
+    activityShareAction.setActivityId(Long.parseLong(activityId));
+    activityShareAction.setMessage(title);
+    activityShareAction.setSpaceIds(targetSpaces.stream().map(prettyName -> {
+      Space space = spaceService.getSpaceByPrettyName(prettyName);
+      if (space == null) {
+        LOG.warn("Can't find space with pretty name {}", prettyName);
+        return null;
+      }
+      return Long.parseLong(space.getId());
+    }).collect(Collectors.toSet()));
+    return shareActivity(activityShareAction, type, viewer); // NOSONAR should delete type of activity
+  }
+
+  @Override
+  @Deprecated
+  @DeprecatedAPI("Should replace usage of this method by the other one without activity type parameter")
+  public List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction, // NOSONAR should delete type of activity
+                                               String type,
+                                               org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
+    if (activityShareAction == null) {
+      throw new IllegalArgumentException("activityShareAction is mandatory");
+    }
+    long activityId = activityShareAction.getActivityId();
+    if (activityId <= 0) {
+      throw new IllegalArgumentException("activityId is mandatory");
+    }
+    ExoSocialActivity activity = getActivity(String.valueOf(activityId));
+    if (activity == null) {
+      throw new ObjectNotFoundException("Activity with id " + activityId + " wasn't found");
+    }
+    Set<Long> spaceIds = activityShareAction.getSpaceIds();
+    if (CollectionUtils.isEmpty(spaceIds)) {
+      throw new IllegalArgumentException("spaceIds is mandatory");
+    }
+    if (viewer == null) {
+      throw new IllegalAccessException("viewer is mandatory");
+    }
+    String userId = viewer.getUserId();
+    Identity viewerIdentity = identityManager.getOrCreateUserIdentity(userId);
+    if (viewerIdentity == null || !isActivityViewable(activity, viewer)) {
+      throw new IllegalAccessException("User " + userId + " can't access activity");
+    }
+    checkCanShareActivityToSpaces(spaceIds, viewer);
+    activityShareAction.setUserIdentityId(Long.parseLong(viewerIdentity.getId()));
+    List<ExoSocialActivity> sharedActivities = createShareActivities(activityShareAction, type, viewerIdentity.getId());
+    Set<Long> sharedActivityIds = sharedActivities.stream()
+                                                   .map(tmpActivity -> Long.parseLong(tmpActivity.getId()))
+                                                   .collect(Collectors.toSet());
+    activityShareAction.setSharedActivityIds(sharedActivityIds);
+    activityStorage.createShareActivityAction(activityShareAction);
+    for (ExoSocialActivity sharedActivity : sharedActivities) {
+      activityLifeCycle.shareActivity(sharedActivity);
+    }
+
+    return sharedActivities;
   }
 
   /**
@@ -586,7 +655,7 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
     String username = viewer.getUserId();
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
     if (identity == null) {
       return false;
     }
@@ -737,8 +806,52 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   private boolean isConnectedWithUser(Identity poster, String username) {
-    Identity user = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Identity user = identityManager.getOrCreateUserIdentity(username);
     Type status = relationshipManager.getStatus(poster, user);
     return Relationship.Type.CONFIRMED.equals(status);
   }
+
+  private List<ExoSocialActivity> createShareActivities(ActivityShareAction activityShareAction,
+                                                        String type,
+                                                        String viewerIdentityId) {
+    String title = activityShareAction.getMessage() == null ? "" : activityShareAction.getMessage();
+    List<ExoSocialActivity> sharedActivities = new ArrayList<>();
+    for (Long spaceId : activityShareAction.getSpaceIds()) {
+      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+      Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      ExoSocialActivity sharedActivity = new ExoSocialActivityImpl();
+      sharedActivity.setTitle(title);
+      sharedActivity.setType(type);
+      sharedActivity.setUserId(viewerIdentityId);
+      Map<String, String> templateParams = new HashMap<>();
+      sharedActivity.setTemplateParams(templateParams);
+      templateParams.put("originalActivityId", String.valueOf(activityShareAction.getActivityId()));
+      saveActivityNoReturn(spaceIdentity, sharedActivity);
+      sharedActivities.add(sharedActivity);
+    }
+    return sharedActivities;
+  }
+
+  private void checkCanShareActivityToSpaces(Set<Long> spaceIds,
+                                             org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                IllegalAccessException {
+    for (Long spaceId : spaceIds) {
+      if (spaceId == null || spaceId == 0) {
+        throw new ObjectNotFoundException("Space id can't be null");
+      }
+      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+      if (space == null) {
+        throw new ObjectNotFoundException("Space with id " + spaceId + " wasn't found");
+      }
+      Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      if (spaceIdentity == null) {
+        throw new ObjectNotFoundException("Space identity " + space.getDisplayName() + " wasn't found");
+      }
+      if (!canPostActivityInStream(viewer, spaceIdentity)) {
+        throw new IllegalAccessException("User " + viewer.getUserId() + " can't post an activity on space "
+            + space.getDisplayName());
+      }
+    }
+  }
+
 }

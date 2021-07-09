@@ -18,11 +18,13 @@ package org.exoplatform.social.core.manager;
 
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 
@@ -412,6 +414,57 @@ public interface ActivityManager {
    */
   default boolean isEnableUserComposer() {
     return true;
+  }
+
+  /**
+   * Shares an existing activity to a list of spaces identified by its pretty
+   * names with an optional message
+   * 
+   * @param activityId {@link ExoSocialActivity} identifier to share
+   * @param title title to put into shared activity
+   * @param type Activity type, kept for backward compatibility with old
+   *          ActivityStream
+   * @param targetSpaces {@link List} of space pretty names to share with
+   * @param viewer current user making the share operation
+   * @return {@link List} of shared {@link ExoSocialActivity}
+   * @throws ObjectNotFoundException when activity or target space not found
+   * @throws IllegalAccessException when user can't post on space stream or
+   *           can't access activity to share
+   */
+  default List<ExoSocialActivity> shareActivity(String activityId,
+                                                String title,
+                                                String type,
+                                                List<String> targetSpaces,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                   IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Shares an existing activity to a list of spaces identified by its pretty
+   * names with an optional message
+   * 
+   * @param activityShareAction {@link ActivityShareAction} for share
+   * @param type Activity type, kept for backward compatibility with old
+   *          ActivityStream. This parameter is kept for backward compatibility
+   * @param viewer current user making the share operation
+   * @return {@link List} of shared {@link ExoSocialActivity}
+   * @throws ObjectNotFoundException when activity or target space not found
+   * @throws IllegalAccessException when user can't post on space stream or
+   *           can't access activity to share
+   * @deprecated use shareActivity without type parameter. Should be removed after cleanup of Old AS UI.
+   */
+  @Deprecated
+  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction, // NOSONAR
+                                                String type,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                   IllegalAccessException {
+    return shareActivity(activityShareAction, null, viewer); // NOSONAR will have to replace deprecated method
   }
 
 }

@@ -14,6 +14,7 @@ import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -652,7 +653,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // clean data
     activityManager.deleteActivity(rootActivity);
   }
-  
+
   public void testShareActivityOnSpaces() throws Exception {
     startSessionAs("root");
 
@@ -677,6 +678,75 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, listAccess.getSize());
     ExoSocialActivity activity = listAccess.load(0, 10)[0];
     assertEquals("shared default activity", activity.getTitle());
+  }
+
+  public void testGetSharedActivityOnSpaces() throws Exception {
+    startSessionAs("root");
+    Space originalSpace = getSpaceInstance("originalSpace", "root", "john");
+
+    startSessionAs("john");
+    
+    String param1 = "param1";
+    String param2 = "param2";
+    String value1 = "value1";
+    String value2 = "value2";
+
+    String input = "{\"title\":titleOfActivity,\"templateParams\":{\"" + param1 + "\": \"" + value1 + "\",\"" + param2 + "\":\""
+        + value2 + "\"}}";
+    ContainerResponse response = getResponse("POST", getURLResource("activities?spaceId=" + originalSpace.getId()), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity originalActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertNotNull(originalActivity);
+    assertNotNull(originalActivity.getActivityStream());
+    assertNotNull(originalActivity.getActivityStream().get("space"));
+
+    Space targetSpace = getSpaceInstance("targetSpace", "mary", "james", "demo");
+
+    String message = "Share activity Message";
+    input = "{\"title\":\"" + message + "\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"" + targetSpace.getPrettyName()
+        + "\"]}";
+    response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
+    assertNotNull(response);
+    assertEquals("User john is not member of target space", 401, response.getStatus());
+
+    spaceService.addMember(targetSpace, "john");
+    spaceService.addRedactor(targetSpace, "demo");
+
+    response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
+    assertNotNull(response);
+    assertEquals("User john is not redactor of target space", 401, response.getStatus());
+
+    spaceService.addRedactor(targetSpace, "john");
+
+    response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
+    assertNotNull(response);
+    assertEquals("User john is redactor of target space and member on original space", 200, response.getStatus());
+
+    CollectionEntity sharedActivities = (CollectionEntity) response.getEntity();
+    assertNotNull(sharedActivities);
+    assertEquals(1, sharedActivities.getEntities().size());
+    ActivityEntity sharedActivity = getBaseEntity(sharedActivities.getEntities().get(0), ActivityEntity.class);
+    assertNotNull(sharedActivity);
+    assertNotNull(sharedActivity.getId());
+    assertEquals(originalActivity.getId(), sharedActivity.getTemplateParams().get("originalActivityId"));
+
+    restartTransaction();
+    startSessionAs("demo");
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + sharedActivity.getId() + "?expand=" + RestProperties.SHARED,
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    sharedActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertNotNull(sharedActivity);
+    assertNotNull(sharedActivity.getOriginalActivity());
+    assertTrue(sharedActivity.getTemplateParams().containsKey(param1));
+    assertTrue(sharedActivity.getTemplateParams().containsKey(param2));
+    assertEquals(value1, sharedActivity.getTemplateParams().get(param1));
+    assertEquals(value2, sharedActivity.getTemplateParams().get(param2));
   }
 
   public void testPostCommentReply() throws Exception {
@@ -858,6 +928,20 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    this.spaceService.createSpace(space, creator);
+    return space;
+  }
+
+  private Space getSpaceInstance(String prettyName, String creator, String ...members) throws Exception {
+    Space space = new Space();
+    space.setDisplayName(prettyName);
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space " + prettyName);
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.VALIDATION);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setMembers(members);
     this.spaceService.createSpace(space, creator);
     return space;
   }

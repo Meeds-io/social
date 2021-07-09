@@ -245,4 +245,13 @@ public class ActivityEntity extends BaseEntity {
     return this;
   }
 
+  public ActivityEntity setOriginalActivity(ActivityEntity originalActivity) {
+    setProperty("originalActivity", originalActivity);
+    return this;
+  }
+
+  public ActivityEntity getOriginalActivity() {
+    return (ActivityEntity) getProperty("originalActivity");
+  }
+
 }
