@@ -91,6 +91,18 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
         StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
         External: this.$t('spacesList.label.profile.External'),
       };
+      this.$spacePopupLabels = Vue.prototype.$spacePopupLabels = {
+        CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
+        Confirm: this.$t('spacesList.label.profile.Confirm'),
+        Connect: this.$t('spacesList.label.profile.Connect'),
+        Ignore: this.$t('spacesList.label.profile.Ignore'),
+        RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
+        StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
+        External: this.$t('spacesList.label.profile.External'),
+        join: this.$t('spacesList.button.join'),
+        leave: this.$t('spacesList.button.leave'),
+        members: this.$t('spacesList.label.SpaceMembers'),
+      };
     },
     i18n,
   });
