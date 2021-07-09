@@ -19,6 +19,7 @@
       <activity-footer
         v-if="!extendedComponent.overrideFooter"
         :activity="activity"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         v-if="!extendedComponent.overrideComments"
@@ -39,7 +40,7 @@
           type="activity-content-extensions"
           parent-element="div"
           element="div"
-          class=" d-flex flex-column" />
+          class="d-flex flex-column" />
       </v-card>
       <activity-footer
         :activity="activity"

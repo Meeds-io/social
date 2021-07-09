@@ -16,14 +16,14 @@
         class="mx-auto"
         eager />
     </v-avatar>
-    <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2">
+    <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2 d-flex">
       <p
         v-if="displayName"
-        :class="boldTitle && 'font-weight-bold'"
-        class="text-truncate subtitle-2 text-color my-0">
+        :class="fullnameStyle"
+        class="text-truncate subtitle-2 my-auto">
         {{ displayName }}
       </p>
-      <p v-if="$slots.subTitle" class="text-sub-title my-0">
+      <p v-if="$slots.subTitle" class="text-sub-title my-auto">
         <slot name="subTitle">
         </slot>
       </p>
@@ -41,6 +41,10 @@ export default {
       default: () => null,
     },
     boldTitle: {
+      type: Boolean,
+      default: () => false,
+    },
+    linkStyle: {
       type: Boolean,
       default: () => false,
     },
@@ -94,21 +98,14 @@ export default {
       const uri = this.groupId.replace(/\//g, ':');
       return `${eXo.env.portal.context}/g/${uri}/`;
     },
+    fullnameStyle() {
+      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color' || ''}`;
+    },
   },
   mounted() {
     if (this.spaceId && this.groupId && this.tiptip) {
       if (!this.labels) {
-        this.labels = {
-          CancelRequest: this.$t('profile.CancelRequest'),
-          Confirm: this.$t('profile.Confirm'),
-          Connect: this.$t('profile.Connect'),
-          Ignore: this.$t('profile.Ignore'),
-          RemoveConnection: this.$t('profile.RemoveConnection'),
-          StatusTitle: this.$t('profile.StatusTitle'),
-          join: this.$t('profile.join'),
-          leave: this.$t('profile.leave'),
-          members: this.$t('profile.members'),
-        };
+        this.labels = this.$spacePopupLabels;
       }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();

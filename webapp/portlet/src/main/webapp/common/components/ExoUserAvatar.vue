@@ -13,8 +13,8 @@
       <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
         <p
           v-if="fullname"
-          :class="boldTitle && 'font-weight-bold'"
-          class="text-truncate subtitle-2 text-color my-auto">
+          :class="fullnameStyle"
+          class="text-truncate subtitle-2 my-auto">
           {{ fullname }}
           <span v-if="isExternal" class="muted">{{ externalTag }} </span>
         </p>
@@ -51,6 +51,10 @@ export default {
       default: true,
     },
     boldTitle: {
+      type: Boolean,
+      default: () => false,
+    },
+    linkStyle: {
       type: Boolean,
       default: () => false,
     },
@@ -106,6 +110,9 @@ export default {
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
     },
+    fullnameStyle() {
+      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color' || ''}`;
+    },
   },
   watch: {
     external() {
@@ -125,15 +132,7 @@ export default {
   mounted() {
     if (this.username && this.tiptip) {
       if (!this.labels) {
-        this.labels = {
-          CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
-          Confirm: this.$t('spacesList.label.profile.Confirm'),
-          Connect: this.$t('spacesList.label.profile.Connect'),
-          Ignore: this.$t('spacesList.label.profile.Ignore'),
-          RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
-          StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
-          External: this.$t('spacesList.label.profile.External'),
-        };
+        this.labels = this.$userPopupLabels;
       }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
