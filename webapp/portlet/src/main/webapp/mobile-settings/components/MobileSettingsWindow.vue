@@ -23,29 +23,29 @@
     <div class="d-flex py-6 my-6 justify-space-between align-center text-left">
       <div>
         <v-list-item>
-          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-5">
+          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-12">
             <v-list-item-title class="dark-grey-color font-weight-bold">
               {{ $t('MobileSettings.subtitle') }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
-          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-            <v-list-item-title class="text-color px-0 pb-0 pt-2 mt-auto mb-2">
+          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-7">
+            <v-list-item-title class="text-color">
               {{ $t('MobileSettings.step.one') }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
-          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-            <v-list-item-title class="text-color px-0 pb-0 pt-2 mt-auto mb-2">
-              {{ $t('MobileSettings.step.two') }}<img src="/social-portlet/images/scanhelper.png" :alt="$t('MobileSettings.icon')"><span class="logoTitle subtitle-2 font-weight-bold text-truncate">{{ $t('MobileSettings.bg') }}</span>
+          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-7">
+            <v-list-item-title class="text-color">
+              {{ $t('MobileSettings.step.two') }}<v-icon class="primary--text primaryBackground mx-1 py-1 px-1" size="14">mdi-scan-helper</v-icon><span class="font-weight-medium">{{ $t('MobileSettings.bg') }}</span>
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
-          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-2">
-            <v-list-item-title class="text-color px-0 pb-0 pt-2 mt-auto mb-2">
+          <v-list-item-content class="px-11 pb-0 pt-2 mt-auto mb-7">
+            <v-list-item-title class="text-color">
               {{ $t('MobileSettings.step.three') }}
             </v-list-item-title>
           </v-list-item-content>
