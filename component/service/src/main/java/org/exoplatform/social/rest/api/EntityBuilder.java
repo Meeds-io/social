@@ -372,7 +372,16 @@ public class EntityBuilder {
         spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
         Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
         LinkEntity identity;
-        if(RestProperties.IDENTITY.equals(expand)) {
+
+        List<String> expandFields;
+        if (StringUtils.isBlank(expand)) {
+          expandFields = Collections.emptyList();
+        } else {
+          expandFields = Arrays.asList(expand.split(","));
+        }
+
+
+        if(expandFields.contains(RestProperties.IDENTITY)) {
           identity = new LinkEntity(buildEntityIdentity(spaceIdentity, restPath, null));
         } else {
           identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
@@ -383,7 +392,7 @@ public class EntityBuilder {
         spaceEntity.setApplications(getSpaceApplications(space));
   
         LinkEntity managers;
-        if(RestProperties.MANAGERS.equals(expand)) {
+        if(expandFields.contains(RestProperties.MANAGERS)) {
           managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
         } else {
           managers = new LinkEntity(getMembersSpaceRestUrl(space.getId(), true, restPath));
@@ -391,14 +400,18 @@ public class EntityBuilder {
         spaceEntity.setManagers(managers);
   
         LinkEntity members;
-        if(RestProperties.MEMBERS.equals(expand)) {
+        if(expandFields.contains(RestProperties.MEMBERS)) {
           members = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
         } else {
           members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
         }
         spaceEntity.setMembers(members);
+
+        if(expandFields.contains(RestProperties.MEMBERS_COUNT)) {
+          spaceEntity.setMembersCount(space.getMembers().length);
+        }
   
-        if(RestProperties.PENDING.equals(expand)) {
+        if (expandFields.contains(RestProperties.PENDING)) {
           LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
           spaceEntity.setPending(pending);
         }

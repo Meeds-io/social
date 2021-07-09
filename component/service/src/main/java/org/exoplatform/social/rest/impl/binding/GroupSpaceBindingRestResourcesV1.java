@@ -327,7 +327,7 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
       // Set the space entity to the operation report entity.
       Space space = spaceService.getSpaceById(Long.toString(bindingOperationReport.getSpaceId()));
-      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), "members");
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), null);
       operationReportEntity.setSpace(spaceEntity.getDataEntity());
       bindingOperationReportsDataEntities.add(operationReportEntity.getDataEntity());
     }
