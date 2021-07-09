@@ -68,21 +68,27 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     sample = "text <a href='#'>bar</a> zed";
 
     activity.setTitle(sample);
+    templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS,"comment");
     templateParams.put("MESSAGE", sample);
+    templateParams.put("comment", sample);
     activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
-
+    assertEquals("comment|MESSAGE", templateParams.get(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS));
     assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTitle());
     assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTemplateParams().get("MESSAGE"));
+    assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTemplateParams().get("comment"));
+
     // only with open tag
     sample = "<strong> only open!!!";
     activity.setTitle(sample);
+    templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS,"comment");
     templateParams.put("MESSAGE", sample);
+    templateParams.put("comment", sample);
     activity.setTemplateParams(templateParams);
     processor.processActivity(activity);
     assertEquals("<strong> only open!!!</strong>", activity.getTitle());
     assertEquals("<strong> only open!!!</strong>", activity.getTemplateParams().get("MESSAGE"));
-
+    assertEquals("<strong> only open!!!</strong>", activity.getTemplateParams().get("comment"));
     // self closing tags
     sample = "<script href='#' />bar</a>";
     activity.setTitle(sample);
