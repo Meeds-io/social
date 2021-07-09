@@ -34,5 +34,6 @@ public class RestProperties {
   public static final String TYPE          = "type";
   public static final String UPDATE_DATE   = "updateDate";
   public static final String LIKES         = "likes";
-  public static final String SUB_COMMENTS      = "subComments";
+  public static final String SUB_COMMENTS  = "subComments";
+  public static final String MEMBERS_COUNT = "membersCount";
 }
