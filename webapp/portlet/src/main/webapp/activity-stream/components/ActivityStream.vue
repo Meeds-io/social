@@ -8,11 +8,14 @@
       :comment-types="activityTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail" />
-    <div class="drawer-parent">
-      <activity-comments-drawer
-        :comment-types="activityTypes"
-        :comment-actions="commentActions" />
-    </div>
+    <activity-notification-alerts />
+    <extension-registry-components
+      :params="drawerParams"
+      name="ActivityStream"
+      type="activity-stream-drawers"
+      parent-element="div"
+      element="div"
+      class="drawer-parent" />
   </v-app>
 </template>
 
@@ -30,6 +33,16 @@ export default {
     activityActionExtension: 'action',
     commentActionExtension: 'comment-action',
   }),
+  computed: {
+    drawerParams() {
+      return {
+        activityTypes: this.activityTypes,
+        activityActions: this.activityActions,
+        commentTypes: this.commentTypes,
+        commentActions: this.commentActions,
+      };
+    },
+  },
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
