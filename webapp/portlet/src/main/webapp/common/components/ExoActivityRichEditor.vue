@@ -103,7 +103,7 @@ export default {
       }
       this.installOembedOriginalMessage(editorData);
       if (val !== editorData) {
-        //Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
+        // Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
         // the suggester (which writes its settings in body attribute) doesn't
         // find its settings anymore when using '.setData' after initializing.
         // Thus, we destroy the ckEditor instance before setting new data.

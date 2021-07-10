@@ -254,13 +254,13 @@ public class ActivityEntity extends BaseEntity {
     return this;
   }
 
-  public ActivityEntity setOriginalActivity(ActivityEntity originalActivity) {
+  public ActivityEntity setOriginalActivity(DataEntity originalActivity) {
     setProperty("originalActivity", originalActivity);
     return this;
   }
 
-  public ActivityEntity getOriginalActivity() {
-    return (ActivityEntity) getProperty("originalActivity");
+  public DataEntity getOriginalActivity() {
+    return (DataEntity) getProperty("originalActivity");
   }
 
   public ActivityEntity setTargetSpaces(List<String> targetSpaces) {
