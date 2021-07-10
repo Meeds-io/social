@@ -121,13 +121,13 @@ export default {
       this.sharing = true;
       this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
         .then(() => {
-          this.close();
-          this.clear();
           this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
             prettyName: space.remoteId,
             displayName: space && space.profile && space.profile.fullName,
             avatarUrl: space && space.profile && space.profile.avatarUrl,
           })));
+          this.close();
+          this.clear();
         })
         .finally(() => this.sharing = false);
     },
