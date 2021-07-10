@@ -37,9 +37,13 @@
         <td v-html="space.description"></td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
-        <td class="center"> {{ space.totalBoundUsers }}/{{ space.members.length }} </td>
-        <td class="center actionContainer" >
-          <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')" v-if="canBindGroupsAndSpaces" class="actionIcon" @click="openSpaceBindingDrawer(space, index)">
+        <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
+        <td class="center actionContainer">
+          <a
+            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')"
+            v-if="canBindGroupsAndSpaces"
+            class="actionIcon"
+            @click="openSpaceBindingDrawer(space, index)">
             <i :class="{'bound': space.hasBindings}" class="uiIconSpaceBinding uiIconGroup"></i>
           </a>
           <a v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.edit')" :href="getSpaceLinkSetting(space.displayName,space.groupId)" class="actionIcon" target="_blank">
