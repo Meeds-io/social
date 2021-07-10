@@ -1,6 +1,7 @@
 <template>
   <v-app v-if="loaded">
     <activity-stream-feature-switch />
+    <activity-notification-alerts />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
@@ -8,7 +9,6 @@
       :comment-types="activityTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail" />
-    <activity-notification-alerts />
     <extension-registry-components
       :params="drawerParams"
       name="ActivityStream"
