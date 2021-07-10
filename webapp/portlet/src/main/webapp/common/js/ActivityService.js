@@ -59,6 +59,27 @@ export function createActivity(message, activityType, attachments, spaceId, temp
   });
 }
 
+export function shareActivity(activityId, message, templateParams, spaces) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/share`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'POST',
+    body: JSON.stringify({
+      title: message,
+      templateParams: templateParams,
+      targetSpaces: spaces
+    })
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function updateActivity(activityId, message, activityType, attachments, spaceId, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {

@@ -1,12 +1,14 @@
 import ActivityStream from './components/ActivityStream.vue';
 import ActivityStreamFeatureSwitch from './components/ActivityStreamFeatureSwitch.vue';
 import ActivityStreamList from './components/list/ActivityStreamList.vue';
+import ActivityNotificationAlerts from './components/list/ActivityNotificationAlerts.vue';
 import ActivityStreamEmptyMessageSpace from './components/list/ActivityStreamEmptyMessageSpace.vue';
 import ActivityStreamEmptyMessageUser from './components/list/ActivityStreamEmptyMessageUser.vue';
 import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityAutoLink from './components/list/ActivityAutoLink.vue';
+import ActivityShareDrawer from './components/activity/share/ActivityShareDrawer.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityHeadSpace from './components/activity/header/ActivityHeadSpace.vue';
 import ActivityHeadUser from './components/activity/header/ActivityHeadUser.vue';
@@ -20,6 +22,7 @@ import ActivityShareInformation from './components/activity/footer/ActivityShare
 import ActivityActions from './components/activity/footer/ActivityActions.vue';
 import ActivityCommentAction from './components/activity/footer/actions/ActivityCommentAction.vue';
 import ActivityLikeAction from './components/activity/footer/actions/ActivityLikeAction.vue';
+import ActivityShareAction from './components/activity/footer/actions/ActivityShareAction.vue';
 import ActivityCommentsPreview from './components/comment/ActivityCommentsPreview.vue';
 import ActivityCommentsDrawer from './components/comment/ActivityCommentsDrawer.vue';
 import ActivityComments from './components/comment/ActivityComments.vue';
@@ -35,7 +38,9 @@ const components = {
   'activity-stream': ActivityStream,
   'activity-stream-feature-switch': ActivityStreamFeatureSwitch,
   'activity-stream-list': ActivityStreamList,
+  'activity-notification-alerts': ActivityNotificationAlerts,
   'activity-auto-link': ActivityAutoLink,
+  'activity-share-drawer': ActivityShareDrawer,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
   'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
   'activity-stream-updater': ActivityStreamUpdater,
@@ -54,6 +59,7 @@ const components = {
   'activity-actions': ActivityActions,
   'activity-comment-action': ActivityCommentAction,
   'activity-like-action': ActivityLikeAction,
+  'activity-share-action': ActivityShareAction,
   'activity-comments-preview': ActivityCommentsPreview,
   'activity-comments-drawer': ActivityCommentsDrawer,
   'activity-comments': ActivityComments,

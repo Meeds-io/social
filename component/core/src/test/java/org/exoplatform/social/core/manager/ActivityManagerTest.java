@@ -18,6 +18,8 @@ package org.exoplatform.social.core.manager;
 
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.xml.*;
@@ -27,8 +29,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -368,6 +369,9 @@ public class ActivityManagerTest extends AbstractCoreTest {
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(originalSpace.getPrettyName());
     activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
 
+    originalActivity = activityManager.getActivity(originalActivity.getId());
+    assertTrue(CollectionUtils.isEmpty(originalActivity.getShareActions()));
+
     Space targetSpace = createSpace("TargetSpace", "james", "james", "mary", "demo");
     String shareMessage = "share Message";
     String type = "sharedActivityTest"; // No matter, will be removed from API
@@ -377,10 +381,12 @@ public class ActivityManagerTest extends AbstractCoreTest {
     org.exoplatform.services.security.Identity demoSecurityIdentity = new org.exoplatform.services.security.Identity("demo");
     org.exoplatform.services.security.Identity jamesSecurityIdentity = new org.exoplatform.services.security.Identity("james");
 
+    ExoSocialActivity shareActivityTemplate = new ExoSocialActivityImpl();
+    shareActivityTemplate.setTitle(shareMessage);
+    shareActivityTemplate.setType(type);
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList(targetSpace.getPrettyName()),
                                     johnSecurityIdentity);
       fail("John is not member of target space");
@@ -389,9 +395,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
 
     try {
-      activityManager.shareActivity("25556",
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    "25556",
                                     Arrays.asList(targetSpace.getPrettyName()),
                                     demoSecurityIdentity);
       fail("Activity id shouldn't be found");
@@ -400,9 +405,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
 
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList(targetSpace.getPrettyName()),
                                     jamesSecurityIdentity);
       fail("James shouldn't be able to access original activity");
@@ -411,9 +415,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
 
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList("5496632"),
                                     demoSecurityIdentity);
       fail("Fake space pretty name shouldn't be found");
@@ -422,9 +425,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
 
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList("5496632"),
                                     demoSecurityIdentity);
       fail("Fake space pretty name shouldn't be found");
@@ -433,9 +435,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
     
     try {
-      activityManager.shareActivity(null,
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    null,
                                     Arrays.asList("5496632"),
                                     demoSecurityIdentity);
       fail("Activity id should be mandatory");
@@ -444,9 +445,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
 
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     new ArrayList<>(),
                                     demoSecurityIdentity);
       fail("Spaces should be mandatory");
@@ -455,9 +455,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
     
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList("5496632"),
                                     null);
       fail("User identity is mandatory");
@@ -465,9 +464,11 @@ public class ActivityManagerTest extends AbstractCoreTest {
       // Expected
     }
 
-    List<ExoSocialActivity> sharedActivities = activityManager.shareActivity(originalActivity.getId(),
-                                                                             shareMessage,
-                                                                             type,
+    originalActivity = activityManager.getActivity(originalActivity.getId());
+    assertTrue(CollectionUtils.isEmpty(originalActivity.getShareActions()));
+
+    List<ExoSocialActivity> sharedActivities = activityManager.shareActivity(shareActivityTemplate,
+                                                                             originalActivity.getId(),
                                                                              Arrays.asList(targetSpace.getPrettyName()),
                                                                              demoSecurityIdentity);
     assertNotNull(sharedActivities);
@@ -492,9 +493,24 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertNotNull(sharedactivity.getTemplateParams());
     assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get("originalActivityId"));
 
-    sharedActivities = activityManager.shareActivity(originalActivity.getId(),
-                                                     null,
-                                                     null,
+    originalActivity = activityManager.getActivity(originalActivity.getId());
+    Set<ActivityShareAction> shareActions = originalActivity.getShareActions();
+
+    assertTrue(CollectionUtils.isNotEmpty(shareActions));
+    assertEquals(1, shareActions.size());
+    ActivityShareAction shareAction = shareActions.iterator().next();
+    assertEquals(originalActivity.getId(), String.valueOf(shareAction.getActivityId()));
+    assertEquals(demoIdentity.getId(), String.valueOf(shareAction.getUserIdentityId()));
+    assertEquals(shareMessage, String.valueOf(shareAction.getMessage()));
+    assertNotNull(shareAction.getSharedActivityIds());
+    assertEquals(1, shareAction.getSharedActivityIds().size());
+    assertEquals(sharedactivity.getId(), String.valueOf(shareAction.getSharedActivityIds().iterator().next()));
+    assertNotNull(shareAction.getSpaceIds());
+    assertEquals(1, shareAction.getSpaceIds().size());
+    assertEquals(targetSpace.getId(), String.valueOf(shareAction.getSpaceIds().iterator().next()));
+
+    sharedActivities = activityManager.shareActivity(null,
+                                                     originalActivity.getId(),
                                                      Arrays.asList(targetSpace.getPrettyName()),
                                                      demoSecurityIdentity);
     assertNotNull(sharedActivities);
@@ -504,9 +520,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     spaceService.updateSpace(targetSpace);
 
     try {
-      activityManager.shareActivity(originalActivity.getId(),
-                                    shareMessage,
-                                    type,
+      activityManager.shareActivity(shareActivityTemplate,
+                                    originalActivity.getId(),
                                     Arrays.asList(targetSpace.getPrettyName()),
                                     demoSecurityIdentity);
       fail("Demo is not redactor of target space anymore");
@@ -517,9 +532,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     targetSpace.setRedactors(new String[] { "james", "demo" });
     spaceService.updateSpace(targetSpace);
 
-    sharedActivities = activityManager.shareActivity(originalActivity.getId(),
-                                                     null,
-                                                     null,
+    sharedActivities = activityManager.shareActivity(null,
+                                                     originalActivity.getId(),
                                                      Arrays.asList(targetSpace.getPrettyName()),
                                                      demoSecurityIdentity);
     assertNotNull(sharedActivities);
@@ -1016,6 +1030,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     return activityManager.getActivity(comment.getId());
   }
 
+  @SuppressWarnings("deprecation")
   private Space createSpace(String spaceName, String creator, String ...members) throws Exception {
     Space space = new Space();
     space.setDisplayName(spaceName);
@@ -1030,7 +1045,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);
     space.setMembers(spaceMembers);
-    spaceService.saveSpace(space, true);
+    spaceService.saveSpace(space, true); // NOSONAR
     tearDownSpaceList.add(space);
     return space;
   }

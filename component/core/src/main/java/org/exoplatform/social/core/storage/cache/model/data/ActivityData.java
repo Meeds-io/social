@@ -17,11 +17,9 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.activity.model.ActivityStream;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
-
 import java.util.*;
+
+import org.exoplatform.social.core.activity.model.*;
 
 /**
  * Immutable activity data.
@@ -64,6 +62,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final String posterId;
   private final String parentId;
   private final String parentCommentId;
+  private final Set<ActivityShareAction> shareActions;
 
   public ActivityData(final ExoSocialActivity activity) {
 
@@ -96,6 +95,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.posterId = activity.getPosterId();
     this.parentId = activity.getParentId();
     this.parentCommentId = activity.getParentCommentId();
+    this.shareActions = activity.getShareActions() == null ? null : Collections.unmodifiableSet(activity.getShareActions());
 
     if (activity.getTemplateParams() != null) {
       this.templateParams = Collections.unmodifiableMap(activity.getTemplateParams());
@@ -130,8 +130,9 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setTitleId(titleId);
     activity.setBodyId(bodyId);
     activity.setType(type);
-    activity.setTemplateParams(new LinkedHashMap<String, String>(templateParams));
+    activity.setTemplateParams(new LinkedHashMap<>(templateParams));
     activity.setExternalId(externalId);
+    activity.setShareActions(shareActions == null ? null : Collections.unmodifiableSet(shareActions));
     activity.setUrl(url);
     if (mentioners != null) { activity.setMentionedIds(mentioners); }
     if (commenters != null) { activity.setCommentedIds(commenters); }
@@ -206,6 +207,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   public int hashCode() {
     return Objects.hash(id, title, body, likes, isComment, isHidden, isLocked, postedTime, lastUpdated, replyIds,
             userId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
-            streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId);
+            streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId,
+            shareActions);
   }
 }

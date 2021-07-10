@@ -17,7 +17,8 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
@@ -42,7 +43,6 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
@@ -50,7 +50,6 @@ import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.social.service.rest.api.models.SharedActivityRestIn;
 
 import io.swagger.annotations.*;
 
@@ -665,29 +664,40 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                 @QueryParam("expand")
                                 String expand,
                                 @ApiParam(value = "Share target spaces", required = true)
-                                SharedActivityRestIn sharedActivityRestIn) {
+                                ActivityEntity model) {
     if (StringUtils.isBlank(activityId)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    if (sharedActivityRestIn == null) {
+    if (model == null) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    List<String> targetSpaces = sharedActivityRestIn.getTargetSpaces();
+    List<String> targetSpaces = model.getTargetSpaces();
     if (targetSpaces == null || targetSpaces.isEmpty()) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    org.exoplatform.services.security.Identity currentIdentity = ConversationState.getCurrent().getIdentity();
-    String authenticatedUser = currentIdentity.getUserId();
+    org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
+
+    String authenticatedUser = currentUser.getUserId();
+    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    ExoSocialActivity activityTemplate = new ExoSocialActivityImpl();
+    activityTemplate.setTitle(model.getTitle());
+    activityTemplate.setBody(model.getBody());
+    activityTemplate.setType(model.getType());
+    activityTemplate.setUserId(authenticatedUserIdentity.getId());
+    activityTemplate.setFiles(model.getFiles());
+
+    EntityBuilder.buildActivityParamsFromEntity(activityTemplate, model.getTemplateParams());
+
     List<ExoSocialActivity> sharedActivities;
     try {
-      sharedActivities = activityManager.shareActivity(activityId,
-                                                       sharedActivityRestIn.getTitle(),
-                                                       sharedActivityRestIn.getType(),
+      sharedActivities = activityManager.shareActivity(activityTemplate,
+                                                       activityId,
                                                        targetSpaces,
-                                                       currentIdentity);
+                                                       currentUser);
     } catch (IllegalAccessException e) {
       LOG.warn("User {} doesn't have access to share activity {}", authenticatedUser, activityId, e);
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
@@ -695,7 +705,6 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
     }
 
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     List<DataEntity> sharedActivityEntities = convertToEntities(sharedActivities, authenticatedUserIdentity, uriInfo, expand);
     CollectionEntity collectionActivity = new CollectionEntity(sharedActivityEntities, EntityBuilder.ACTIVITIES_TYPE, 0, sharedActivityEntities.size());
     return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
