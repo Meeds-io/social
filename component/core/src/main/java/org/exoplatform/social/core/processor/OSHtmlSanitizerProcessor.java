@@ -37,9 +37,7 @@ public class OSHtmlSanitizerProcessor extends BaseActivityProcessorPlugin {
       activity.setTitle((String) xmlProcessor.process(activity.getTitle()));
       activity.setBody((String) xmlProcessor.process(activity.getBody()));
       Map<String, String> templateParams = activity.getTemplateParams();
-      if(templateParams.containsKey(MESSAGE_PARAM)) {
-        templateParams.put(TEMPLATE_PARAM_TO_PROCESS, MESSAGE_PARAM);
-      }
+      addParamKeyToProcessor(templateParams, MESSAGE_PARAM);
       List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
       for (String key : templateParamKeys) {
         templateParams.put(key, (String) xmlProcessor.process(templateParams.get(key)));
