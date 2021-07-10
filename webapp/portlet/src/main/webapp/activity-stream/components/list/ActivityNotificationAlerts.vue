@@ -13,14 +13,12 @@
 <script>
 export default {
   data: () => ({
-    snackbar: true,
+    snackbar: false,
     alert: null,
   }),
   watch: {
     alert() {
-      if (this.alert) {
-        this.snackbar = true;
-      }
+      this.snackbar = !!this.alert;
     },
   },
   created() {

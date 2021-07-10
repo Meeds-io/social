@@ -7,7 +7,8 @@
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
         :activity-actions="activityActions"
-        :activity-type-extension="activityTypeExtension" />
+        :activity-type-extension="activityTypeExtension"
+        :hide-menu="hideMenu" />
       <template v-if="!loading">
         <extension-registry-component
           :component="extendedComponentOptions"
@@ -16,22 +17,25 @@
           :params="extendedComponentParams"
           class=" d-flex flex-column" />
       </template>
-      <activity-footer
-        v-if="!extendedComponent.overrideFooter"
-        :activity="activity"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension" />
-      <activity-comments-preview
-        v-if="!extendedComponent.overrideComments"
-        :activity="activity"
-        :comment-types="commentTypes"
-        :comment-actions="commentActions" />
+      <template v-if="!hideFooter">
+        <activity-footer
+          v-if="!extendedComponent.overrideFooter"
+          :activity="activity"
+          :is-activity-detail="isActivityDetail"
+          :activity-type-extension="activityTypeExtension" />
+        <activity-comments-preview
+          v-if="!extendedComponent.overrideComments"
+          :activity="activity"
+          :comment-types="commentTypes"
+          :comment-actions="commentActions" />
+      </template>
     </template>
     <template v-else>
       <activity-head
         :activity="activity"
         :activity-actions="activityActions"
-        :activity-type-extension="activityTypeExtension" />
+        :activity-type-extension="activityTypeExtension"
+        :hide-menu="hideMenu" />
       <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"
@@ -42,14 +46,16 @@
           element="div"
           class="d-flex flex-column" />
       </v-card>
-      <activity-footer
-        :activity="activity"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension" />
-      <activity-comments-preview
-        :activity="activity"
-        :comment-types="commentTypes"
-        :comment-actions="commentActions" />
+      <template v-if="!hideFooter">
+        <activity-footer
+          :activity="activity"
+          :is-activity-detail="isActivityDetail"
+          :activity-type-extension="activityTypeExtension" />
+        <activity-comments-preview
+          :activity="activity"
+          :comment-types="commentTypes"
+          :comment-actions="commentActions" />
+      </template>
     </template>
   </div>
 </template>
@@ -78,6 +84,14 @@ export default {
       default: null,
     },
     isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
+    hideFooter: {
+      type: Boolean,
+      default: false,
+    },
+    hideMenu: {
       type: Boolean,
       default: false,
     },
@@ -116,6 +130,7 @@ export default {
         originalSharedActivity: this.originalSharedActivity,
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
+        activityTypes: this.activityTypes,
         loading: this.loading,
       };
     },
