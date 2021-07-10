@@ -96,13 +96,6 @@ export default {
       };
     },
   },
-  watch: {
-    opened() {
-      if (!this.opened) {
-        this.clear();
-      }
-    },
-  },
   created() {
     this.$root.$on('activity-share-drawer-open', this.open);
   },
@@ -125,11 +118,11 @@ export default {
     },
     shareActivity() {
       const spacePrettyNames = this.spaces.map(space => space.remoteId);
-
       this.sharing = true;
       this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
         .then(() => {
           this.close();
+          this.clear();
           this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
             prettyName: space.remoteId,
             displayName: space && space.profile && space.profile.fullName,
@@ -137,7 +130,7 @@ export default {
           })));
         })
         .finally(() => this.sharing = false);
-    }
-  }
+    },
+  },
 };
 </script>

@@ -8,7 +8,7 @@ import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityAutoLink from './components/list/ActivityAutoLink.vue';
-import ActivityShareDrawer from './components/activity/share/ActivityShareDrawer.vue';
+import ActivityShareDrawer from './components/share/ActivityShareDrawer.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityHeadSpace from './components/activity/header/ActivityHeadSpace.vue';
 import ActivityHeadUser from './components/activity/header/ActivityHeadUser.vue';
