@@ -80,7 +80,7 @@ export function shareActivity(activityId, message, templateParams, spaces) {
   });
 }
 
-export function updateActivity(activityId, message, activityType, attachments, spaceId, templateParams) {
+export function updateActivity(activityId, message, activityType, attachments, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
       'Content-Type': 'application/json'
