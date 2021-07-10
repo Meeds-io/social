@@ -1,12 +1,11 @@
 <template>
   <v-snackbar
-    :value="alert"
+    v-model="snackbar"
     color="transparent"
     elevation="0"
     app
     left>
     <exo-notification-alert
-      v-if="alert"
       :alert="alert"
       @dismissed="clear" />
   </v-snackbar>
@@ -14,10 +13,18 @@
 <script>
 export default {
   data: () => ({
+    snackbar: true,
     alert: null,
   }),
+  watch: {
+    alert() {
+      if (this.alert) {
+        this.snackbar = true;
+      }
+    },
+  },
   created() {
-    this.$root.$on('activity-notification-alert', alert => this.alerts.push(alert));
+    this.$root.$on('activity-notification-alert', alert => this.alert = alert);
     this.$root.$on('activity-shared', (activityId, spaces) => {
       if (spaces && spaces.length > 0) {
         const spaceDisplayNames = spaces.map(space => space.displayName || '');
