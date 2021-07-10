@@ -16,11 +16,7 @@
  */
 package org.exoplatform.social.core.activity.model;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -72,6 +68,11 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   private String[] likeIdentityIds;
 
   /**
+   * array of identity ids who shared this activity.
+   */
+  private Set<ActivityShareAction> shareActions;
+
+  /**
    * The activity object name, could be title of link, jira doc.
    */
   private String name;
@@ -102,7 +103,7 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   /**
    * The link to the activity object.
    */
-  private transient String permaLink;
+  private String permaLink;
 
   /**
    * array of identity ids who mentioned on this activity.
@@ -332,7 +333,17 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
     }
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }
-  
+
+  @Override
+  public final Set<ActivityShareAction> getShareActions() {
+    return shareActions;
+  }
+
+  @Override
+  public void setShareActions(Set<ActivityShareAction> shareActions) {
+    this.shareActions = shareActions;
+  }
+
   @Override
   public int getNumberOfLikes() {
     return likeIdentityIds == null ? 0 : likeIdentityIds.length;
@@ -672,12 +683,7 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
     }
 
     ExoSocialActivityImpl that = (ExoSocialActivityImpl) o;
-
-    if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
-      return false;
-    }
-
-    return true;
+    return getId() == null ? that.getId() == null : getId().equals(that.getId());
   }
 
   public int hashCode() {

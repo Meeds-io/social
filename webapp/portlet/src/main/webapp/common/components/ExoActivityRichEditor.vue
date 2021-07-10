@@ -127,24 +127,30 @@ export default {
           return;
         }
       }
-      CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
       CKEDITOR.dtd.$removeEmpty['i'] = false;
-      let extraPlugins = 'simpleLink,suggester,widget,embedsemantic';
+      let extraPlugins = 'simpleLink,suggester,widget';
+      let removePlugins = 'image,maximize,resize';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
         // Disable suggester on smart-phone landscape
-        extraPlugins = 'simpleLink,embedsemantic';
+        extraPlugins = 'simpleLink';
+      }
+      if (this.templateParams) {
+        CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+        extraPlugins = `${extraPlugins},embedsemantic`;
+      } else {
+        removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
       const self = this;
       $(this.$refs.editor).ckeditor({
         customConfig: '/commons-extension/ckeditorCustom/config.js',
-        extraPlugins: extraPlugins,
+        extraPlugins,
+        removePlugins,
         allowedContent: true,
         enterMode: 3, // div
-        removePlugins: 'image,maximize,resize',
         toolbar: [
           ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
         ],

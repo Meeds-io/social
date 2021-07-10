@@ -2,6 +2,18 @@ const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}
 
 if (extensionRegistry) {
 
+  extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+    id: 'share-drawer',
+    vueComponent: Vue.options.components['activity-share-drawer'],
+    rank: 10,
+  });
+
+  extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+    id: 'comments-drawer',
+    vueComponent: Vue.options.components['activity-comments-drawer'],
+    rank: 20,
+  });
+
   extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
     id: 'body',
     isEnabled: () => true,
@@ -177,6 +189,12 @@ if (extensionRegistry) {
     id: 'comment',
     vueComponent: Vue.options.components['activity-comment-action'],
     rank: 20,
+  });
+
+  extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
+    id: 'share',
+    vueComponent: Vue.options.components['activity-share-action'],
+    rank: 100,
   });
 
   extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {

@@ -46,8 +46,6 @@ let config = {
     dlpQuarantine : './src/main/webapp/dlp-quarantine/main.js',
     multifactorAuthentication : './src/main/webapp/multi-factor-authentication/main.js',
     mfaAccess : './src/main/webapp/mfa-access/main.js',
-    shareActivity: './src/main/webapp/share-activity/main.js',
-    shareActivityDrawer: './src/main/webapp/share-activity-drawer/main.js',
     activityStream: './src/main/webapp/activity-stream/main.js',
     mobileSettings: './src/main/webapp/mobile-settings/main.js',
   },
