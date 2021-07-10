@@ -16,7 +16,6 @@ if (extensionRegistry) {
 
   extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
     id: 'body',
-    isEnabled: () => true,
     vueComponent: Vue.options.components['activity-body'],
     rank: 1,
   });
@@ -31,6 +30,13 @@ if (extensionRegistry) {
     },
     vueComponent: Vue.options.components['activity-link'],
     rank: 5,
+  });
+
+  extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+    id: 'shared-activity',
+    isEnabled: (params) => params.activity && params.activity.originalActivity,
+    vueComponent: Vue.options.components['activity-share'],
+    rank: 1000,
   });
 
   extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
@@ -193,6 +199,7 @@ if (extensionRegistry) {
 
   extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
     id: 'share',
+    isEnabled: (params) => params.activity && !params.activity.originalActivity,
     vueComponent: Vue.options.components['activity-share-action'],
     rank: 100,
   });

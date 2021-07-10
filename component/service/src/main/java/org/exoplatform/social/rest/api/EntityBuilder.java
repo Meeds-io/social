@@ -628,8 +628,8 @@ public class EntityBuilder {
           ActivityEntity originalActivityEntity = buildEntityFromActivity(originalActivity,
                                                                           authentiatedUser,
                                                                           restPath,
-                                                                          "");
-          activityEntity.setOriginalActivity(originalActivityEntity);
+                                                                          expand.replace(RestProperties.SHARED, ""));
+          activityEntity.setOriginalActivity(originalActivityEntity.getDataEntity());
         }
       }
     }
