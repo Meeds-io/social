@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -205,15 +204,12 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   @Override
-  public List<ExoSocialActivity> shareActivity(String activityId,
-                                               String title,
-                                               String type,
+  public List<ExoSocialActivity> shareActivity(ExoSocialActivity activityTemplate,
+                                               String activityId,
                                                List<String> targetSpaces,
-                                               org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
-                                                                                                  IllegalAccessException {
+                                               org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
     ActivityShareAction activityShareAction = new ActivityShareAction();
     activityShareAction.setActivityId(Long.parseLong(activityId));
-    activityShareAction.setMessage(title);
     activityShareAction.setSpaceIds(targetSpaces.stream().map(prettyName -> {
       Space space = spaceService.getSpaceByPrettyName(prettyName);
       if (space == null) {
@@ -222,14 +218,12 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       return Long.parseLong(space.getId());
     }).collect(Collectors.toSet()));
-    return shareActivity(activityShareAction, type, viewer); // NOSONAR should delete type of activity
+    return shareActivity(activityTemplate, activityShareAction, viewer); // NOSONAR should delete type of activity
   }
 
   @Override
-  @Deprecated
-  @DeprecatedAPI("Should replace usage of this method by the other one without activity type parameter")
-  public List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction, // NOSONAR should delete type of activity
-                                               String type,
+  public List<ExoSocialActivity> shareActivity(ExoSocialActivity activityTemplate,
+                                               ActivityShareAction activityShareAction,
                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
     if (activityShareAction == null) {
       throw new IllegalArgumentException("activityShareAction is mandatory");
@@ -256,7 +250,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     checkCanShareActivityToSpaces(spaceIds, viewer);
     activityShareAction.setUserIdentityId(Long.parseLong(viewerIdentity.getId()));
-    List<ExoSocialActivity> sharedActivities = createShareActivities(activityShareAction, type, viewerIdentity.getId());
+    List<ExoSocialActivity> sharedActivities = createShareActivities(activityTemplate, activityShareAction, viewerIdentity.getId());
     Set<Long> sharedActivityIds = sharedActivities.stream()
                                                    .map(tmpActivity -> Long.parseLong(tmpActivity.getId()))
                                                    .collect(Collectors.toSet());
@@ -811,10 +805,21 @@ public class ActivityManagerImpl implements ActivityManager {
     return Relationship.Type.CONFIRMED.equals(status);
   }
 
-  private List<ExoSocialActivity> createShareActivities(ActivityShareAction activityShareAction,
-                                                        String type,
+  private List<ExoSocialActivity> createShareActivities(ExoSocialActivity activityTemplate,
+                                                        ActivityShareAction activityShareAction,
                                                         String viewerIdentityId) {
-    String title = activityShareAction.getMessage() == null ? "" : activityShareAction.getMessage();
+    String title = activityTemplate == null || activityTemplate.getTitle() == null ? "" : activityTemplate.getTitle();
+    String type = activityTemplate == null ? null : activityTemplate.getType();
+    Map<String, String> templateParams = activityTemplate == null
+        || activityTemplate.getTemplateParams() == null ? new HashMap<>() : activityTemplate.getTemplateParams();
+    templateParams.put("originalActivityId", String.valueOf(activityShareAction.getActivityId()));
+
+    if (StringUtils.isBlank(activityShareAction.getMessage())) {
+      activityShareAction.setMessage(title);
+    } else if (StringUtils.isBlank(title)) {
+      title = activityShareAction.getMessage();
+    }
+
     List<ExoSocialActivity> sharedActivities = new ArrayList<>();
     for (Long spaceId : activityShareAction.getSpaceIds()) {
       Space space = spaceService.getSpaceById(String.valueOf(spaceId));
@@ -823,9 +828,7 @@ public class ActivityManagerImpl implements ActivityManager {
       sharedActivity.setTitle(title);
       sharedActivity.setType(type);
       sharedActivity.setUserId(viewerIdentityId);
-      Map<String, String> templateParams = new HashMap<>();
       sharedActivity.setTemplateParams(templateParams);
-      templateParams.put("originalActivityId", String.valueOf(activityShareAction.getActivityId()));
       saveActivityNoReturn(spaceIdentity, sharedActivity);
       sharedActivities.add(sharedActivity);
     }

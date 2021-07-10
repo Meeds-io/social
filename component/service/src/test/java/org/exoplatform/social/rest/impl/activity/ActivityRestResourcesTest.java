@@ -743,10 +743,23 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     sharedActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertNotNull(sharedActivity);
     assertNotNull(sharedActivity.getOriginalActivity());
-    assertTrue(sharedActivity.getTemplateParams().containsKey(param1));
-    assertTrue(sharedActivity.getTemplateParams().containsKey(param2));
-    assertEquals(value1, sharedActivity.getTemplateParams().get(param1));
-    assertEquals(value2, sharedActivity.getTemplateParams().get(param2));
+    assertTrue(!sharedActivity.getTemplateParams().containsKey(param1));
+    assertTrue(!sharedActivity.getTemplateParams().containsKey(param2));
+
+    restartTransaction();
+    startSessionAs("john");
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + originalActivity.getId() + "?expand=" + RestProperties.SHARED,
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    originalActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertNotNull(originalActivity);
+    assertNull(originalActivity.getOriginalActivity());
+    assertNotNull(originalActivity.getShareActions());
+    assertEquals(1, originalActivity.getShareActions().size());
   }
 
   public void testPostCommentReply() throws Exception {

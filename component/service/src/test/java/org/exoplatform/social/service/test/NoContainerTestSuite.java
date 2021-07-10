@@ -16,9 +16,6 @@
  */
 package org.exoplatform.social.service.test;
 
-import org.exoplatform.social.service.rest.api.models.ActivityRestInTest;
-import org.exoplatform.social.service.rest.api.models.ActivityStreamRestOutTest;
-import org.exoplatform.social.service.rest.api.models.CommentRestInTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -28,9 +25,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
   UtilTest.class,
-  ActivityRestInTest.class,
-  ActivityStreamRestOutTest.class,
-  CommentRestInTest.class
   })
 public class NoContainerTestSuite {
   

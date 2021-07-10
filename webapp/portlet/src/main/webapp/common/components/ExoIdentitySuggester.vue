@@ -11,14 +11,13 @@
       :multiple="multiple"
       :required="required && !value"
       :items="items"
-      :search-input.sync="searchTerm"
       :height="height"
       :filter="filterIgnoredItems"
       :hide-no-data="hideNoData"
       :class="autocompleteClass"
       :prepend-inner-icon="prependInnerIcon"
       append-icon=""
-      menu-props="closeOnClick, maxHeight = 100"
+      menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
       class="identitySuggester"
       content-class="identitySuggesterContent"
       width="100%"
@@ -192,7 +191,11 @@ export default {
     filterStyle: {
       type: Boolean,
       default: false
-    }
+    },
+    autofocus: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -233,6 +236,7 @@ export default {
     searchTerm(value) {
       if (value && value.length) {
         window.setTimeout(() => {
+          this.focus();
           if (!this.previousSearchTerm || this.previousSearchTerm === this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
@@ -269,6 +273,11 @@ export default {
       // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
       this.$refs.selectAutoComplete.isFocused = false;
     });
+    if (this.autofocus) {
+      window.setTimeout(() => {
+        this.focus();
+      }, 200);
+    }
     this.init();
   },
   methods: {
@@ -285,7 +294,6 @@ export default {
     },
     emitSelectedValue(value) {
       this.$emit('input', value);
-      this.searchTerm = null;
     },
     canAddItem(item) {
       return !item || !item.id || this.ignoreItems.indexOf(item.id) < 0;
@@ -305,7 +313,6 @@ export default {
     clear() {
       this.items = [];
       this.value = null;
-      this.searchTerm = null;
       this.loadingSuggestions = 0;
     },
     remove(item) {

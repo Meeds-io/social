@@ -5,14 +5,17 @@ import java.util.*;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.DynamicUpdate;
-
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
 @Entity(name = "SocActivityShareAction")
 @ExoEntity
-@DynamicUpdate
 @Table(name = "SOC_ACTIVITY_SHARE_ACTIONS")
+@NamedQueries({
+  @NamedQuery(
+    name = "SocActivityShareAction.getShareActionsByActivityId",
+    query = "SELECT s from SocActivityShareAction s WHERE s.activityId = :activityId ORDER BY s.id DESC"
+  ),
+})
 public class ActivityShareActionEntity implements Serializable {
 
   private static final long serialVersionUID  = 4119504597873573962L;

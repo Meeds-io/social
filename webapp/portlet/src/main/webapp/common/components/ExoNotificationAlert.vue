@@ -2,6 +2,7 @@
   <v-alert
     v-model="displayAlert"
     :type="alertType"
+    :max-width="maxWidth"
     border="left"
     class="white"
     elevation="2"
@@ -47,6 +48,12 @@ export default {
     },
     alertType() {
       return this.alert.type;
+    },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
+    maxWidth() {
+      return this.isMobile && '100vw' || '50vw';
     },
   },
   watch: {
