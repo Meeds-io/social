@@ -21,10 +21,15 @@
         bold-title
         link-style />
     </div>
-    <div
-      v-if="shareMessage"
-      v-sanitized-html="shareMessage"
-      class="activity-share-message mt-1"></div>
+    <div class="activity-share-message">
+      <extension-registry-components
+        :params="extendedComponentParams"
+        name="ActivityContent"
+        type="activity-content-extensions"
+        parent-element="div"
+        element="div"
+        class="d-flex flex-column mt-1" />
+    </div>
   </div>
 </template>
 
@@ -35,10 +40,17 @@ export default {
       type: Object,
       default: null,
     },
+    activityTypes: {
+      type: Object,
+      default: null,
+    },
   },
   computed: {
-    shareMessage() {
-      return this.activity && this.activity.title;
+    extendedComponentParams() {
+      return {
+        activity: this.activity,
+        activityTypeExtension: this.activityTypes['default'],
+      };
     },
     sharedPoster() {
       return this.activity && this.activity.identity && this.activity.identity.profile;

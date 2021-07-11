@@ -3,6 +3,7 @@
     <activity-share-information
       v-if="displayShareInformation"
       :activity="activity"
+      :activity-types="activityTypes"
       class="actionsDetailsWrapper no-border-bottom mb-0 py-3" />
     <div class="actionsDetailsWrapper mb-0 py-0 pe-4 no-border-bottom">
       <activity-reactions
@@ -30,6 +31,10 @@ export default {
     isActivityDetail: {
       type: Boolean,
       default: false,
+    },
+    activityTypes: {
+      type: Object,
+      default: null,
     },
     activityTypeExtension: {
       type: Object,

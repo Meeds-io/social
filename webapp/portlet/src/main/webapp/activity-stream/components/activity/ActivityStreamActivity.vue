@@ -2,7 +2,7 @@
   <div
     :id="id"
     class="white border-radius activity-detail flex d-flex flex-column">
-    <template v-if="extendedComponent">
+    <template v-if="!noExtension && extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
@@ -22,6 +22,7 @@
           v-if="!extendedComponent.overrideFooter"
           :activity="activity"
           :is-activity-detail="isActivityDetail"
+          :activity-types="activityTypes"
           :activity-type-extension="activityTypeExtension" />
         <activity-comments-preview
           v-if="!extendedComponent.overrideComments"
@@ -50,6 +51,7 @@
         <activity-footer
           :activity="activity"
           :is-activity-detail="isActivityDetail"
+          :activity-types="activityTypes"
           :activity-type-extension="activityTypeExtension" />
         <activity-comments-preview
           :activity="activity"
@@ -99,6 +101,7 @@ export default {
   data: () => ({
     loading: false,
     initialized: false,
+    noExtension: false,
   }),
   computed: {
     id() {
@@ -108,13 +111,34 @@ export default {
       return this.activity && this.activity.id;
     },
     activityTypeExtension() {
+      if (this.sharedActivityTypeExtension
+          && this.sharedActivityTypeExtension.extendSharedActivity
+          && this.sharedActivityTypeExtension.extendSharedActivity(this.activity, this.isActivityDetail)) {
+        return this.sharedActivityTypeExtension;
+      }
       if (!this.activity || !this.activityTypes) {
         return {};
       }
       return this.activityTypes[this.activity.type] || this.activityTypes['default'] || {};
     },
+    sharedActivity() {
+      return this.activity && this.activity.originalActivity;
+    },
+    sharedActivityTypeExtension() {
+      if (this.noExtension || !this.sharedActivity || !this.activityTypes) {
+        return null;
+      }
+      return this.activityTypes[this.sharedActivity.type] || this.activityTypes['default'] || null;
+    },
     extendedComponent() {
-      return this.activityTypeExtension && this.activityTypeExtension.getExtendedComponent && this.activityTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
+      if (this.noExtension) {
+        return null;
+      }
+      const extendedComponent = this.activityTypeExtension && this.activityTypeExtension.getExtendedComponent && this.activityTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
+      if (extendedComponent) {
+        return extendedComponent;
+      }
+      return this.sharedActivityTypeExtension && this.sharedActivityTypeExtension.getExtendedComponent && this.sharedActivityTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
     },
     extendedComponentOptions() {
       return this.extendedComponent && {
@@ -127,7 +151,6 @@ export default {
     extendedComponentParams() {
       return {
         activity: this.activity,
-        originalSharedActivity: this.originalSharedActivity,
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
@@ -136,9 +159,6 @@ export default {
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
-    },
-    sharedActivityId() {
-      return this.activity && this.activity.templateParams && this.activity.templateParams.originalActivityId;
     },
   },
   watch: {
@@ -149,6 +169,7 @@ export default {
     },
   },
   created() {
+    this.$root.$on('activity-extension-abort', this.abortSpecificExtension);
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
     this.retrieveActivityProperties();
   },
@@ -170,6 +191,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
+    this.$root.$off('activity-extension-abort', this.abortSpecificExtension);
   },
   methods: {
     retrieveActivityProperties(activityId) {
@@ -191,6 +213,11 @@ export default {
         this.loading = false;
         this.initialized = true;
       });
+    },
+    abortSpecificExtension(activityId) {
+      if (activityId === this.activityId) {
+        this.noExtension = true;
+      }
     },
     refreshTipTip() {
       window.setTimeout(() => {
