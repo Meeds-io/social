@@ -3,6 +3,7 @@
     <activity-stream-activity
       :activity="originalActivity"
       :activity-types="activityTypes"
+      :is-activity-detail="isActivityDetail"
       hide-footer
       hide-menu />
   </div>
@@ -15,6 +16,10 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
     activityTypes: {
       type: Object,
       default: null,
@@ -22,7 +27,9 @@ export default {
   },
   computed: {
     originalActivity() {
-      return this.activity && this.activity.originalActivity;
+      return this.activity && this.activity.originalActivity && Object.assign({
+        parentActivity: this.activity,
+      }, this.activity.originalActivity);
     },
   },
   data: () => ({
