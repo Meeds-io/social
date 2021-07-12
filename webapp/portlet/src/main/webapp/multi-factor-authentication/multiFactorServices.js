@@ -73,6 +73,19 @@ export function getCurrentMfaSystem() {
   });
 }
 
+export function getAvailableMfaSystem() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/available`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting current MFA system');
+    }
+  });
+}
+
 export function getProtectedGroups() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getProtectedGroups`, {
     method: 'GET',

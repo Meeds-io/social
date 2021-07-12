@@ -12,7 +12,7 @@ for (const key in components) {
 
 
 const otpExtensionPlugin = {
-  id: 'otp',
+  id: 'OTP',
   title: 'otp',
   enabled: () => true,
   component: {
