@@ -102,8 +102,8 @@ export function updateActivity(activityId, message, activityType, attachments, t
   });
 }
 
-export function deleteActivity(id) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}`, {
+export function deleteActivity(id, hide) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?hide=${hide || false}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
