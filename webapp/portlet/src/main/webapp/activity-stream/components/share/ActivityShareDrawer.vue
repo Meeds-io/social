@@ -41,7 +41,8 @@
               :max-length="MESSAGE_MAX_LENGTH"
               :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
               ck-editor-type="activityShare"
-              class="flex" />
+              class="flex"
+              @validity-updated="validInput = $event" />
           </div>
           <div class="d-flex flex-row mt-4">
             <v-icon class="warning--text">warning</v-icon>
@@ -77,6 +78,7 @@ export default {
     MESSAGE_MAX_LENGTH: 1250,
     opened: false,
     sharing: false,
+    validInput: true,
     description: '',
     activityId: null,
     spaces: [],
@@ -84,6 +86,7 @@ export default {
   computed: {
     buttonDisabled() {
       return !this.activityId
+        || !this.validInput
         || this.sharing
         || !this.spaces
         || !this.spaces.filter(part => part).length;

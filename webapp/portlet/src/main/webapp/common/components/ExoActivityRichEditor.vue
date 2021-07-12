@@ -16,7 +16,7 @@
     <div
       :v-show="editorReady"
       :id="buttonId"
-      :class="charsCount > maxLength ? 'tooManyChars' : ''"
+      :class="!validLength && 'tooManyChars' || ''"
       class="activityCharsCount">
       {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
       <i class="uiIconMessageLength"></i>
@@ -79,10 +79,16 @@ export default {
     editorReady() {
       return this.editor && this.editor.status === 'ready';
     },
+    validLength() {
+      return this.charsCount <= this.maxLength;
+    },
   },
   watch: {
     inputVal(val) {
       this.$emit('input', val);
+    },
+    validLength() {
+      this.$emit('validity-updated', this.validLength);
     },
     editorReady() {
       if (this.editorReady) {
