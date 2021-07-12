@@ -152,7 +152,7 @@
                     v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.accept')"
                     icon
                     class="flex-shrink-1"
-                    @click="updateRevocationRequest(request.id,'confirm')">
+                    @click="updateRevocationRequest($event,request.id,'confirm')">
                     <v-icon class="acceptRevocationIcon">
                       mdi-checkbox-marked-circle
                     </v-icon>
@@ -161,7 +161,7 @@
                     v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.decline')"
                     icon
                     class="flex-shrink-1"
-                    @click="updateRevocationRequest(request.id,'cancel')">
+                    @click="updateRevocationRequest($event,request.id,'cancel')">
                     <v-icon class="refuseRevocationIcon">
                       mdi-close-circle
                     </v-icon>
@@ -343,7 +343,6 @@ export default {
     },
     getRevocationRequest() {
       getRevocationRequests().then(revocationRequests => {
-        console.log(revocationRequests.requests);
         const promiseArray = [];
         for (const [index, revocationRequest] of revocationRequests.requests.entries()) {
           const userPromise = this.$userService.getUser(revocationRequest.username).then(user => {
@@ -354,12 +353,11 @@ export default {
           promiseArray.push(userPromise);
         }
         Promise.all(promiseArray).then(() => {
-          console.log(revocationRequests.requests);
           this.revocationRequests=revocationRequests.requests;
         });
       });
     },
-    updateRevocationRequest(id,status) {
+    updateRevocationRequest(event, id,status) {
       event.preventDefault();
       event.stopPropagation();
       updateRevocationRequest(id,status).then(resp => {
