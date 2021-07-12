@@ -1094,6 +1094,9 @@
         <path>/js/siteHamburgerMenu.bundle.js</path>
       </script>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
@@ -1133,6 +1136,9 @@
         <as>$</as>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>extensionRegistry</module>
       </depends>
     </module>
@@ -1145,6 +1151,9 @@
         <minify>false</minify>
         <path>/js/spacesHamburgerMenu.bundle.js</path>
       </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
       <depends>
         <module>vue</module>
       </depends>
