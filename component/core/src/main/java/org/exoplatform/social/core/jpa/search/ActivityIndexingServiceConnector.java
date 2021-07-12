@@ -35,7 +35,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
-  private static final long             serialVersionUID = 4102484220845897854L;
 
   public static final String            TYPE             = "activity";
 
@@ -63,11 +62,6 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
   }
 
   @Override
-  public String getType() {
-    return TYPE;
-  }
-
-  @Override
   public Document create(String id) {
     return getDocument(id);
   }
@@ -83,8 +77,8 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
   }
 
   @Override
-  public boolean canReindex() {
-    return false;
+  public String getConnectorName() {
+    return TYPE;
   }
 
   private Document getDocument(String id) {
@@ -149,7 +143,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     if (activity.getPostedTime() != null) {
       fields.put("postedTime", activity.getPostedTime().toString());
     }
-    Document document = new Document(TYPE, id, null, activity.getUpdated(), Collections.singleton(ownerIdentityId), fields);
+    Document document = new Document(id, null, activity.getUpdated(), Collections.singleton(ownerIdentityId), fields);
     activitySearchProcessor.index(activity, document);
     body = document.getFields().get("body");
 
@@ -182,7 +176,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     source = source.replaceAll("<( )*script([^>])*>", "<script>");
     source = source.replaceAll("(<( )*(/)( )*script( )*>)", "</script>");
     source = source.replaceAll("(<script>).*(</script>)", "");
-    source = source.replaceAll("javascript:", "");
+    source = source.replace("javascript:", "");
     source = source.replaceAll("<( )*style([^>])*>", "<style>");
     source = source.replaceAll("(<( )*(/)( )*style( )*>)", "</style>");
     source = source.replaceAll("(<style>).*(</style>)", "");

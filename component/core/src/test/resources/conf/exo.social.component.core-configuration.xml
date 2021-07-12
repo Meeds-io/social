@@ -43,7 +43,6 @@
         </value-param>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="activity" />
           <property name="index" value="activity_alias" />
         </properties-param>
       </init-params>
@@ -515,7 +514,6 @@
     <init-params>
       <properties-param>
         <name>constructor.params</name>
-        <property name="searchType" value="profile" />
         <property name="index" value="profile_alias" />
       </properties-param>
     </init-params>
@@ -526,7 +524,6 @@
     <init-params>
       <properties-param>
         <name>constructor.params</name>
-        <property name="searchType" value="people" />
         <property name="displayName" value="People" />
         <property name="index" value="profile_alias" />
         <property name="type" value="profile" />
@@ -604,9 +601,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias" />
-          <property name="index_previous" value="profile" />
           <property name="index_current" value="profile" />
-          <property name="type" value="profile" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -622,9 +617,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias" />
-          <property name="index_previous" value="space" />
           <property name="index_current" value="space" />
-          <property name="type" value="space" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -1571,7 +1564,6 @@
       <init-params>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="people"/>
           <property name="displayName" value="People"/>
           <property name="index" value="profile_alias"/>
           <property name="type" value="profile"/>
@@ -1593,7 +1585,6 @@
       <init-params>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="space"/>
           <property name="displayName" value="Spaces"/>
           <property name="index" value="space_alias"/>
           <property name="type" value="space"/>
@@ -1666,9 +1657,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias"/>
-          <property name="index_previous" value="profile"/>
           <property name="index_current" value="profile_v2"/>
-          <property name="type" value="profile"/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -1685,9 +1674,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias"/>
-          <property name="index_previous" value="space"/>
           <property name="index_current" value="space_v2"/>
-          <property name="type" value="space"/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -1708,9 +1695,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="activity_alias" />
-          <property name="index_previous" value="" />
           <property name="index_current" value="activity_v1" />
-          <property name="type" value="activity" />
         </properties-param>
       </init-params>
     </component-plugin>

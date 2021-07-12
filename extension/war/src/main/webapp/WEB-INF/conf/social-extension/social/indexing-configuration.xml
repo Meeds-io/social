@@ -32,10 +32,8 @@
       <init-params>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="people"/>
           <property name="displayName" value="People"/>
           <property name="index" value="profile_alias"/>
-          <property name="type" value="profile"/>
           <property name="enable" value="${exo.unified-search.connector.people.enable:true}"/>
           <property name="titleField" value="name"/>
           <property name="searchFields" value="name,firstName,lastName,position,skills,aboutMe"/>
@@ -54,10 +52,8 @@
       <init-params>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="space"/>
           <property name="displayName" value="Spaces"/>
           <property name="index" value="space_alias"/>
-          <property name="type" value="space"/>
           <property name="enable" value="${exo.unified-search.connector.space.enable:true}"/>
           <property name="titleField" value="displayName"/>
           <property name="searchFields" value="prettyName,displayName,description"/>
@@ -128,7 +124,6 @@
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias"/>
           <property name="index_current" value="profile_v2"/>
-          <property name="type" value="profile"/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -146,7 +141,6 @@
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias"/>
           <property name="index_current" value="space_v2"/>
-          <property name="type" value="space"/>
         </properties-param>
       </init-params>
     </component-plugin>
