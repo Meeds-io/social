@@ -20,11 +20,11 @@
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
-            <v-list-item class="pe-0">
-              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
+            <v-list-item class="pe-0 d-flex flex-nowrap">
+              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate d-flex flex-nowrap">
                 <slot name="title"></slot>
               </v-list-item-content>
-              <v-list-item-action class="drawerIcons align-end d-flex flex-row">
+              <v-list-item-action class="drawerIcons align-end d-flex flex-row flex-nowrap">
                 <slot name="titleIcons"></slot>
                 <v-btn
                   v-if="allowExpand && !isMobile"
