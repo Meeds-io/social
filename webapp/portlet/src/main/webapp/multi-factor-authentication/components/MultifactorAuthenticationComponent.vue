@@ -151,7 +151,7 @@
                   <v-btn
                     v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.accept')"
                     icon
-                    class="flex-shrink-1"
+                    class="flex-shrink-1 mb-0"
                     @click="updateRevocationRequest($event,request.id,'confirm')">
                     <v-icon class="acceptRevocationIcon">
                       mdi-checkbox-marked-circle
@@ -160,7 +160,7 @@
                   <v-btn
                     v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.decline')"
                     icon
-                    class="flex-shrink-1"
+                    class="flex-shrink-1 mb-0"
                     @click="updateRevocationRequest($event,request.id,'cancel')">
                     <v-icon class="refuseRevocationIcon">
                       mdi-close-circle
