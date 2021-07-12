@@ -394,6 +394,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                      @PathParam("activityId")
                                      String activityId,
                                      @ApiParam(
+                                         value = "Whether to just hide the activity or effectively delete it from database",
+                                         defaultValue = "false",
+                                         required = false
+                                     )
+                                     @QueryParam("hide")
+                                     boolean hide,
+                                     @ApiParam(
                                          value = "Asking for a full representation of a specific subresource if any",
                                          required = false
                                      )
@@ -407,8 +414,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (activity == null || !activityManager.isActivityDeletable(activity, ConversationState.getCurrent().getIdentity())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
-    activityManager.deleteActivity(activity);
+    ActivityEntity activityEntity;
+    if (hide) {
+      activity = activityManager.hideActivity(activity.getId());
+      activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
+    } else {
+      activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
+      activityManager.deleteActivity(activity);
+    }
     return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 

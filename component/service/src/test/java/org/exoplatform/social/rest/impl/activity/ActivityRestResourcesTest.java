@@ -394,6 +394,30 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(5, result.getTemplateParams().size());
   }
 
+  public void testHideActivityById() throws Exception {
+    startSessionAs("root");
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("test activity");
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(1, activities.getSize());
+
+    ContainerResponse response = service("DELETE",
+            "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "?hide=true", "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("test activity", result.getTitle());
+
+    activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(0, activities.getSize());
+
+    activity = activityManager.getActivity(activity.getId());
+    assertNotNull("Should be able to access activity even when hidden", activity);
+  }
+
   public void testGetUpdatedDeletedActivityById() throws Exception {
     startSessionAs("root");
 

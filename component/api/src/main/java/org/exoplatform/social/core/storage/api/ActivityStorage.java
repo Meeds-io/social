@@ -1100,4 +1100,15 @@ public interface ActivityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Hides an activity to not be displayed in stream, but keep it accessible in
+   * standalone mode
+   * 
+   * @param activityId Activity Identifier to hide
+   * @return hidden {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity hideActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
 }

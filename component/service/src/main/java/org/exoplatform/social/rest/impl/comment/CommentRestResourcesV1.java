@@ -139,7 +139,7 @@ public class CommentRestResourcesV1 implements ResourceContainer {
                                     )
                                     @QueryParam("expand")
                                     String expand) {
-    return activityRestResourcesV1.deleteActivityById(uriInfo, id, expand);
+    return activityRestResourcesV1.deleteActivityById(uriInfo, id, false, expand);
   }
 
   @GET

@@ -309,6 +309,14 @@ public class CachedActivityStorage implements ActivityStorage {
 
   }
 
+  @Override
+  public ExoSocialActivity hideActivity(String activityId) {
+    ExoSocialActivity a = storage.hideActivity(activityId);
+    ActivityKey key = new ActivityKey(a.getId());
+    exoActivityCache.remove(key);
+    return a;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -2078,4 +2086,5 @@ public class CachedActivityStorage implements ActivityStorage {
 
     return activityShareAction;
   }
+
 }

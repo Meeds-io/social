@@ -56,4 +56,8 @@ public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEve
     // By default, no behavior
   }
 
+  default void hideActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
 }
