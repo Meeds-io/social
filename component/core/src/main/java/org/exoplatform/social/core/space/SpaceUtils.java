@@ -1806,14 +1806,15 @@ public class SpaceUtils {
 
   /**
    * Check if the user has the role redactor in that space or that the space is not redactional
+   * 
    * @param userName
    * @param spaceGroupId
    * @return boolean true if the user has that role Or the role is not present in the space
-   * @throws Exception
    */
-  public static boolean isRedactor(String userName, String spaceGroupId) throws Exception {
+  public static boolean isRedactor(String userName, String spaceGroupId) {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return space != null && (getSpaceService().isRedactor(space, userName) || ArrayUtils.isEmpty(space.getRedactors()));
+    return space != null && (getSpaceService().isRedactor(space, userName)
+        || (ArrayUtils.isEmpty(space.getRedactors()) && getSpaceService().isMember(space, userName)));
   }
 
   /**
@@ -1822,9 +1823,8 @@ public class SpaceUtils {
    * @param userName
    * @param spaceGroupId
    * @return boolean true if the user is supermanager of all spaces or has the role manager in that space
-   * @throws Exception
    */
-  public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) throws Exception {
+  public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
     return (space != null && getSpaceService().isManager(space, userName)) || getSpaceService().isSuperManager(userName);
   }

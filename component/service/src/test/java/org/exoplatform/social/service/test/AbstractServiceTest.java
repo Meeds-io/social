@@ -192,6 +192,14 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
     startSessionAs(user, new HashSet<MembershipEntry>());
   }
 
+  protected void startSessionAs(String user, boolean isAdmin) {
+    if (isAdmin) {
+      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/administrators", "*"))));
+    } else {
+      startSessionAs(user, new HashSet<MembershipEntry>());
+    }
+  }
+
   protected void startSessionAs(String user, Collection<MembershipEntry> memberships) {
     Identity identity = new Identity(user, memberships);
     ConversationState state = new ConversationState(identity);

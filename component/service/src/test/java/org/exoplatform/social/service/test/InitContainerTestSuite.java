@@ -16,6 +16,12 @@
  */
 package org.exoplatform.social.service.test;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
+
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesTest;
@@ -28,31 +34,14 @@ import org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministratio
 import org.exoplatform.social.rest.impl.userrelationship.UsersRelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.users.UserRestResourcesTest;
 import org.exoplatform.social.service.malwareDetection.MalwareDetectionServiceTest;
-import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
-import org.exoplatform.social.service.rest.IdentityRestServiceTest;
-import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
-import org.exoplatform.social.service.rest.NotificationsRestServiceTest;
-import org.exoplatform.social.service.rest.RestCheckerTest;
-import org.exoplatform.social.service.rest.SecurityManagerTest;
-import org.exoplatform.social.service.rest.SpaceRestServiceTest;
+import org.exoplatform.social.service.rest.*;
 import org.exoplatform.social.service.rest.UtilTest;
-import org.exoplatform.social.service.rest.api.ActivityResourcesTest;
-import org.exoplatform.social.service.rest.api.ActivityStreamResourcesTest;
-import org.exoplatform.social.service.rest.api.IdentityResourcesTest;
 import org.exoplatform.social.service.rest.api.VersionResourcesTest;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
   SpaceRestServiceTest.class,
-  ActivityResourcesTest.class,
-  ActivityStreamResourcesTest.class,
-  IdentityResourcesTest.class,
   VersionResourcesTest.class,
   IdentityRestServiceTest.class,
   //PeopleRestServiceTest.class,  //skipped until add integration test

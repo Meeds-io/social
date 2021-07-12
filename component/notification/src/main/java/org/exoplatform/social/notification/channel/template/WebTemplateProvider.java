@@ -173,7 +173,8 @@ public class WebTemplateProvider extends TemplateProvider {
         }
         activity = Utils.getActivityManager().getActivity(activityId);
         if (activity == null) {
-          throw new IllegalStateException("Cannot find Activity with id : " + activityId);
+          LOG.warn("Cannot find Activity with id '{}', it will not be displayed in notifications", activityId);
+          return null;
         }
       }
       if (comment == null) {
@@ -182,7 +183,8 @@ public class WebTemplateProvider extends TemplateProvider {
         }
         comment = Utils.getActivityManager().getActivity(commentId);
         if (comment == null) {
-          throw new IllegalStateException("Cannot find Parent Comment with id : " + commentId);
+          LOG.warn("Cannot find Parent Comment with id '{}', it will not be displayed in notifications", commentId);
+          return null;
         }
       }
       if (replyToComment == null) {
@@ -191,7 +193,8 @@ public class WebTemplateProvider extends TemplateProvider {
         }
         replyToComment = Utils.getActivityManager().getActivity(replyToCommentId);
         if (replyToComment == null) {
-          throw new IllegalStateException("Cannot find Reply Comment with id : " + replyToCommentId);
+          LOG.warn("Cannot find Reply Comment with id '{}', it will not be displayed in notifications", replyToCommentId);
+          return null;
         }
       }
 

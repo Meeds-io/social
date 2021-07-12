@@ -136,6 +136,7 @@ public class ProfileSearchConnector {
     for(Object jsonHit : jsonHits) {
       JSONObject hitSource = (JSONObject) ((JSONObject) jsonHit).get("_source");
       String position = (String) hitSource.get("position");
+      String aboutMe = (String) hitSource.get("aboutMe");
       String name = (String) hitSource.get("name");
       String userName = (String) hitSource.get("userName");
       String firstName = (String) hitSource.get("firstName");
@@ -159,7 +160,7 @@ public class ProfileSearchConnector {
       p.setProperty(Profile.POSITION, position);
       p.setProperty(Profile.EMAIL, email);
       p.setProperty(Profile.USERNAME, userName);
-      p.setProperty(Profile.ABOUT_ME, profile.getAboutMe());
+      p.setProperty(Profile.ABOUT_ME, aboutMe);
       if ((String) profile.getProperty(Profile.EXTERNAL) != null && !((String) profile.getProperty(Profile.EXTERNAL)).isEmpty()) {
         p.setProperty(Profile.EXTERNAL, (String) profile.getProperty(Profile.EXTERNAL));
       }

@@ -1,85 +1,55 @@
 package org.exoplatform.social.core.activity.model;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
-public class ActivityFile {
+public class ActivityFile implements Serializable {
 
-  private String      id;
+  private static final long     serialVersionUID = 5921457669759416662L;
 
-  private String      uploadId;
+  private String                id;
 
-  private String      storage;
+  private String                uploadId;
 
-  private String      name;
+  private String                storage;
 
-  private String      mimeType;
+  private String                name;
 
-  private InputStream inputStream;
+  private String                mimeType;
 
-  private long        lastModified;
+  private long                  lastModified;
 
-  private String destinationFolder;
+  private String                destinationFolder;
+
+  private transient InputStream inputStream;
 
   public ActivityFile() {
   }
 
-  /**
-   * Constructor
-   *
-   * @param uploadId
-   * @param storage
-   */
   public ActivityFile(String uploadId, String storage) {
     this.uploadId = uploadId;
     this.storage = storage;
   }
 
-  /**
-   * Constructor
-   *
-   * @param id
-   * @param uploadId
-   * @param storage
-   * @param destinationFolder
-   */
-  public ActivityFile(String id, String uploadId, String storage, String destinationFolder){
+  public ActivityFile(String id, String uploadId, String storage, String destinationFolder) {
     this.id = id;
     this.uploadId = uploadId;
     this.storage = storage;
     this.destinationFolder = destinationFolder;
   }
 
-  /**
-   * Constructor
-   *
-   * @param id
-   * @param uploadId
-   * @param storage
-   */
   public ActivityFile(String id, String uploadId, String storage) {
     this.id = id;
     this.uploadId = uploadId;
     this.storage = storage;
   }
 
-  /**
-   * Constructor
-   *
-   * @param uploadId
-   * @param storage
-   * @param name
-   * @param mimeType
-   * @param inputStream
-   * @param lastModified
-   * @throws Exception
-   */
-  public ActivityFile(String uploadId, String storage, String name, String mimeType, InputStream inputStream, long lastModified)
-      throws Exception {
+  public ActivityFile(String uploadId, String storage, String name, String mimeType, InputStream inputStream, long lastModified) {
     this.uploadId = uploadId;
     this.storage = storage;
     this.name = name;
     this.mimeType = mimeType;
-    this.inputStream=inputStream;
+    this.inputStream = inputStream;
     this.lastModified = lastModified;
   }
 

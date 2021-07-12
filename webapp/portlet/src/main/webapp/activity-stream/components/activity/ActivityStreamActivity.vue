@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="white border-radius activity-detail flex">
+    class="white border-radius activity-detail flex d-flex flex-column">
     <template v-if="extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
@@ -13,11 +13,13 @@
           :component="extendedComponentOptions"
           :element="extendedComponent.element"
           :element-class="extendedComponent.class"
-          :params="extendedComponentParams" />
+          :params="extendedComponentParams"
+          class=" d-flex flex-column" />
       </template>
       <activity-footer
         v-if="!extendedComponent.overrideFooter"
         :activity="activity"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         v-if="!extendedComponent.overrideComments"
@@ -33,14 +35,16 @@
       <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"
+          :params="extendedComponentParams"
           name="ActivityContent"
           type="activity-content-extensions"
           parent-element="div"
           element="div"
-          :params="extendedComponentParams" />
+          class="d-flex flex-column" />
       </v-card>
       <activity-footer
         :activity="activity"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension" />
       <activity-comments-preview
         :activity="activity"
@@ -109,6 +113,7 @@ export default {
     extendedComponentParams() {
       return {
         activity: this.activity,
+        originalSharedActivity: this.originalSharedActivity,
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
         loading: this.loading,
@@ -116,6 +121,9 @@ export default {
     },
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
+    },
+    sharedActivityId() {
+      return this.activity && this.activity.templateParams && this.activity.templateParams.originalActivityId;
     },
   },
   watch: {
@@ -140,6 +148,10 @@ export default {
         }}));
       }, 50);
     }
+    if (this.activity.highlight) {
+      this.scrollTo(this.$el);
+    }
+    this.$root.$emit('activity-refreshed');
   },
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
@@ -169,6 +181,16 @@ export default {
       window.setTimeout(() => {
         this.$utils.initTipTip(this.$el, this.$userPopupLabels);
       }, 200);
+    },
+    scrollTo(element) {
+      window.setTimeout(() => {
+        if (element && element.scrollIntoView) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 10);
     },
   },
 };

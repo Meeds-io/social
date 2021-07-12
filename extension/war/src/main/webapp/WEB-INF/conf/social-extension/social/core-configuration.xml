@@ -78,7 +78,11 @@
         <key>org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO</key>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.StreamItemDAOImpl</type>
     </component>
-    
+
+    <component>
+      <type>org.exoplatform.social.core.jpa.storage.dao.ActivityShareActionDAO</type>
+    </component>
+
     <component>
         <key>org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO</key>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ConnectionDAOImpl</type>
@@ -241,14 +245,9 @@
                 <value>${exo.edit.comment.enabled:true}</value>
             </value-param>
             <value-param>
-                <name>exo.manager.edit.activity.enabled</name>
-                <description>enable/disable manger edit activity</description>
-                <value>${exo.manager.edit.activity.enabled:true}</value>
-            </value-param>
-            <value-param>
-                <name>exo.manager.edit.comment.enabled</name>
-                <description>enable/disable manager edit comment</description>
-                <value>${exo.manager.edit.comment.enabled:true}</value>
+                <name>userStreamComposer.enabled</name>
+                <description>enable/disable user stream composer button</description>
+                <value>${exo.config.mainStreamComposer.enabled:false}</value>
             </value-param>
         </init-params>
     </component>

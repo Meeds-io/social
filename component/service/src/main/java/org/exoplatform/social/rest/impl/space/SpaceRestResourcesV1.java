@@ -16,105 +16,57 @@
  */
 package org.exoplatform.social.rest.impl.space;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
-import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.IOUtil;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.AvatarAttachment;
-import org.exoplatform.social.core.model.BannerAttachment;
-import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.SpaceException;
-import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.RestProperties;
-import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.SpaceRestResources;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.BaseEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.service.rest.Util;
+import org.exoplatform.social.rest.api.*;
+import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
-import org.exoplatform.social.service.rest.api.models.SharedActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.swagger.annotations.*;
+
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
-@Api(tags = VersionResources.VERSION_ONE + "/social/spaces", value = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
+@Api(
+    tags = VersionResources.VERSION_ONE + "/social/spaces",
+    value = VersionResources.VERSION_ONE + "/social/spaces",
+    description = "Operations on spaces with their activities and users" // NOSONAR
+)
 public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
@@ -140,6 +92,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
+  private ActivityRestResourcesV1   activityRestResourcesV1;
+
   private IdentityManager           identityManager;
 
   private UploadService             uploadService;
@@ -148,7 +102,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private byte[]              defaultSpaceAvatar = null;
 
-  public SpaceRestResourcesV1(SpaceService spaceService, IdentityManager identityManager, UploadService uploadService) {
+  public SpaceRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
+                              SpaceService spaceService,
+                              IdentityManager identityManager,
+                              UploadService uploadService) {
+    this.activityRestResourcesV1 = activityRestResourcesV1;
     this.spaceService = spaceService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
@@ -163,7 +121,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @ApiOperation(value = "Gets spaces of user",
                 httpMethod = "GET",
                 response = Response.class,
-                notes = "This returns a list of spaces switch request paramters")
+                notes = "This returns a list of spaces switch request parameters")
   @ApiResponses(value = {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
@@ -779,7 +737,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input")})
   public Response isSpaceMember(@Context UriInfo uriInfo,
-                                @Context Request request,
                                 @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                 @ApiParam(value = "User id", required = true) @PathParam("userId") String userId) {
     Space space = spaceService.getSpaceById(id);
@@ -1093,6 +1050,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
+  @Deprecated
+  @DeprecatedAPI(value = "Use activityRestResourcesV1.getActivities instead", insist = true)
   public Response getSpaceActivitiesById(@Context UriInfo uriInfo,
       @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
       @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
@@ -1101,44 +1060,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       @ApiParam(value = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("after") String after,
       @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand) throws Exception {
-    
-    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    //
-    Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-    RealtimeListAccess<ExoSocialActivity> listAccess = CommonsUtils.getService(ActivityManager.class).getActivitiesOfSpaceWithListAccess(spaceIdentity);
-    List<ExoSocialActivity> activities = null;
-    if (after != null && RestUtils.getBaseTime(after) > 0) {
-      activities = listAccess.loadNewer(RestUtils.getBaseTime(after), limit);
-    } else if (before != null && RestUtils.getBaseTime(before) > 0) {
-      activities = listAccess.loadOlder(RestUtils.getBaseTime(before), limit);
-    } else {
-      activities = listAccess.loadAsList(offset, limit);
-    }
-    List<DataEntity> activityEntities = new ArrayList<DataEntity>();
-    //
-    for (ExoSocialActivity activity : activities) {
-      ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand);
-      //
-      activityEntities.add(activityInfo.getDataEntity());
-    }
-    CollectionEntity collectionActivity = new CollectionEntity(activityEntities, EntityBuilder.ACTIVITIES_TYPE,  offset, limit);
-    if(returnSize) {
-      if (before != null || after != null) {
-        collectionActivity.setSize(activities.size());   
-      } else {
-        collectionActivity.setSize(listAccess.getSize());
-      }
-    }
-    return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, returnSize, expand);
   }
   
   /**
@@ -1156,84 +1078,16 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse (code = 200, message = "Request fulfilled"),
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
+  @Deprecated
+  @DeprecatedAPI(value = "Use activityRestResourcesV1.postActivity instead", insist = true)
   public Response postActivityOnSpace(@Context UriInfo uriInfo,
                                       @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
-                                      @ApiParam(value = "Activity object to be created", required = true) ActivityRestIn model) throws Exception {
-    if (model == null) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    //
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    //
-    Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(model.getTitle());
-    activity.setBody(model.getBody());
-    activity.setType(model.getType());
-    activity.setUserId(poster.getId());
-    activity.setTemplateParams(model.getTemplateParams());
-    if(model.getFiles() != null) {
-      activity.setFiles(model.getFiles()
-              .stream()
-              .map(fileModel -> new ActivityFile(fileModel.getId(),fileModel.getUploadId(), fileModel.getStorage(), fileModel.getDestinationFolder()))
-              .collect(Collectors.toList()));
-    }
-    CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(spaceIdentity, activity);
-
-    logMetrics(activity, space);
-
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-  
-  /**
-   * Log metric about composer usage
-   * @param activity The posted activity
-   * @param space The space of the posted activity
-   */
-  private void logMetrics(ExoSocialActivity activity, Space space) {
-    ExoFeatureService featureService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ExoFeatureService.class);
-    if(!featureService.isActiveFeature("new-composer")) {
-      return;
-    }
-
-    if(activity == null || space == null) {
-      return;
-    }
-
-    String activityType;
-    if(activity.getType() != null) {
-      switch (activity.getType()) {
-        case "files:spaces":
-          activityType = "file";
-          break;
-        case "LINK_ACTIVITY":
-          activityType = "link";
-          break;
-        default:
-          activityType = "message";
-          break;
-      }
-    } else {
-      activityType = "message";
-    }
-
-    LOG.info("service=composer operation=post parameters=\"composer_type:new,activity_type:{},activity_id:{},space_id:{},user_id:{}\"",
-            activityType,
-            activity.getId(),
-            space.getId(),
-            activity.getPosterId());
+                                      @ApiParam(value = "Activity object to be created", required = true) ActivityEntity model) throws Exception {
+    return activityRestResourcesV1.postActivity(uriInfo, id, expand, model);
   }
 
-  private void fillSpaceFromModel(Space space, SpaceEntity model) throws Exception {
+  private void fillSpaceFromModel(Space space, SpaceEntity model) throws IOException {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
 
     if (StringUtils.isNotBlank(model.getDisplayName())) {
@@ -1285,109 +1139,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
   }
 
-  private void updateProfileField(Space space,
-                                  String name,
-                                  String value) throws Exception {
-    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
-      UploadResource uploadResource = uploadService.getUploadResource(value);
-      if (uploadResource == null) {
-        throw new IllegalStateException("No uploaded resource found with uploadId = " + value);
-      }
-      String storeLocation = uploadResource.getStoreLocation();
-      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
-        if (Profile.AVATAR.equals(name)) {
-          AvatarAttachment attachment = new AvatarAttachment(null,
-                                            uploadResource.getFileName(),
-                                            uploadResource.getMimeType(),
-                                            inputStream,
-                                            System.currentTimeMillis());
-          space.setAvatarAttachment(attachment);
-          spaceService.updateSpaceAvatar(space);
-        } else {
-          BannerAttachment attachment = new BannerAttachment(null,
-                                            uploadResource.getFileName(),
-                                            uploadResource.getMimeType(),
-                                            inputStream,
-                                            System.currentTimeMillis());
-          space.setBannerAttachment(attachment);
-          spaceService.updateSpaceBanner(space);
-        }
-      } finally {
-        uploadService.removeUploadResource(value);
-      }
-    }
-  }
-
-  /**
-   * @param uriInfo
-   * @param request
-   * @param id
-   * @param fileId
-   * @return
-   * @throws IOException
-   */
-  @GET
-  @Path("{id}/files/{fileId}")
-  @RolesAllowed("users")
-  @ApiOperation(value = "Gets an activity file by its activity id and file id", httpMethod = "GET", response = Response.class, notes = "returns the associated activity file.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input"),
-      @ApiResponse(code = 404, message = "Resource not found") })
-  public Response getSpaceActivityFileByFileId(@Context UriInfo uriInfo,
-                                                       @Context Request request,
-                                                       @ApiParam(value = "Activity id", required = true) @PathParam("id") String id,
-                                                       @ApiParam(value = "File id", required = true) @PathParam("fileId") String fileId) throws IOException {
-
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
-    ExoSocialActivity activity = activityManager.getActivity(id);
-    if (activity == null) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    if (EntityBuilder.getActivityStream(activity, uriInfo.getPath(), currentUser) == null
-        && !Util.hasMentioned(activity, currentUser.getRemoteId())) { // current user doesn't have permission to view activity
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    boolean hasFile=activityManager.getActivityFilesIds(activity).stream()
-            .filter(fId -> fileId.equals(fId))
-            .findAny()
-            .isPresent();
-    if (!hasFile) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    ActivityFile file = null;
-    try {
-      file = activityManager.getActivityFileById(Long.valueOf(fileId));
-    } catch (Exception e) {
-      LOG.error("An error occurred while retrieving activity file by id",e);
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    if (file == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-    EntityTag eTag = null;
-    eTag = new EntityTag(Integer.toString(((Long)file.getLastModified()).hashCode()));
-    //
-    Response.ResponseBuilder builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
-    if (builder == null) {
-      InputStream stream = file.getInputStream();
-      if (stream == null) {
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-      } else {
-        builder = Response.ok(stream, "image/png");
-        builder.tag(eTag);
-      }
-    }
-    CacheControl cc = new CacheControl();
-    cc.setMaxAge(86400);
-    builder.cacheControl(cc);
-    return builder.cacheControl(cc).build();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}/externalInvitations")
   @RolesAllowed("users")
@@ -1413,9 +1164,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   }
 
 
-  /**
-   * {@inheritDoc}
-   */
   @DELETE
   @Path("externalInvitations/{invitationId}")
   @RolesAllowed("users")
@@ -1452,6 +1200,39 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       return Response.serverError().build();
     }
     return Response.noContent().build();
+  }
+
+  private void updateProfileField(Space space,
+                                  String name,
+                                  String value) throws IOException {
+    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+      UploadResource uploadResource = uploadService.getUploadResource(value);
+      if (uploadResource == null) {
+        throw new IllegalStateException("No uploaded resource found with uploadId = " + value);
+      }
+      String storeLocation = uploadResource.getStoreLocation();
+      try (FileInputStream inputStream = new FileInputStream(storeLocation)) {
+        if (Profile.AVATAR.equals(name)) {
+          AvatarAttachment attachment = new AvatarAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+          space.setAvatarAttachment(attachment);
+          spaceService.updateSpaceAvatar(space);
+        } else {
+          BannerAttachment attachment = new BannerAttachment(null,
+                                            uploadResource.getFileName(),
+                                            uploadResource.getMimeType(),
+                                            inputStream,
+                                            System.currentTimeMillis());
+          space.setBannerAttachment(attachment);
+          spaceService.updateSpaceBanner(space);
+        }
+      } finally {
+        uploadService.removeUploadResource(value);
+      }
+    }
   }
 
   private Response.ResponseBuilder getDefaultAvatarBuilder() throws IOException {

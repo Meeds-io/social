@@ -23,8 +23,7 @@ import org.mockito.*;
 
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -32,6 +31,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -96,8 +96,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   public void testActivityEditable() {
     ActivityStorage storage = Mockito.mock(ActivityStorage.class);
     IdentityManager identityManager = Mockito.mock(IdentityManager.class);
-    FileService fileService = Mockito.mock(FileService.class);
-    UploadService uploadService = Mockito.mock(UploadService.class);
     UserACL acl = Mockito.mock(UserACL.class);
     Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
 
@@ -127,16 +125,21 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
 
     // no configuration
     // by default: edit activity/comment are all enabled
-    ActivityManager manager = new ActivityManagerImpl(storage,
-                                                      identityManager,
-                                                      acl,
-                                                      fileService,
-                                                      null);
+    ActivityManager manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, null);
     // owner
     assertTrue(manager.isActivityEditable(activity, owner));
     assertTrue(manager.isActivityEditable(comment, owner));
     // do not allow edit automatic comment
     Mockito.when(comment.getType()).thenReturn("TestActivityType");
+
+    InitParams params = new InitParams();
+    ValuesParam param = new ValuesParam();
+    param.setName(ActivitySystemTypePlugin.SYSTEM_TYPES_PARAM);
+    param.setValues(Collections.singletonList("TestActivityType"));
+    params.addParameter(param);
+    ActivitySystemTypePlugin plugin = new ActivitySystemTypePlugin(params);
+    manager.addSystemActivityDefinition(plugin);
+
     assertFalse(manager.isActivityEditable(comment, owner));
 
     // manager is not able to edit other activity
@@ -145,7 +148,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(manager.isActivityEditable(activity, mary));
 
     // InitParams configuration
-    InitParams params = Mockito.mock(InitParams.class);
+    params = Mockito.mock(InitParams.class);
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_MANAGER_EDIT_COMMENT)).thenReturn(true);
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_EDIT_COMMENT)).thenReturn(true);
     ValueParam falseVal = new ValueParam();
@@ -153,11 +156,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // not enable edit comment
     Mockito.when(params.getValueParam(ActivityManagerImpl.ENABLE_MANAGER_EDIT_COMMENT)).thenReturn(falseVal);
     Mockito.when(params.getValueParam(ActivityManagerImpl.ENABLE_EDIT_COMMENT)).thenReturn(falseVal);
-    manager = new ActivityManagerImpl(storage,
-                                      identityManager,
-                                      acl,
-                                      fileService,
-                                      params);
+    manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, params);
     //
     Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     assertFalse(manager.isActivityEditable(comment, admin));
@@ -170,11 +169,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Mockito.when(params.containsKey(ActivityManagerImpl.ENABLE_EDIT_ACTIVITY)).thenReturn(true);
     Mockito.when(params.getValueParam(ActivityManagerImpl.ENABLE_MANAGER_EDIT_ACTIVITY)).thenReturn(falseVal);
     Mockito.when(params.getValueParam(ActivityManagerImpl.ENABLE_EDIT_ACTIVITY)).thenReturn(falseVal);
-    manager = new ActivityManagerImpl(storage,
-                                      identityManager,
-                                      acl,
-                                      fileService,
-                                      params);
+    manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, params);
     //
     assertFalse(manager.isActivityEditable(activity, owner));
     assertFalse(manager.isActivityEditable(activity, admin));
@@ -183,7 +178,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   public void testActivityViewable() {
     ActivityStorage storage = Mockito.mock(ActivityStorage.class);
     IdentityManager identityManager = Mockito.mock(IdentityManager.class);
-    FileService fileService = Mockito.mock(FileService.class);
     RelationshipManager relationshipManager = Mockito.mock(RelationshipManager.class);
     UserACL acl = Mockito.mock(UserACL.class);
     Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
@@ -202,28 +196,21 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("demo"))
     .thenReturn(new Identity("1"));
     org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(admin.getUserId()).thenReturn("john");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
-    .thenReturn(johnIdentity);
+    Mockito.when(identityManager.getOrCreateUserIdentity("john")).thenReturn(johnIdentity);
     Mockito.when(admin.getGroups()).thenReturn(Collections.singleton("/platform/administrators"));
     Mockito.when(admin.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry("/platform/administrators")));
     Mockito.when(admin.isMemberOf(acl.getAdminGroups())).thenReturn(true);
     org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(mary.getUserId()).thenReturn("mary");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
-    .thenReturn(maryIdentity);
+    Mockito.when(identityManager.getOrCreateUserIdentity("mary")).thenReturn(maryIdentity);
     
     // no configuration
     // by default: edit activity/comment are all enabled
-    ActivityManager manager = new ActivityManagerImpl(storage,
-                                                      identityManager,
-                                                      relationshipManager,
-                                                      acl,
-                                                      fileService,
-                                                      null);
+    ActivityManager manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, null);
     // owner
     assertTrue(manager.isActivityViewable(activity, owner));
     assertTrue(manager.isActivityViewable(comment, owner));
@@ -241,17 +228,11 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ActivityStorage storage = Mockito.mock(ActivityStorage.class);
     IdentityManager identityManager = Mockito.mock(IdentityManager.class);
     SpaceService spaceService = Mockito.mock(SpaceService.class);
-    FileService fileService = Mockito.mock(FileService.class);
     UserACL acl = Mockito.mock(UserACL.class);
 
     // no configuration
     // by default: edit activity/comment are all enabled
-    ActivityManagerImpl activityManager = new ActivityManagerImpl(storage,
-                                                                  identityManager,
-                                                                  acl,
-                                                                  fileService,
-                                                                  null);
-    activityManager.setSpaceService(spaceService);
+    ActivityManagerImpl activityManager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, null);
     Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
 
     Mockito.when(spaceService.isSuperManager(Mockito.eq("john"))).thenReturn(true);
@@ -379,131 +360,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertNotNull("activity must not be null", activity);
     assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-  }
-
-  /**
-   * Test for
-   * {@link ActivityManager#saveActivity(org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * and
-   * {@link ActivityManager#saveActivity(Identity, org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testSaveActivity() throws ActivityStorageException {
-    // save mal-formed activity
-    {
-      ExoSocialActivity malformedActivity = new ExoSocialActivityImpl();
-      malformedActivity.setTitle("malform");
-      try {
-        activityManager.saveActivity(malformedActivity);
-        fail("Expecting IllegalArgumentException.");
-      } catch (IllegalArgumentException e) {
-        LOG.info("test with malfomred activity passes.");
-      }
-    }
-
-    {
-      final String activityTitle = "root activity";
-      ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
-      rootActivity.setTitle(activityTitle);
-      rootActivity.setUserId(rootIdentity.getId());
-      activityManager.saveActivity(rootActivity);
-
-      assertNotNull("rootActivity.getId() must not be null", rootActivity.getId());
-
-      // updates
-      rootActivity.setTitle("Hello World");
-      activityManager.updateActivity(rootActivity);
-    }
-
-    {
-      final String title = "john activity";
-      ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
-      johnActivity.setTitle(title);
-      activityManager.saveActivity(johnIdentity, johnActivity);
-
-      assertNotNull("johnActivity.getId() must not be null", johnActivity.getId());
-    }
-
-    // updated and postedTime is optional
-    {
-      final String title = "test";
-      ExoSocialActivity activity = new ExoSocialActivityImpl();
-      activity.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity);
-      assertNotNull("activity.getId() must not be null", activity.getId());
-      assertNotNull("activity.getUpdated() must not be null", activity.getUpdated());
-      assertNotNull("activity.getPostedTime() must not be null", activity.getPostedTime());
-      assertEquals("activity.getTitle() must return: " + title, title, activity.getTitle());
-    }
-  }
-
-  /**
-   * Test {@link ActivityManager#saveActivity(Identity, ExoSocialActivity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testSaveActivityWithStreamOwner() throws Exception {
-    String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(activityTitle);
-    activity.setUserId(userId);
-    activityManager.saveActivity(demoIdentity, activity);
-
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-  }
-
-  /**
-   * Test {@link ActivityManager#getActivities(Identity, long, long)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testGetActivitiesWithOffsetLimit() throws Exception {
-    this.populateActivityMass(johnIdentity, 10);
-    List<ExoSocialActivity> johnActivities = activityManager.getActivities(johnIdentity, 0, 5);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 5", 5, johnActivities.size());
-
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 10);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 0", 10, johnActivities.size());
-
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 20);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 10", 10, johnActivities.size());
-  }
-
-  /**
-   * Test {@link ActivityManager#getActivity(String)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testGetActivity() throws ActivityStorageException {
-    List<ExoSocialActivity> rootActivities = activityManager.getActivities(rootIdentity);
-    assertEquals("user's activities should have 0 element.", 0, rootActivities.size());
-
-    String activityTitle = "title";
-    String userId = rootIdentity.getId();
-
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(activityTitle);
-    activity.setUserId(userId);
-
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
-
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-
-    rootActivities = activityManager.getActivities(rootIdentity);
-    assertEquals("user's activities should have 1 element", 1, rootActivities.size());
   }
 
   /**
@@ -646,48 +502,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
 
     activityManager.deleteActivity(activity.getId());
-  }
-
-  /**
-   * Test
-   * {@link ActivityManager#saveComment(ExoSocialActivity, ExoSocialActivity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testSaveComment() throws Exception {
-    String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(activityTitle);
-    activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
-
-    String commentTitle = "Comment title";
-
-    // demo comments on john's activity
-    ExoSocialActivity comment = new ExoSocialActivityImpl();
-    comment.setTitle(commentTitle);
-    comment.setUserId(demoIdentity.getId());
-    activityManager.saveComment(activity, comment);
-
-    List<ExoSocialActivity> demoComments = activityManager.getComments(activity);
-    assertNotNull("demoComments must not be null", demoComments);
-    assertEquals("demoComments.size() must return: 1", 1, demoComments.size());
-
-    assertEquals("demoComments.get(0).getTitle() must return: " + commentTitle,
-                 commentTitle,
-                 demoComments.get(0).getTitle());
-    assertEquals("demoComments.get(0).getUserId() must return: " + demoIdentity.getId(),
-                 demoIdentity.getId(),
-                 demoComments.get(0).getUserId());
-
-    ExoSocialActivity gotParentActivity = activityManager.getParentActivity(comment);
-    assertNotNull(gotParentActivity);
-    assertEquals(activity.getId(), gotParentActivity.getId());
-    assertEquals(1, gotParentActivity.getReplyToId().length);
-    assertEquals(comment.getId(), gotParentActivity.getReplyToId()[0]);
-
   }
 
   /**
@@ -864,65 +678,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
         assertEquals("Title of comment should be 'john comment " + (total - i - 1) + j + "'", "john comment" + (total - i - 1) + j, johnComment.getTitle());
       }
     }
-  }
-
-  /**
-   * Test
-   * {@link ActivityManager#deleteComment(ExoSocialActivity, ExoSocialActivity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testDeleteComment() throws Exception {
-    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
-    demoActivity.setTitle("demo activity");
-    demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-
-    ExoSocialActivity maryComment = new ExoSocialActivityImpl();
-    maryComment.setTitle("mary comment");
-    maryComment.setUserId(maryIdentity.getId());
-    activityManager.saveComment(demoActivity, maryComment);
-
-    activityManager.deleteComment(demoActivity, maryComment);
-
-    assertEquals("activityManager.getComments(demoActivity).size() must return: 0",
-                 0,
-                 activityManager.getComments(demoActivity).size());
-  }
-
-  /**
-   * Test
-   * {@link ActivityManager#deleteComment(ExoSocialActivity, ExoSocialActivity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testDeleteCommentWithSubComments() throws Exception {
-    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
-    demoActivity.setTitle("demo activity");
-    demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-
-    ExoSocialActivity maryComment = new ExoSocialActivityImpl();
-    maryComment.setTitle("mary comment");
-    maryComment.setUserId(maryIdentity.getId());
-    activityManager.saveComment(demoActivity, maryComment);
-
-    ExoSocialActivity subComment = new ExoSocialActivityImpl();
-    subComment.setTitle("demo comment");
-    subComment.setUserId(demoIdentity.getId());
-    subComment.setParentCommentId(maryComment.getId());
-    activityManager.saveComment(demoActivity, subComment);
-
-    activityManager.deleteComment(demoActivity, maryComment);
-
-    assertEquals("activityManager.getComments(demoActivity).size() must return: 0",
-                 0,
-                 activityManager.getComments(demoActivity).size());
-    assertEquals("activityManager.getComments(demoActivity).size() must return: 0",
-                 0,
-                 activityManager.getCommentsWithListAccess(demoActivity, true).getSize());
   }
 
   /**
@@ -1245,55 +1000,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link ActivityManager#getComments(ExoSocialActivity)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testGetCommentWithHtmlContent() throws ActivityStorageException {
-    String htmlString = "<p><strong>foo</strong>bar<script>zed</script></p>";
-    String htmlRemovedString = "<p><strong>foo</strong>bar</p>";
-
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
-
-    ExoSocialActivity comment = new ExoSocialActivityImpl();
-    comment.setTitle(htmlString);
-    comment.setUserId(rootIdentity.getId());
-    comment.setBody(htmlString);
-    activityManager.saveComment(activity, comment);
-    assertNotNull("comment.getId() must not be null", comment.getId());
-
-    List<ExoSocialActivity> comments = activityManager.getComments(activity);
-    assertEquals(1, comments.size());
-    assertEquals(htmlRemovedString, comments.get(0).getBody());
-    assertEquals(htmlRemovedString, comments.get(0).getTitle());
-  }
-
-  /**
-   * @throws ActivityStorageException
-   */
-  public void testGetComment() throws ActivityStorageException {
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    ;
-    activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
-
-    ExoSocialActivity comment = new ExoSocialActivityImpl();
-    ;
-    comment.setTitle("comment blah blah");
-    comment.setUserId(rootIdentity.getId());
-
-    activityManager.saveComment(activity, comment);
-
-    assertNotNull("comment.getId() must not be null", comment.getId());
-
-    activity = activityManager.getActivity(activity.getId());
-    String[] commentsId = activity.getReplyToId();
-    assertEquals(comment.getId(), commentsId[0]);
-  }
-
-  /**
    * @throws ActivityStorageException
    */
   public void testGetComments() throws ActivityStorageException {
@@ -1326,83 +1032,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     for (int i = 1; i < commentIds.length; i++) {
       assertEquals(comments.get(i - 1).getId(), commentIds[i - 1]);
     }
-  }
-
-  /**
-   * Unit Test for:
-   * <p>
-   * {@link ActivityManager#deleteComment(String, String)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testDeleteCommentWithId() throws ActivityStorageException {
-    final String title = "Activity Title";
-    {
-      // FIXBUG: SOC-1194
-      // Case: a user create an activity in his stream, then give some comments
-      // on it.
-      // Delete comments and check
-      ExoSocialActivity activity1 = new ExoSocialActivityImpl();
-      ;
-      activity1.setUserId(demoIdentity.getId());
-      activity1.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity1);
-
-      final int numberOfComments = 10;
-      final String commentTitle = "Activity Comment";
-      for (int i = 0; i < numberOfComments; i++) {
-        ExoSocialActivity comment = new ExoSocialActivityImpl();
-        ;
-        comment.setUserId(demoIdentity.getId());
-        comment.setTitle(commentTitle + i);
-        activityManager.saveComment(activity1, comment);
-      }
-
-      List<ExoSocialActivity> storedCommentList = activityManager.getComments(activity1);
-
-      assertEquals("storedCommentList.size() must return: " + numberOfComments, numberOfComments, storedCommentList.size());
-
-      // delete random 2 comments
-      int index1 = new Random().nextInt(numberOfComments - 1);
-      int index2 = index1;
-      while (index2 == index1) {
-        index2 = new Random().nextInt(numberOfComments - 1);
-      }
-
-      ExoSocialActivity tobeDeletedComment1 = storedCommentList.get(index1);
-      ExoSocialActivity tobeDeletedComment2 = storedCommentList.get(index2);
-
-      activityManager.deleteComment(activity1.getId(), tobeDeletedComment1.getId());
-      activityManager.deleteComment(activity1.getId(), tobeDeletedComment2.getId());
-
-      List<ExoSocialActivity> afterDeletedCommentList = activityManager.getComments(activity1);
-
-      assertEquals("afterDeletedCommentList.size() must return: " + (numberOfComments - 2),
-                   numberOfComments - 2,
-                   afterDeletedCommentList.size());
-
-    }
-  }
-
-  /**
-   * Unit Test for: {@link ActivityManager#getActivities(Identity)}
-   * {@link ActivityManager#getActivities(Identity, long, long)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testGetActivities() throws ActivityStorageException {
-    List<ExoSocialActivity> rootActivityList = activityManager.getActivities(rootIdentity);
-    assertNotNull("rootActivityList must not be null", rootActivityList);
-    assertEquals(0, rootActivityList.size());
-
-    populateActivityMass(rootIdentity, 30);
-    List<ExoSocialActivity> activities = activityManager.getActivities(rootIdentity);
-    assertNotNull("activities must not be null", activities);
-    assertEquals(20, activities.size());
-
-    List<ExoSocialActivity> allActivities = activityManager.getActivities(rootIdentity, 0, 30);
-
-    assertEquals(30, allActivities.size());
   }
 
   /**
@@ -1477,90 +1106,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
 
     relationshipManager.delete(demoJohnRelationship);
     relationshipManager.delete(demoMaryRelationship);
-  }
-
-  /**
-   * Unit Test for:
-   * <p>
-   * {@link ActivityManager#getActivitiesOfUserSpaces(Identity)}
-   * 
-   * @throws Exception
-   */
-  public void testGetActivitiesOfUserSpaces() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
-    Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-
-    int totalNumber = 10;
-
-    this.populateActivityMass(spaceIdentity, totalNumber);
-
-    List<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
-    assertNotNull("demoActivities must not be null", demoActivities);
-    assertEquals("demoActivities.size() must return: 10", 10, demoActivities.size());
-
-    Space space2 = this.getSpaceInstance(spaceService, 1);
-    Identity spaceIdentity2 = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space2.getPrettyName(), false);
-
-    this.populateActivityMass(spaceIdentity2, totalNumber);
-
-    demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
-    assertNotNull("demoActivities must not be null", demoActivities);
-    assertEquals("demoActivities.size() must return: 20", 20, demoActivities.size());
-
-    demoActivities = activityManager.getActivitiesOfUserSpaces(maryIdentity);
-    assertNotNull("demoActivities must not be null", demoActivities);
-    assertEquals("demoActivities.size() must return: 0", 0, demoActivities.size());
-
-    spaceService.deleteSpace(space);
-    spaceService.deleteSpace(space2);
-  }
-
-  /**
-   * Test {@link ActivityManager#getActivities(Identity, long, long)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testGetActivitiesByPagingWithoutCreatingComments() throws ActivityStorageException {
-    final int totalActivityCount = 9;
-    final int retrievedCount = 7;
-
-    this.populateActivityMass(johnIdentity, totalActivityCount);
-
-    List<ExoSocialActivity> activities = activityManager.getActivities(johnIdentity, 0, retrievedCount);
-    assertEquals(retrievedCount, activities.size());
-  }
-
-  public void testRemoveLike() throws Exception {
-    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
-    demoActivity.setTitle("demo activity");
-    demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-
-    assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
-                 0,
-                 demoActivity.getLikeIdentityIds().length);
-
-    activityManager.saveLike(demoActivity, johnIdentity);
-
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 1", 1, demoActivity.getLikeIdentityIds().length);
-
-    activityManager.removeLike(demoActivity, johnIdentity);
-
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
-
-    activityManager.removeLike(demoActivity, maryIdentity);
-
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
-
-    activityManager.removeLike(demoActivity, rootIdentity);
-
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
   }
 
   public void testRemoveLikeSubComment() throws Exception {

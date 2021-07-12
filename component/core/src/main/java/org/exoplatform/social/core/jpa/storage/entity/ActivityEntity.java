@@ -53,9 +53,9 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " WHERE a.parent.id = :activityId OR a.parent.parent.id = :activityId ORDER BY a.posted ASC"),
         @NamedQuery(name = "SocActivity.numberCommentsOfActivity", query = "SELECT count(distinct a.id) FROM SocActivity a WHERE a.parent.id = :activityId"),
         @NamedQuery(name = "SocActivity.findNewerCommentsOfActivity",
-                query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId AND a.updatedDate > :sinceTime ORDER BY a.updatedDate ASC"),
+                query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId AND a.posted > :sinceTime ORDER BY a.updatedDate ASC"),
         @NamedQuery(name = "SocActivity.findOlderCommentsOfActivity",
-                query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId AND a.updatedDate < :sinceTime ORDER BY a.updatedDate DESC"),
+                query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId AND a.posted < :sinceTime ORDER BY a.updatedDate DESC"),
         @NamedQuery(name = "SocActivity.getParentActivity",
                 query = "SELECT a FROM SocActivity a INNER JOIN a.comments c WHERE c.id = :commentId"),
         @NamedQuery(name = "SocActivity.getNumberOfActivitesOnActivityFeedNoConnections",
@@ -313,8 +313,8 @@ public class ActivityEntity implements Serializable {
     name = "SOC_ACTIVITY_LIKERS",
     joinColumns=@JoinColumn(name = "ACTIVITY_ID")
   )
-  @OrderBy("createdDate asc")
-  private Set<LikerEntity> likers = new LinkedHashSet<>();
+  @OrderBy("createdDate desc")
+  private List<LikerEntity> likers = new ArrayList<>();
 
   @ElementCollection
   @JoinTable(
@@ -348,8 +348,6 @@ public class ActivityEntity implements Serializable {
 
   /** */
   public ActivityEntity() {
-    setPosted(new Date());
-    setUpdatedDate(new Date());
   }
 
   public Long getId() {
@@ -446,7 +444,7 @@ public class ActivityEntity implements Serializable {
     }
   }
 
-  public Set<LikerEntity> getLikers() {
+  public List<LikerEntity> getLikers() {
     return likers;
   }
 

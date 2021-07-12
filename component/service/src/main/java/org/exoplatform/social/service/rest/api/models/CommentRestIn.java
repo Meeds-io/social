@@ -23,6 +23,7 @@ package org.exoplatform.social.service.rest.api.models;
  * @author <a href="http://phuonglm.net">phuonglm</a>
  * @since 1.2.3
  */
+@Deprecated
 public class CommentRestIn {
   /**
    * Comment text

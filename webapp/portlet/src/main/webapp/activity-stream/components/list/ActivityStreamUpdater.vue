@@ -23,9 +23,15 @@ export default {
       type: String,
       default: null,
     },
+    activities: {
+      type: Array,
+      default: null,
+    },
   },
   data: () => ({
     newActivities: [],
+    updatedActivities: new Set(),
+    limitToRetrieve: 0,
     activityCreatedEventName: 'createActivity',
     activityUpdatedEventName: 'updateActivity',
     commentCreatedEventName: 'createComment',
@@ -41,27 +47,39 @@ export default {
   created() {
     this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
     this.$root.$on(`activity-stream-activity-${this.activityCreatedEventName}`, this.checkNewerActivities);
+    this.$root.$on(`activity-stream-activity-${this.activityUpdatedEventName}`, this.increaseActivitiesLimitToRetrieve);
+    this.$root.$on(`activity-stream-activity-${this.commentCreatedEventName}`, this.increaseActivitiesLimitToRetrieve);
+    this.$root.$on(`activity-stream-activity-${this.commentUpdatedEventName}`, this.increaseActivitiesLimitToRetrieve);
   },
   methods: {
     init() {
       this.newActivities = [];
+      this.updatedActivities = new Set();
     },
     handleActivityStreamUpdates(updateParams) {
       // handle activity stream updates
-      this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId);
+      this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId, updateParams.commentId, updateParams.parentCommentId);
+    },
+    increaseActivitiesLimitToRetrieve(activityId) {
+      this.updatedActivities.add(activityId);
+      this.limitToRetrieve = this.updatedActivities.size;
     },
     checkNewerActivities(activityId) {
-      this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-        .then(activity => {
-          // If the activity has been retrieved
-          // and the displayed activity stream corresponds
-          // to Activity's stream, the add the activity
-          if (activity
-              && (!this.spaceId
-                  || (activity.activityStream
-                      && activity.activityStream.space
-                      && activity.activityStream.space.id === this.spaceId))) {
-            this.newActivities.unshift(activity);
+      this.increaseActivitiesLimitToRetrieve(activityId);
+      this.$activityService.getActivities(this.spaceId, this.limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        .then(data => {
+          const activities = data.activities || [];
+          if (activities && activities.length) {
+            if (this.activities && this.activities.length) {
+              const firstDisplayedActivity = this.activities[0];
+              const firstDisplayedActivityDate = firstDisplayedActivity.updateDate && new Date(firstDisplayedActivity.updateDate) || new Date(firstDisplayedActivity.createDate);
+              this.newActivities = activities.filter(newActivity => {
+                const activityDate = newActivity.updateDate && new Date(newActivity.updateDate) || new Date(newActivity.createDate);
+                return activityDate > firstDisplayedActivityDate && !this.activities.find(tmpActivity => tmpActivity.id === newActivity.id);
+              });
+            } else {
+              this.newActivities = activities;
+            }
           }
         })
         .catch(() => {

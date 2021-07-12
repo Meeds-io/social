@@ -38,7 +38,7 @@
           <property name="type" value="profile"/>
           <property name="enable" value="${exo.unified-search.connector.people.enable:true}"/>
           <property name="titleField" value="name"/>
-          <property name="searchFields" value="name,firstName,lastName,position,skills"/>
+          <property name="searchFields" value="name,firstName,lastName,position,skills,aboutMe"/>
         </properties-param>
       </init-params>
     </component-plugin>

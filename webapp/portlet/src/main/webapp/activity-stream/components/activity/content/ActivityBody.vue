@@ -1,25 +1,21 @@
 <template>
-  <p
-    v-if="isBodyNotEmpty && useParagraph"
+  <dynamic-html-element
+    v-if="isBodyNotEmpty"
     v-sanitized-html="body"
+    :element="element"
     :class="bodyClass"
-    class="reset-style-box"></p>
-  <div
-    v-else-if="isBodyNotEmpty"
-    v-sanitized-html="body"
-    :class="bodyClass"
-    class="reset-style-box"></div>
+    class="reset-style-box" />
 </template>
 
 <script>
 export default {
   props: {
     activity: {
-      type: String,
+      type: Object,
       default: null,
     },
     activityTypeExtension: {
-      type: String,
+      type: Object,
       default: null,
     },
     isActivityDetail: {
@@ -42,16 +38,19 @@ export default {
       return this.activity && this.activity.id;
     },
     isBodyNotEmpty() {
-      return this.body && this.body.trim() !== '<p></p>';
+      return this.body && this.$utils.trim(this.body).length;
     },
     useParagraph() {
       return !this.body.includes('</p>');
+    },
+    element() {
+      return this.useParagraph && 'p' || 'div';
     },
     isComment() {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return this.isComment && 'rich-editor-content' || 'postContent text-color pt-0 pe-7 pb-4 ps-4';
+      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0 pe-7 ps-4';
     },
   },
   watch: {
@@ -66,8 +65,7 @@ export default {
   },
   methods: {
     retrieveActivityProperties() {
-      const body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
-      this.body = this.$utils.trim(body);
+      this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
   },
 };

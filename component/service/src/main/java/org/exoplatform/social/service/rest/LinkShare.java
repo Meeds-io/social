@@ -379,49 +379,47 @@ public class LinkShare extends DefaultFilter {
       linkShare.mediaObject = EmbedderFactory.getInstance(link).getExoMedia();
 
       // if there is no media object, processes link to get page metadata
-      if (linkShare.mediaObject == null) {
-        String mimeType = org.exoplatform.social.service.rest.Util.getMimeTypeOfURL(link);
-        if (mimeType.toLowerCase().startsWith(IMAGE_MIME_TYPE)) {
-          linkShare.images = new ArrayList<>(0);
-          linkShare.images.add(link);
-          linkShare.description = "";
-        } else if (mimeType.toLowerCase().startsWith(HTML_MIME_TYPE)) {
-          String encoding = (mimeType.contains("charset=")) ? mimeType.split("charset=")[1] : "UTF-8";
-          linkShare.get(encoding);
-        } else {
-          linkShare.images = new ArrayList<>(0);
-          linkShare.description = "";
-        }
+      String mimeType = org.exoplatform.social.service.rest.Util.getMimeTypeOfURL(link);
+      if (mimeType.toLowerCase().startsWith(IMAGE_MIME_TYPE)) {
+        linkShare.images = new ArrayList<>(0);
+        linkShare.images.add(link);
+        linkShare.description = "";
+      } else if (mimeType.toLowerCase().startsWith(HTML_MIME_TYPE)) {
+        String encoding = (mimeType.contains("charset=")) ? mimeType.split("charset=")[1] : "UTF-8";
+        linkShare.get(encoding);
+      } else {
+        linkShare.images = new ArrayList<>(0);
+        linkShare.description = "";
+      }
 
-        if ((linkShare.title == null) || (linkShare.title.trim().length() == 0)) linkShare.title = link;
+      if ((linkShare.title == null) || (linkShare.title.trim().length() == 0)) linkShare.title = link;
 
-        //If image_src detected from meta tag, sets this image_src to images
-        if (linkShare.imageSrc != null) {
-          List<String> images = new ArrayList<>();
-          images.add(linkShare.imageSrc);
-          linkShare.images = images;
+      //If image_src detected from meta tag, sets this image_src to images
+      if (linkShare.imageSrc != null) {
+        List<String> images = new ArrayList<>();
+        images.add(linkShare.imageSrc);
+        linkShare.images = images;
+      }
+      //gets desired description by lang when there are many description meta name with different lang
+      HashMap<String, String> descriptions = linkShare.descriptions;
+      if (descriptions != null) {
+        String description = descriptions.get(LinkShare.lang);
+        if (description == null) {
+          Collection<String> values = descriptions.values();
+          //get the first value in the collection
+          description = values.iterator().next();
         }
-        //gets desired description by lang when there are many description meta name with different lang
-        HashMap<String, String> descriptions = linkShare.descriptions;
-        if (descriptions != null) {
-          String description = descriptions.get(LinkShare.lang);
-          if (description == null) {
-            Collection<String> values = descriptions.values();
-            //get the first value in the collection
-            description = values.iterator().next();
-          }
-          linkShare.description = description;
-          //gets with maximum characters only
-          String tail = "";
-          if (description.length() > MAX_DESCRIPTION) {
-            tail = "...";
-            linkShare.description = description.substring(0, MAX_DESCRIPTION - 1) + tail;
-          }
+        linkShare.description = description;
+        //gets with maximum characters only
+        String tail = "";
+        if (description.length() > MAX_DESCRIPTION) {
+          tail = "...";
+          linkShare.description = description.substring(0, MAX_DESCRIPTION - 1) + tail;
         }
-        if (linkShare.description == null) linkShare.description = "";
-        if (linkShare.images == null) {
-          linkShare.images = new ArrayList<>();
-        }
+      }
+      if (linkShare.description == null) linkShare.description = "";
+      if (linkShare.images == null) {
+        linkShare.images = new ArrayList<>();
       }
     }
     return linkShare;

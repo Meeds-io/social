@@ -50,7 +50,7 @@ public class RestUtils {
 
   public static final int    DEFAULT_OFFSET = 0;
 
-  public static final int    HARD_LIMIT     = 50;
+  public static final int    HARD_LIMIT     = 500;
 
   public static final String SUPPORT_TYPE   = "json";
 

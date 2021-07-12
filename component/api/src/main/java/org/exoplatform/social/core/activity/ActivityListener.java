@@ -52,4 +52,8 @@ public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEve
     // By default, no behavior
   }
 
+  default void shareActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
 }

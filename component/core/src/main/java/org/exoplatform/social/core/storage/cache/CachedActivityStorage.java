@@ -25,6 +25,7 @@ import org.exoplatform.services.cache.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImpl;
@@ -2066,5 +2067,10 @@ public class CachedActivityStorage implements ActivityStorage {
   @Override
   public Set<Long> getStreamFeedOwnerIds(Identity identity) {
     return storage.getStreamFeedOwnerIds(identity);
+  }
+
+  @Override
+  public ActivityShareAction createShareActivityAction(ActivityShareAction activityShareAction) {
+    return storage.createShareActivityAction(activityShareAction);
   }
 }

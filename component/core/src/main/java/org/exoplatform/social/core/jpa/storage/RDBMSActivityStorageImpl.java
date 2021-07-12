@@ -39,10 +39,8 @@ import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
-import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
+import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
-import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
@@ -56,6 +54,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   public static final Pattern                    MENTION_PATTERN             = Pattern.compile("@([^\\s<]+)|@([^\\s<]+)$");
 
   public static final String                     COMMENT_PREFIX              = "comment";
+
+  private final ActivityShareActionDAO           activityShareActionDAO;
 
   private final ActivityDAO                      activityDAO;
 
@@ -81,11 +81,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
+                                  ActivityShareActionDAO activityShareActionDAO,
                                   ActivityDAO activityDAO,
                                   ConnectionDAO connectionDAO) {
     this.identityStorage = identityStorage;
     this.activityProcessors = new TreeSet<>(processorComparator());
     this.activityDAO = activityDAO;
+    this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
   }
@@ -184,6 +186,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private ActivityEntity convertActivityToActivityEntity(ExoSocialActivity activity, String ownerId) {
+    preSaveProcessActivity(activity);
+
     ActivityEntity activityEntity = new ActivityEntity();
     if (activity.getId() != null) {
       activityEntity = activityDAO.find(Long.valueOf(activity.getId()));
@@ -203,21 +207,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityEntity.setTemplateParams(params);
     }
 
-    //
-    if (activityEntity.getPosted() == null) {
-      activityEntity.setPosted(new Date());
-    }
-
-    // update time have to be same as post time when activity not updated
-    if (activityEntity.getPosted() == null) {
-      activityEntity.setUpdatedDate(activityEntity.getPosted());
-    } else {
-      activityEntity.setUpdatedDate(new Date());
-    }
-    activityEntity.setPosted(new Date(activity.getPostedTime()));
+    processDates(activityEntity);
     activityEntity.setLocked(activity.isLocked());
     activityEntity.setHidden(activity.isHidden());
-    activityEntity.setUpdatedDate(activity.getUpdated());
     activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentions(activity.getTitle(),
                                                                                      activity.getTemplateParams()))));
     //
@@ -310,6 +302,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private ActivityEntity convertCommentToCommentEntity(ActivityEntity activityEntity, ExoSocialActivity comment) {
+    if (comment.getTemplateParams() != null) {
+      preSaveProcessActivity(comment);
+    }
+
     ActivityEntity commentEntity = new ActivityEntity();
     if (comment.getId() != null) {
       commentEntity = activityDAO.find(getCommentID(comment.getId()));
@@ -333,15 +329,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     commentEntity.setLocked(comment.isLocked());
     commentEntity.setHidden(comment.isHidden());
     //
-    if (commentEntity.getPosted() == null) {
-      commentEntity.setPosted(new Date());
-    }
-    // update time have to be same as post time when activity not updated
-    if (commentEntity.getUpdatedDate() == null) {
-      commentEntity.setUpdatedDate(commentEntity.getPosted());
-    } else {
-      commentEntity.setUpdatedDate(new Date());
-    }
+    processDates(commentEntity);
     commentEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentions(comment.getTitle(), comment.getTemplateParams()))));
     //
     return commentEntity;
@@ -490,6 +478,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activity.getId()));
     EntityManagerHolder.get().lock(activityEntity, LockModeType.PESSIMISTIC_WRITE);
     try {
+      if (CollectionUtils.isNotEmpty(eXoComment.getFiles())) {
+        String ownerIdentityId = activityEntity.getOwnerId();
+        try {
+          Identity owner = identityStorage.findIdentityById(ownerIdentityId);
+          storeFile(owner, eXoComment);
+        } catch (Exception e) {
+          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + eXoComment.getId(), e);
+        }
+      }
+
       ActivityEntity commentEntity = convertCommentToCommentEntity(activityEntity, eXoComment);
       commentEntity = activityDAO.create(commentEntity);
 
@@ -594,7 +592,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       try {
         storeFile(owner, activity);
       } catch (Exception e) {
-        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity", e);
+        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + activity.getId(), e);
       }
     }
 
@@ -1123,10 +1121,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
 
     if (updatedActivity != null) {
-      if (isComment) {
-        // update comment
-        updatedActivity.setUpdatedDate(new Date());
+      if (existingActivity.getTemplateParams() != null) {
+        preSaveProcessActivity(existingActivity);
       }
+
       // only raise the activity in stream when activity date updated
       if (existingActivity.getUpdated() != null && updatedActivity.getUpdatedDate() != null
           && existingActivity.getUpdated().getTime() != updatedActivity.getUpdatedDate().getTime()) {
@@ -1142,12 +1140,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
       if (existingActivity.getTitleId() != null)
         updatedActivity.setTitleId(existingActivity.getTitleId());
+      if (existingActivity.getType() != null)
+        updatedActivity.setType(existingActivity.getType());
       if (existingActivity.getTitle() != null)
         updatedActivity.setTitle(existingActivity.getTitle());
       if (existingActivity.getBody() != null)
         updatedActivity.setBody(existingActivity.getBody());
-      if (existingActivity.getUpdated() != null)
-        updatedActivity.setUpdatedDate(existingActivity.getUpdated());
       if (existingActivity.getLikeIdentityIds() != null)
         updatedActivity.setLikerIds(new HashSet<>(Arrays.asList(existingActivity.getLikeIdentityIds())));
       if (existingActivity.getPermaLink() != null)
@@ -1388,6 +1386,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return owners;
   }
 
+  @Override
+  public ActivityShareAction createShareActivityAction(ActivityShareAction activityShareAction) {
+    ActivityShareActionEntity actionEntity = toEntity(activityShareAction);
+    actionEntity.setId(null);
+    actionEntity.setShareDate(new Date());
+    actionEntity = activityShareActionDAO.create(actionEntity);
+    return fromEntity(actionEntity);
+  }
+
   private Long getCommentID(String commentId) {
     return (commentId == null || commentId.trim().isEmpty()) ? null : Long.valueOf(commentId.replace(COMMENT_PREFIX, ""));
   }
@@ -1396,11 +1403,36 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return String.valueOf(COMMENT_PREFIX + commentId);
   }
 
+  private void preSaveProcessActivity(ExoSocialActivity existingActivity) {
+    processActivity(existingActivity, true);
+  }
+
   private void processActivity(ExoSocialActivity existingActivity) {
+    processActivity(existingActivity, false);
+  }
+
+  private void processActivity(ExoSocialActivity existingActivity, boolean preSave) {
     Iterator<ActivityProcessor> it = activityProcessors.iterator();
     while (it.hasNext()) {
+      ActivityProcessor processor = it.next();
+      Map<String, String> templateParams = existingActivity.getTemplateParams();
+      String processorFlag = "processor" + processor.getName();
+      if ((preSave && !processor.isPreActivityProcessor())
+          || (!preSave && templateParams != null && templateParams.containsKey(processorFlag))) {
+        continue;
+      }
+      if (!preSave && !processor.isReadActivityProcessor()) {
+        continue;
+      }
       try {
-        it.next().processActivity(existingActivity);
+        processor.processActivity(existingActivity);
+        if (preSave) {
+          if (templateParams == null) {
+            templateParams = new HashMap<>();
+            existingActivity.setTemplateParams(templateParams);
+          }
+          templateParams.put(processorFlag, "true");
+        }
       } catch (Exception e) {
         LOG.debug("activity processing failed ");
       }
@@ -1512,6 +1544,40 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityDTOs.add(convertActivityEntityToActivity(activityEntity));
     }
     return activityDTOs;
+  }
+
+  private void processDates(ActivityEntity activityEntity) {
+    Date newPosted = new Date();
+    // post time should never change once added
+    if (activityEntity.getPosted() == null) {
+      activityEntity.setPosted(newPosted);
+    }
+    // update time have to be same as post time when activity not updated
+    activityEntity.setUpdatedDate(newPosted);
+  }
+
+  private ActivityShareActionEntity toEntity(ActivityShareAction activityShareAction) {
+    ActivityShareActionEntity actionEntity = new ActivityShareActionEntity();
+    actionEntity.setActivityId(activityShareAction.getActivityId());
+    actionEntity.setUserId(activityShareAction.getUserIdentityId());
+    actionEntity.setShareDate(new Date(activityShareAction.getShareDate()));
+    actionEntity.setSharedActivityIds(activityShareAction.getSharedActivityIds());
+    actionEntity.setSharedSpaceIds(activityShareAction.getSpaceIds());
+    actionEntity.setTitle(activityShareAction.getMessage());
+    actionEntity.setId(activityShareAction.getId());
+    return actionEntity;
+  }
+
+  private ActivityShareAction fromEntity(ActivityShareActionEntity actionEntity) {
+    ActivityShareAction activityShareAction = new ActivityShareAction();
+    activityShareAction.setActivityId(actionEntity.getActivityId());
+    activityShareAction.setUserIdentityId(actionEntity.getUserId());
+    activityShareAction.setShareDate(actionEntity.getShareDate().getTime());
+    activityShareAction.setSharedActivityIds(actionEntity.getSharedActivityIds());
+    activityShareAction.setSpaceIds(actionEntity.getSharedSpaceIds());
+    activityShareAction.setMessage(actionEntity.getTitle());
+    activityShareAction.setId(actionEntity.getId());
+    return activityShareAction;
   }
 
 }

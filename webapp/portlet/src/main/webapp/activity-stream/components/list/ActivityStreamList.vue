@@ -2,22 +2,32 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
+    <exo-activity-composer
+      v-if="canPost"
+      id="activityComposer" />
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
       v-if="!activityId"
       :space-id="spaceId"
+      :activities="activities"
       @addActivities="addActivities" />
-    <activity-stream-activity
-      v-for="activity of activitiesToDisplay"
-      :key="activity.id"
-      :activity="activity"
-      :activity-types="activityTypes"
-      :activity-actions="activityActions"
-      :comment-types="commentTypes"
-      :comment-actions="commentActions"
-      :is-activity-detail="activityId"
-      class="mb-6 contentBox" />
+    <template v-if="activitiesToDisplay.length">
+      <activity-stream-activity
+        v-for="activity of activitiesToDisplay"
+        :key="activity.id"
+        :activity="activity"
+        :activity-types="activityTypes"
+        :activity-actions="activityActions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        :is-activity-detail="activityId"
+        class="mb-6 contentBox" />
+    </template>
+    <template v-else-if="!loading && !error">
+      <activity-stream-empty-message-space v-if="spaceId" />
+      <activity-stream-empty-message-user v-else />
+    </template>
     <v-btn
       v-if="hasMore"
       :loading="loading"
@@ -27,6 +37,7 @@
       @click="loadMore">
       {{ $t('Search.button.loadMore') }}
     </v-btn>
+    <activity-auto-link />
   </div>
 </template>
 
@@ -61,8 +72,10 @@ export default {
     retrievedSize: 0,
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
+    canPost: false,
     hasMore: false,
     loading: false,
+    error: false,
   }),
   computed: {
     activitiesToDisplay() {
@@ -135,24 +148,24 @@ export default {
           }
           this.activities = activity && [activity] || [];
         })
+        .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
     loadActivities() {
-      this.loading = true;
       // Load 'retrievedSize + 10' instead of only 'limit' to avoid retrieving count of user activities
       // Which can be CPU consuming in server side.
       // If the retrieved elements count > 'limit', then there are more elements to retrieve,
       // else no more elements to retrieve
       const limitToRetrieve = this.retrievedSize + 10;
-      if (this.spaceId) {
-        this.$activityService.getSpaceActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-          .then(data => this.handleRetrievedActivities(data && data.activities || []))
-          .finally(() => this.loading = false);
-      } else {
-        this.$activityService.getUserActivities(this.userName, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-          .then(data => this.handleRetrievedActivities(data && data.activities || []))
-          .finally(() => this.loading = false);
-      }
+
+      this.loading = true;
+      this.$activityService.getActivities(this.spaceId, limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        .then(data => {
+          this.canPost = data.canPost;
+          this.handleRetrievedActivities(data && data.activities || []);
+        })
+        .catch(() => this.error = true)
+        .finally(() => this.loading = false);
     },
     handleRetrievedActivities(activities) {
       this.activities = activities.slice(0, this.limit);
@@ -179,7 +192,11 @@ export default {
       this.loadActivities();
     },
     addActivities(activities) {
-      this.activities.unshift(...activities);
+      if (activities && activities.length) {
+        const activity = activities[0];
+        activity.highlight = true;
+        this.activities.unshift(...activities);
+      }
     },
   },
 };

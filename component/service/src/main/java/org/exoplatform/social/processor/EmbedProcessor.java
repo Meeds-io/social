@@ -19,8 +19,10 @@ import org.exoplatform.social.service.rest.LinkShare;
 
 /**
  * A processor if it found a tag oembed it transform this content to iframe to show the media
+ * @deprecated this processor is kept for backward compatibility for old activities where preview
+ * is generated in server side instead of generating template params from client/browser side
  */
-
+@Deprecated
 public class EmbedProcessor extends BaseActivityProcessorPlugin {
   private static final Log LOG = ExoLogger.getLogger(EmbedProcessor.class);
   private static final String OPENING_OEMBED = "<oembed>";
@@ -39,6 +41,11 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
     super(params);
   }
    public void processActivity(ExoSocialActivity activity) {
+     if (activity.getTemplateParams() != null &&
+         (activity.getTemplateParams().containsKey(HTML_PARAM)
+             || activity.getTemplateParams().containsKey(LINK))) {
+       return;
+     }
      boolean hasLinkProperties = false;
      try {
        Map<String, String> templateParams = new HashMap<>();
@@ -58,8 +65,12 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
            firstMessage = StringEscapeUtils.unescapeHtml4(firstMessage);
            String urlCoder = defaultValue.substring(firstIndex + OPENING_OEMBED.length(), lastIndex);
            url = URLDecoder.decode(urlCoder, StandardCharsets.UTF_8.toString());
-           String linkSource = "<a href=\""+url+"\" rel=\"nofollow\" target=\"_blank\">"+url+"</a>";
-           firstMessage = firstMessage.replace(linkSource,"");
+           String linkSource1 = "<a href=\""+url+"\" rel=\"nofollow\" target=\"_blank\">"+url+"</a>";
+           String linkSource2 = "<p><a href=\""+url+"\">"+url+"</a></p>";
+           String linkSource3 = "<a href=\""+url+"\">"+url+"</a>";
+           firstMessage = firstMessage.replace(linkSource1,"");
+           firstMessage = firstMessage.replace(linkSource2,"");
+           firstMessage = firstMessage.replace(linkSource3,"");
        }
        if (StringUtils.isNotBlank(url)) {
            LinkShare linkShare = LinkShare.getInstance(url);
@@ -70,11 +81,11 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
                templateParams.put(IMAGE, "");
                String html = exoMedia.getHtml();
                templateParams.put(HTML_PARAM, html);
-               templateParams.put(DESCRIPTION, exoMedia.getDescription());
-               templateParams.put(TITLE, exoMedia.getTitle());
+               templateParams.put(DESCRIPTION, linkShare.getDescription());
+               templateParams.put(TITLE, linkShare.getTitle());
                templateParams.put(COMMENT, firstMessage);
                hasLinkProperties = true;
-               activity.setTitle(firstMessage);
+               activity.setTitle(linkShare.getTitle());
            } else {
                if (!CollectionUtils.isEmpty(linkShare.getImages())) {
                  templateParams.put(IMAGE, linkShare.getImages().get(0));
@@ -95,8 +106,7 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
            if (StringUtils.isBlank(activity.getType())) {
              activity.setType(LINK_ACTIVITY);
            }
-           templateParams.putAll(activity.getTemplateParams());
-           activity.setTemplateParams(templateParams);
+           activity.getTemplateParams().putAll(templateParams);
        }
      } catch (Exception e) {
          LOG.error("EmbedProcessor error : ", e);
@@ -117,4 +127,10 @@ public class EmbedProcessor extends BaseActivityProcessorPlugin {
        }
      }
    }
+
+   @Override
+   public boolean isPreActivityProcessor() {
+     return true;
+   }
+
 }

@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.model;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public class BannerAttachment extends Attachment {
@@ -26,21 +27,11 @@ public class BannerAttachment extends Attachment {
     super();
   }
 
-  /**
-   * Constructor.
-   *
-   * @param id
-   * @param fileName
-   * @param mimeType
-   * @param inputStream
-   * @param lastModified
-   * @throws Exception
-   */
   public BannerAttachment(String id,
                           String fileName,
                           String mimeType,
                           InputStream inputStream,
-                          long lastModified) throws Exception {
+                          long lastModified) throws IOException {
     super(id, fileName, mimeType, inputStream, lastModified);
   }
 

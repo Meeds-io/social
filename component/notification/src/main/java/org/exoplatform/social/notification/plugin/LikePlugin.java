@@ -63,11 +63,6 @@ public class LikePlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-
-    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
-      return false;
-    }
-
     String[] likersId = activity.getLikeIdentityIds();
     if (activity.getPosterId().equals(likersId[likersId.length - 1])) {
       return false;

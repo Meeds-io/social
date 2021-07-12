@@ -18,64 +18,51 @@ package org.exoplatform.social.core.manager;
 
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
-import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.space.SpaceException;
-import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
- * Provides APIs to manage activities.
- * All methods to manipulate with activities, comments and likes are provided. 
- * With these API types, you can:
-
+ * Provides APIs to manage activities. All methods to manipulate with
+ * activities, comments and likes are provided. With these API types, you can:
  * <ul>
  * <li>Store, get and update information of activities.</li>
  * <li>Get an activity by using its Id.</li>
- * <li>Get a list of activities by the returned result 
- * under <code>ListAccess</code> for lazy loading.</li>
+ * <li>Get a list of activities by the returned result under
+ * <code>ListAccess</code> for lazy loading.</li>
  * </ul>
- *
- * Also, the API which adds processors to process activities content is also included.
- *
+ * Also, the API which adds processors to process activities content is also
+ * included.
  */
 public interface ActivityManager {
 
   /**
-   * Saves a newly created activity to a stream. 
-   * The stream owner will be <code>Activity.userId</code> in case that information has not already been set.
+   * Saves a newly created activity to a stream. The stream owner will be
+   * <code>Activity.userId</code> in case that information has not already been
+   * set.
    *
    * @param streamOwner The activity stream owner.
    * @param activity The activity to be saved.
    * @LevelAPI Platform
-   * @since  1.2.0-GA
+   * @since 1.2.0-GA
    */
   void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity activity);
 
-
-   /**
-   * Saves a newly created activity to the stream. In this case, information of the stream owner has been set in the activity.
+  /**
+   * Saves a newly created activity to the stream. In this case, information of
+   * the stream owner has been set in the activity.
    *
    * @param activity The activity to be saved.
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
   void saveActivityNoReturn(ExoSocialActivity activity);
-
-  /**
-   * Saves a new activity by indicating stream owner, activity type and title. 
-   * This is shorthand to save an activity without creating a new {@link ExoSocialActivity} instance.
-   *
-   * @param streamOwner The activity stream owner.
-   * @param type Type of the activity.
-   * @param title Title of the activity.
-   * @LevelAPI Platform
-   */
-  void saveActivity(Identity streamOwner, String type, String title);
 
   /**
    * Gets an activity by its Id.
@@ -87,12 +74,13 @@ public interface ActivityManager {
   ExoSocialActivity getActivity(String activityId);
 
   /**
-   * Gets an activity by its comment. The comments included in this activity are considered as its children.
+   * Gets an activity by its comment. The comments included in this activity are
+   * considered as its children.
    *
    * @param comment The comment.
    * @return The activity containing the comment.
    * @LevelAPI Platform
-   * @since  1.2.0-GA
+   * @since 1.2.0-GA
    */
   ExoSocialActivity getParentActivity(ExoSocialActivity comment);
 
@@ -110,8 +98,9 @@ public interface ActivityManager {
    *
    * @param activity The activity to be updated.
    * @param broadcast If the broadcast value is true , then the ActivityManager
-   *     should broadcast the event to all the listener that register on event updateActivity
-   *     *          user event listener will be called in the createUser method.
+   *          should broadcast the event to all the listener that register on
+   *          event updateActivity * user event listener will be called in the
+   *          createUser method.
    * @LevelAPI Platform
    */
   default void updateActivity(ExoSocialActivity activity, boolean broadcast) {
@@ -145,9 +134,8 @@ public interface ActivityManager {
   void saveComment(ExoSocialActivity activity, ExoSocialActivity newComment);
 
   /**
-   * Gets comments of a specific activity. 
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
-   *
+   * Gets comments of a specific activity. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded.
    *
    * @param activity The specific activity.
    * @return The comments.
@@ -157,9 +145,9 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity activity);
 
   /**
-   * Gets comments of a specific activity. 
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
-   * If loadSubComments is true, subComments will be added to the result list
+   * Gets comments of a specific activity. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded. If loadSubComments is
+   * true, subComments will be added to the result list
    * 
    * @param activity The specific activity.
    * @param loadSubComments
@@ -168,10 +156,10 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getCommentsWithListAccess(ExoSocialActivity activity, boolean loadSubComments);
 
   /**
-   * Gets comments of a specific activity. 
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
-   * If loadSubComments is true, subComments will be added to the result list
-   * If sortDescending is true, the latest posted comments will be retrieved first.
+   * Gets comments of a specific activity. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded. If loadSubComments is
+   * true, subComments will be added to the result list If sortDescending is
+   * true, the latest posted comments will be retrieved first.
    * 
    * @param activity The specific activity.
    * @param loadSubComments
@@ -206,7 +194,8 @@ public interface ActivityManager {
   /**
    * Saves the like information of an identity to a specific activity.
    *
-   * @param activity The activity containing the like information which is saved.
+   * @param activity The activity containing the like information which is
+   *          saved.
    * @param identity The identity who likes the activity.
    * @LevelAPI Platform
    */
@@ -223,8 +212,8 @@ public interface ActivityManager {
   void deleteLike(ExoSocialActivity activity, Identity identity);
 
   /**
-   * Gets activities posted on the provided activity stream owner.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities posted on the provided activity stream owner. The type of
+   * returned result is <code>ListAccess</code> which can be lazy loaded.
    *
    * @param identity The provided activity stream owner.
    * @return The activities.
@@ -232,11 +221,12 @@ public interface ActivityManager {
    * @since 1.2.0-GA
    */
   RealtimeListAccess<ExoSocialActivity> getActivitiesWithListAccess(Identity identity);
-  
+
   /**
    * Gets activities on the provided activity stream which is viewed by another.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
-   * For example: Mary is connected to Demo, then Demo signs in and watches the activity stream of Mary.
+   * The type of returned result is <code>ListAccess</code> which can be lazy
+   * loaded. For example: Mary is connected to Demo, then Demo signs in and
+   * watches the activity stream of Mary.
    * 
    * @param ownerIdentity The provided activity stream owner.
    * @param viewerIdentity The identity who views the other stream.
@@ -247,8 +237,8 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getActivitiesWithListAccess(Identity ownerIdentity, Identity viewerIdentity);
 
   /**
-   * Gets activities posted by all connections with a given identity.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities posted by all connections with a given identity. The type
+   * of returned result is <code>ListAccess</code> which can be lazy loaded.
    *
    * @param identity The identity.
    * @return The activities posted by all connections with the identity.
@@ -258,19 +248,20 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getActivitiesOfConnectionsWithListAccess(Identity identity);
 
   /**
-   * Gets activities posted on a space by its Id.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities posted on a space by its Id. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded.
    *
    * @param spaceIdentity The specific stream owner identity.
-   * @return  The activities which belong to the space.
+   * @return The activities which belong to the space.
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
   RealtimeListAccess<ExoSocialActivity> getActivitiesOfSpaceWithListAccess(Identity spaceIdentity);
-  
+
   /**
-   * Gets activities posted on all space activity streams in which an identity joins.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities posted on all space activity streams in which an identity
+   * joins. The type of returned result is <code>ListAccess</code> which can be
+   * lazy loaded.
    *
    * @param identity The identity to get his activities on spaces.
    * @return The activities of the user on spaces.
@@ -280,8 +271,8 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getActivitiesOfUserSpacesWithListAccess(Identity identity);
 
   /**
-   * Gets all activities accessible by a given identity.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets all activities accessible by a given identity. The type of returned
+   * result is <code>ListAccess</code> which can be lazy loaded.
    *
    * @param identity The identity.
    * @return All activities of the identity.
@@ -291,28 +282,29 @@ public interface ActivityManager {
   RealtimeListAccess<ExoSocialActivity> getActivityFeedWithListAccess(Identity identity);
 
   /**
-   * Gets activities of a given poster.
-   * The type of returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities of a given poster. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded.
    * 
    * @param poster The identity who posted activities.
-   * @return The activities of the poster. 
+   * @return The activities of the poster.
    * @LevelAPI Platform
    * @since 4.0.1-GA
    */
   RealtimeListAccess<ExoSocialActivity> getActivitiesByPoster(Identity poster);
-  
+
   /**
-   * Gets activities of a given poster that are specified by activity types.
-   * The type of returned result is <code>ListAccess</code>  which can be lazy loaded.
+   * Gets activities of a given poster that are specified by activity types. The
+   * type of returned result is <code>ListAccess</code> which can be lazy
+   * loaded.
    * 
    * @param posterIdentity The identity who posted activities.
    * @param activityTypes The types to get activities.
-   * @return The activities of the poster. 
+   * @return The activities of the poster.
    * @LevelAPI Platform
    * @since 4.0.2-GA, 4.1.x
    */
-  RealtimeListAccess<ExoSocialActivity> getActivitiesByPoster(Identity posterIdentity, String ... activityTypes);
-  
+  RealtimeListAccess<ExoSocialActivity> getActivitiesByPoster(Identity posterIdentity, String... activityTypes);
+
   /**
    * Adds a new activity processor.
    *
@@ -330,173 +322,16 @@ public interface ActivityManager {
   void addProcessorPlugin(BaseActivityProcessorPlugin activityProcessorPlugin);
 
   void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin);
-  
-  /**
-   * Saves a newly created activity to a stream. Note that the Activity.userId will be set to the owner identity if it
-   * has not already been set.
-   *
-   * @param streamOwner The activity stream owner.
-   * @param activity The activity to be saved.
-   * @return The saved activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivityNoReturn(Identity, ExoSocialActivity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity saveActivity(Identity streamOwner, ExoSocialActivity activity);
-
 
   /**
-   * Saves a newly created activity to the stream of that activity's userId stream. The userId of the created activity
-   * must be set to indicate the owner stream.
-   *
-   * @param activity The activity to be saved.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivityNoReturn(org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * instead. Will be removed by 4.0.x.
+   * Add a new Type(s) or Title(s) definition marked as system to not allow to
+   * edit them
+   * 
+   * @param activitySystemTypePlugin plugin to retrieve types & titleIds
    */
-  @Deprecated
-  ExoSocialActivity saveActivity(ExoSocialActivity activity);
-
-  /**
-   * Gets all activities by an identity.
-   *
-   * @param identity The identity.
-   * @return The activities.
-   * @see #getActivities(Identity, long, long)
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesWithListAccess(org.exoplatform.social.core.identity.model.Identity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivities(Identity identity) throws ActivityStorageException;
-
-  /**
-   * Gets the latest activities of a given identity, specifying the start that is an offset index and the limit.
-   *
-   * @param identity The identity.
-   * @param start The offset index.
-   * @param limit The end-point index.
-   * @return The activities.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivities(Identity identity, long start, long limit) throws ActivityStorageException;
-
-  /**
-   * Gets activities of connections from an identity.
-   *
-   * @param ownerIdentity The identity information to get activities.
-   * @return The activities.
-   * @since 1.1.1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesOfConnectionsWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivitiesOfConnections(Identity ownerIdentity) throws ActivityStorageException;
-
-
-  /**
-   * Gets activities from all spaces of a user.
-   *
-   * @param ownerIdentity The identity information to get activities.
-   * @return The activities.
-   * @since 1.1.1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivitiesOfUserSpacesWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivitiesOfUserSpaces(Identity ownerIdentity);
-
-  /**
-   * Gets activity feed of an identity. This feed is combination of all activities of his own activities,
-   * his connections' activities and his spaces' activities, which are returned, are sorted starting from the most recent.
-   *
-   * @param identity The identity information to get the activity.
-   * @return All related to the identity, such as his activities, connections' activities, and spaces' activities.
-   * @since 1.1.2
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getActivityFeedWithListAccess(Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getActivityFeed(Identity identity) throws ActivityStorageException;
-
-  /**
-   * Removes an identity who likes an activity.
-   *
-   * @param activity The activity liked by the identity.
-   * @param identity The identity who liked the activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #deleteLike(ExoSocialActivity, Identity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  void removeLike(ExoSocialActivity activity, Identity identity) throws ActivityStorageException;
-
-  /**
-   * Gets all comments of an activity.
-   *
-   * @param activity The activity which you want to get comments.
-   * @return The comments.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getCommentsWithListAccess(ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<ExoSocialActivity> getComments(ExoSocialActivity activity) throws ActivityStorageException;
-
-  /**
-   * Records an activity.
-   *
-   * @param owner Owner of the recorded activity.
-   * @param type Type of the recorded activity.
-   * @param title Title of the recorded activity.
-   * @return The recorded activity.
-   * @throws ActivityStorageException
-   * @since 1.2.0-Beta1
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivity(Identity, String, String)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, String type, String title) throws ActivityStorageException;
-
-  /**
-   * Saves an activity.
-   *
-   * @param owner Owner of the saved activity.
-   * @param activity The activity to be saved.
-   * @return The saved activity.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated use {@link #saveActivity(Identity, ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, ExoSocialActivity activity) throws Exception;
-
-  /**
-   * Records an activity.
-   *
-   * @param owner Owner of the target stream for the recorded activity.
-   * @param type  Type of the activity which uses the custom UI for rendering.
-   * @param title The title.
-   * @param body  The body.
-   * @return The recorded activity.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #saveActivity(Identity, ExoSocialActivity)} instead. Will be removed by 4.0.x.
-   */
-  @Deprecated
-  ExoSocialActivity recordActivity(Identity owner, String type, String title,
-                                   String body) throws ActivityStorageException;
-
-  /**
-   * Gets the number of activities from a stream owner.
-   *
-   * @param owner The identity.
-   * @return The number of activities.
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  @Deprecated
-  int getActivitiesCount(Identity owner) throws ActivityStorageException;
+  default void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin) {
+    // nothing to do by default
+  }
 
   /**
    * Get the list access of all activities
@@ -505,7 +340,6 @@ public interface ActivityManager {
    */
   RealtimeListAccess<ExoSocialActivity> getAllActivitiesWithListAccess();
 
-
   /**
    * Get all sub comments of a comment
    * 
@@ -513,7 +347,6 @@ public interface ActivityManager {
    * @return
    */
   List<ExoSocialActivity> getSubComments(ExoSocialActivity comment);
-
 
   /**
    * Get the max uploaded size file in activity stream
@@ -555,27 +388,8 @@ public interface ActivityManager {
   }
 
   /**
-   * Get all files ids of an activity
-   * @param activity
-   * @return
-   */
-  default List<String> getActivityFilesIds(ExoSocialActivity activity){
-    return null;
-  }
-
-  /**
-   * Get activity file by its id
-   * @param fileId
-   * @return
-   * @throws Exception
-   */
-
-  default ActivityFile getActivityFileById(long fileId) throws Exception{
-    return null;
-  }
-
-  /**
    * Checks if the Activity Type is enabled or not
+   * 
    * @param activityType the name of activity type to check
    * @return true if the activity type is enabled
    */
@@ -583,5 +397,74 @@ public interface ActivityManager {
     return true;
   }
 
+  /**
+   * Checks whether a user can post an activity in a specific stream of user Or
+   * Space
+   * 
+   * @param viewer
+   * @param streamOwner
+   * @return true if can post an activity, else, false
+   */
+  default boolean canPostActivityInStream(org.exoplatform.services.security.Identity viewer, Identity streamOwner) {
+    return true;
+  }
+
+  /**
+   * @return true if user composer is enabled in main stream page, else false
+   */
+  default boolean isEnableUserComposer() {
+    return true;
+  }
+
+  /**
+   * Shares an existing activity to a list of spaces identified by its pretty
+   * names with an optional message
+   * 
+   * @param activityId {@link ExoSocialActivity} identifier to share
+   * @param title title to put into shared activity
+   * @param type Activity type, kept for backward compatibility with old
+   *          ActivityStream
+   * @param targetSpaces {@link List} of space pretty names to share with
+   * @param viewer current user making the share operation
+   * @return {@link List} of shared {@link ExoSocialActivity}
+   * @throws ObjectNotFoundException when activity or target space not found
+   * @throws IllegalAccessException when user can't post on space stream or
+   *           can't access activity to share
+   */
+  default List<ExoSocialActivity> shareActivity(String activityId,
+                                                String title,
+                                                String type,
+                                                List<String> targetSpaces,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                   IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Shares an existing activity to a list of spaces identified by its pretty
+   * names with an optional message
+   * 
+   * @param activityShareAction {@link ActivityShareAction} for share
+   * @param type Activity type, kept for backward compatibility with old
+   *          ActivityStream. This parameter is kept for backward compatibility
+   * @param viewer current user making the share operation
+   * @return {@link List} of shared {@link ExoSocialActivity}
+   * @throws ObjectNotFoundException when activity or target space not found
+   * @throws IllegalAccessException when user can't post on space stream or
+   *           can't access activity to share
+   * @deprecated use shareActivity without type parameter. Should be removed after cleanup of Old AS UI.
+   */
+  @Deprecated
+  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction, // NOSONAR
+                                                String type,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction,
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                   IllegalAccessException {
+    return shareActivity(activityShareAction, null, viewer); // NOSONAR will have to replace deprecated method
+  }
 
 }

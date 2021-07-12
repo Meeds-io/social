@@ -19,22 +19,4 @@ package org.exoplatform.social.core.activity;
 import org.exoplatform.social.common.lifecycle.AbstractListenerPlugin;
 
 public abstract class ActivityListenerPlugin extends AbstractListenerPlugin implements ActivityListener {
-
-  @Override
-  public abstract void saveActivity(ActivityLifeCycleEvent event);
-
-  @Override
-  public abstract void updateActivity(ActivityLifeCycleEvent event);
-
-  @Override
-  public abstract void saveComment(ActivityLifeCycleEvent event);
-
-  @Override
-  public abstract void updateComment(ActivityLifeCycleEvent event);
-
-  @Override
-  public abstract void likeActivity(ActivityLifeCycleEvent event);
-
-  @Override
-  public abstract void likeComment(ActivityLifeCycleEvent event);
 }

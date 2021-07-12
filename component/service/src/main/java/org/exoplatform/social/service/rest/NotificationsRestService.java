@@ -22,38 +22,34 @@ import static org.exoplatform.social.service.rest.RestChecker.checkAuthenticated
 import java.net.URI;
 import java.util.Arrays;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.*;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesV1;
+import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesV1;
 
 /**
  * 
  * Provides REST Services for manipulating jobs related to notifications.
- *
+ * 
+ * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResourcesV1}
  * @anchor NotificationRestService
  */
 
 @Path("social/notifications")
+@Deprecated
 public class NotificationsRestService implements ResourceContainer {
   
   private IdentityManager identityManager;
@@ -86,6 +82,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("inviteToConnect/{receiverId}/{senderId}")
+  @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response inviteToConnect(@Context UriInfo uriInfo,
                                   @PathParam("receiverId") String receiverId,
                                   @PathParam("senderId") String senderId) throws Exception {
@@ -117,6 +114,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("confirmInvitationToConnect/{senderId}/{receiverId}")
+  @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response confirmInvitationToConnect(@PathParam("senderId") String senderId,
                                              @PathParam("receiverId") String receiverId) throws Exception {
     checkAuthenticatedUserPermission(receiverId);
@@ -149,6 +147,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("ignoreInvitationToConnect/{senderId}/{receiverId}")
+  @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response ignoreInvitationToConnect(@PathParam("senderId") String senderId,
                                             @PathParam("receiverId") String receiverId) throws Exception {
     checkAuthenticatedUserPermission(receiverId);
@@ -182,6 +181,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("acceptInvitationToJoinSpace/{spaceId}/{userId}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response acceptInvitationToJoinSpace(@PathParam("spaceId") String spaceId,
                                               @PathParam("userId") String userId) throws Exception {
     checkAuthenticatedUserPermission(userId);
@@ -213,6 +213,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("ignoreInvitationToJoinSpace/{spaceId}/{userId}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response ignoreInvitationToJoinSpace(@PathParam("spaceId") String spaceId,
                                               @PathParam("userId") String userId) throws Exception {
     checkAuthenticatedUserPermission(userId);
@@ -251,6 +252,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("validateRequestToJoinSpace/{spaceId}/{userId}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response validateRequestToJoinSpace(@PathParam("spaceId") String spaceId,
                                              @PathParam("userId") String userId) throws Exception {
     checkAuthenticatedRequest();
@@ -300,6 +302,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("refuseRequestToJoinSpace/{spaceId}/{userId}")
+  @DeprecatedAPI("The endpoint is deprecated, use SpaceMembershipRestResourcesV1 instead")
   public Response refuseRequestToJoinSpace(@PathParam("spaceId") String spaceId,
                                            @PathParam("userId") String userId) throws Exception {
     checkAuthenticatedRequest();
@@ -343,6 +346,7 @@ public class NotificationsRestService implements ResourceContainer {
    */
   @GET
   @Path("redirectUrl/{type}/{objectId}")
+  @DeprecatedAPI("The endpoint is deprecated, to be replaced by a parameter 'boolean redirect' in SpaceMembershipRestResourcesV1 and RelationshipsRestResourcesV1 methods")
   public Response redirectUrl(@Context UriInfo uriInfo,
                               @PathParam("type") String type,
                               @PathParam("objectId") String objectId) throws Exception {

@@ -18,20 +18,8 @@ package org.exoplatform.social.rest.impl.user;
 
 import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
 import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.jaxrs.PATCH;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -41,55 +29,41 @@ import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.services.organization.search.UserSearchService;
-import org.exoplatform.social.service.rest.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.IOUtil;
-import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.*;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
-import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
-import org.exoplatform.social.core.model.Attachment;
-import org.exoplatform.social.core.model.AvatarAttachment;
-import org.exoplatform.social.core.model.BannerAttachment;
+import org.exoplatform.social.core.model.*;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
@@ -97,26 +71,17 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
-import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.ErrorResource;
-import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.UserImportResultEntity;
-import org.exoplatform.social.rest.api.UserRestResources;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.ExperienceEntity;
-import org.exoplatform.social.rest.entity.IMEntity;
-import org.exoplatform.social.rest.entity.PhoneEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.entity.URLEntity;
-import org.exoplatform.social.rest.entity.UserEntity;
+import org.exoplatform.social.rest.api.*;
+import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
+import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.social.service.rest.api.models.ActivityRestIn;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+
+import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 
 /**
  * 
@@ -169,10 +134,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private UserACL userACL;
 
+  private ActivityRestResourcesV1 activityRestResourcesV1;
+
   private OrganizationService organizationService;
 
   private IdentityManager identityManager;
-  
+
   private RelationshipManager relationshipManager;
 
   private UserStateService userStateService;
@@ -180,10 +147,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private SpaceService spaceService;
   
   private UserSearchService userSearchService;
-
-  public static enum ACTIVITY_STREAM_TYPE {
-    all, owner, connections, spaces
-  }
 
   private static final String INVISIBLE = "invisible";
   
@@ -197,7 +160,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private ExecutorService     importExecutorService = null;
   
-  public UserRestResourcesV1(UserACL userACL,
+  public UserRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
+                             UserACL userACL,
                              OrganizationService organizationService,
                              IdentityManager identityManager,
                              RelationshipManager relationshipManager,
@@ -206,6 +170,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              UploadService uploadService,
                              UserSearchService userSearchService) {
     this.userACL = userACL;
+    this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
     this.relationshipManager = relationshipManager;
@@ -1196,7 +1161,23 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     return EntityBuilder.getResponse(collectionCommonSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  @POST
+  @Path("{id}/activities")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Creates an activity by a specific user",
+                httpMethod = "POST",
+                response = Response.class,
+                notes = "This creates the activity if the given user is the authenticated user.")
+  @Deprecated
+  @DeprecatedAPI(value = "Use ActivityRestResourcesV1.postActivity instead", insist = true)
+  public Response addActivityByUser(@Context UriInfo uriInfo,
+                                    @ApiParam(value = "User name", required = true) @PathParam("id") String id,
+                                    @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand,
+                                    @ApiParam(value = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityEntity model) throws Exception {
+    return activityRestResourcesV1.postActivity(uriInfo, null, expand, model);
+  }
+
   @GET
   @Path("{id}/activities")
   @RolesAllowed("users")
@@ -1204,6 +1185,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                 httpMethod = "GET",
                 response = Response.class,
                 notes = "This returns an activity in the list in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li><li>this is a space activity and the authenticated user is a member of the space</li></ul>")
+  @Deprecated
+  @DeprecatedAPI(value = "Use ActivityRestResourcesV1.getActivities instead", insist = true)
   public Response getActivitiesOfUser(@Context UriInfo uriInfo,
                                       @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                                       @ApiParam(value = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>", required = false, defaultValue = "all") @QueryParam("type") String type,
@@ -1213,112 +1196,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                       @ApiParam(value = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("after") String after,
                                       @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                                       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand) throws Exception {
-    
-    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    //Check if the given user doesn't exist
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-    if (target == null) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-    ACTIVITY_STREAM_TYPE streamType;
-    try {
-      streamType = ACTIVITY_STREAM_TYPE.valueOf(type);
-    } catch (Exception e) {
-      streamType = ACTIVITY_STREAM_TYPE.all;
-    }
-
-    ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
-    RealtimeListAccess<ExoSocialActivity> listAccess = null;
-    List<ExoSocialActivity> activities = null;
-    switch (streamType) {
-      case all: {
-        listAccess = activityManager.getActivityFeedWithListAccess(target);
-        break;
-      }
-      case owner: {
-        listAccess = activityManager.getActivitiesWithListAccess(target);
-        break;
-      }
-      case connections: {
-        listAccess = activityManager.getActivitiesOfConnectionsWithListAccess(target);
-        break;
-      }
-      case spaces: {
-        listAccess = activityManager.getActivitiesOfUserSpacesWithListAccess(target);
-        break;
-      }
-      default:
-        break;
-    }
-    //
-    if (after != null && RestUtils.getBaseTime(after) > 0) {
-      activities = listAccess.loadNewer(RestUtils.getBaseTime(after), limit);
-    } else if (before != null && RestUtils.getBaseTime(before) > 0) {
-      activities = listAccess.loadOlder(RestUtils.getBaseTime(before), limit);
-    } else {
-      activities = listAccess.loadAsList(offset, limit);
-    }
-    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    List<DataEntity> activityEntities = new ArrayList<DataEntity>();
-    for (ExoSocialActivity activity : activities) {
-      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
-      //
-      activityEntities.add(activityEntity.getDataEntity()); 
-    }
-    CollectionEntity collectionActivity = new CollectionEntity(activityEntities, EntityBuilder.ACTIVITIES_TYPE,  offset, limit);
-    if(returnSize) {
-      if (before != null || after != null) {
-        collectionActivity.setSize(activities.size());
-      } else {
-        collectionActivity.setSize(listAccess.getSize());
-      }
-    }
-    return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
-  @POST
-  @Path("{id}/activities")
-  @RolesAllowed("users")
-  @ApiOperation(value = "Creates an activity by a specific user",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the activity if the given user is the authenticated user.")
-  public Response addActivityByUser(@Context UriInfo uriInfo,
-                                    @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                    @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand,
-                                    @ApiParam(value = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityRestIn model) throws Exception {
-    if (model == null) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    //Check if the given user doesn't exist
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-    if (target == null || !ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(model.getTitle());
-    activity.setBody(model.getBody());
-    activity.setType(model.getType());
-    activity.setUserId(target.getId());
-    if(model.getFiles() != null) {
-      activity.setFiles(model.getFiles()
-              .stream()
-              .map(fileModel -> new ActivityFile(fileModel.getId(), fileModel.getUploadId(), fileModel.getStorage(), fileModel.getDestinationFolder()))
-              .collect(Collectors.toList()));
-    }
-    activity.setTemplateParams(model.getTemplateParams());
-    CommonsUtils.getService(ActivityManager.class).saveActivityNoReturn(target, activity);
-
-    logMetrics(activity);
-
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromActivity(activity, authenticatedUserIdentity, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, returnSize, expand);
   }
 
   @POST

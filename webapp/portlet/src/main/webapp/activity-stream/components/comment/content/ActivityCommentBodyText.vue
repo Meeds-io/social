@@ -12,11 +12,12 @@
     </template>
     <template v-else>
       <extension-registry-components
+        :params="extendedComponentParams"
         name="ActivityContent"
         type="activity-content-extensions"
         parent-element="div"
         element="div"
-        :params="extendedComponentParams" />
+        class=" d-flex flex-column" />
     </template>
   </div>
 </template>
@@ -83,6 +84,7 @@ export default {
     loading() {
       if (!this.loading) {
         this.refreshTipTip();
+        this.$root.$emit('activity-comment-refreshed');
       }
     },
     initialized() {
