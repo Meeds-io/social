@@ -127,7 +127,6 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias"/>
-          <property name="index_previous" value="profile"/>
           <property name="index_current" value="profile_v2"/>
           <property name="type" value="profile"/>
         </properties-param>
@@ -146,7 +145,6 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias"/>
-          <property name="index_previous" value="space"/>
           <property name="index_current" value="space_v2"/>
           <property name="type" value="space"/>
         </properties-param>
