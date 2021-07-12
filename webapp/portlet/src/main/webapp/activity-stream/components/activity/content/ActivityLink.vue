@@ -35,14 +35,12 @@
           v-if="title"
           :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
           class="pa-4">
-          <ellipsis
+          <div
             v-if="title"
+            v-text="titleText"
             :title="titleTooltip"
-            :data="titleText"
-            :line-clamp="2"
-            :delay-time="200"
-            end-char="..."
-            class="font-weight-bold text-color ma-0 text-wrap text-break" />
+            class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2">
+          </div>
         </div>
       </div>
     </template>
@@ -90,38 +88,20 @@
         </v-icon>
       </v-avatar>
       <div class="me-4 my-4">
-        <template v-if="title">
-          <ellipsis
-            v-if="useEllipsisOnTitle"
-            key="title"
-            :title="titleTooltip"
-            :data="titleText"
-            :line-clamp="3"
-            :delay-time="200"
-            end-char="..."
-            class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break" />
-          <div
-            v-else
-            v-sanitized-html="title"
-            class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break">
-          </div>
-        </template>
-        <template v-if="summary">
-          <ellipsis
-            v-if="useEllipsisOnSummary"
-            key="summary"
-            :title="summaryTooltip"
-            :data="summaryText"
-            :line-clamp="3"
-            :delay-time="200"
-            end-char="..."
-            class="caption text-light-color text-wrap text-break" />
-          <div
-            v-else
-            v-sanitized-html="summary"
-            class="caption text-color text-wrap text-break rich-editor-content reset-style-box">
-          </div>
-        </template>
+        <div
+          v-if="title"
+          v-sanitized-html="title"
+          :title="titleTooltip"
+          :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
+          class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break">
+        </div>
+        <div
+          v-if="summary"
+          :title="summaryTooltip"
+          :class="useEllipsisOnSummary && 'text-truncate-3' || ''"
+          v-sanitized-html="summary"
+          class="caption text-color text-wrap text-break rich-editor-content reset-style-box">
+        </div>
       </div>
     </template>
   </dynamic-html-element>
