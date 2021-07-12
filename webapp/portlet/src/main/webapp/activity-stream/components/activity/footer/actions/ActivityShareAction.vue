@@ -10,9 +10,9 @@
     small
     @click="openShareDrawer()">
     <v-icon
-      :class="shareTextColorClass"
-      class="disabled--text me-1"
-      size="12">
+      :class="shareIconColorClass"
+      class="me-1 baseline-vertical-align"
+      size="14">
       fa-share
     </v-icon>
     {{ $t('UIActivity.share') }}
@@ -49,6 +49,9 @@ export default {
     },
     shareTextColorClass() {
       return this.hasShared && 'primary--text' || '';
+    },
+    shareIconColorClass() {
+      return this.hasShared && 'primary--text' || 'disabled--text';
     },
   },
   created() {
