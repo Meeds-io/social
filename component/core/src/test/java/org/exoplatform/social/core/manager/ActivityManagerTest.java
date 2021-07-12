@@ -660,6 +660,33 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link ActivityManager#hideActivity(String)}
+   */
+  public void testHideActivity() {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    activity = activityManager.getActivity(activity.getId());
+
+    assertNotNull("activity must not be null", activity);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(johnIdentity);
+    assertEquals(1, activities.getSize());
+
+    activityManager.hideActivity(activity.getId());
+
+    activities = activityManager.getActivityFeedWithListAccess(johnIdentity);
+    assertEquals(0, activities.getSize());
+
+    activity = activityManager.getActivity(activity.getId());
+    assertNotNull("Should be able to access activity even when hidden", activity);
+  }
+
+  /**
    * {@link ActivityManager#deleteComment(ExoSocialActivity, ExoSocialActivity)}
    */
   public void testDeleteComment() {

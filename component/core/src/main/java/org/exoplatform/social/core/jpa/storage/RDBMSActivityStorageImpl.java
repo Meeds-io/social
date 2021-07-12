@@ -806,6 +806,14 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
+  public ExoSocialActivity hideActivity(String activityId) {
+    ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
+    activityEntity.setHidden(true);
+    activityEntity = activityDAO.update(activityEntity);
+    return convertActivityEntityToActivity(activityEntity);
+  }
+
+  @Override
   @ExoTransactional
   public void deleteComment(String activityId, String commentId) {
     ActivityEntity comment = activityDAO.find(getCommentID(commentId));

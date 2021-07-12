@@ -125,6 +125,17 @@ public interface ActivityManager {
   void deleteActivity(String activityId);
 
   /**
+   * Hides an activity to not be displayed in stream, but keep it accessible in
+   * standalone mode
+   * 
+   * @param activityId
+   * @return Hidden {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity hideActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Creates or updates a comment or a comment reply on a specific activity.
    *
    * @param activity The activity.
