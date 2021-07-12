@@ -745,6 +745,14 @@ public class Utils {
     Space space = getSpaceByContext();
     return (space != null ? space.getUrl() : null);
   }
+
+  /**
+   * @return the space id based on the current context.
+   */
+  public static String getSpaceIdByContext() {
+    Space space = getSpaceByContext();
+    return (space != null ? space.getId() : null);
+  }
   
   /**
    * Initializes user profile popup.

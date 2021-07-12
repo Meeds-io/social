@@ -94,6 +94,7 @@ export default {
         window.setTimeout(() => {
           socialUIProfile.initUserProfilePopup('ActivityStream', {});
           document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
+          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         }, 500);
       }
     },
