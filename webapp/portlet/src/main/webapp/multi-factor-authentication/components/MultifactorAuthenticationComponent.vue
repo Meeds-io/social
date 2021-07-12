@@ -291,7 +291,7 @@
   </v-app>
 </template>
 <script>
-import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest, getCurrentMfaSystem, changeMfaSytem} from '../multiFactorServices';
+import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest, getCurrentMfaSystem, changeMfaSytem, getProtectedGroups} from '../multiFactorServices';
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
@@ -302,7 +302,7 @@ export default {
     fido: 'Fido 2',
     superGluu: 'SuperGluu',
     otp: 'OTP',
-    selectedGroups: null,
+    selectedGroups: [],
     items: ['OTP', 'SuperGluu', 'Fido 2'],
     currentMfaSystem: null,
     panel: [0, 1],
@@ -322,13 +322,14 @@ export default {
     this.getRevocationRequest();
     this.getMfaFeatureStatus();
     this.getCurrentMfaSystem();
+    this.getProtectedGroups();
   },
   computed: {
     isFido (){
       return this.currentMfaSystem === this.fido;
     },
     isOTP (){
-      return this.currentMfaSystem === this.oth;
+      return this.currentMfaSystem === this.otp;
     },
     isSuperGluu (){
       return this.currentMfaSystem === this.superGluu;
@@ -347,16 +348,36 @@ export default {
         this.isMultifacorAuthenticationEnabled = status;
       });
     },
+    getProtectedGroups() {
+      getProtectedGroups().then(data => {
+        this.selectedGroups.push(data.protectedGroups);
+      });
+    },
     switchMfaSystem() {
-      changeMfaSytem(this.currentMfaSystem);
+      let mfaSystem = null;
+      switch (this.currentMfaSystem) {
+      case this.otp :
+        mfaSystem = 'otp';
+        break;
+      case this.superGluu :
+        mfaSystem = 'oidc';
+        break;
+      case this.fido :
+        mfaSystem = 'fido';
+        break;
+      default :
+        mfaSystem = 'otp';
+        break;
+      }
+      changeMfaSytem(mfaSystem);
     },
     getCurrentMfaSystem() {
       getCurrentMfaSystem().then(system => {
-        if (system.includes('otp')) {
+        if (system.mfaSystem === 'otp') {
           return this.currentMfaSystem = this.otp;
-        } else if (system.includes('oidc')){
+        } else if (system.mfaSystem === 'oidc'){
           return this.currentMfaSystem = this.superGluu;
-        } else {
+        } else if (system.mfaSystem === 'fido'){
           return this.currentMfaSystem = this.fido;
         }
       });

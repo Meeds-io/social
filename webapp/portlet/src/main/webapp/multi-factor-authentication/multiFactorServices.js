@@ -29,7 +29,6 @@ export function changeMfaFeatureActivation(status) {
   });
 }
 
-<<<<<<< HEAD
 export function updateRevocationRequest(id, status) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations/${id}?status=${status}`, {
     method: 'PUT',
@@ -40,7 +39,16 @@ export function updateRevocationRequest(id, status) {
 
 export function getRevocationRequests() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations`, {
-=======
+  method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting mfa revocation requests');
+    }
+  });
+}
 export function changeMfaSytem(mfaSystem) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/changeMfaSystem/${mfaSystem}`, {
     headers: {
@@ -54,24 +62,41 @@ export function changeMfaSytem(mfaSystem) {
 
 export function getCurrentMfaSystem() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/settings`, {
->>>>>>> 650fa394a7 (Task-46503 : AdminMFA Activating and choosing MFA system)
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
     if (resp && resp.ok) {
-<<<<<<< HEAD
       return resp.json();
-    } else {
-      throw new Error('Error when getting mfa revocation requests');
-    }
-  });
-}
-=======
-      return resp.text();
     } else {
       throw new Error('Error when getting current MFA system');
     }
   });
 }
 
->>>>>>> 650fa394a7 (Task-46503 : AdminMFA Activating and choosing MFA system)
+export function getProtectedGroups() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getProtectedGroups`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting protected MFA groups');
+    }
+  });
+}
+
+export function saveProtectedGroups(groups) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/saveProtectedGroups`, {
+    method: 'POST',
+    credentials: 'include',
+    body: groups
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error setting dlp keywords', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+

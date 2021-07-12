@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import {getGroups} from '../multiFactorServices';
+import {getGroups, getProtectedGroups, saveProtectedGroups} from '../multiFactorServices';
 export default {
   data () {
     const component = this;
@@ -81,6 +81,7 @@ export default {
   },
   created() {
     this.$root.$on('protectedGroupsUsers', this.protectedGroupsUsers);
+    this.getProtectedGroups();
   },
   methods: {
     protectedGroupsUsers() {
@@ -91,8 +92,14 @@ export default {
       this.error = null;
     },
     save() {
-      this.$refs.protectedGroupsUsersDrawer.close();
+      saveProtectedGroups(this.groups.join(','));
       this.$root.$emit('protectedGroupsList', this.groups);
+      this.$refs.protectedGroupsUsersDrawer.close();
+    },
+    getProtectedGroups() {
+      getProtectedGroups().then(data => {
+        this.groups.push(data.protectedGroups);
+      });
     },
     findGroups (query, callback) {
       if (!query.length) {
