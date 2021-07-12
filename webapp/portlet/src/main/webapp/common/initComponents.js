@@ -99,7 +99,6 @@ Vue.directive('cacheable', {
     // To avoid having for a long time a static content only
     // In addition, by using '$root.$once', we 're sure that the real application
     // is mounted only once
-    console.warn('application-mount');
     window.setTimeout(() => {
       vnode.componentInstance.$root.$emit('application-mount');
     }, 3000);
