@@ -43,8 +43,6 @@ public class ActivitySearchConnector {
 
   private String                        index;
 
-  private String                        searchType;
-
   private String                        searchQueryFilePath;
 
   private String                        searchQuery;
@@ -63,7 +61,6 @@ public class ActivitySearchConnector {
 
     PropertiesParam param = initParams.getPropertiesParam("constructor.params");
     this.index = param.getProperty("index");
-    this.searchType = param.getProperty("searchType");
     if (initParams.containsKey(SEARCH_QUERY_FILE_PATH_PARAM)) {
       searchQueryFilePath = initParams.getValueParam(SEARCH_QUERY_FILE_PATH_PARAM).getValue();
       try {
@@ -95,7 +92,7 @@ public class ActivitySearchConnector {
     }
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
     String esQuery = buildQueryStatement(streamFeedOwnerIds, filter, offset, limit);
-    String jsonResponse = this.client.sendRequest(esQuery, this.index, this.searchType);
+    String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return buildResult(jsonResponse, viewerIdentity, streamFeedOwnerIds);
   }
 

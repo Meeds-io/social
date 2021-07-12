@@ -36,7 +36,6 @@
      <init-params>
         <properties-param>
           <name>constructor.params</name>
-          <property name="searchType" value="profile"/>
           <property name="index" value="profile_alias"/>
         </properties-param>
       </init-params>
@@ -73,9 +72,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="activity_alias" />
-          <property name="index_previous" value="" />
           <property name="index_current" value="activity_v1" />
-          <property name="type" value="activity" />
         </properties-param>
       </init-params>
     </component-plugin>

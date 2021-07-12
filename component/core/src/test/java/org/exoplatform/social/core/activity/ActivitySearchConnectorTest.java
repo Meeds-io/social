@@ -32,8 +32,6 @@ import org.exoplatform.social.core.storage.api.ActivityStorage;
 @RunWith(MockitoJUnitRunner.class)
 public class ActivitySearchConnectorTest {
 
-  private static final String ES_TYPE          = "activity";
-
   private static final String ES_INDEX         = "activity_alias";
 
   public static final String  FAKE_ES_QUERY    =
@@ -136,7 +134,7 @@ public class ActivitySearchConnectorTest {
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
-    when(client.sendRequest(eq(expectedESQuery), eq(ES_INDEX), eq(ES_TYPE))).thenReturn("{}");
+    when(client.sendRequest(expectedESQuery, ES_INDEX)).thenReturn("{}");
 
     List<ActivitySearchResult> result = activitySearchConnector.search(identity, filter, 0, 10);
     assertNotNull(result);
@@ -156,12 +154,12 @@ public class ActivitySearchConnectorTest {
     HashSet<Long> permissions = new HashSet<>(Arrays.asList(10L, 20L, 30L));
     Identity identity = mock(Identity.class);
     when(identity.getId()).thenReturn("1");
-    when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
+    when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(permissions);
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
-    when(client.sendRequest(eq(expectedESQuery), eq(ES_INDEX), eq(ES_TYPE))).thenReturn(searchResult);
+    when(client.sendRequest(expectedESQuery, ES_INDEX)).thenReturn(searchResult);
 
     ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
     activity.setId("3");
@@ -183,7 +181,7 @@ public class ActivitySearchConnectorTest {
     when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(streamOwner);
     when(identityManager.getIdentity("posterId")).thenReturn(poster);
 
-    when(activityStorage.getActivity(eq("3"))).thenReturn(activity);
+    when(activityStorage.getActivity("3")).thenReturn(activity);
 
     List<ActivitySearchResult> result = activitySearchConnector.search(identity, filter, 0, 10);
     assertNotNull(result);
@@ -228,7 +226,7 @@ public class ActivitySearchConnectorTest {
             .replaceAll("@limit@", "10");
     searchResult = IOUtil.getStreamContentAsString(getClass().getClassLoader()
             .getResourceAsStream("activities-search-result-by-identity.json"));
-    when(client.sendRequest(eq(expectedESQuery), eq(ES_INDEX), eq(ES_TYPE))).thenReturn(searchResult);
+    when(client.sendRequest(expectedESQuery, ES_INDEX)).thenReturn(searchResult);
 
     ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
     activity.setId("7");
@@ -266,7 +264,6 @@ public class ActivitySearchConnectorTest {
     PropertiesParam propertiesParam = new PropertiesParam();
     propertiesParam.setName("constructor.params");
     propertiesParam.setProperty("index", ES_INDEX);
-    propertiesParam.setProperty("searchType", ES_TYPE);
 
     ValueParam valueParam = new ValueParam();
     valueParam.setName("query.file.path");

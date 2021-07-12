@@ -58,26 +58,6 @@ public class ActivityIndexingServiceConnectorTest {
   }
 
   @Test
-  public void testCanReindex() {
-    activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
-                                                                            i18nActivityProcessor,
-                                                                            identityManager,
-                                                                            activityManager,
-                                                                            getParams());
-    assertFalse(activityIndexingServiceConnector.canReindex());
-  }
-
-  @Test
-  public void testGetType() {
-    activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
-                                                                            i18nActivityProcessor,
-                                                                            identityManager,
-                                                                            activityManager,
-                                                                            getParams());
-    assertEquals(ActivityIndexingServiceConnector.TYPE, activityIndexingServiceConnector.getType());
-  }
-
-  @Test
   public void testCreate() {
     activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
                                                                             i18nActivityProcessor,
@@ -122,7 +102,7 @@ public class ActivityIndexingServiceConnectorTest {
     posterIdentity.setProfile(posterProfile);
     when(identityManager.getIdentity("posterId")).thenReturn(posterIdentity);
 
-    when(activityManager.getActivity(eq("1"))).thenReturn(activity);
+    when(activityManager.getActivity("1")).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
       ExoSocialActivity exoSocialActivity = invocation.getArgument(0, ExoSocialActivity.class);
@@ -135,8 +115,6 @@ public class ActivityIndexingServiceConnectorTest {
     assertEquals("1", document.getId());
     assertEquals("2", document.getFields().get("parentId"));
     assertEquals("3", document.getFields().get("parentCommentId"));
-    assertEquals("type", document.getFields().get("type"));
-    assertEquals(ActivityIndexingServiceConnector.TYPE, document.getType());
     assertEquals("posterId", document.getFields().get("posterId"));
     assertEquals("Poster FullName", document.getFields().get("posterName"));
     assertEquals("1234", document.getFields().get("postedTime"));
@@ -192,7 +170,7 @@ public class ActivityIndexingServiceConnectorTest {
     posterIdentity.setProfile(posterProfile);
     when(identityManager.getIdentity("posterId")).thenReturn(posterIdentity);
 
-    when(activityManager.getActivity(eq("1"))).thenReturn(activity);
+    when(activityManager.getActivity("1")).thenReturn(activity);
     activity.setTitleId("titleId");
     when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
       ExoSocialActivity exoSocialActivity = invocation.getArgument(0, ExoSocialActivity.class);
@@ -206,7 +184,6 @@ public class ActivityIndexingServiceConnectorTest {
     assertEquals("2", document.getFields().get("parentId"));
     assertEquals("3", document.getFields().get("parentCommentId"));
     assertEquals("type", document.getFields().get("type"));
-    assertEquals(ActivityIndexingServiceConnector.TYPE, document.getType());
     assertEquals("posterId", document.getFields().get("posterId"));
     assertEquals("PosterUpdated FullName", document.getFields().get("posterName"));
     assertEquals("1234", document.getFields().get("postedTime"));
@@ -222,6 +199,7 @@ public class ActivityIndexingServiceConnectorTest {
     PropertiesParam propertiesParam = new PropertiesParam();
     propertiesParam.setName("constructor.params");
     params.addParameter(propertiesParam);
+    propertiesParam.setProperty("index_current", "index_name");
     return params;
   }
 

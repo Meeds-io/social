@@ -74,7 +74,7 @@ public class ProfileSearchConnector {
       identity = filter.getViewerIdentity();
     }
     String esQuery = buildQueryStatement(identity, filter, type, offset, limit);
-    String jsonResponse = this.client.sendRequest(esQuery, this.index, this.searchType);
+    String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return buildResult(jsonResponse);
   }
 
@@ -90,7 +90,7 @@ public class ProfileSearchConnector {
                                ProfileFilter filter,
                                Type type) {
     String esQuery = buildQueryStatement(identity, filter, type, 0, 1);
-    String jsonResponse = this.client.sendRequest(esQuery, this.index, this.searchType);
+    String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return getCount(jsonResponse);
   }
 
