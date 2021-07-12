@@ -4,6 +4,7 @@ import ActivityStreamList from './components/list/ActivityStreamList.vue';
 import ActivityNotificationAlerts from './components/list/ActivityNotificationAlerts.vue';
 import ActivityStreamEmptyMessageSpace from './components/list/ActivityStreamEmptyMessageSpace.vue';
 import ActivityStreamEmptyMessageUser from './components/list/ActivityStreamEmptyMessageUser.vue';
+import ActivityNotFound from './components/list/ActivityNotFound.vue';
 import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
@@ -44,6 +45,7 @@ const components = {
   'activity-share-drawer': ActivityShareDrawer,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
   'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
+  'activity-not-found': ActivityNotFound,
   'activity-stream-updater': ActivityStreamUpdater,
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
   'activity-stream-activity': ActivityStreamActivity,
