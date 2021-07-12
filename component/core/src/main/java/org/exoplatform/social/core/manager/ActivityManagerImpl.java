@@ -351,6 +351,16 @@ public class ActivityManagerImpl implements ActivityManager {
     deleteActivity(getActivity(activityId));
   }
 
+  @Override
+  public ExoSocialActivity hideActivity(String activityId) {
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException("activityId is mandatory");
+    }
+    ExoSocialActivity activity = activityStorage.hideActivity(activityId);
+    activityLifeCycle.hideActivity(activity);
+    return activity;
+  }
+
   /**
    * {@inheritDoc}
    */
