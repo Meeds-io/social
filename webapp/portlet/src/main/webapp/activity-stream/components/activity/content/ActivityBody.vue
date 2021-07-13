@@ -4,7 +4,7 @@
     v-sanitized-html="body"
     :element="element"
     :class="bodyClass"
-    class="reset-style-box" />
+    class="reset-style-box text-break" />
 </template>
 
 <script>

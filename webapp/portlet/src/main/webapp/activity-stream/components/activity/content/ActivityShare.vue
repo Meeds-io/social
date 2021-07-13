@@ -1,5 +1,5 @@
 <template>
-  <div v-if="originalActivity && activityTypes" class="border-color border-radius ms-4 me-5 my-3">
+  <div v-if="originalActivity && activityTypes" class="border-color border-radius ms-4 me-7 my-3">
     <activity-stream-activity
       :activity="originalActivity"
       :activity-types="activityTypes"
