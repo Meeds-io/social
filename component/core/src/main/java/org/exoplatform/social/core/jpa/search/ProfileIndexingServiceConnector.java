@@ -17,26 +17,20 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
-import org.json.simple.JSONObject;
-
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
@@ -44,15 +38,17 @@ import org.exoplatform.social.core.relationship.model.Relationship;
  * Created by The eXo Platform SAS Author : eXoPlatform exo@exoplatform.com Sep
  * 29, 2015
  */
-  public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
-  private static final Log LOG = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
-  public final static String TYPE = "profile";
-  /** */
-  private final IdentityManager identityManager;
-  /** */
-  private final ConnectionDAO connectionDAO;
+public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private final IdentityDAO identityDAO;
+  public static final String    TYPE = "profile";
+
+  private static final Log      LOG  = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
+
+  private final IdentityManager identityManager;
+
+  private final ConnectionDAO   connectionDAO;
+
+  private final IdentityDAO     identityDAO;
 
   public ProfileIndexingServiceConnector(InitParams initParams,
                                          IdentityManager identityManager,
@@ -74,6 +70,11 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     return getDocument(id);
   }
 
+  @Override
+  public String getConnectorName() {
+    return TYPE;
+  }
+
   private String buildConnectionString(Identity identity, Relationship.Type type) {
     StringBuilder sb = new StringBuilder();
 
@@ -81,7 +82,8 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     List<Long> list = null;
     long id = Long.parseLong(identity.getId());
 
-    boolean inSender = true, inReceiver = true;
+    boolean inSender = true;
+    boolean inReceiver = true;
 
     if (type == Relationship.Type.OUTGOING) {
       inSender = false;
@@ -92,14 +94,13 @@ import org.exoplatform.social.core.relationship.model.Relationship;
       type = Relationship.Type.PENDING;
     }
 
-
     if (inSender) {
       int offset = 0;
       do {
         list = connectionDAO.getSenderIds(id, type, offset, limit);
         sb = append(sb, list);
         offset += limit;
-      } while (list.size() >= limit);
+      } while (list != null && list.size() >= limit);
     }
 
     if (inReceiver) {
@@ -108,10 +109,10 @@ import org.exoplatform.social.core.relationship.model.Relationship;
         list = connectionDAO.getReceiverIds(id, type, offset, limit);
         sb = append(sb, list);
         offset += limit;
-      } while (list.size() >= limit);
+      } while (list != null && list.size() >= limit);
     }
 
-    //Remove the last ","
+    // Remove the last ","
     if (sb.length() > 0) {
       sb.deleteCharAt(sb.length() - 1);
     }
@@ -123,7 +124,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     if (ids == null || ids.isEmpty()) {
       return sb;
     }
-    int len = ids.size()*10;
+    int len = ids.size() * 10;
 
     if (sb.capacity() < sb.length() + len) {
       sb = new StringBuilder(sb.capacity() + len).append(sb);
@@ -148,60 +149,60 @@ import org.exoplatform.social.core.relationship.model.Relationship;
       return result;
     }
   }
-  
+
   @Override
   public String getMapping() {
     StringBuilder mapping = new StringBuilder()
-            .append("{")
-            .append("  \"properties\" : {\n")
-            .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
-            .append("    \"name\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"firstName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"lastName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"email\" : {\"type\" : \"keyword\"},\n")
-            .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
-            .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-            .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-            .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-            .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
-            .append("  }\n")
-            .append("}");
+                                               .append("{")
+                                               .append("  \"properties\" : {\n")
+                                               .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"name\" : {")
+                                               .append("      \"type\" : \"text\",")
+                                               .append("      \"index_options\": \"offsets\",")
+                                               .append("      \"fields\": {")
+                                               .append("        \"raw\": {")
+                                               .append("          \"type\": \"keyword\"")
+                                               .append("        },")
+                                               .append("        \"whitespace\": {")
+                                               .append("          \"type\": \"text\",")
+                                               .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+                                               .append("        }")
+                                               .append("      }")
+                                               .append("    },\n")
+                                               .append("    \"firstName\" : {")
+                                               .append("      \"type\" : \"text\",")
+                                               .append("      \"index_options\": \"offsets\",")
+                                               .append("      \"fields\": {")
+                                               .append("        \"raw\": {")
+                                               .append("          \"type\": \"keyword\"")
+                                               .append("        },")
+                                               .append("        \"whitespace\": {")
+                                               .append("          \"type\": \"text\",")
+                                               .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+                                               .append("        }")
+                                               .append("      }")
+                                               .append("    },\n")
+                                               .append("    \"lastName\" : {")
+                                               .append("      \"type\" : \"text\",")
+                                               .append("      \"index_options\": \"offsets\",")
+                                               .append("      \"fields\": {")
+                                               .append("        \"raw\": {")
+                                               .append("          \"type\": \"keyword\"")
+                                               .append("        },")
+                                               .append("        \"whitespace\": {")
+                                               .append("          \"type\": \"text\",")
+                                               .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+                                               .append("        }")
+                                               .append("      }")
+                                               .append("    },\n")
+                                               .append("    \"email\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
+                                               .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+                                               .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+                                               .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+                                               .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
+                                               .append("  }\n")
+                                               .append("}");
 
     return mapping.toString();
   }
@@ -214,10 +215,10 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     long ts = System.currentTimeMillis();
     LOG.debug("get profile document for identity id={}", id);
 
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     Profile profile = identity.getProfile();
     boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
-    Map<String, String> fields = new HashMap<String, String>();
+    Map<String, String> fields = new HashMap<>();
     fields.put("name", removeAccents(profile.getFullName()));
     fields.put("firstName", removeAccents((String) profile.getProperty(Profile.FIRST_NAME)));
     fields.put("lastName", removeAccents((String) profile.getProperty(Profile.LAST_NAME)));
@@ -236,30 +237,33 @@ import org.exoplatform.social.core.relationship.model.Relationship;
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
-    //confirmed connections
+    // confirmed connections
     String connectionsStr = buildConnectionString(identity, Relationship.Type.CONFIRMED);
     if (connectionsStr.length() > 0) {
       fields.put("connections", connectionsStr);
     }
-    //outgoing connections
+    // outgoing connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.OUTGOING);
     if (connectionsStr.length() > 0) {
       fields.put("outgoings", connectionsStr);
     }
-    //incoming connections
+    // incoming connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.INCOMING);
     if (connectionsStr.length() > 0) {
       fields.put("incomings", connectionsStr);
     }
 
-    Document document = new Document(TYPE, id, null, createdDate, (Set<String>)null, fields);
-    LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}", id, identity.getRemoteId(), System.currentTimeMillis() - ts);
+    Document document = new Document(id, null, createdDate, (Set<String>) null, fields);
+    LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
+             id,
+             identity.getRemoteId(),
+             System.currentTimeMillis() - ts);
 
     return document;
   }
 
   private static String removeAccents(String string) {
-    if (StringUtils.isNotBlank(string)){
+    if (StringUtils.isNotBlank(string)) {
       string = Normalizer.normalize(string, Normalizer.Form.NFD);
       string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
     }
