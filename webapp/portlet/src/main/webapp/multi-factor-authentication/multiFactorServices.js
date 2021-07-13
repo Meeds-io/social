@@ -39,7 +39,7 @@ export function updateRevocationRequest(id, status) {
 
 export function getRevocationRequests() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations`, {
-  method: 'GET',
+    method: 'GET',
     credentials: 'include',
   }).then((resp) => {
     if (resp && resp.ok) {
