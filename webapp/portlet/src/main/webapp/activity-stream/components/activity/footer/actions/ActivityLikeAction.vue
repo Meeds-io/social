@@ -4,7 +4,7 @@
     :loading="changingLike"
     :title="likeButtonTitle"
     :class="likeTextColorClass"
-    class="pa-0 mx-2"
+    class="pa-0 ms-4"
     text
     link
     small

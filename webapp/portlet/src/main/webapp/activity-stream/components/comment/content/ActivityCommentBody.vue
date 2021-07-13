@@ -16,7 +16,7 @@
         :options="commentEditOptions" />
     </div>
     <template v-else>
-      <v-list-item :class="highlightClass" class="pe-1 width-max-content">
+      <v-list-item :class="highlightClass" class="pa-0 width-max-content">
         <activity-head-user
           :identity="posterIdentity"
           :size="33"

@@ -15,7 +15,7 @@
           :element="extendedComponent.element"
           :element-class="extendedComponent.class"
           :params="extendedComponentParams"
-          class=" d-flex flex-column" />
+          class="d-flex flex-column" />
       </template>
       <template v-if="!hideFooter">
         <activity-footer
@@ -28,7 +28,8 @@
           v-if="!extendedComponent.overrideComments"
           :activity="activity"
           :comment-types="commentTypes"
-          :comment-actions="commentActions" />
+          :comment-actions="commentActions"
+          class="ps-4 pe-5" />
       </template>
     </template>
     <template v-else>
@@ -45,7 +46,7 @@
           type="activity-content-extensions"
           parent-element="div"
           element="div"
-          class="d-flex flex-column" />
+          class="d-flex flex-column pe-7" />
       </v-card>
       <template v-if="!hideFooter">
         <activity-footer
@@ -56,7 +57,8 @@
         <activity-comments-preview
           :activity="activity"
           :comment-types="commentTypes"
-          :comment-actions="commentActions" />
+          :comment-actions="commentActions"
+          class="ps-4 pe-5" />
       </template>
     </template>
   </div>

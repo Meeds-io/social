@@ -3,7 +3,7 @@
     :id="`CommentLink${activityId}`"
     :title="$t('UIActivity.label.Comment')"
     :class="commentTextColorClass"
-    class="pa-0 mx-2"
+    class="pa-0 ms-4"
     text
     link
     small
