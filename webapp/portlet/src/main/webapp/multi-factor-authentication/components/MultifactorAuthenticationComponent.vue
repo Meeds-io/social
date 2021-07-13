@@ -1,5 +1,11 @@
 <template>
   <v-app id="multifactorAuthentication">
+    <v-alert
+      v-model="alert"
+      :type="type"
+      dismissible>
+      {{ message }}
+    </v-alert>
     <div v-if="!isManage2faPage" class="d-flex">
       <v-card class="my-8 mr-4 ml-4 border-radius firstBlock" flat>
         <v-list>
@@ -121,8 +127,51 @@
             </div>
           </v-list>
         </div>
+        <div class="mt-6">
+          <v-list>
+            <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-6">
+              {{ $t('authentication.multifactor.revocation.title') }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-sub-title text-justify font-italic textSize caption ml-6 infoTextStyle textLigneHeight">
+              {{ $t('authentication.multifactor.revocation.subtitle') }}
+            </v-list-item-subtitle>
+            <v-list id="revocationRequestsList">
+              <v-list-item
+                class="revocationRequestItem"
+                v-for="request in revocationRequests"
+                :key="request.id">
+                <v-list-item-content class="flex-nowrap">
+                  <div class="flex-shrink-1">
+                    <exo-user-avatar
+                      :username="request.username"
+                      :fullname="request.fullname"
+                      :external="request.isExternal"
+                      :retrieveExtraInformation="false" />
+                  </div>
+                  <v-btn
+                    v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.accept')"
+                    icon
+                    class="flex-shrink-1 mb-0"
+                    @click="updateRevocationRequest($event,request.id,'confirm')">
+                    <v-icon class="acceptRevocationIcon">
+                      mdi-checkbox-marked-circle
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.decline')"
+                    icon
+                    class="flex-shrink-1 mb-0"
+                    @click="updateRevocationRequest($event,request.id,'cancel')">
+                    <v-icon class="refuseRevocationIcon">
+                      mdi-close-circle
+                    </v-icon>
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-list>
+        </div>
       </v-card>
-
       <div class="my-8 mr-4 border-radius secondBlock" flat>
         <template>
           <v-expansion-panels v-model="panel1" multiple>
@@ -241,23 +290,31 @@
   </v-app>
 </template>
 <script>
-import {changeMfaFeatureActivation, getMfaStatus} from '../multiFactorServices';
+import {changeMfaFeatureActivation, getMfaStatus, getRevocationRequests, updateRevocationRequest} from '../multiFactorServices';
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
     isManage2faPage: false,
     protectedGroupsUsers: null,
+    revocationRequests: [],
     selectedGroups: null,
     items: ['OTP', 'SuperGluu', 'Fido 2'],
     select: 'OTP',
     panel: [0, 1],
     panel1: [0, 1],
+    alert: false,
+    type: '',
+    message: ''
   }),
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
   },
   created() {
+    this.$root.$on('show-alert', message => {
+      this.displayMessage(message);
+    });
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
+    this.getRevocationRequest();
     this.getMfaStatus();
   },
   computed: {
@@ -284,6 +341,56 @@ export default {
         this.isMultifacorAuthenticationEnabled = status.mfaStatus === 'true';
       });
     },
+    getRevocationRequest() {
+      getRevocationRequests().then(revocationRequests => {
+        const promiseArray = [];
+        for (const [index, revocationRequest] of revocationRequests.requests.entries()) {
+          const userPromise = this.$userService.getUser(revocationRequest.username).then(user => {
+            revocationRequest.fullname = user.fullname;
+            revocationRequest.isExternal = user.external === 'true';
+            revocationRequests.requests[index] = revocationRequest;
+          });
+          promiseArray.push(userPromise);
+        }
+        Promise.all(promiseArray).then(() => {
+          this.revocationRequests=revocationRequests.requests;
+        });
+      });
+    },
+    updateRevocationRequest(event, id,status) {
+      event.preventDefault();
+      event.stopPropagation();
+      updateRevocationRequest(id,status).then(resp => {
+        let message='';
+        let type='';
+        if (resp && resp.ok) {
+          if (status === 'confirm') {
+            message = this.$t('mfa.otp.access.revocation.confirm.success');
+          } else {
+            message = this.$t('mfa.otp.access.revocation.cancel.success');
+          }
+          type='success';
+        } else {
+          type='error';
+          if (status === 'confirm') {
+            message = this.$t('mfa.otp.access.revocation.confirm.error');
+          } else {
+            message = this.$t('mfa.otp.access.revocation.cancel.error');
+          }
+        }
+        this.$root.$emit('show-alert', {
+          type: type,
+          message: message
+        });
+        this.getRevocationRequest();
+      });
+    },
+    displayMessage(message) {
+      this.message=message.message;
+      this.type=message.type;
+      this.alert = true;
+      window.setTimeout(() => this.alert = false, 5000);
+    }
   }
 };
 </script>

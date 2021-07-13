@@ -41,3 +41,24 @@ export function getMfaStatus() {
     }
   });
 }
+
+export function updateRevocationRequest(id, status) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations/${id}?status=${status}`, {
+    method: 'PUT',
+    credentials: 'include',
+  });
+}
+
+
+export function getRevocationRequests() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting mfa revocation requests');
+    }
+  });
+}
