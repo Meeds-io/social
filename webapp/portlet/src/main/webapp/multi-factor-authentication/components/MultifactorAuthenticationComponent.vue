@@ -207,83 +207,23 @@
             multiple>
             <v-expansion-panel>
               <v-expansion-panel-header expand-icon="mdi-menu-down" class="panelBlock">
-                <div class="d-flex">
-                  <!--v-list-item-content v-if="isOTP">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.opt.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content-->
-                  <!--v-list-item-content v-if="isSuperGluu">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.supergluu.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content-->
-                  <!--v-list-item-content v-if="isFido">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.fido2.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content-->
-                </div>
+                <v-list-item-content v-if="currentMfaSystemHelpTitle != null">
+                  <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
+                    <v-icon
+                      color="grey"
+                      size="24">
+                      mdi-information-outline
+                    </v-icon>
+                    <span v-html="currentMfaSystemHelpTitle"></span>
+                  </v-list-item-title>
+                </v-list-item-content>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-list-item class="pl-0">
-                  <!--v-list-item-subtitle v-if="isOTP" class="text-sub-title text-left font-italic textSize caption infoTextStyle
-                   textLigneHeight">
-                    <div class="textStyle">
-                      {{ $t('authentication.multifactor.activated.opt.message.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.two') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.two') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.three') }}
-                    </div>
-                  </v-list-item-subtitle-->
-                  <!--v-list-item-subtitle v-if="isSuperGluu" class="text-sub-title text-left font-italic textSize caption
-                  infoTextStyle textLigneHeight">
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.two') }}
-                    </div>
-                    <div class="mb-3 font-weight-bold">
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
-                    </div>
-                  </v-list-item-subtitle-->
-                  <!--v-list-item-subtitle v-if="isFido" class="text-sub-title text-left font-italic textSize caption
-                  infoTextStyle textLigneHeight">
-                    <div>
-                      {{ $t('authentication.multifactor.activated.fido2.message.one') }}
-                    </div>
-                    <div class="mb-3 font-weight-bold">
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
-                    </div>
-                  </v-list-item-subtitle-->
+                <v-list-item class="pl-0" v-if="currentMfaSystemHelpContent != null">
+                  <v-list-item-subtitle
+                    class="text-sub-title text-left font-italic textSize caption infoTextStyle textLigneHeight">
+                    <span v-html="currentMfaSystemHelpContent"></span>
+                  </v-list-item-subtitle>
                 </v-list-item>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -304,6 +244,8 @@ export default {
     selectedGroups: [],
     items: [],
     currentMfaSystem: null,
+    currentMfaSystemHelpTitle: null,
+    currentMfaSystemHelpContent: null,
     panel: [0, 1],
     panel1: [0, 1],
     alert: false,
@@ -343,18 +285,20 @@ export default {
       });
     },
     switchMfaSystem(system) {
-      changeMfaSytem(system);
+      changeMfaSytem(system).then(() => {
+        this.getCurrentMfaSystem();
+      });
     },
     getCurrentMfaSystem() {
       getCurrentMfaSystem().then(settings => {
         this.currentMfaSystem=settings.mfaSystem;
+        this.currentMfaSystemHelpTitle=settings.helpTitle;
+        this.currentMfaSystemHelpContent=settings.helpContent;
       });
     },
     getAvailableMfaSystems() {
       getAvailableMfaSystem().then(data => {
-        console.log(data.available);
         for (const system of data.available) {
-          console.log(system);
           this.items.push(system);
         }
       });
