@@ -80,6 +80,16 @@ const urls = [
 ];
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
+  const parentElement = document.querySelector('#MiddleToolBarChildren');
+  let drawersOverlayElement = parentElement.querySelector('#drawers-overlay');
+  if (!drawersOverlayElement) {
+    drawersOverlayElement = document.createElement('div');
+    drawersOverlayElement.id = 'drawers-overlay';
+    drawersOverlayElement.class = 'v-application v-application--is-ltr transparent theme--light';
+    parentElement.appendChild(drawersOverlayElement);
+    parentElement.classList.add('VuetifyApp');
+  }
+
   new Vue({
     created() {
       this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
@@ -104,6 +114,8 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
         members: this.$t('spacesList.label.SpaceMembers'),
       };
     },
+    template: '<drawers-overlay id="drawers-overlay" />',
+    vuetify: Vue.prototype.vuetifyOptions,
     i18n,
-  });
+  }).$mount(drawersOverlayElement);
 });

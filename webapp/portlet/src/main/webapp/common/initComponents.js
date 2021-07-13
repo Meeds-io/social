@@ -17,6 +17,7 @@ import ExtensionRegistryComponents from './components/ExtensionRegistryComponent
 import DynamicHTMLElement from './components/DynamicHTMLElement.vue';
 import ExoGroupSuggester from './components/ExoGroupSuggester.vue';
 import CardCarousel from './components/CardCarousel.vue';
+import DrawersOverlay from './components/DrawersOverlay.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -24,6 +25,7 @@ const components = {
   'exo-user-avatar': ExoUserAvatar,
   'exo-space-avatar': ExoSpaceAvatar,
   'exo-drawer': ExoDrawer,
+  'drawers-overlay': DrawersOverlay,
   'exo-confirm-dialog': ExoConfirmDialog,
   'exo-identity-suggester': ExoIdentitySuggester,
   'exo-activity-rich-editor': ExoActivityRichEditor,

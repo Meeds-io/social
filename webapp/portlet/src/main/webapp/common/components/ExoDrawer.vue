@@ -6,9 +6,10 @@
     :class="!drawer && 'd-none d-sm-flex'"
     :absolute="!fixed"
     :fixed="fixed"
-    :temporary="temporaryDrawer"
     :width="width"
+    :temporary="false"
     touchless
+    stateless
     height="100%"
     max-height="100%"
     max-width="100vw"
@@ -81,17 +82,9 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    bodyClasses: {
-      type: String,
-      default: () => 'hide-scroll decrease-z-index',
-    },
     confirmClose: {
       type: Boolean,
       default: () => false,
-    },
-    temporary: {
-      type: Boolean,
-      default: () => true,
     },
     drawerWidth: {
       type: String,
@@ -119,9 +112,6 @@ export default {
     modalOpened: false,
   }),
   computed: {
-    temporaryDrawer() {
-      return this.temporary && !this.modalOpened;
-    },
     rightDrawer() {
       return this.right && eXo.env.portal.orientation === 'ltr';
     },
@@ -139,78 +129,45 @@ export default {
     },
   },
   watch: {
-    temporaryDrawer() {
-      if (this.temporaryDrawer) {
-        this.installOverlayListener();
-      }
-    },
     drawer() {
       if (this.drawer) {
+        document.dispatchEvent(new CustomEvent('drawerOpened'));
         if (!this.initialized) {
           this.initialized = true;
         }
-        $('body').addClass(this.bodyClasses);
-        window.setTimeout(() => {
-          if ($('.v-overlay').length) {
-            $('body').addClass(this.bodyClasses);
-          }
-        }, 200);
         eXo.openedDrawers.push(this);
         this.$emit('opened');
-        document.dispatchEvent(new CustomEvent('drawerOpened'));
-        this.installOverlayListener();
       } else {
-        window.setTimeout(() => {
-          if (!$('.v-overlay').length) {
-            $('body').removeClass(this.bodyClasses);
-          }
-        }, 200);
+        document.dispatchEvent(new CustomEvent('drawerClosed'));
         if (eXo.openedDrawers) {
           const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
           if (currentOpenedDrawerIndex >= 0) {
             eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
-            if (currentOpenedDrawerIndex === 0) {
-              $('body').removeClass(this.bodyClasses);
-            }
           }
         }
         this.$emit('closed');
-        document.dispatchEvent(new CustomEvent('drawerClosed'));
       }
       this.expand = false;
     },
   },
   created() {
-    $(document).on('keydown', this.closeByEscape);
-    document.dispatchEvent(new CustomEvent('modalOpened'));
-    document.dispatchEvent(new CustomEvent('modalOpened'));
-
-    document.addEventListener('modalOpened', () => this.modalOpened = this.drawer);
-    document.addEventListener('modalClosed', () => this.modalOpened = false);
-
-    document.addEventListener('drawerClosed', this.installOverlayListener);
     if (!eXo.openedDrawers) {
       eXo.openedDrawers = [];
     }
-    document.addEventListener('closeAllDrawers', () => this.drawer = false);
+
+    document.addEventListener('modalOpened', () => this.modalOpened = this.drawer);
+    document.addEventListener('modalClosed', () => this.modalOpened = false);
+    document.addEventListener('closeAllDrawers', this.close);
+    document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
   },
   methods: {
     open() {
       this.drawer = true;
     },
-    installOverlayListener() {
-      if (this.drawer) {
-        this.$nextTick().then(() => {
-          $('.v-overlay').off('click').on('click', () => {
-            this.close();
-          });
-        });
-      }
-    },
-    closeByEscape(event) {
+    closeDisplayedDrawer() {
       const isLastOpenedDrawer = eXo.openedDrawers.indexOf(this) === eXo.openedDrawers.length - 1;
-      if (event.key === 'Escape' && this.drawer && isLastOpenedDrawer) {
-        this.close(event);
+      if (this.drawer && isLastOpenedDrawer) {
+        this.close();
       }
     },
     close() {
