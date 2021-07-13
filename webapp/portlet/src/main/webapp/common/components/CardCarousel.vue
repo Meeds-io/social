@@ -66,8 +66,14 @@ export default {
       this.computeProperties();
     }, 500);
     window.onresize = this.computeProperties;
+    this.scrollElement.onscroll = this.stopPropagation;
   },
   methods: {
+    stopPropagation(event) {
+      if (event) {
+        event.stopPropagation();
+      }
+    },
     moveRight() {
       const children = this.scrollElement.firstChild.children;
       const newIndex = this.childScrollIndex + this.visibleChildrenPerPage;
