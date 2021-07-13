@@ -84,6 +84,7 @@ export default {
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    document.getElementById('tokenInput').focus();
   },
   created() {
     this.$root.$on('show-alert', message => {

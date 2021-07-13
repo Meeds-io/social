@@ -281,7 +281,9 @@ export default {
     },
     getProtectedGroups() {
       getProtectedGroups().then(data => {
-        this.selectedGroups.push(data.protectedGroups);
+        for (const group of data.protectedGroups) {
+          this.selectedGroups.push(group);
+        }
       });
     },
     switchMfaSystem(system) {

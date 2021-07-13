@@ -62,7 +62,7 @@ export default {
         searchField: ['text'],
         closeAfterSelect: false,
         dropdownParent: 'body',
-        hideSelected: true,
+        hideSelected: false,
         renderMenuItem(item, escape) {
           return component.renderMenuItem(item, escape);
         },
@@ -98,7 +98,9 @@ export default {
     },
     getProtectedGroups() {
       getProtectedGroups().then(data => {
-        this.groups.push(data.protectedGroups);
+        for (const group of data.protectedGroups) {
+          this.groups.push(group);
+        }
       });
     },
     findGroups (query, callback) {
