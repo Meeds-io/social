@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column white border-radius">
     <v-img
-      src="/social-portlet/activity-stream/emptyUserStream.png"
+      src="/social-portlet/images/emptyUserStream.png"
       height="380"
       max-height="380"
       min-height="380"

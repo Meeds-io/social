@@ -7,7 +7,7 @@
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    :temporary="false"
+    hide-overlay
     touchless
     stateless
     height="100%"
@@ -74,6 +74,10 @@
 <script>
 export default {
   props: {
+    value: {
+      type: Boolean,
+      default: () => false,
+    },
     right: {
       type: Boolean,
       default: () => false,
@@ -91,6 +95,10 @@ export default {
       default: () => '420px',
     },
     allowExpand: {
+      type: Boolean,
+      default: false,
+    },
+    hideOverlay: {
       type: Boolean,
       default: false,
     },
@@ -129,6 +137,13 @@ export default {
     },
   },
   watch: {
+    value() {
+      if (this.value && !this.drawer) {
+        this.open();
+      } else if (!this.value && this.drawer) {
+        this.close();
+      }
+    },
     drawer() {
       if (this.drawer) {
         document.dispatchEvent(new CustomEvent('drawerOpened'));
@@ -147,6 +162,7 @@ export default {
         }
         this.$emit('closed');
       }
+      this.$emit('input', this.drawer);
       this.expand = false;
     },
   },
