@@ -7,7 +7,8 @@
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    hide-overlay
+    :hide-overlay="!showOverlay"
+    :temporary="!showOverlay"
     touchless
     stateless
     height="100%"
@@ -102,7 +103,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    hideOverlay: {
+    showOverlay: {
       type: Boolean,
       default: false,
     },
