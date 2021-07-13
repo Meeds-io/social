@@ -15,7 +15,7 @@
     max-width="100vw"
     class="drawerParent">
     <v-container
-      v-if="initialized"
+      v-if="initialized || eager"
       fill-height
       class="pa-0">
       <v-layout column>
@@ -83,6 +83,10 @@ export default {
       default: () => false,
     },
     fixed: {
+      type: Boolean,
+      default: () => false,
+    },
+    eager: {
       type: Boolean,
       default: () => false,
     },

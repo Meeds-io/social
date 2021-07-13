@@ -1,7 +1,6 @@
 <template>
   <exo-drawer
     ref="activityShareDrawer"
-    body-classes="hide-scroll decrease-z-index-more"
     right
     @opened="opened = true"
     @closed="opened = false">
