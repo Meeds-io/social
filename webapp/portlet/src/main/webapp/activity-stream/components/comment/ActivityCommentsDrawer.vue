@@ -3,7 +3,6 @@
     ref="activityCommentsDrawer"
     :temporary="temporaryDrawer"
     id="activityCommentsDrawer"
-    body-classes="hide-scroll decrease-z-index"
     allow-expand
     right
     @closed="reset">
@@ -33,7 +32,7 @@
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
-        class="pb-0 pt-5"
+        class="pb-0 pt-5 px-4"
         allow-edit
         @comment-created="addComment"
         @comment-deleted="deleteComment"

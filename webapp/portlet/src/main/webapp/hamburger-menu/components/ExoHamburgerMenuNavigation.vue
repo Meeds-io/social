@@ -14,7 +14,8 @@
       v-model="hamburgerMenu"
       :right="$vuetify.rtl"
       :drawer-width="drawerWidth"
-      :style="hamburgerMenuStyle">
+      :style="hamburgerMenuStyle"
+      eager>
       <template slot="content">
         <v-row
           class="HamburgerMenuLevelsParent fill-height"

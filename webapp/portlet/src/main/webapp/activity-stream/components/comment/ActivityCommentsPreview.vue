@@ -17,7 +17,7 @@
     <v-btn
       v-if="commentsSize > 2"
       :disabled="loading"
-      class="primary--text font-weight-bold mb-1 subtitle-2"
+      class="primary--text font-weight-bold mb-1 subtitle-2 px-0"
       small
       link
       text

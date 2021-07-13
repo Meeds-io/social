@@ -50,7 +50,7 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0 pe-7 ps-4';
+      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0 ps-4';
     },
   },
   watch: {

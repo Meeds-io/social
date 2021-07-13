@@ -1,6 +1,6 @@
 <template>
   <div class="activity-share-information d-flex flex-column align-start">
-    <div class="activity-share-stream d-flex flex-row">
+    <div class="activity-share-stream d-flex flex-row flex text-truncate">
       <exo-user-avatar
         :username="sharedPoster.username"
         :title="sharedPoster.fullname"
