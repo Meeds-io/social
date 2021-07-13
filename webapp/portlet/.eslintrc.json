@@ -4,6 +4,7 @@
   ],
   "globals": {
     "activityComposer": true,
-    "socialUIProfile": true
+    "socialUIProfile": true,
+    "QRCode": true
   }
 }
