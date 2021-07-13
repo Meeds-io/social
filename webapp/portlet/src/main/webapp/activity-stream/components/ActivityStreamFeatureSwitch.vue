@@ -1,7 +1,7 @@
 <template>
   <div class="white d-flex flex-column text-center mb-4">
     <v-img
-      src="/social-portlet/activity-stream/comingSoonV2.png"
+      src="/social-portlet/images/comingSoonV2.png"
       width="190px"
       height="50px"
       max-width="100%"

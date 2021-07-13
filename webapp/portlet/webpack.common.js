@@ -7,6 +7,9 @@ let config = {
   entry: {
     commonVueComponents: './src/main/webapp/common/main.js',
     spacesAdministration: './src/main/webapp/spaces-administration/main.js',
+    hamburgerMenu: './src/main/webapp/hamburger-menu/main.js',
+    administrationHamburgerMenu: './src/main/webapp/administration-navigation/main.js',
+    userHamburgerMenu: './src/main/webapp/user-navigation/main.js',
     siteHamburgerMenu: './src/main/webapp/site-navigation/main.js',
     spacesHamburgerMenu: './src/main/webapp/spaces-navigation/main.js',
     profileHamburgerMenu: './src/main/webapp/profile-navigation/main.js',
@@ -48,6 +51,7 @@ let config = {
     mfaAccess : './src/main/webapp/mfa-access/main.js',
     activityStream: './src/main/webapp/activity-stream/main.js',
     mobileSettings: './src/main/webapp/mobile-settings/main.js',
+    branding: './src/main/webapp/company-branding-app/main.js'
   },
   module: {
     rules: [
