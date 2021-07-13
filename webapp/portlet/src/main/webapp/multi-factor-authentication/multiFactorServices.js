@@ -81,7 +81,7 @@ export function getAvailableMfaSystem() {
     if (resp && resp.ok) {
       return resp.json();
     } else {
-      throw new Error('Error when getting current MFA system');
+      throw new Error('Error when getting available MFA systems');
     }
   });
 }
