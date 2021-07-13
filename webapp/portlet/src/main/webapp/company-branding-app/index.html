@@ -1,0 +1,24 @@
+<div class="VuetifyApp">
+  <div id="branding">
+    <div data-app="true" class="v-application border-box-sizing v-application--is-ltr theme--light"
+      id="brandingTopBar" flat="">
+      <div class="v-application--wrap">
+        <div class="container pa-0 pl-3">
+          <div class="d-flex mx-0 pa-0">
+            <a href="/" class=" pr-3 logoContainer">
+              <img src="/portal/rest/v1/platform/branding/logo" alt="Logo">
+            </a>
+            <a href="/" class=" pl-2 align-self-center brandingContainer" style="">
+              <span class="subtitle-2 font-weight-bold"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      require(['PORTLET/social-portlet/Branding'], function(brandingApp) {
+          brandingApp.init();
+      });
+    </script>
+  </div>
+</div>
