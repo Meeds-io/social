@@ -2,6 +2,7 @@
   <v-alert
     v-model="displayAlert"
     :type="alertType"
+    :max-width="maxWidth"
     border="left"
     class="white"
     elevation="2"
@@ -12,7 +13,7 @@
       {{ alertMessage }}
     </span>
     <v-btn
-      v-if="alert.click"
+      v-if="alert && alert.click"
       class="primary--text"
       text
       @click="alert.click">
@@ -43,10 +44,16 @@ export default {
   }),
   computed: {
     alertMessage() {
-      return this.alert.message;
+      return this.alert && this.alert.message;
     },
     alertType() {
-      return this.alert.type;
+      return this.alert && this.alert.type;
+    },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
+    maxWidth() {
+      return this.isMobile && '100vw' || '50vw';
     },
   },
   watch: {
@@ -55,10 +62,24 @@ export default {
         this.$emit('dismissed');
       }
     },
+    alert() {
+      if (this.alert) {
+        this.showAlert();
+      } else {
+        this.$emit('dismissed');
+      }
+    },
   },
   created() {
     const time = 5000;
     window.setTimeout(() => this.displayAlert = false, time);
+  },
+  methods: {
+    showAlert() {
+      const time = 5000;
+      this.displayAlert = true;
+      window.setTimeout(() => this.$emit('dismissed'), time);
+    },
   },
 };
 </script>

@@ -16,9 +16,7 @@
  */
 package org.exoplatform.social.core.activity.model;
 
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * ExoSocialActivity interface
@@ -133,7 +131,14 @@ public interface ExoSocialActivity {
    * @return array of identityIds
    */
   String[] getLikeIdentityIds();
-  
+
+  /**
+   * Gets array of identityIds who shared this activity.
+   *
+   * @return array of identityIds
+   */
+  Set<ActivityShareAction> getShareActions();
+
   /**
    * Gets number of Liker who like this activity.
    *
@@ -147,6 +152,13 @@ public interface ExoSocialActivity {
    * @param identityIds array of identity Ids
    */
   void setLikeIdentityIds(String[] identityIds);
+  
+  /**
+   * Sets share actions of the activity.
+   *
+   * @param shareActions {@link Set} share actions of user
+   */
+  void setShareActions(Set<ActivityShareAction> shareActions);
 
   /**
    * Gets the stream owner, must be the remoteId of an identity.

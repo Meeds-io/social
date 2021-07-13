@@ -125,6 +125,17 @@ public interface ActivityManager {
   void deleteActivity(String activityId);
 
   /**
+   * Hides an activity to not be displayed in stream, but keep it accessible in
+   * standalone mode
+   * 
+   * @param activityId
+   * @return Hidden {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity hideActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Creates or updates a comment or a comment reply on a specific activity.
    *
    * @param activity The activity.
@@ -420,10 +431,8 @@ public interface ActivityManager {
    * Shares an existing activity to a list of spaces identified by its pretty
    * names with an optional message
    * 
+   * @param activityTemplate Activity to create as shared activity in all targeted spaces
    * @param activityId {@link ExoSocialActivity} identifier to share
-   * @param title title to put into shared activity
-   * @param type Activity type, kept for backward compatibility with old
-   *          ActivityStream
    * @param targetSpaces {@link List} of space pretty names to share with
    * @param viewer current user making the share operation
    * @return {@link List} of shared {@link ExoSocialActivity}
@@ -431,9 +440,8 @@ public interface ActivityManager {
    * @throws IllegalAccessException when user can't post on space stream or
    *           can't access activity to share
    */
-  default List<ExoSocialActivity> shareActivity(String activityId,
-                                                String title,
-                                                String type,
+  default List<ExoSocialActivity> shareActivity(ExoSocialActivity activityTemplate,
+                                                String activityId,
                                                 List<String> targetSpaces,
                                                 org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
                                                                                                    IllegalAccessException {
@@ -445,26 +453,17 @@ public interface ActivityManager {
    * names with an optional message
    * 
    * @param activityShareAction {@link ActivityShareAction} for share
-   * @param type Activity type, kept for backward compatibility with old
-   *          ActivityStream. This parameter is kept for backward compatibility
+   * @param activityTemplate Activity to create as shared activity in all targeted spaces
    * @param viewer current user making the share operation
    * @return {@link List} of shared {@link ExoSocialActivity}
    * @throws ObjectNotFoundException when activity or target space not found
    * @throws IllegalAccessException when user can't post on space stream or
    *           can't access activity to share
-   * @deprecated use shareActivity without type parameter. Should be removed after cleanup of Old AS UI.
    */
-  @Deprecated
-  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction, // NOSONAR
-                                                String type,
+  default List<ExoSocialActivity> shareActivity(ExoSocialActivity activityTemplate,
+                                                ActivityShareAction activityShareAction,
                                                 org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
     throw new UnsupportedOperationException();
-  }
-
-  default List<ExoSocialActivity> shareActivity(ActivityShareAction activityShareAction,
-                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
-                                                                                                   IllegalAccessException {
-    return shareActivity(activityShareAction, null, viewer); // NOSONAR will have to replace deprecated method
   }
 
 }

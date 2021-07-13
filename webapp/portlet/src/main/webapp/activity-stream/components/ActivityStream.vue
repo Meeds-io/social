@@ -1,18 +1,21 @@
 <template>
   <v-app v-if="loaded">
     <activity-stream-feature-switch />
+    <activity-notification-alerts />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
-      :comment-types="activityTypes"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail" />
-    <div class="drawer-parent">
-      <activity-comments-drawer
-        :comment-types="activityTypes"
-        :comment-actions="commentActions" />
-    </div>
+    <extension-registry-components
+      :params="drawerParams"
+      name="ActivityStream"
+      type="activity-stream-drawers"
+      parent-element="div"
+      element="div"
+      class="drawer-parent" />
   </v-app>
 </template>
 
@@ -30,6 +33,21 @@ export default {
     activityActionExtension: 'action',
     commentActionExtension: 'comment-action',
   }),
+  computed: {
+    commentTypes() {
+      // We will keep for now the same declared types
+      // for comments and activites
+      return this.activityTypes;
+    },
+    drawerParams() {
+      return {
+        activityTypes: this.activityTypes,
+        activityActions: this.activityActions,
+        commentTypes: this.commentTypes,
+        commentActions: this.commentActions,
+      };
+    },
+  },
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);

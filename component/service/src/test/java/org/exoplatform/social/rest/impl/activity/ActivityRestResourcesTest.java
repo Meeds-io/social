@@ -394,6 +394,30 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(5, result.getTemplateParams().size());
   }
 
+  public void testHideActivityById() throws Exception {
+    startSessionAs("root");
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("test activity");
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(1, activities.getSize());
+
+    ContainerResponse response = service("DELETE",
+            "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "?hide=true", "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("test activity", result.getTitle());
+
+    activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(0, activities.getSize());
+
+    activity = activityManager.getActivity(activity.getId());
+    assertNotNull("Should be able to access activity even when hidden", activity);
+  }
+
   public void testGetUpdatedDeletedActivityById() throws Exception {
     startSessionAs("root");
 
@@ -743,10 +767,23 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     sharedActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertNotNull(sharedActivity);
     assertNotNull(sharedActivity.getOriginalActivity());
-    assertTrue(sharedActivity.getTemplateParams().containsKey(param1));
-    assertTrue(sharedActivity.getTemplateParams().containsKey(param2));
-    assertEquals(value1, sharedActivity.getTemplateParams().get(param1));
-    assertEquals(value2, sharedActivity.getTemplateParams().get(param2));
+    assertTrue(!sharedActivity.getTemplateParams().containsKey(param1));
+    assertTrue(!sharedActivity.getTemplateParams().containsKey(param2));
+
+    restartTransaction();
+    startSessionAs("john");
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + originalActivity.getId() + "?expand=" + RestProperties.SHARED,
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    originalActivity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertNotNull(originalActivity);
+    assertNull(originalActivity.getOriginalActivity());
+    assertNotNull(originalActivity.getShareActions());
+    assertEquals(1, originalActivity.getShareActions().size());
   }
 
   public void testPostCommentReply() throws Exception {

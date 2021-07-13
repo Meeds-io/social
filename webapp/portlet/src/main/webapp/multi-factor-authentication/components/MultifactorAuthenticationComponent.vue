@@ -147,7 +147,7 @@
                       :username="request.username"
                       :fullname="request.fullname"
                       :external="request.isExternal"
-                      :retrieveExtraInformation="false" />
+                      :retrieve-extra-information="false" />
                   </div>
                   <v-btn
                     v-exo-tooltip.bottom.body="$t('authentication.multifactor.revocation.action.accept')"

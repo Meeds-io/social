@@ -1086,6 +1086,91 @@
     </module>
   </portlet>
 
+  <module>
+    <name>HamburgerMenu</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/hamburgerMenu.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <portlet>
+    <name>AdministrationHamburgerMenu</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/administrationHamburgerMenu.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>HamburgerMenu</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>UserHamburgerMenu</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/userHamburgerMenu.bundle.js</path>
+      </script>
+      <depends>
+        <module>uiForm</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>HamburgerMenu</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
   <portlet>
     <name>SiteHamburgerMenu</name>
     <module>
@@ -1093,6 +1178,9 @@
         <minify>false</minify>
         <path>/js/siteHamburgerMenu.bundle.js</path>
       </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
       <depends>
         <module>vue</module>
       </depends>
@@ -1133,6 +1221,9 @@
         <as>$</as>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>extensionRegistry</module>
       </depends>
     </module>
@@ -1145,6 +1236,9 @@
         <minify>false</minify>
         <path>/js/spacesHamburgerMenu.bundle.js</path>
       </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
       <depends>
         <module>vue</module>
       </depends>
@@ -1162,6 +1256,35 @@
         <module>extensionRegistry</module>
       </depends>
     </module>
+  </portlet>
+
+  <portlet>
+      <name>Branding</name>
+      <module>
+          <script>
+              <minify>false</minify>
+              <path>/js/branding.bundle.js</path>
+          </script>
+          <depends>
+              <module>vue</module>
+          </depends>
+          <depends>
+            <module>vuetify</module>
+          </depends>
+          <depends>
+              <module>eXoVueI18n</module>
+          </depends>
+          <depends>
+            <module>jquery</module>
+            <as>$</as>
+          </depends>
+          <depends>
+              <module>extensionRegistry</module>
+          </depends>
+          <depends>
+              <module>filedrop</module>
+          </depends> 
+      </module>
   </portlet>
 
     <portlet>
@@ -1587,63 +1710,6 @@
   </module>
 
   <module>
-    <name>ShareActivity</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/shareActivity.bundle.js</path>
-    </script>
-    <depends>
-      <module>ShareActivityDrawer</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-  </module>
-
-  <module>
-    <name>ShareActivityDrawer</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/shareActivityDrawer.bundle.js</path>
-    </script>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-  </module>
-
-  <module>
     <name>ActivityStream</name>
     <script>
       <minify>false</minify>
@@ -1663,12 +1729,6 @@
     <depends>
       <module>ActivityReactions</module>
       <as>activityReactions</as>
-    </depends>
-    <depends>
-      <module>ShareActivityDrawer</module>
-    </depends>
-    <depends>
-      <module>vueEllipsis</module>
     </depends>
     <depends>
       <module>vue</module>

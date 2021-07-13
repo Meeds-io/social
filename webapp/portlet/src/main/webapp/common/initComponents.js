@@ -16,12 +16,18 @@ import ExtensionRegistryComponent from './components/ExtensionRegistryComponent.
 import ExtensionRegistryComponents from './components/ExtensionRegistryComponents.vue';
 import DynamicHTMLElement from './components/DynamicHTMLElement.vue';
 import ExoGroupSuggester from './components/ExoGroupSuggester.vue';
+import CardCarousel from './components/CardCarousel.vue';
+import DrawersOverlay from './components/DrawersOverlay.vue';
+import ActivityShareDrawer from './components/ActivityShareDrawer.vue';
 
 const components = {
+  'card-carousel': CardCarousel,
   'exo-user-avatars-list': ExoUserAvatarsList,
   'exo-user-avatar': ExoUserAvatar,
   'exo-space-avatar': ExoSpaceAvatar,
   'exo-drawer': ExoDrawer,
+  'activity-share-drawer': ActivityShareDrawer,
+  'drawers-overlay': DrawersOverlay,
   'exo-confirm-dialog': ExoConfirmDialog,
   'exo-identity-suggester': ExoIdentitySuggester,
   'exo-activity-rich-editor': ExoActivityRichEditor,

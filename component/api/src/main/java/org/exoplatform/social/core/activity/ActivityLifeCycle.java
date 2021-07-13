@@ -53,6 +53,9 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
       case SHARED_ACTIVITY:
         listener.shareActivity(event);
         break;
+      case HIDE_ACTIVITY:
+        listener.hideActivity(event);
+        break;
     }
   }
   
@@ -90,6 +93,10 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
 
   public void shareActivity(ExoSocialActivity activity) {
     broadcast(new ActivityLifeCycleEvent(Type.SHARED_ACTIVITY, activity));
+  }
+
+  public void hideActivity(ExoSocialActivity activity) {
+    broadcast(new ActivityLifeCycleEvent(Type.HIDE_ACTIVITY, activity));
   }
 
 }

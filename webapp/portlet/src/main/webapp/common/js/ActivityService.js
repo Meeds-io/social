@@ -59,7 +59,28 @@ export function createActivity(message, activityType, attachments, spaceId, temp
   });
 }
 
-export function updateActivity(activityId, message, activityType, attachments, spaceId, templateParams) {
+export function shareActivity(activityId, message, templateParams, spaces) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/share`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'POST',
+    body: JSON.stringify({
+      title: message,
+      templateParams: templateParams,
+      targetSpaces: spaces
+    })
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function updateActivity(activityId, message, activityType, attachments, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -81,8 +102,8 @@ export function updateActivity(activityId, message, activityType, attachments, s
   });
 }
 
-export function deleteActivity(id) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}`, {
+export function deleteActivity(id, hide) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?hide=${hide || false}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {

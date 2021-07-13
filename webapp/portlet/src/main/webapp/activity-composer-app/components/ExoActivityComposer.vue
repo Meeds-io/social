@@ -215,10 +215,6 @@ export default {
     if (!eXo.env.portal.spaceDisplayName){
       this.link = this.$t('activity.composer.post');
     }
-
-    this.$nextTick().then(() => {
-      this.$root.$emit('application-loaded');
-    });
   },
   mounted() {
     this.$nextTick()

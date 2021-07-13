@@ -17,11 +17,9 @@
 
 package org.exoplatform.social.rest.entity;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.exoplatform.social.core.activity.model.ActivityFile;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
@@ -38,6 +36,7 @@ public class ActivityEntity extends BaseEntity {
     setBody(activity.getBody());
     setLink(activity.getPermaLink());
     setType(activity.getType());
+    setSharedActions(activity.getShareActions());
     setTemplateParams(activity.getTemplateParams());
   }
 
@@ -235,6 +234,16 @@ public class ActivityEntity extends BaseEntity {
     return (DataEntity) getProperty("templateParams");
   }
 
+  public ActivityEntity setSharedActions(Set<ActivityShareAction> shareActions) {
+    setProperty("shareActions", shareActions);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Set<ActivityShareAction> getShareActions() {
+    return (Set<ActivityShareAction>) getProperty("shareActions");
+  }
+
   @SuppressWarnings("unchecked")
   public List<ActivityFile> getFiles() {
     return (List<ActivityFile>) getProperty("files");
@@ -245,13 +254,23 @@ public class ActivityEntity extends BaseEntity {
     return this;
   }
 
-  public ActivityEntity setOriginalActivity(ActivityEntity originalActivity) {
+  public ActivityEntity setOriginalActivity(DataEntity originalActivity) {
     setProperty("originalActivity", originalActivity);
     return this;
   }
 
-  public ActivityEntity getOriginalActivity() {
-    return (ActivityEntity) getProperty("originalActivity");
+  public DataEntity getOriginalActivity() {
+    return (DataEntity) getProperty("originalActivity");
+  }
+
+  public ActivityEntity setTargetSpaces(List<String> targetSpaces) {
+    setProperty("targetSpaces", targetSpaces);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<String> getTargetSpaces() {
+    return (List<String>) getProperty("targetSpaces");
   }
 
 }

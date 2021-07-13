@@ -24,9 +24,12 @@
         :is-activity-detail="activityId"
         class="mb-6 contentBox" />
     </template>
-    <template v-else-if="!loading && !error">
-      <activity-stream-empty-message-space v-if="spaceId" />
-      <activity-stream-empty-message-user v-else />
+    <template v-else-if="!loading">
+      <activity-not-found v-if="activityId" />
+      <template v-else-if="!error">
+        <activity-stream-empty-message-space v-if="spaceId" />
+        <activity-stream-empty-message-user v-else />
+      </template>
     </template>
     <v-btn
       v-if="hasMore"
@@ -94,6 +97,7 @@ export default {
         window.setTimeout(() => {
           socialUIProfile.initUserProfilePopup('ActivityStream', {});
           document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
+          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
         }, 500);
       }
     },
