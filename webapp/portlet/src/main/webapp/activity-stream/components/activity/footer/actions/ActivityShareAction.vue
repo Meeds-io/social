@@ -4,7 +4,7 @@
     :id="`ShareActivity${activityId}`"
     :title="$t('UIActivity.share')"
     :class="shareTextColorClass"
-    class="pa-0 ms-2 me-1"
+    class="pa-0 ms-4"
     text
     link
     small

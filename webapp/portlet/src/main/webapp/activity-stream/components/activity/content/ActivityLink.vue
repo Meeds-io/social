@@ -87,20 +87,20 @@
           {{ defaultIconClass }}
         </v-icon>
       </v-avatar>
-      <div class="me-4 my-4">
+      <div class="my-4">
         <div
           v-if="title"
           v-sanitized-html="title"
           :title="titleTooltip"
           :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
-          class="font-weight-bold text-color ma-0 pb-2 text-wrap text-break">
+          class="font-weight-bold text-color mx-0 mt-0 mb-2 text-wrap text-break">
         </div>
         <div
           v-if="summary"
           :title="summaryTooltip"
-          :class="useEllipsisOnSummary && 'text-truncate-3' || ''"
+          :class="useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'"
           v-sanitized-html="summary"
-          class="caption text-color text-wrap text-break rich-editor-content reset-style-box">
+          class="caption text-wrap text-break rich-editor-content reset-style-box">
         </div>
       </div>
     </template>

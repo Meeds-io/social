@@ -6,7 +6,7 @@
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
-      :comment-types="activityTypes"
+      :comment-types="commentTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail" />
     <extension-registry-components
@@ -34,6 +34,11 @@ export default {
     commentActionExtension: 'comment-action',
   }),
   computed: {
+    commentTypes() {
+      // We will keep for now the same declared types
+      // for comments and activites
+      return this.activityTypes;
+    },
     drawerParams() {
       return {
         activityTypes: this.activityTypes,
