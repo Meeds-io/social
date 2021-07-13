@@ -12,6 +12,7 @@
         <exo-group-suggester
           v-model="groups"
           :options="suggesterOptions"
+          :boundGroups="groups"
           :source-providers="[findGroups]"
           :placeholder="$t('authentication.multifactor.protected.groups.users.placeholder')" />
       </v-flex>
@@ -63,6 +64,7 @@ export default {
         closeAfterSelect: false,
         dropdownParent: 'body',
         hideSelected: false,
+        fillSelectize: true,
         renderMenuItem(item, escape) {
           return component.renderMenuItem(item, escape);
         },

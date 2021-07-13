@@ -63,6 +63,9 @@ export default {
     
     //init suggester
     $(this.$el).suggester(options);
+    if (options.fillSelectize === true) {
+      this.fillSelectize();
+    }
   },
   methods: {
     bindSelectedItems() {
@@ -93,6 +96,19 @@ export default {
         addedItems.forEach(item => {
           this.addItem(item);
         });
+      }
+    },
+    fillSelectize() {
+      for (const group of this.boundGroups) {
+        console.log(group);
+        const selectize = $(this.$el)[0].selectize;
+        selectize.options[`${group}`] = {
+          avatarUrl: null,
+          text: group,
+          value: group,
+          type: 'group'
+        };
+        selectize.addItem(group);
       }
     },
     addItem(item) {
