@@ -1,14 +1,13 @@
 import ActivityStream from './components/ActivityStream.vue';
-import ActivityStreamFeatureSwitch from './components/ActivityStreamFeatureSwitch.vue';
-import ActivityStreamList from './components/list/ActivityStreamList.vue';
-import ActivityNotificationAlerts from './components/list/ActivityNotificationAlerts.vue';
-import ActivityStreamEmptyMessageSpace from './components/list/ActivityStreamEmptyMessageSpace.vue';
-import ActivityStreamEmptyMessageUser from './components/list/ActivityStreamEmptyMessageUser.vue';
-import ActivityNotFound from './components/list/ActivityNotFound.vue';
-import ActivityStreamUpdater from './components/list/ActivityStreamUpdater.vue';
-import ActivityStreamConfirm from './components/list/ActivityStreamConfirm.vue';
+import ActivityStreamEmptyMessageSpace from './components/empty-stream/ActivityStreamEmptyMessageSpace.vue';
+import ActivityStreamEmptyMessageUser from './components/empty-stream/ActivityStreamEmptyMessageUser.vue';
+import ActivityNotFound from './components/empty-stream/ActivityNotFound.vue';
+import ActivityAutoLink from './components/common/ActivityAutoLink.vue';
+import ActivityNotificationAlerts from './components/common/ActivityNotificationAlerts.vue';
+import ActivityStreamUpdater from './components/common/ActivityStreamUpdater.vue';
+import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue';
+import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
-import ActivityAutoLink from './components/list/ActivityAutoLink.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityHeadSpace from './components/activity/header/ActivityHeadSpace.vue';
 import ActivityHeadUser from './components/activity/header/ActivityHeadUser.vue';
@@ -24,20 +23,19 @@ import ActivityActions from './components/activity/footer/ActivityActions.vue';
 import ActivityCommentAction from './components/activity/footer/actions/ActivityCommentAction.vue';
 import ActivityLikeAction from './components/activity/footer/actions/ActivityLikeAction.vue';
 import ActivityShareAction from './components/activity/footer/actions/ActivityShareAction.vue';
-import ActivityCommentsPreview from './components/comment/ActivityCommentsPreview.vue';
-import ActivityCommentsDrawer from './components/comment/ActivityCommentsDrawer.vue';
-import ActivityComments from './components/comment/ActivityComments.vue';
-import ActivityCommentBody from './components/comment/content/ActivityCommentBody.vue';
+import ActivityCommentsPreview from './components/comment/list/ActivityCommentsPreview.vue';
+import ActivityCommentsDrawer from './components/comment/list/ActivityCommentsDrawer.vue';
+import ActivityComments from './components/comment/list/ActivityComments.vue';
+import ActivityComment from './components/comment/ActivityComment.vue';
+import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 import ActivityCommentBodyText from './components/comment/content/ActivityCommentBodyText.vue';
 import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
-import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 
 const components = {
   'activity-stream': ActivityStream,
-  'activity-stream-feature-switch': ActivityStreamFeatureSwitch,
   'activity-stream-list': ActivityStreamList,
   'activity-notification-alerts': ActivityNotificationAlerts,
   'activity-auto-link': ActivityAutoLink,
@@ -65,7 +63,7 @@ const components = {
   'activity-comments-preview': ActivityCommentsPreview,
   'activity-comments-drawer': ActivityCommentsDrawer,
   'activity-comments': ActivityComments,
-  'activity-comment-body': ActivityCommentBody,
+  'activity-comment': ActivityComment,
   'activity-comment-body-text': ActivityCommentBodyText,
   'activity-comment-rich-text': ActivityCommentRichText,
   'activity-comment-actions': ActivityCommentActions,

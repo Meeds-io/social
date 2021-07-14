@@ -16,6 +16,9 @@
  */
 package org.exoplatform.social.webui;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -28,13 +31,9 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Processes url and returns the some type of result base on url.
@@ -42,7 +41,7 @@ import java.util.List;
  */
 public class URLUtils {
 
-  private static Log LOG = ExoLogger.getLogger(UISocialGroupSelector.class);
+  private static Log LOG = ExoLogger.getLogger(URLUtils.class);
   private static String ROOT_NODE_NAME = "default";
   
   /**

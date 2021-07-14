@@ -33,9 +33,10 @@
     <module>common</module>
     <module>core</module>
     <module>service</module>
-    <module>webui</module>
     <module>notification</module>
     <module>oauth-auth</module>
+    <module>search</module>
+    <module>webui</module>
   </modules>
 </project>
 

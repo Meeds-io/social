@@ -42,6 +42,7 @@
   <import>war:/conf/social-extension/social/search-configuration.xml</import>
   <import>war:/conf/social-extension/social/websocket-configuration.xml</import>
 
-  <import>war:/conf/social-extension/social/help-configuration.xml</import>
+  <import>war:/conf/social-extension/social/notification-configuration.xml</import>
+  <import>war:/conf/social-extension/social/notification-plugins-configuration.xml</import>
 
 </configuration>

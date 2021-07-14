@@ -33,7 +33,6 @@ import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.webui.exception.MessageException;
 
 /**
  * The Class OrganizationIdentityProvider.

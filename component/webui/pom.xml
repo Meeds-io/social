@@ -30,7 +30,7 @@
   <name>eXo PLF:: Social Web UI Component</name>
   <description>eXo Social Web UI Component</description>
   <properties>
-    <exo.test.coverage.ratio>0.004</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
@@ -204,18 +204,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
+        <groupId>org.exoplatform.social</groupId>
+        <artifactId>social-component-service</artifactId>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-      <dependency>
-          <groupId>org.exoplatform.social</groupId>
-          <artifactId>social-component-service</artifactId>
-      </dependency>
   </dependencies>
 </project>

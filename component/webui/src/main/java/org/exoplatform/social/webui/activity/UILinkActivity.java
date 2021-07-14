@@ -16,127 +16,88 @@
  */
 package org.exoplatform.social.webui.activity;
 
-import java.util.Date;
-
-import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.service.rest.Util;
-import org.exoplatform.social.webui.Utils;
-import org.exoplatform.social.webui.activity.share.UISharedLinkActivity;
-import org.exoplatform.webui.config.annotation.ComponentConfig;
-import org.exoplatform.webui.config.annotation.EventConfig;
-import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
-
-@ComponentConfig(
-        lifecycle = UIFormLifecycle.class,
-        template = "war:/groovy/social/webui/activity/UILinkActivity.gtmpl",
-        events = {
-                @EventConfig(listeners = BaseUIActivity.LoadLikesActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.ToggleDisplayCommentFormActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.LikeActivityActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.SetCommentListStatusActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.PostCommentActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.DeleteActivityActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.DeleteCommentActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.LikeCommentActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.EditActivityActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class),
-                @EventConfig(listeners = BaseUIActivity.RefreshActivityActionListener.class)
-        }
-)
+/**
+ * @deprecated Kept for backward compatibility for conf of other community
+ *             addons deployed on Tribe
+ */
+@Deprecated
 public class UILinkActivity extends BaseUIActivity {
 
-  public static final String ACTIVITY_TYPE = "LINK_ACTIVITY";
-  public static final String LINK_PARAM = "link";
-  public static final String IMAGE_PARAM = "image";
-  public static final String TITLE_PARAM = "title";
-  public static final String DESCRIPTION_PARAM = "description";
-  public static final String COMMENT_PARAM = "comment";
-  public static final String HTML_PARAM = "html";
-  public static final String DEFAULT_TITLE = "default_title";
-  public static final String MESSAGE = "MESSAGE";
+  public static final String ACTIVITY_TYPE     = "LINK_ACTIVITY";
 
-  private String linkSource = "";
-  private String linkTitle = "";
-  private String linkImage = "";
-  private String linkDescription = "";
-  private String linkComment = "";
-  private String embedHtml = "";
-  private String defaultTitle = "";
-  private String message = "";
+  public static final String LINK_PARAM        = "link";
+
+  public static final String IMAGE_PARAM       = "image";
+
+  public static final String TITLE_PARAM       = "title";
+
+  public static final String DESCRIPTION_PARAM = "description";
+
+  public static final String COMMENT_PARAM     = "comment";
+
+  public static final String HTML_PARAM        = "html";
+
+  public static final String DEFAULT_TITLE     = "default_title";
+
+  public static final String MESSAGE           = "MESSAGE";
+
   public String getLinkComment() {
-    return linkComment;
+    return null;
   }
+
   public void setLinkComment(String linkComment) {
-    this.linkComment = linkComment;
   }
+
   public String getLinkDescription() {
-    return UILinkUtil.simpleEscapeHtml(Util.getDecodeQueryURL(linkDescription));
+    return null;
   }
+
   public void setLinkDescription(String linkDescription) {
-    this.linkDescription = linkDescription;
   }
+
   public String getLinkImage() {
-    return linkImage;
+    return null;
   }
+
   public void setLinkImage(String linkImage) {
-    this.linkImage = linkImage;
   }
+
   public String getLinkSource() {
-    return UILinkUtil.simpleEscapeHtml(Util.getDecodeQueryURL(linkSource));
+    return null;
   }
+
   public void setLinkSource(String linkSource) {
-    this.linkSource = linkSource;
   }
+
   public String getLinkTitle() {
-    return UILinkUtil.simpleEscapeHtml(Util.getDecodeQueryURL(linkTitle));
+    return null;
   }
+
   public void setLinkTitle(String linkTitle) {
-    this.linkTitle = linkTitle;
   }
+
   public String getEmbedHtml() {
-    return embedHtml;
+    return null;
   }
+
   public void setEmbedHtml(String embedHtml) {
-    this.embedHtml = embedHtml;
   }
 
   public String getMessage() {
-    if (StringUtils.isNotBlank(message)) {
-      return message;
-    } else {
-      return getLinkComment();
-    }
+    return null;
   }
 
   public void setMessage(String message) {
-    this.message = message;
   }
 
-
   public String getDefaultTitle() {
-    return defaultTitle;
+    return null;
   }
 
   public void setDefaultTitle(String defaultTitle) {
-    this.defaultTitle = defaultTitle;
   }
 
-  @Override
-  protected void editActivity(String message) {
-    ExoSocialActivity activity = getActivity();
-    activity.getTemplateParams().put(COMMENT_PARAM, message);
-    getActivity().setUpdated(new Date().getTime());
-    this.setLinkComment(message);
-    Utils.getActivityManager().updateActivity(getActivity());
-  }
-
-
-  public boolean isActivityShareable() {
-    return true;
-  }
-  
   public String getOriginalActivityType() {
-    return UISharedLinkActivity.ACTIVITY_TYPE;
+    return null;
   }
 }

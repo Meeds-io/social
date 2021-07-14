@@ -44,6 +44,9 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <!-- ================================================================== -->
+  <!-- = GateIn configuration                                           = -->
+  <!-- ================================================================== -->
   <servlet>
     <servlet-name>GateInServlet</servlet-name>
     <servlet-class>org.gatein.wci.api.GateInServlet</servlet-class>
@@ -54,15 +57,5 @@
     <url-pattern>/gateinservlet</url-pattern>
   </servlet-mapping>
 
-  <!--security-role>
-    <description>a simple user role</description>
-    <role-name>user</role-name>
-  </security-role>
-
-  <security-role>
-    <description>the admin role</description>
-    <role-name>admin</role-name>
-  </security-role-->
-  
   <absolute-ordering/>
 </web-app>

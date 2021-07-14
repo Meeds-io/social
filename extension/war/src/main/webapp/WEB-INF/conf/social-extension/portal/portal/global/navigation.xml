@@ -99,7 +99,7 @@
       <name>edit-profile</name>
       <label>#{portal.global.edit-profile}</label>
       <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::edit-profile</page-reference>
+      <page-reference>portal::global::profile</page-reference>
     </node>
 
     <node>
@@ -107,13 +107,6 @@
       <label>#{portal.global.allNotifications}</label>
       <visibility>SYSTEM</visibility>
       <page-reference>portal::global::allNotifications</page-reference>
-    </node>
-
-    <node>
-      <name>notifications</name>
-      <label>#{portal.global.notifications}</label>
-      <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::notifications</page-reference>
     </node>
 
     <node>

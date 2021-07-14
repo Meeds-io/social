@@ -28,9 +28,6 @@ import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.utils.MentionUtils;
 
 /**
@@ -52,7 +49,7 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
       String portalOwner = null;
-      try{
+      try {
         portalOwner = Util.getPortalRequestContext().getPortalOwner();
       } catch (Exception e){
         //default value for testing and social

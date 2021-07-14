@@ -23,41 +23,8 @@
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
-    <key>org.exoplatform.social.webui.profile.settings.UserProfileRenderingService</key>
-    <type>org.exoplatform.social.webui.profile.settings.UserProfileRenderingService</type>
-  </component>
-
-  <component>
     <type>org.exoplatform.web.application.ApplicationLifecycleExtension</type>
   </component>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.webui.ext.UIExtensionManager</target-component>
-    <component-plugin>
-      <name>add.action</name>
-      <set-method>registerUIExtensionPlugin</set-method>
-      <type>org.exoplatform.webui.ext.UIExtensionPlugin</type>
-      <init-params>
-        <object-param>
-          <name>Relationship Activity</name>
-          <object type="org.exoplatform.social.webui.activity.UIActivityExtension">
-            <field name="type">
-              <string>org.exoplatform.social.webui.activity.BaseUIActivity</string>
-            </field>
-            <field name="name">
-              <string>exosocial:relationship</string>
-            </field>
-            <field name="component">
-              <string>org.exoplatform.social.webui.activity.plugin.UIRelationshipActivity</string>
-            </field>
-            <field name="activityBuiderClass">
-              <string>org.exoplatform.social.webui.activity.plugin.RelationshipUIActivityBuilder</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
@@ -103,7 +70,7 @@
     <component-plugin>
       <name>SpaceAccessApplicationLifecycle</name>
       <set-method>addPortalApplicationLifecycle</set-method>
-      <type>org.exoplatform.social.webui.space.access.SpaceAccessApplicationLifecycle</type>
+      <type>org.exoplatform.social.webui.SpaceAccessApplicationLifecycle</type>
     </component-plugin>
     <component-plugin>
       <name>OAuthLifecycle</name>

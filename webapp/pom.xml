@@ -29,8 +29,6 @@
   <name>eXo PLF:: Social Web Apps</name>
   <description>eXo Social Web Apps</description>
   <modules>
-    <module>resources</module>
     <module>portlet</module>
-    <module>juzu-portlet</module>
   </modules>
 </project>

@@ -36,7 +36,6 @@ import org.exoplatform.social.core.profile.*;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.webui.exception.MessageException;
 
 /**
  * Class IdentityManagerImpl implements IdentityManager without caching.

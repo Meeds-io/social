@@ -35,8 +35,6 @@
     <module>extension</module>
     <module>component</module>
     <module>webapp</module>
-    <module>extras</module>
-    <module>search</module>
   </modules>
   <scm>
     <connection>scm:git:git://github.com/exoplatform/social.git</connection>
@@ -131,7 +129,7 @@
       </dependency>
       <dependency>
         <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-extension-jar</artifactId>
+        <artifactId>social-component-search</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -148,51 +146,6 @@
       </dependency>
       <dependency>
         <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-notification-extension</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-notification-extension</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-extras-feedmash</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-extras-widget-resources</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-extras-widget-rest</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-search-service</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-search-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-search-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
         <version>${project.version}</version>
         <type>war</type>
@@ -200,30 +153,6 @@
       <dependency>
         <groupId>org.exoplatform.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-webapp-juzu-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-webapp-juzu-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-webapp-resources</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-webapp-resources</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
