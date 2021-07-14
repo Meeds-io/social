@@ -1591,7 +1591,6 @@
     </security-role-ref>
   </portlet>
 
-
   <portlet>
     <description xml:lang="EN">Mfa Access portlet</description>
     <portlet-name>mfaAccess</portlet-name>
@@ -1613,4 +1612,66 @@
       <keywords>mfa-access</keywords>
     </portlet-info>
   </portlet>
+
+  <portlet>
+    <portlet-name>AdministrationHamburgerMenu</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Administration Hamburger Menu</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>jsModule</name>
+        <value>PORTLET/social-portlet/AdministrationHamburgerMenu</value>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
+  <portlet>
+    <portlet-name>UserHamburgerMenu</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>User Hamburger Menu</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>jsModule</name>
+        <value>PORTLET/social-portlet/UserHamburgerMenu</value>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
+  <portlet>
+    <portlet-name>Branding</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+        <name>portlet-view-dispatched-file-path</name>
+        <value>/company-branding-app/index.html</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Branding</resource-bundle>
+    <portlet-info>
+      <title>Company Branding</title>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>

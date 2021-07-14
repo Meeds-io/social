@@ -10,18 +10,14 @@
       class="border-radius">
     </div>
     <a
-      v-if="title"
+      v-if="titleText"
       :href="link"
       :target="linkTarget"
       :title="titleText"
       class="pb-4 pt-3 text-color">
-      <ellipsis
-        v-if="titleText"
-        :data="titleText"
-        :line-clamp="2"
-        :delay-time="200"
-        end-char="..."
-        class="font-weight-bold text-color ma-0 text-wrap text-break" />
+      <div
+        v-text="titleText"
+        class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>
     </a>
   </div>
 </template>

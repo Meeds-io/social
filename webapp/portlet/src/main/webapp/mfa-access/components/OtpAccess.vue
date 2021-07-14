@@ -144,7 +144,7 @@ export default {
         });
     },
     askRevocation() {
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocation`, {
+      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations`, {
         method: 'POST',
         credentials: 'include',
         body: 'otp'

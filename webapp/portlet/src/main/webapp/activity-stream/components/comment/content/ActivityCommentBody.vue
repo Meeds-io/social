@@ -5,7 +5,7 @@
     class="d-inline-flex flex-column width-fit-content overflow-hidden activity-comment border-box-sizing">
     <div
       v-if="isEditingComment"
-      class="col-auto ps-13 mt-1 mb-2 flex-shrink-1">
+      class="col-auto ps-13 mb-4 py-0 flex-shrink-1">
       <activity-comment-rich-text
         ref="commentEditRichEditor"
         :activity-id="activityId"
@@ -16,7 +16,7 @@
         :options="commentEditOptions" />
     </div>
     <template v-else>
-      <v-list-item :class="highlightClass" class="pe-1 width-max-content">
+      <v-list-item :class="highlightClass" class="pa-0 mb-4 width-max-content">
         <activity-head-user
           :identity="posterIdentity"
           :size="33"
@@ -84,7 +84,7 @@
     <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
         ref="commentRichEditor"
-        class="col-auto ps-13 mt-1 mb-2 flex-shrink-1"
+        class="col-auto ps-8 py-0 mt-0 mb-2 flex-shrink-1"
         :activity-id="activityId"
         :parent-comment-id="parentCommentId"
         :label="$t('UIActivity.label.Comment')"

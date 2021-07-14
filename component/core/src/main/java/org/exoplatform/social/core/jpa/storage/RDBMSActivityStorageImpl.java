@@ -121,6 +121,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
     activity.setId(String.valueOf(activityEntity.getId()));
     activity.setLikeIdentityIds(activityEntity.getLikerIds().toArray(new String[] {}));
+
+    List<ActivityShareActionEntity> shareActions = activityShareActionDAO.getShareActionsByActivityId(activityEntity.getId());
+    if (CollectionUtils.isNotEmpty(shareActions)) {
+      activity.setShareActions(shareActions.stream()
+                                           .map(this::fromEntity)
+                                           .collect(Collectors.toSet()));
+    }
     activity.setTemplateParams(activityEntity.getTemplateParams() != null ? new LinkedHashMap<String, String>(activityEntity.getTemplateParams())
                                                                           : new HashMap<String, String>());
 
@@ -796,6 +803,14 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     } else {
       LOG.warn("The activity's " + activityId + " is not found!");
     }
+  }
+
+  @Override
+  public ExoSocialActivity hideActivity(String activityId) {
+    ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
+    activityEntity.setHidden(true);
+    activityEntity = activityDAO.update(activityEntity);
+    return convertActivityEntityToActivity(activityEntity);
   }
 
   @Override

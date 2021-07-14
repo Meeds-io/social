@@ -17,7 +17,7 @@
     <activity-comment-rich-text
       v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply"
       ref="commentRichEditor"
-      class="me-4 ms-14 mb-6"
+      class="me-4 ms-10 mb-6"
       :activity-id="activityId"
       :options="commentLastEditorOptions"
       :label="$t('UIActivity.label.Comment')" />
