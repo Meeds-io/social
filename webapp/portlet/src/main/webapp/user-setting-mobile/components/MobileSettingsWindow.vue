@@ -52,7 +52,7 @@
         </v-list-item>
       </div>
       <div class="ma-7">
-        <div style="background-image: url(/social-portlet/images/cadre.png); background-position: center; background-size: contain;height: 190px;width: 190px;display: flex;align-items: center;justify-content: space-around;">
+        <div class="background-qrcode-image">
           <div
             class="mt-2"
             height="145"
