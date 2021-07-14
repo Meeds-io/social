@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.portlet;
 
-import org.exoplatform.social.webui.space.UISpaceAccess;
 import org.exoplatform.webui.config.annotation.ComponentConfig;
 import org.exoplatform.webui.core.UIPortletApplication;
 import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;

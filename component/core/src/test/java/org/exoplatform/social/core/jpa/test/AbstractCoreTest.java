@@ -51,7 +51,6 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.exoplatform.webui.exception.MessageException;
 
 import org.mockito.Mockito;
 

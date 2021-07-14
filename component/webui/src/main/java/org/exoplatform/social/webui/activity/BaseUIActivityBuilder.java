@@ -19,21 +19,18 @@ package org.exoplatform.social.webui.activity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
 /**
- * BaseUIActivityBuilder.java
- *
- * @author    zun
- * @since     Jul 22, 2010
+ * @deprecated Kept for backward compatibility for conf of other community
+ *             addons deployed on Tribe
  */
+@Deprecated
 public abstract class BaseUIActivityBuilder {
-  public BaseUIActivity populateData(BaseUIActivity uiActivity, ExoSocialActivity activity){
-    initBaseUIActivity(uiActivity, activity);
-    extendUIActivity(uiActivity, activity);
-    return uiActivity;
+  public BaseUIActivity populateData(BaseUIActivity uiActivity, ExoSocialActivity activity) {
+    return null;
   }
 
   private void initBaseUIActivity(BaseUIActivity uiActivity, ExoSocialActivity activity) {
-    uiActivity.setActivity(activity);
   }
 
-  protected abstract void extendUIActivity(BaseUIActivity uiActivity, ExoSocialActivity activity);
+  protected void extendUIActivity(BaseUIActivity uiActivity, ExoSocialActivity activity) {
+  }
 }

@@ -18,6 +18,11 @@ package org.exoplatform.social.webui.activity;
 
 import org.exoplatform.webui.ext.UIExtension;
 
+/**
+ * @deprecated Kept for backward compatibility for conf of other community
+ *             addons deployed on Tribe
+ */
+@Deprecated
 public class UIActivityExtension extends UIExtension{
   private String activityBuiderClass;
 

@@ -9,7 +9,6 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.webui.exception.MessageException;
 
 public class ExternalUsersListenerImpl extends MembershipEventListener {
   private static final Log LOG = ExoLogger.getLogger(ExternalUsersListenerImpl.class);
