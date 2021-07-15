@@ -110,6 +110,9 @@ export default {
         .then(data => {
           if (data.result && data.result === 'true') {
             this.changeScreen('askToken');
+            this.$nextTick().then(() => {
+              document.getElementById('tokenInput').focus();
+            });
           } else {
             this.startRegistration();
           }
@@ -147,7 +150,7 @@ export default {
       fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/revocations`, {
         method: 'POST',
         credentials: 'include',
-        body: 'otp'
+        body: 'OTP'
       }).then(resp => resp && resp.ok && resp.json())
         .then(data => {
           if (data.result && data.result === 'true') {

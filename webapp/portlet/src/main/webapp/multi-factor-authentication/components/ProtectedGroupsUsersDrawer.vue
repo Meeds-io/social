@@ -12,6 +12,7 @@
         <exo-group-suggester
           v-model="groups"
           :options="suggesterOptions"
+          :boundGroups="groups"
           :source-providers="[findGroups]"
           :placeholder="$t('authentication.multifactor.protected.groups.users.placeholder')" />
       </v-flex>
@@ -40,7 +41,7 @@
 </template>
 
 <script>
-import {getGroups} from '../multiFactorServices';
+import {getGroups, getProtectedGroups, saveProtectedGroups} from '../multiFactorServices';
 export default {
   data () {
     const component = this;
@@ -62,7 +63,8 @@ export default {
         searchField: ['text'],
         closeAfterSelect: false,
         dropdownParent: 'body',
-        hideSelected: true,
+        hideSelected: false,
+        fillSelectize: true,
         renderMenuItem(item, escape) {
           return component.renderMenuItem(item, escape);
         },
@@ -81,6 +83,7 @@ export default {
   },
   created() {
     this.$root.$on('protectedGroupsUsers', this.protectedGroupsUsers);
+    this.getProtectedGroups();
   },
   methods: {
     protectedGroupsUsers() {
@@ -91,8 +94,16 @@ export default {
       this.error = null;
     },
     save() {
-      this.$refs.protectedGroupsUsersDrawer.close();
+      saveProtectedGroups(this.groups.join(','));
       this.$root.$emit('protectedGroupsList', this.groups);
+      this.$refs.protectedGroupsUsersDrawer.close();
+    },
+    getProtectedGroups() {
+      getProtectedGroups().then(data => {
+        for (const group of data.protectedGroups) {
+          this.groups.push(group);
+        }
+      });
     },
     findGroups (query, callback) {
       if (!query.length) {

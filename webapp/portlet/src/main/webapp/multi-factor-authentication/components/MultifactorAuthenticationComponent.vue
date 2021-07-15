@@ -53,8 +53,9 @@
                 <v-col cols="3">
                   <v-select
                     ref="selectItem"
-                    v-model="select"
+                    v-model="currentMfaSystem"
                     :items="items"
+                    @change="switchMfaSystem($event)"
                     class="authenticationInput"
                     outlined
                     dense />
@@ -206,79 +207,22 @@
             multiple>
             <v-expansion-panel>
               <v-expansion-panel-header expand-icon="mdi-menu-down" class="panelBlock">
-                <div class="d-flex">
-                  <v-list-item-content v-if="isOTP">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.opt.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-content v-if="isSuperGluu">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.supergluu.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <v-list-item-content v-if="isFido">
-                    <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
-                      <v-icon
-                        color="grey"
-                        size="24">
-                        mdi-information-outline
-                      </v-icon>
-                      {{ $t('authentication.multifactor.activated.fido2.label') }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </div>
+                <v-list-item-content v-if="currentMfaSystemHelpTitle != null">
+                  <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle ml-0">
+                    <v-icon
+                      color="grey"
+                      size="24">
+                      mdi-information-outline
+                    </v-icon>
+                    <span v-html="currentMfaSystemHelpTitle"></span>
+                  </v-list-item-title>
+                </v-list-item-content>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-list-item class="pl-0">
-                  <v-list-item-subtitle v-if="isOTP" class="text-sub-title text-left font-italic textSize caption infoTextStyle textLigneHeight">
-                    <div class="textStyle">
-                      {{ $t('authentication.multifactor.activated.opt.message.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.two') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.two') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.opt.message.step.three') }}
-                    </div>
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-if="isSuperGluu" class="text-sub-title text-left font-italic textSize caption infoTextStyle textLigneHeight">
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.one') }}
-                    </div>
-                    <div>
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.two') }}
-                    </div>
-                    <div class="mb-3 font-weight-bold">
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
-                    </div>
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-if="isFido" class="text-sub-title text-left font-italic textSize caption infoTextStyle textLigneHeight">
-                    <div>
-                      {{ $t('authentication.multifactor.activated.fido2.message.one') }}
-                    </div>
-                    <div class="mb-3 font-weight-bold">
-                      {{ $t('authentication.multifactor.activated.supergluu.message.step.three') }}
-                    </div>
+                <v-list-item class="pl-0" v-if="currentMfaSystemHelpContent != null">
+                  <v-list-item-subtitle
+                    class="text-sub-title text-left font-italic textSize caption infoTextStyle textLigneHeight">
+                    <span v-html="currentMfaSystemHelpContent"></span>
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-expansion-panel-content>
@@ -290,16 +234,18 @@
   </v-app>
 </template>
 <script>
-import {changeMfaFeatureActivation, getMfaStatus, getRevocationRequests, updateRevocationRequest} from '../multiFactorServices';
+import {changeMfaFeatureActivation, getRevocationRequests, updateRevocationRequest, getCurrentMfaSystem, changeMfaSytem, getProtectedGroups,getAvailableMfaSystem} from '../multiFactorServices';
 export default {
   data: () => ({
     isMultifacorAuthenticationEnabled: true,
     isManage2faPage: false,
     protectedGroupsUsers: null,
     revocationRequests: [],
-    selectedGroups: null,
-    items: ['OTP', 'SuperGluu', 'Fido 2'],
-    select: 'OTP',
+    selectedGroups: [],
+    items: [],
+    currentMfaSystem: null,
+    currentMfaSystemHelpTitle: null,
+    currentMfaSystemHelpContent: null,
     panel: [0, 1],
     panel1: [0, 1],
     alert: false,
@@ -315,18 +261,10 @@ export default {
     });
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
     this.getRevocationRequest();
-    this.getMfaStatus();
-  },
-  computed: {
-    isFido (){
-      return this.select === 'Fido 2';
-    },
-    isOTP (){
-      return this.select === 'OTP';
-    },
-    isSuperGluu (){
-      return this.select === 'SuperGluu';
-    },
+    this.getMfaFeatureStatus();
+    this.getCurrentMfaSystem();
+    this.getAvailableMfaSystems();
+    this.getProtectedGroups();
   },
   methods: {
     switchAuthenticationStatus() {
@@ -336,9 +274,35 @@ export default {
     protectedGroupsList(selectedGroups) {
       this.selectedGroups = selectedGroups;
     },
-    getMfaStatus() {
-      getMfaStatus().then(status => {
-        this.isMultifacorAuthenticationEnabled = status.mfaStatus === 'true';
+    getMfaFeatureStatus() {
+      this.$featureService.isFeatureEnabled('mfa').then(status => {
+        this.isMultifacorAuthenticationEnabled = status;
+      });
+    },
+    getProtectedGroups() {
+      getProtectedGroups().then(data => {
+        for (const group of data.protectedGroups) {
+          this.selectedGroups.push(group);
+        }
+      });
+    },
+    switchMfaSystem(system) {
+      changeMfaSytem(system).then(() => {
+        this.getCurrentMfaSystem();
+      });
+    },
+    getCurrentMfaSystem() {
+      getCurrentMfaSystem().then(settings => {
+        this.currentMfaSystem=settings.mfaSystem;
+        this.currentMfaSystemHelpTitle=settings.helpTitle;
+        this.currentMfaSystemHelpContent=settings.helpContent;
+      });
+    },
+    getAvailableMfaSystems() {
+      getAvailableMfaSystem().then(data => {
+        for (const system of data.available) {
+          this.items.push(system);
+        }
       });
     },
     getRevocationRequest() {

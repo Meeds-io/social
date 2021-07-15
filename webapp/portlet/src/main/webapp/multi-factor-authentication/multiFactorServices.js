@@ -19,26 +19,13 @@ export async function getGroups(query) {
 }
 
 export function changeMfaFeatureActivation(status) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/switchMfaFeatureActivation/${status}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/changeMfaFeatureActivation/${status}`, {
     headers: {
       'Content-Type': 'application/json'
     },
     credentials: 'include',
     method: 'PUT',
     body: JSON.stringify(status)
-  });
-}
-
-export function getMfaStatus() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getMfaStatus`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then((resp) => {
-    if (resp && resp.ok) {
-      return resp.json();
-    } else {
-      throw new Error('Error when getting mfa status');
-    }
   });
 }
 
@@ -62,3 +49,67 @@ export function getRevocationRequests() {
     }
   });
 }
+export function changeMfaSytem(mfaSystem) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/changeMfaSystem/${mfaSystem}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    method: 'PUT',
+    body: (mfaSystem)
+  });
+}
+
+export function getCurrentMfaSystem() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/settings`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting current MFA system');
+    }
+  });
+}
+
+export function getAvailableMfaSystem() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/available`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting available MFA systems');
+    }
+  });
+}
+
+export function getProtectedGroups() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getProtectedGroups`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting protected MFA groups');
+    }
+  });
+}
+
+export function saveProtectedGroups(groups) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/saveProtectedGroups`, {
+    method: 'POST',
+    credentials: 'include',
+    body: groups
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error setting dlp keywords', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
