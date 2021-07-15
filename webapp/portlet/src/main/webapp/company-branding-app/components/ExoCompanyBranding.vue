@@ -107,13 +107,13 @@
 
           <v-row class="colorsBlock">
             <v-col>
-              <exo-color-picker v-model="branding.themeColors.primaryColor" :label="$t('themeColors.primaryColor.label')" />
+              <exo-company-branding-color-picker v-model="branding.themeColors.primaryColor" :label="$t('themeColors.primaryColor.label')" />
             </v-col>
             <v-col>
-              <exo-color-picker v-model="branding.themeColors.secondaryColor" :label="$t('themeColors.secondaryColor.label')" />
+              <exo-company-branding-color-picker v-model="branding.themeColors.secondaryColor" :label="$t('themeColors.secondaryColor.label')" />
             </v-col>
             <v-col>
-              <exo-color-picker v-model="branding.themeColors.tertiaryColor" :label="$t('themeColors.tertiaryColor.label')" />
+              <exo-company-branding-color-picker v-model="branding.themeColors.tertiaryColor" :label="$t('themeColors.tertiaryColor.label')" />
             </v-col>
           </v-row>
         </div>

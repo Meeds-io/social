@@ -67,7 +67,7 @@
     <edit-permission>manager:/platform/administrators</edit-permission>
     <portlet-application>
       <portlet>
-        <application-ref>exoadmin</application-ref>
+        <application-ref>social-portlet</application-ref>
         <portlet-ref>Branding</portlet-ref>
       </portlet>
       <title>Branding Portlet</title>
