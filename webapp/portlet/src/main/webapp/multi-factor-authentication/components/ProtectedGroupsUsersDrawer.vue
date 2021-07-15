@@ -12,7 +12,7 @@
         <exo-group-suggester
           v-model="groups"
           :options="suggesterOptions"
-          :boundGroups="groups"
+          :bound-groups="groups"
           :source-providers="[findGroups]"
           :placeholder="$t('authentication.multifactor.protected.groups.users.placeholder')" />
       </v-flex>
