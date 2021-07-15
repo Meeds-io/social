@@ -53,6 +53,8 @@ Vue.directive('cacheable', {
     const appId = el.id;
     const cacheId = binding && binding.value && binding.value.cacheId || appId;
 
+    document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
     const mountApplication = function() {
       const cachedAppElement = document.querySelector(`#UIPortalApplication #${appId}`);
       if (cachedAppElement) {
@@ -61,6 +63,10 @@ Vue.directive('cacheable', {
         // eslint-disable-next-line no-console
         console.warn(`Application with identifier ${appId} was not found in page`);
       }
+
+      window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      }, 500);
     };
 
     const cacheDom = function() {
@@ -72,12 +78,16 @@ Vue.directive('cacheable', {
                 const domToCache = vnode.componentInstance.$root.$el.innerHTML
                   .replaceAll('<input ', '<input disabled ')
                   .replaceAll('<button ', '<button disabled ')
+                  .replaceAll('v-btn ', 'v-btn v-btn--disabled ')
                   .replaceAll('<select ', '<select disabled ')
-                  .replaceAll('<textarea ', '<textarea disabled ');
+                  .replaceAll('<textarea ', '<textarea disabled ')
+                  .replaceAll('v-navigation-drawer--open', 'v-navigation-drawer--open hidden')
+                  .replaceAll('v-alert ', 'v-alert hidden ')
+                  .replaceAll('v-overlay--active', 'v-overlay--active hidden');
                 cache.put(`/dom-cache?id=${cacheId}`, new Response($(`<div>${domToCache}</div>`).html(), {
                   headers: {'content-type': 'text/html;charset=UTF-8'},
                 }));
-              }, 200);
+              }, 500);
             }
           });
       }

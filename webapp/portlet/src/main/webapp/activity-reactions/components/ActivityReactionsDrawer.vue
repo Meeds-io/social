@@ -1,7 +1,6 @@
 <template>
   <exo-drawer
     ref="activityReactionsDrawer"
-    body-classes="hide-scroll decrease-z-index-more"
     right>
     <template slot="title">
       <div class="activityReactionsTitle">
