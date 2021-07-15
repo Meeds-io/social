@@ -29,7 +29,7 @@ export function init() {
     // init Vue app when locale ressources are ready
     new Vue({
       el: '#branding',
-      template: '<exo-company-branding></exo-company-branding>',
+      template: '<exo-company-branding id="branding"></exo-company-branding>',
       i18n,
       vuetify,
     });

@@ -1,6 +1,5 @@
 <template>
   <v-app v-if="loaded">
-    <activity-stream-feature-switch />
     <activity-notification-alerts />
     <activity-stream-list
       :activity-id="activityId"

@@ -17,9 +17,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<gatein-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_4 http://www.exoplatform.org/xml/ns/gatein_resources_1_4"
-                  xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
+<gatein-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_4 http://www.exoplatform.org/xml/ns/gatein_resources_1_4" xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
   <portlet>
     <name>SpaceInfos</name>
     <module>
@@ -45,196 +43,6 @@
       </depends>
       <depends>
         <module>userPopupPlugin</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <!-- Portlet javascript -->
-  <portlet>
-    <name>PeopleToolbarPortlet</name>
-    <module>
-      <depends>
-        <module>navigation</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SpacesToolbarPortlet</name>
-    <module>
-      <depends>
-        <module>navigation</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SocialUserToolBarGroupPortlet</name>
-    <module>
-      <depends>
-        <module>navigation</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>UserProfileToolBarPortlet</name>
-    <module>
-      <depends>
-        <module>navigation</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SocialBannerPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SocialLogoPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>ProfilePortlet</name>
-    <module>
-      <depends>
-        <module>webui</module>
-      </depends>
-      <depends>
-        <module>webui-ext</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>ProfileNavigationPortlet</name>
-    <module>
-      <depends>
-        <module>webui-ext</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>PeoplePortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>AllPeoplePortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>ConnectionsPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>InvitationsPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>RequestsPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>UserActivityStreamPortlet</name>
-    <module>
-      <depends>
-        <module>webui</module>
-      </depends>
-      <depends>
-        <module>base</module>
-      </depends>
-      <depends>
-        <module>ActivityStream</module>
-      </depends>
-      <depends>
-        <module>ActivityComposer</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>AllSpacesPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>MySpacesPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>PendingSpacesPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>InvitationSpacesPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SpaceActivityStreamPortlet</name>
-    <module>
-      <depends>
-        <module>webui</module>
-      </depends>
-      <depends>
-        <module>ActivityStream</module>
-      </depends>
-      <depends>
-        <module>ActivityComposer</module>
       </depends>
     </module>
   </portlet>
@@ -357,7 +165,7 @@
       </depends>
     </module>
   </portlet>
-  
+
   <portlet>
     <name>mfaAccess</name>
     <module>
@@ -382,55 +190,55 @@
       </depends>
     </module>
   </portlet>
-  
+
   <portlet>
-  <name>dlpQuarantine</name>
-  <module>
-    <script>
-      <minify>false</minify>
-      <path>/js/dlpQuarantine.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-  </module>
+    <name>dlpQuarantine</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/dlpQuarantine.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
   </portlet>
 
   <portlet>
-  <name>multifactorAuthentication</name>
-  <module>
-    <script>
-      <minify>false</minify>
-      <path>/js/multifactorAuthentication.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-  </module>
+    <name>multifactorAuthentication</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/multifactorAuthentication.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
   </portlet>
 
   <portlet>
@@ -565,13 +373,13 @@
   </portlet>
 
   <portlet>
-		<name>IntranetNotificationsPortlet</name>
-		<module>
-			<depends>
-				<module>intranetNotification</module>
-			</depends>
-		</module>
-	</portlet>
+    <name>IntranetNotificationsPortlet</name>
+    <module>
+      <depends>
+        <module>intranetNotification</module>
+      </depends>
+    </module>
+  </portlet>
 
   <portlet>
     <name>WhoIsOnLinePortlet</name>
@@ -763,11 +571,11 @@
   </portlet>
 
   <portlet>
-    <name>MobileSettings</name>
+    <name>UserSettingMobile</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/mobileSettings.bundle.js</path>
+        <path>/js/userSettingMobile.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>
@@ -790,6 +598,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>qrcode</module>
       </depends>
     </module>
   </portlet>
@@ -1259,87 +1070,87 @@
   </portlet>
 
   <portlet>
-      <name>Branding</name>
-      <module>
-          <script>
-              <minify>false</minify>
-              <path>/js/branding.bundle.js</path>
-          </script>
-          <depends>
-              <module>vue</module>
-          </depends>
-          <depends>
-            <module>vuetify</module>
-          </depends>
-          <depends>
-              <module>eXoVueI18n</module>
-          </depends>
-          <depends>
-            <module>jquery</module>
-            <as>$</as>
-          </depends>
-          <depends>
-              <module>extensionRegistry</module>
-          </depends>
-          <depends>
-              <module>filedrop</module>
-          </depends> 
-      </module>
+    <name>Branding</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/branding.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>filedrop</module>
+      </depends>
+    </module>
   </portlet>
 
-    <portlet>
-        <name>SpacesAdministration</name>
-        <module>
-            <script>
-                <minify>false</minify>
-                <path>/js/spacesAdministration.bundle.js</path>
-            </script>
-            <depends>
-                <module>vue</module>
-            </depends>
-            <depends>
-                <module>vuetify</module>
-            </depends>
-            <depends>
-                <module>eXoVueI18n</module>
-            </depends>
-            <depends>
-              <module>jquery</module>
-              <as>$</as>
-            </depends>
-            <depends>
-                <module>suggester</module>
-            </depends> 
-            <depends>
-                <module>extensionRegistry</module>
-            </depends>
-        </module>
-    </portlet>
+  <portlet>
+    <name>SpacesAdministration</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/spacesAdministration.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>suggester</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
 
-    <portlet>
-      <name>GettingStarted</name>
-      <module>
-        <script>
-          <minify>false</minify>
-          <path>/js/gettingStarted.bundle.js</path>
-        </script>
-        <depends>
-          <module>vue</module>
-        </depends>
-        <depends>
-          <module>vuetify</module>
-        </depends>
-        <depends>
-          <module>eXoVueI18n</module>
-        </depends>
-        <depends>
-          <module>jquery</module>
-          <as>$</as>
-        </depends>
-        <depends>
-          <module>extensionRegistry</module>
-        </depends>
-      </module>
+  <portlet>
+    <name>GettingStarted</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/gettingStarted.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
   </portlet>
 
   <portlet>
@@ -1756,6 +1567,135 @@
     <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
+    </depends>
+  </module>
+  <module>
+    <name>user-profile</name>
+    <as>userProfile</as>
+    <script>
+      <path>/js/eXo/social/webui/UIUserProfile.js</path>
+    </script>
+    <depends>
+      <module>socialUtil</module>
+      <as>socialUtil</as>
+    </depends>
+    <depends>
+      <module>social-ui-profile</module>
+      <as>socialUIProfile</as>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+    <depends>
+      <module>webui</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>social-ui-profile</name>
+    <as>socialUiProfile</as>
+    <script>
+      <path>/js/eXo/social/webui/UIProfile.js</path>
+    </script>
+    <depends>
+      <module>socialUtil</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>webui</module>
+    </depends>
+    <depends>
+      <module>userPopupPlugin</module>
+    </depends>
+    <depends>
+      <module>spacePopupPlugin</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>socialUtil</name>
+    <script>
+      <path>/js/eXo/social/SocialUtil.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>gj</as>
+    </depends>
+    <depends>
+      <module>uiMaskLayer</module>
+    </depends>
+    <depends>
+      <module>uiPopupWindow</module>
+      <as>popupWindow</as>
+    </depends>
+  </module>
+  <module>
+    <name>socialPlugin</name>
+    <script>
+      <path>/js/eXo/social/Util.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+  <module>
+    <name>mentionsPlugin</name>
+    <script>
+      <path>/js/eXo/jquery.exomentions.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+    <depends>
+      <module>mentionsLib</module>
+      <as>mentions</as>
+    </depends>
+  </module>
+  <module>
+    <name>mentionsLib</name>
+    <script>
+      <path>/js/eXo/underscore.js</path>
+    </script>
+  </module>
+  <module>
+    <name>userPopupPlugin</name>
+    <script>
+      <path>/js/eXo/UIUserProfilePopup.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+  <module>
+    <name>spacePopupPlugin</name>
+    <script>
+      <path>/js/eXo/UISpaceInfoPopup.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+  <module>
+    <name>userInvitation</name>
+    <script>
+      <path>/js/eXo/social/webui/UIUserInvitation.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+    <depends>
+      <module>suggester</module>
     </depends>
   </module>
 

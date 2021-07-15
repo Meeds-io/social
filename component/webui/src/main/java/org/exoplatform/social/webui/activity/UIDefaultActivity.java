@@ -16,42 +16,11 @@
  */
 package org.exoplatform.social.webui.activity;
 
-import org.exoplatform.social.webui.activity.share.UISharedDefaultActivity;
-import org.exoplatform.webui.config.annotation.ComponentConfig;
-import org.exoplatform.webui.config.annotation.EventConfig;
-import org.exoplatform.webui.core.lifecycle.UIFormLifecycle;
-
 /**
- * UIDefaultActivity.java
- *
- * @author    zun
- * @since     Jul 22, 2010
+ * @deprecated Kept for backward compatibility for conf of other community
+ *             addons deployed on Tribe
  */
-@ComponentConfig(
-  lifecycle = UIFormLifecycle.class,
-  template = "war:/groovy/social/webui/activity/UIDefaultActivity.gtmpl",
-  events = {
-    @EventConfig(listeners = BaseUIActivity.ToggleDisplayCommentFormActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.LikeActivityActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.LoadLikesActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.SetCommentListStatusActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.PostCommentActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.DeleteActivityActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.DeleteCommentActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.LikeCommentActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.EditActivityActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.EditCommentActionListener.class),
-    @EventConfig(listeners = BaseUIActivity.RefreshActivityActionListener.class)
-  }
-)
+@Deprecated
 public class UIDefaultActivity extends BaseUIActivity {
   public static final String ACTIVITY_TYPE = "DEFAULT_ACTIVITY";
-  
-  public boolean isActivityShareable() {
-    return true;
-  }
-  
-  public String getOriginalActivityType() {
-    return UISharedDefaultActivity.ACTIVITY_TYPE;
-  }
 }
