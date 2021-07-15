@@ -15,7 +15,7 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
-      v-if="commentsSize > 2"
+      v-if="commentsSize > 3"
       :disabled="loading"
       class="primary--text font-weight-bold mb-1 subtitle-2 px-0"
       small
@@ -59,9 +59,10 @@ export default {
             let parentComment = commentsPerId[comment.parentCommentId];
             if (parentComment) {
               parentComment.subCommentsSize++;
-              if (parentComment.lastSubComment && new Date(comment.createDate) > new Date(parentComment.lastSubComment.createDate)) {
-                parentComment.lastSubComment = comment;
+              if (!parentComment.subComments) {
+                parentComment.subComments = [];
               }
+              parentComment.subComments.push(comment);
             } else {
               parentComment = commentsPreviewList.find(tmpComment => tmpComment.id === comment.parentCommentId);
               if (!parentComment) {
@@ -69,23 +70,25 @@ export default {
               }
               commentsPerId[comment.parentCommentId] = parentComment;
               parentComment.subCommentsSize = 1;
-              parentComment.lastSubComment = comment;
+              parentComment.subComments = [comment];
             }
           } else {
             commentsPerId[comment.parentCommentId] = comment;
             if (!comment.subCommentsSize) {
               comment.subCommentsSize = 0;
+              comment.subComments = [];
             }
             commentsPreviewList.push(comment);
           }
         });
         if (commentsPreviewList.length) {
           commentsPreviewList.forEach(comment => {
-            if (comment.lastSubComment) {
-              commentsPreviewList.push(comment.lastSubComment);
+            if (comment.subComments && comment.subComments.length) {
+              comment.subComments.sort(this.sortComments).reverse();
+              commentsPreviewList.push(...comment.subComments.slice(0, 2));
             }
           });
-          commentsPreviewList.sort((comment1, comment2) => new Date(comment1.createDate).getTime() - new Date(comment2.createDate));
+          commentsPreviewList.sort(this.sortComments);
         }
       }
       return commentsPreviewList;
@@ -98,6 +101,9 @@ export default {
     this.retrieveLastComment();
   },
   methods: {
+    sortComments(comment1, comment2) {
+      return new Date(comment1.createDate).getTime() - new Date(comment2.createDate).getTime();
+    },
     retrieveLastComment() {
       this.loading = true;
       this.$activityService.getActivityComments(this.activity.id, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
