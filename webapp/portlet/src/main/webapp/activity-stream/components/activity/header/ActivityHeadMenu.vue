@@ -4,7 +4,8 @@
       v-model="menu"
       bottom
       left
-      offset-y>
+      offset-y
+      attach>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           :disabled="loading"
