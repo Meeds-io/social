@@ -55,7 +55,17 @@ const defaultActivityOptions = {
   getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
   getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
   getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
+  getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
+    height: '90px',
+    width: '90px',
+    noBorder: true,
+  },
+  isUseSameViewForMobile: activity => !activity || !activity.templateParams || !activity.templateParams.image,
   supportsThumbnail: true,
+  supportsIcon: true,
+  defaultIcon: {
+    icon: 'fa fa-link',
+  },
   getBody: activity => {
     return Vue.prototype.$utils.trim((activity.templateParams && activity.templateParams.comment)
            || (activity && activity.title)
