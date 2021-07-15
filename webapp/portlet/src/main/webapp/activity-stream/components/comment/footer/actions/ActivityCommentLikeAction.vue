@@ -1,26 +1,40 @@
 <template>
   <div class="d-inline-flex pe-1">
-    <v-btn
-      :id="`LikeLink${commentId}`"
-      :loading="changingLike"
-      :title="likeButtonTitle"
-      :class="likeTextColorClass"
-      class="px-0 width-auto"
-      text
-      link
-      x-small
-      @click="changeLike">
-      {{ $t('UIActivity.msg.LikeActivity') }}
-    </v-btn>
-    <v-btn
-      v-if="likesCount"
-      :id="`LikersListLink${commentId}`"
-      :title="likersFullnameTitle"
-      class="primary--text font-weight-bold"
-      x-small
-      icon>
-      ({{ likesCount }})
-    </v-btn>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          :id="`LikeLink${commentId}`"
+          :loading="changingLike"
+          :class="likeTextColorClass"
+          class="px-0 width-auto"
+          text
+          link
+          x-small
+          v-bind="attrs"
+          v-on="on"
+          @click="changeLike">
+          {{ $t('UIActivity.msg.LikeActivity') }}
+        </v-btn>
+      </template>
+      <span>
+        {{ likeButtonTitle }}
+      </span>
+    </v-tooltip>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          v-show="likesCount"
+          :id="`LikersListLink${commentId}`"
+          class="primary--text font-weight-bold"
+          x-small
+          icon
+          v-bind="attrs"
+          v-on="on">
+          ({{ likesCount }})
+        </v-btn>
+      </template>
+      <span v-sanitized-html="likersFullnameTitle"></span>
+    </v-tooltip>
   </div>
 </template>
 
@@ -52,10 +66,10 @@ export default {
     likersFullnameTitle() {
       const likersFullname = this.likers.map(liker => liker && liker.fullname).filter(liker => !!liker);
       if (this.likesCount > 10) {
-        const likersFullnameTitle = likersFullname.slice(0, 9).join('\r\n');
-        return `${likersFullnameTitle}\r\n${this.$t('UIActivity.msg.MoreLikers', {0: (this.likesCount - 9)})}`;
+        const likersFullnameTitle = likersFullname.slice(0, 9).join('<br />');
+        return `${likersFullnameTitle}<br />${this.$t('UIActivity.msg.MoreLikers', {0: (this.likesCount - 9)})}`;
       } else {
-        return likersFullname.slice(0, 10).join('\r\n');
+        return likersFullname.slice(0, 10).join('<br />');
       }
     },
     hasLiked() {
