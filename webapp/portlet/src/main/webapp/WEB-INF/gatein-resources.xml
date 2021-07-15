@@ -571,11 +571,11 @@
   </portlet>
 
   <portlet>
-    <name>MobileSettings</name>
+    <name>UserSettingMobile</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/mobileSettings.bundle.js</path>
+        <path>/js/userSettingMobile.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>
@@ -598,6 +598,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>qrcode</module>
       </depends>
     </module>
   </portlet>

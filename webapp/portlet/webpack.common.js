@@ -50,7 +50,7 @@ let config = {
     multifactorAuthentication : './src/main/webapp/multi-factor-authentication/main.js',
     mfaAccess : './src/main/webapp/mfa-access/main.js',
     activityStream: './src/main/webapp/activity-stream/main.js',
-    mobileSettings: './src/main/webapp/mobile-settings/main.js',
+    userSettingMobile: './src/main/webapp/user-setting-mobile/main.js',
     branding: './src/main/webapp/company-branding-app/main.js'
   },
   module: {
