@@ -17,7 +17,7 @@
       </v-btn>
     </v-fab-transition>
     <v-card
-      class="carousel-middle-parent scrollbar-width-none d-flex ms-4 me-5 px-0 pb-4 pt-2 overflow-x-scroll"
+      class="carousel-middle-parent scrollbar-width-none d-flex px-0 pb-4 pt-2 overflow-x-scroll"
       flat
       @scroll="computeProperties">
       <div :class="parentClass" class="carousel-last-parent d-flex ma-auto">

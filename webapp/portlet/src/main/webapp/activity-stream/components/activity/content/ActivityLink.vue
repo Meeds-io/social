@@ -7,7 +7,7 @@
     :title="tooltipText"
     class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
-      <div class="border-box-sizing flex pa-4">
+      <div class="border-box-sizing flex py-4 pe-4">
         <v-avatar
           v-if="supportsThumbnail"
           :min-height="thumbnailMobileHeight"
@@ -34,7 +34,7 @@
         <div
           v-if="title"
           :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
-          class="pa-4">
+          class="py-4 pe-4">
           <div
             v-if="title"
             v-text="titleText"
@@ -52,7 +52,7 @@
         :min-width="thumbnailWidth"
         :width="thumbnailWidth"
         :class="thumbnailNoBorder || 'border-color'"
-        class="border-box-sizing align-start ma-4"
+        class="border-box-sizing align-start my-4 me-4"
         rounded
         eager
         tile>
@@ -76,7 +76,7 @@
         :min-width="iconWidth"
         :width="iconWidth"
         :class="iconNoBorder || 'border-color'"
-        class="border-box-sizing align-start ma-4"
+        class="border-box-sizing align-start my-4 me-4"
         rounded
         eager
         tile>
