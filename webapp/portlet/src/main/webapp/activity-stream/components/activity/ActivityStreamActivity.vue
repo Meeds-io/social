@@ -42,11 +42,12 @@
         <extension-registry-components
           v-if="initialized"
           :params="extendedComponentParams"
+          :class="!isSharedActivity && 'pe-7'"
           name="ActivityContent"
           type="activity-content-extensions"
           parent-element="div"
           element="div"
-          class="d-flex flex-column pe-7" />
+          class="d-flex flex-column" />
       </v-card>
       <template v-if="!hideFooter">
         <activity-footer
@@ -111,6 +112,9 @@ export default {
     },
     activityId() {
       return this.activity && this.activity.id;
+    },
+    isSharedActivity() {
+      return this.activity && !!this.activity.parentActivity;
     },
     activityTypeExtension() {
       if (this.sharedActivityTypeExtension
