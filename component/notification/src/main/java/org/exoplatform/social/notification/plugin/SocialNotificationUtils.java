@@ -55,6 +55,7 @@ public class SocialNotificationUtils {
   public final static Pattern IMG_SRC_REGEX = Pattern.compile("<img[^>]*(?:(?:src\\s*=\\s*['\"]([^'\"]+)['\"])[^>]*(?:data-plugin-name\\s*=\\s*['\"](?:[^'\"]+)['\"]))[^>]*\\/>|<img[^>]*(?:(?:data-plugin-name\\s*=\\s*['\"](?:[^'\"]+)['\"])[^>]*(?:src\\s*=\\s*['\"]([^'\"]+)['\"]))[^>]*\\/>");
 
   public final static ArgumentLiteral<String> ACTIVITY_ID = new ArgumentLiteral<String>(String.class, "activityId");
+
   public final static ArgumentLiteral<String> COMMENT_ID = new ArgumentLiteral<String>(String.class, "commentId");
   public final static ArgumentLiteral<String> COMMENT_REPLY_ID = new ArgumentLiteral<String>(String.class, "commentReplyId");
   public final static ArgumentLiteral<String> PARENT_ACTIVITY_ID = new ArgumentLiteral<String>(String.class, "parentActivityId");
@@ -69,11 +70,13 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<String> REQUEST_FROM = new ArgumentLiteral<String>(String.class, "request_from");
   public final static ArgumentLiteral<String> PRETTY_NAME = new ArgumentLiteral<String>(String.class, "prettyName");
   public final static ArgumentLiteral<Relationship> RELATIONSHIP = new ArgumentLiteral<Relationship>(Relationship.class, "relationship");
-  
   public final static ArgumentLiteral<String> RELATIONSHIP_ID = new ArgumentLiteral<String>(String.class, "relationshipId");
 
+  public static final ArgumentLiteral<String> MFA_REVOCATION_REQUEST_REQUESTER =new ArgumentLiteral<>(String.class,
+                                                                                                      "mfa_revocation_request_requester");
+
   public final static ArgumentLiteral<Long> DLP_DETECTED_ITEM_ID = new ArgumentLiteral<>(Long.class, "dlp_detected_item_id");
-  
+
   public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_TITLE = new ArgumentLiteral<>(String.class, "dlp_restored_item_title");
 
   public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_REFERENCE = new ArgumentLiteral<>(String.class, "dlp_restored_item_reference");
