@@ -7,7 +7,7 @@
     :title="tooltipText"
     class="d-flex flex-no-wrap activity-thumbnail-box">
     <template v-if="useMobileView">
-      <div class="border-box-sizing flex py-4 pe-4">
+      <div class="border-box-sizing flex py-4">
         <v-avatar
           v-if="supportsThumbnail"
           :min-height="thumbnailMobileHeight"
@@ -34,7 +34,7 @@
         <div
           v-if="title"
           :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
-          class="py-4 pe-4">
+          class="py-4">
           <div
             v-if="title"
             v-text="titleText"

@@ -1,5 +1,5 @@
 <template>
-  <div class="actionBarMobile">
+  <div class="actionBarMobile ps-0">
     <a
       v-if="likersNumber === 1"
       class="likesNumber"

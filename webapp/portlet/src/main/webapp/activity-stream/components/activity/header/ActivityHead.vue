@@ -1,6 +1,6 @@
 <template>
   <v-list-item
-    class="pa-4 activity-head"
+    class="activity-head"
     dense>
     <activity-head-user
       :identity="posterIdentity"
