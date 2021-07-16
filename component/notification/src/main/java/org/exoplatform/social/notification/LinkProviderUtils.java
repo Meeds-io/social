@@ -325,13 +325,13 @@ public static final String RESOURCE_URL = "social/notifications";
    *
    * @return the Mfa page url
    */
-  public static String getMfaAdminURL(String username) {
+  public static String getMfaAdminURL() {
     String portal = PortalContainer.getCurrentPortalContainerName();
-    return new StringBuffer(CommonsUtils.getCurrentDomain())
-        .append("/")
-        .append(portal)
-        .append("/")
-        .append("g/:platform:administrators/multifactor-authentication").toString();
+    return CommonsUtils.getCurrentDomain()
+        + "/"
+        + portal
+        + "/"
+        + "g/:platform:administrators/multifactor-authentication";
   }
 
   /**

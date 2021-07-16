@@ -904,13 +904,13 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("isIntranet", "true");
       Calendar cal = Calendar.getInstance();
       cal.setTimeInMillis(notification.getLastModifiedDate());
-      templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
+      templateContext.put("READ", Boolean.parseBoolean(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("USERNAME", notification.getValueOwnerParameter("username"));
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", LinkProviderUtils.getUserAvatarUrl(identity.getProfile()));
-      templateContext.put("MFA_ADMIN_PAGE_URL", LinkProviderUtils.getMfaAdminURL(notification.getTo()));
+      templateContext.put("MFA_ADMIN_PAGE_URL", LinkProviderUtils.getMfaAdminURL());
 
       //
       String body = TemplateUtils.processGroovy(templateContext);

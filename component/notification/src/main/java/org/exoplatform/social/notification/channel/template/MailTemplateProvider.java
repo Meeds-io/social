@@ -1137,7 +1137,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
 
       templateContext.put("USERNAME", notification.getValueOwnerParameter("username"));
-      templateContext.put("MFA_ADMIN_PAGE_URL", LinkProviderUtils.getMfaAdminURL(notification.getTo()));
+      templateContext.put("MFA_ADMIN_PAGE_URL", LinkProviderUtils.getMfaAdminURL());
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", LinkProviderUtils.getUserAvatarUrl(identity.getProfile()));
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
