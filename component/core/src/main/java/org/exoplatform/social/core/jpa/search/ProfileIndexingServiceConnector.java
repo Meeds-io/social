@@ -99,15 +99,15 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       do {
         list.addAll(connectionDAO.getSenderIds(id, type, offset, limit).stream().map(senderId -> senderId.toString()).collect(Collectors.toList()));
         offset += limit;
-      } while (list != null && list.size() >= limit);
+      } while (list.size() >= limit);
     }
 
     if (inReceiver) {
       int offset = 0;
       do {
-        list.addAll(connectionDAO.getReceiverIds(id, type, offset, limit).stream().map(receierId -> receierId.toString()).collect(Collectors.toList()));
+        list.addAll(connectionDAO.getReceiverIds(id, type, offset, limit).stream().map(receiverId -> receiverId.toString()).collect(Collectors.toList()));
         offset += limit;
-      } while (list != null && list.size() >= limit);
+      } while (list.size() >= limit);
     }
 
     return list;
@@ -218,17 +218,17 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     Map<String, Collection<String>> listFields = new HashMap<>();
     // confirmed connections
     List<String> connectionsStr = buildConnectionString(identity, Relationship.Type.CONFIRMED);
-    if (connectionsStr.size() > 0) {
+    if (!connectionsStr.isEmpty()) {
       listFields.put("connections", connectionsStr);
     }
     // outgoing connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.OUTGOING);
-    if (connectionsStr.size() > 0) {
+    if (!connectionsStr.isEmpty()) {
       listFields.put("outgoings", connectionsStr);
     }
     // incoming connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.INCOMING);
-    if (connectionsStr.size() > 0) {
+    if (!connectionsStr.isEmpty()) {
       listFields.put("incomings", connectionsStr);
     }
 
