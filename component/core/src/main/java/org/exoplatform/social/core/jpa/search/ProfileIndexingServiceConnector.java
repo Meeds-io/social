@@ -18,6 +18,7 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -75,11 +76,10 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return TYPE;
   }
 
-  private String buildConnectionString(Identity identity, Relationship.Type type) {
-    StringBuilder sb = new StringBuilder();
+  private List<String> buildConnectionString(Identity identity, Relationship.Type type) {
 
     final int limit = 200;
-    List<Long> list = null;
+    List<String> list = new ArrayList<>();
     long id = Long.parseLong(identity.getId());
 
     boolean inSender = true;
@@ -97,8 +97,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     if (inSender) {
       int offset = 0;
       do {
-        list = connectionDAO.getSenderIds(id, type, offset, limit);
-        sb = append(sb, list);
+        list.addAll(connectionDAO.getSenderIds(id, type, offset, limit).stream().map(senderId -> senderId.toString()).collect(Collectors.toList()));
         offset += limit;
       } while (list != null && list.size() >= limit);
     }
@@ -106,33 +105,12 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     if (inReceiver) {
       int offset = 0;
       do {
-        list = connectionDAO.getReceiverIds(id, type, offset, limit);
-        sb = append(sb, list);
+        list.addAll(connectionDAO.getReceiverIds(id, type, offset, limit).stream().map(receierId -> receierId.toString()).collect(Collectors.toList()));
         offset += limit;
       } while (list != null && list.size() >= limit);
     }
 
-    // Remove the last ","
-    if (sb.length() > 0) {
-      sb.deleteCharAt(sb.length() - 1);
-    }
-
-    return sb.toString();
-  }
-
-  private StringBuilder append(StringBuilder sb, List<Long> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return sb;
-    }
-    int len = ids.size() * 10;
-
-    if (sb.capacity() < sb.length() + len) {
-      sb = new StringBuilder(sb.capacity() + len).append(sb);
-    }
-    for (Long id : ids) {
-      sb.append(id).append(",");
-    }
-    return sb;
+    return list;
   }
 
   @Override
@@ -237,23 +215,25 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
+    Map<String, Collection<String>> listFields = new HashMap<>();
     // confirmed connections
-    String connectionsStr = buildConnectionString(identity, Relationship.Type.CONFIRMED);
-    if (connectionsStr.length() > 0) {
-      fields.put("connections", connectionsStr);
+    List<String> connectionsStr = buildConnectionString(identity, Relationship.Type.CONFIRMED);
+    if (connectionsStr.size() > 0) {
+      listFields.put("connections", connectionsStr);
     }
     // outgoing connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.OUTGOING);
-    if (connectionsStr.length() > 0) {
-      fields.put("outgoings", connectionsStr);
+    if (connectionsStr.size() > 0) {
+      listFields.put("outgoings", connectionsStr);
     }
     // incoming connections
     connectionsStr = buildConnectionString(identity, Relationship.Type.INCOMING);
-    if (connectionsStr.length() > 0) {
-      fields.put("incomings", connectionsStr);
+    if (connectionsStr.size() > 0) {
+      listFields.put("incomings", connectionsStr);
     }
 
     Document document = new Document(id, null, createdDate, (Set<String>) null, fields);
+    document.setListFields(listFields);
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
              id,
              identity.getRemoteId(),
