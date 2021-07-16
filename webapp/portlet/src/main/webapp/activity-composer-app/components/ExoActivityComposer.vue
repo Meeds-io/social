@@ -272,6 +272,7 @@ export default {
 
       this.composerAction = 'post';
       this.message = '';
+      this.templateParams = {};
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
