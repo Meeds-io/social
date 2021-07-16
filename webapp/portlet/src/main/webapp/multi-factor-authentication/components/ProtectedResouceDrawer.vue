@@ -9,22 +9,20 @@
     </template>
     <template slot="content">
       <v-checkbox
-        v-model="checkbox"
+        v-model="isCheckAll"
+        @click="selectOption"
         class="ml-3"
         :label="$t('authentication.multifactor.protected.resources.select')" />
       <hr class="mx-5">
-      <v-checkbox
-        v-model="checkbox"
-        class="ml-3"
-        :label="$t('authentication.multifactor.protected.resources.manage.users')" />
-      <v-checkbox
-        v-model="checkbox"
-        class="ml-3"
-        :label="$t('authentication.multifactor.protected.resources.manage.groups')" />
-      <v-checkbox
-        v-model="checkbox"
-        class="ml-3"
-        :label="$t('authentication.multifactor.protected.resources.Memberships')" />
+      <div v-for="nav of navigations" :key="nav">
+        <v-checkbox
+          :key="nav"
+          v-model="navigationsGroup"
+          @change="updateCheckall"
+          :value="nav"
+          class="ml-3"
+          :label="nav.label.startsWith('#{Space') ? nav.name : nav.label" />
+      </div>
     </template>
     <template slot="footer">
       <div class="d-flex ">
@@ -45,9 +43,14 @@
 </template>
 
 <script>
+import {getNavigations, saveProtectedNavigations, getProtectedNavigations} from '../multiFactorServices';
 export default {
   data: () => ({
     drawer: false,
+    navigationsGroup: [],
+    savedNavigationsGroup: [],
+    isCheckAll: false,
+    navigations: [],
   }),
   watch: {
     drawer() {
@@ -60,6 +63,8 @@ export default {
   },
   created() {
     this.$root.$on('protectedResource', this.protectedResource);
+    this.getNavigations();
+    this.getProtectedNavigations();
   },
   methods: {
     protectedResource() {
@@ -69,7 +74,40 @@ export default {
       this.drawer = false;
     },
     save() {
+      this.savedNavigationsGroup = [] ;
+      for (const nav of this.navigationsGroup) {
+        this.savedNavigationsGroup.push(nav.name);
+      }
+      saveProtectedNavigations(this.savedNavigationsGroup.join(','));
+      this.$root.$emit('protectedNavigationsList', this.savedNavigationsGroup);
       this.$refs.protectedResourceDrawer.close();
+    },
+    getProtectedNavigations() {
+      getProtectedNavigations().then(data => {
+        this.navigationsGroup = data;
+      });
+    },
+    selectOption() {
+      this.navigationsGroup = [];
+      if (this.isCheckAll){ // Check all
+        for (const key in this.navigations) {
+          this.navigationsGroup.push(this.navigations[key]);
+        }
+      }
+    },
+    updateCheckall(){
+      if (this.navigations.length === this.navigationsGroup.length){
+        this.isCheckAll = true;
+      } else {
+        this.isCheckAll = false;
+      }
+    },
+    getNavigations() {
+      getNavigations().then(data => {
+        for (const nav of data) {
+          this.navigations.push(nav);
+        }
+      });
     },
   },
 };

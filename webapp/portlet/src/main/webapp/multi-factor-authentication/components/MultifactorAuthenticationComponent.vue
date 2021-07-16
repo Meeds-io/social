@@ -68,31 +68,6 @@
           <v-list>
             <div class="d-flex ml-6">
               <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
-                {{ $t('authentication.multifactor.protected.resources') }}
-              </v-list-item-title>
-              <template>
-                <v-btn
-                  class="mr-3"
-                  small
-                  icon
-                  @click="$root.$emit('isManage2faPage', isManage2faPage)">
-                  <v-icon size="24" class="text-sub-title">
-                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-                  </v-icon>
-                </v-btn>
-              </template>
-            </div>
-            <v-list-item-subtitle class="text-sub-title text-justify font-italic textSize caption ml-6 infoTextStyle textLigneHeight">
-              <div>
-                {{ $t('authentication.multifactor.protected.resources.label') }}
-              </div>
-            </v-list-item-subtitle>
-          </v-list>
-        </div>
-        <div v-if="isMultifacorAuthenticationEnabled" class="mt-6">
-          <v-list>
-            <div class="d-flex ml-6">
-              <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
                 {{ $t('authentication.multifactor.protected.group') }}
               </v-list-item-title>
               <template>
@@ -126,6 +101,31 @@
                 </v-row>
               </v-chip-group>
             </div>
+          </v-list>
+        </div>
+        <div v-if="isMultifacorAuthenticationEnabled" class="mt-6">
+          <v-list>
+            <div class="d-flex ml-6">
+              <v-list-item-title class="title text-color font-weight-bold subtitle-1 infoTextStyle">
+                {{ $t('authentication.multifactor.protected.resources') }}
+              </v-list-item-title>
+              <template>
+                <v-btn
+                  class="mr-3"
+                  small
+                  icon
+                  @click="$root.$emit('isManage2faPage', isManage2faPage)">
+                  <v-icon size="24" class="text-sub-title">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
+                </v-btn>
+              </template>
+            </div>
+            <v-list-item-subtitle class="text-sub-title text-justify font-italic textSize caption ml-6 infoTextStyle textLigneHeight">
+              <div>
+                {{ $t('authentication.multifactor.protected.resources.label') }}
+              </div>
+            </v-list-item-subtitle>
           </v-list>
         </div>
         <div class="mt-6">

@@ -100,7 +100,6 @@ export default {
     },
     fillSelectize() {
       for (const group of this.boundGroups) {
-        console.log(group);
         const selectize = $(this.$el)[0].selectize;
         selectize.options[`${group}`] = {
           avatarUrl: null,
