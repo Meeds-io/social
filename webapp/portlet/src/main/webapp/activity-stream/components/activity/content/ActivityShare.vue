@@ -5,6 +5,7 @@
       :activity-types="activityTypes"
       :is-activity-detail="isActivityDetail"
       class="px-4"
+      is-activity-shared
       hide-footer
       hide-menu />
   </div>

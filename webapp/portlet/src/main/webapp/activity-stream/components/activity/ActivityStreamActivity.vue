@@ -8,7 +8,8 @@
         :activity="activity"
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension"
-        :hide-menu="hideMenu" />
+        :hide-menu="hideMenu"
+        :class="isActivityShared && 'py-4 px-0' || 'pa-4'" />
       <template v-if="!loading">
         <extension-registry-component
           :component="extendedComponentOptions"
@@ -37,12 +38,13 @@
         :activity="activity"
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension"
-        :hide-menu="hideMenu" />
+        :hide-menu="hideMenu"
+        :class="isActivityShared && 'py-4 px-0' || 'pa-4'" />
       <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"
           :params="extendedComponentParams"
-          :class="!isSharedActivity && 'px-4'"
+          :class="!isActivityShared && 'px-4'"
           name="ActivityContent"
           type="activity-content-extensions"
           parent-element="div"
@@ -92,6 +94,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isActivityShared: {
+      type: Boolean,
+      default: false,
+    },
     hideFooter: {
       type: Boolean,
       default: false,
@@ -112,9 +118,6 @@ export default {
     },
     activityId() {
       return this.activity && this.activity.id;
-    },
-    isSharedActivity() {
-      return this.activity && !!this.activity.parentActivity;
     },
     activityTypeExtension() {
       if (this.sharedActivityTypeExtension
