@@ -2,7 +2,7 @@
   <div
     v-if="embeddedHTML"
     :style="parentStyle"
-    class="d-flex flex-column activity-embedded-box mx-auto">
+    class="d-flex flex-column flex activity-embedded-box mx-auto">
     <div
       v-if="elementReady"
       v-html="embeddedHTML"
@@ -71,7 +71,6 @@ export default {
       const width = this.previewWidth > this.maxWidth && this.maxWidth || this.previewWidth;
       return {
         width: `${width}px`,
-        maxWidth: `${this.maxWidth}px`,
       };
     },
     embeddedHTMLStyle() {

@@ -83,6 +83,7 @@ Vue.directive('cacheable', {
                   .replaceAll('<textarea ', '<textarea disabled ')
                   .replaceAll('v-navigation-drawer--open', 'v-navigation-drawer--open hidden')
                   .replaceAll('v-alert ', 'v-alert hidden ')
+                  .replaceAll('v-menu ', 'v-menu hidden ')
                   .replaceAll('v-overlay--active', 'v-overlay--active hidden');
                 cache.put(`/dom-cache?id=${cacheId}`, new Response($(`<div>${domToCache}</div>`).html(), {
                   headers: {'content-type': 'text/html;charset=UTF-8'},

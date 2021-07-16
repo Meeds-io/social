@@ -5,7 +5,7 @@
       :activity="activity"
       :activity-types="activityTypes"
       class="actionsDetailsWrapper no-border-bottom mb-0 py-3" />
-    <div class="actionsDetailsWrapper mb-0 py-0 ps-4 pe-7 no-border-bottom">
+    <div class="actionsDetailsWrapper mb-0 py-0 px-4 no-border-bottom">
       <activity-reactions
         :activity-id="activityId"
         :activity="activity"

@@ -2,8 +2,10 @@
   <v-list-item-icon v-show="enabledActions && enabledActions.length" class="ma-0">
     <v-menu
       v-model="menu"
-      bottom
+      content-class="white"
+      nudge-left="12"
       left
+      bottom
       offset-y
       attach>
       <template v-slot:activator="{ on, attrs }">
