@@ -64,7 +64,7 @@ export default {
     if (this.spaceId && this.groupId) {
       window.setTimeout(() => {
         this.initTiptip();
-      }, 50);
+      }, 500);
     }
   },
   methods: {
@@ -75,6 +75,9 @@ export default {
       this.$nextTick(() => {
         const $element = $(`#${this.id}`);
         if (!$element.length) {
+          window.setTimeout(() => {
+            this.initTiptip();
+          }, 1000);
           return;
         }
         this.tiptipInitialized = true;
