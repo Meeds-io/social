@@ -2,14 +2,17 @@
   <v-list-item-icon v-show="enabledActions && enabledActions.length" class="ma-0">
     <v-menu
       v-model="menu"
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
       bottom
-      left
       offset-y
       attach>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           :disabled="loading"
           :loading="loading"
+          :style="menuButtonStyle"
+          absolute
           icon
           small
           v-bind="attrs"
@@ -51,6 +54,9 @@ export default {
     loading: false,
   }),
   computed: {
+    menuButtonStyle() {
+      return this.$vuetify && this.$vuetify.rtl && 'top:8px;left:5px;' || 'top:8px;right:5px;';
+    },
     enabledActions() {
       return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension));
     },

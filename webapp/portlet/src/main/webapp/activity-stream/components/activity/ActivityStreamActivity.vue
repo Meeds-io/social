@@ -9,7 +9,7 @@
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension"
         :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'pa-4'" />
+        :class="isActivityShared && 'py-4 px-0' || 'py-4 ps-4 pe-1'" />
       <template v-if="!loading">
         <extension-registry-component
           :component="extendedComponentOptions"
@@ -39,7 +39,7 @@
         :activity-actions="activityActions"
         :activity-type-extension="activityTypeExtension"
         :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'pa-4'" />
+        :class="isActivityShared && 'py-4 px-0' || 'py-4 ps-4 pe-1'" />
       <v-card v-if="!loading" flat>
         <extension-registry-components
           v-if="initialized"

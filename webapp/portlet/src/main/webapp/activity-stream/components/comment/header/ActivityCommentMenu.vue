@@ -3,8 +3,10 @@
     <v-menu
       v-model="menu"
       content-class="white"
-      nudge-left="12"
-      left
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
+      :nudge-left="!$vuetify.rtl && '12'"
+      :nudge-right="!$vuetify.rtl && '12'"
       bottom
       offset-y
       attach>
