@@ -83,6 +83,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    left: {
+      type: Boolean,
+      default: () => false,
+    },
     fixed: {
       type: Boolean,
       default: () => false,
@@ -126,10 +130,10 @@ export default {
   }),
   computed: {
     rightDrawer() {
-      return this.right && eXo.env.portal.orientation === 'ltr';
+      return (this.right && eXo.env.portal.orientation === 'ltr') || (this.left && eXo.env.portal.orientation === 'rtl');
     },
     leftDrawer() {
-      return !this.right || eXo.env.portal.orientation === 'rtl';
+      return !this.rightDrawer;
     },
     width() {
       return this.expand && '100%' || this.drawerWidth;

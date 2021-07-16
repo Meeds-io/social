@@ -1,10 +1,11 @@
 <template>
   <v-snackbar
     v-model="snackbar"
+    :left="!$vuetify.rtl"
+    :right="$vuetify.rtl"
     color="transparent"
     elevation="0"
-    app
-    left>
+    app>
     <exo-notification-alert
       :alert="alert"
       @dismissed="clear" />

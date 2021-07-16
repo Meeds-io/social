@@ -128,7 +128,6 @@ export default {
           const drawerContentElement = document.querySelector('#activityCommentsDrawer .drawerContent');
           drawerContentElement.scrollTo({
             top: drawerContentElement.scrollHeight,
-            left: 0,
             behavior: 'smooth',
             block: 'start',
           });

@@ -2,7 +2,8 @@
   <div
     v-if="initialized"
     :id="id"
-    class="activity-detail overflow-hidden activity-comment-detail flex">
+    class="activity-detail overflow-hidden activity-comment-detail flex"
+    dir="auto">
     <template v-if="extendedComponent">
       <extension-registry-component
         :component="extendedComponentOptions"
