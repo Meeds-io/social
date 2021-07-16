@@ -1,22 +1,30 @@
 <template>
-  <v-btn
-    v-if="isShareable"
-    :id="`ShareActivity${activityId}`"
-    :title="$t('UIActivity.share')"
-    :class="shareTextColorClass"
-    class="pa-0 ms-4"
-    text
-    link
-    small
-    @click="openShareDrawer()">
-    <v-icon
-      :class="shareIconColorClass"
-      class="me-1 baseline-vertical-align"
-      size="14">
-      fa-share
-    </v-icon>
-    {{ $t('UIActivity.share') }}
-  </v-btn>
+  <v-tooltip bottom>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn
+        v-if="isShareable"
+        :id="`ShareActivity${activityId}`"
+        :class="shareTextColorClass"
+        class="pa-0 ms-4"
+        text
+        link
+        small
+        v-bind="attrs"
+        v-on="on"
+        @click="openShareDrawer()">
+        <v-icon
+          :class="shareIconColorClass"
+          class="me-1 baseline-vertical-align"
+          size="14">
+          fa-share
+        </v-icon>
+        {{ $t('UIActivity.share') }}
+      </v-btn>
+    </template>
+    <span>
+      {{ $t('UIActivity.share') }}
+    </span>
+  </v-tooltip>
 </template>
 
 <script>

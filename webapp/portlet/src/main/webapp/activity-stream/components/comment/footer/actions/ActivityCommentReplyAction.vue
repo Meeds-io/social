@@ -1,28 +1,45 @@
 <template>
   <div class="d-inline-flex pe-1">
-    <v-btn
-      :id="`CommentLink${activityId}`"
-      :title="$t('UIActivity.label.Comment')"
-      :class="commentTextColorClass"
-      class="pa-0 me-0"
-      text
-      link
-      x-small
-      @click="openCommentsDrawer">
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          :id="`CommentLink${activityId}`"
+          :class="commentTextColorClass"
+          class="pa-0 me-0"
+          text
+          link
+          x-small
+          v-bind="attrs"
+          v-on="on"
+          @click="openCommentsDrawer">
+          <span>
+            {{ $t('UIActivity.label.Reply') }}
+          </span>
+        </v-btn>
+      </template>
       <span>
-        {{ $t('UIActivity.label.Reply') }}
+        {{ $t('UIActivity.label.Comment') }}
       </span>
-    </v-btn>
-    <v-btn
-      v-if="subCommentsSize"
-      :id="`RepliesListLink${commentId}`"
-      :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
-      class="primary--text font-weight-bold"
-      x-small
-      icon
-      @click="openReplies">
-      ({{ subCommentsSize }})
-    </v-btn>
+    </v-tooltip>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          v-show="subCommentsSize"
+          :id="`RepliesListLink${commentId}`"
+          :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
+          class="primary--text font-weight-bold"
+          x-small
+          icon
+          v-bind="attrs"
+          v-on="on"
+          @click="openReplies">
+          ({{ subCommentsSize }})
+        </v-btn>
+      </template>
+      <span>
+        {{ $t('UIActivity.label.ViewAllReplies', {0: subCommentsSize}) }}
+      </span>
+    </v-tooltip>
   </div>
 </template>
 

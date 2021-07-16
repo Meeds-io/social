@@ -2,9 +2,14 @@
   <v-list-item-icon v-show="enabledActions && enabledActions.length" class="ma-0">
     <v-menu
       v-model="menu"
+      content-class="white"
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
+      :nudge-left="!$vuetify.rtl && '12'"
+      :nudge-right="!$vuetify.rtl && '12'"
       bottom
-      left
-      offset-y>
+      offset-y
+      attach>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           icon

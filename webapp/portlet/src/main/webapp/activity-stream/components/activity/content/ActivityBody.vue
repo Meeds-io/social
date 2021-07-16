@@ -4,7 +4,8 @@
     v-sanitized-html="body"
     :element="element"
     :class="bodyClass"
-    class="reset-style-box text-break" />
+    class="reset-style-box text-break"
+    dir="auto" />
 </template>
 
 <script>
@@ -50,7 +51,7 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0 ps-4';
+      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0';
     },
   },
   watch: {

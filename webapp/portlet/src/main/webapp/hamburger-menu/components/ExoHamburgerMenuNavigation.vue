@@ -12,9 +12,9 @@
       id="HamburgerMenuNavigation"
       ref="HamburgerMenuNavigation"
       v-model="hamburgerMenu"
-      :right="$vuetify.rtl"
       :drawer-width="drawerWidth"
       :style="hamburgerMenuStyle"
+      left
       eager>
       <template slot="content">
         <v-row

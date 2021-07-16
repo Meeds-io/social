@@ -42,7 +42,7 @@ import org.exoplatform.webui.event.EventListener;
  */
 
 @ComponentConfig(
-  template="war:/groovy/social/webui/space/UISpaceAccess.gtmpl",
+  template="war:/groovy/social/webui/UISpaceAccess.gtmpl",
   events = {
     @EventConfig(listeners = UISpaceAccess.AcceptActionListener.class),
     @EventConfig(listeners = UISpaceAccess.RequestToJoinActionListener.class),

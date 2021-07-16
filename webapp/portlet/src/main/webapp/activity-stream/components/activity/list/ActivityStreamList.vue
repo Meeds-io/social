@@ -177,10 +177,10 @@ export default {
       this.hasMore = this.retrievedSize > this.limit;
     },
     updateActivityDisplayById(activityId) {
-      document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      this.loading = true;
       this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
         .then(activity => this.updateActivityDisplay(activity))
-        .finally (() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+        .finally (() => this.loading = false);
     },
     updateActivityDisplay(updatedActivity) {
       const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
@@ -197,9 +197,11 @@ export default {
     },
     addActivities(activities) {
       if (activities && activities.length) {
+        this.loading = true;
         const activity = activities[0];
         activity.highlight = true;
         this.activities.unshift(...activities);
+        this.$nextTick().then(() => this.loading = false);
       }
     },
   },

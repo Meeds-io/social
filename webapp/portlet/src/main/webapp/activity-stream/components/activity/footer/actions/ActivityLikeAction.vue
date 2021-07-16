@@ -1,24 +1,32 @@
 <template>
-  <v-btn
-    :id="`LikeLink${activityId}`"
-    :loading="changingLike"
-    :title="likeButtonTitle"
-    :class="likeTextColorClass"
-    class="pa-0 ms-4"
-    text
-    link
-    small
-    @click="changeLike">
+  <v-tooltip bottom>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn
+        :id="`LikeLink${activityId}`"
+        :loading="changingLike"
+        :class="likeTextColorClass"
+        class="pa-0 ms-4"
+        text
+        link
+        small
+        v-bind="attrs"
+        v-on="on"
+        @click="changeLike">
+        <span>
+          <v-icon
+            :class="likeColorClass"
+            class="baseline-vertical-align"
+            size="14">
+            fa-thumbs-up
+          </v-icon>
+          {{ $t('UIActivity.msg.LikeActivity') }}
+        </span>
+      </v-btn>
+    </template>
     <span>
-      <v-icon
-        :class="likeColorClass"
-        class="baseline-vertical-align"
-        size="14">
-        fa-thumbs-up
-      </v-icon>
-      {{ $t('UIActivity.msg.LikeActivity') }}
+      {{ likeButtonTitle }}
     </span>
-  </v-btn>
+  </v-tooltip>
 </template>
 
 <script>

@@ -12,7 +12,7 @@
       v-if="!editorReady"
       :width="3"
       indeterminate
-      class="loadingRing" />
+      class="loadingRing position-absolute" />
     <div
       :v-show="editorReady"
       :id="buttonId"

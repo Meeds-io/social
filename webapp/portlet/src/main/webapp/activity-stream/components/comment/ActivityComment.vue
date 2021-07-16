@@ -2,7 +2,7 @@
   <div
     v-if="commentTypeExtension"
     :id="id"
-    class="d-inline-flex flex-column width-fit-content overflow-hidden activity-comment border-box-sizing">
+    class="d-inline-flex flex-column width-fit-content activity-comment border-box-sizing">
     <div
       v-if="isEditingComment"
       class="col-auto ps-13 mb-4 py-0 flex-shrink-1">
@@ -56,7 +56,7 @@
             </v-btn>
           </div>
         </div>
-        <v-list-item-action class="mx-0 mb-auto mt-0 pt-0">
+        <v-list-item-action class="mb-auto ms-0 me-1 mt-0 pt-0">
           <activity-comment-menu
             :activity="activity"
             :comment="comment"
@@ -215,7 +215,7 @@ export default {
   },
   mounted() {
     if (this.highlight) {
-      this.$nextTick().then(this.scrollToComment);
+      this.$nextTick().then(() => this.scrollToComment());
     } else if (this.highlightReplies) {
       this.$nextTick().then(this.scrollToReplies);
     }
@@ -234,9 +234,18 @@ export default {
       const repliesElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id} .activity-comment`);
       this.scrollTo(repliesElement);
     },
-    scrollToComment() {
+    scrollToComment(tentative) {
       const commentElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id}`);
-      this.scrollTo(commentElement);
+      if (commentElement) {
+        this.scrollTo(commentElement);
+      } else if (!tentative || tentative < 5) {
+        window.setTimeout(() => {
+          this.scrollToComment(tentative && (tentative + 1) || 1);
+        }, 200);
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(`Can't scroll to comment with id ${this.id} after ${tentative} tentatives`);
+      }
     },
     scrollTo(element) {
       window.setTimeout(() => {
