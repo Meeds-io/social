@@ -42,7 +42,7 @@
         <extension-registry-components
           v-if="initialized"
           :params="extendedComponentParams"
-          :class="!isSharedActivity && 'pe-7 ps-4'"
+          :class="!isSharedActivity && 'px-4'"
           name="ActivityContent"
           type="activity-content-extensions"
           parent-element="div"
