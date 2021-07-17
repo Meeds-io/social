@@ -310,7 +310,7 @@ public class LinkProvider {
    * @return
    */
   public static String getUserNotificationSettingUri(final String remoteId) {
-    return getBaseUri(null, null) + "/notifications" + ROUTE_DELIMITER + remoteId;
+    return getBaseUri(null, null) + "/settings";
   }
 
   /**
