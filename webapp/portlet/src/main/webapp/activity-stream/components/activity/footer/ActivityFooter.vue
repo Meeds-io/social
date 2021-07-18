@@ -4,15 +4,17 @@
       v-if="displayShareInformation"
       :activity="activity"
       :activity-types="activityTypes"
-      class="actionsDetailsWrapper no-border-bottom mb-0 py-3" />
-    <div class="actionsDetailsWrapper mb-0 py-0 px-4 no-border-bottom">
+      class="no-border-bottom mb-0 py-3" />
+    <div
+      :class="actionBarBorderClass"
+      class="mb-0 py-2 px-4 d-flex flex-column flex-lg-row">
       <activity-reactions
         :activity-id="activityId"
         :activity="activity"
         :likers="likers"
         :likers-number="likersCount"
         :comment-number="commentsCount"
-        class="activityReactionsContainer" />
+        class="flex-grow-1" />
       <activity-actions
         :activity="activity"
         :activity-type-extension="activityTypeExtension" />
@@ -56,6 +58,12 @@ export default {
     },
     activityId() {
       return this.activity && this.activity.id;
+    },
+    actionBarBorderClass() {
+      return !this.isMobile && 'border-top-color border-light-color' || '';
+    },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
     },
   },
   created() {

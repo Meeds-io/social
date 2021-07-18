@@ -1,6 +1,6 @@
 <template>
-  <div class="activityLikersAndKudos d-flex flex-nowrap">
-    <div class="reactionsUsersAvatar">
+  <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap">
+    <div class="reactionsUsersAvatar d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar
           v-for="liker in likersToDisplay"
@@ -12,7 +12,7 @@
           class="me-1" />
       </div>
     </div>
-    <div class="activityLikersAndKudosDrawer">
+    <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
       <div class="seeMoreReactionsContainer">
         <div
           v-if="likersNumber > maxLikersToShow"
@@ -28,13 +28,13 @@
         </div>
         <p
           v-if="likersNumber && likersNumber <= 1"
-          class="likersNumber my-auto pl-2 align-self-end caption"
+          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
           @click="openDrawer">
           {{ likersNumber }} {{ $t('UIActivity.label.single_Reaction_Number') }}
         </p>
         <p
           v-if="likersNumber > 1"
-          class="likersNumber my-auto pl-2 align-self-end caption"
+          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
           @click="openDrawer">
           {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
         </p>
@@ -52,6 +52,7 @@
       :kudos-number="kudosNumber"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
+      class="d-flex d-lg-none align-center"
       @openDrawer="openDrawer" />
   </div>
 </template>

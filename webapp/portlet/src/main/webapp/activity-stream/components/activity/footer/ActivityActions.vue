@@ -1,14 +1,12 @@
 <template>
-  <div class="actionBar clearfix">
-    <extension-registry-components
-      name="ActivityFooter"
-      type="activity-footer-action"
-      parent-element="ul"
-      element="li"
-      element-class="ma-0"
-      class="pull-right statusAction"
-      :params="params" />
-  </div>
+  <extension-registry-components
+    name="ActivityFooter"
+    type="activity-footer-action"
+    parent-element="div"
+    class="d-flex flex-wrap activity-footer-actions"
+    element="div"
+    element-class="mx-auto ma-lg-0 activity-footer-action"
+    :params="params" />
 </template>
 
 <script>

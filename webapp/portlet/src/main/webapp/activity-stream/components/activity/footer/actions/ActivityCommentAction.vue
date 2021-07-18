@@ -1,31 +1,34 @@
 <template>
-  <v-tooltip bottom>
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        :id="`CommentLink${activityId}`"
-        :class="commentTextColorClass"
-        class="pa-0 ms-4"
-        text
-        link
-        small
-        v-bind="attrs"
-        v-on="on"
-        @click="openCommentsDrawer">
-        <span>
+  <div class="d-inline-flex ms-md-4">
+    <!-- Added for mobile -->
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          :id="`CommentLink${activityId}`"
+          :class="commentTextColorClass"
+          class="pa-0 mt-0"
+          text
+          link
+          small
+          v-bind="attrs"
+          v-on="on"
+          @click="openCommentsDrawer">
           <v-icon
             :class="commentColorClass"
             class="baseline-vertical-align"
             size="14">
             fa-comment
           </v-icon>
-          {{ $t('UIActivity.label.Comment') }}
-        </span>
-      </v-btn>
-    </template>
-    <span>
-      {{ $t('UIActivity.label.Comment') }}
-    </span>
-  </v-tooltip>
+          <span class="hidden-xs-only ms-2">
+            {{ $t('UIActivity.label.Comment') }}
+          </span>
+        </v-btn>
+      </template>
+      <span>
+        {{ $t('UIActivity.label.Comment') }}
+      </span>
+    </v-tooltip>
+  </div>
 </template>
 
 <script>
