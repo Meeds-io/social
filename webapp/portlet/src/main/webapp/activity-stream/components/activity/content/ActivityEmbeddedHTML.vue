@@ -14,7 +14,7 @@
       :href="link"
       :target="linkTarget"
       :title="titleText"
-      class="pb-4 pt-3 text-color">
+      class="py-4 text-color">
       <div
         v-text="titleText"
         class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>

@@ -30,7 +30,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
-          class="ps-4 pe-5" />
+          class="px-4" />
       </template>
     </template>
     <template v-else>
@@ -61,7 +61,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
-          class="ps-4 pe-5" />
+          class="px-4" />
       </template>
     </template>
   </div>

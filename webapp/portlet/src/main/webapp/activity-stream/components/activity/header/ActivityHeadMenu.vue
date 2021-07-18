@@ -55,7 +55,7 @@ export default {
   }),
   computed: {
     menuButtonStyle() {
-      return this.$vuetify && this.$vuetify.rtl && 'top:8px;left:5px;' || 'top:8px;right:5px;';
+      return this.$vuetify && this.$vuetify.rtl && 'top:8px;left:4px;' || 'top:8px;right:4px;';
     },
     enabledActions() {
       return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension));
