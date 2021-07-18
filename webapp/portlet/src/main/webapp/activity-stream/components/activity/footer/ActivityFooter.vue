@@ -7,17 +7,18 @@
       class="no-border-bottom mb-0 py-3" />
     <div
       :class="actionBarBorderClass"
-      class="mb-0 py-2 px-4 d-flex flex-column flex-lg-row">
+      class="mb-0 d-flex flex-column flex-lg-row">
       <activity-reactions
         :activity-id="activityId"
         :activity="activity"
         :likers="likers"
         :likers-number="likersCount"
         :comment-number="commentsCount"
-        class="flex-grow-1" />
+        class="flex-grow-1 ps-4" />
       <activity-actions
         :activity="activity"
-        :activity-type-extension="activityTypeExtension" />
+        :activity-type-extension="activityTypeExtension"
+        class="px-4" />
     </div>
   </div>
 </template>
@@ -60,10 +61,10 @@ export default {
       return this.activity && this.activity.id;
     },
     actionBarBorderClass() {
-      return !this.isMobile && 'border-top-color border-light-color' || '';
+      return this.isDesktop && 'border-top-color border-light-color' || '';
     },
-    isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    isDesktop() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm';
     },
   },
   created() {

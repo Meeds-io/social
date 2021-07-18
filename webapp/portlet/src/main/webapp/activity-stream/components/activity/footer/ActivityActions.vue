@@ -1,12 +1,13 @@
 <template>
   <extension-registry-components
+    :params="params"
+    :class="actionBarBorderClass"
+    class="d-flex flex-wrap py-2 activity-footer-actions"
     name="ActivityFooter"
     type="activity-footer-action"
     parent-element="div"
-    class="d-flex flex-wrap activity-footer-actions"
     element="div"
-    element-class="mx-auto ma-lg-0 activity-footer-action"
-    :params="params" />
+    element-class="mx-auto ma-lg-0 activity-footer-action" />
 </template>
 
 <script>
@@ -27,6 +28,12 @@ export default {
         activity: this.activity,
         activityTypeExtension: this.activityTypeExtension,
       };
+    },
+    actionBarBorderClass() {
+      return !this.isDesktop && 'border-top-color border-light-color' || '';
+    },
+    isDesktop() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm';
     },
   },
 };
