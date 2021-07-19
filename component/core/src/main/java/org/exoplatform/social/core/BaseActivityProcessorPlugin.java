@@ -16,9 +16,7 @@
  */
 package org.exoplatform.social.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
@@ -90,4 +88,21 @@ public abstract class BaseActivityProcessorPlugin extends BaseComponentPlugin im
     return keys;
   }
   public abstract void processActivity(ExoSocialActivity activity);
+
+  protected void addParamKeyToProcessor(Map<String, String> templateParams, String ...paramKeys) {
+    String registeredParams = null;
+    if (templateParams.containsKey(TEMPLATE_PARAM_TO_PROCESS)) {
+      registeredParams = templateParams.get(TEMPLATE_PARAM_TO_PROCESS);
+    }
+    for(String paramKey: paramKeys){
+      if(registeredParams != null
+              && Arrays.asList(registeredParams.split(TEMPLATE_PARAM_LIST_DELIM)).contains(paramKey))
+        return;
+      if (templateParams.containsKey(paramKey) && registeredParams != null) {
+        templateParams.put(TEMPLATE_PARAM_TO_PROCESS, templateParams.get(TEMPLATE_PARAM_TO_PROCESS) + "|" + paramKey);
+      } else if (templateParams.containsKey(paramKey)) {
+        templateParams.put(TEMPLATE_PARAM_TO_PROCESS, paramKey);
+      }
+    }
+  }
 }
