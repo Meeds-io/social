@@ -33,7 +33,7 @@
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
-                  <v-icon size="18">mdi-arrow-expand</v-icon>
+                  <v-icon v-text="expandIcon" size="18"></v-icon>
                 </v-btn>
                 <v-btn
                   :title="$t('label.close')"
@@ -141,8 +141,11 @@ export default {
     isMobile() {
       return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
     },
+    expandIcon() {
+      return this.expand && 'mdi-arrow-collapse' || 'mdi-arrow-expand';
+    },
     expandTooltip() {
-      return this.expand && this.$t('label.expand') || this.$t('label.collapse');
+      return this.expand && this.$t('label.collapse') || this.$t('label.expand');
     },
   },
   watch: {
