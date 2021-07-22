@@ -5,6 +5,7 @@
     id="activityCommentsDrawer"
     allow-expand
     right
+    disable-pull-to-refresh
     @closed="reset">
     <template slot="title">
       <span class="text-capitalize-first-letter">

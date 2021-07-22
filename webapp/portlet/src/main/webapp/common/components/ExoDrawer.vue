@@ -120,6 +120,10 @@ export default {
         cancel: null,
       }),
     },
+    disablePullToRefresh: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     initialized: false,
@@ -164,6 +168,9 @@ export default {
         }
         eXo.openedDrawers.push(this);
         this.$emit('opened');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = 'contain';
+        }
       } else {
         document.dispatchEvent(new CustomEvent('drawerClosed'));
         if (eXo.openedDrawers) {
@@ -173,6 +180,9 @@ export default {
           }
         }
         this.$emit('closed');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = '';
+        }
       }
       this.$emit('input', this.drawer);
       this.expand = false;
