@@ -33,7 +33,7 @@
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
-                  <v-icon v-text="expandIcon" size="18"></v-icon>
+                  <v-icon v-text="expandIcon" size="18" />
                 </v-btn>
                 <v-btn
                   :title="$t('label.close')"

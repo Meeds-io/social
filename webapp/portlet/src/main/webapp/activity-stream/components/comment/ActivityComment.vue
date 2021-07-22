@@ -71,7 +71,7 @@
       :class="highlightRepliesClass"
       class="flex d-flex flex-column">
       <activity-comment
-        v-for="subComment in subComments"
+        v-for="subComment in subCommentsToDisplay"
         :key="subComment.id"
         :activity="activity"
         :comment="subComment"
@@ -129,6 +129,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    displayedSubCommentCount: 2,
+  }),
   computed: {
     activityId() {
       return this.activity && this.activity.id || '';
@@ -179,8 +182,15 @@ export default {
         message: messageToEdit,
       };
     },
+    subCommentsToDisplay() {
+      if (!this.comment.expandSubComments && this.subComments && this.subComments.length > this.displayedSubCommentCount) {
+        return this.subComments && this.subComments.slice(this.subComments.length - this.displayedSubCommentCount, this.subComments.length);
+      } else {
+        return this.subComments;
+      }
+    },
     displayedSubCommentsSize() {
-      return this.subComments && this.subComments.length || 0;
+      return this.subCommentsToDisplay && this.subCommentsToDisplay.length || 0;
     },
     subCommentsSize() {
       return this.comment && this.comment.subCommentsSize || 0;
@@ -222,13 +232,17 @@ export default {
   },
   methods: {
     openReplies() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        commentId: this.commentId,
-        highlightRepliesCommentId: this.commentId,
-        offset: 0,
-        limit: 200, // To display all
-      }}));
+      if (this.$el.closest('#activityCommentsDrawer')) {
+        // Is in drawer
+        this.comment.expandSubComments = true;
+        this.displayedSubCommentCount = this.subCommentsSize;
+      } else {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+          activity: this.activity,
+          commentId: this.commentId,
+          highlightRepliesCommentId: this.commentId,
+        }}));
+      }
     },
     scrollToReplies() {
       const repliesElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id} .activity-comment`);
@@ -255,7 +269,7 @@ export default {
             block: 'start',
           });
         }
-      }, 10);
+      }, 50);
     },
   },
 };

@@ -1167,6 +1167,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         updatedActivity.setPermaLink(existingActivity.getPermaLink());
       if (existingActivity.getTemplateParams() != null)
         updatedActivity.setTemplateParams(existingActivity.getTemplateParams());
+      if (existingActivity.getUpdated() != null)
+        updatedActivity.setUpdatedDate(existingActivity.getUpdated());
       updatedActivity.setHidden(existingActivity.isHidden());
       updatedActivity.setComment(existingActivity.isComment());
       updatedActivity.setLocked(existingActivity.isLocked());

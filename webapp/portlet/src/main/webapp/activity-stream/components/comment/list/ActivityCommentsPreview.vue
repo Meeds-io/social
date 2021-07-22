@@ -7,7 +7,7 @@
       indeterminate />
     <activity-comments
       :activity="activity"
-      :comments="commentsPreviewList"
+      :comments="comments"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
       :class="parentCommentClass"
@@ -50,49 +50,6 @@ export default {
     loading: false,
   }),
   computed: {
-    commentsPreviewList() {
-      const commentsPreviewList = [];
-      if (this.comments && this.commentsSize > 0) {
-        const commentsPerId = {};
-        this.comments.forEach(comment => {
-          if (comment.parentCommentId) {
-            let parentComment = commentsPerId[comment.parentCommentId];
-            if (parentComment) {
-              parentComment.subCommentsSize++;
-              if (!parentComment.subComments) {
-                parentComment.subComments = [];
-              }
-              parentComment.subComments.push(comment);
-            } else {
-              parentComment = commentsPreviewList.find(tmpComment => tmpComment.id === comment.parentCommentId);
-              if (!parentComment) {
-                return;
-              }
-              commentsPerId[comment.parentCommentId] = parentComment;
-              parentComment.subCommentsSize = 1;
-              parentComment.subComments = [comment];
-            }
-          } else {
-            commentsPerId[comment.parentCommentId] = comment;
-            if (!comment.subCommentsSize) {
-              comment.subCommentsSize = 0;
-              comment.subComments = [];
-            }
-            commentsPreviewList.push(comment);
-          }
-        });
-        if (commentsPreviewList.length) {
-          commentsPreviewList.forEach(comment => {
-            if (comment.subComments && comment.subComments.length) {
-              comment.subComments.sort(this.sortComments).reverse();
-              commentsPreviewList.push(...comment.subComments.slice(0, 2));
-            }
-          });
-          commentsPreviewList.sort(this.sortComments);
-        }
-      }
-      return commentsPreviewList;
-    },
     parentCommentClass() {
       return this.commentsSize && 'pb-0 pt-5' || 'pa-0';
     },
@@ -101,9 +58,6 @@ export default {
     this.retrieveLastComment();
   },
   methods: {
-    sortComments(comment1, comment2) {
-      return new Date(comment1.createDate).getTime() - new Date(comment2.createDate).getTime();
-    },
     retrieveLastComment() {
       this.loading = true;
       this.$activityService.getActivityComments(this.activity.id, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
@@ -121,8 +75,6 @@ export default {
     openCommentsDrawer() {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activity: this.activity,
-        offset: 0,
-        limit: this.commentsSize * 2, // To display all
       }}));
     },
   },
