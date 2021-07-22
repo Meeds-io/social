@@ -15,7 +15,7 @@
       :comment-editing="commentEditing"
       @comment-initialized="handleCommentInitialized" />
     <activity-comment-rich-text
-      v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply"
+      v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply && initialized"
       ref="commentRichEditor"
       class="me-4 ms-10 mb-6"
       :activity-id="activityId"
@@ -59,6 +59,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    initialized: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     lastEditorOptions: null,
@@ -89,6 +93,7 @@ export default {
       // of the drawer only when all comments are displayed
       if (oldVal < this.commentsSize && newVal >= this.commentsSize) {
         this.$emit('initialized');
+        this.initialized = true;
       }
     },
   },
