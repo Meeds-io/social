@@ -9,7 +9,7 @@
     @closed="reset">
     <template slot="title">
       <span class="text-capitalize-first-letter">
-        {{ $t('activity.comments') }}
+        {{ commentsTitle }}
       </span>
     </template>
     <template slot="titleIcons">
@@ -85,6 +85,19 @@ export default {
     page: 1,
     pagesCount: 1,
   }),
+  computed: {
+    commentsTitle() {
+      if (!this.initialized) {
+        return '';
+      } else if (this.commentsSize === 0) {
+        return this.$t('activity.noComments');
+      } else if (this.commentsSize === 1) {
+        return this.$t('activity.singleComment');
+      } else {
+        return this.$t('activity.commentsCount', {0: this.commentsSize});
+      }
+    },
+  },
   created() {
     document.addEventListener('activity-comments-display', this.displayActivityComments);
     document.addEventListener('activity-comment-edit', this.editActivityComments);
