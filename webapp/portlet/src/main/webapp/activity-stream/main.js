@@ -36,15 +36,7 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 Vue.use(Vuetify);
 const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
-let activityId = '';
-if (window.location.pathname.indexOf(activityBaseLink) === 0) {
-  const uri = window.location.search.substring(1);
-  const params = new URLSearchParams(uri);
-  activityId = params.get('id');
-}
-
 const appId = 'ActivityStream';
-const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId || ''}_${eXo.env.portal.spaceId || ''}_${activityId}`;
 
 //should expose the locale ressources as REST API 
 const urls = [
@@ -55,16 +47,13 @@ const urls = [
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     new Vue({
       data: {
         activityBaseLink: activityBaseLink,
       },
-      template: `<activity-stream v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" />`,
+      template: `<activity-stream id="${appId}" />`,
       vuetify,
       i18n,
-    }).$mount(appElement);
+    }).$mount(`#${appId}`);
   });
 }
