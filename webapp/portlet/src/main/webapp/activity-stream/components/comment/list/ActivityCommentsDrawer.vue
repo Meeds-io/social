@@ -31,6 +31,7 @@
         :comment-editing="commentToEdit"
         :new-comment-editor="newCommentEditor"
         :selected-comment-id-to-reply="selectedCommentIdToReply"
+        :initialized="initialized"
         class="pb-0 pt-5 px-4"
         allow-edit
         @comment-created="addComment"
@@ -119,6 +120,8 @@ export default {
       this.comments.splice(commentIndex, 1, comment);
     },
     scrollToEnd() {
+      this.initialized = true;
+
       if (this.scrollOnOpen
           && (!this.newCommentEditor || !this.selectedCommentIdToReply)
           && !this.highlightCommentId
@@ -249,7 +252,6 @@ export default {
         })
         .finally(() => {
           this.$refs.activityCommentsDrawer.endLoading();
-          this.initialized = true;
         });
     },
     highlightComment(comments, highlightCommentId) {
