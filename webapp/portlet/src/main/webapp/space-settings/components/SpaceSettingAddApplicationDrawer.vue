@@ -56,16 +56,9 @@ export default {
   },
   created() {
     this.$spaceService.getSpaceApplicationsChoices()
-      .then(data => {
-        this.applications = data.map(app => ({
-          applicationName: app.applicationName,
-          contentId: app.contentId,
-          description: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.description`),
-          displayName: this.$t(`SpaceSettings.application.${/\s/.test(app.displayName) ? app.displayName.replace(/ /g,'.').toLowerCase() : app.displayName.toLowerCase()}.title`),
-          id: app.id,
-          removable: app.removable,
-        }));
-      });
+      .then(data =>
+        this.applications = data;
+      );
   },
   methods: {
     open() {
