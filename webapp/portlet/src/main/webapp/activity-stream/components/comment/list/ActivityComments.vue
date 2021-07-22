@@ -171,7 +171,20 @@ export default {
       if (activityId === this.activityId) {
         comment.highlight = true;
         comment.added = true;
-        this.$emit('comment-created', comment);
+        if (comment.parentCommentId) {
+          const commentToUpdateIndex = this.comments.findIndex(tmp => tmp.id === comment.parentCommentId);
+          if (commentToUpdateIndex >= 0) {
+            const commentToUpdate = this.comments[commentToUpdateIndex];
+            if (!commentToUpdate.subComments.find(tmp => tmp.id === comment.id)) {
+              commentToUpdate.subComments.push(comment);
+            }
+            this.$emit('comment-updated', commentToUpdate, commentToUpdateIndex);
+          } else {
+            this.$emit('comment-created', comment);
+          }
+        } else {
+          this.$emit('comment-created', comment);
+        }
       }
       this.resetEditorOptions();
     },
