@@ -5,7 +5,7 @@
     class="d-inline-flex flex-column width-fit-content activity-comment border-box-sizing">
     <div
       v-if="isEditingComment"
-      class="col-auto ps-13 mb-4 py-0 flex-shrink-1">
+      class="col-auto mb-4 py-0 flex-shrink-1">
       <activity-comment-rich-text
         ref="commentEditRichEditor"
         :activity-id="activityId"
