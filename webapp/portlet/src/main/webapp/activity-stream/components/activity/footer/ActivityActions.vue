@@ -2,7 +2,7 @@
   <extension-registry-components
     :params="params"
     :class="actionBarBorderClass"
-    class="d-flex flex-wrap py-2 activity-footer-actions"
+    class="d-flex flex-no-wrap ms-lg-auto py-2 activity-footer-actions"
     name="ActivityFooter"
     type="activity-footer-action"
     parent-element="div"
@@ -33,7 +33,7 @@ export default {
       return !this.isDesktop && 'border-top-color border-light-color' || '';
     },
     isDesktop() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm';
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm' && this.$vuetify.breakpoint.name !== 'md';
     },
   },
 };

@@ -1,7 +1,8 @@
 <template>
   <exo-drawer
     ref="activityReactionsDrawer"
-    right>
+    right
+    fixed>
     <template slot="title">
       <div class="activityReactionsTitle">
         <v-tabs v-model="selectedTab">
