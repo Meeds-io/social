@@ -77,6 +77,7 @@
         <value>/idm-users-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -103,6 +104,7 @@
         <value>/idm-groups-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -129,6 +131,7 @@
         <value>/idm-membership-types-management/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -154,6 +157,7 @@
       <value>/who-is-online-app/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -243,9 +247,10 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/activityStream.jsp</value>
+      <value>/html/activityStream.html</value>
     </init-param>
-    <expiration-cache>0</expiration-cache>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -266,9 +271,10 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/activityStream.jsp</value>
+      <value>/html/activityStream.html</value>
     </init-param>
-    <expiration-cache>0</expiration-cache>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -466,6 +472,7 @@
       <value>/space-templates-app/index.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -567,6 +574,7 @@
       <value>/html/topbarNotification.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -583,6 +591,7 @@
       <value>/html/gettingStarted.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -636,6 +645,7 @@
       <value>/html/spacesOverview.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -671,6 +681,7 @@
       <value>/html/peopleOverview.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -725,6 +736,7 @@
       <value>/dlp-quarantine/dlpQuarantine.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -751,6 +763,7 @@
       <value>/multi-factor-authentication/multifactorAuthentication.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -777,6 +790,7 @@
       <value>/mfa-access/mfa-access.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -840,6 +854,8 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/company-branding-app/index.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
