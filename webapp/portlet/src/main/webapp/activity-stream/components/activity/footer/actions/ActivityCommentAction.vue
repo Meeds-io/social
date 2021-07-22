@@ -85,8 +85,6 @@ export default {
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activity: this.activity,
         newComment: true,
-        offset: 0,
-        limit: 200, // To display all
       }}));
     },
   },

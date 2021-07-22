@@ -3,7 +3,7 @@
     v-if="comments"
     class="flex d-flex flex-column">
     <activity-comment
-      v-for="comment in commentsToDisplay"
+      v-for="comment in comments"
       :key="comment.id"
       :activity="activity"
       :comment="comment"
@@ -74,27 +74,8 @@ export default {
     commentLastEditorOptions() {
       return this.lastEditorOptions && !this.lastEditorOptions.parentCommentId && this.lastEditorOptions;
     },
-    commentsToDisplay() {
-      const commentsToDisplay = {};
-      this.comments.forEach(comment => {
-        if (!comment.parentCommentId) {
-          comment.subComments = [];
-          commentsToDisplay[comment.id] = comment;
-        }
-      });
-      this.comments.forEach(comment => {
-        if (comment.parentCommentId) {
-          const parentComment = commentsToDisplay[comment.parentCommentId];
-          const subComments = parentComment && parentComment.subComments;
-          if (subComments && !subComments.find(subComment => subComment.id === comment.id)) {
-            subComments.push(comment);
-          }
-        }
-      });
-      return Object.values(commentsToDisplay);
-    },
     commentsSize() {
-      return this.commentsToDisplay.length;
+      return this.comments.length;
     },
   },
   watch: {
@@ -104,6 +85,8 @@ export default {
       }
     },
     initializedComment(newVal, oldVal) {
+      // emit comments display initialization to scroll to end
+      // of the drawer only when all comments are displayed
       if (oldVal < this.commentsSize && newVal >= this.commentsSize) {
         this.$emit('initialized');
       }
@@ -147,6 +130,17 @@ export default {
         if (commentIndex >= 0) {
           const comment = this.comments[commentIndex];
           this.$emit('comment-deleted', comment, commentIndex);
+        } else {
+          this.comments.forEach((displayedComment, index) => {
+            const subComments = displayedComment.subComments || [];
+            const commentReplyIndex = subComments.findIndex(tmp => tmp.id === comment.id);
+            if (commentReplyIndex >= 0) {
+              comment.highlight = true;
+              comment.updated = true;
+              subComments.splice(commentReplyIndex, 1);
+              this.$emit('comment-updated', comment, index, commentReplyIndex);
+            }
+          });
         }
       }
     },
@@ -200,7 +194,19 @@ export default {
         if (commentIndex >= 0) {
           comment.highlight = true;
           comment.updated = true;
+          comment.subComments = this.comments[commentIndex].subComments;
           this.$emit('comment-updated', comment, commentIndex);
+        } else {
+          this.comments.forEach((displayedComment, index) => {
+            const subComments = displayedComment.subComments || [];
+            const commentReplyIndex = subComments.findIndex(tmp => tmp.id === comment.id);
+            if (commentReplyIndex >= 0) {
+              comment.highlight = true;
+              comment.updated = true;
+              subComments.splice(commentReplyIndex, 1, comment);
+              this.$emit('comment-updated', displayedComment, index, commentReplyIndex);
+            }
+          });
         }
       }
       this.resetEditorOptions();

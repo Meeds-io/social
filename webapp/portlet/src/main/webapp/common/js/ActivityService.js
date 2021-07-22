@@ -34,6 +34,9 @@ export function getActivityComments(id, sortDescending, offset, limit, expand) {
     } else {
       return resp.json();
     }
+  }).then(data => {
+    data.comments = computeParentCommentsList(data.comments);
+    return data;
   });
 }
 
@@ -180,4 +183,51 @@ export function updateComment(id, parentCommentId, commentId, message, templateP
       throw new Error('Response code indicates a server error', resp);
     }
   });
+}
+
+function computeParentCommentsList(comments) {
+  const commentsList = [];
+  if (comments && comments.length) {
+    const commentsPerId = {};
+    comments.forEach(comment => {
+      if (comment.parentCommentId) {
+        let parentComment = commentsPerId[comment.parentCommentId];
+        if (parentComment) {
+          parentComment.subCommentsSize++;
+          if (!parentComment.subComments) {
+            parentComment.subComments = [];
+          }
+          parentComment.subComments.push(comment);
+        } else {
+          parentComment = commentsList.find(tmpComment => tmpComment.id === comment.parentCommentId);
+          if (!parentComment) {
+            return;
+          }
+          commentsPerId[comment.parentCommentId] = parentComment;
+          parentComment.subCommentsSize = 1;
+          parentComment.subComments = [comment];
+        }
+      } else {
+        commentsPerId[comment.parentCommentId] = comment;
+        if (!comment.subCommentsSize) {
+          comment.subCommentsSize = 0;
+          comment.subComments = [];
+        }
+        commentsList.push(comment);
+      }
+    });
+    if (commentsList.length) {
+      commentsList.forEach(comment => {
+        if (comment.subComments && comment.subComments.length) {
+          comment.subComments.sort(sortComments);
+        }
+      });
+      commentsList.sort(sortComments);
+    }
+  }
+  return commentsList;
+}
+
+function sortComments(comment1, comment2) {
+  return new Date(comment1.createDate).getTime() - new Date(comment2.createDate).getTime();
 }

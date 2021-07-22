@@ -100,6 +100,7 @@ export default {
   },
   created() {
     this.retrieveCommentProperties();
+    this.$root.$on('activity-comment-updated', this.commentUpdated);
   },
   mounted() {
     if (this.initialized && !this.initializedEmited) {
@@ -108,6 +109,12 @@ export default {
     }
   },
   methods: {
+    commentUpdated(comment) {
+      if (comment.id === this.comment.id) {
+        this.comment.updated = true;
+        this.retrieveCommentProperties();
+      }
+    },
     retrieveCommentProperties() {
       if (this.refresh && (this.comment.updated || this.comment.added)) {
         this.refresh(this.comment, false, this.activity);

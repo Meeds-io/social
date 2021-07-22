@@ -105,8 +105,6 @@ export default {
         activity: this.activity,
         commentId: this.commentId,
         newComment: true,
-        offset: 0,
-        limit: 200, // To display all
       }}));
     },
     openReplies() {
@@ -114,8 +112,6 @@ export default {
         activity: this.activity,
         commentId: this.commentId,
         highlightRepliesCommentId: this.commentId,
-        offset: 0,
-        limit: 200, // To display all
       }}));
     },
   },
