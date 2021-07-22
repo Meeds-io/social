@@ -174,6 +174,7 @@ export default {
     loading() {
       if (!this.loading) {
         this.refreshTipTip();
+        this.setWindowTitle();
       }
     },
   },
@@ -216,12 +217,30 @@ export default {
               .finally(() => {
                 this.loading = false;
                 this.initialized = true;
+                this.setWindowTitle();
               });
           }
         }
         this.loading = false;
         this.initialized = true;
       });
+    },
+    setWindowTitle() {
+      if (this.isActivityDetail && this.activityTypeExtension) {
+        if (this.activityTypeExtension.getWindowTitle) {
+          const title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
+          console.warn('title 1', title);
+          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+        } else if (this.activityTypeExtension.getTitle) {
+          const title = this.activityTypeExtension.getTitle(this.activity) || '';
+          console.warn('title 2', title);
+          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+        } else {
+          const title = this.activity.title || '';
+          console.warn('title 3', title);
+          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+        }
+      }
     },
     abortSpecificExtension(activityId) {
       if (activityId === this.activityId) {
