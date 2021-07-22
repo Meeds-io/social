@@ -27,6 +27,9 @@ if (extensionRegistry) {
   }
 }
 
+// Disable swipe for Mobile when Stream pages are displayed
+window.disableSwipeOnPage = true;
+
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
