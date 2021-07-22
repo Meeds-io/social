@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="activityReactionsDrawer"
+    disable-pull-to-refresh
     right
     fixed>
     <template slot="title">
