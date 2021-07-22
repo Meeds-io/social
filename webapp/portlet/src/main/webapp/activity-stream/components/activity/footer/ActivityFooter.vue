@@ -7,7 +7,7 @@
       class="no-border-bottom mb-0 py-3" />
     <div
       :class="actionBarBorderClass"
-      class="mb-0 d-flex flex-column flex-lg-row">
+      class="mb-0 d-flex flex-wrap flex-column flex-lg-row">
       <activity-reactions
         :activity-id="activityId"
         :activity="activity"
@@ -64,7 +64,7 @@ export default {
       return this.isDesktop && 'border-top-color border-light-color' || '';
     },
     isDesktop() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm';
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm' && this.$vuetify.breakpoint.name !== 'md';
     },
   },
   created() {

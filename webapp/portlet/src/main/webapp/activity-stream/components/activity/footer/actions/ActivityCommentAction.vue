@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex ms-md-4">
+  <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
@@ -13,15 +13,17 @@
           v-bind="attrs"
           v-on="on"
           @click="openCommentsDrawer">
-          <v-icon
-            :class="commentColorClass"
-            class="baseline-vertical-align"
-            size="14">
-            fa-comment
-          </v-icon>
-          <span class="hidden-xs-only ms-2">
-            {{ $t('UIActivity.label.Comment') }}
-          </span>
+          <div class="d-flex flex-lg-row flex-column">
+            <v-icon
+              :class="commentColorClass"
+              class="baseline-vertical-align mx-auto"
+              size="14">
+              fa-comment
+            </v-icon>
+            <span class="mx-auto mt-1 mt-lg-0 ms-lg-2">
+              {{ $t('UIActivity.label.Comment') }}
+            </span>
+          </div>
         </v-btn>
       </template>
       <span>
