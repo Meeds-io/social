@@ -1,22 +1,27 @@
 <template>
   <div :id="ckEditorId">
-    <v-list-item-content class="flex px-0 py-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
-      <exo-activity-rich-editor
-        ref="commentEditor"
-        v-model="message"
-        :ck-editor-type="ckEditorId"
-        :max-length="$activityConstants.COMMENT_MAX_LENGTH"
-        :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
-        :activity-id="activityId"
-        :template-params="templateParams"
-        suggestor-type-of-relation="mention_comment"
-        autofocus
-        @ready="handleEditorReady" />
-    </v-list-item-content>
+    <v-list-item class="pa-0">
+      <v-list-item-avatar size="33" class="mt-0 mb-auto me-2">
+        <v-img :src="avatarUrl" eager />
+      </v-list-item-avatar>
+      <v-list-item-content class="flex px-0 py-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
+        <exo-activity-rich-editor
+          ref="commentEditor"
+          v-model="message"
+          :ck-editor-type="ckEditorId"
+          :max-length="$activityConstants.COMMENT_MAX_LENGTH"
+          :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
+          :activity-id="activityId"
+          :template-params="templateParams"
+          suggestor-type-of-relation="mention_comment"
+          autofocus
+          @ready="handleEditorReady" />
+      </v-list-item-content>
+    </v-list-item>
     <v-btn
       :loading="commenting"
       :disabled="disableButton"
-      class="btn btn-primary"
+      class="btn btn-primary ms-10"
       color="primary"
       @click="postComment">
       {{ label }}
@@ -65,6 +70,9 @@ export default {
     message: null,
   }),
   computed: {
+    avatarUrl() {
+      return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.avatar;
+    },
     textLength() {
       const pureText = this.$utils.htmlToText(this.message);
       return pureText && pureText.length || 0;
