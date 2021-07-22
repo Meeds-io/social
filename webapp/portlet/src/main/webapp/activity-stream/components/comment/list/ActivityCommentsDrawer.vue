@@ -251,6 +251,9 @@ export default {
           this.comments = comments;
         })
         .finally(() => {
+          if (!this.comments.length) {
+            this.initialized = true;
+          }
           this.$refs.activityCommentsDrawer.endLoading();
         });
     },
