@@ -45,7 +45,6 @@
         <v-pagination
           v-model="page"
           :length="pagesCount"
-          :total-visible="5"
           circle
           light
           flat
