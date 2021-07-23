@@ -37,9 +37,9 @@
                 v-for="(notif, i) in notifications"
                 :key="i"
                 :id="'notifItem-'+i"
+                v-sanitized-html="notif.notification"
                 class="notifDrawerItem"
-                @mouseenter="applyActions(`notifItem-`+i)"
-                v-html="notif.notification">
+                @mouseenter="applyActions(`notifItem-`+i)">
               </div>
             </div>
           </template>

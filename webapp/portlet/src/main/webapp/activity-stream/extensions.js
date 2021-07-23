@@ -59,7 +59,6 @@ const defaultActivityOptions = {
                               || activity.templateParams.defaultTitle
                               || activity.templateParams.link
                               || activity.title
-                              || (activity.templateParams.docTitle && activity.templateParams.docTitle.split('|@|')[0])
                               || '',
   getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
   getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',

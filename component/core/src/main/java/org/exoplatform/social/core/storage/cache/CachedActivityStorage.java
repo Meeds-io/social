@@ -2087,4 +2087,12 @@ public class CachedActivityStorage implements ActivityStorage {
     return activityShareAction;
   }
 
+  public void clearActivityCachedByAttachmentId(String attachmentId) {
+    try {
+      exoActivityCache.select(new ActivityAttachmentCacheSelector(attachmentId));
+    } catch (Exception e) {
+      LOG.error("Error clearing cache of activities having attachment with id {}", attachmentId, e);
+    }
+  }
+
 }
