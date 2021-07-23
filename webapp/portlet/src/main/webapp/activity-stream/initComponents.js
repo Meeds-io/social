@@ -30,6 +30,7 @@ import ActivityComment from './components/comment/ActivityComment.vue';
 import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
 import ActivityCommentBodyText from './components/comment/content/ActivityCommentBodyText.vue';
 import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
+import ActivityCommentTime from './components/comment/footer/ActivityCommentTime.vue';
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
@@ -66,6 +67,7 @@ const components = {
   'activity-comment': ActivityComment,
   'activity-comment-body-text': ActivityCommentBodyText,
   'activity-comment-rich-text': ActivityCommentRichText,
+  'activity-comment-time': ActivityCommentTime,
   'activity-comment-actions': ActivityCommentActions,
   'activity-comment-reply-action': ActivityCommentReplyAction,
   'activity-comment-like-action': ActivityCommentLikeAction,

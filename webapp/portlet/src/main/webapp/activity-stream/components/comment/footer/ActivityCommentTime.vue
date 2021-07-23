@@ -1,11 +1,5 @@
 <template>
   <div class="caption text-light-color text-truncate">
-    <v-icon
-      v-if="!noIcon"
-      class="text-light-color"
-      x-small>
-      far fa-clock
-    </v-icon>
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
@@ -20,13 +14,15 @@
           v-on="on">
           <relative-date-format
             v-if="isActivityEdited"
-            label="UIActivity.label.EditedFrom"
+            :value="activity.updateDate"
+            label="TimeConvert.label.Short.Edited"
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
-            :value="activity.updateDate" />
+            short />
           <relative-date-format
             v-else
+            :value="activity.createDate"
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
-            :value="activity.createDate" />
+            short />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />

@@ -112,3 +112,59 @@ export function getRelativeTimeValue(dateObj) {
     return Math.round(periodInSeconds / 2592000);
   }
 }
+
+export function getShortRelativeTimeLabelKey(dateObj) {
+  if (!dateObj || !dateObj.getTime) {
+    return '';
+  }
+  const periodInMinutes = parseInt((Date.now() - dateObj.getTime()) / 60000);
+  if (periodInMinutes < 1) {
+    return 'TimeConvert.label.Short.Now';
+  } else {
+    const periodInHours = parseInt(periodInMinutes / 60);
+    if (periodInHours < 1) {
+      return 'TimeConvert.label.Short.Minutes';
+    } else {
+      const periodInDays = parseInt(periodInHours / 24);
+      if (periodInDays < 1) {
+        return 'TimeConvert.label.Short.Hours';
+      } else {
+        const periodInMonths = parseInt(periodInDays / 30);
+        if (periodInMonths < 1) {
+          return 'TimeConvert.label.Short.Days';
+        } else  if (periodInMonths < 12) {
+          return 'TimeConvert.label.Short.Months';
+        } else {
+          return 'TimeConvert.label.Short.Years';
+        }
+      }
+    }
+  }
+}
+
+export function getShortRelativeTimeValue(dateObj) {
+  if (!dateObj || !dateObj.getTime) {
+    return '';
+  }
+  const periodInMinutes = parseInt((Date.now() - dateObj.getTime()) / 60000);
+  if (periodInMinutes > 1) {
+    const periodInHours = parseInt(periodInMinutes / 60);
+    if (periodInHours < 1) {
+      return periodInMinutes;
+    } else {
+      const periodInDays = parseInt(periodInHours / 24);
+      if (periodInDays < 1) {
+        return periodInHours;
+      } else {
+        const periodInMonths = parseInt(periodInDays / 30);
+        if (periodInMonths < 1) {
+          return periodInDays;
+        } else  if (periodInMonths < 12) {
+          return periodInMonths;
+        } else {
+          return parseInt(periodInMonths / 12);
+        }
+      }
+    }
+  }
+}
