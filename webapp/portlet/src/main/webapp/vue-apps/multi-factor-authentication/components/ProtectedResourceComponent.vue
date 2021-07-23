@@ -81,14 +81,8 @@ export default {
           return resp.json();
         }
       }).then(data => {
-        const navs = data;
-        navs.forEach(nav => {
-          nav.name = nav.name ;
-          nav.id = nav.id ;
-          nav.label = nav.label ;
-        });
-        this.navigationsGroup = navs;
-        this.totalSize =  navs.length|| 0;
+        this.navigationsGroup = data;
+        this.totalSize =  data.length|| 0;
         return this.$nextTick();
       })
         .finally(() => {
