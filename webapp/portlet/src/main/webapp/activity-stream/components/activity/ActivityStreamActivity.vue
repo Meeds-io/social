@@ -229,15 +229,12 @@ export default {
       if (this.isActivityDetail && this.activityTypeExtension) {
         if (this.activityTypeExtension.getWindowTitle) {
           const title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
-          console.warn('title 1', title);
           document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
         } else if (this.activityTypeExtension.getTitle) {
           const title = this.activityTypeExtension.getTitle(this.activity) || '';
-          console.warn('title 2', title);
           document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
         } else {
           const title = this.activity.title || '';
-          console.warn('title 3', title);
           document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
         }
       }

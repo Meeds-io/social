@@ -224,21 +224,29 @@ export default {
         this.offset = 0;
       }
 
-      this.$refs.activityCommentsDrawer.startLoading();
+      if (this.$refs.activityCommentsDrawer) {
+        this.$refs.activityCommentsDrawer.startLoading();
+      }
       return this.$activityService.getActivityComments(this.activity.id, !!loadLastComments, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
         .then(data => {
           let comments = data && data.comments || [];
           let selectedComment;
+          let selectedCommentId;
           if (this.$root.selectedCommentId && this.$root.selectedActivityId === this.activity.id) {
             selectedComment = this.highlightComment(comments, this.$root.selectedCommentId);
+            selectedCommentId = this.$root.selectedCommentId;
           } else if (this.highlightCommentId) {
             selectedComment = this.highlightComment(comments, this.highlightCommentId);
+            selectedCommentId = this.highlightCommentId;
           } else if (this.highlightRepliesCommentId) {
             selectedComment = comments.find(comment => comment.id === this.highlightRepliesCommentId);
             if (selectedComment) {
               selectedComment.highlightReplies = true;
               selectedComment.expandSubComments = true;
             }
+            selectedCommentId = this.highlightRepliesCommentId;
+          } else {
+            searchSelectedComment = false;
           }
           this.commentsSize = data && data.size && Number(data.size) || 0;
           this.pagesCount = parseInt((this.commentsSize + this.limit - 1) / this.limit);
@@ -252,14 +260,9 @@ export default {
               comments = comments.slice(fromIndex, toIndex);
             }
           }
-          if (searchSelectedComment) {
-            const selectedCommentId = selectedComment && selectedComment.id || this.selectedCommentIdToReply || this.$root.selectedCommentId;
-            if (selectedCommentId && !comments.find(comment => comment.id === selectedCommentId)) {
-              if (this.page > 1) {
-                // Retrieve previous page to display selected comment
-                return this.loadPreviousPage();
-              }
-            }
+          if (searchSelectedComment && selectedCommentId && !selectedComment && this.page > 1) {
+            // Retrieve previous page to display selected comment
+            return this.loadPreviousPage();
           }
           this.comments = comments;
         })
@@ -267,22 +270,26 @@ export default {
           if (!this.comments.length) {
             this.initialized = true;
           }
-          this.$refs.activityCommentsDrawer.endLoading();
+          if (this.$refs.activityCommentsDrawer) {
+            this.$refs.activityCommentsDrawer.endLoading();
+          }
         });
     },
     highlightComment(comments, highlightCommentId) {
       const selectedComment = comments.find(comment => comment.id === highlightCommentId);
       if (selectedComment) {
         selectedComment.highlight = true;
+        return selectedComment;
       } else {
-        comments.forEach(comment => {
+        for (let i = 0; i < comments.length; i++) {
+          const comment = comments[i];
           const selectedReply = comment.subComments && comment.subComments.find(subComment => subComment.id === highlightCommentId);
           if (selectedReply) {
             selectedReply.highlight = true;
+            return selectedReply;
           }
-        });
+        }
       }
-      return selectedComment;
     },
   },
 };
