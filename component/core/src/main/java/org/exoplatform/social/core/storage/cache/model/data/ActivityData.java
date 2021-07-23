@@ -63,9 +63,9 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final String parentId;
   private final String parentCommentId;
   private final Set<ActivityShareAction> shareActions;
+  private final List<ActivityFile> files;
 
   public ActivityData(final ExoSocialActivity activity) {
-
     this.id = activity.getId();
     this.title = activity.getTitle();
     this.body = activity.getBody();
@@ -96,6 +96,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.parentId = activity.getParentId();
     this.parentCommentId = activity.getParentCommentId();
     this.shareActions = activity.getShareActions() == null ? null : Collections.unmodifiableSet(activity.getShareActions());
+    this.files = activity.getFiles() == null ? null : Collections.unmodifiableList(activity.getFiles());
 
     if (activity.getTemplateParams() != null) {
       this.templateParams = Collections.unmodifiableMap(activity.getTemplateParams());
@@ -133,6 +134,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setTemplateParams(new LinkedHashMap<>(templateParams));
     activity.setExternalId(externalId);
     activity.setShareActions(shareActions == null ? null : Collections.unmodifiableSet(shareActions));
+    activity.setFiles(files == null ? null : Collections.unmodifiableList(files));
     activity.setUrl(url);
     if (mentioners != null) { activity.setMentionedIds(mentioners); }
     if (commenters != null) { activity.setCommentedIds(commenters); }
@@ -164,6 +166,10 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
   public String getStreamOwner() {
     return streamOwner;
+  }
+
+  public List<ActivityFile> getFiles() {
+    return files;
   }
 
   @Override
@@ -208,6 +214,6 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return Objects.hash(id, title, body, likes, isComment, isHidden, isLocked, postedTime, lastUpdated, replyIds,
             userId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
             streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId,
-            shareActions);
+            shareActions, files);
   }
 }
