@@ -227,15 +227,27 @@ export default {
     },
     setWindowTitle() {
       if (this.isActivityDetail && this.activityTypeExtension) {
+        let title = document.title || '';
+        const titleKey = this.activityTypeExtension.windowTitlePrefixKey || 'activity.window.title';
         if (this.activityTypeExtension.getWindowTitle) {
-          const title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
-          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+          title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
         } else if (this.activityTypeExtension.getTitle) {
-          const title = this.activityTypeExtension.getTitle(this.activity) || '';
-          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+          title = this.activityTypeExtension.getTitle(this.activity) || '';
+          if (title && title.key) {
+            title = this.$t(title.key, title.params || {});
+          }
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
         } else {
-          const title = this.activity.title || '';
-          document.title = this.$t('activity.window.title', {0: this.$utils.htmlToText(title)});
+          title = this.activity.title || '';
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
+        }
+        if (title) {
+          if (title.length > 100) {
+            document.title = `${title.substring(0, 100)}...`;
+          } else {
+            document.title = title;
+          }
         }
       }
     },
