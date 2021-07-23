@@ -39,7 +39,7 @@
               :comment="comment"
               :comment-type-extension="commentTypeExtension"
               class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
-            <activity-head-time
+            <activity-comment-time
               :activity="comment"
               class="d-inline ps-2 activity-comment-head-time"
               no-icon />
