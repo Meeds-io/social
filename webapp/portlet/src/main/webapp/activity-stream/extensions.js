@@ -52,8 +52,15 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 const defaultActivityOptions = {
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
   getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
-  getTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || '',
-  getWindowTitle: activity => activity && activity.templateParams && activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link || activity.title || '',
+  getTitle: activity => activity && activity.templateParams && (activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link) || '',
+  getWindowTitle: activity => activity
+                              && activity.templateParams
+                              && activity.templateParams.title
+                              || activity.templateParams.defaultTitle
+                              || activity.templateParams.link
+                              || activity.title
+                              || (activity.templateParams.docTitle && activity.templateParams.docTitle.split('|@|')[0])
+                              || '',
   getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
   getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
   getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
