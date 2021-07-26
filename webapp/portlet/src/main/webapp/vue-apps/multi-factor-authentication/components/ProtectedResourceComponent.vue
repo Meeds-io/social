@@ -1,26 +1,35 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="filteredNavigations"
-    :loading="loading"
-    :options.sync="options"
-    :server-items-length="totalSize"
-    :footer-props="{ itemsPerPageOptions }"
-    :loading-text="$t('authentication.multifactor.protected.loadingResults')"
-    :no-results-text="$t('authentication.multifactor.protected.noResultsFound')"
-    :no-data-text="$t('authentication.multifactor.protected.noData')"
-    class="data-table-light-border">
-    <template slot="item.delete" slot-scope="{ item }">
-      <v-btn
-        :title="$t('authentication.multifactor.manage.datatable.delete')"
-        primary
-        icon
-        text
-        @click="deleteNavigation(item.name)">
-        <i class="uiIconTrash trashIconColor"></i>
-      </v-btn>
-    </template>
-  </v-data-table>
+  <div>
+    <exo-confirm-dialog
+      ref="deleteNavigationWarningDialog"
+      :message="deleteConfirmMessage"
+      :title="$t('authentication.multifactor.protected.confirmDelete')"
+      :ok-label="$t('authentication.multifactor.protected.button.ok')"
+      :cancel-label="$t('UsersManagement.button.cancel')"
+      @ok="deleteNavigation()" />
+    <v-data-table
+      :headers="headers"
+      :items="filteredNavigations"
+      :loading="loading"
+      :options.sync="options"
+      :server-items-length="totalSize"
+      :footer-props="{ itemsPerPageOptions }"
+      :loading-text="$t('authentication.multifactor.protected.loadingResults')"
+      :no-results-text="$t('authentication.multifactor.protected.noResultsFound')"
+      :no-data-text="$t('authentication.multifactor.protected.noData')"
+      class="data-table-light-border">
+      <template slot="item.delete" slot-scope="{ item }">
+        <v-btn
+          :title="$t('authentication.multifactor.manage.datatable.delete')"
+          primary
+          icon
+          text
+          @click="deleteNavigationConfirm(item.name)">
+          <i class="uiIconTrash trashIconColor"></i>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </div>
 </template>
 
 <script>
@@ -34,6 +43,8 @@ export default {
     totalSize: 0,
     loading: false,
     navigationsGroup: [],
+    selectedNavigationsGroup: null,
+    deleteConfirmMessage: null,
   }),
   watch: {
     options() {
@@ -92,9 +103,14 @@ export default {
           this.loading = false;
         });
     },
-    deleteNavigation(deletedNavigation) {
+    deleteNavigationConfirm(deletedNavigation){
+      this.selectedNavigationsGroup = deletedNavigation;
+      this.deleteConfirmMessage = this.$t('authentication.multifactor.protected.title.confirmDelete', {0: deletedNavigation});
+      this.$refs.deleteNavigationWarningDialog.open();
+    },
+    deleteNavigation() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/deleteNavigation/${deletedNavigation}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/deleteNavigation/${this.selectedNavigationsGroup }`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {

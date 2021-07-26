@@ -17,16 +17,22 @@
             </v-list-item-content>
           </v-list-item>
           <v-list-item>
-            <v-list-item-content>
+            <v-list-item-content class="pt-0">
               <div class="d-flex">
                 <v-list-item-title v-if="!isMultifacorAuthenticationEnabled" class="mb-1 text-color font-weight-medium textSize  ml-2 caption infoTextStyle">
                   {{ $t('authentication.multifactor.header') }}
                 </v-list-item-title>
-                <v-list-item-title v-if="isMultifacorAuthenticationEnabled" class="mb-1 text-color font-weight-medium textSize caption infoTextStyle">
+                <v-list-item-subtitle v-if="isMultifacorAuthenticationEnabled" class="mt-3 text-sub-title infoTextStyle textLigneHeight font-italic textSize caption">
                   <div>
-                    {{ $t('authentication.multifactor.second.block.description') }}
+                    <v-icon
+                      class="me-1"
+                      color="grey"
+                      size="24">
+                      mdi-information-outline
+                    </v-icon>
+                    {{ $t('authentication.multifactor.label') }}
                   </div>
-                </v-list-item-title>
+                </v-list-item-subtitle>
                 <v-list-item-action class="mr-4">
                   <label class="switch">
                     <input
@@ -38,17 +44,6 @@
                   </label>
                 </v-list-item-action>
               </div>
-              <v-list-item-subtitle v-if="isMultifacorAuthenticationEnabled" class="text-sub-title infoTextStyle textLigneHeight font-italic textSize caption">
-                <div>
-                  <v-icon
-                    class="me-1"
-                    color="grey"
-                    size="24">
-                    mdi-information-outline
-                  </v-icon>
-                  {{ $t('authentication.multifactor.label') }}
-                </div>
-              </v-list-item-subtitle>
               <v-row v-if="isMultifacorAuthenticationEnabled">
                 <v-col cols="3">
                   <v-select

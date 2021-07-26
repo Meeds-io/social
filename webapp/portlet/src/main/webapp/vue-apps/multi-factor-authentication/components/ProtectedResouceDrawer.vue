@@ -13,7 +13,7 @@
         @click="selectOption"
         class="ml-3"
         :label="$t('authentication.multifactor.protected.resources.select')" />
-      <hr class="mx-5">
+      <hr class="mx-5 my-0">
       <div v-for="nav of filteredNavigations" :key="nav">
         <v-checkbox
           :key="nav"
@@ -66,9 +66,9 @@ export default {
     },
     saving() {
       if (this.saving) {
-        this.$refs.userFormDrawer.startLoading();
+        this.$refs.protectedResourceDrawer.startLoading();
       } else {
-        this.$refs.userFormDrawer.endLoading();
+        this.$refs.protectedResourceDrawer.endLoading();
       }
     },
   },
@@ -117,7 +117,6 @@ export default {
         }
       }).then(() => this.$root.$emit('protectedNavigationsList'))
         .then(() =>   this.saving = false)
-        .then(() =>   this.navigationsGroup = [])
         .then(() =>  this.$refs.protectedResourceDrawer.close());
     },
     getProtectedNavigations() {
