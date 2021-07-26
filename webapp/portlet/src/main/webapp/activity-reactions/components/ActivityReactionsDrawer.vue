@@ -1,7 +1,9 @@
 <template>
   <exo-drawer
     ref="activityReactionsDrawer"
-    right>
+    disable-pull-to-refresh
+    right
+    fixed>
     <template slot="title">
       <div class="activityReactionsTitle">
         <v-tabs v-model="selectedTab">

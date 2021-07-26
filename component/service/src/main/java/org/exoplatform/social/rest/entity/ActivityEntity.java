@@ -18,6 +18,9 @@
 package org.exoplatform.social.rest.entity;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.rest.api.RestProperties;
@@ -36,6 +39,7 @@ public class ActivityEntity extends BaseEntity {
     setBody(activity.getBody());
     setLink(activity.getPermaLink());
     setType(activity.getType());
+    setFiles(activity.getFiles());
     setSharedActions(activity.getShareActions());
     setTemplateParams(activity.getTemplateParams());
   }
@@ -250,6 +254,9 @@ public class ActivityEntity extends BaseEntity {
   }
 
   public ActivityEntity setFiles(List<ActivityFile> files) {
+    if (CollectionUtils.isNotEmpty(files)) {
+      files = files.stream().filter(file -> !file.isDeleted()).collect(Collectors.toList());
+    }
     setProperty("files", files);
     return this;
   }

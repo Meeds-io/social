@@ -39,14 +39,14 @@
           {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
         </p>
       </div>
-      <activity-reactions-drawer
-        ref="reactionsDrawer"
-        :likers="likers"
-        :likers-number="likersNumber"
-        :activity-id="activityId"
-        :max-items-to-show="maxLikersToShow"
-        @reactions="reactionsNumber" />
     </div>
+    <activity-reactions-drawer
+      ref="reactionsDrawer"
+      :likers="likers"
+      :likers-number="likersNumber"
+      :activity-id="activityId"
+      :max-items-to-show="maxLikersToShow"
+      @reactions="reactionsNumber" />
     <activity-reactions-mobile
       :activity="activity"
       :kudos-number="kudosNumber"

@@ -174,6 +174,7 @@ export default {
     loading() {
       if (!this.loading) {
         this.refreshTipTip();
+        this.setWindowTitle();
       }
     },
   },
@@ -216,12 +217,39 @@ export default {
               .finally(() => {
                 this.loading = false;
                 this.initialized = true;
+                this.setWindowTitle();
               });
           }
         }
         this.loading = false;
         this.initialized = true;
       });
+    },
+    setWindowTitle() {
+      if (this.isActivityDetail && this.activityTypeExtension) {
+        let title = document.title || '';
+        const titleKey = this.activityTypeExtension.windowTitlePrefixKey || 'activity.window.title';
+        if (this.activityTypeExtension.getWindowTitle) {
+          title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
+        } else if (this.activityTypeExtension.getTitle) {
+          title = this.activityTypeExtension.getTitle(this.activity) || '';
+          if (title && title.key) {
+            title = this.$t(title.key, title.params || {});
+          }
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
+        } else {
+          title = this.activity.title || '';
+          title = this.$t(titleKey, {0: this.$utils.htmlToText(title)});
+        }
+        if (title) {
+          if (title.length > 100) {
+            document.title = `${title.substring(0, 100)}...`;
+          } else {
+            document.title = title;
+          }
+        }
+      }
     },
     abortSpecificExtension(activityId) {
       if (activityId === this.activityId) {

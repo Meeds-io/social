@@ -23,6 +23,8 @@ public class ActivityFile implements Serializable {
 
   private transient InputStream inputStream;
 
+  private boolean               deleted;
+
   public ActivityFile() {
   }
 
@@ -51,6 +53,14 @@ public class ActivityFile implements Serializable {
     this.mimeType = mimeType;
     this.inputStream = inputStream;
     this.lastModified = lastModified;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
   }
 
   /**

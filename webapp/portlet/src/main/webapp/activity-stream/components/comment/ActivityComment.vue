@@ -5,7 +5,7 @@
     class="d-inline-flex flex-column width-fit-content activity-comment border-box-sizing">
     <div
       v-if="isEditingComment"
-      class="col-auto ps-13 mb-4 py-0 flex-shrink-1">
+      class="col-auto mb-4 py-0 flex-shrink-1">
       <activity-comment-rich-text
         ref="commentEditRichEditor"
         :activity-id="activityId"
@@ -39,7 +39,7 @@
               :comment="comment"
               :comment-type-extension="commentTypeExtension"
               class="d-flex flex-row py-0 mb-auto flex-shrink-1" />
-            <activity-head-time
+            <activity-comment-time
               :activity="comment"
               class="d-inline ps-2 activity-comment-head-time"
               no-icon />
@@ -71,7 +71,7 @@
       :class="highlightRepliesClass"
       class="flex d-flex flex-column">
       <activity-comment
-        v-for="subComment in subComments"
+        v-for="subComment in subCommentsToDisplay"
         :key="subComment.id"
         :activity="activity"
         :comment="subComment"
@@ -81,10 +81,10 @@
         class="ps-10"
         @comment-initialized="$emit('comment-initialized')" />
     </div>
-    <div v-if="newReplyEditor" class="ps-12 py-0 mb-2 align-start border-box-sizing">
+    <div v-if="newReplyEditor" class="ps-10 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
         ref="commentRichEditor"
-        class="col-auto ps-8 py-0 mt-0 mb-2 flex-shrink-1"
+        class="col-auto pa-0 mt-0 mb-2 flex-shrink-1"
         :activity-id="activityId"
         :parent-comment-id="parentCommentId"
         :label="$t('UIActivity.label.Comment')"
@@ -129,6 +129,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    displayedSubCommentCount: 2,
+  }),
   computed: {
     activityId() {
       return this.activity && this.activity.id || '';
@@ -179,8 +182,15 @@ export default {
         message: messageToEdit,
       };
     },
+    subCommentsToDisplay() {
+      if (!this.comment.expandSubComments && this.subComments && this.subComments.length > this.displayedSubCommentCount) {
+        return this.subComments && this.subComments.slice(this.subComments.length - this.displayedSubCommentCount, this.subComments.length);
+      } else {
+        return this.subComments;
+      }
+    },
     displayedSubCommentsSize() {
-      return this.subComments && this.subComments.length || 0;
+      return this.subCommentsToDisplay && this.subCommentsToDisplay.length || 0;
     },
     subCommentsSize() {
       return this.comment && this.comment.subCommentsSize || 0;
@@ -222,13 +232,17 @@ export default {
   },
   methods: {
     openReplies() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        commentId: this.commentId,
-        highlightRepliesCommentId: this.commentId,
-        offset: 0,
-        limit: 200, // To display all
-      }}));
+      if (this.$el.closest('#activityCommentsDrawer')) {
+        // Is in drawer
+        this.comment.expandSubComments = true;
+        this.displayedSubCommentCount = this.subCommentsSize;
+      } else {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+          activity: this.activity,
+          commentId: this.commentId,
+          highlightRepliesCommentId: this.commentId,
+        }}));
+      }
     },
     scrollToReplies() {
       const repliesElement = document.querySelector(`#activityCommentsDrawer .drawerContent #${this.id} .activity-comment`);
@@ -255,7 +269,7 @@ export default {
             block: 'start',
           });
         }
-      }, 10);
+      }, 50);
     },
   },
 };

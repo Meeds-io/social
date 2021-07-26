@@ -33,7 +33,7 @@
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
-                  <v-icon size="18">mdi-arrow-expand</v-icon>
+                  <v-icon v-text="expandIcon" size="18" />
                 </v-btn>
                 <v-btn
                   :title="$t('label.close')"
@@ -120,6 +120,10 @@ export default {
         cancel: null,
       }),
     },
+    disablePullToRefresh: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     initialized: false,
@@ -141,8 +145,11 @@ export default {
     isMobile() {
       return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
     },
+    expandIcon() {
+      return this.expand && 'mdi-arrow-collapse' || 'mdi-arrow-expand';
+    },
     expandTooltip() {
-      return this.expand && this.$t('label.expand') || this.$t('label.collapse');
+      return this.expand && this.$t('label.collapse') || this.$t('label.expand');
     },
   },
   watch: {
@@ -161,6 +168,9 @@ export default {
         }
         eXo.openedDrawers.push(this);
         this.$emit('opened');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = 'contain';
+        }
       } else {
         document.dispatchEvent(new CustomEvent('drawerClosed'));
         if (eXo.openedDrawers) {
@@ -170,6 +180,9 @@ export default {
           }
         }
         this.$emit('closed');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = '';
+        }
       }
       this.$emit('input', this.drawer);
       this.expand = false;

@@ -239,7 +239,9 @@ export default {
       }
     },
     setEditorReady: function() {
-      this.$set(this.editor, 'status', 'ready');
+      window.setTimeout(() => {
+        this.$set(this.editor, 'status', 'ready');
+      }, 200);
     },
     setFocus: function() {
       if (this.editorReady) {
