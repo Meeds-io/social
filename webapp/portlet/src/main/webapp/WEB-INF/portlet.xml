@@ -74,7 +74,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/idm-users-management/index.html</value>
+        <value>/html/idmUsersManagement.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -101,7 +101,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/idm-groups-management/index.html</value>
+        <value>/html/idmGroupsManagement.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -128,7 +128,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/idm-membership-types-management/index.html</value>
+        <value>/html/idmMembershipTypesManagement.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -154,7 +154,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/who-is-online-app/index.html</value>
+      <value>/html/whoIsOnline.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -176,7 +176,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-infos-app/index.jsp</value>
+      <value>/WEB-INF/jsp/spaceInformation.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -196,7 +196,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-members/index.jsp</value>
+      <value>/WEB-INF/jsp/spaceMembers.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -215,7 +215,7 @@
     <portlet-class>org.exoplatform.social.portlet.SpaceMenuPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-menu/index.jsp</value>
+      <value>/WEB-INF/jsp/spaceMenu.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -230,7 +230,7 @@
     <portlet-class>org.exoplatform.social.portlet.SpaceHeaderPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-header/index.jsp</value>
+      <value>/WEB-INF/jsp/spaceHeader.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -433,7 +433,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/space-settings/index.jsp</value>
+      <value>/WEB-INF/jsp/spaceSettings.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -461,25 +461,6 @@
     <resource-bundle>locale.portlet.social.SpacesAdministrationPortlet</resource-bundle>
     <portlet-info>
       <title>Spaces Administration</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>SpaceTemplates</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/space-templates-app/index.html</value>
-    </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.social.SpacesAdministrationPortlet</resource-bundle>
-    <portlet-info>
-      <title>Spaces Templates</title>
     </portlet-info>
   </portlet>
 
@@ -733,7 +714,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/dlp-quarantine/dlpQuarantine.html</value>
+      <value>/html/dlpQuarantine.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -760,7 +741,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/multi-factor-authentication/multifactorAuthentication.html</value>
+      <value>/html/multifactorAuthentication.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -787,7 +768,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/mfa-access/mfa-access.html</value>
+      <value>/html/mfa-access.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -852,7 +833,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/company-branding-app/index.html</value>
+        <value>/html/companyBranding.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>

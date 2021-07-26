@@ -18,13 +18,17 @@ package org.exoplatform.social.core.identity.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.social.core.CacheEntry;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.profile.ProfileLoader;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents persons or objects relevant to the social system.
  */
-public class Identity implements Cloneable {
+public class Identity implements CacheEntry, Cloneable {
 
   /** The id. */
   String  id;
@@ -48,6 +52,10 @@ public class Identity implements Cloneable {
 
   /** The profile loaded allowing to load the profile on demand */
   private volatile ProfileLoader profileLoader;
+
+  @Getter
+  @Setter
+  private long cacheTime;
 
   /** The global id. */
   GlobalId globalId;

@@ -18,6 +18,8 @@ package org.exoplatform.social.core.activity.model;
 
 import java.util.*;
 
+import org.exoplatform.social.core.CacheEntry;
+
 /**
  * ExoSocialActivity interface
  *
@@ -25,7 +27,7 @@ import java.util.*;
  * @since Nov 9, 2010
  * @since 1.2.0-GA
  */
-public interface ExoSocialActivity {
+public interface ExoSocialActivity extends CacheEntry {
   /**
    * The  Constant label comment.
    */
