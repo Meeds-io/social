@@ -1,0 +1,1 @@
+// Here we can add additional rules using workbox for service worker

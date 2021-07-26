@@ -189,7 +189,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (returnSize) {
       collectionSpace.setSize(listAccess.getSize());
     }
-    
+
     EntityTag eTag = null;
     eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
 
@@ -197,10 +197,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
+      Date date = new Date(System.currentTimeMillis());
+      builder.lastModified(date);
+      builder.expires(date);
     }
-
-    CacheControl cc = new CacheControl();
-    builder.cacheControl(cc);
 
     return builder.build();
   }
@@ -272,22 +272,25 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                @Context Request request,
                                @ApiParam(value = "Space id", required = true) @PathParam("id") String id,
                                @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
-    CacheControl cc = new CacheControl();
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(id);
     if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    EntityTag eTag;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
 
+    long cacheTime = space.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
     }
-
-    return builder.cacheControl(cc).tag(eTag).build();
+    return builder.build();
   }
 
   /**
@@ -324,20 +327,17 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    EntityTag eTag;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+    long cacheTime = space.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
 
+    EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
-    }
-
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
     }
     return builder.build();
   }
@@ -376,20 +376,17 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         && !spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    EntityTag eTag = null;
-    Long lastUpdateDate = space.getLastUpdatedTime();
-    eTag = new EntityTag(String.valueOf(lastUpdateDate.hashCode()));
+    long cacheTime = space.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
 
+    EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      builder = EntityBuilder.getResponseBuilder(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
-    }
-
-    builder.cacheControl(CACHE_CONTROL);
-    builder.lastModified(space.getLastUpdatedTime() > 0 ? new Date(space.getLastUpdatedTime()) : new Date());
-    if (lastUpdateDate > 0) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
     }
     return builder.build();
   }
@@ -657,6 +654,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @GET
   @Path("{id}/users")
   @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(value = "Gets users of a specific space",
                 httpMethod = "GET",
                 response = Response.class,
@@ -685,35 +683,46 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    if (StringUtils.isBlank(role)) {
-      role = SpaceMemberFilterListAccess.Type.MEMBER.name();
+    long cacheTime = space.getCacheTime();
+    String eTagValue = String.valueOf(Objects.hash(id, q, role, expand, cacheTime, offset, limit, returnSize));
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      if (StringUtils.isBlank(role)) {
+        role = SpaceMemberFilterListAccess.Type.MEMBER.name();
+      }
+      SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
+
+      ProfileFilter profileFilter = new ProfileFilter();
+      profileFilter.setName(q);
+
+      ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
+                                                                                                       profileFilter,
+                                                                                                       type,
+                                                                                                       true);
+      Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
+
+      List<DataEntity> profileInfos = null;
+      if (spaceIdentities == null || spaceIdentities.length == 0) {
+        profileInfos = Collections.emptyList();
+      } else {
+        profileInfos = Arrays.stream(spaceIdentities)
+                             .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
+                                                           .getDataEntity())
+                             .collect(Collectors.toList());
+      }
+
+      CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+      if (returnSize) {
+        collectionUser.setSize(spaceIdentitiesListAccess.getSize());
+      }
+      builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
     }
-    SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
-
-    ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setName(q);
-
-    ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
-                                                                                                     profileFilter,
-                                                                                                     type,
-                                                                                                     true);
-    Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
-
-    List<DataEntity> profileInfos = null;
-    if (spaceIdentities == null || spaceIdentities.length == 0) {
-      profileInfos = Collections.emptyList();
-    } else {
-      profileInfos = Arrays.stream(spaceIdentities)
-                           .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
-                                                         .getDataEntity())
-                           .collect(Collectors.toList());
-    }
-
-    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if (returnSize) {
-      collectionUser.setSize(spaceIdentitiesListAccess.getSize());
-    }
-    return EntityBuilder.getResponseBuilder(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK).build();
+    return builder.build();
   }
 
   /**
@@ -763,28 +772,41 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 401, message = "Unauthorized")
   })
-  public Response getSpaceNavigations(@Context HttpServletRequest request,
+  public Response getSpaceNavigations(@Context HttpServletRequest httpRequest,
+                                      @Context Request request,
                                       @ApiParam(value = "Space id", required = true) @PathParam("id") String spaceId) {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
-    List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space,
-                                                                request.getLocale(),
-                                                                authenticatedUser);
 
-    if (navigations == null) {
-      return Response.ok(Collections.emptyList()).build();
+    long cacheTime = space.getCacheTime();
+    String eTagValue = String.valueOf(cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space,
+                                                                  httpRequest.getLocale(),
+                                                                  authenticatedUser);
+
+      if (navigations == null) {
+        return Response.ok(Collections.emptyList()).build();
+      }
+      List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
+        BaseEntity app = new BaseEntity(node.getId());
+        app.setProperty("label", node.getResolvedLabel());
+        app.setProperty("icon", node.getIcon());
+        app.setProperty("uri", node.getURI());
+        return app.getDataEntity();
+      }).collect(Collectors.toList());
+      builder = Response.ok(spaceNavigations, MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
     }
-    List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
-      BaseEntity app = new BaseEntity(node.getId());
-      app.setProperty("label", node.getResolvedLabel());
-      app.setProperty("icon", node.getIcon());
-      app.setProperty("uri", node.getURI());
-      return app.getDataEntity();
-    }).collect(Collectors.toList());
-    return Response.ok(spaceNavigations).build();
+    return builder.build();
   }
 
   @GET

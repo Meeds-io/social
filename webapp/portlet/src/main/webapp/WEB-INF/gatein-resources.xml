@@ -382,6 +382,24 @@
   </portlet>
 
   <portlet>
+    <name>SpaceActivityStreamPortlet</name>
+    <module>
+      <depends>
+        <module>ActivityStream</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>UserActivityStreamPortlet</name>
+    <module>
+      <depends>
+        <module>ActivityStream</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>WhoIsOnLinePortlet</name>
     <module>
       <script>
@@ -396,6 +414,9 @@
       </depends>
       <depends>
         <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
       <depends>
         <module>extensionRegistry</module>
@@ -846,6 +867,9 @@
         <module>vue</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>vuetify</module>
       </depends>
       <depends>
@@ -881,6 +905,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -909,6 +936,9 @@
     <depends>
       <module>vuetify</module>
     </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
     <depends>
       <module>eXoVueI18n</module>
     </depends>
@@ -933,6 +963,9 @@
       </depends>
       <depends>
         <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -967,6 +1000,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -999,6 +1035,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1023,6 +1062,9 @@
       </depends>
       <depends>
         <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1057,6 +1099,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1081,6 +1126,9 @@
       </depends>
       <depends>
         <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1112,6 +1160,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1139,6 +1190,9 @@
       </depends>
       <depends>
         <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1225,9 +1279,6 @@
     </depends>
     <depends>
       <module>autoLinkerVue</module>
-    </depends>
-    <depends>
-      <module>purifyVue</module>
     </depends>
     <depends>
       <module>vueEllipsis</module>
@@ -1510,6 +1561,9 @@
     </depends>
     <depends>
       <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>purifyVue</module>
     </depends>
     <depends>
       <module>jquery</module>
