@@ -193,6 +193,7 @@ public class SpacesRestService implements ResourceContainer {
    *
    */
   @GET
+  @RolesAllowed("users")
   @Path("lastVisitedSpace/list.{format}")
   @DeprecatedAPI("The endpoint is deprecated, use spaceRestResourcesV1.getSpaces instead ")
   public Response getLastVisitedSpace(@Context UriInfo uriInfo,

@@ -130,7 +130,6 @@
              function ajaxCall(userId, restUrl) {
                  $.ajax({
                      type: "GET",
-                     cache: false,
                      url: restUrl,
                      complete: function (jqXHR) {
                          if (jqXHR.readyState === 4) {
@@ -408,7 +407,6 @@
                  }
                  window.profileActionXHR = $.ajax({
                      type: "GET",
-                     cache: false,
                      url: opts.restURL.replace('{0}', ownerUserId) + '?updatedType=' + updatedType,
                      complete: function(jqXHR) {
                          if (jqXHR.readyState === 4) {

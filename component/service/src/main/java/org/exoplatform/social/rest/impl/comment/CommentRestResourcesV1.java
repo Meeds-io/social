@@ -62,6 +62,8 @@ public class CommentRestResourcesV1 implements ResourceContainer {
   public Response getCommentById(
                                  @Context
                                  UriInfo uriInfo,
+                                 @Context
+                                 Request request,
                                  @ApiParam(value = "Comment id", required = true)
                                  @PathParam("id")
                                  String id,
@@ -71,7 +73,7 @@ public class CommentRestResourcesV1 implements ResourceContainer {
                                  )
                                  @QueryParam("expand")
                                  String expand) {
-    return activityRestResourcesV1.getActivityById(uriInfo, id, expand);
+    return activityRestResourcesV1.getActivityById(uriInfo, request, id, expand);
   }
 
   @PUT

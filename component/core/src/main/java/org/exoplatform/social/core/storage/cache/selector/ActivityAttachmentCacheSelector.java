@@ -20,7 +20,6 @@ package org.exoplatform.social.core.storage.cache.selector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.storage.cache.model.data.ActivityData;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
@@ -48,10 +47,4 @@ public class ActivityAttachmentCacheSelector extends CacheSelector<ActivityKey, 
         && data.getFiles().stream().anyMatch(file -> StringUtils.equals(file.getId(), attachmentId));
   }
 
-  @Override
-  public void onSelect(ExoCache<? extends ActivityKey, ? extends ActivityData> exoCache,
-                       ActivityKey key,
-                       ObjectCacheInfo<? extends ActivityData> ocinfo) throws Exception {
-    super.onSelect(exoCache, key, ocinfo);
-  }
 }

@@ -205,7 +205,6 @@
                         }
                         window.profileXHR = $.ajax({
                             type: "GET",
-                            cache: false,
                             url: spaceRestUrl,
                             complete: function(jqXHR) {
 
@@ -219,7 +218,6 @@
                                 }
                                 window.profileXHR = $.ajax({
                                   type: "GET",
-                                  cache: false,
                                   url: membersRestUrl,
                                   complete: function(jqXHR) {
 
@@ -228,7 +226,6 @@
                                     }
                                     window.profileXHR = $.ajax({
                                       type: "GET",
-                                      cache: false,
                                       url: managerRestUrl,
                                       complete: function(jqXHR) {
                                         if (jqXHR.readyState === 4) {
@@ -432,7 +429,6 @@
                     }
                     window.profileActionXHR = $.ajax({
                         type: "DELETE",
-                        cache: false,
                         url: opts.deleteMembershipRestUrl.replace('{0}', spaceName).replace('{1}', userName).replace('{2}', role),
                         success: function (jqXHR) {
                             var popup = $(el).closest('#tiptip_holder');

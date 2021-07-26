@@ -17,8 +17,7 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
@@ -61,7 +60,7 @@ import io.swagger.annotations.*;
 )
 public class ActivityRestResourcesV1 implements ResourceContainer {
 
-  private static final Log        LOG = ExoLogger.getLogger(ActivityRestResourcesV1.class);
+  private static final Log          LOG                    = ExoLogger.getLogger(ActivityRestResourcesV1.class);
 
   private ActivityManager         activityManager;
 
@@ -172,24 +171,37 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
     }
 
-    List<ExoSocialActivity> activities = null;
-    if (StringUtils.isNotBlank(afterTime)) {
-      try {
-        activities = listAccess.loadNewer(RestUtils.getBaseTime(afterTime), limit);
-      } catch (ParseException e) {
-        return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
-      }
-    } else if (StringUtils.isNotBlank(beforeTime)) {
-      try {
-        activities = listAccess.loadOlder(RestUtils.getBaseTime(beforeTime), limit);
-      } catch (ParseException e) {
-        return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
-      }
+    String entitiesName = null;
+    List<DataEntity> activityEntities = null;
+    if (StringUtils.equals(expand, "ids")) {
+      List<String> activityIds = listAccess.loadIdsAsList(offset, limit);
+      activityEntities = activityIds.stream().map(id -> {
+        DataEntity dataEntity = new DataEntity();
+        dataEntity.setProperty("id", id);
+        return dataEntity;
+      }).collect(Collectors.toList());
+      entitiesName = EntityBuilder.ACTIVITY_IDS_TYPE;
     } else {
-      activities = listAccess.loadAsList(offset, limit);
+      List<ExoSocialActivity> activities = null;
+      if (StringUtils.isNotBlank(afterTime)) {
+        try {
+          activities = listAccess.loadNewer(RestUtils.getBaseTime(afterTime), limit);
+        } catch (ParseException e) {
+          return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
+        }
+      } else if (StringUtils.isNotBlank(beforeTime)) {
+        try {
+          activities = listAccess.loadOlder(RestUtils.getBaseTime(beforeTime), limit);
+        } catch (ParseException e) {
+          return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
+        }
+      } else {
+        activities = listAccess.loadAsList(offset, limit);
+      }
+      activityEntities = convertToEntities(activities, currentUserIdentity, uriInfo, expand);
+      entitiesName = EntityBuilder.ACTIVITIES_TYPE;
     }
-    List<DataEntity> activityEntities = convertToEntities(activities, currentUserIdentity, uriInfo, expand);
-    CollectionEntity collectionActivity = new CollectionEntity(activityEntities, EntityBuilder.ACTIVITIES_TYPE, offset, limit);
+    CollectionEntity collectionActivity = new CollectionEntity(activityEntities, entitiesName, offset, limit);
     if (returnSize) {
       collectionActivity.setSize(listAccess.getSize());
     }
@@ -272,7 +284,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                                                           authenticatedUserIdentity,
                                                                           uriInfo.getPath(),
                                                                           expand);
-    return EntityBuilder.getResponse(activityEntity,
+    return EntityBuilder.getResponse(activityEntity.getDataEntity(),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
@@ -280,6 +292,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   @GET
   @Path("{activityId}")
+  @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @ApiOperation(
       value = "Gets a specific activity by id",
@@ -296,6 +309,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   public Response getActivityById(
                                   @Context
                                   UriInfo uriInfo,
+                                  @Context
+                                  Request request,
                                   @ApiParam(value = "Activity id", required = true)
                                   @PathParam("activityId")
                                   String activityId,
@@ -305,7 +320,6 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                   )
                                   @QueryParam("expand")
                                   String expand) {
-
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
@@ -313,8 +327,20 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (activity == null || !activityManager.isActivityViewable(activity, authenticatedUserIdentity)) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    long cacheTime = activity.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
+      builder = Response.ok(activityEntity.getDataEntity(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
+    }
+    return builder.build();
   }
 
   @PUT
@@ -558,11 +584,12 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     EntityBuilder.buildActivityFromEntity(model, comment);
     activityManager.saveComment(activity, comment);
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
+    CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
                                                                           currentUser,
                                                                           uriInfo.getPath(),
                                                                           expand,
-                                                                          false),
+                                                                          false);
+    return EntityBuilder.getResponse(commentEntity.getDataEntity(),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
@@ -637,11 +664,12 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     comment.setFiles(model.getFiles());
     comment.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(comment, true);
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
+    CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
                                                                           currentUser,
                                                                           uriInfo.getPath(),
                                                                           expand,
-                                                                          false),
+                                                                          false);
+    return EntityBuilder.getResponse(commentEntity.getDataEntity(),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);

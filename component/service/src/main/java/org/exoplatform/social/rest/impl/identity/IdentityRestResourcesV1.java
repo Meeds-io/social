@@ -24,9 +24,7 @@ import io.swagger.annotations.ApiResponses;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
@@ -51,10 +49,7 @@ import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.IdentityRestResources;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.IdentityEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 
@@ -115,6 +110,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{id}")
   @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(value = "Gets an identity by id",
                 httpMethod = "GET",
                 response = Response.class,
@@ -124,17 +120,27 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     @ApiResponse (code = 500, message = "Internal server error"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getIdentityById(@Context UriInfo uriInfo,
+                                  @Context Request request,
                                   @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-    
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    
-    IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    long cacheTime = identity.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
+      builder = Response.ok(profileInfo, MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
+    }
+    return builder.build();
   }
 
   @GET
@@ -154,6 +160,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   )
   @Produces(MediaType.APPLICATION_JSON)
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                     @Context Request request,
                                                    @ApiParam(
                                                        value = "Identity provider id which can be of type 'space' or 'organization' for example",
                                                        required = true
@@ -170,8 +177,20 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
-    return EntityBuilder.getResponse(profileInfo, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    long cacheTime = identity.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      IdentityEntity profileInfo = EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand);
+      builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
+    }
+    return builder.build();
   }
 
   /**

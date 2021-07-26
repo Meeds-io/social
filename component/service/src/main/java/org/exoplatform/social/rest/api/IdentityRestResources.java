@@ -26,9 +26,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 import org.exoplatform.social.rest.entity.IdentityEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
@@ -54,12 +52,16 @@ public interface IdentityRestResources extends SocialRest {
    * Process to return an identity in json format
    * 
    * @param uriInfo
+   * @param request
+   * @param id
+   * @param expand
    * @return
    * @throws Exception
    */
   @GET
   @Path("{id}")
   public abstract Response getIdentityById(@Context UriInfo uriInfo,
+                                           @Context Request request,
                                            @PathParam("id") String id,
                                            @QueryParam("expand") String expand) throws Exception;
   
@@ -68,6 +70,7 @@ public interface IdentityRestResources extends SocialRest {
    * Return an identity identified by its providerId and remoteId
    * 
    * @param uriInfo
+   * @param request
    * @param providerId
    * @param remoteId
    * @param expand
@@ -76,6 +79,7 @@ public interface IdentityRestResources extends SocialRest {
   @GET
   @Path("{providerId}/{remoteId}")
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
+                                                   @Context Request request,
                                                    @PathParam("providerId") String providerId,
                                                    @PathParam("remoteId") String remoteId,
                                                    @QueryParam("expand") String expand);
