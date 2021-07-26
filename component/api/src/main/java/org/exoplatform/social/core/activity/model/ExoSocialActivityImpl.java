@@ -96,6 +96,8 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private Date updated;
 
+  private long cacheTime;
+
   private String url;
 
   private Map<String, String> templateParams;
@@ -590,8 +592,19 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
     commentedIds = Arrays.copyOf(identityIds, identityIds.length);
   }
 
+  @Override
   public Date getUpdated() {
     return updated;
+  }
+
+  @Override
+  public long getCacheTime() {
+    return cacheTime;
+  }
+
+  @Override
+  public void setCacheTime(long cacheTime) {
+    this.cacheTime = cacheTime;
   }
 
   /**

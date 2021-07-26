@@ -41,6 +41,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final boolean isLocked;
   private final Long postedTime;
   private final Long lastUpdated;
+  private final Long cacheTime;
   private final String[] replyIds;
   private final String userId;
   private final String appId;
@@ -75,6 +76,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.isLocked = activity.isLocked();
     this.postedTime = activity.getPostedTime();
     this.lastUpdated = activity.getUpdated().getTime();
+    this.cacheTime = System.currentTimeMillis();
     this.replyIds = activity.getReplyToId();
     this.userId = activity.getUserId();
     this.appId = activity.getAppId();
@@ -126,6 +128,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.isLocked(isLocked);
     activity.setPostedTime(postedTime);
     activity.setUpdated(lastUpdated);
+    activity.setCacheTime(cacheTime);
     activity.setUserId(userId);
     activity.setAppId(appId);
     activity.setTitleId(titleId);

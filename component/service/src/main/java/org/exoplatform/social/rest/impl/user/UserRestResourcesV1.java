@@ -400,6 +400,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{id}")
   @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(value = "Gets a specific user by user name",
                 httpMethod = "GET",
                 response = Response.class,
@@ -410,6 +411,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
     @ApiResponse (code = 400, message = "Invalid query input") })
   public Response getUserById(@Context UriInfo uriInfo,
+                              @Context Request request,
                               @ApiParam(value = "User name", required = true) @PathParam("id") String id,
                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
@@ -417,8 +419,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    long cacheTime = identity.getCacheTime();
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
+    }
+    return builder.build();
   }
 
   @GET

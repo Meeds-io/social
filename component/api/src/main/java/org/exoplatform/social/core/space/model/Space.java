@@ -17,8 +17,12 @@
 package org.exoplatform.social.core.space.model;
 
 import org.exoplatform.social.common.Utils;
+import org.exoplatform.social.core.CacheEntry;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Space Model
@@ -26,7 +30,7 @@ import org.exoplatform.social.core.model.BannerAttachment;
  * @author <a href="mailto:tungcnw@gmail.com">dang.tung</a>
  * @since Aug 29, 2008
  */
-public class Space {
+public class Space implements CacheEntry {
   /** The id. */
   private String id;
 
@@ -80,7 +84,12 @@ public class Space {
 
   /** Created time. */
   private long createdTime;
- /** Last Updated time */
+
+  @Getter
+  @Setter
+  private long cacheTime;
+
+  /** Last Updated time */
   private long lastUpdatedTime;
   /**
    * The pretty name of space.

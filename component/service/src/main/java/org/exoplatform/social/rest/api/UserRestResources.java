@@ -66,6 +66,7 @@ public interface UserRestResources extends SocialRest {
   @GET
   @Path("{id}")
   public abstract Response getUserById(@Context UriInfo uriInfo,
+                                       @Context Request request,
                                        @PathParam("id") String id,
                                        @QueryParam("expand") String expand) throws Exception;
 

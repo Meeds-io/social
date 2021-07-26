@@ -89,6 +89,8 @@ public class EntityBuilder {
 
   public static final String              ACTIVITIES_TYPE                            = "activities";
 
+  public static final String              ACTIVITY_IDS_TYPE                          = "activityIds";
+
   public static final String              COMMENTS_TYPE                              = "comments";
 
   public static final String              LIKES_TYPE                                 = "likes";
@@ -124,9 +126,9 @@ public class EntityBuilder {
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
-  private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
+  public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
-  private static final CacheControl       NO_CACHE_CC                                = new CacheControl();
+  private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
 
   static {
     NO_CACHE_CC.setNoCache(true);

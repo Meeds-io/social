@@ -40,6 +40,8 @@ public class IdentityData implements CacheData<Identity> {
   
   private final boolean isEnabled;
 
+  private final long cacheTime;
+
   public IdentityData(final Identity identity) {
     if (identity != null) {
       this.id = identity.getId();
@@ -55,6 +57,7 @@ public class IdentityData implements CacheData<Identity> {
       this.isDeleted = false;
       this.isEnabled = true;
     }
+    this.cacheTime = System.currentTimeMillis();
   }
 
   public String getId() {
@@ -80,6 +83,7 @@ public class IdentityData implements CacheData<Identity> {
     identity.setRemoteId(remoteId);
     identity.setDeleted(isDeleted);
     identity.setEnable(isEnabled);
+    identity.setCacheTime(cacheTime);
     return identity;
   }
 
