@@ -299,7 +299,7 @@
                     var isManager = false;
                     var isMember = false;
                     var labels = opts.labels;
-                    var spaceName = spaceUrl.substring(spaceUrl.lastIndexOf('/')+1);
+                    var spaceName = json.prettyName;
                     if(json.membership.roles.indexOf('manager')>=0) {
                         isManager = true;
                     }
