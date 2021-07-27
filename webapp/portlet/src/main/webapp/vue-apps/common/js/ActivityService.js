@@ -13,10 +13,6 @@ export function getActivities(spaceId, limit, expand) {
 
 export function getActivityById(id, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?expand=${expand || ''}`, {
-    headers: {
-      'Accept': 'application/json',
-      'Cache-Control': 'max-age=0',
-    },
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

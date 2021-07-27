@@ -6,14 +6,11 @@
   import org.apache.commons.lang.StringUtils;
   import org.exoplatform.portal.application.PortalRequestContext;
   import org.exoplatform.social.core.space.model.Space;
-  import org.exoplatform.social.core.search.SearchService;
-  import org.exoplatform.portal.resource.SkinService;
   import org.exoplatform.social.core.search.SearchConnector;
   import java.util.TimeZone;
   import java.util.HashSet;
 
   def rcontext = _ctx.getRequestContext();
-  def jsManager = rcontext.getJavascriptManager();
   int frequency = 15000;
   if(StringUtils.isNotEmpty(System.getProperty("user.status.ping.frequency"))) {
     frequency = Integer.parseInt(System.getProperty("user.status.ping.frequency"));
@@ -25,41 +22,7 @@
   def userName = rcontext.getRemoteUser();
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
-
-  SearchService searchService = uicomponent.getApplicationComponent(SearchService.class);
-  SkinService skinService = uicomponent.getApplicationComponent(SkinService.class);
-  Set<SearchConnector> connectors = searchService.getEnabledConnectors();
-
-  def jsConfig = uicomponent.getJSConfig();
-  def jsConfigPaths = jsConfig.get("paths");
-
-  def scriptPaths = new HashSet();
-  if (jsConfigPaths.has("SHARED/presence")) {
-    scriptPaths.add(jsConfigPaths.get("SHARED/presence") + ".js");
-  }
-
-  def skinPaths = new HashSet();
-  for (connector in connectors) {
-    def skinConfig = null;
-    if (connector.getCssModule() != null) {
-      skinConfig = skinService.getSkin(connector.getCssModule(), null);
-      if (skinConfig != null) {
-        def url = skinConfig.createURL(rcontext.controllerContext);
-        url.setOrientation(orientation);
-        skinPaths.add(url);
-      }
-    }
-  }
-
-  for (scriptPath in scriptPaths) {
-  %>
-<link rel="preload" href= "$scriptPath" as="script" type="text/javascript" />
-  <% }
-  for (skinPath in skinPaths) {
-  %>
-<link rel="preload" href="$skinPath" as="style" type="text/css" />
-  <% } %>
-
+%>
 <script type="text/javascript">
  require(['SHARED/presence'], function(presence) {
    presence.sendPing("<%= frequency %>");

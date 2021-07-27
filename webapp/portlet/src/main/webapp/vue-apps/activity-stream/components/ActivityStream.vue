@@ -7,6 +7,8 @@
       :activity-actions="activityActions"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
+      :initial-limit="initialLimit"
+      :initial-data="initialData"
       @activity-select="displayActivityDetail" />
     <extension-registry-components
       :params="drawerParams"
@@ -20,6 +22,16 @@
 
 <script>
 export default {
+  props: {
+    initialData: {
+      type: Object,
+      default: null,
+    },
+    initialLimit: {
+      type: Number,
+      default: null,
+    },
+  },
   data: () => ({
     loaded: false,
     spaceId: eXo.env.portal.spaceId,

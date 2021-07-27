@@ -1,0 +1,76 @@
+<%
+  import org.gatein.portal.controller.resource.ResourceRequestHandler;
+  import org.exoplatform.social.webui.Utils;
+  import org.apache.commons.lang.StringUtils;
+  import org.exoplatform.portal.application.PortalRequestContext;
+  import org.exoplatform.social.core.search.SearchService;
+  import org.exoplatform.portal.resource.SkinService;
+  import org.exoplatform.social.core.search.SearchConnector;
+  import org.exoplatform.social.core.space.SpaceUtils;
+  import org.exoplatform.social.webui.Utils;
+  import java.util.HashSet;
+
+  def rcontext = _ctx.getRequestContext();
+
+  SearchService searchService = uicomponent.getApplicationComponent(SearchService.class);
+  SkinService skinService = uicomponent.getApplicationComponent(SkinService.class);
+  Set<SearchConnector> connectors = searchService.getEnabledConnectors();
+
+  def jsConfig = uicomponent.getJSConfig();
+  def jsConfigPaths = jsConfig.get("paths");
+
+  def scriptPaths = new HashSet();
+  if (jsConfigPaths.has("SHARED/presence")) {
+    scriptPaths.add(jsConfigPaths.get("SHARED/presence") + ".js");
+  }
+
+  def i18nPaths = new HashSet();
+  def skinPaths = new HashSet();
+  for (connector in connectors) {
+    def skinConfig = null;
+    if (connector.getCssModule() != null) {
+      skinConfig = skinService.getSkin(connector.getCssModule(), null);
+      if (skinConfig != null) {
+        def url = skinConfig.createURL(rcontext.controllerContext);
+        url.setOrientation(orientation);
+        skinPaths.add(url);
+      }
+    }
+    if (connector.getI18nBundle() != null) {
+      i18nPaths.add(connector.getI18nBundle());
+    }
+  }
+
+  for (scriptPath in scriptPaths) {
+  %>
+<link rel="preload" href= "$scriptPath" as="script" type="text/javascript" />
+  <% }
+  for (skinPath in skinPaths) {
+  %>
+<link rel="preload" href="$skinPath" as="style" type="text/css" />
+  <% }
+  def restPaths = uicomponent.getPortletRestResources();
+  String userId = Utils.getViewerIdentityId();
+  String username = Utils.getViewerRemoteId();
+  def space = SpaceUtils.getSpaceByContext();
+  String spaceId = space == null ? "" : space.getId();
+  String spacePrettyName = space == null ? "" : space.getPrettyName();
+  for (restPath in restPaths) {
+    restPath = restPath.replace("{userId}", userId)
+                       .replace("{username}", username)
+                       .replace("{spaceId}", spaceId)
+                       .replace("{spacePrettyName}", spaceId);
+  %>
+  <link rel="preload" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
+  <% }
+
+  String language = rcontext.getLocale().getLanguage();
+  String country = rcontext.getLocale().getCountry();
+  if (country != null && country.length() > 0) {
+    language += "_" + country;
+  }
+
+  i18nPaths.addAll(uicomponent.getPortletBundles());
+  for (i18nPath in i18nPaths) {%>
+    <link rel="preload" href="<%="/portal/rest/i18n/bundle/" + i18nPath + "-" + language + ".json?v=" + ResourceRequestHandler.VERSION%>" as="fetch" crossorigin="anonymous">
+  <% } %>
