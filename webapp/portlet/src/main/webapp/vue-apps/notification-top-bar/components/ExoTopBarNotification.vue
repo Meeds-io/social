@@ -104,11 +104,7 @@ export default {
   },
   created() {
     this.getNotifications().finally(() => this.$root.$emit('application-loaded'));
-    notificationlAPI.getUserToken().then(
-      (data) => {
-        notificationlAPI.initCometd(data);
-      }
-    );
+    notificationlAPI.initCometd();
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
   },
   mounted() {

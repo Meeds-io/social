@@ -1,3 +1,4 @@
+<%@page import="org.gatein.portal.controller.resource.ResourceRequestHandler"%>
 <%@page import="org.exoplatform.portal.resource.SkinService"%>
 <%@page import="org.exoplatform.services.resources.Orientation"%>
 <%@page import="org.exoplatform.portal.resource.SkinURL"%>
@@ -18,8 +19,7 @@
   ControllerContext controllerContext = rcontext.getControllerContext();
   Orientation orientation = rcontext.getOrientation();
 %>
-<html>
-  <head>
+<div class="VuetifyApp">
   <% for (SearchConnector connector : connectors) {
     SkinConfig skinConfig = null;
     if (connector.getCssModule() != null) {
@@ -28,21 +28,16 @@
     if (skinConfig != null) {
       SkinURL url = skinConfig.createURL(controllerContext);
       url.setOrientation(orientation); %>
-    <link id="<%=skinConfig.getId()%>" rel="stylesheet" type="text/css" href="<%=url%>" />
+  <link id="<%=skinConfig.getId()%>" rel="stylesheet" type="text/css" href="<%=url%>" />
   <%  } %>
   <% } %>
-  </head>
-  <body>
-    <div class="VuetifyApp">
-      <div data-app="true"
-        class="v-application v-application--is-ltr theme--light"
-        id="SearchApplication">
-        <v-cacheable-dom-app cache-id="SearchApplication"></v-cacheable-dom-app>
-        <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
-        <script type="text/javascript">
-          require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
-        </script>
-      </div>
-    </div>
-  </body>
-</html>
+  <div data-app="true"
+    class="v-application v-application--is-ltr theme--light"
+    id="SearchApplication">
+    <v-cacheable-dom-app cache-id="SearchApplication"></v-cacheable-dom-app>
+    <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
+    <script type="text/javascript">
+      require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
+    </script>
+  </div>
+</div>

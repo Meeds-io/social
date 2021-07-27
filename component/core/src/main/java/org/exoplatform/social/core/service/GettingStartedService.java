@@ -1,14 +1,18 @@
 package org.exoplatform.social.core.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -31,6 +35,10 @@ public class GettingStartedService {
 
   public static final String ACTIVITIES_STEP_KEY = "activities";
 
+  public static final Scope  APP_SCOPE           = Scope.APPLICATION.id("GettingStarted");
+
+  public static final String USER_SETTING_NAME   = "gettingStartedStatus";
+
   private IdentityManager     identityManager;
 
   private SpaceService        spaceService;
@@ -39,14 +47,18 @@ public class GettingStartedService {
 
   private ActivityManager     activityService;
 
+  private SettingService      settingService;
+
   public GettingStartedService(IdentityManager identityManager,
                                SpaceService spaceService,
                                RelationshipManager relationshipManager,
-                               ActivityManager activityService) {
+                               ActivityManager activityService,
+                               SettingService settingService) {
     this.identityManager = identityManager;
     this.spaceService = spaceService;
     this.relationshipManager = relationshipManager;
     this.activityService = activityService;
+    this.settingService = settingService;
   }
 
   /**
@@ -64,6 +76,10 @@ public class GettingStartedService {
   public List<GettingStartedStep> getUserSteps(String userId) {
     if (StringUtils.isBlank(userId)) {
       throw new IllegalArgumentException("userId is mandatory");
+    }
+    SettingValue<?> settingValue = settingService.get(Context.USER.id(userId), APP_SCOPE, USER_SETTING_NAME);
+    if (settingValue != null && settingValue.getValue() != null && !Boolean.parseBoolean(settingValue.getValue().toString())) {
+      return Collections.emptyList();
     }
     List<GettingStartedStep> gettingStartedSteps = new ArrayList<>();
 
@@ -88,6 +104,10 @@ public class GettingStartedService {
     gettingStartedSteps.add(stepActivities);
 
     return gettingStartedSteps;
+  }
+
+  public void hideGettingStartedApplication(String userId) {
+    settingService.set(Context.USER.id(userId), APP_SCOPE, USER_SETTING_NAME, SettingValue.create(true));
   }
 
   private boolean hasAvatar(String userId) {
@@ -125,7 +145,7 @@ public class GettingStartedService {
   private boolean hasActivities(String userId) {
     try {
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-      RealtimeListAccess activities = activityService.getActivitiesWithListAccess(identity);
+      RealtimeListAccess<ExoSocialActivity> activities = activityService.getActivitiesWithListAccess(identity);
       int activitiesCount = activities.getSize();
       if (activitiesCount != 0) {
         return true;
@@ -148,4 +168,5 @@ public class GettingStartedService {
       return false;
     }
   }
+
 }

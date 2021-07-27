@@ -38,20 +38,23 @@ const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 const appId = 'ActivityStream';
 
-//should expose the locale ressources as REST API 
+// Attention!!! when changing this, the list of preloaded
+// URLs has to change in JSP as well
 const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
 ];
 
-export function init() {
+export function init(initialData, initialLimit) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     new Vue({
       data: {
+        initialData,
+        initialLimit,
         activityBaseLink: activityBaseLink,
       },
-      template: `<activity-stream id="${appId}" />`,
+      template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
       vuetify,
       i18n,
     }).$mount(`#${appId}`);

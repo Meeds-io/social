@@ -1,9 +1,5 @@
 export function getIdentityById(identityId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${identityId}`, {
-    headers: {
-      'Accept': 'application/json',
-      'Cache-Control': 'max-age=0',
-    },
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -17,10 +13,6 @@ export function getIdentityById(identityId) {
 
 export function getIdentityByProviderIdAndRemoteId(providerId, remoteId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${providerId}/${remoteId}`, {
-    headers: {
-      'Accept': 'application/json',
-      'Cache-Control': 'max-age=0',
-    },
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
