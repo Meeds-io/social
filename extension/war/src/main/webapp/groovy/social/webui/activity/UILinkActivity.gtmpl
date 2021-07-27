@@ -86,7 +86,7 @@
   //params for init UIActivity javascript object
   def params = """ {
     activityId: '${activity.id}',
-    activityBody: `${activityBody}`,
+    activityBody: `${activityMessage}`,
     placeholderComment: '${placeholder}',
     inputWriteAComment: '$inputWriteAComment',
     commentMinCharactersAllowed: '${uicomponent.getCommentMinCharactersAllowed()}',
