@@ -22,24 +22,12 @@ export function updateNotification(id, operation) {
   });
 }
 
-export function getUserToken() {
-  return fetch(`/rest/continuation/gettoken/${eXo.env.portal.userName}`, {
-    method: 'GET',
-  }).then((resp) => {
-    if (resp && resp.ok) {
-      return resp.text();
-    } else {
-      throw new Error('Error when getting user token');
-    }
-  });
-}
-
-export function initCometd(userToken) {
+export function initCometd() {
   const loc = window.location;
   cCometd.configure({
     url: `${loc.protocol}//${loc.hostname}${loc.port && ':' || ''}${loc.port || ''}/cometd/cometd`,
     exoId: eXo.env.portal.userName,
-    exoToken: userToken,
+    exoToken: eXo.env.portal.cometdToken,
   });
 
   cCometd.subscribe('/eXo/Application/web/NotificationMessage', null, (event) => {

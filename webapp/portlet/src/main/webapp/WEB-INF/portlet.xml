@@ -73,8 +73,12 @@
     <display-name>Users Management</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
-        <name>portlet-view-dispatched-file-path</name>
-        <value>/html/idmUsersManagement.html</value>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/idmUsersManagement.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -103,6 +107,10 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/idmGroupsManagement.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -130,6 +138,10 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/idmMembershipTypesManagement.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -156,13 +168,20 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/whoIsOnline.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.whoisonline.whoisonline</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value>/portal/rest/v1/social/users/?status=online</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-     <supported-locale>fr</supported-locale>
     <resource-bundle>locale.portlet.whoisonline.whoisonline</resource-bundle>
     <portlet-info>
       <title>Who is on line</title>
@@ -177,6 +196,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceInformation.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.SpaceInfosPortlet</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -198,6 +221,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceMembers.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets,locale.portlet.social.PeopleListApplication</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -217,6 +244,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceMenu.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -231,6 +262,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceHeader.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -247,10 +282,12 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/activityStream.html</value>
+      <value>/WEB-INF/jsp/activityStream.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets,locale.social.Webui,locale.commons.Commons</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -271,10 +308,12 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/activityStream.html</value>
+      <value>/WEB-INF/jsp/activityStream.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets,locale.social.Webui,locale.commons.Commons</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -295,9 +334,15 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingLanguage.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.UserSettings</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
     <portlet-info>
       <title>User Setting language</title>
     </portlet-info>
@@ -309,6 +354,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingNotifications.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets,locale.portlet.notification.UserNotificationPortlet,locale.portlet.social.UserSettings</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -325,9 +374,15 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingSecurity.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.UserSettings</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
     <portlet-info>
       <title>User Setting security</title>
     </portlet-info>
@@ -340,9 +395,15 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingTimezone.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.UserSettings</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
     <portlet-info>
       <title>User Setting timezone</title>
     </portlet-info>
@@ -355,9 +416,15 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingMobile.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.MobileSettings</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.MobileSettings</resource-bundle>
     <portlet-info>
       <title>User Setting for Mobile</title>
     </portlet-info>
@@ -369,6 +436,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portal.HamburgerMenu</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/navigations/portal/?siteName=dw&scope=children&visibility=displayed]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -391,6 +466,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portal.HamburgerMenu</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -411,6 +490,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portal.HamburgerMenu</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/portal/social/spaces/lastVisitedSpace/list.json?offset=0&limit=7]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -435,6 +522,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceSettings.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -454,6 +545,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spacesAdministration.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.SpacesAdministrationPortlet</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -471,6 +566,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/bannerLogo.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -485,6 +584,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileHeader.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.ProfileHeader</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -503,6 +606,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileContactInformation.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.ProfileContactInformation</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -519,6 +626,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileWorkExperience.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.ProfileWorkExperience</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -537,6 +648,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileAboutMe.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.ProfileAboutMe</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -554,6 +669,14 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/topbarNotification.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value>/portal/rest/notifications/webNotifications</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -570,6 +693,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/gettingStarted.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.GettingStartedPortlet</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value>/portal/rest/getting-started</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -590,6 +721,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/externalSpaceList.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.ExternalSpacesListApplication</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
@@ -608,6 +743,14 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spacesList.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.SpacesListApplication</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=20&filterType=all&returnSize=true&expand=managers|/portal/rest/v1/social/spaceTemplates/templates]]></value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -624,6 +767,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/spacesOverview.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.SpacesOverview</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=manager&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=requests&returnSize=true&expand=pending|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=pending&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=invited&returnSize=true&expand=]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -644,6 +795,14 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/peopleList.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.PeopleListApplication</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[|/portal/rest/v1/social/users?q=&offset=0&limit=21&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&returnSize=true]]></value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -660,6 +819,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/peopleOverview.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.PeopleOverview</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/social/users/connections/pending?offset=0&limit=0&expand=&returnSize=true|/portal/rest/v1/social/users/connections/invitations?offset=0&limit=0&expand=&returnSize=true]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -680,6 +847,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/suggestions.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.social.SuggestionsPortlet</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -696,6 +867,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/search.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets,locale.commons.Commons,locale.portlet.social.PeopleListApplication,locale.portlet.social.SpacesListApplication</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -715,6 +890,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/dlpQuarantine.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.dlpQuarantine.dlpQuarantine</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -743,6 +922,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/multifactorAuthentication.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.multifactorAuthentication.multifactorAuthentication</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -770,6 +953,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/mfa-access.html</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.mfaAccess.mfaAccess</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -790,6 +977,14 @@
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
         <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portal.HamburgerMenu</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/navigations/group?exclude=/spaces.*&visibility=displayed]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
@@ -813,6 +1008,10 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portal.HamburgerMenu</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
@@ -834,6 +1033,10 @@
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/companyBranding.html</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Branding</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>

@@ -1,7 +1,7 @@
 const spaces = {};
 
 export function getSpaceTemplates() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/templates?lang=${eXo.env.portal.language}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/templates`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

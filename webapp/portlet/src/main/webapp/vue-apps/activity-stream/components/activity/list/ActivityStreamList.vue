@@ -67,9 +67,19 @@ export default {
       type: Object,
       default: null,
     },
+    initialData: {
+      type: Object,
+      default: null,
+    },
+    initialLimit: {
+      type: Number,
+      default: null,
+    },
   },
   data: () => ({
-    activities: [],
+    activities: [{
+      loading: true,
+    }],
     pageSize: 10,
     limit: 10,
     retrievedSize: 0,
@@ -125,16 +135,25 @@ export default {
     });
 
     this.activities = [];
-    this.retrievedSize = this.limit = this.pageSize;
+    this.limit = this.pageSize;
+    this.retrievedSize = (this.initialLimit && this.initialLimit) / 2 || this.limit;
     this.hasMore = false;
     this.init();
   },
   methods: {
     init() {
       if (this.activityId) {
-        this.loadActivity();
+        if (this.initialData) {
+          this.setDisplayedActivity(this.initialData);
+        } else {
+          this.loadActivity();
+        }
       } else {
-        this.loadActivities();
+        if (this.initialData) {
+          this.loadActivityIds(this.initialData);
+        } else {
+          this.loadActivities();
+        }
       }
       if (this.$refs && this.$refs.activityUpdater) {
         this.$refs.activityUpdater.init();
@@ -143,14 +162,7 @@ export default {
     loadActivity() {
       this.loading = true;
       this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-        .then(activity => {
-          if (activity.activityId) { // a comment
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            this.$emit('activity-select', activity.activityId, activity.id);
-            return;
-          }
-          this.activities = activity && [activity] || [];
-        })
+        .then(this.setDisplayedActivity)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
@@ -163,27 +175,36 @@ export default {
 
       this.loading = true;
       this.$activityService.getActivities(this.spaceId, limitToRetrieve, 'ids')
-        .then(data => {
-          this.canPost = data.canPost;
-          const activityIds = data && data.activityIds || [];
-          const promises = activityIds.map(activity => {
-            this.$set(activity, 'loading', true);
-            const activityId = activity && activity.id;
-            if (activityId) {
-              return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-                .then(fullActivity => {
-                  Object.assign(activity, fullActivity);
-                  this.$set(activity, 'loading', false);
-                  return fullActivity;
-                });
-            }
-          });
-          this.handleRetrievedActivities(activityIds);
-          return Promise.all(promises);
-        })
+        .then(this.loadActivityIds)
         .then(this.handleRetrievedActivities)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
+    },
+    loadActivityIds(data) {
+      this.canPost = data.canPost;
+      const activityIds = data && data.activityIds || [];
+      const promises = activityIds.map(activity => {
+        this.$set(activity, 'loading', true);
+        const activityId = activity && activity.id;
+        if (activityId) {
+          return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+            .then(fullActivity => {
+              Object.assign(activity, fullActivity);
+              this.$set(activity, 'loading', false);
+              return fullActivity;
+            });
+        }
+      });
+      this.handleRetrievedActivities(activityIds);
+      return Promise.all(promises);
+    },
+    setDisplayedActivity(activity) {
+      if (activity.activityId) { // a comment
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$emit('activity-select', activity.activityId, activity.id);
+        return;
+      }
+      this.activities = activity && [activity] || [];
     },
     handleRetrievedActivities(activities) {
       this.activities = activities.filter(activity => !!activity).slice(0, this.limit);
