@@ -32,10 +32,12 @@ import org.exoplatform.social.rest.api.SocialRest;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *
@@ -66,9 +68,10 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
           @ApiResponse (code = 200, message = "Request fulfilled"),
           @ApiResponse (code = 500, message = "Internal server error")})
   public Response getAllTemplates(@Context UriInfo uriInfo,
-                                  @ApiParam(value = "User language", required = true) @QueryParam("lang") String lang) {
+                                  @Context HttpServletRequest request) {
     Identity identity = ConversationState.getCurrent().getIdentity();
     String userId = identity.getUserId();
+    String lang = request.getLocale() == null ? Locale.ENGLISH.getLanguage() : request.getLocale().getLanguage();
     try {
       List<SpaceTemplate> list = spaceTemplateService.getLabelledSpaceTemplates(userId, lang);
       return EntityBuilder.getResponse(list, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);

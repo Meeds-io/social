@@ -51,6 +51,7 @@ document.addEventListener('spaceDetailUpdated', event => {
 });
 </script>
 <div class="VuetifyApp">
+  <link rel="preload" href="/portal/rest/v1/social/identities/<%=org.exoplatform.social.webui.Utils.getViewerIdentityId()%>" as="fetch" crossorigin="use-credentials">
   <div data-app="true"
     class="v-application border-box-sizing <%= directionVuetifyClass %> theme--light"
     id="brandingTopBar" flat="">
@@ -59,7 +60,7 @@ document.addEventListener('spaceDetailUpdated', event => {
         <div class="d-flex mx-0 pa-0">
           <% if (logoPath != null) { %>
           <a id="UserHomePortalLink" href="<%=portalPath%>" class="pe-3 logoContainer">
-            <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%> - Homepage">
+            <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%>">
           </a>
           <% } %>
           <a href="<%=portalPath%>" title="<%=logoTitle%>" class="ps-2 align-self-center brandingContainer <%=titleClass%>">

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showGettingStrated">
+  <div v-if="display">
     <v-app>
       <v-flex
         d-flex
@@ -20,7 +20,7 @@
                 <span class="title">
                   {{ $t('locale.portlet.gettingStarted.title') }}
                   <a
-                    v-show="showButtonClose"
+                    v-show="canClose"
                     :title="$t('locale.portlet.gettingStarted.button.close')"
                     class="btClose"
                     href="#"
@@ -31,7 +31,7 @@
               </v-card-title>
               <v-list dense class="getting-started-list">
                 <v-list-item
-                  v-for="(step, index) in gettingStratedSteps"
+                  v-for="(step, index) in steps"
                   :key="index"
                   class="getting-started-list-item">
                   <v-list-item-icon class="me-3 steps-icon">
@@ -56,17 +56,21 @@
     </v-app>
   </div>
 </template>
+
 <script>
 import * as gettingStartedService from '../gettingStartedService.js';
 export default {
   data () {
     return {
-      gettingStratedSteps: [],
-      showGettingStrated: false
+      steps: [],
     };
-  },computed: {
-    showButtonClose: function () {
-      return this.gettingStratedSteps.some(step => step.status === false) ? false : true;
+  },
+  computed: {
+    canClose() {
+      return this.steps.some(step => step.status === false) ? false : true;
+    },
+    display() {
+      return this.steps.length;
     }
   },
   created() {
@@ -74,36 +78,9 @@ export default {
   },
   methods: {
     initGettingStarted() {
-      if (localStorage.getItem('gettingStarted') && this.showButtonClose){
-        const data = JSON.parse(localStorage.getItem('gettingStarted') || {});
-        if (data.user === eXo.env.portal.userName && data.gettingStartedStatus === true){
-          this.clearCache();
-          this.showGettingStrated = false;
-          return;
-        } else {
-          this.showGettingStrated = true;
-          this.getGettingStartedSteps();
-        }
-      } else if (this.showButtonClose){
-        gettingStartedService.getGettingStartedSettings().then((resp) =>{
-          if (resp && resp.value){
-            this.clearCache();
-            this.showGettingStrated = false;
-            return;
-          } else {
-            this.showGettingStrated = true;
-            this.getGettingStartedSteps();
-          }
-        });
-      } else {
-        this.showGettingStrated = true;
-        this.getGettingStartedSteps();
-      }
-    },
-    getGettingStartedSteps(){
       gettingStartedService.getGettingStartedSteps()
         .then(data => {
-          this.gettingStratedSteps = data;
+          this.steps = data || [];
           return this.$nextTick();
         })
         .then(() => {
@@ -111,17 +88,13 @@ export default {
         });
     },
     hideGettingStarted(){
-      gettingStartedService.saveGettingStartedSettings().then((response) => {
-        if (response){
-          this.clearCache();
-          const gettingStarted = {
-            user: eXo.env.portal.userName,
-            gettingStartedStatus: true
-          };
-          localStorage.setItem('gettingStarted',JSON.stringify(gettingStarted));
-          this.showGettingStrated = false;
-        }
-      });
+      gettingStartedService.hideGettingStarted()
+        .then((response) => {
+          if (response){
+            this.clearCache();
+            this.steps = [];
+          }
+        });
     },
     clearCache(){
       caches.open('portal-pwa-resources-dom').then(function(cache) {

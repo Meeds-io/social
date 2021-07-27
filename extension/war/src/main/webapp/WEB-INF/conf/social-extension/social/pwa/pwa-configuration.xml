@@ -4,13 +4,13 @@
   <external-component-plugins>
     <target-component>org.exoplatform.web.pwa.ServiceWorkerService</target-component>
     <component-plugin>
-      <name>Activities</name>
+      <name>Social</name>
       <set-method>addContentPlugin</set-method>
       <type>org.exoplatform.web.pwa.ServiceWorkerPlugin</type>
       <init-params>
         <value-param>
           <name>filePath</name>
-          <value>${pwa.service.worker.path:war:/conf/social-extension/social/pwa/service-worker-activities.js}</value>
+          <value>${pwa.service.worker.social.path:war:/conf/social-extension/social/pwa/service-worker-activities.js}</value>
         </value-param>
       </init-params>
     </component-plugin>

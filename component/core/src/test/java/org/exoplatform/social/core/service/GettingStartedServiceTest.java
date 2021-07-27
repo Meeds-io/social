@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -36,13 +37,16 @@ public class GettingStartedServiceTest {
 
   private static ActivityManager       activityService;
 
+  private static SettingService        settingService;
+
   @BeforeClass
   public static void beforeClass() {
     identityManager = Mockito.mock(IdentityManager.class);
     spaceService = Mockito.mock(SpaceService.class);
     relationshipManager = Mockito.mock(RelationshipManager.class);
     activityService = Mockito.mock(ActivityManager.class);
-    gettingStartedService = new GettingStartedService(identityManager, spaceService, relationshipManager, activityService);
+    settingService = Mockito.mock(SettingService.class);
+    gettingStartedService = new GettingStartedService(identityManager, spaceService, relationshipManager, activityService, settingService);
   }
 
   @Before

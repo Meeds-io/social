@@ -21,7 +21,7 @@ const appId = 'ProfileAboutMe';
 const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.${appId}-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileAboutMe-${lang}.json`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 export function init(aboutMe) {
