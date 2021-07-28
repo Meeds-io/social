@@ -1281,6 +1281,9 @@
       <module>autoLinkerVue</module>
     </depends>
     <depends>
+      <module>purifyVue</module>
+    </depends>
+    <depends>
       <module>vueEllipsis</module>
     </depends>
     <depends>
@@ -1449,10 +1452,6 @@
       <module>commonVueComponents</module>
     </depends>
     <depends>
-      <module>ExoAttachmentsApp</module>
-      <as>attachmentsApp</as>
-    </depends>
-    <depends>
       <module>bts_tooltip</module>
     </depends>
   </module>
@@ -1561,9 +1560,6 @@
     </depends>
     <depends>
       <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>purifyVue</module>
     </depends>
     <depends>
       <module>jquery</module>
