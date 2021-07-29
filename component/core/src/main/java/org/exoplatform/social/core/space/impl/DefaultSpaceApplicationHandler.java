@@ -227,14 +227,13 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       return;
     }
     SpaceApplication spaceApplication = null;
-    String spaceTemplateName = space.getTemplate();
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(spaceTemplateName);
-    if (spaceTemplate == null) {
-      throw new IllegalStateException("Space template with name " + spaceTemplateName +" wasn't found");
-    }
-    for(SpaceApplication application : spaceTemplate.getSpaceApplicationList()){
-      if (appId.equals(application.getPortletName()) && !SpaceUtils.isInstalledApp(space, appId)) {
-        spaceApplication = application;
+
+    for(SpaceTemplate spaceTemplate : spaceTemplateService.getSpaceTemplates()){
+      for(SpaceApplication application : spaceTemplate.getSpaceApplicationList()){
+        if (appId.equals(application.getPortletName()) && !SpaceUtils.isInstalledApp(space, appId)) {
+          spaceApplication = application;
+          break;
+        }
       }
     }
 
