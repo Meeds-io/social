@@ -213,14 +213,15 @@ export default {
     },
     updateActivityDisplayById(activityId) {
       this.loading = true;
-      return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+      return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
         .then(activity => this.updateActivityDisplay(activity))
         .finally (() => this.loading = false);
     },
     updateActivityDisplay(updatedActivity) {
       const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
       if (index >= 0) {
-        this.activities.splice(index, 1, updatedActivity);
+        const activityToUpdate = Object.assign({}, this.activities[index], updatedActivity);
+        this.activities.splice(index, 1, activityToUpdate);
         this.$root.$emit('activity-refresh-ui', updatedActivity.id);
       }
     },
