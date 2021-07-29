@@ -136,7 +136,7 @@ export default {
 
     this.activities = [];
     this.limit = this.pageSize;
-    this.retrievedSize = (this.initialLimit && this.initialLimit) / 2 || this.limit;
+    this.retrievedSize = this.initialLimit && (this.initialLimit / 2) || this.limit;
     this.hasMore = false;
     this.init();
   },
