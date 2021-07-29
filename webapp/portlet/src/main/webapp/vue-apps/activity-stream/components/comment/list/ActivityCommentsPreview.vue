@@ -55,7 +55,11 @@ export default {
     },
   },
   created() {
-    this.retrieveLastComment();
+    if (this.activity && this.activity.comments) {
+      this.comments = this.activity.commentsCount && this.activity.comments || [];
+    } else {
+      this.retrieveLastComment();
+    }
   },
   methods: {
     retrieveLastComment() {

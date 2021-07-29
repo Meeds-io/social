@@ -22,8 +22,13 @@ import java.util.List;
 
 public class LinkEntity implements Serializable {
   private static final long serialVersionUID = 8636599542655416634L;
+
   private List<? extends DataEntity> entities;
+
   private BaseEntity linkEntity;
+
+  private CollectionEntity collectionEntity;
+
   private String href;
   
   public LinkEntity(String href) {
@@ -38,6 +43,10 @@ public class LinkEntity implements Serializable {
     this.entities = entities;
   }
 
+  public LinkEntity(CollectionEntity collectionEntity) {
+    this.collectionEntity = collectionEntity;
+  }
+
   @Override
   public String toString() {
     return getData().toString();
@@ -49,6 +58,9 @@ public class LinkEntity implements Serializable {
     }
     if (linkEntity != null) {
       return linkEntity.getDataEntity();
+    }
+    if (collectionEntity != null) {
+      return collectionEntity;
     }
     return entities;
   }
