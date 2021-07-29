@@ -412,6 +412,17 @@ public class LinkProvider {
   private static String buildAttachmentUrl(String providerId, String remoteId, Long lastModifiedDate, String type) {
     if (providerId == null || remoteId == null) {
       return null;
+    } else if (providerId.equals("spaceTemplates")) {
+      return new StringBuilder(getBaseURLSocialRest())
+          .append("/")
+          .append(providerId)
+          .append("/")
+          .append(remoteId)
+          .append("/")
+          .append(type)
+          .append("?lastModified=")
+          .append(DEFAULT_IMAGES_LAST_MODIFED)
+          .toString();
     }
 
     try {
@@ -456,8 +467,9 @@ public class LinkProvider {
                                                            .append("&r=")
                                                            .append(token)
                                                            .toString();
+    } else {
+      return null;
     }
-    return null;
   }
 
   public static String generateAttachmentToken(String providerId,
@@ -522,18 +534,20 @@ public class LinkProvider {
 
   public static String getBaseURLSocialSpaceRest() {
     if (baseURLSocialSpaceRest == null) {
-      baseURLSocialSpaceRest = "/" + PortalContainer.getCurrentPortalContainerName() + "/"
-          + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API + "/spaces";
+      baseURLSocialSpaceRest = getBaseURLSocialRest() + "/spaces";
     }
     return baseURLSocialSpaceRest;
   }
 
   public static String getBaseURLSocialUserRest() {
     if (baseURLSocialUserRest == null) {
-      baseURLSocialUserRest = "/" + PortalContainer.getCurrentPortalContainerName() + "/"
-          + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API + "/users";
+      baseURLSocialUserRest = getBaseURLSocialRest() + "/users";
     }
     return baseURLSocialUserRest;
+  }
+
+  public static String getBaseURLSocialRest() {
+    return "/" + PortalContainer.getCurrentPortalContainerName() + "/" + PortalContainer.getCurrentRestContextName() + BASE_URL_SOCIAL_REST_API;
   }
 
   /**

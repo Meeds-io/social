@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
@@ -69,7 +70,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO,
                                SpaceMemberDAO spaceMemberDAO,
-                               RDBMSIdentityStorageImpl identityStorage,
+                               IdentityStorage identityStorage,
                                IdentityDAO identityDAO,
                                ActivityDAO activityDAO,
                                SpaceExternalInvitationDAO spaceExternalInvitationDAO) {
@@ -193,7 +194,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setLastAccess(true);
-    return getMemberSpacesByFilter(spaceFilter.getRemoteId(), xFilter, offset, limit);
+    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(Status.MEMBER), xFilter, offset, limit);
   }
 
   @Override
@@ -203,8 +204,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getLastSpaces(int limit) {
-    List<SpaceEntity> entities = spaceDAO.getLastSpaces(limit);
-    return buildList(entities);
+    List<Long> ids = spaceDAO.getLastSpaces(limit);
+    return buildList(ids);
   }
 
   @Override
@@ -403,6 +404,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public int getUnifiedSearchSpacesCount(String userId, SpaceFilter spaceFilter) throws SpaceStorageException {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter).setUnifiedSearch(true);
+    xFilter.setRemoteId(userId);
     return getSpacesCount(null, null, xFilter);
   }
 
@@ -417,7 +419,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
                                       long offset,
                                       long limit) throws SpaceStorageException {
     XSpaceFilter xFilter = new XSpaceFilter();
-    xFilter.setSpaceFilter(spaceFilter).setRemoteId(userId);
+    xFilter.setSpaceFilter(spaceFilter);
+    xFilter.setRemoteId(userId);
     xFilter.addStatus(Status.MEMBER, Status.MANAGER, Status.INVITED);
     xFilter.setIncludePrivate(true);
     return getSpacesByFilter(xFilter, offset, limit);
@@ -426,7 +429,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   @Override
   public int getVisibleSpacesCount(String userId, SpaceFilter spaceFilter) throws SpaceStorageException {
     XSpaceFilter xFilter = new XSpaceFilter();
-    xFilter.setSpaceFilter(spaceFilter).setRemoteId(userId);
+    xFilter.setSpaceFilter(spaceFilter);
+    xFilter.setRemoteId(userId);
     xFilter.addStatus(Status.MEMBER, Status.MANAGER, Status.INVITED);
     xFilter.setIncludePrivate(true);
     return getSpacesCount(userId, null, xFilter);
@@ -437,7 +441,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setVisited(true);
-    return getMemberSpacesByFilter(spaceFilter.getRemoteId(), xFilter, offset, limit);
+    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(Status.MEMBER), xFilter, offset, limit);
   }
 
   @Override
@@ -666,8 +670,15 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       throw new UnsupportedOperationException();
     } else {
       SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter).offset(offset).limit(limit);
-      List<SpaceEntity> entities = query.build().getResultList();
-      return buildList(entities);
+      List<Tuple> entities = query.build().getResultList();
+      if (entities == null || entities.isEmpty()) {
+        return Collections.emptyList();
+      } else {
+        List<Long> ids = entities.stream()
+                                 .map(tuple -> tuple.get(0, Long.class))
+                                 .collect(Collectors.toList());
+        return buildList(ids);
+      }
     }
   }
 
@@ -680,7 +691,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
 
     if (filter.isUnifiedSearch()) {
-//      return spaceSearchConnector.count(filter);
       throw new UnsupportedOperationException();
     } else {
       SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter);
@@ -688,12 +698,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
   }
 
-  private List<Space> buildList(List<SpaceEntity> spaceEntities) {
+  private List<Space> buildList(List<Long> ids) {
     List<Space> spaces = new LinkedList<>();
-    if (spaceEntities != null) {
-      for (SpaceEntity entity : spaceEntities) {
-        Space space = fillSpaceFromEntity(entity);
-        spaces.add(space);
+    if (ids != null) {
+      for (Long id : ids) {
+        spaces.add(getSpaceById(String.valueOf(id)));
       }
     }
     return spaces;
@@ -747,7 +756,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     if (lastUpdated != null) {
       space.setBannerLastUpdated(lastUpdated.getTime());
     }
-    space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
+    if (lastUpdated == null) {
+      space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", space.getTemplate(), null));
+    } else {
+      space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
+    }
     return space;
   }
 

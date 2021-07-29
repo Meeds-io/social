@@ -23,7 +23,7 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 
 public interface SpaceDAO extends GenericDAO<SpaceEntity, Long> {
 
-  List<SpaceEntity> getLastSpaces(int limit);
+  List<Long> getLastSpaces(int limit);
 
   SpaceEntity getSpaceByGroupId(String groupId);
 

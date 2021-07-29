@@ -13,10 +13,9 @@
   request.setAttribute("SPACE_HEADER_DISPLAYED", true);
 
   Space space = SpaceUtils.getSpaceByContext();
-	IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-	Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-	String bannerUrl = identity.getProfile().getBannerUrl();
+	String bannerUrl = space.getBannerUrl();
 
+	IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
 	int maxUploadSize = identityManager.getImageUploadLimit();
 
 	SpaceService spaceService = CommonsUtils.getService(SpaceService.class);

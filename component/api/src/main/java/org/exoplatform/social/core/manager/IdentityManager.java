@@ -412,7 +412,6 @@ public interface IdentityManager {
    * @param remoteId The remote Id.
    * @return "True" if the checked identity has already existed. Otherwise, it returns "false".
    * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
    */
   boolean identityExisted(String providerId, String remoteId);
 
