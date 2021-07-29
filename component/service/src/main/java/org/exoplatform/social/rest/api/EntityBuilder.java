@@ -93,6 +93,10 @@ public class EntityBuilder {
 
   public static final String              COMMENTS_TYPE                              = "comments";
 
+  public static final String              COMMENTS_PREVIEW_TYPE                      = "commentsPreview";
+
+  public static final int                 COMMENTS_PREVIEW_LIMIT                     = 2;
+
   public static final String              LIKES_TYPE                                 = "likes";
 
   public static final String              LIKES_COUNT_TYPE                           = "likesCount";
@@ -592,9 +596,25 @@ public class EntityBuilder {
                                                                              false,
                                                                              RestUtils.DEFAULT_OFFSET,
                                                                              RestUtils.DEFAULT_LIMIT);
+      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+
       commentLink = new LinkEntity(commentsEntity);
+      activityEntity.setCommentsCount(listAccess.getSize());
+    } else if (expandFields.contains(COMMENTS_PREVIEW_TYPE)) {
+      List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity,
+                                                                             authentiatedUser,
+                                                                             restPath,
+                                                                             expand,
+                                                                             true,
+                                                                             0,
+                                                                             COMMENTS_PREVIEW_LIMIT);
+      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+
+      commentLink = new LinkEntity(commentsEntity);
+      activityEntity.setCommentsCount(listAccess.getSize());
     } else {
       commentLink = new LinkEntity(getCommentsActivityRestUrl(activity.getId(), restPath));
+      activityEntity.setCommentsCount(activity.getCommentedIds() == null ? 0 : activity.getCommentedIds().length);
     }
     activityEntity.setComments(commentLink);
 
@@ -610,7 +630,6 @@ public class EntityBuilder {
     }
 
     activityEntity.setLikesCount(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
-    activityEntity.setCommentsCount(activity.getCommentedIds() == null ? 0 : activity.getCommentedIds().length);
     activityEntity.setHasCommented(ArrayUtils.contains(activity.getCommentedIds(), authentiatedUser.getId()));
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
