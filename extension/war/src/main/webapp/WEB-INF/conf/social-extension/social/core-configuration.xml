@@ -196,10 +196,6 @@
       Space storage components.
     -->
     <component>
-        <type>org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl</type>
-    </component>
-    
-    <component>
         <key>org.exoplatform.social.core.storage.api.SpaceStorage</key>
         <type>org.exoplatform.social.core.storage.cache.CachedSpaceStorage</type>
     </component>

@@ -89,7 +89,7 @@ public class SpaceTemplatesRestResourcesTest extends AbstractResourceTest {
     assertEquals(3, customApps.size());
   }
 
-  public void testShouldReturnSpaceTemplateBannerStream() throws Exception {
+  public void testShouldReturnSpaceTemplateBanner() throws Exception {
     // Given
     SpaceApplication homeApplication = new SpaceApplication();
     homeApplication.setAppTitle("fakeHome");
@@ -112,7 +112,7 @@ public class SpaceTemplatesRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
 
     // When
-    ContainerResponse response = service("GET", getURLResource("spaceTemplates/bannerStream?templateName=custom"), "", null, null, "root");
+    ContainerResponse response = service("GET", getURLResource("spaceTemplates/custom/banner"), "", null, null, "root");
 
     // Then
     assertNotNull(response);

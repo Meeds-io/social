@@ -16,22 +16,10 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa.query;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.criteria.Subquery;
+import javax.persistence.*;
+import javax.persistence.criteria.*;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
@@ -68,25 +56,25 @@ public final class SpaceQueryBuilder {
     return this;
   }
 
-  public TypedQuery<SpaceEntity> build() {
+  public TypedQuery<Tuple> build() {
     EntityManager em = EntityManagerHolder.get();
     CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery<SpaceEntity> criteria = cb.createQuery(SpaceEntity.class);
+    CriteriaQuery<Tuple> criteria = cb.createQuery(Tuple.class);
     Root<SpaceEntity> spaceEntity = criteria.from(SpaceEntity.class);
     //
-    CriteriaQuery<SpaceEntity> select = criteria.select(spaceEntity);
-    if (!spaceFilter.isLastAccess() && !spaceFilter.isVisited()) {
-      select.distinct(true);
-    }
+    List<Selection<?>> selections = new ArrayList<>();
+    selections.add(spaceEntity.get(SpaceEntity_.id));
 
+    Order[] orderBy = buildOrder(spaceEntity, cb, selections);
     Predicate predicateFilter = buildPredicateFilter(spaceEntity, criteria, cb, spaceEntity);
+    CriteriaQuery<Tuple> select = criteria.select(cb.tuple(selections.toArray(new Selection[0]))).distinct(true);
     if (predicateFilter.getExpressions().size() > 0) {
       select.where(predicateFilter);
     }
-    select.orderBy(buildOrder(spaceEntity, cb));
+    select.orderBy(orderBy);
     
     //
-    TypedQuery<SpaceEntity> typedQuery = em.createQuery(select);
+    TypedQuery<Tuple> typedQuery = em.createQuery(select);
     if (this.limit > 0) {
       typedQuery.setFirstResult((int) offset);
       typedQuery.setMaxResults((int) limit);
@@ -100,7 +88,7 @@ public final class SpaceQueryBuilder {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Long> criteria = cb.createQuery(Long.class);
     Root<SpaceEntity> spaceEntity = criteria.from(SpaceEntity.class);
-    CriteriaQuery<Long> select = criteria.select(cb.countDistinct(spaceEntity));
+    CriteriaQuery<Long> select = criteria.select(cb.countDistinct(spaceEntity.get(SpaceEntity_.id)));
     //
     Predicate predicateFilter = buildPredicateFilter(spaceEntity, criteria, cb, spaceEntity);
     if (predicateFilter.getExpressions().size() > 0) {
@@ -218,24 +206,31 @@ public final class SpaceQueryBuilder {
     }
   }
 
-  private Order[] buildOrder(Root<SpaceEntity> spaceEntity, CriteriaBuilder cb) {
+  private Order[] buildOrder(Root<SpaceEntity> spaceEntity, CriteriaBuilder cb, List<Selection<?>> selections) {
     List<Order> orders = new LinkedList<>();
     
     if (spaceFilter.isLastAccess()) {
-      Path<SpaceMemberEntity> join = (Path<SpaceMemberEntity>) getMembersJoin(spaceEntity, JoinType.LEFT);
-      orders.add(cb.desc(join.get(SpaceMemberEntity_.lastAccess)));
-      orders.add(cb.asc(spaceEntity.get(SpaceEntity_.id)));
+      Path<SpaceMemberEntity> join = getMembersJoin(spaceEntity, JoinType.LEFT);
+      Path<Date> field = join.get(SpaceMemberEntity_.lastAccess);
+      orders.add(cb.desc(field));
+      selections.add(field);
     } else if (spaceFilter.isVisited()) {
-      Path<SpaceMemberEntity> join = (Path<SpaceMemberEntity>) getMembersJoin(spaceEntity, JoinType.LEFT);
-      orders.add(cb.desc(join.get(SpaceMemberEntity_.visited)));
-      orders.add(cb.asc(spaceEntity.get(SpaceEntity_.prettyName)));
+      Path<SpaceMemberEntity> join = getMembersJoin(spaceEntity, JoinType.LEFT);
+      Path<Boolean> visitedField = join.get(SpaceMemberEntity_.visited);
+      Path<String> displayNameField = spaceEntity.get(SpaceEntity_.displayName);
+      orders.add(cb.desc(visitedField));
+      orders.add(cb.asc(displayNameField));
+      selections.add(visitedField);
+      selections.add(displayNameField);
     } else {
       Sorting sorting = spaceFilter.getSorting();
+      Expression<?> shortField = getShortField(spaceEntity, sorting.sortBy);
       if (sorting.orderBy.equals(Sorting.OrderBy.DESC)) {
-        orders.add(cb.desc(getShortField(spaceEntity, sorting.sortBy)));
+        orders.add(cb.desc(shortField));
       } else {
-        orders.add(cb.asc(getShortField(spaceEntity, sorting.sortBy)));
+        orders.add(cb.asc(shortField));
       }
+      selections.add(shortField);
     }
 
     return orders.toArray(new Order[orders.size()]);

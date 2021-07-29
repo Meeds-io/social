@@ -38,7 +38,7 @@ export default {
       return applications;
     },
     bannerImage() {
-      return `${this.$spacesConstants.SPACES_TEMPLATES_API}/bannerStream?templateName=${this.template.name}`;
+      return `${this.$spacesConstants.SPACES_TEMPLATES_API}/${this.template.name}/banner`;
     }
   },
   methods: {
