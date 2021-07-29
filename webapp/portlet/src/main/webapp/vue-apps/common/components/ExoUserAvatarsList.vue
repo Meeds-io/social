@@ -7,6 +7,7 @@
       :title="user.fullname"
       :size="iconSize"
       :labels="labels"
+      :retrieve-extra-information="false"
       class="mx-auto" />
     <v-avatar
       v-if="notDisplayedItems"

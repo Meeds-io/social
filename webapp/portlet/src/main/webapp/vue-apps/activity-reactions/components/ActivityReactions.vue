@@ -9,6 +9,7 @@
           :title="liker.fullname"
           :avatar-url="liker.avatar"
           :size="30"
+          :retrieve-extra-information="false"
           class="me-1" />
       </div>
     </div>
