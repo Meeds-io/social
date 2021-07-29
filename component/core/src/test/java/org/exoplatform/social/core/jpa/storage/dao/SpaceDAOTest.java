@@ -81,9 +81,9 @@ public class SpaceDAOTest extends BaseCoreTest {
     end();
     begin();
     
-    List<SpaceEntity> result = spaceDAO.getLastSpaces(1);
+    List<Long> result = spaceDAO.getLastSpaces(1);
     assertEquals(1, result.size());
-    assertSpace(space2, result.iterator().next());
+    assertEquals(space2.getId(), result.iterator().next());
   }
 
   private SpaceEntity createSpace(String spacePrettyName) {

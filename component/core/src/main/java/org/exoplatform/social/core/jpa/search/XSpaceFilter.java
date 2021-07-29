@@ -16,9 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.search;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -126,6 +124,18 @@ public class XSpaceFilter extends SpaceFilter {
 
   public boolean isVisited() {
     return visited;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(),
+                        status,
+                        includePrivate,
+                        unifiedSearch,
+                        notHidden,
+                        isPublic,
+                        lastAccess,
+                        visited);
   }
 
 }

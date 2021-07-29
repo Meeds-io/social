@@ -96,8 +96,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   private IdentityManager                      identityManager;
 
-  private IdentityStorage                      identityStorage;
-
   private OrganizationService                  orgService               = null;
 
   private UserACL                              userACL                  = null;
@@ -125,7 +123,6 @@ public class SpaceServiceImpl implements SpaceService {
   private String spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage,
-                          IdentityStorage identityStorage,
                           IdentityManager identityManager,
                           UserACL userACL,
                           ConfigurationManager configurationManager,
@@ -137,7 +134,6 @@ public class SpaceServiceImpl implements SpaceService {
                           InitParams params) {
     this.spaceStorage = spaceStorage;
     this.identityManager = identityManager;
-    this.identityStorage = identityStorage;
     this.identityRegistry = identityRegistry;
     this.userACL = userACL;
     this.webNotificationService = webNotificationService;
@@ -438,34 +434,24 @@ public class SpaceServiceImpl implements SpaceService {
       if (spaceTemplate == null) {
         LOG.warn("could not find space template of type {}, will use Default template", spaceType);
         String defaultTemplate = spaceTemplateService.getDefaultSpaceTemplate();
-        spaceTemplate = spaceTemplateService.getSpaceTemplateByName(defaultTemplate);
         space.setTemplate(defaultTemplate);
-      }
-      String bannerPath = spaceTemplate.getBannerPath();
-      if (StringUtils.isNotBlank(bannerPath)) {
-        try {
-          InputStream bannerStream = configurationManager.getInputStream(bannerPath);
-          if (bannerStream != null) {
-            BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", bannerStream, System.currentTimeMillis());
-            space.setBannerAttachment(bannerAttachment);
-          }
-        } catch (Exception e) {
-          LOG.warn("No file found for space banner at path {}", bannerPath);
-        }
       }
       SpaceApplicationHandler applicationHandler = getSpaceApplicationHandler(space);
       spaceTemplateService.initSpaceApplications(space, applicationHandler);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to init apps for space " + space.getPrettyName(), e);
+      throw new IllegalStateException("Failed to init apps for space " + space.getPrettyName(), e);
     }
 
     saveSpace(space, true);
     spaceLifeCycle.spaceCreated(space, creator);
-    updateSpaceBanner(space);
 
-    inviteIdentities(space, identitiesToInvite);
+    try {
+      inviteIdentities(space, identitiesToInvite);
+    } catch (Exception e) {
+      LOG.warn("Error inviting identities {} to space {}", identitiesToInvite, space.getDisplayName(), e);
+    }
 
-    return space;
+    return getSpaceById(space.getId());
   }
 
   @Override
@@ -561,11 +547,13 @@ public class SpaceServiceImpl implements SpaceService {
       // remove memberships of users with deleted space.
       SpaceUtils.removeMembershipFromGroup(space);
 
+      Identity spaceIdentity = null;
+      if (identityManager.identityExisted(SpaceIdentityProvider.NAME, space.getPrettyName())) {
+        spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      }
       spaceStorage.deleteSpace(space.getId());
-
-      Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
       if (spaceIdentity != null) {
-        identityStorage.hardDeleteIdentity(spaceIdentity);
+        identityManager.hardDeleteIdentity(spaceIdentity);
       }
 
       OrganizationService orgService = getOrgService();
@@ -650,7 +638,7 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public void removeMember(Space space, String userId) {
-    Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     if (spaceIdentity != null && spaceIdentity.isDeleted()) {
       return;
     }
@@ -1603,7 +1591,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     inviteIdentities(existingSpace, identitiesToInvite);
 
-    return existingSpace;
+    return getSpaceById(existingSpace.getId());
   }
 
   /**
@@ -1616,7 +1604,7 @@ public class SpaceServiceImpl implements SpaceService {
   public Space updateSpaceAvatar(Space existingSpace) {
     checkSpaceEditorPermissions(existingSpace);
 
-    Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, existingSpace.getPrettyName());
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(existingSpace.getPrettyName());
     Profile profile = spaceIdentity.getProfile();
     if(existingSpace.getAvatarAttachment() != null) {
       profile.setProperty(Profile.AVATAR, existingSpace.getAvatarAttachment());
@@ -1625,15 +1613,19 @@ public class SpaceServiceImpl implements SpaceService {
       profile.setAvatarUrl(null);
       profile.setAvatarLastUpdated(null);
     }
-    identityStorage.updateProfile(profile);
+    identityManager.updateProfile(profile);
     spaceLifeCycle.spaceAvatarEdited(existingSpace, existingSpace.getEditor());
+ 
+    existingSpace = spaceStorage.getSpaceById(existingSpace.getId());
+    existingSpace.setAvatarLastUpdated(System.currentTimeMillis());
+    spaceStorage.saveSpace(existingSpace, false);
     return existingSpace;
   }
 
   public Space updateSpaceBanner(Space existingSpace) {
     checkSpaceEditorPermissions(existingSpace);
 
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, existingSpace.getPrettyName());
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(existingSpace.getPrettyName());
     if (spaceIdentity != null) {
       Profile profile = spaceIdentity.getProfile();
       if (existingSpace.getBannerAttachment() != null) {
@@ -1641,7 +1633,12 @@ public class SpaceServiceImpl implements SpaceService {
       } else {
         profile.removeProperty(Profile.BANNER);
       }
-      identityStorage.updateProfile(profile);
+      identityManager.updateProfile(profile);
+
+      existingSpace = spaceStorage.getSpaceById(existingSpace.getId());
+      existingSpace.setAvatarLastUpdated(System.currentTimeMillis());
+      spaceStorage.saveSpace(existingSpace, false);
+
       spaceLifeCycle.spaceBannerEdited(existingSpace, existingSpace.getEditor());
     } else {
       throw new IllegalStateException("Can not update space banner. Space identity " + existingSpace.getPrettyName() + " not found");

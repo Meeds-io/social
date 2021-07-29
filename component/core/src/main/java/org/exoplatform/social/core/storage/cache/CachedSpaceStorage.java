@@ -26,13 +26,14 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
+import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
 import org.exoplatform.social.core.storage.cache.model.data.*;
@@ -43,7 +44,7 @@ import org.exoplatform.social.core.storage.cache.selector.*;
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
-public class CachedSpaceStorage implements SpaceStorage {
+public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   /** Logger */
   private static final Log LOG = ExoLogger.getLogger(CachedSpaceStorage.class);
@@ -61,7 +62,6 @@ public class CachedSpaceStorage implements SpaceStorage {
   private final FutureExoCache<SpaceFilterKey, IntegerData, ServiceContext<IntegerData>> spacesCountCache;
   private final FutureExoCache<ListSpacesKey, ListSpacesData, ServiceContext<ListSpacesData>> spacesCache;
 
-  private final SpaceStorage storage;
   private SocialStorageCacheService cacheService;
   private CachedActivityStorage cachedActivityStorage;
   private CachedIdentityStorage cachedIdentityStorage;
@@ -183,9 +183,14 @@ public class CachedSpaceStorage implements SpaceStorage {
 
   }
 
-  public CachedSpaceStorage(final RDBMSSpaceStorageImpl storage, final SocialStorageCacheService cacheService) {
-
-    this.storage = storage;
+  public CachedSpaceStorage(SpaceDAO spaceDAO,
+                            SpaceMemberDAO spaceMemberDAO,
+                            IdentityStorage identityStorage,
+                            IdentityDAO identityDAO,
+                            ActivityDAO activityDAO,
+                            SpaceExternalInvitationDAO spaceExternalInvitationDAO,
+                            SocialStorageCacheService cacheService) {
+    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO);
     this.cacheService = cacheService;
 
     this.exoSpaceCache = cacheService.getSpaceCache();
@@ -253,7 +258,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceKey key = spaceRefCache.get(
         new ServiceContext<SpaceKey>() {
           public SpaceKey execute() {
-            Space space = storage.getSpaceByDisplayName(spaceDisplayName);
+            Space space = CachedSpaceStorage.super.getSpaceByDisplayName(spaceDisplayName);
             if (space != null) {
               return putSpaceInCacheIfNotExists(space);
             }
@@ -280,7 +285,7 @@ public class CachedSpaceStorage implements SpaceStorage {
   public void saveSpace(final Space space, final boolean isNew) throws SpaceStorageException {
 
     //
-    storage.saveSpace(space, isNew);
+    super.saveSpace(space, isNew);
 
     
     //
@@ -308,7 +313,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     String oldPrettyName = space.getPrettyName();
     
     //
-    storage.renameSpace(remoteId, space, newDisplayName);
+    super.renameSpace(remoteId, space, newDisplayName);
 
     //remove identity and profile from cache
     cachedIdentityStorage = this.getCachedIdentityStorage();
@@ -344,7 +349,7 @@ public class CachedSpaceStorage implements SpaceStorage {
 
     //
     Space space = getSpaceById(id);
-    storage.deleteSpace(id);
+    super.deleteSpace(id);
 
     //
     exoSpaceCache.remove(new SpaceKey(id));
@@ -358,7 +363,7 @@ public class CachedSpaceStorage implements SpaceStorage {
 
   @Override
   public void ignoreSpace(String spaceId, String userId) {
-    storage.ignoreSpace(spaceId, userId);
+    super.ignoreSpace(spaceId, userId);
     exoSpaceSimpleCache.remove(new SpaceKey(spaceId));
     SpaceData spaceData = exoSpaceCache.remove(new SpaceKey(spaceId));
     if (spaceData != null) {
@@ -373,27 +378,7 @@ public class CachedSpaceStorage implements SpaceStorage {
 
   @Override
   public boolean isSpaceIgnored(String spaceId, String userId) {
-    return storage.isSpaceIgnored(spaceId, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getManagerSpaces(final String userId, final long offset, final long limit) {
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MANAGER);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-    ListSpacesData keys = spacesCache.get(
-                                          new ServiceContext<ListSpacesData>() {
-                                            public ListSpacesData execute() {
-                                              if (limit == 0) {
-                                                return buildIds(Collections.emptyList());
-                                              }
-                                              List<Space> got = storage.getManagerSpaces(userId, offset, limit);
-                                              return buildIds(got);
-                                            }
-                                          },
-                                          listKey);
-    return buildSpaces(keys);
+    return super.isSpaceIgnored(spaceId, userId);
   }
 
   /**
@@ -412,7 +397,7 @@ public class CachedSpaceStorage implements SpaceStorage {
                                               if (limit == 0) {
                                                 return buildIds(Collections.emptyList());
                                               }
-                                              List<Space> got = storage.getManagerSpacesByFilter(userId,
+                                              List<Space> got = CachedSpaceStorage.super.getManagerSpacesByFilter(userId,
                                                                                                  spaceFilter,
                                                                                                  offset,
                                                                                                  limit);
@@ -425,49 +410,16 @@ public class CachedSpaceStorage implements SpaceStorage {
   }
 
   @Override
-  public int getManagerSpacesCount(String userId) {
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MANAGER);
-    return spacesCountCache.get(
-                                new ServiceContext<IntegerData>() {
-                                  public IntegerData execute() {
-                                    return new IntegerData(storage.getManagerSpacesCount(userId));
-                                  }
-                                },
-                                key)
-                           .build();
-  }
-
-  @Override
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
     return spacesCountCache.get(
                                 new ServiceContext<IntegerData>() {
                                   public IntegerData execute() {
-                                    return new IntegerData(storage.getManagerSpacesByFilterCount(userId, spaceFilter));
+                                    return new IntegerData(CachedSpaceStorage.super.getManagerSpacesByFilterCount(userId, spaceFilter));
                                   }
                                 },
                                 key)
                            .build();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getMemberSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MEMBER);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getMemberSpacesCount(userId));
-          }
-        },
-        key)
-        .build();
-
   }
 
   /**
@@ -482,46 +434,11 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getMemberSpacesByFilterCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getMemberSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
         .build();
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getMemberSpaces(final String userId) throws SpaceStorageException {
-    return storage.getMemberSpaces(userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getMemberSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.MEMBER);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getMemberSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
 
   }
 
@@ -542,7 +459,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getMemberSpacesByFilter(userId, spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getMemberSpacesByFilter(userId, spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -550,26 +467,6 @@ public class CachedSpaceStorage implements SpaceStorage {
 
     //
     return buildSpaces(keys);
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getPendingSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.PENDING);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getPendingSpacesCount(userId));
-          }
-        },
-        key)
-        .build();
 
   }
 
@@ -585,46 +482,11 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getPendingSpacesByFilterCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getPendingSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
         .build();
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPendingSpaces(final String userId) throws SpaceStorageException {
-    return storage.getPendingSpaces(userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPendingSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.PENDING);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getPendingSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
 
   }
 
@@ -645,7 +507,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getPendingSpacesByFilter(userId, spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getPendingSpacesByFilter(userId, spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -654,26 +516,6 @@ public class CachedSpaceStorage implements SpaceStorage {
     //
     return buildSpaces(keys);
     
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getInvitedSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.INVITED);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getInvitedSpacesCount(userId));
-          }
-        },
-        key)
-        .build();
-
   }
 
   /**
@@ -688,46 +530,11 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getInvitedSpacesByFilterCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getInvitedSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
         .build();
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getInvitedSpaces(final String userId) throws SpaceStorageException {
-    return storage.getInvitedSpaces(userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getInvitedSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.INVITED);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getInvitedSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
 
   }
 
@@ -748,7 +555,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getInvitedSpacesByFilter(userId, spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getInvitedSpacesByFilter(userId, spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -757,26 +564,6 @@ public class CachedSpaceStorage implements SpaceStorage {
     //
     return buildSpaces(keys);
     
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getPublicSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.PUBLIC);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getPublicSpacesCount(userId));
-          }
-        },
-        key)
-        .build();
-
   }
 
   /**
@@ -791,90 +578,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getPublicSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPublicSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.PUBLIC);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getPublicSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPublicSpaces(final String userId) throws SpaceStorageException {
-    return storage.getPublicSpaces(userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPublicSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.PUBLIC);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getPublicSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getAccessibleSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.ACCESSIBLE);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getAccessibleSpacesCount(userId));
+            return new IntegerData(CachedSpaceStorage.super.getPublicSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
@@ -886,7 +590,6 @@ public class CachedSpaceStorage implements SpaceStorage {
    * {@inheritDoc}
    */
   public int getAccessibleSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.ACCESSIBLE);
 
@@ -894,34 +597,14 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getAccessibleSpacesByFilterCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getAccessibleSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
         .build();
     
   }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public int getLastAccessedSpaceCount(final SpaceFilter spaceFilter) {
 
-    //
-    SpaceFilterKey key = new SpaceFilterKey(spaceFilter.getRemoteId(), spaceFilter, SpaceType.LATEST_ACCESSED);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getLastAccessedSpaceCount(spaceFilter));
-          }
-        },
-        key)
-        .build();
-    
-  }
-  
   /**
    * {@inheritDoc}
    */
@@ -933,7 +616,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getVisibleSpacesCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getVisibleSpacesCount(userId, spaceFilter));
           }
         },
         key).build();
@@ -950,105 +633,10 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getUnifiedSearchSpacesCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getUnifiedSearchSpacesCount(userId, spaceFilter));
           }
         },
         key).build();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getVisibleSpaces(final String userId, final SpaceFilter spaceFilter, final long offset, final long limit)
-                                      throws SpaceStorageException {
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.VISIBLE);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getVisibleSpaces(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getUnifiedSearchSpaces(final String userId, final SpaceFilter spaceFilter, final long offset, final long limit)
-                                      throws SpaceStorageException {
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.UNIFIED_SEARCH);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getUnifiedSearchSpaces(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("deprecation")
-  public List<Space> getAccessibleSpaces(final String userId) throws SpaceStorageException {
-    return storage.getAccessibleSpaces(userId);
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getVisibleSpaces(final String userId, final SpaceFilter spaceFilter) throws SpaceStorageException {
-    return storage.getVisibleSpaces(userId, spaceFilter);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getAccessibleSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.ACCESSIBLE);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getAccessibleSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-
   }
 
   /**
@@ -1068,7 +656,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getAccessibleSpacesByFilter(userId, spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getAccessibleSpacesByFilter(userId, spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -1076,26 +664,6 @@ public class CachedSpaceStorage implements SpaceStorage {
 
     //
     return buildSpaces(keys);
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getEditableSpacesCount(final String userId) throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.EDITABLE);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(storage.getEditableSpacesCount(userId));
-          }
-        },
-        key)
-        .build();
 
   }
 
@@ -1111,47 +679,12 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getEditableSpacesByFilterCount(userId, spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getEditableSpacesByFilterCount(userId, spaceFilter));
           }
         },
         key)
         .build();
     
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getEditableSpaces(final String userId) throws SpaceStorageException {
-    return storage.getEditableSpaces(userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getEditableSpaces(final String userId, final long offset, final long limit)
-      throws SpaceStorageException {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.EDITABLE);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getEditableSpaces(userId, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-
   }
 
   /**
@@ -1171,7 +704,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getEditableSpacesByFilter(userId, spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getEditableSpacesByFilter(userId, spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -1185,22 +718,7 @@ public class CachedSpaceStorage implements SpaceStorage {
   /**
    * {@inheritDoc}
    */
-  public int getAllSpacesCount() throws SpaceStorageException {
-    return storage.getAllSpacesCount();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getAllSpaces() throws SpaceStorageException {
-    return storage.getAllSpaces();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public int getAllSpacesByFilterCount(final SpaceFilter spaceFilter) {
-
     //
     SpaceFilterKey key = new SpaceFilterKey(null, spaceFilter, null);
 
@@ -1208,7 +726,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getAllSpacesByFilterCount(spaceFilter));
+            return new IntegerData(CachedSpaceStorage.super.getAllSpacesByFilterCount(spaceFilter));
           }
         },
         key)
@@ -1219,36 +737,10 @@ public class CachedSpaceStorage implements SpaceStorage {
   /**
    * {@inheritDoc}
    */
-  public List<Space> getSpaces(final long offset, final long limit) throws SpaceStorageException {
-
-    //
-    ListSpacesKey listKey = new ListSpacesKey(null, offset, limit);
-
-    //
-    ListSpacesData keys = spacesCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = storage.getSpaces(offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSpaces(keys);
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public List<Space> getSpacesByFilter(final SpaceFilter spaceFilter, final long offset, final long limit) {
 
     //
-    SpaceFilterKey key = new SpaceFilterKey(null, spaceFilter, null);
+    SpaceFilterKey key = new SpaceFilterKey(spaceFilter == null ? null : spaceFilter.getRemoteId(), spaceFilter, null);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
@@ -1258,7 +750,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getSpacesByFilter(spaceFilter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getSpacesByFilter(spaceFilter, offset, limit);
             return buildIds(got);
           }
         },
@@ -1281,7 +773,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceData data = spaceCache.get(
         new ServiceContext<SpaceData>() {
           public SpaceData execute() {
-            Space space = storage.getSpaceById(id);
+            Space space = CachedSpaceStorage.super.getSpaceById(id);
             if (space != null) {
               putSpaceInCacheIfNotExists(space);
               return new SpaceData(space);
@@ -1324,7 +816,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceSimpleData simpleData = spaceSimpleCache.get(
         new ServiceContext<SpaceSimpleData>() {
           public SpaceSimpleData execute() {
-            Space space = storage.getSpaceSimpleById(id);
+            Space space = CachedSpaceStorage.super.getSpaceSimpleById(id);
             if (space != null) {
               return new SpaceSimpleData(space);
             }
@@ -1356,7 +848,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceKey key = spaceRefCache.get(
         new ServiceContext<SpaceKey>() {
           public SpaceKey execute() {
-            Space space = storage.getSpaceByPrettyName(spacePrettyName);
+            Space space = CachedSpaceStorage.super.getSpaceByPrettyName(spacePrettyName);
             if (space != null) {
               return putSpaceInCacheIfNotExists(space);
             }
@@ -1389,7 +881,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceKey key = spaceRefCache.get(
         new ServiceContext<SpaceKey>() {
           public SpaceKey execute() {
-            Space space = storage.getSpaceByGroupId(groupId);
+            Space space = CachedSpaceStorage.super.getSpaceByGroupId(groupId);
             if (space != null) {
               return putSpaceInCacheIfNotExists(space);
             }
@@ -1422,7 +914,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     SpaceKey key = spaceRefCache.get(
         new ServiceContext<SpaceKey>() {
           public SpaceKey execute() {
-            Space space = storage.getSpaceByUrl(url);
+            Space space = CachedSpaceStorage.super.getSpaceByUrl(url);
             if (space != null) {
               return putSpaceInCacheIfNotExists(space);
             }
@@ -1456,7 +948,7 @@ public class CachedSpaceStorage implements SpaceStorage {
 
     // Update the storage only if the user has accessed a different space
     if (selector.isUpdateStore()) {
-      storage.updateSpaceAccessed(remoteId, space);
+      super.updateSpaceAccessed(remoteId, space);
     }
   }
 
@@ -1473,7 +965,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<Space> got = storage.getLastAccessedSpace(filter, offset, limit);
+            List<Space> got = CachedSpaceStorage.super.getLastAccessedSpace(filter, offset, limit);
             return buildSimpleIds(got);
           }
         },
@@ -1497,7 +989,7 @@ public class CachedSpaceStorage implements SpaceStorage {
              if (limit == 0) {
                return buildIds(Collections.emptyList());
              }
-             List<Space> got = storage.getLastSpaces(limit);
+             List<Space> got = CachedSpaceStorage.super.getLastSpaces(limit);
              return buildIds(got);
            }
          },
@@ -1516,7 +1008,7 @@ public class CachedSpaceStorage implements SpaceStorage {
     return spacesCountCache.get(
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
-            return new IntegerData(storage.getNumberOfMemberPublicSpaces(userId));
+            return new IntegerData(CachedSpaceStorage.super.getNumberOfMemberPublicSpaces(userId));
           }
         },
         key)
@@ -1536,7 +1028,7 @@ public class CachedSpaceStorage implements SpaceStorage {
         if (limit == 0) {
           return buildIds(Collections.emptyList());
         }
-        List<Space> got = storage.getVisitedSpaces(filter, offset, limit);
+        List<Space> got = CachedSpaceStorage.super.getVisitedSpaces(filter, offset, limit);
         return buildIds(got);
       }
     }, listKey);
@@ -1558,7 +1050,7 @@ public class CachedSpaceStorage implements SpaceStorage {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<String> got = storage.getMemberSpaceIds(identityId, offset, limit);
+            List<String> got = CachedSpaceStorage.super.getMemberSpaceIds(identityId, offset, limit);
             return buildListIdentityIds(got);
           }
         },
@@ -1566,46 +1058,6 @@ public class CachedSpaceStorage implements SpaceStorage {
 
     //
     return buildSpaceIdentityIds(keys);
-  }
-
-  @Override
-  public int countPendingSpaceRequestsToManage(String userId) {
-    return storage.countPendingSpaceRequestsToManage(userId);
-  }
-
-  @Override
-  public List<Space> getPendingSpaceRequestsToManage(String userId, int offset, int limit) {
-    return storage.getPendingSpaceRequestsToManage(userId, offset, limit);
-  }
-
-  @Override
-  public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
-    return storage.findSpaceExternalInvitationsBySpaceId(spaceId);
-  }
-
-  @Override
-  public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
-    storage.saveSpaceExternalInvitation(spaceId, email, tokenId);
-  }
-
-  @Override
-  public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
-    return storage.findSpaceExternalInvitationById(invitationId);
-  }
-
-  @Override
-  public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) {
-    storage.deleteSpaceExternalInvitation(spaceExternalInvitation);
-  }
-
-  @Override
-  public List<String> findExternalInvitationsSpacesByEmail(String email) {
-    return storage.findExternalInvitationsSpacesByEmail(email);
-  }
-
-  @Override
-  public void deleteExternalUserInvitations(String email) {
-    storage.deleteExternalUserInvitations(email);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {
