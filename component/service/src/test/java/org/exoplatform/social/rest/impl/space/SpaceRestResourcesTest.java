@@ -1,5 +1,6 @@
 package org.exoplatform.social.rest.impl.space;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.application.registry.Application;
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
@@ -22,16 +24,19 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
+import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
@@ -70,6 +75,9 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
                                                   identityManager,
                                                   uploadService);
     registry(spaceRestResources);
+
+    SpaceTemplatesRestResourcesV1 spaceTemplatesRestResourcesV1 = new SpaceTemplatesRestResourcesV1(getContainer().getComponentInstanceOfType(SpaceTemplateService.class), getContainer().getComponentInstanceOfType(ConfigurationManager.class));
+    registry(spaceTemplatesRestResourcesV1);
   }
 
   public void tearDown() throws Exception {
@@ -332,14 +340,21 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     String user = "john";
 
     Space space = getSpaceInstance(1, user);
+
+    String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+    assertTrue(bannerUrl.contains("spaceTemplates"));
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
     uploadSpaceBanner(user, space.getId());
 
     space = spaceService.getSpaceById(space.getId());
     assertNotNull(space.getBannerUrl());
 
-    String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
+    bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
 
-    ContainerResponse response = service("GET", bannerUrl, "", null, null);
+    response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -353,6 +368,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
 
     space.setVisibility(Space.HIDDEN);
     space = spaceService.updateSpace(space);
+    restartTransaction();
+    space = spaceService.getSpaceById(space.getId());
     bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
 
     response = service("GET", bannerUrl, "", null, null);
@@ -361,10 +378,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
   }
 
   public void testGetSpaceBannerForAuthentiticatedUser() throws Exception {
-    String user = "john";
-
-    Space space = getSpaceInstance(1, user);
-    uploadSpaceBanner(user, space.getId());
+    Space space = getSpaceInstance(1, "john");
+    uploadSpaceBanner("john", space.getId());
 
     space = spaceService.getSpaceById(space.getId());
     assertNotNull(space.getBannerUrl());
@@ -387,13 +402,15 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
 
     space.setVisibility(Space.HIDDEN);
     space = spaceService.updateSpace(space);
+    restartTransaction();
+    space = spaceService.getSpaceById(space.getId());
     bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
 
     response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);
     assertEquals(404, response.getStatus());
 
-    startSessionAs(user);
+    startSessionAs("john");
 
     response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);

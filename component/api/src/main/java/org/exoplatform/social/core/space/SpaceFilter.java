@@ -19,6 +19,7 @@ package org.exoplatform.social.core.space;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.search.Sorting;
 import java.util.List;
+import java.util.Objects;
 
 import org.exoplatform.social.core.space.model.Space;
 
@@ -224,5 +225,18 @@ public class SpaceFilter {
 
   public void addExclusions(List<Space> exclusions) {
     this.exclusions = exclusions;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+                        firstCharacterOfSpaceName,
+                        spaceNameSearchCondition,
+                        includeSpaces,
+                        exclusions,
+                        remoteId,
+                        appId,
+                        template,
+                        sorting);
   }
 }

@@ -17,10 +17,11 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
@@ -29,10 +30,17 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implements SpaceDAO {
 
   @Override
-  public List<SpaceEntity> getLastSpaces(int limit) {
-    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getLastSpaces", SpaceEntity.class);
+  public List<Long> getLastSpaces(int limit) {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceEntity.getLastSpaces", Tuple.class);
     query.setMaxResults(limit);
-    return query.getResultList();
+    List<Tuple> resultList = query.getResultList();
+    if (resultList == null || resultList.isEmpty()) {
+      return Collections.emptyList();
+    } else {
+      return resultList.stream()
+                       .map(tuple -> tuple.get(0, Long.class))
+                       .collect(Collectors.toList());
+    }
   }
 
   @Override

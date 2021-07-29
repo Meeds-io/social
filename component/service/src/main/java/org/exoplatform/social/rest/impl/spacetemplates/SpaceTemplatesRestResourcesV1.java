@@ -36,8 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  *
@@ -48,9 +47,24 @@ import java.util.Locale;
 @Api(tags = VersionResources.VERSION_ONE + "/social/spaceTemplates", value = VersionResources.VERSION_ONE + "/social/spaceTemplates", description = "Managing Spaces Templates")
 public class SpaceTemplatesRestResourcesV1 implements SocialRest {
 
+  private static final Log          LOG                         = ExoLogger.getLogger(SpaceTemplatesRestResourcesV1.class);
+
+  private static final CacheControl CACHE_CONTROL               = new CacheControl();
+
+  private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
+
+  // 1 year
+  private static final int          CACHE_IN_SECONDS            = 365 * 86400;
+
+  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+
+  static {
+    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+  }
+
   private SpaceTemplateService spaceTemplateService;
+
   private ConfigurationManager configurationManager;
-  private static final Log LOG = ExoLogger.getLogger(SpaceTemplatesRestResourcesV1.class);
 
   public SpaceTemplatesRestResourcesV1(SpaceTemplateService spaceTemplateService, ConfigurationManager configurationManager) {
     this.spaceTemplateService = spaceTemplateService;
@@ -83,7 +97,7 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
   }
 
   @GET
-  @Path("bannerStream")
+  @Path("{templateName}/banner")
   @RolesAllowed("users")
   @ApiOperation(value = "Gets space template banner",
           httpMethod = "GET",
@@ -95,7 +109,10 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
           @ApiResponse (code = 500, message = "Internal server error")})
   public Response getBannerStream(@Context UriInfo uriInfo,
                                   @Context Request request,
-                                  @ApiParam(value = "Space template name", required = true) @QueryParam("templateName") String templateName) {
+                                  @ApiParam(value = "Space template name", required = true)
+                                  @PathParam("templateName") String templateName,
+                                  @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
+                                  @QueryParam("lastModified") String lastModified) {
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(templateName);
     if (spaceTemplate == null) {
       LOG.debug("Cannot find space template: {}", templateName);
@@ -122,11 +139,11 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
         }
         builder = Response.ok(bannerStream, "image/png");
         builder.tag(eTag);
+        builder.cacheControl(CACHE_CONTROL);
+        builder.lastModified(DEFAULT_IMAGES_LAST_MODIFED);
+        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
       }
-      CacheControl cc = new CacheControl();
-      cc.setMaxAge(86400);
-      builder.cacheControl(cc);
-      return builder.cacheControl(cc).build();
+      return builder.build();
     }
     return EntityBuilder.getResponse(new ErrorResource("image does not exist in path: " + bannerPath, "banner not found"),
         uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
