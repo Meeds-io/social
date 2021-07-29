@@ -8,6 +8,8 @@
         :username="posterUsername"
         :fullname="posterFullname"
         :title="posterFullname"
+        :external="posterIsExternal"
+        :retrieve-extra-information="false"
         avatar-class="border-color">
         <template slot="subTitle">
           <date-format :value="postedTime" />
@@ -71,6 +73,9 @@ export default {
     },
     posterUsername() {
       return this.poster && this.poster.username;
+    },
+    posterIsExternal() {
+      return this.poster && (this.poster.isExternal || this.poster.external);
     },
     streamOwner() {
       return this.activity && this.activity.streamOwner.space || this.activity.streamOwner.profile;

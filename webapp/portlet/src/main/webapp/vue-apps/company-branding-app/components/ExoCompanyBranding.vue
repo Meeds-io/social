@@ -331,20 +331,20 @@ export default {
             try {
               // trick to parse malformed json
               eval(`responseObject = ${responseText}`); // eslint-disable-line no-eval
+
+              if (!responseObject.upload[uploadId] || !responseObject.upload[uploadId].percent ||
+                responseObject.upload[uploadId].percent !== maxProgress.toString()) {
+                self.$el.querySelector('#savenotok').style.display = 'block';
+                setTimeout(function () {
+                  self.cleanMessage();
+                },// eslint-disable-next-line no-magic-numbers
+                5000);
+                self.uploadInProgress = false;
+              } else {
+                self.uploadProgress = maxProgress;
+              }
             } catch (err) {
               return;
-            }
-
-            if (!responseObject.upload[uploadId] || !responseObject.upload[uploadId].percent ||
-              responseObject.upload[uploadId].percent !== maxProgress.toString()) {
-              self.$el.querySelector('#savenotok').style.display = 'block';
-              setTimeout(function () {
-                self.cleanMessage();
-              },// eslint-disable-next-line no-magic-numbers
-              5000);
-              self.uploadInProgress = false;
-            } else {
-              self.uploadProgress = maxProgress;
             }
           });
       });

@@ -7,6 +7,8 @@
         :fullname="sharedPoster.fullname"
         :avatar-url="sharedPoster.avatar"
         :size="25"
+        :external="sharedPoster.external || sharedPoster.isExternal"
+        :retrieve-extra-information="false"
         class="activity-share-user"
         bold-title
         link-style />

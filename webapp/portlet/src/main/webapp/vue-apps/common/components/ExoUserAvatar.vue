@@ -120,7 +120,7 @@ export default {
     },
   },
   created() {
-    if (this.retrieveExtraInformation) {
+    if (this.retrieveExtraInformation && this.fullname) {
       this.$userService.getUser(this.username)
         .then(user => {
           this.isExternal = user.external === 'true';

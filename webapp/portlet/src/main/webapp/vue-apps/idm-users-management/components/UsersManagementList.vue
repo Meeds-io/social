@@ -440,11 +440,11 @@ export default {
       }).then(data => {
         const entities = data.entities || data.users;
         entities.forEach(user => {
-          user.enabled = user.enabled ;
+          user.enabled = user.enabled || false;
           user.userName = user.userName || user.username || '';
           user.firstName = user.firstName || user.firstname || '';
           user.lastName = user.lastName || user.lastname || '';
-          user.email = user.email || user.email || '';
+          user.email = user.email || '';
           if (user.synchronizedDate) {
             user.synchronizedDate = Number(user.synchronizedDate);
           }
