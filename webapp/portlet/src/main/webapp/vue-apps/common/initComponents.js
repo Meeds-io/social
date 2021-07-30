@@ -64,9 +64,7 @@ Vue.directive('cacheable', {
         console.warn(`Application with identifier ${appId} was not found in page`);
       }
 
-      window.setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      }, 500);
+      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     };
 
     const cacheDom = function() {

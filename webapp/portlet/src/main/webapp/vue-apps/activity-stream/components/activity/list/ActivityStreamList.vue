@@ -13,7 +13,7 @@
       :activities="activities"
       @addActivities="addActivities" />
     <template v-if="activitiesToDisplay.length">
-      <activity-stream-activity
+      <activity-stream-loader
         v-for="activity of activitiesToDisplay"
         :key="activity.id"
         :activity="activity"
@@ -77,9 +77,7 @@ export default {
     },
   },
   data: () => ({
-    activities: [{
-      loading: true,
-    }],
+    activities: [],
     pageSize: 10,
     limit: 10,
     retrievedSize: 0,
@@ -100,10 +98,7 @@ export default {
   },
   watch: {
     loading() {
-      if (this.loading) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-      } else {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      if (!this.loading) {
         window.setTimeout(() => {
           socialUIProfile.initUserProfilePopup('ActivityStream', {});
           document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
@@ -134,7 +129,6 @@ export default {
       }
     });
 
-    this.activities = [];
     this.limit = this.pageSize;
     this.retrievedSize = this.initialLimit && (this.initialLimit / 2) || this.limit;
     this.hasMore = false;
@@ -149,7 +143,10 @@ export default {
           this.loadActivity();
         }
       } else {
-        if (this.initialData) {
+        if (this.initialData && this.initialData.activityIds) {
+          this.loadActivityIds(this.initialData);
+        } else if (this.initialData && this.initialData.activities) {
+          this.activities = this.initialData.activities.slice(0, this.limit);
           this.loadActivityIds(this.initialData);
         } else {
           this.loadActivities();
@@ -176,26 +173,28 @@ export default {
       this.loading = true;
       this.$activityService.getActivities(this.spaceId, limitToRetrieve, 'ids')
         .then(this.loadActivityIds)
-        .then(this.handleRetrievedActivities)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
     loadActivityIds(data) {
       this.canPost = data.canPost;
-      const activityIds = data && data.activityIds || [];
-      const promises = activityIds.map(activity => {
-        this.$set(activity, 'loading', true);
+      const activityIds = data && (data.activityIds || data.activities) || [];
+      this.retrievedSize = activityIds.length;
+      this.hasMore = this.retrievedSize > this.limit;
+      const activityIdsToLoad = activityIds.slice(0, this.limit);
+      const promises = activityIdsToLoad.map(activity => {
         const activityId = activity && activity.id;
-        if (activityId) {
+        const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
+        if (existingActivity) {
+          return Promise.resolve(existingActivity);
+        } else if (activityId) {
+          this.$set(activity, 'loading', true);
+          this.activities.push(activity);
           return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-            .then(fullActivity => {
-              Object.assign(activity, fullActivity);
-              this.$set(activity, 'loading', false);
-              return fullActivity;
-            });
+            .then(fullActivity => Object.assign(activity, fullActivity))
+            .finally(() => this.$set(activity, 'loading', false));
         }
       });
-      this.handleRetrievedActivities(activityIds);
       return Promise.all(promises);
     },
     setDisplayedActivity(activity) {
@@ -205,11 +204,6 @@ export default {
         return;
       }
       this.activities = activity && [activity] || [];
-    },
-    handleRetrievedActivities(activities) {
-      this.activities = activities.filter(activity => !!activity).slice(0, this.limit);
-      this.retrievedSize = activities.length;
-      this.hasMore = this.retrievedSize > this.limit;
     },
     updateActivityDisplayById(activityId) {
       this.loading = true;
@@ -226,9 +220,7 @@ export default {
       }
     },
     loadMore() {
-      if (this.activities.length === this.limit) {
-        this.limit += this.pageSize;
-      }
+      this.limit += this.pageSize;
       this.loadActivities();
     },
     addActivities(activities) {

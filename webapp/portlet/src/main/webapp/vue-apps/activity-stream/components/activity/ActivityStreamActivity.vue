@@ -3,12 +3,12 @@
     :id="id"
     class="white border-radius activity-detail flex d-flex flex-column">
     <v-progress-circular
-      v-if="activity.loading"
+      v-if="displayLoading"
       color="primary"
       size="32"
       indeterminate
       class="mx-auto my-10" />
-    <template v-else-if="!noExtension && extendedComponent">
+    <template v-if="!noExtension && extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
@@ -134,16 +134,19 @@ export default {
       if (!this.activity || !this.activityTypes) {
         return {};
       }
-      return this.activityTypes[this.activity.type] || this.activityTypes['default'] || {};
+      return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
+    },
+    sharedActivityType() {
+      return this.sharedActivity && this.sharedActivity.type;
     },
     sharedActivityTypeExtension() {
       if (this.noExtension || !this.sharedActivity || !this.activityTypes) {
         return null;
       }
-      return this.activityTypes[this.sharedActivity.type] || this.activityTypes['default'] || null;
+      return this.activityTypes[this.sharedActivityType] || this.activityTypes['default'] || null;
     },
     extendedComponent() {
       if (this.noExtension) {
@@ -175,12 +178,31 @@ export default {
     init() {
       return this.activityTypeExtension && this.activityTypeExtension.init;
     },
+    displayLoading() {
+      return this.activityLoading || !this.initialized;
+    },
+    activityType() {
+      return this.activity && this.activity.type;
+    },
+    activityLoading() {
+      return this.activity && this.activity.loading;
+    },
   },
   watch: {
+    activityLoading() {
+      if (!this.activityLoading) {
+        this.retrieveActivityProperties();
+      }
+    },
     loading() {
       if (!this.loading) {
         this.refreshTipTip();
         this.setWindowTitle();
+      }
+    },
+    activityTypeExtension() {
+      if (this.activityTypeExtension) {
+        this.retrieveActivityProperties();
       }
     },
   },
@@ -211,7 +233,7 @@ export default {
   },
   methods: {
     retrieveActivityProperties(activityId) {
-      if (activityId && activityId !== this.activityId) {
+      if (this.activityLoading || (activityId && activityId !== this.activityId)) {
         return;
       }
       this.loading = true;
@@ -220,10 +242,10 @@ export default {
           const initPromise = this.init(this.activity, this.isActivityDetail);
           if (initPromise && initPromise.then) {
             return initPromise
+              .then(() => this.$nextTick())
               .finally(() => {
                 this.loading = false;
                 this.initialized = true;
-                this.setWindowTitle();
               });
           }
         }
