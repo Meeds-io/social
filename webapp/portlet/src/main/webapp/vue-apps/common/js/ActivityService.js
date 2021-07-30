@@ -185,7 +185,7 @@ export function updateComment(id, parentCommentId, commentId, message, templateP
   });
 }
 
-function computeParentCommentsList(comments) {
+export function computeParentCommentsList(comments) {
   const commentsList = [];
   if (comments && comments.length) {
     const commentsPerId = {};

@@ -47,7 +47,7 @@ export default {
     comments: [],
     commentsSize: 0,
     limit: 2,
-    loading: false,
+    loading: true,
   }),
   computed: {
     parentCommentClass() {
@@ -55,8 +55,16 @@ export default {
     },
   },
   created() {
-    if (this.activity && this.activity.comments) {
-      this.comments = this.activity.commentsCount && this.activity.comments || [];
+    if (this.activity && this.activity.comments && typeof this.activity.comments === 'object') {
+      this.comments = [];
+      this.commentsSize = 0;
+      this.loading = true;
+      this.$nextTick().then(() => {
+        this.comments = this.$activityService.computeParentCommentsList(this.activity.comments) || [];
+        this.activity.commentsSize = this.commentsSize = this.activity.commentsCount && Number(this.activity.commentsCount) || 0;
+        this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
+        this.loading = false;
+      });
     } else {
       this.retrieveLastComment();
     }

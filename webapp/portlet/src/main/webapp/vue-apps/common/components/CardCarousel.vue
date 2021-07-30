@@ -66,7 +66,6 @@ export default {
       this.computeProperties();
     }, 500);
     window.onresize = this.computeProperties;
-    this.scrollElement.onscroll = this.stopPropagation;
   },
   methods: {
     stopPropagation(event) {
