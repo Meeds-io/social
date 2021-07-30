@@ -49,6 +49,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final String bodyId;
   private final String type;
   private final Map templateParams;
+  private final Map<String, Object> linkedProcessedEntities;
   private final String externalId;
   private final String url;
   private final String streamId;
@@ -102,9 +103,13 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
     if (activity.getTemplateParams() != null) {
       this.templateParams = Collections.unmodifiableMap(activity.getTemplateParams());
-    }
-    else {
+    } else {
       this.templateParams = Collections.emptyMap();
+    }
+    if (activity.getLinkedProcessedEntities() != null) {
+      this.linkedProcessedEntities = Collections.unmodifiableMap(activity.getLinkedProcessedEntities());
+    } else {
+      this.linkedProcessedEntities = null;
     }
 
   }
@@ -135,6 +140,9 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setBodyId(bodyId);
     activity.setType(type);
     activity.setTemplateParams(new LinkedHashMap<>(templateParams));
+    if (linkedProcessedEntities != null) {
+      activity.setLinkedProcessedEntities(new LinkedHashMap<>(linkedProcessedEntities));
+    }
     activity.setExternalId(externalId);
     activity.setShareActions(shareActions == null ? null : Collections.unmodifiableSet(shareActions));
     activity.setFiles(files == null ? null : Collections.unmodifiableList(files));

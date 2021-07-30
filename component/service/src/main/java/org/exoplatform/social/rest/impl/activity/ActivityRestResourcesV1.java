@@ -753,11 +753,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   @GET
   @Path("{activityId}/likes")
+  @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @ApiOperation(
       value = "Gets likes of a specific activity",
       httpMethod = "GET",
       response = Response.class,
+      produces = "application/json",
       notes = "This returns a list of likes if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
@@ -797,6 +799,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
     List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(activity, uriInfo.getPath(), expand, offset, limit);
     CollectionEntity collectionLike = new CollectionEntity(likesEntity, EntityBuilder.LIKES_TYPE, offset, limit);
+    collectionLike.setSize(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
     //
     return EntityBuilder.getResponse(collectionLike, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
@@ -809,17 +812,20 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       value = "Adds a like to a specific activity",
       httpMethod = "POST",
       response = Response.class,
+      produces = "application/json",
       notes = "This adds the like if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 204, message = "Request fulfilled"),
+          @ApiResponse(code = 200, message = "Request fulfilled"),
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response addLike(
                           @Context
                           UriInfo uriInfo,
+                          @Context
+                          Request request,
                           @ApiParam(value = "Activity id", required = true)
                           @PathParam("activityId")
                           String activityId) {
@@ -834,27 +840,31 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     activityManager.saveLike(activity, currentUser);
-    return Response.noContent().build();
+    return getLikesOfActivity(uriInfo, activityId, 0, RestUtils.DEFAULT_LIMIT, null);
   }
 
   @DELETE
   @Path("{activityId}/likes")
+  @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @ApiOperation(
       value = "Deletes a like of a specific user for a given activity",
       httpMethod = "DELETE",
       response = Response.class,
+      produces = "application/json",
       notes = "This deletes the like of authenticated user from an activity"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 204, message = "Request fulfilled"),
+          @ApiResponse(code = 200, message = "Request fulfilled"),
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input") }
   )
   public Response deleteLike(
                              @Context
                              UriInfo uriInfo,
+                             @Context
+                             Request request,
                              @ApiParam(value = "Activity id", required = true)
                              @PathParam("activityId")
                              String activityId) {
@@ -869,7 +879,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     activityManager.deleteLike(activity, currentUser);
-    return Response.noContent().build();
+    return getLikesOfActivity(uriInfo, activityId, 0, RestUtils.DEFAULT_LIMIT, null);
   }
 
   @GET
