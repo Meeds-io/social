@@ -20,8 +20,6 @@ const appIdAction = 'SpaceTitleActionComponnetsContainer';
 const cachedIdActions = `${appIdAction}_${eXo.env.portal.spaceId}`;
 
 export function init(settings) {
-  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
   const appElement = document.createElement('div');
   appElement.id = appId;
 
@@ -30,16 +28,19 @@ export function init(settings) {
       navigations: settings && settings.navigations,
       selectedNavigationUri: settings && settings.selectedNavigationUri,
     }),
-    mounted() {
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-    },
     template: `<space-menu v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
     vuetify,
   }).$mount(appElement);
 
+  const actionsElement = document.createElement('div');
+  actionsElement.id = appIdAction;
+
   new Vue({
+    mounted() {
+      this.$root.$emit('application-loaded');
+    },
     template: `<space-title-action-components v-cacheable="{cacheId: '${cachedIdActions}'}" id="${appIdAction}" />`,
     vuetify,
-  }).$mount(appIdAction);
+  }).$mount(actionsElement);
 
 }
