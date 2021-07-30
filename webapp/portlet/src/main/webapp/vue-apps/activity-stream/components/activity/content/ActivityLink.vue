@@ -21,6 +21,7 @@
           <v-img
             v-if="thumbnail"
             :src="thumbnail"
+            eager
             min-height="100%"
             min-width="100%" />
           <v-icon
@@ -59,6 +60,7 @@
         <v-img
           v-if="thumbnail"
           :src="thumbnail"
+          eager
           min-height="100%"
           min-width="100%" />
         <v-icon
