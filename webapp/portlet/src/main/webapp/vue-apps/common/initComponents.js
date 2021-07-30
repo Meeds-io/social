@@ -92,7 +92,11 @@ Vue.directive('cacheable', {
       }
     };
 
-    vnode.componentInstance.$root.$once('application-mount', () => {
+    vnode.componentInstance.$root.$once('application-mount', automaticMount => {
+      if (automaticMount) {
+        // eslint-disable-next-line no-console
+        console.warn(`It seems that ${el.id} didn't stopped displaying top bar loading`);
+      }
       mountApplication();
     });
 
@@ -113,7 +117,7 @@ Vue.directive('cacheable', {
     // In addition, by using '$root.$once', we 're sure that the real application
     // is mounted only once
     window.setTimeout(() => {
-      vnode.componentInstance.$root.$emit('application-mount');
+      vnode.componentInstance.$root.$emit('application-mount', true);
     }, 3000);
   },
 });
