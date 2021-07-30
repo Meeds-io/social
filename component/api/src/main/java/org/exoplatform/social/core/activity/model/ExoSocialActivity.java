@@ -378,4 +378,8 @@ public interface ExoSocialActivity extends CacheEntry {
   Float getPriority();
 
   void setPriority(Float priority);
+
+  Map<String, Object> getLinkedProcessedEntities();
+
+  void setLinkedProcessedEntities(Map<String, Object> linkedProcessedEntities);
 }

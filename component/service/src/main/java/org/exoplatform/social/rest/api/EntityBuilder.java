@@ -654,6 +654,9 @@ public class EntityBuilder {
         }
       }
     }
+    if (activity.getLinkedProcessedEntities() != null) {
+      activityEntity.getDataEntity().putAll(activity.getLinkedProcessedEntities());
+    }
     return activityEntity;
   }
 
