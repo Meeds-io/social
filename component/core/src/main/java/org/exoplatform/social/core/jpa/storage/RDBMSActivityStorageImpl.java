@@ -94,12 +94,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   private static Comparator<ActivityProcessor> processorComparator() {
     return new Comparator<ActivityProcessor>() {
-
       public int compare(ActivityProcessor p1, ActivityProcessor p2) {
         if (p1 == null || p2 == null) {
           throw new IllegalArgumentException("Cannot compare null ActivityProcessor");
         }
-        return p1.getPriority() - p2.getPriority();
+        int diff = p1.getPriority() - p2.getPriority();
+        return diff == 0 ? p1.getName().compareTo(p2.getName()) : diff;
       }
     };
   }
@@ -1429,27 +1429,20 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private void processActivity(ExoSocialActivity existingActivity, boolean preSave) {
+    Map<String, String> templateParams = existingActivity.getTemplateParams();
+    if (templateParams == null) {
+      templateParams = new HashMap<>();
+      existingActivity.setTemplateParams(templateParams);
+    }
     Iterator<ActivityProcessor> it = activityProcessors.iterator();
     while (it.hasNext()) {
       ActivityProcessor processor = it.next();
-      Map<String, String> templateParams = existingActivity.getTemplateParams();
-      String processorFlag = "processor" + processor.getName();
       if ((preSave && !processor.isPreActivityProcessor())
-          || (!preSave && templateParams != null && templateParams.containsKey(processorFlag))) {
-        continue;
-      }
-      if (!preSave && !processor.isReadActivityProcessor()) {
+          || (!preSave && !processor.isReadActivityProcessor())) {
         continue;
       }
       try {
         processor.processActivity(existingActivity);
-        if (preSave) {
-          if (templateParams == null) {
-            templateParams = new HashMap<>();
-            existingActivity.setTemplateParams(templateParams);
-          }
-          templateParams.put(processorFlag, "true");
-        }
       } catch (Exception e) {
         LOG.debug("activity processing failed ");
       }
