@@ -40,12 +40,15 @@ export default {
     },
   },
   created() {
-    window.setTimeout(this.retrieveUserInformation, 1000);
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
         Object.assign(this.profile, event.detail);
       }
     });
+    this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
+    if (!this.profile) {
+      this.retrieveUserInformation();
+    }
   },
   methods: {
     retrieveUserInformation() {
