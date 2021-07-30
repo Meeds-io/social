@@ -201,13 +201,15 @@ public class CommentRestResourcesV1 implements ResourceContainer {
   public Response addLikeOnComment(
                                    @Context
                                    UriInfo uriInfo,
+                                   @Context
+                                   Request request,
                                    @ApiParam(value = "Comment id", required = true)
                                    @PathParam("id")
                                    String id,
                                    @ApiParam(value = "Asking for a full representation of a subresource if any", required = false)
                                    @QueryParam("expand")
                                    String expand) {
-    return activityRestResourcesV1.addLike(uriInfo, id);
+    return activityRestResourcesV1.addLike(uriInfo, request, id);
   }
 
   @DELETE
@@ -229,6 +231,8 @@ public class CommentRestResourcesV1 implements ResourceContainer {
   public Response deleteLikeOnComment(
                                       @Context
                                       UriInfo uriInfo,
+                                      @Context
+                                      Request request,
                                       @ApiParam(value = "Comment id", required = true)
                                       @PathParam("id")
                                       String id,
@@ -241,7 +245,7 @@ public class CommentRestResourcesV1 implements ResourceContainer {
                                       )
                                       @QueryParam("expand")
                                       String expand) {
-    return activityRestResourcesV1.deleteLike(uriInfo, id);
+    return activityRestResourcesV1.deleteLike(uriInfo, request, id);
   }
 
 }

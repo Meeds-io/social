@@ -44,16 +44,11 @@ export default {
   },
   data: () => ({
     changingLike: false,
+    hasLiked: false,
   }),
   computed: {
     activityId() {
       return this.activity && this.activity.id;
-    },
-    likers() {
-      return this.activity && this.activity.likes && this.activity.likes.slice().reverse() || [];
-    },
-    hasLiked() {
-      return this.likers.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
     },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
@@ -64,6 +59,9 @@ export default {
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
     },
+  },
+  created() {
+    this.computeLikes();
   },
   methods: {
     changeLike() {
@@ -79,10 +77,8 @@ export default {
     likeActivity() {
       this.changingLike = true;
       return this.$activityService.likeActivity(this.activityId)
-        .then(() => {
-          const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
-          this.activity.likes = [...this.likers, liker];
-          this.activity.likesCount++;
+        .then(data => {
+          this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activity);
         })
         .finally(() => this.changingLike = false);
@@ -90,12 +86,18 @@ export default {
     unlikeActivity() {
       this.changingLike = true;
       return this.$activityService.unlikeActivity(this.activityId)
-        .then(() => {
-          this.activity.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
-          this.activity.likesCount--;
+        .then(data => {
+          this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activity);
         })
         .finally(() => this.changingLike = false);
+    },
+    computeLikes(data) {
+      if (data) {
+        this.$set(this.activity, 'likes', data && data.likes || []);
+        this.$set(this.activity, 'likesCount', data && data.size || 0);
+      }
+      this.hasLiked = this.activity && this.activity.likes && this.activity.likes.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
     },
   },
 };

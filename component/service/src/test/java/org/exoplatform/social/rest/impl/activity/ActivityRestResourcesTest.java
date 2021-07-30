@@ -923,7 +923,34 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                                          null,
                                          null);
     assertNotNull(response);
-    assertEquals(204, response.getStatus());
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+    assertEquals(0, collections.getSize());
+
+    // clean data
+    activityManager.deleteActivity(demoActivity);
+  }
+
+  public void testAddLike() throws Exception {
+    startSessionAs("demo");
+
+    // root posts one activity
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("demo activity");
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+
+    ContainerResponse response = service("POST",
+                                         "/" + VersionResources.VERSION_ONE + "/social/activities/" + demoActivity.getId()
+                                         + "/likes",
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+    assertEquals(1, collections.getSize());
 
     // clean data
     activityManager.deleteActivity(demoActivity);

@@ -125,6 +125,8 @@ export function likeActivity(id) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
     }
   });
 }
@@ -136,6 +138,8 @@ export function unlikeActivity(id) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
     }
   });
 }

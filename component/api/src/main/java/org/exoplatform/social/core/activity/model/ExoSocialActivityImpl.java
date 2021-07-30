@@ -102,6 +102,8 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private Map<String, String> templateParams;
 
+  private Map<String, Object> linkedProcessedEntities;
+
   /**
    * The link to the activity object.
    */
@@ -681,6 +683,14 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   public void setPriority(Float priority) {
     this.priority = priority;
+  }
+
+  public Map<String, Object> getLinkedProcessedEntities() {
+    return linkedProcessedEntities;
+  }
+
+  public void setLinkedProcessedEntities(Map<String, Object> linkedProcessedEntities) {
+    this.linkedProcessedEntities = linkedProcessedEntities;
   }
 
   public String toString() {
