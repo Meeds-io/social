@@ -199,7 +199,6 @@ export default {
     },
     setDisplayedActivity(activity) {
       if (activity.activityId) { // a comment
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         this.$emit('activity-select', activity.activityId, activity.id);
         return;
       }

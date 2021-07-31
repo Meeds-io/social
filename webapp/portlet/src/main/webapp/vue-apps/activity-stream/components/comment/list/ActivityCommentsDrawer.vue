@@ -285,6 +285,7 @@ export default {
           const comment = comments[i];
           const selectedReply = comment.subComments && comment.subComments.find(subComment => subComment.id === highlightCommentId);
           if (selectedReply) {
+            comment.expandSubComments = true;
             selectedReply.highlight = true;
             return selectedReply;
           }
