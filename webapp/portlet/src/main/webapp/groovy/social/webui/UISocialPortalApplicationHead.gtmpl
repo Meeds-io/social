@@ -11,10 +11,6 @@
   import java.util.HashSet;
 
   def rcontext = _ctx.getRequestContext();
-  int frequency = 15000;
-  if(StringUtils.isNotEmpty(System.getProperty("user.status.ping.frequency"))) {
-    frequency = Integer.parseInt(System.getProperty("user.status.ping.frequency"));
-  }
   Space space = SpaceUtils.getSpaceByContext();
   TimeZone timezone = Utils.getViewerTimezone();
   ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
@@ -23,11 +19,6 @@
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
 %>
-<script type="text/javascript">
- require(['SHARED/presence'], function(presence) {
-   presence.sendPing("<%= frequency %>");
- });
-</script>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
      eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
