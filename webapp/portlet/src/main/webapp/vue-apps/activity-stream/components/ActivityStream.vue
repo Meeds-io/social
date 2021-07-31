@@ -8,7 +8,7 @@
       :comment-types="commentTypes"
       :comment-actions="commentActions"
       :initial-limit="initialLimit"
-      :initial-data="initialData"
+      :initial-data="!forceReload && initialData"
       @activity-select="displayActivityDetail" />
     <extension-registry-components
       :params="drawerParams"
@@ -35,6 +35,7 @@ export default {
   data: () => ({
     loaded: false,
     spaceId: eXo.env.portal.spaceId,
+    forceReload: false,
     activityId: null,
     activityTypes: {},
     activityActions: {},
@@ -82,6 +83,7 @@ export default {
       if (commentId && !this.$root.selectedCommentId) {
         this.$root.selectedCommentId = commentId;
         window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
+        this.forceReload = true;
       }
       this.$nextTick().then(() => this.loaded = true);
     },
