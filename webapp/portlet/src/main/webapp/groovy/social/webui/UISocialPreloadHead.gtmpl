@@ -19,11 +19,6 @@
   def jsConfig = uicomponent.getJSConfig();
   def jsConfigPaths = jsConfig.get("paths");
 
-  def scriptPaths = new HashSet();
-  if (jsConfigPaths.has("SHARED/presence")) {
-    scriptPaths.add(jsConfigPaths.get("SHARED/presence") + ".js");
-  }
-
   def i18nPaths = new HashSet();
   def skinPaths = new HashSet();
   for (connector in connectors) {
@@ -41,10 +36,6 @@
     }
   }
 
-  for (scriptPath in scriptPaths) {
-  %>
-<link rel="preload" href= "$scriptPath" as="script" type="text/javascript" />
-  <% }
   for (skinPath in skinPaths) {
   %>
 <link rel="preload" href="$skinPath" as="style" type="text/css" />
