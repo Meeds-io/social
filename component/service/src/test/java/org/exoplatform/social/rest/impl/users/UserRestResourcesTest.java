@@ -1,28 +1,30 @@
 package org.exoplatform.social.rest.impl.users;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.InputStream;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.UserStatus;
-import org.exoplatform.services.organization.search.UserSearchService;
 import org.json.JSONObject;
+import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
 import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -36,15 +38,10 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
-import org.exoplatform.social.rest.impl.space.SpaceRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
-
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
 
@@ -60,7 +57,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private OrganizationService organizationService;
 
-  private UserStateService    userStateService;
+  private EXoContinuationBayeux eXoContinuationBayeux;
+
+  private UserStateService      userStateService;
 
   private MockUploadService   uploadService;
 
@@ -84,7 +83,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    userStateService = getContainer().getComponentInstanceOfType(UserStateService.class);
+    eXoContinuationBayeux = mock(EXoContinuationBayeux.class);
+    userStateService = new UserStateService(eXoContinuationBayeux, getContainer().getComponentInstanceOfType(CacheService.class));
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
@@ -325,19 +325,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetOnlineUsers() throws Exception {
     startSessionAs("root");
-    long date = new Date().getTime();
-    UserStateModel userModel =
-                             new UserStateModel("john",
-                                                date,
-                                                UserStateService.DEFAULT_STATUS);
-    UserStateModel userModel2 =
-                              new UserStateModel("mary",
-                                                 date,
-                                                 UserStateService.DEFAULT_STATUS);
-    userStateService.save(userModel);
-    userStateService.save(userModel2);
-    userStateService.ping(userModel.getUserId());
-    userStateService.ping(userModel2.getUserId());
+    when(eXoContinuationBayeux.getConnectedUserIds()).thenReturn(new LinkedHashSet<>(Arrays.asList("john", "mary")));
+
     ContainerResponse response = service("GET", getURLResource("users?status=online&limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -347,23 +336,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetOnlineUsersOfSpace() throws Exception {
     startSessionAs("root");
-    long date = new Date().getTime();
-    UserStateModel userModel =
-                             new UserStateModel("john",
-                                                date,
-                                                UserStateService.DEFAULT_STATUS);
-    UserStateModel userModel2 =
-                              new UserStateModel("mary",
-                                                 date,
-                                                 UserStateService.DEFAULT_STATUS);
-    userStateService.save(userModel);
-    userStateService.save(userModel2);
-    userStateService.ping(userModel.getUserId());
-    userStateService.ping(userModel2.getUserId());
+
     Space spaceTest = getSpaceInstance(0, "root");
     String spaceId = spaceTest.getId();
     spaceTest.setMembers(new String[] { "john" });
     spaceService.updateSpace(spaceTest);
+
+    when(eXoContinuationBayeux.isPresent("john")).thenReturn(true);
+    when(eXoContinuationBayeux.isPresent("mary")).thenReturn(true);
+
     ContainerResponse response = service("GET", getURLResource("users?status=online&spaceId=" + spaceId), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
