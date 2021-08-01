@@ -11,7 +11,8 @@
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   List<String> activitiesListURL = new ArrayList<>();
   String activityId = rcontext.getRequest().getParameter("id");
-  long initialLimit = 20;
+  long limitToDisplay = 10;
+  long initialLimit = limitToDisplay * 2;
   String activitiesLoadingURL;
   if (activityId == null) {
     Space space = SpaceUtils.getSpaceByContext();
@@ -57,6 +58,18 @@
           return resp.json();
         }
       }).then(initialData => {
+<% if (activityId == null) { %>
+        if (initialData.activityIds && initialData.activityIds.length) {
+          initialData.activityIds.slice(0, <%=limitToDisplay%>).forEach(activity => {
+            const preloadLink = document.createElement("link");
+            preloadLink.href = `/portal/rest/v1/social/activities/\${activity.id}?expand=identity,likes,shared,commentsPreview,subComments`;
+            preloadLink.rel = 'preload';
+            preloadLink.as = 'fetch';
+            preloadLink.crossOrigin = 'use-credentials';
+            document.head.appendChild(preloadLink);
+          });
+        }
+<% } %>
         require(['SHARED/ActivityStream'], app => app.init(initialData, <%=initialLimit%>));
       });
     </script>

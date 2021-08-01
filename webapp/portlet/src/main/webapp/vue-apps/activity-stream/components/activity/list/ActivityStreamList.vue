@@ -132,7 +132,10 @@ export default {
     this.limit = this.pageSize;
     this.retrievedSize = this.initialLimit && (this.initialLimit / 2) || this.limit;
     this.hasMore = false;
-    this.init();
+    Promise.resolve(this.init())
+      .finally(() => {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      });
   },
   methods: {
     init() {
@@ -140,16 +143,16 @@ export default {
         if (this.initialData) {
           this.setDisplayedActivity(this.initialData);
         } else {
-          this.loadActivity();
+          return this.loadActivity();
         }
       } else {
         if (this.initialData && this.initialData.activityIds) {
-          this.loadActivityIds(this.initialData);
+          return this.loadActivityIds(this.initialData);
         } else if (this.initialData && this.initialData.activities) {
           this.activities = this.initialData.activities.slice(0, this.limit);
-          this.loadActivityIds(this.initialData);
+          return this.loadActivityIds(this.initialData);
         } else {
-          this.loadActivities();
+          return this.loadActivities();
         }
       }
       if (this.$refs && this.$refs.activityUpdater) {
@@ -158,7 +161,7 @@ export default {
     },
     loadActivity() {
       this.loading = true;
-      this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+      return this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
         .then(this.setDisplayedActivity)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
@@ -171,7 +174,7 @@ export default {
       const limitToRetrieve = this.retrievedSize + 10;
 
       this.loading = true;
-      this.$activityService.getActivities(this.spaceId, limitToRetrieve, 'ids')
+      return this.$activityService.getActivities(this.spaceId, limitToRetrieve, 'ids')
         .then(this.loadActivityIds)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
