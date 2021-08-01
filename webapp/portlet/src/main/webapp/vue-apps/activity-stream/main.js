@@ -15,6 +15,8 @@ if (!Vue.prototype.$activityConstants) {
   });
 }
 
+document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;
 
 // get overrided components if exists

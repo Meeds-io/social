@@ -5,7 +5,7 @@
   String homeLink = portalConfigService.getUserHomePage(request.getRemoteUser());
   String jsModule = ((String[])request.getAttribute("jsModule"))[0];
 %>
-<script type="text/javascript">
+<script type="text/javascript" defer="defer">
 eXo.env.portal.homeLink = '<%=homeLink%>';
-require(['<%=jsModule%>']);
+eXo.env.portal.onLoadCallbacks.push(() => require(['<%=jsModule%>']));
 </script>

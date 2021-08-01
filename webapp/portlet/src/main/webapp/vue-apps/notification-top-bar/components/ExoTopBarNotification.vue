@@ -103,7 +103,7 @@ export default {
     },
   },
   created() {
-    this.getNotifications().finally(() => this.$root.$emit('application-loaded'));
+    this.getNotifications();
     notificationlAPI.initCometd();
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
   },

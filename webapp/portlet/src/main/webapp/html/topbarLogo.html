@@ -4,7 +4,9 @@
     id="TopBarLogo">
     <v-cacheable-dom-app cache-id="TopBarLogo"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/TopBarLogo'], app => app.init());
+      eXo.env.portal.addOnLoadCallback(() => {
+        require(['PORTLET/social-portlet/TopBarLogo'], app => app.init());
+      });
     </script>
   </div>
 </div>

@@ -7,8 +7,11 @@
       <v-avatar
         :size="size"
         :class="avatarClass"
-        class="pull-left my-auto">
-        <img :src="avatarUrl" :alt="title">
+        class="pull-left my-auto"
+        eager>
+        <img
+          :src="avatarUrl"
+          :alt="title">
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
         <p
