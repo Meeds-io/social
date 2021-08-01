@@ -36,8 +36,10 @@
     id="SearchApplication">
     <v-cacheable-dom-app cache-id="SearchApplication"></v-cacheable-dom-app>
     <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
-    <script type="text/javascript">
-      require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
+    <script type="text/javascript" defer="defer">
+      eXo.env.portal.addOnLoadCallback(() => {
+        require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
+      });
     </script>
   </div>
 </div>

@@ -4,8 +4,10 @@
     id="OnlinePortlet">
     <v-cacheable-dom-app cache-id="OnlinePortlet"></v-cacheable-dom-app>
     <script>
-      require([ 'PORTLET/social-portlet/WhoIsOnLinePortlet' ], function(whoIsOnlineApp) {
-        whoIsOnlineApp.init();
+      eXo.env.portal.addOnLoadCallback(() => {
+        require([ 'PORTLET/social-portlet/WhoIsOnLinePortlet' ], function(whoIsOnlineApp) {
+          whoIsOnlineApp.init();
+        });
       });
     </script>
   </div>

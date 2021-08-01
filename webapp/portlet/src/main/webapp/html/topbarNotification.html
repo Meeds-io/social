@@ -4,7 +4,9 @@
     id="NotificationPopoverPortlet">
     <v-cacheable-dom-app cache-id="NotificationPopoverPortlet"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/TopBarNotification'], app => app.init());
+      eXo.env.portal.addOnLoadCallback(() => {
+        require(['PORTLET/social-portlet/TopBarNotification'], app => app.init());
+      });
     </script>
   </div>
 </div>
