@@ -2,7 +2,9 @@
   <div id="GettingStartedPortlet">
     <v-cacheable-dom-app cache-id="GettingStartedPortlet"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/GettingStarted'], app => app.init());
+      eXo.env.portal.addOnLoadCallback(() => {
+        require(['PORTLET/social-portlet/GettingStarted'], app => app.init());
+      });
     </script>
   </div>
 </div>

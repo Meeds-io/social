@@ -53,8 +53,6 @@ Vue.directive('cacheable', {
     const appId = el.id;
     const cacheId = binding && binding.value && binding.value.cacheId || appId;
 
-    document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
     const mountApplication = function() {
       const cachedAppElement = document.querySelector(`#UIPortalApplication #${appId}`);
       if (cachedAppElement) {
@@ -63,8 +61,6 @@ Vue.directive('cacheable', {
         // eslint-disable-next-line no-console
         console.warn(`Application with identifier ${appId} was not found in page`);
       }
-
-      document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
     };
 
     const cacheDom = function() {

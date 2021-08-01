@@ -41,17 +41,16 @@
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
-<script type="text/javascript">
-document.addEventListener('spaceDetailUpdated', event => {
-  const space = event && event.detail;
-  if (space && space.displayName) {
-    document.querySelector('.logoTitle').innerText = space.displayName;
-    document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
-  }
-});
+<script type="text/javascript" defer="defer">
+  document.addEventListener('spaceDetailUpdated', event => {
+    const space = event && event.detail;
+    if (space && space.displayName) {
+      document.querySelector('.logoTitle').innerText = space.displayName;
+      document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
+    }
+  });
 </script>
 <div class="VuetifyApp">
-  <link rel="preload" href="/portal/rest/v1/social/identities/<%=org.exoplatform.social.webui.Utils.getViewerIdentityId()%>" as="fetch" crossorigin="use-credentials">
   <div data-app="true"
     class="v-application border-box-sizing <%= directionVuetifyClass %> theme--light"
     id="brandingTopBar" flat="">

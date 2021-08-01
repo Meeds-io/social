@@ -20,15 +20,17 @@
 %>
 <div class="VuetifyApp">
   <% for (String preloadURL : preloadURLs) { %>
-  <link rel="preload" href="<%=preloadURL%>" as="fetch" crossorigin="use-credentials">
+  <link rel="prefetch" href="<%=preloadURL%>" as="fetch" crossorigin="use-credentials">
   <% } %>
   <div data-app="true"
     class="v-application hiddenable-widget transparent v-application--is-ltr theme--light"
     id="SuggestionsPeopleAndSpace" flat="">
     <v-cacheable-dom-app cache-id="SuggestionsPeopleAndSpace_<%=suggestionsType%>"></v-cacheable-dom-app>
-    <script type="text/javascript">
-      require(['PORTLET/social-portlet/SuggestionsPeopleAndSpace'],
-        app => app.init('<%=suggestionsType%>')
+    <script type="text/javascript" defer="defer">
+      eXo.env.portal.addOnLoadCallback(() =>
+        require(['PORTLET/social-portlet/SuggestionsPeopleAndSpace'],
+          app => app.init('<%=suggestionsType%>')
+        )
       );
     </script>
   </div>

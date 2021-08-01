@@ -4,7 +4,9 @@
     id="PeopleOverview">
     <v-cacheable-dom-app cache-id="PeopleOverview"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/PeopleOverview'], app => app.init());
+      eXo.env.portal.addOnLoadCallback(() => {
+        require(['PORTLET/social-portlet/PeopleOverview'], app => app.init());
+      });
     </script>
   </div>
 </div>

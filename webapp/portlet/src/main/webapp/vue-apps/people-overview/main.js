@@ -10,8 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
 const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
@@ -30,9 +28,6 @@ export function init() {
     appElement.id = appId;
 
     new Vue({
-      mounted() {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      },
       template: `<people-overview v-cacheable id="${appId}" />`,
       i18n,
       vuetify,

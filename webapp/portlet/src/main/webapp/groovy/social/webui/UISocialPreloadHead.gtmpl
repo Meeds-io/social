@@ -40,7 +40,8 @@
   %>
 <link rel="preload" href="$skinPath" as="style" type="text/css" />
   <% }
-  def restPaths = uicomponent.getPortletRestResources();
+  def restPaths = uicomponent.getInitParamsOfPagePortlets("preload.resource.rest");
+  def prefetchRestPaths = uicomponent.getInitParamsOfPagePortlets("prefetch.resource.rest");
   String userId = Utils.getViewerIdentityId();
   String username = Utils.getViewerRemoteId();
   def space = SpaceUtils.getSpaceByContext();
@@ -53,6 +54,14 @@
                        .replace("{spacePrettyName}", spaceId);
   %>
   <link rel="preload" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
+  <% }
+  for (restPath in prefetchRestPaths) {
+    restPath = restPath.replace("{userId}", userId)
+                       .replace("{username}", username)
+                       .replace("{spaceId}", spaceId)
+                       .replace("{spacePrettyName}", spaceId);
+  %>
+  <link rel="prefetch" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
   <% }
 
   String language = rcontext.getLocale().getLanguage();

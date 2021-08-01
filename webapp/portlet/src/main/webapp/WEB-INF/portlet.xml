@@ -169,11 +169,15 @@
       <value>/html/whoIsOnline.html</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.whoisonline.whoisonline</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value>/portal/rest/v1/social/users/?status=online</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
@@ -198,7 +202,11 @@
       <value>/WEB-INF/jsp/spaceInformation.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.social.SpaceInfosPortlet</value>
     </init-param>
     <supports>
@@ -438,13 +446,19 @@
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/navigations/portal/?siteName=dw&scope=children&visibility=displayed]]></value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -467,9 +481,15 @@
       <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -492,11 +512,15 @@
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/portal/social/spaces/lastVisitedSpace/list.json?offset=0&limit=7]]></value>
     </init-param>
     <supports>
@@ -567,8 +591,16 @@
       <value>/WEB-INF/jsp/bannerLogo.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.Portlets</value>
+    </init-param>
+    <init-param>
+      <name>preload.resource.rest</name>
+      <value><![CDATA[/portal/rest/v1/social/identities/{userId}]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -670,11 +702,15 @@
       <value>/html/topbarNotification.html</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.Portlets</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value>/portal/rest/notifications/webNotifications</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
@@ -695,11 +731,15 @@
       <value>/html/gettingStarted.html</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.social.GettingStartedPortlet</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value>/portal/rest/getting-started</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
@@ -769,11 +809,15 @@
       <value>/html/spacesOverview.html</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.social.SpacesOverview</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=manager&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=requests&returnSize=true&expand=pending|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=pending&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=invited&returnSize=true&expand=]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
@@ -821,11 +865,15 @@
       <value>/html/peopleOverview.html</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.social.PeopleOverview</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/users/connections/pending?offset=0&limit=0&expand=&returnSize=true|/portal/rest/v1/social/users/connections/invitations?offset=0&limit=0&expand=&returnSize=true]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
@@ -848,7 +896,11 @@
       <value>/WEB-INF/jsp/suggestions.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.social.SuggestionsPortlet</value>
     </init-param>
     <supports>
@@ -869,7 +921,11 @@
       <value>/WEB-INF/jsp/search.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portlet.Portlets,locale.commons.Commons,locale.portlet.social.PeopleListApplication,locale.portlet.social.SpacesListApplication</value>
     </init-param>
     <supports>
@@ -979,14 +1035,19 @@
         <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
     <init-param>
-      <name>preload.resource.rest</name>
+      <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/navigations/group?exclude=/spaces.*&visibility=displayed]]></value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1009,10 +1070,15 @@
         <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
     </init-param>
     <init-param>
-      <name>preload.resource.bundles</name>
+      <name>prefetch.resources</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
