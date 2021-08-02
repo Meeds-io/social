@@ -6,12 +6,5 @@
 <div class="VuetifyApp">
   <div id="spaceInfosApp" class="uiBox">
     <v-cacheable-dom-app cache-id="spaceInfosApp_<%=space.getId()%>"></v-cacheable-dom-app>
-    <script type="text/javascript" defer="defer">
-      eXo.env.portal.addOnLoadCallback(() => {
-        require(['PORTLET/social-portlet/SpaceInfos'], function(spaceInfosApp) {
-          spaceInfosApp.init();
-        });
-      });
-    </script>
   </div>
 </div>
