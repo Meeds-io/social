@@ -173,6 +173,14 @@
       <value>true</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/WhoIsOnLinePortlet</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resource.bundles</name>
       <value>locale.portlet.whoisonline.whoisonline</value>
     </init-param>
@@ -180,8 +188,6 @@
       <name>prefetch.resource.rest</name>
       <value>/portal/rest/v1/social/users/?status=online</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -204,6 +210,14 @@
     <init-param>
       <name>prefetch.resources</name>
       <value>true</value>
+    </init-param>
+    <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/SpaceInfos</value>
     </init-param>
     <init-param>
       <name>prefetch.resource.bundles</name>
@@ -450,6 +464,14 @@
       <value>true</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/SiteHamburgerMenu</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
@@ -457,20 +479,12 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/navigations/portal/?siteName=dw&scope=children&visibility=displayed]]></value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Site Hamburger Menu</title>
     </portlet-info>
-    <portlet-preferences>
-      <preference>
-        <name>jsModule</name>
-        <value>PORTLET/social-portlet/SiteHamburgerMenu</value>
-      </preference>
-    </portlet-preferences>
   </portlet>
 
   <portlet>
@@ -478,7 +492,15 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+      <value>/html/blank.html</value>
+    </init-param>
+    <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/ProfileHamburgerMenu</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -488,20 +510,12 @@
       <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Profile Hamburger Menu</title>
     </portlet-info>
-    <portlet-preferences>
-      <preference>
-        <name>jsModule</name>
-        <value>PORTLET/social-portlet/ProfileHamburgerMenu</value>
-      </preference>
-    </portlet-preferences>
   </portlet>
 
   <portlet>
@@ -510,6 +524,14 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
+    </init-param>
+    <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/SpacesHamburgerMenu</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -529,12 +551,6 @@
     <portlet-info>
       <title>Spaces Hamburger Menu</title>
     </portlet-info>
-    <portlet-preferences>
-      <preference>
-        <name>jsModule</name>
-        <value>PORTLET/social-portlet/SpacesHamburgerMenu</value>
-      </preference>
-    </portlet-preferences>
   </portlet>
 
   <portlet>
@@ -702,6 +718,14 @@
       <value>/html/topbarNotification.html</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/TopBarNotification</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
@@ -713,8 +737,6 @@
       <name>prefetch.resource.rest</name>
       <value>/portal/rest/notifications/webNotifications</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -731,6 +753,14 @@
       <value>/html/gettingStarted.html</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/GettingStarted</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
@@ -742,8 +772,6 @@
       <name>prefetch.resource.rest</name>
       <value>/portal/rest/getting-started</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -809,6 +837,14 @@
       <value>/html/spacesOverview.html</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/SpacesOverview</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
@@ -820,8 +856,6 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=manager&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=requests&returnSize=true&expand=pending|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=pending&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=invited&returnSize=true&expand=]]></value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -865,6 +899,14 @@
       <value>/html/peopleOverview.html</value>
     </init-param>
     <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/PeopleOverview</value>
+    </init-param>
+    <init-param>
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
@@ -876,8 +918,6 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/users/connections/pending?offset=0&limit=0&expand=&returnSize=true|/portal/rest/v1/social/users/connections/invitations?offset=0&limit=0&expand=&returnSize=true]]></value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1031,8 +1071,16 @@
     <portlet-name>AdministrationHamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
-        <name>portlet-view-dispatched-file-path</name>
-        <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/blank.html</value>
+    </init-param>
+    <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/AdministrationHamburgerMenu</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -1046,28 +1094,28 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/navigations/group?exclude=/spaces.*&visibility=displayed]]></value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Administration Hamburger Menu</title>
     </portlet-info>
-    <portlet-preferences>
-      <preference>
-        <name>jsModule</name>
-        <value>PORTLET/social-portlet/AdministrationHamburgerMenu</value>
-      </preference>
-    </portlet-preferences>
   </portlet>
 
   <portlet>
     <portlet-name>UserHamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
-        <name>portlet-view-dispatched-file-path</name>
-        <value>/WEB-INF/jsp/hamburgerMenuItem.jsp</value>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/blank.html</value>
+    </init-param>
+    <init-param>
+      <name>use-js-manager</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-jsModule</name>
+      <value>PORTLET/social-portlet/UserHamburgerMenu</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -1077,20 +1125,12 @@
       <name>prefetch.resource.bundles</name>
       <value>locale.portal.HamburgerMenu</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>User Hamburger Menu</title>
     </portlet-info>
-    <portlet-preferences>
-      <preference>
-        <name>jsModule</name>
-        <value>PORTLET/social-portlet/UserHamburgerMenu</value>
-      </preference>
-    </portlet-preferences>
   </portlet>
 
   <portlet>
