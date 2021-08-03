@@ -421,6 +421,20 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
   }
 
+  @Override
+  public boolean isActivityExists(String activityId) {
+    if (activityId == null || activityId.isEmpty()) {
+      return false;
+    }
+    Long id = null;
+    if (activityId.startsWith(COMMENT_PREFIX)) {
+      id = getCommentID(activityId);
+    } else {
+      id = Long.valueOf(activityId);
+    }
+    return activityDAO.find(id) != null;
+  }
+
   public ExoSocialActivity getComment(String commentId) {
     try {
       ActivityEntity entity = activityDAO.find(getCommentID(commentId));

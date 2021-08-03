@@ -399,6 +399,14 @@ public interface ActivityManager {
   }
 
   /**
+   * @param activityId {@link ExoSocialActivity} technical identifier
+   * @return true if activity exists else false
+   */
+  default boolean isActivityExists(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Checks if the Activity Type is enabled or not
    * 
    * @param activityType the name of activity type to check
