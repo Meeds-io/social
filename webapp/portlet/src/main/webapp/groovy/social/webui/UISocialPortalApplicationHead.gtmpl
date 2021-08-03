@@ -25,6 +25,7 @@
      eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
      eXo.env.portal.spaceDisplayName = "<%=space == null ? "" : space.getDisplayName()%>" ;
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
+     eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
