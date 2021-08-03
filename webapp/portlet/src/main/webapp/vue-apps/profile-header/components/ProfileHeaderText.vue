@@ -1,7 +1,7 @@
 <template>
   <v-flex>
     <v-card-title class="headline white--text">
-      {{ user && user.fullname }}{{ user && user.external && (' (' + $t('profileHeader.label.external') + ')') || '' }}{{ user && !user.enabled && (' (' + $t('profileHeader.label.disabled') + ')') || '' }}
+      {{ user && user.fullname }}{{ external }}{{ disabled }}
     </v-card-title>
     <v-card-subtitle class="subtitle white--text" dark>
       {{ user && user.position || '' }}
@@ -17,5 +17,23 @@ export default {
       default: () => null,
     },
   },
+  computed: {
+    external(){
+      if (this.user && this.user.external === 'true') {
+        const external = this.$t('profileHeader.label.external') ;
+        return ` (${external}) `;
+      } else {
+        return '';
+      }
+    },
+    disabled(){
+      if (this.user && !this.user.enabled) {
+        const disabled = this.$t('profileHeader.label.disabled') ;
+        return ` (${disabled}) `;
+      } else {
+        return '';
+      }
+    },
+  }
 };
 </script>
