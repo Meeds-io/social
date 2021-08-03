@@ -657,6 +657,11 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   @Override
+  public boolean isActivityExists(String activityId) {
+    return activityStorage.isActivityExists(activityId);
+  }
+
+  @Override
   public boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
     String username = viewer.getUserId();
     Identity identity = identityManager.getOrCreateUserIdentity(username);
