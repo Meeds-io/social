@@ -17,13 +17,14 @@
 
 package org.exoplatform.social.core.storage.cache;
 
+import java.io.Serializable;
+
+import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.storage.cache.loader.CacheLoader;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
 import org.exoplatform.social.core.storage.cache.model.key.CacheKey;
-
-import java.io.Serializable;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -79,9 +80,7 @@ public enum CacheType {
 
   public <K extends CacheKey, V extends Serializable> FutureExoCache<K, V, ServiceContext<V>> createFutureCache(
       ExoCache<K, V> cache) {
-
-    return new FutureExoCache<K, V, ServiceContext<V>>(new CacheLoader<K, V>(), cache);
-
+    return new FutureExoCache<>(new CacheLoader<>(), cache);
   }
 
 }
