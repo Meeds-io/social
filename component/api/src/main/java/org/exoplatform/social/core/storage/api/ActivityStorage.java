@@ -1111,4 +1111,12 @@ public interface ActivityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param activityId {@link ExoSocialActivity} technical identifier
+   * @return true if activity exists else false
+   */
+  default boolean isActivityExists(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
 }

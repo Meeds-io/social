@@ -481,6 +481,22 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     activityManager.deleteActivity(activity);
   }
 
+  public void testIsActivityExists() throws Exception {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    assertTrue(activityManager.isActivityExists(activity.getId()));
+
+    activity = activityManager.getActivity(activity.getId());
+    activityManager.deleteActivity(activity);
+
+    assertFalse(activityManager.isActivityExists(activity.getId()));
+  }
+
   /**
    * Test {@link ActivityManager#deleteActivity(String)}
    * 

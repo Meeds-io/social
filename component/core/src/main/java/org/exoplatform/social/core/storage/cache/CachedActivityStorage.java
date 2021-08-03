@@ -222,6 +222,18 @@ public class CachedActivityStorage implements ActivityStorage {
 
   }
 
+  @Override
+  public boolean isActivityExists(String activityId) {
+    ActivityKey key = new ActivityKey(activityId);
+    ActivityData cachedActivityData = exoActivityCache.get(key);
+    boolean cachedActivityExists = cachedActivityData != null && cachedActivityData.getId() != null;
+    if (cachedActivityExists) {
+      return true;
+    } else {
+      return storage.isActivityExists(activityId);
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
