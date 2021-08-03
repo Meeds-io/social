@@ -19,6 +19,7 @@ package org.exoplatform.social.core.storage.cache;
 
 import java.util.*;
 
+import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
@@ -27,14 +28,12 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
 import org.exoplatform.social.core.jpa.storage.dao.*;
-import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
 import org.exoplatform.social.core.storage.cache.model.data.*;
 import org.exoplatform.social.core.storage.cache.model.key.*;

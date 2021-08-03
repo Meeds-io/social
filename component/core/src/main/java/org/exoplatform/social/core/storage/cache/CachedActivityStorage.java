@@ -21,6 +21,7 @@ import static org.exoplatform.social.core.storage.ActivityStorageException.Type.
 
 import java.util.*;
 
+import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
