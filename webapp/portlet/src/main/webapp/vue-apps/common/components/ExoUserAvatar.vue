@@ -4,15 +4,13 @@
       :id="id"
       :href="url"
       class="flex-nowrap flex-shrink-0 d-flex text-truncate container--fluid">
-      <v-avatar
-        :size="size"
+      <img
         :class="avatarClass"
-        class="pull-left my-auto"
-        eager>
-        <img
-          :src="avatarUrl"
-          :alt="title">
-      </v-avatar>
+        :src="avatarUrl"
+        :alt="title"
+        :width="`${size}px`"
+        :height="`${size}px`"
+        class="pull-left my-auto">
       <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
         <p
           v-if="fullname"

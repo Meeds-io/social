@@ -19,12 +19,11 @@
           v-if="likersNumber > maxLikersToShow"
           class="seeMoreLikers"
           @click="openDrawer">
-          <v-avatar
-            :size="30">
-            <img
-              :src="likers[maxLikersToShow].avatar"
-              :title="likers[maxLikersToShow].fullname">
-          </v-avatar>
+          <img
+            :src="likers[maxLikersToShow].avatar"
+            :title="likers[maxLikersToShow].fullname"
+            :width="`${avatarSize}px`"
+            :height="`${avatarSize}px`">
           <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
         </div>
         <p
@@ -79,6 +78,11 @@ export default {
     commentNumber: {
       type: Number,
       default: 0
+    },
+    avatarSize: {
+      type: Number,
+      // eslint-disable-next-line no-magic-numbers
+      default: () => 30,
     },
   },
   data: () => ({
