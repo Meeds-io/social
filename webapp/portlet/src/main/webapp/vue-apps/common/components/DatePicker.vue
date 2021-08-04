@@ -34,6 +34,7 @@
         :locale="lang"
         :min="minDate"
         :max="maxDate"
+        :width="width"
         class="border-box-sizing"
         @input="menu = false">
         <template v-if="$slots.footer">
@@ -83,6 +84,10 @@ export default {
       default: function() {
         return null;
       },
+    },
+    width: {
+      type: String,
+      default: () => '290',
     },
     minValueErrorMessage: {
       type: String,
@@ -181,7 +186,7 @@ export default {
     },
   },
   mounted() {
-    // Force to close other DatePicker menus when opening a new one 
+    // Force to close other DatePicker menus when opening a new one
     $('.datePickerComponent input').on('click', (e) => {
       if (e.target && !$(e.target).parents(`#${this.id}`).length) {
         this.menu = false;
