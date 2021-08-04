@@ -360,9 +360,8 @@ public class CachedActivityStorage implements ActivityStorage {
     storage.deleteComment(activityId, commentId);
 
     //
+    exoActivityCache.remove(new ActivityKey(activityId));
     exoActivityCache.remove(new ActivityKey(commentId));
-    ActivityKey activityKey = new ActivityKey(activityId);
-    exoActivityCache.remove(activityKey);
   }
 
   /**
@@ -1128,8 +1127,10 @@ public class CachedActivityStorage implements ActivityStorage {
     storage.updateActivity(existingActivity);
 
     //
-    ActivityKey key = new ActivityKey(existingActivity.getId());
-    exoActivityCache.remove(key);
+    exoActivityCache.remove(new ActivityKey(existingActivity.getId()));
+    if (existingActivity.getParentId() != null) {
+      exoActivityCache.remove(new ActivityKey(existingActivity.getParentId()));
+    }
   }
 
   /**
