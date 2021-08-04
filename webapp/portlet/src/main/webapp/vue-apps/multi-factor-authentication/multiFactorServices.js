@@ -128,7 +128,7 @@ export function saveProtectedGroups(groups) {
 }
 
 export function getNavigations() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?visibility=displayed&scope=CHILDREN`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {

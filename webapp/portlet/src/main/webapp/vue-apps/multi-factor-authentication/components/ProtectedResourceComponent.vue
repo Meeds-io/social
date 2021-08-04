@@ -24,7 +24,7 @@
           primary
           icon
           text
-          @click="deleteNavigationConfirm(item.name)">
+          @click="deleteNavigationConfirm(item.id)">
           <i class="uiIconTrash trashIconColor"></i>
         </v-btn>
       </template>
@@ -58,7 +58,7 @@ export default {
     headers() {
       return [{
         text: this.$t && this.$t('authentication.multifactor.manage.datatable.navigation'),
-        value: 'name',
+        value: 'id',
         align: 'center',
         class: 'headerPadding',
         sortable: false,
@@ -92,8 +92,13 @@ export default {
           return resp.json();
         }
       }).then(data => {
-        this.navigationsGroup = data;
-        this.totalSize =  data.length|| 0;
+        const navs = data;
+        navs.forEach(nav => {
+          console.log(nav);
+          nav.id = nav.id ;
+        });
+        this.navigationsGroup = navs;
+        this.totalSize =  navs.length|| 0;
         return this.$nextTick();
       })
         .finally(() => {
@@ -110,9 +115,10 @@ export default {
     },
     deleteNavigation() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/deleteNavigation/${this.selectedNavigationsGroup }`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/deleteNavigation`, {
         method: 'DELETE',
         credentials: 'include',
+        body: this.selectedNavigationsGroup,
       }).then(resp => {
         if (!resp || !resp.ok) {
           if (resp && resp.status === 400) {

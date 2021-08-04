@@ -3,7 +3,7 @@
     id="protectedResourceDrawer"
     ref="protectedResourceDrawer"
     right
-    @closed="drawer = false">
+    @closed="cancel">
     <template slot="title">
       {{ $t('authentication.multifactor.protected.resources.drawer') }}
     </template>
@@ -19,9 +19,9 @@
           :key="nav"
           v-model="navigationsGroup"
           @change="updateCheckall"
-          :value="nav"
+          :value="nav.id"
           class="ml-3"
-          :label="nav.label.startsWith('#{Space') ? nav.name : nav.label" />
+          :label="nav.label" />
       </div>
     </template>
     <template slot="footer">
@@ -52,7 +52,6 @@ export default {
     saving: false,
     navigationsGroup: [],
     savedNavigationsGroup: [],
-    filteredNavigationsGroup: [],
     isCheckAll: false,
     navigations: [],
   }),
@@ -77,14 +76,9 @@ export default {
     this.getNavigations();
     this.getProtectedNavigations();
   },
-  computed: {
-    filteredNavigations() {
-      return [...new Set(this.filteredNavigationsGroup)];
-    }
-  },
   methods: {
     protectedResource() {
-      this.checkNavigations();
+      this.getProtectedNavigations();
       this.drawer = true;
     },
     cancel() {
@@ -94,8 +88,8 @@ export default {
     save() {
       this.saving = true;
       this.savedNavigationsGroup = [] ;
-      for (const nav of this.navigationsGroup) {
-        this.savedNavigationsGroup.push(nav.name);
+      for (const navId of this.navigationsGroup) {
+        this.savedNavigationsGroup.push(navId);
       }
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/saveProtectedNavigations `, {
         method: 'POST',
@@ -121,22 +115,22 @@ export default {
     },
     getProtectedNavigations() {
       getProtectedNavigations().then(data => {
-        this.navigationsGroup = data;
+        const navs = data;
+        const selectedNavs = [];
+        navs.forEach(nav => {
+          selectedNavs.push(nav.id);
+        });
+        this.navigationsGroup = selectedNavs;
+        this.updateCheckall();
       });
     },
     selectOption() {
       this.navigationsGroup = [];
       if (this.isCheckAll){ // Check all
         for (const key in this.navigations) {
-          this.navigationsGroup.push(this.navigations[key]);
+          this.navigationsGroup.push(this.navigations[key].id);
         }
       }
-    },
-    checkNavigations() {
-      this.navigations.filter(nav => {
-        if (this.navigationsGroup.some(e=> e.name !== nav.name))
-        {this.filteredNavigationsGroup.push(nav);}}
-      );
     },
     updateCheckall(){
       if (this.navigations.length === this.navigationsGroup.length){
@@ -147,7 +141,18 @@ export default {
     },
     getNavigations() {
       getNavigations().then(data => {
-        this.navigations = data;
+        const navs = data;
+        navs.forEach(nav => {
+          nav.name = nav.key.name ;
+          nav.label = nav.label ;
+          if (nav.key.type === 'PORTAL') {
+            nav.id=`/portal/${nav.key.name}`;
+          } else if (nav.key.type === 'GROUP') {
+            const modifiedName = nav.key.name.replaceAll('/',':');
+            nav.id=`/portal/g/${modifiedName}`;
+          }
+        });
+        this.navigations = navs;
       });
     },
   },
