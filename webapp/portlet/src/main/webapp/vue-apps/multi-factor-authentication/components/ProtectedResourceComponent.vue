@@ -89,10 +89,6 @@ export default {
         }
       }).then(data => {
         const navs = data;
-        navs.forEach(nav => {
-          console.log(nav);
-          //nav.id = nav.id ;
-        });
         this.navigationsGroup = navs;
         this.totalSize =  navs.length|| 0;
         return this.$nextTick();
