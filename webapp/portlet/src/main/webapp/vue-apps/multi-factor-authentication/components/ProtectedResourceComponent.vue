@@ -77,10 +77,6 @@ export default {
   },
   methods: {
     protectedNavigationsList() {
-      let itemsPerPage = this.options && this.options.itemsPerPage;
-      if (itemsPerPage <= 0) {
-        itemsPerPage = this.totalSize || 20;
-      }
       this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getProtectedNavigations`, {
         method: 'GET',
@@ -95,7 +91,7 @@ export default {
         const navs = data;
         navs.forEach(nav => {
           console.log(nav);
-          nav.id = nav.id ;
+          //nav.id = nav.id ;
         });
         this.navigationsGroup = navs;
         this.totalSize =  navs.length|| 0;

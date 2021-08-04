@@ -144,7 +144,7 @@ export default {
         const navs = data;
         navs.forEach(nav => {
           nav.name = nav.key.name ;
-          nav.label = nav.label ;
+          //nav.label = nav.label ;
           if (nav.key.type === 'PORTAL') {
             nav.id=`/portal/${nav.key.name}`;
           } else if (nav.key.type === 'GROUP') {
