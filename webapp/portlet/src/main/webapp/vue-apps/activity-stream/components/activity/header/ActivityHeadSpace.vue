@@ -7,7 +7,11 @@
       size="20"
       rounded
       class="ma-0">
-      <v-img :src="avatarUrl" eager />
+      <img
+        :src="avatarUrl"
+        :width="`${size}px`"
+        :height="`${size}px`"
+        class="my-auto">
     </v-list-item-avatar>
     {{ displayName }}
   </a>
@@ -20,6 +24,10 @@ export default {
     space: {
       type: Object,
       default: null,
+    },
+    size: {
+      type: Number,
+      default: () => 20,
     },
   },
   data: () => ({

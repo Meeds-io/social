@@ -18,12 +18,12 @@
           rounded
           eager
           tile>
-          <v-img
+          <img
             v-if="thumbnail"
             :src="thumbnail"
-            eager
-            min-height="100%"
-            min-width="100%" />
+            :alt="title"
+            :style="{minHeight: '100%', minWidth: '100%'}"
+            class="my-auto">
           <v-icon
             v-else
             :size="defaultIconSize"
@@ -57,12 +57,12 @@
         rounded
         eager
         tile>
-        <v-img
+        <img
           v-if="thumbnail"
           :src="thumbnail"
-          eager
-          min-height="100%"
-          min-width="100%" />
+          :alt="title"
+          :style="{minHeight: '100%', minWidth: '100%'}"
+          class="my-auto">
         <v-icon
           v-else
           :size="defaultIconSize"

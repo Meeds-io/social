@@ -1,13 +1,10 @@
 <template>
   <div class="d-flex flex-column white border-radius">
-    <v-img
+    <img
+      :height="height"
+      :style="{maxHeight: height}"
       src="/social-portlet/images/emptyUserStream.png"
-      height="380"
-      max-height="380"
-      min-height="380"
-      contain
-      eager
-      class="mx-auto" />
+      class="mx-auto">
     <div class="mx-4 mb-4">
       <p v-sanitized-html="welcomeTitle"></p>
       <div v-sanitized-html="thanksForJoingMeeds"></div>
@@ -25,6 +22,7 @@ export default {
   data: function() {
     return {
       branding: null,
+      height: '380px',
       productName: eXo.env.portal.productName,
     };
   },
