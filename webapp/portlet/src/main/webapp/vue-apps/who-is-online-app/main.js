@@ -20,6 +20,7 @@ if (extensionRegistry) {
 }
 
 const appId = 'OnlinePortlet';
+const cacheId = `${appId}_${eXo.env.portal.spaceId || ''}`;
 
 // getting locale ressources
 export function init() {
@@ -28,7 +29,7 @@ export function init() {
     appElement.id = appId;
 
     new Vue({
-      template: `<exo-who-is-online v-cacheable id="${appId}"></exo-who-is-online>`,
+      template: `<exo-who-is-online v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-who-is-online>`,
       i18n,
       vuetify
     }).$mount(appElement);
