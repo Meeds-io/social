@@ -27,12 +27,12 @@
               </v-list-item-content>
             </v-list-item>
             <v-scale-transition>
-              <v-text-field
+              <!--v-text-field
                 :placeholder="$t('authentication.multifactor.manage.filter')"
                 prepend-inner-icon="fa-filter"
                 single-line
                 hide-details
-                class="inputFilter pa-0 me-3 my-auto" />
+                class="inputFilter pa-0 me-3 my-auto" /-->
             </v-scale-transition>
           </div>
           <v-row no-gutters>
