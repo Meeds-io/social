@@ -78,10 +78,32 @@ Vue.directive('cacheable', {
                   .replaceAll('v-navigation-drawer--open', 'v-navigation-drawer--open hidden')
                   .replaceAll('v-alert ', 'v-alert hidden ')
                   .replaceAll('v-menu ', 'v-menu hidden ')
-                  .replaceAll('v-overlay--active', 'v-overlay--active hidden');
-                cache.put(`/dom-cache?id=${cacheId}`, new Response($(`<div>${domToCache}</div>`).html(), {
-                  headers: {'content-type': 'text/html;charset=UTF-8'},
-                }));
+                  .replaceAll('v-overlay--active', 'v-overlay--active hidden')
+                  .replaceAll('v-application--wrap', `flex app-cache-loading ${cacheId}-cache-loading`);
+                if (vnode.componentInstance.$root.$el.offsetHeight && vnode.componentInstance.$root.$el.offsetWidth) {
+                  cache.put(`/dom-cache?id=${cacheId}`, new Response($(`
+                    <div>
+                      <div class="flex position-relative v-application--wrap">
+                        <div role="progressbar" aria-valuemin="0" aria-valuemax="100" class="v-progress-linear v-progress-linear--rounded theme--light app-cached-content ${cacheId}-cached-content" style="height: 1px; position: absolute; z-index: 1">
+                          <div class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active">
+                            <div class="v-progress-linear__indeterminate short primary"></div>
+                          </div>
+                        </div>
+                        ${domToCache}
+                      </div>
+                    </div>
+                  `).html(), {
+                    headers: {'content-type': 'text/html;charset=UTF-8'},
+                  }));
+                } else {
+                  cache.put(`/dom-cache?id=${cacheId}`, new Response($(`
+                    <div>
+                      ${domToCache}
+                    </div>
+                  `).html(), {
+                    headers: {'content-type': 'text/html;charset=UTF-8'},
+                  }));
+                }
               }, 500);
             }
           });
@@ -114,6 +136,6 @@ Vue.directive('cacheable', {
     // is mounted only once
     window.setTimeout(() => {
       vnode.componentInstance.$root.$emit('application-mount', true);
-    }, 3000);
+    }, 10000);
   },
 });
