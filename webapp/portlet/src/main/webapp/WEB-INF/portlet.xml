@@ -166,7 +166,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/whoIsOnline.html</value>
+      <value>/WEB-INF/jsp/whoIsOnline.jsp</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
