@@ -27,11 +27,10 @@ if (extensionRegistry) {
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
-    new Vue({
-      el: '#branding',
+    Vue.createApp({
       template: '<exo-company-branding id="branding"></exo-company-branding>',
       i18n,
       vuetify,
-    });
+    }, '#branding', 'Branding Administration');
   });
 }

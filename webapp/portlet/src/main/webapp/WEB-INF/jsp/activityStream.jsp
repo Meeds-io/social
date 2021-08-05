@@ -47,6 +47,7 @@
       </div>
     </div>
     <script type="text/javascript">
+      document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: 'Stream'}));
       fetch('<%=activitiesLoadingURL%>', {
         method: 'GET',
         credentials: 'include',

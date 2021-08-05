@@ -34,12 +34,19 @@
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="SearchApplication">
-    <v-cacheable-dom-app cache-id="SearchApplication"></v-cacheable-dom-app>
+    <div class="v-application--wrap">
+      <button
+        type="button"
+        disabled="disabled"
+        class="transparent v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default">
+        <span class="v-btn__content">
+          <i class="uiIconPLF24x24Search"></i>
+        </span>
+      </button>
+    </div>
     <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
-    <script type="text/javascript" defer="defer">
-      eXo.env.portal.addOnLoadCallback(() => {
-        require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
-      });
+    <script type="text/javascript">
+      require(['PORTLET/social-portlet/Search'], app => app.init(JSON.parse(document.getElementById('searchConnectorsDefaultValue').value)));
     </script>
   </div>
 </div>

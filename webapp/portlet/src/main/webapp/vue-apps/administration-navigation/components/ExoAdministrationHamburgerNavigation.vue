@@ -111,9 +111,8 @@ export default {
     },
   },
   created() {
-    // Differ retrieving data from server
-    // eslint-disable-next-line no-magic-numbers
-    window.setTimeout(this.retrieveAdministrationMenu, 1000);
+    Promise.resolve(this.retrieveAdministrationMenu())
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     retrieveAdministrationMenu() {

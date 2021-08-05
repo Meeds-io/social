@@ -28,10 +28,10 @@ export function init() {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       template: `<exo-who-is-online v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-who-is-online>`,
       i18n,
       vuetify
-    }).$mount(appElement);
+    }, appElement, 'Who is Online');
   });
 }

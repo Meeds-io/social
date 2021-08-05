@@ -19,7 +19,7 @@
   def jsConfig = uicomponent.getJSConfig();
   def jsConfigPaths = jsConfig.get("paths");
 
-  def i18nPaths = new HashSet();
+  def searchConnectorsI18nPaths = new HashSet();
   def skinPaths = new HashSet();
   for (connector in connectors) {
     def skinConfig = null;
@@ -32,7 +32,7 @@
       }
     }
     if (connector.getI18nBundle() != null) {
-      i18nPaths.add(connector.getI18nBundle());
+      searchConnectorsI18nPaths.add(connector.getI18nBundle());
     }
   }
 
@@ -70,7 +70,14 @@
     language += "_" + country;
   }
 
-  i18nPaths.addAll(uicomponent.getPortletBundles());
-  for (i18nPath in i18nPaths) {%>
+  def i18NPaths = uicomponent.getPortletBundles();
+  for (i18nPath in uicomponent.getPortletBundles()) { %>
     <link rel="preload" href="<%="/portal/rest/i18n/bundle/" + i18nPath + "-" + language + ".json?v=" + ResourceRequestHandler.VERSION%>" as="fetch" crossorigin="anonymous">
-  <% } %>
+  <% }
+  for (i18nPath in searchConnectorsI18nPaths) {
+    if (!i18NPaths.contains(i18nPath)) { %>
+      <link rel="preload" href="<%="/portal/rest/i18n/bundle/" + i18nPath + "-" + language + ".json?v=" + ResourceRequestHandler.VERSION%>" as="fetch" crossorigin="anonymous">
+  <%
+     }
+    }
+  %>

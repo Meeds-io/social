@@ -75,21 +75,16 @@ export default {
     }
   },
   created() {
-    this.initGettingStarted();
+    this.initGettingStarted()
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     initGettingStarted() {
-      gettingStartedService.getGettingStartedSteps()
-        .then(data => {
-          this.steps = data || [];
-          return this.$nextTick();
-        })
-        .then(() => {
-          this.$root.$emit('application-loaded');
-        });
+      return gettingStartedService.getGettingStartedSteps()
+        .then(data => this.steps = data || []);
     },
     hideGettingStarted(){
-      gettingStartedService.hideGettingStarted()
+      return gettingStartedService.hideGettingStarted()
         .then(() => {
           this.clearCache();
           this.steps = [];

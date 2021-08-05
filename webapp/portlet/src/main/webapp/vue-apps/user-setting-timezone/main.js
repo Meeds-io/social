@@ -29,16 +29,16 @@ export function init(timezones) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         timezones: timezones,
-      }),
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<user-setting-timezone v-cacheable id="${appId}" :timezones="timezones" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'User Settings TimeZone');
   });
 }

@@ -30,13 +30,13 @@ export function init(maxUploadSize) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" max-upload-size="${maxUploadSize}" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Profile Header');
   });
 }

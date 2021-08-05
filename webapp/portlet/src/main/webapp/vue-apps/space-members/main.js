@@ -30,7 +30,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
@@ -44,6 +44,6 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
                   class="singlePageApplication" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Space Members');
   });
 }

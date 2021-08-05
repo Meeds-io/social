@@ -78,7 +78,7 @@ export default {
   watch: {
     loading(newVal, oldVal) {
       if (newVal !== oldVal && !newVal) {
-        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+        this.$nextTick().then(() => this.$root.$applicationLoaded());
       }
     },
   },

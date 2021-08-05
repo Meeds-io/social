@@ -32,16 +32,16 @@ export function init(settings) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         settings: settings,
-      }),
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<user-setting-notifications v-cacheable id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'User Settings Notifications');
   });
 }

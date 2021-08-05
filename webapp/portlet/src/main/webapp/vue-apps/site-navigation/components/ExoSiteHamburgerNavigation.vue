@@ -92,7 +92,8 @@ export default {
         if (this.navigations && this.navigations.length && !this.homeLink) {
           this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
         }
-      });
+      })
+      .finally(() => this.$root.$applicationLoaded());
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });

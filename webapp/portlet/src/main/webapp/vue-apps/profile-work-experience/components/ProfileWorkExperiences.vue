@@ -59,7 +59,8 @@ export default {
     },
   },
   created() {
-    this.refresh();
+    this.refresh()
+      .finally(() => this.$root.$applicationLoaded());
   },
   mounted() {
     if (this.experiences) {

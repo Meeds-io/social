@@ -4,8 +4,7 @@
       <v-list-item-avatar :size="avatarSize" class="mt-0 mb-auto me-2">
         <img
           :src="avatarUrl"
-          :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
-          class="my-auto">
+          class="object-fit-cover my-auto">
       </v-list-item-avatar>
       <v-list-item-content class="flex px-0 py-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
         <exo-activity-rich-editor

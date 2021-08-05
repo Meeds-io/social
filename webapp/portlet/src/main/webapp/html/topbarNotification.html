@@ -2,11 +2,27 @@
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="NotificationPopoverPortlet">
-    <v-cacheable-dom-app cache-id="NotificationPopoverPortlet"></v-cacheable-dom-app>
+    <div class="v-application--wrap">
+      <div class="flex">
+        <div class="layout">
+          <button type="button"
+            disabled="disabled"
+            class="text-xs-center v-btn v-btn--flat v-btn--disabled v-btn--icon v-btn--round theme--light v-size--default">
+            <span class="v-btn__content"><span flat=""
+              class="v-badge v-badge--overlap theme--light"><i
+                aria-hidden="true"
+                class="v-icon notranslate grey-color mdi mdi-bell theme--light"
+                style="font-size: 21px;"></i><span
+                class="v-badge__wrapper"><span aria-atomic="true"
+                  aria-label="Badge" aria-live="polite" role="status"
+                  class="v-badge__badge"
+                  style="inset: auto auto calc(100% - 12px) calc(100% - 12px); background-color: var(- -allPagesBadgePrimaryColor, #ff5335); border-color: var(- -allPagesBadgePrimaryColor, #ff5335); display: none;"></span></span></span></span>
+          </button>
+        </div>
+      </div>
+    </div>
     <script type="text/javascript">
-      eXo.env.portal.addOnLoadCallback(() => {
-        require(['PORTLET/social-portlet/TopBarNotification'], app => app.init());
-      });
+      require(['PORTLET/social-portlet/TopBarNotification'], app => app.init());
     </script>
   </div>
 </div>
