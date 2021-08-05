@@ -3,13 +3,24 @@
     :id="id"
     :href="url"
     class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
-    <img
-      :class="avatarClass"
-      :src="avatarUrl"
-      :alt="title"
-      :width="`${size}px`"
-      :height="`${size}px`"
-      class="pull-left ma-auto">
+    <v-avatar
+      :size="size"
+      tile
+      class="pull-left my-auto">
+      <img
+        :src="avatarUrl"
+        :class="avatarClass"
+        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
+        class="ma-auto">
+      <v-img
+        :src="avatarUrl"
+        :height="size"
+        :width="size"
+        :max-height="size"
+        :max-width="size"
+        class="mx-auto"
+        eager />
+    </v-avatar>
     <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2 d-flex">
       <p
         v-if="displayName"

@@ -10,7 +10,14 @@
           :key="manager"
           class="spaceManagerEntry">
           <a :href="`${profileUrl}${manager.username}`">
-            <img :src="manager.avatar" alt="avatar"> {{ manager.fullname }}
+            <v-avatar :size="30">
+              <img
+                :src="manager.avatar"
+                :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
+                alt="avatar"
+                class="ma-auto">
+            </v-avatar>
+            {{ manager.fullname }}
           </a>
         </li>
       </ul>
