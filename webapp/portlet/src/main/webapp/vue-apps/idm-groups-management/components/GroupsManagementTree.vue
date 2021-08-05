@@ -52,7 +52,8 @@ export default {
     this.$root.$on('retrieveGroupChildren', this.retrieveGroupTree);
     this.$root.$on('searchGroup', keyword => this.keyword = keyword);
 
-    this.retrieveGroupTree().finally(() => this.$root.$emit('application-loaded'));
+    this.retrieveGroupTree()
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     updateGroupItem(group, groups) {

@@ -29,16 +29,16 @@ export function init(aboutMe) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         aboutMe: aboutMe,
-      }),
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Profile About Me');
   });
 }

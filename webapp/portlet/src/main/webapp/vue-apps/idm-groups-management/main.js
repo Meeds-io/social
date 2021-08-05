@@ -29,13 +29,13 @@ export function init() {
     appElement.id = appId;
 
     // init Vue app when locale ressources are ready
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<groups-management v-cacheable id="${appId}" />`,
       vuetify,
       i18n,
-    }).$mount(appElement);
+    }, appElement, 'Group Management');
   });
 }

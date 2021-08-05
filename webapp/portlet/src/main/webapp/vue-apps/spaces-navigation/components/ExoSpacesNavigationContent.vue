@@ -78,6 +78,7 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     spaces: [],
+    initialized: false,
     loadingSpaces: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
@@ -116,7 +117,13 @@ export default {
       });
     },
     limitToFetch() {
-      this.searchSpaces();
+      this.searchSpaces()
+        .finally(() => {
+          if (!this.initialized) {
+            this.initialized = true;
+            this.$root.$applicationLoaded();
+          }
+        });
     },
   }, 
   created() {
@@ -124,7 +131,7 @@ export default {
   },
   methods: {
     searchSpaces() {
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/${eXo.env.portal.containerName}/social/spaces/lastVisitedSpace/list.json?offset=${this.offset}&limit=${this.limitToFetch}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/${eXo.env.portal.containerName}/social/spaces/lastVisitedSpace/list.json?offset=${this.offset}&limit=${this.limitToFetch}`, {
         method: 'GET',
         credentials: 'include',
       })

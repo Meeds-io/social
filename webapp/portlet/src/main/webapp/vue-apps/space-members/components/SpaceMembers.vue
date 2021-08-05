@@ -57,9 +57,11 @@ export default {
     space: {}
   }),
   created() {
-    this.$spaceService.getSpaceById(eXo.env.portal.spaceId).then( space => {
-      this.space = space;
-    });
+    this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
+      .then( space => {
+        this.space = space;
+      })
+      .finally(() => this.$root.$applicationLoaded());
     if (this.isManager) {
       extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-removeMember',

@@ -27,10 +27,10 @@ export function init() {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       template: `<exo-getting-started v-cacheable id="${appId}"></exo-getting-started>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Getting Started');
   });
 }

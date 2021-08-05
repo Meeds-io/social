@@ -32,13 +32,13 @@ export function init() {
       appElement.id = appId;
 
       // init Vue app when locale ressources are ready
-      new Vue({
+      Vue.createApp({
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: `<external-spaces-list id="${appId}" v-cacheable />`,
         i18n,
         vuetify,
-      }).$mount(appElement);
+      }, appElement, 'External Spaces List');
     });
 }

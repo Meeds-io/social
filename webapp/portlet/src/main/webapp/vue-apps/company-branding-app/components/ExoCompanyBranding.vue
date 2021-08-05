@@ -186,7 +186,8 @@ export default {
     }
   },
   created() {
-    this.initBrandingInformation();
+    this.initBrandingInformation()
+      .finally(() => this.$root.$applicationLoaded());
   },
   mounted() {
     // init top bar preview
@@ -287,9 +288,10 @@ export default {
       document.location.href = brandingConstants.PORTAL;
     },
     initBrandingInformation() {
-      brandingServices.getBrandingInformation().then(data => {
-        this.branding = data;
-      });
+      return brandingServices.getBrandingInformation()
+        .then(data => {
+          this.branding = data;
+        });
     },
     cleanMessage() {
       this.$el.querySelector('#savenotok').style.display = 'none';

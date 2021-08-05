@@ -135,6 +135,7 @@ export default {
     Promise.resolve(this.init())
       .finally(() => {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$root.$applicationLoaded();
       });
   },
   methods: {

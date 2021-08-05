@@ -16,9 +16,9 @@ for (const key in components) {
 
 // get overrided components if exists
 if (extensionRegistry) {
-  const components = extensionRegistry.loadComponents('SearchApplication');
-  if (components && components.length > 0) {
-    components.forEach(cmp => {
+  const overrideComponents = extensionRegistry.loadComponents('SearchApplication');
+  if (overrideComponents && overrideComponents.length) {
+    overrideComponents.forEach(cmp => {
       Vue.component(cmp.componentName, cmp.componentOptions);
     });
   }

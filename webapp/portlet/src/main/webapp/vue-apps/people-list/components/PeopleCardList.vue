@@ -197,7 +197,7 @@ export default {
         })
         .finally(() => {
           if (!this.initialized) {
-            this.$root.$emit('application-loaded');
+            this.$root.$applicationLoaded();
           }
           this.loadingPeople = false;
           this.initialized = true;

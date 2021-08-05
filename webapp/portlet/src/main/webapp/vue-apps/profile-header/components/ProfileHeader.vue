@@ -109,9 +109,7 @@ export default {
         .catch((e) => {
           console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
         })
-        .finally(() => {
-          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-        });
+        .finally(() => this.$nextTick().then(() => this.$root.$applicationLoaded()));
     },
     handleError(error) {
       if (error) {
