@@ -7,8 +7,7 @@
     <v-list-item-avatar :size="size" class="ma-0">
       <img
         :src="avatarUrl"
-        :width="`${size}px`"
-        :height="`${size}px`"
+        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
         class="my-auto">
     </v-list-item-avatar>
   </a>
