@@ -29,10 +29,10 @@ export function init(suggestionsType) {
 
     const cacheId = `${appId}_${suggestionsType || ''}`;
 
-    new Vue({
+    Vue.createApp({
       template: `<exo-suggestions-people-and-space v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, `Suggestions ${suggestionsType}`);
   });
 }

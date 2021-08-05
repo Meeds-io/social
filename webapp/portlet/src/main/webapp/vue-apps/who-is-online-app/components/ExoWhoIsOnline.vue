@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     initOnlineUsers() {
-      whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
+      return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
         .then(response => {
           if (response) {
             const users = response.users || [];
@@ -70,8 +70,9 @@ export default {
           } else {
             this.users = [];
           }
-          window.setTimeout(() => this.$root.$emit('application-loaded'), 200);
-        });
+          return this.$nextTick();
+        })
+        .finally(() => this.$root.$applicationLoaded());
     },
     initPopup() {
       const restUrl = `//${this.$spacesConstants.HOST_NAME}${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;

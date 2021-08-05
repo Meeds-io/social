@@ -36,6 +36,7 @@
      eXo.env.portal.cometdContext = "<%=cometdContext%>";
      eXo.env.portal.vuetifyPreset = {
        dark: true,
+       silent: !eXo.developing,
        iconfont: 'mdi',
        rtl: eXo.env.portal.orientation === 'rtl',
      };

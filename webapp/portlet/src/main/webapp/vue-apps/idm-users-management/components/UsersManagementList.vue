@@ -358,7 +358,7 @@ export default {
           }
         }).finally(() => {
           if (!this.initialized) {
-            this.$root.$emit('application-loaded');
+            this.$root.$applicationLoaded();
           }
           this.searchUsers();
           this.loading = false;
@@ -480,7 +480,7 @@ export default {
       })
         .finally(() => {
           if (!this.initialized) {
-            this.$root.$emit('application-loaded');
+            this.$root.$applicationLoaded();
           }
           this.loading = false;
           this.initialized = true;
@@ -535,7 +535,7 @@ export default {
         }
       })        .finally(() => {
         if (!this.initialized) {
-          this.$root.$emit('application-loaded');
+          this.$root.$applicationLoaded();
         }
         this.searchUsers();
         this.loading = false;
@@ -558,7 +558,7 @@ export default {
         }
       }).finally(() => {
         if (!this.initialized) {
-          this.$root.$emit('application-loaded');
+          this.$root.$applicationLoaded();
         }
         this.searchUsers();
         this.loading = false;

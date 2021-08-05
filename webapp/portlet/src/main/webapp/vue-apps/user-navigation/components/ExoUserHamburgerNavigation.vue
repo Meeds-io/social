@@ -24,6 +24,9 @@ export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
   }),
+  mounted() {
+    this.$root.$applicationLoaded();
+  },
   methods: {
     logOut() {
       eXo.portal.logout();

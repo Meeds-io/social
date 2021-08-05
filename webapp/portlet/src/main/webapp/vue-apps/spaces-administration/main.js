@@ -31,13 +31,13 @@ export function init(applicationsByCategory) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         applicationsByCategory: applicationsByCategory,
-      }),
+      },
       template: `<exo-spaces-administration-spaces v-cacheable id="${appId}" :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Spaces Administration');
   });
 }

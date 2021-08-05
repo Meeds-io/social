@@ -260,11 +260,13 @@ export default {
       this.displayMessage(message);
     });
     this.$root.$on('protectedGroupsList', this.protectedGroupsList);
-    this.getRevocationRequest();
-    this.getMfaFeatureStatus();
-    this.getCurrentMfaSystem();
-    this.getAvailableMfaSystems();
-    this.getProtectedGroups();
+    Promise.all([
+      this.getRevocationRequest(),
+      this.getMfaFeatureStatus(),
+      this.getCurrentMfaSystem(),
+      this.getAvailableMfaSystems(),
+      this.getProtectedGroups()
+    ]).finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     switchAuthenticationStatus() {
@@ -275,12 +277,12 @@ export default {
       this.selectedGroups = selectedGroups;
     },
     getMfaFeatureStatus() {
-      this.$featureService.isFeatureEnabled('mfa').then(status => {
+      return this.$featureService.isFeatureEnabled('mfa').then(status => {
         this.isMultifacorAuthenticationEnabled = status;
       });
     },
     getProtectedGroups() {
-      getProtectedGroups().then(data => {
+      return getProtectedGroups().then(data => {
         for (const group of data.protectedGroups) {
           this.selectedGroups.push(group);
         }
@@ -292,21 +294,21 @@ export default {
       });
     },
     getCurrentMfaSystem() {
-      getCurrentMfaSystem().then(settings => {
+      return getCurrentMfaSystem().then(settings => {
         this.currentMfaSystem=settings.mfaSystem;
         this.currentMfaSystemHelpTitle=settings.helpTitle;
         this.currentMfaSystemHelpContent=settings.helpContent;
       });
     },
     getAvailableMfaSystems() {
-      getAvailableMfaSystem().then(data => {
+      return getAvailableMfaSystem().then(data => {
         for (const system of data.available) {
           this.items.push(system);
         }
       });
     },
     getRevocationRequest() {
-      getRevocationRequests().then(revocationRequests => {
+      return getRevocationRequests().then(revocationRequests => {
         const promiseArray = [];
         for (const [index, revocationRequest] of revocationRequests.requests.entries()) {
           const userPromise = this.$userService.getUser(revocationRequest.username).then(user => {

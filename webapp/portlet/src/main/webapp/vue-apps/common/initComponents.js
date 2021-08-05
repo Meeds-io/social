@@ -48,6 +48,28 @@ for (const key in components) {
   Vue.component(key, components[key]);
 }
 
+Vue.prototype.$applicationLoaded = function() {
+  this.$root.$emit('application-loaded');
+  document.dispatchEvent(new CustomEvent('vue-app-loading-end', {detail: this.appName}));
+};
+
+Vue.createApp = function(params, el, appName) {
+  const element = typeof el === 'string' ? document.querySelector(el) : el;
+  if (element) {
+    if (!params.data) {
+      params.data = {};
+    }
+    params.data.appName = appName || element.id;
+    document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: params.data.appName}));
+    const vueApp = new Vue(params);
+    vueApp.$mount(element);
+    return vueApp;
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn(`Can't mount ${el} application because DOM element doesn't exist'`);
+  }
+};
+
 Vue.directive('cacheable', {
   bind(el, binding, vnode) {
     const appId = el.id;

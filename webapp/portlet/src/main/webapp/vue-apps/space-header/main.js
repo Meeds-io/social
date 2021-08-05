@@ -29,18 +29,18 @@ export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         navigations: settings && settings.navigations,
         selectedNavigationUri: settings && settings.selectedNavigationUri,
         bannerUrl: bannerUrl,
-      }),
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
       vuetify,
       i18n,
-    }).$mount(appElement);
+    }, appElement, 'Space Header');
   });
 }

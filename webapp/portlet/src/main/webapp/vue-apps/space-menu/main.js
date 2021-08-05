@@ -23,14 +23,14 @@ export function init(settings) {
   const appElement = document.createElement('div');
   appElement.id = appId;
 
-  new Vue({
-    data: () => ({
+  Vue.createApp({
+    data: {
       navigations: settings && settings.navigations,
       selectedNavigationUri: settings && settings.selectedNavigationUri,
-    }),
+    },
     template: `<space-menu v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
     vuetify,
-  }).$mount(appElement);
+  }, appElement, 'Space Menu');
 
   const actionsElement = document.createElement('div');
   actionsElement.id = appIdAction;

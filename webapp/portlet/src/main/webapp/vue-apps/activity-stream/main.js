@@ -50,7 +50,7 @@ const urls = [
 
 export function init(initialData, initialLimit) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    new Vue({
+    Vue.createApp({
       data: {
         initialData,
         initialLimit,
@@ -59,6 +59,6 @@ export function init(initialData, initialLimit) {
       template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
       vuetify,
       i18n,
-    }).$mount(`#${appId}`);
+    }, `#${appId}`, 'Stream');
   });
 }
