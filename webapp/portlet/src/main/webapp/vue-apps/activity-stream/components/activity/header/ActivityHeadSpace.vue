@@ -3,12 +3,15 @@
     :id="id"
     :href="url"
     class="text-none primary--text space-avatar activity-head-space-link">
-    <v-list-item-avatar
+    <v-avatar
       size="20"
       rounded
       class="ma-0">
-      <v-img :src="avatarUrl" eager />
-    </v-list-item-avatar>
+      <img
+        :src="avatarUrl"
+        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
+        class="my-auto">
+    </v-avatar>
     {{ displayName }}
   </a>
 </template>
@@ -20,6 +23,10 @@ export default {
     space: {
       type: Object,
       default: null,
+    },
+    size: {
+      type: Number,
+      default: () => 20,
     },
   },
   data: () => ({

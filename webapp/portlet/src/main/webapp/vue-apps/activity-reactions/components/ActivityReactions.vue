@@ -16,16 +16,16 @@
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
       <div class="seeMoreReactionsContainer">
         <div
-          v-if="likersNumber > maxLikersToShow"
+          v-if="seeMoreLikerToDisplay"
           class="seeMoreLikers"
           @click="openDrawer">
-          <v-avatar
-            :size="30">
+          <v-avatar :size="avatarSize" class="ma-0">
             <img
-              :src="likers[maxLikersToShow].avatar"
-              :title="likers[maxLikersToShow].fullname">
+              :src="seeMoreLikerToDisplay.avatar"
+              :title="seeMoreLikerToDisplay.fullname"
+              :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}">
+            <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </v-avatar>
-          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
         </div>
         <p
           v-if="likersNumber && likersNumber <= 1"
@@ -80,17 +80,25 @@ export default {
       type: Number,
       default: 0
     },
+    avatarSize: {
+      type: Number,
+      // eslint-disable-next-line no-magic-numbers
+      default: () => 30,
+    },
   },
   data: () => ({
     maxLikersToShow: 4,
     kudosNumber: 0
   }),
   computed: {
+    seeMoreLikerToDisplay () {
+      return this.likersNumber >= this.maxLikersToShow && this.likers[this.maxLikersToShow - 1] || null;
+    },
     likersToDisplay () {
       return this.likers.slice(0, this.maxLikersToShow-1);
     },
     showMoreLikersNumber() {
-      return this.likers.length - this.maxLikersToShow;
+      return this.likers.length - this.maxLikersToShow + 1;
     }
   },
   methods: {

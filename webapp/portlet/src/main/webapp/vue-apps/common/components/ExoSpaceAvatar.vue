@@ -7,6 +7,11 @@
       :size="size"
       tile
       class="pull-left my-auto">
+      <img
+        :src="avatarUrl"
+        :class="avatarClass"
+        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
+        class="ma-auto">
       <v-img
         :src="avatarUrl"
         :height="size"

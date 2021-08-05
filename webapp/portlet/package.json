@@ -10,7 +10,7 @@
     "start": "webpack --config webpack.dev.js --mode development",
     "dev": "webpack-dev-server --config webpack.dev.js --mode development --hot",
     "watch": "webpack --config webpack.dev.js --progress --colors --watch -d",
-    "lint": "eslint --fix src/main/webapp/**/*.js src/main/webapp/**/*.vue",
+    "lint": "eslint --fix './src/main/webapp/vue-apps/**'",
     "eslint-check": "eslint \"./src/main/webapp/**\"",
     "build": "webpack --config webpack.prod.js --mode production"
   },
