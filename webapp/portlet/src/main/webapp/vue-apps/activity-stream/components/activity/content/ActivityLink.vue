@@ -22,7 +22,7 @@
             v-if="thumbnail"
             :src="thumbnail"
             :alt="title"
-            :style="{minHeight: '100%', minWidth: '100%'}"
+            :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
             class="my-auto">
           <v-icon
             v-else
@@ -61,7 +61,7 @@
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
-          :style="{minHeight: '100%', minWidth: '100%'}"
+          :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
           class="my-auto">
         <v-icon
           v-else

@@ -3,16 +3,15 @@
     :id="id"
     :href="url"
     class="text-none primary--text space-avatar activity-head-space-link">
-    <v-list-item-avatar
+    <v-avatar
       size="20"
       rounded
       class="ma-0">
       <img
         :src="avatarUrl"
-        :width="`${size}px`"
-        :height="`${size}px`"
+        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
         class="my-auto">
-    </v-list-item-avatar>
+    </v-avatar>
     {{ displayName }}
   </a>
 </template>
