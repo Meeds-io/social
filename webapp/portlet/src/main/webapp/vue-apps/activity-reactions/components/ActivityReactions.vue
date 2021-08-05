@@ -16,15 +16,16 @@
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
       <div class="seeMoreReactionsContainer">
         <div
-          v-if="likersNumber > maxLikersToShow"
+          v-if="seeMoreLikerToDisplay"
           class="seeMoreLikers"
           @click="openDrawer">
-          <img
-            :src="likers[maxLikersToShow].avatar"
-            :title="likers[maxLikersToShow].fullname"
-            :width="`${avatarSize}px`"
-            :height="`${avatarSize}px`">
-          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
+          <v-avatar :size="avatarSize" class="ma-0">
+            <img
+              :src="seeMoreLikerToDisplay.avatar"
+              :title="seeMoreLikerToDisplay.fullname"
+              :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}">
+            <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
+          </v-avatar>
         </div>
         <p
           v-if="likersNumber && likersNumber <= 1"
@@ -90,11 +91,14 @@ export default {
     kudosNumber: 0
   }),
   computed: {
+    seeMoreLikerToDisplay () {
+      return this.likersNumber >= this.maxLikersToShow && this.likers[this.maxLikersToShow - 1] || null;
+    },
     likersToDisplay () {
       return this.likers.slice(0, this.maxLikersToShow-1);
     },
     showMoreLikersNumber() {
-      return this.likers.length - this.maxLikersToShow;
+      return this.likers.length - this.maxLikersToShow + 1;
     }
   },
   methods: {
