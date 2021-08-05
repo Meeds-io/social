@@ -189,7 +189,7 @@ export default {
       return this.sourceLink !== '#' && this.sourceLink || 'javascript:void(0)';
     },
     linkTarget() {
-      return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
+      return (this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) || this.sourceLink) && '_self' || '';
     },
     thumbnailHeight() {
       return this.thumbnailProperties && this.thumbnailProperties.height || '150px';
