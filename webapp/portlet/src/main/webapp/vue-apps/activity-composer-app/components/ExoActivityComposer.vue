@@ -1,6 +1,6 @@
 <template>
-  <div id="activityComposer" class="activityComposer">
-    <div v-if="!standalone" class="openLink">
+  <div id="activityComposer" class="activityComposer pa-0">
+    <div v-if="!standalone" class="openLink mb-4">
       <a @click="openMessageComposer()">
         <i class="uiIconEdit"></i>
         {{ link.replace('{0}', postTarget) }}
