@@ -387,6 +387,48 @@
       <depends>
         <module>ActivityStream</module>
       </depends>
+      <depends>
+        <module>social-ui-profile</module>
+        <as>socialUIProfile</as>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>ActivityComposer</module>
+        <as>activityComposer</as>
+      </depends>
+      <depends>
+        <module>ActivityReactions</module>
+        <as>activityReactions</as>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>suggester</module>
+      </depends>
+      <depends>
+        <module>commons-editor</module>
+        <as>editor</as>
+      </depends>
+      <depends>
+        <module>commons-cometd3</module>
+        <as>cCometd</as>
+      </depends>
     </module>
   </portlet>
 
@@ -395,6 +437,48 @@
     <module>
       <depends>
         <module>ActivityStream</module>
+      </depends>
+      <depends>
+        <module>social-ui-profile</module>
+        <as>socialUIProfile</as>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>ActivityComposer</module>
+        <as>activityComposer</as>
+      </depends>
+      <depends>
+        <module>ActivityReactions</module>
+        <as>activityReactions</as>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>suggester</module>
+      </depends>
+      <depends>
+        <module>commons-editor</module>
+        <as>editor</as>
+      </depends>
+      <depends>
+        <module>commons-cometd3</module>
+        <as>cCometd</as>
       </depends>
     </module>
   </portlet>

@@ -31,7 +31,7 @@ export default {
   watch: {
     initialized(newVal, oldVal) {
       if (newVal !== oldVal && newVal) {
-        this.$root.$emit('application-loaded');
+        this.$root.$applicationLoaded();
       }
     },
   },

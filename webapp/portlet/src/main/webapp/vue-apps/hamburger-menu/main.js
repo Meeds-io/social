@@ -24,13 +24,13 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
-      new Vue({
+      Vue.createApp({
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: '<exo-hamburger-menu-navigation></exo-hamburger-menu-navigation>',
         i18n,
         vuetify,
-      }).$mount('#HamburgerNavigationMenu');
+      }, '#HamburgerNavigationMenu', 'Hamburger Menu');
     });
 }

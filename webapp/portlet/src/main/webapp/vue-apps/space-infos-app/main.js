@@ -28,10 +28,10 @@ export function init() {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       template: `<exo-space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-space-infos>`,
       vuetify,
       i18n,
-    }).$mount(appElement);
+    }, appElement, 'Space Info');
   });
 }

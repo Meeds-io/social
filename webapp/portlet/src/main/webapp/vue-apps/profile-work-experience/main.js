@@ -30,13 +30,13 @@ export function init() {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-work-experiences v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Profile Work Experience');
   });
 }

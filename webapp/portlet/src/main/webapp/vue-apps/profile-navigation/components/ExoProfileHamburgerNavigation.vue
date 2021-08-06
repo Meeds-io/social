@@ -45,14 +45,16 @@ export default {
         Object.assign(this.profile, event.detail);
       }
     });
-    this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
-    if (!this.profile) {
-      this.retrieveUserInformation();
-    }
+    Promise.resolve(this.retrieveUserInformation())
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     retrieveUserInformation() {
-      this.$identityService.getIdentityById(eXo.env.portal.userIdentityId).then(data => this.profile = data && data.profile);
+      this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
+      if (!this.profile) {
+        return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+          .then(data => this.profile = data && data.profile);
+      }
     },
   },
 };

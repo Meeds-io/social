@@ -30,7 +30,7 @@ export function init(maxUploadSize) {
     
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
@@ -41,6 +41,6 @@ export function init(maxUploadSize) {
                   class="singlePageApplication" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Space Settings');
   });
 }

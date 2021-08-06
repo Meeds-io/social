@@ -24,14 +24,7 @@
   <% } %>
   <div data-app="true"
     class="v-application hiddenable-widget transparent v-application--is-ltr theme--light"
-    id="SuggestionsPeopleAndSpace" flat="">
+    id="SuggestionsPeopleAndSpace" flat="" data-suggestion-type="<%=suggestionsType%>">
     <v-cacheable-dom-app cache-id="SuggestionsPeopleAndSpace_<%=suggestionsType%>"></v-cacheable-dom-app>
-    <script type="text/javascript" defer="defer">
-      eXo.env.portal.addOnLoadCallback(() =>
-        require(['PORTLET/social-portlet/SuggestionsPeopleAndSpace'],
-          app => app.init('<%=suggestionsType%>')
-        )
-      );
-    </script>
   </div>
 </div>

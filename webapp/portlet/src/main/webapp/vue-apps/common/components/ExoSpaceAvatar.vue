@@ -10,8 +10,7 @@
       <img
         :src="avatarUrl"
         :class="avatarClass"
-        :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
-        class="ma-auto">
+        class="object-fit-cover ma-auto">
       <v-img
         :src="avatarUrl"
         :height="size"

@@ -30,13 +30,13 @@ export function init(uploadLimit) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :upload-limit="${uploadLimit}" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Profile Contact Information');
   });
 }
