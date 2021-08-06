@@ -195,7 +195,7 @@ export default {
       }).reduce((a, b) => a + b, 0);
     },
     activityBodyEdited: function() {
-      return this.activityId ? this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody)) : false;
+      return this.activityId ? this.escapeHTML(this.message.split('<oembed>')[0]) !== this.escapeHTML(this.cleanInitialActivityBody()) : false;
     }
   },
   watch: {
@@ -369,7 +369,7 @@ export default {
     },
     cleanInitialActivityBody: function()  {
       const div = document.createElement('div');
-      div.innerHTML = this.activityBody;
+      div.innerHTML = this.message;
       const elements = div.querySelectorAll('#editActivityLinkPreview');
       Array.prototype.forEach.call( elements, function( node ) {
         node.parentNode.remove();
