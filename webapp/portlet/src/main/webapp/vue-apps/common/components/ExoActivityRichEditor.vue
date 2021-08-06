@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
-      inputVal: this.value,
+      inputVal: null,
       charsCount: 0,
       editor: null,
     };
@@ -123,6 +123,8 @@ export default {
   },
   methods: {
     initCKEditor: function (reset) {
+      this.inputVal = this.replaceWithSuggesterClass(this.value);
+
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -209,21 +211,24 @@ export default {
         this.editor.destroy(true);
       }
     },
+    replaceWithSuggesterClass: function(message) {
+      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      tempdiv.find('a[href*="/profile"]')
+        .each(function() {
+          $(this).replaceWith(function() {
+            return $('<span/>', {
+              class: 'atwho-inserted',
+              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              .attr('contenteditable','false');
+          });
+        });
+      return tempdiv.html();
+    },
     initCKEditorData: function(message) {
       if (message) {
-        const tempdiv = $('<div class=\'temp\'/>').html(message);
-        tempdiv.find('a[href*="/profile"]')
-          .each(function() {
-            $(this).replaceWith(function() {
-              return $('<span/>', {
-                class: 'atwho-inserted',
-                html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-              }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
-                .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
-                .attr('contenteditable','false');
-            });
-          });
-        message = tempdiv.html();
+        message = this.replaceWithSuggesterClass(message);
       }
       try {
         if (this.editor) {
