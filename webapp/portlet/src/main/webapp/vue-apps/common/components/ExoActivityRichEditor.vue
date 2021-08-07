@@ -85,7 +85,9 @@ export default {
   },
   watch: {
     inputVal(val) {
-      this.$emit('input', val);
+      if (this.editorReady) {
+        this.$emit('input', val);
+      }
     },
     validLength() {
       this.$emit('validity-updated', this.validLength);
