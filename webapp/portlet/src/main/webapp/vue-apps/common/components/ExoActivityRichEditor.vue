@@ -68,7 +68,6 @@ export default {
     return {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
-      charsCount: 0,
       editor: null,
     };
   },
@@ -78,6 +77,9 @@ export default {
     },
     editorReady() {
       return this.editor && this.editor.status === 'ready';
+    },
+    charsCount() {
+      return this.inputVal && this.$utils.htmlToText(this.inputVal).length || 0;
     },
     validLength() {
       return this.charsCount <= this.maxLength;
@@ -196,13 +198,9 @@ export default {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;
-
-            const pureText = self.$utils.htmlToText(newData);
-            self.charsCount = pureText.length;
           },
           destroy: function () {
             self.inputVal = '';
-            self.charsCount = 0;
             self.editor = null;
           }
         }
@@ -229,12 +227,10 @@ export default {
       return tempdiv.html();
     },
     initCKEditorData: function(message) {
-      if (message) {
-        message = this.replaceWithSuggesterClass(message);
-      }
+      this.inputVal = message && this.replaceWithSuggesterClass(message) || '';
       try {
         if (this.editor) {
-          this.editor.setData(message);
+          this.editor.setData(this.inputVal);
         }
       } catch (e) {
         // When CKEditor not initialized or is detroying
