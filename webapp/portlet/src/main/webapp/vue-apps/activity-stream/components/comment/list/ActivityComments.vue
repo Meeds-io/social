@@ -176,6 +176,7 @@ export default {
             const commentToUpdate = this.comments[commentToUpdateIndex];
             if (!commentToUpdate.subComments.find(tmp => tmp.id === comment.id)) {
               commentToUpdate.subComments.push(comment);
+              commentToUpdate.subCommentsSize++;
             }
             this.$emit('comment-updated', commentToUpdate, commentToUpdateIndex);
           } else {
