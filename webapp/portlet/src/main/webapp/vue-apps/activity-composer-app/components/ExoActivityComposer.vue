@@ -173,7 +173,7 @@ export default {
       return this.message && this.message.length && this.$utils.htmlToText(this.message).length || 0;
     },
     postDisabled() {
-      return (!this.attachments.length && !this.messageLength) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || (this.activityId && !this.activityBodyEdited);
+      return (!this.attachments.length && !this.messageLength) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
     activityType() {
       return this.attachments.length ? 'files:spaces' : '';
