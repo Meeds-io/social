@@ -1,6 +1,7 @@
 <template>
-  <div v-if="display">
-    <v-app>
+  <!-- Must keep v-show to replace cache content by new content -->
+  <div v-show="display">
+    <v-app v-if="display">
       <v-flex
         d-flex
         xs12
@@ -58,12 +59,10 @@
 </template>
 
 <script>
-import * as gettingStartedService from '../gettingStartedService.js';
 export default {
   data () {
     return {
       steps: [],
-      displaySteps: false,
     };
   },
   computed: {
@@ -80,19 +79,19 @@ export default {
   },
   methods: {
     initGettingStarted() {
-      return gettingStartedService.getGettingStartedSteps()
+      return this.$gettingStartedService.getGettingStartedSteps()
         .then(data => this.steps = data || []);
     },
     hideGettingStarted(){
-      return gettingStartedService.hideGettingStarted()
+      return this.$gettingStartedService.hideGettingStarted()
+        .then(this.clearCache)
         .then(() => {
-          this.clearCache();
           this.steps = [];
           this.$el.classList.add('hidden');
         });
     },
     clearCache(){
-      caches.open('portal-pwa-resources-dom').then(function(cache) {
+      return window.caches.open('portal-pwa-resources-dom').then(function(cache) {
         cache.delete('/dom-cache?id=GettingStartedPortlet');
       });
     }

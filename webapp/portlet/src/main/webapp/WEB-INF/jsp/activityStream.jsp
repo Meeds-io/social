@@ -53,14 +53,12 @@
         credentials: 'include',
         mode: 'no-cors',
       }).then(resp => {
-        if (!resp || !resp.ok) {
-          throw new Error('Response code indicates a server error', resp);
-        } else {
+        if (resp && resp.ok) {
           return resp.json();
         }
       }).then(initialData => {
 <% if (activityId == null) { %>
-        if (initialData.activityIds && initialData.activityIds.length) {
+        if (initialData && initialData.activityIds && initialData.activityIds.length) {
           initialData.activityIds.slice(0, <%=limitToDisplay%>).forEach(activity => {
             const preloadLink = document.createElement("link");
             preloadLink.href = `/portal/rest/v1/social/activities/\${activity.id}?expand=identity,likes,shared,commentsPreview,subComments`;
