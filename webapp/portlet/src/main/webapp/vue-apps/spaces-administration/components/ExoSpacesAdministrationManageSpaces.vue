@@ -261,12 +261,12 @@ export default {
     },
   },
   created() {
-    this.initSpaces();
+    this.initSpaces()
+      .finally(() => this.$root.$applicationLoaded());
   },
-
   methods: {
     initSpaces() {
-      spacesAdministrationServices.getSpaces().then(data =>{
+      return spacesAdministrationServices.getSpaces().then(data =>{
         this.spaces = data.spaces;
         this.totalPages = Math.ceil(data.size / this.$spacesConstants.SPACES_PER_PAGE);
       });

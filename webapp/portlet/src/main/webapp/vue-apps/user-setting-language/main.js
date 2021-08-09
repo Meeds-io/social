@@ -29,16 +29,16 @@ export function init(languages) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
-      data: () => ({
+    Vue.createApp({
+      data: {
         languages: languages,
-      }),
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'User Setting Language');
   });
 }

@@ -23,14 +23,11 @@ const appId = 'NotificationPopoverPortlet';
 //getting locale ressources
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     // init Vue app when locale ressources are ready
-    new Vue({
-      template: `<exo-top-bar-notification v-cacheable id="${appId}"></exo-top-bar-notification>`,
+    Vue.createApp({
+      template: `<exo-top-bar-notification id="${appId}"></exo-top-bar-notification>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, `#${appId}`, 'Topbar Notifications');
   });
 }

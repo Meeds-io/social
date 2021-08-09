@@ -13,9 +13,8 @@
             <v-avatar :size="30">
               <img
                 :src="manager.avatar"
-                :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}"
                 alt="avatar"
-                class="ma-auto">
+                class="object-fit-cover ma-auto">
             </v-avatar>
             {{ manager.fullname }}
           </a>
@@ -35,7 +34,8 @@ export default {
     };
   },
   created() {
-    this.init(eXo.env.portal.spaceId);
+    Promise.resolve(this.init(eXo.env.portal.spaceId))
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     init(spaceId) {

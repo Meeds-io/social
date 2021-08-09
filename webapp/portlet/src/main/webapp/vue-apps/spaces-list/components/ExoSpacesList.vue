@@ -47,7 +47,7 @@ export default {
     spacesLoaded(spacesSize) {
       this.spacesSize = spacesSize;
       if (!this.initialized) {
-        this.$root.$emit('application-loaded');
+        this.$root.$applicationLoaded();
         this.initialized = true;
       }
     }

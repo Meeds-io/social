@@ -23,7 +23,7 @@
             <img
               :src="seeMoreLikerToDisplay.avatar"
               :title="seeMoreLikerToDisplay.fullname"
-              :style="{minHeight: 'fit-content', minWidth: 'fit-content', objectFit: 'cover'}">
+              class="object-fit-cover">
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </v-avatar>
         </div>

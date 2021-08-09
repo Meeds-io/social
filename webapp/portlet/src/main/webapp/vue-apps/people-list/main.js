@@ -17,13 +17,13 @@ export function init(filter) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<people-list v-cacheable id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'People List');
   });
 }

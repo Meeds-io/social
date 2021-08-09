@@ -171,8 +171,10 @@ export default {
     },
   },
   created() {
-    this.getDlpFeatureStatus();
-    this.retrieveDlpPositiveItems();
+    const dlpFeatureStatusPromise = this.getDlpFeatureStatus();
+    const dlpPositiveItemsPromise = this.retrieveDlpPositiveItems();
+    Promise.all([dlpFeatureStatusPromise, dlpPositiveItemsPromise])
+      .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     saveDlpFeatureStatus(status) {
@@ -207,7 +209,7 @@ export default {
       this.selectedDeleteItem = itemId;
     },
     getDlpFeatureStatus() {
-      this.$featureService.isFeatureEnabled(this.featureName).then(status => {
+      return this.$featureService.isFeatureEnabled(this.featureName).then(status => {
         this.dlpFeatureEnabled = status;
         this.dlpFeatureStatusLoaded = true;
       });
@@ -248,7 +250,7 @@ export default {
       }
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
-      dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
+      return dlpAdministrationServices.getDlpPositiveItems(offset , itemsPerPage).then(data => {
         this.items = data.entities;
         this.totalSize = data.size;
       }).then(() =>{

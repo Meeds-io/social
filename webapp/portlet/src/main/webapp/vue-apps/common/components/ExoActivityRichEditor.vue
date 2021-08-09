@@ -67,8 +67,7 @@ export default {
   data() {
     return {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
-      inputVal: this.value,
-      charsCount: 0,
+      inputVal: null,
       editor: null,
     };
   },
@@ -79,13 +78,18 @@ export default {
     editorReady() {
       return this.editor && this.editor.status === 'ready';
     },
+    charsCount() {
+      return this.inputVal && this.$utils.htmlToText(this.inputVal).length || 0;
+    },
     validLength() {
       return this.charsCount <= this.maxLength;
     },
   },
   watch: {
     inputVal(val) {
-      this.$emit('input', val);
+      if (this.editorReady) {
+        this.$emit('input', val);
+      }
     },
     validLength() {
       this.$emit('validity-updated', this.validLength);
@@ -123,6 +127,8 @@ export default {
   },
   methods: {
     initCKEditor: function (reset) {
+      this.inputVal = this.replaceWithSuggesterClass(this.value);
+
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -192,13 +198,9 @@ export default {
             const newData = evt.editor.getData();
 
             self.inputVal = newData;
-
-            const pureText = self.$utils.htmlToText(newData);
-            self.charsCount = pureText.length;
           },
           destroy: function () {
             self.inputVal = '';
-            self.charsCount = 0;
             self.editor = null;
           }
         }
@@ -209,25 +211,26 @@ export default {
         this.editor.destroy(true);
       }
     },
-    initCKEditorData: function(message) {
-      if (message) {
-        const tempdiv = $('<div class=\'temp\'/>').html(message);
-        tempdiv.find('a[href*="/profile"]')
-          .each(function() {
-            $(this).replaceWith(function() {
-              return $('<span/>', {
-                class: 'atwho-inserted',
-                html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-              }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
-                .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
-                .attr('contenteditable','false');
-            });
+    replaceWithSuggesterClass: function(message) {
+      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      tempdiv.find('a[href*="/profile"]')
+        .each(function() {
+          $(this).replaceWith(function() {
+            return $('<span/>', {
+              class: 'atwho-inserted',
+              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              .attr('contenteditable','false');
           });
-        message = tempdiv.html();
-      }
+        });
+      return tempdiv.html();
+    },
+    initCKEditorData: function(message) {
+      this.inputVal = message && this.replaceWithSuggesterClass(message) || '';
       try {
         if (this.editor) {
-          this.editor.setData(message);
+          this.editor.setData(this.inputVal);
         }
       } catch (e) {
         // When CKEditor not initialized or is detroying

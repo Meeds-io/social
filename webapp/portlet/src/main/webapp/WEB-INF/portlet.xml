@@ -166,7 +166,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/whoIsOnline.html</value>
+      <value>/WEB-INF/jsp/whoIsOnline.jsp</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -718,19 +718,7 @@
       <value>/html/topbarNotification.html</value>
     </init-param>
     <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/TopBarNotification</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
+      <name>preload.resource.bundles</name>
       <value>locale.portlet.Portlets</value>
     </init-param>
     <init-param>
@@ -936,8 +924,12 @@
       <value>/WEB-INF/jsp/suggestions.jsp</value>
     </init-param>
     <init-param>
-      <name>prefetch.resources</name>
+      <name>use-js-manager</name>
       <value>true</value>
+    </init-param>
+    <init-param>
+      <name>js-manager-javascript-content</name>
+      <value><![CDATA[SuggestionsPeopleAndSpace.init(document.querySelector('#SuggestionsPeopleAndSpace').getAttribute('data-suggestion-type'))]]></value>
     </init-param>
     <init-param>
       <name>prefetch.resource.bundles</name>
@@ -961,12 +953,8 @@
       <value>/WEB-INF/jsp/search.jsp</value>
     </init-param>
     <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.Portlets,locale.commons.Commons,locale.portlet.social.PeopleListApplication,locale.portlet.social.SpacesListApplication</value>
+      <name>preload.resource.bundles</name>
+      <value>locale.portlet.Portlets</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>

@@ -100,6 +100,8 @@ export default {
       const contentsToLoad = this.contents.filter(contentDetail => !contentDetail.loaded);
       this.initializing = contentsToLoad.length;
       const vuetify = this.vuetify;
+      let contentsToLoadLength = contentsToLoad.length;
+      const self = this;
       contentsToLoad.forEach(contentDetail => {
         if (!contentDetail.loaded) {
           window.setTimeout(() => {
@@ -113,6 +115,14 @@ export default {
                       messages: this.$i18n.messages,
                     }),
                     vuetify,
+                    methods: {
+                      $applicationLoaded() {
+                        contentsToLoadLength--;
+                        if (!contentsToLoadLength) {
+                          self.$root.$applicationLoaded();
+                        }
+                      },
+                    },
                     el: `#${contentDetail.id}`,
                   });
                   this.vueChildInstances[contentDetail.id].$on('open-second-level', () => {

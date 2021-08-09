@@ -103,12 +103,12 @@ export default {
     },
   },
   created() {
-    this.getNotifications();
     notificationlAPI.initCometd();
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
+    eXo.env.portal.addOnLoadCallback(() => this.getNotifications());
   },
   mounted() {
-    this.$root.$emit('application-loaded');
+    this.$root.$applicationLoaded();
   },
   methods: {
     getNotifications() {

@@ -105,13 +105,13 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: (activity, activityTypeExtension) => {
     const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(activity) || activityTypeExtension.getBody(activity);
-    activityComposer.init({
+    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail: {
       activityId: activity.id,
       composerAction: 'update',
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
       templateParams: activity.templateParams,
-    });
+    }}));
   },
 });
 

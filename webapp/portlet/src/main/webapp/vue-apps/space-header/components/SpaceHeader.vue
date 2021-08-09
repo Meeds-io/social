@@ -121,7 +121,7 @@ export default {
     });
   },
   mounted() {
-    this.$root.$emit('application-loaded');
+    this.$root.$applicationLoaded();
   },
   methods: {
     refresh() {

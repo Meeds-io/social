@@ -56,7 +56,7 @@ export default {
     externalSpacesListService.getExternalSpacesRequests().then(
       (data) => {
         this.spacesRequestsSize = data.spacesMemberships.length;
-      }).then(() => this.$root.$emit('application-loaded'));
+      }).finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     getExternalSpacesList() {

@@ -58,7 +58,7 @@ export default {
       }
     });
     document.addEventListener('showSettingsApps', () => this.displayed = true);
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    this.$nextTick().then(() => this.$root.$applicationLoaded());
   },
   methods: {
     openDrawer() {

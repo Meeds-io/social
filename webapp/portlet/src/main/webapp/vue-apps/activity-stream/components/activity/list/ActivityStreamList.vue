@@ -3,7 +3,7 @@
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
     <exo-activity-composer
-      v-if="canPost"
+      :standalone="!canPost"
       id="activityComposer" />
     <activity-stream-confirm-dialog />
     <activity-stream-updater
@@ -135,6 +135,7 @@ export default {
     Promise.resolve(this.init())
       .finally(() => {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$root.$applicationLoaded();
       });
   },
   methods: {

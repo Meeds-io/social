@@ -1,6 +1,6 @@
 <template>
-  <div id="activityComposer" class="activityComposer">
-    <div v-if="!standalone" class="openLink">
+  <div id="activityComposer" class="activityComposer pa-0">
+    <div v-if="!standalone" class="openLink mb-4">
       <a @click="openMessageComposer()">
         <i class="uiIconEdit"></i>
         {{ link.replace('{0}', postTarget) }}
@@ -156,6 +156,7 @@ export default {
       message: '',
       loading: false,
       showErrorMessage: false,
+      activityBodyEdited: false,
       activityComposerActions: [],
       activityComposerHintAction: null,
       attachments: [],
@@ -169,41 +170,43 @@ export default {
   },
   computed: {
     messageLength(){
-      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length;
+      return this.message && this.message.length && this.$utils.htmlToText(this.message).length || 0;
     },
-    postDisabled: function() {
-      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return pureText.length === 0 && this.attachments.length === 0 || pureText.length > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || this.activityBodyEdited;
+    postDisabled() {
+      return (!this.attachments.length && !this.messageLength) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
-    activityType: function() {
+    activityType() {
       return this.attachments.length ? 'files:spaces' : '';
     },
-    attachmentsProgress: function () {
+    attachmentsProgress() {
       return this.attachments.length !== 0 ? this.uploadingProgress / this.attachments.length : 0;
     },
-    uploading: function() {
+    uploading() {
       return this.attachments.length * this.percent !== this.uploadingProgress;
     },
-    displayHintMessage: function() {
-      const pureText = this.message ? this.message.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() : '';
-      return this.activityComposerHintAction && pureText.length > this.MESSAGE_MAX_LENGTH;
+    displayHintMessage() {
+      return this.activityComposerHintAction && this.messageLength > this.MESSAGE_MAX_LENGTH;
     },
-    uploadingProgress: function() {
+    uploadingProgress() {
       return this.attachments.map(attachment => {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
       }).reduce((a, b) => a + b, 0);
     },
-    activityBodyEdited: function() {
-      return this.activityId ? this.escapeHTML(this.message.split('<oembed>')[0]) === this.escapeHTML(this.cleanInitialActivityBody(this.activityBody)) : false;
-    }
   },
   watch: {
     showErrorMessage: function(newVal) {
       if (newVal) {
         setTimeout(() => this.showErrorMessage = false, this.MESSAGE_TIMEOUT);
       }
-    }
+    },
+    message(newVal, oldVal) {
+      // Do not compute again this.activityBodyEdited if it's made true
+      // once, else, this can lead to performances issue when editing
+      // An activity
+      if (this.activityId && !this.activityBodyEdited) {
+        this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
+      }
+    },
   },
   created() {
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
@@ -221,6 +224,7 @@ export default {
       .then(() => this.refreshExtensions())
       .then(() => {
         this.message = this.activityBody;
+        this.resetEdited();
         if (this.activityId) {
           this.editActivity();
         }
@@ -257,6 +261,7 @@ export default {
         this.activityId = params.activityId;
         this.composerAction = params.composerAction;
         this.templateParams = params.activityParams || {};
+        this.resetEdited();
       }
 
       this.showMessageComposer = true;
@@ -272,6 +277,7 @@ export default {
 
       this.composerAction = 'post';
       this.message = '';
+      this.resetEdited();
       this.templateParams = {};
 
       this.showMessageComposer = true;
@@ -329,6 +335,9 @@ export default {
           .finally(() => this.loading = false);
       }
     },
+    resetEdited() {
+      this.$nextTick().then(() => this.activityBodyEdited = false);
+    },
     resetComposer() {
       this.activityComposerActions.forEach(action => {
         if (action.component) {
@@ -339,6 +348,7 @@ export default {
       this.attachments = [];
       this.showErrorMessage = false;
       this.message = '';
+      this.resetEdited();
     },
     refreshActivityStream() {
       const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
@@ -367,15 +377,6 @@ export default {
       text.innerHTML = html;
       return text.value.replace(/>\s+</g, '><').trim();
     },
-    cleanInitialActivityBody: function()  {
-      const div = document.createElement('div');
-      div.innerHTML = this.activityBody;
-      const elements = div.querySelectorAll('#editActivityLinkPreview');
-      Array.prototype.forEach.call( elements, function( node ) {
-        node.parentNode.remove();
-      });
-      return div.innerHTML;
-    }
   }
 };
 </script>

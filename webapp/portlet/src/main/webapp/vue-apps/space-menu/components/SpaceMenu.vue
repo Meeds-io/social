@@ -94,7 +94,7 @@ export default {
     });
   },
   mounted() {
-    this.$root.$emit('application-loaded');
+    this.$root.$applicationLoaded();
     this.computedSiteBodyMargin();
   },
   methods: {

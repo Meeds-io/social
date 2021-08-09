@@ -85,7 +85,8 @@ export default {
   },
   created() {
     this.$userService.getUser(eXo.env.portal.profileOwner)
-      .then(user => this.refresh(user && user.aboutMe || ''));
+      .then(user => this.refresh(user && user.aboutMe || ''))
+      .finally(() => this.$root.$applicationLoaded());
   },
   mounted() {
     if (this.aboutMe) {
@@ -98,7 +99,7 @@ export default {
       if (this.$refs.aboutMeDrawer) {
         this.$refs.aboutMeDrawer.close();
       }
-      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+      return this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     },
     editAboutMe() {
       this.modifyingAboutMe = this.aboutMe;

@@ -49,7 +49,7 @@ export default {
   watch: {
     loading(newVal, oldVal) {
       if (oldVal && !newVal) {
-        this.$root.$emit('application-loaded');
+        this.$root.$applicationLoaded();
       }
     },
   },

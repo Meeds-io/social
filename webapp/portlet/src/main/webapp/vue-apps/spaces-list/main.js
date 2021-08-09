@@ -18,13 +18,13 @@ export function init(filter, canCreateSpace) {
     appElement.id = appId;
 
     // init Vue app when locale ressources are ready
-    new Vue({
+    Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<exo-spaces-list v-cacheable id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'Spaces List');
   });
 }

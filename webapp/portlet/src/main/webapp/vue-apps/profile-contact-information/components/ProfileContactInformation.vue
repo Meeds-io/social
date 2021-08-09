@@ -164,7 +164,8 @@ export default {
   }),
   created() {
     return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
-      .then(user => this.refresh(user));
+      .then(user => this.refresh(user))
+      .finally(() => this.$root.$applicationLoaded());
   },
   mounted() {
     document.addEventListener('userModified', event => {

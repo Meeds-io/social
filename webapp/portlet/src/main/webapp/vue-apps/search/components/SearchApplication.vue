@@ -104,6 +104,9 @@ export default {
       });
     }
   },
+  mounted() {
+    this.$root.$applicationLoaded();
+  },
   methods: {
     changeURI() {
       const term = window.encodeURIComponent(this.term || '');

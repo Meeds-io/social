@@ -124,6 +124,7 @@ export default {
     },
     addComment(comment) {
       this.$root.selectedCommentId = comment.id;
+      this.highlightCommentId = this.$root.selectedCommentId;
       this.retrieveComments(!comment.parentCommentId);
     },
     deleteComment() {
@@ -176,6 +177,11 @@ export default {
         this.hideCommentRichEditor();
         this.$nextTick().then(() => {
           this.activity = options.activity;
+          this.commentToEdit = options.editComment;
+          this.newCommentEditor = !this.commentToEdit && options.newComment;
+          this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
+          this.highlightCommentId = options.highlightCommentId;
+          this.highlightRepliesCommentId = options.highlightRepliesCommentId;
           if (!this.drawerOpened) {
             this.drawerOpened = true;
             this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
@@ -186,11 +192,6 @@ export default {
               }
             });
           }
-          this.commentToEdit = options.editComment;
-          this.newCommentEditor = !this.commentToEdit && options.newComment;
-          this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
-          this.highlightCommentId = options.highlightCommentId;
-          this.highlightRepliesCommentId = options.highlightRepliesCommentId;
         });
       }
     },
@@ -230,6 +231,19 @@ export default {
       return this.$activityService.getActivityComments(this.activity.id, !!loadLastComments, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
         .then(data => {
           let comments = data && data.comments || [];
+          this.commentsSize = data && data.size && Number(data.size) || 0;
+          this.pagesCount = parseInt((this.commentsSize + this.limit - 1) / this.limit);
+          if (loadLastComments) {
+            this.page = this.pagesCount;
+            this.offset = (this.page - 1) * this.pageSize;
+            if (this.commentsSize > this.pageSize) {
+              // Display only comments of currentPage
+              const fromIndex = this.pageSize - ((this.commentsSize - 1) % this.pageSize + 1);
+              const toIndex = comments.length;
+              comments = comments.slice(fromIndex, toIndex);
+            }
+          }
+
           let selectedComment;
           let selectedCommentId;
           if (this.$root.selectedCommentId && this.$root.selectedActivityId === this.activity.id) {
@@ -245,21 +259,15 @@ export default {
               selectedComment.expandSubComments = true;
             }
             selectedCommentId = this.highlightRepliesCommentId;
+          } else if (this.commentToEdit) {
+            selectedComment = comments.find(comment => comment.id === this.commentToEdit.id);
+            selectedCommentId = this.commentToEdit.id;
+          } else if (this.selectedCommentIdToReply) {
+            selectedCommentId = this.selectedCommentIdToReply;
           } else {
             searchSelectedComment = false;
           }
-          this.commentsSize = data && data.size && Number(data.size) || 0;
-          this.pagesCount = parseInt((this.commentsSize + this.limit - 1) / this.limit);
-          if (loadLastComments) {
-            this.page = this.pagesCount;
-            this.offset = (this.page - 1) * this.pageSize;
-            if (this.commentsSize > this.pageSize) {
-              // Display only comments of currentPage
-              const fromIndex = this.pageSize - ((this.commentsSize - 1) % this.pageSize + 1);
-              const toIndex = comments.length;
-              comments = comments.slice(fromIndex, toIndex);
-            }
-          }
+
           if (searchSelectedComment && selectedCommentId && !selectedComment && this.page > 1) {
             // Retrieve previous page to display selected comment
             return this.loadPreviousPage();

@@ -27,10 +27,10 @@ export function init() {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    new Vue({
+    Vue.createApp({
       template: `<people-overview v-cacheable id="${appId}" />`,
       i18n,
       vuetify,
-    }).$mount(appElement);
+    }, appElement, 'People Overview');
   });
 }
