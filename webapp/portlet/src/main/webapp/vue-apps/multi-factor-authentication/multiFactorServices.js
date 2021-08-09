@@ -99,6 +99,19 @@ export function getProtectedGroups() {
   });
 }
 
+export function getProtectedNavigations() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/getProtectedNavigations`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting protected MFA navigations');
+    }
+  });
+}
+
 export function saveProtectedGroups(groups) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/mfa/saveProtectedGroups`, {
     method: 'POST',
@@ -106,9 +119,23 @@ export function saveProtectedGroups(groups) {
     body: groups
   }).then(resp => {
     if (!resp || !resp.ok) {
-      throw new Error('Error setting dlp keywords', resp);
+      throw new Error('Error when saving MFA protected groups', resp);
     } else {
       return resp.json();
+    }
+  });
+
+}
+
+export function getNavigations() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting existing navigations');
     }
   });
 }
