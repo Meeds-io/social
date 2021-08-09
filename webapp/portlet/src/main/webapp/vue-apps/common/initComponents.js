@@ -48,6 +48,23 @@ for (const key in components) {
   Vue.component(key, components[key]);
 }
 
+document.addEventListener('readystatechange', function (event){
+  if (event.target.readyState === 'interactive') {
+    if (eXo.developing) {
+      // eslint-disable-next-line no-console
+      console.warn('Document "interactive" loading started, load deferred applications');
+    }
+    eXo.env.portal.onLoadCalled = true;
+    eXo.env.portal.onLoad();
+  } else if (event.target.readyState === 'complete') {
+    if (!eXo.env.portal.onLoadCalled) {
+      eXo.env.portal.onLoadCalled = true;
+      eXo.env.portal.onLoad();
+    }
+  }
+}, false);
+
+
 Vue.prototype.$applicationLoaded = function() {
   this.$root.$emit('application-loaded');
   document.dispatchEvent(new CustomEvent('vue-app-loading-end', {detail: this.appName}));
