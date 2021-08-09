@@ -1,5 +1,11 @@
 import './initComponents.js';
 
+import * as gettingStartedService from './js/gettingStartedService.js';
+
+window.Object.defineProperty(Vue.prototype, '$gettingStartedService', {
+  value: gettingStartedService,
+});
+
 // getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
