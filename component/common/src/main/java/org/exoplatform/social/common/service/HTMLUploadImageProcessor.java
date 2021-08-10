@@ -16,8 +16,40 @@
  */
 package org.exoplatform.social.common.service;
 
+/**
+ * Service to parse an HTML content, extract temporary uploaded files, store them in a permanent location
+ * and replace URLs in the HTML content with the permanent URLs
+ */
+
 public interface HTMLUploadImageProcessor {
-  public String processImages(String content, String locationId, String imagesSubLocationPath) throws Exception;
-  public String processSpaceImages(String content, String spaceGroupId, String imagesSubLocationPath) throws Exception;
-  public String processUserImages(String content, String userId, String imagesSubLocationPath) throws Exception;
+  /**
+   * Process the given HTML content, extract temporary uploaded files
+   * and replace URLs in the HTML content with the permanent URLs
+   * @param content The HTML content
+   * @param locationId The location to store the images.
+   * @param imagesSubLocationPath The subpath of the folder under parentNode to store the images. If the nodes of this
+   *                            path do not exist, they are automatically created, only if there are images to store.
+   * @return The updated HTML content with the permanent images URLs
+   */
+  public String processImages(String content, String locationId, String imagesSubLocationPath);
+  /**
+   * Process the given HTML content, extract temporary uploaded files
+   * and replace URLs in the HTML content with the permanent URLs
+   * @param content The HTML content
+   * @param spaceGroupId The space group ID to store the image under it's content.
+   * @param imagesSubLocationPath The subpath of the folder under parentNode to store the images. If the nodes of this
+   *                            path do not exist, they are automatically created, only if there are images to store.
+   * @return The updated HTML content with the permanent images URLs
+   */
+  public String processSpaceImages(String content, String spaceGroupId, String imagesSubLocationPath);
+  /**
+   * Process the given HTML content, extract temporary uploaded files
+   * and replace URLs in the HTML content with the permanent URLs
+   * @param content The HTML content
+   * @param userId The user ID to store the image under he's content.
+   * @param imagesSubLocationPath The subpath of the folder under parentNode to store the images. If the nodes of this
+   *                            path do not exist, they are automatically created, only if there are images to store.
+   * @return The updated HTML content with the permanent images URLs
+   */
+  public String processUserImages(String content, String userId, String imagesSubLocationPath);
 }
