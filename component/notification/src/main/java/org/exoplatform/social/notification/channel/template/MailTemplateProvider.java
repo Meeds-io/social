@@ -81,7 +81,6 @@ import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectio
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "war:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
     @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpAdminDetectedItemPlugin.ID, template = "war:/notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
-    @TemplateConfig(pluginId = MfaAdminRevocationRequestPlugin.ID, template = "war:/notification/templates/MfaAdminRevocationRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpUserDetectedItemPlugin.ID, template = "war:/notification/templates/DlpUserDetectedItemPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "war:/notification/templates/DlpUserRestoredItemPlugin.gtmpl"),
     @TemplateConfig(pluginId = MalwareDetectionPlugin.ID, template = "war:/notification/templates/MalwareDetectionPlugin.gtmpl")})
@@ -1119,43 +1118,6 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
-  /** Defines the template builder for MfaAdminRevocationRequestPlugin*/
-  private AbstractTemplateBuilder mfaAdminRevocationRequest = new AbstractTemplateBuilder() {
-    @Override
-    protected MessageInfo makeMessage(NotificationContext ctx) {
-      MessageInfo messageInfo = new MessageInfo();
-
-      NotificationInfo notification = ctx.getNotificationInfo();
-
-      String language = getLanguage(notification);
-      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
-      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
-
-      Identity identity =
-          Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME,notification.getValueOwnerParameter(
-              "username"));
-
-
-      templateContext.put("USERNAME", notification.getValueOwnerParameter("username"));
-      templateContext.put("MFA_ADMIN_PAGE_URL", LinkProviderUtils.getMfaAdminURL());
-      templateContext.put("USER", Utils.addExternalFlag(identity));
-      templateContext.put("AVATAR", LinkProviderUtils.getUserAvatarUrl(identity.getProfile()));
-      templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
-
-      String subject = TemplateUtils.processSubject(templateContext);
-      String body = TemplateUtils.processGroovy(templateContext);
-      //binding the exception throws by processing template
-      ctx.setException(templateContext.getException());
-
-      return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      return false;
-    }
-  };
-
   /** Defines the template builder for DlpAdminDetectedItemPlugin*/
   private AbstractTemplateBuilder dlpAdminDetectedItem = new AbstractTemplateBuilder() {
       @Override
@@ -1293,7 +1255,6 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(RelationshipReceivedRequestPlugin.ID), relationshipReceived);
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
-    this.templateBuilders.put(PluginKey.key(MfaAdminRevocationRequestPlugin.ID), mfaAdminRevocationRequest);
     this.templateBuilders.put(PluginKey.key(DlpAdminDetectedItemPlugin.ID), dlpAdminDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpUserDetectedItemPlugin.ID), dlpUserDetectedItem);
     this.templateBuilders.put(PluginKey.key(DlpUserRestoredItemPlugin.ID), dlpUserRestoredItem);

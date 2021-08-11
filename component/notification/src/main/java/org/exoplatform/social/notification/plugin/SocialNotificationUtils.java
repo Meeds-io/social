@@ -72,9 +72,6 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<Relationship> RELATIONSHIP = new ArgumentLiteral<Relationship>(Relationship.class, "relationship");
   public final static ArgumentLiteral<String> RELATIONSHIP_ID = new ArgumentLiteral<String>(String.class, "relationshipId");
 
-  public static final ArgumentLiteral<String> MFA_REVOCATION_REQUEST_REQUESTER =new ArgumentLiteral<>(String.class,
-                                                                                                      "mfa_revocation_request_requester");
-
   public final static ArgumentLiteral<Long> DLP_DETECTED_ITEM_ID = new ArgumentLiteral<>(Long.class, "dlp_detected_item_id");
 
   public final static ArgumentLiteral<String> DLP_RESTORED_ITEM_TITLE = new ArgumentLiteral<>(String.class, "dlp_restored_item_title");
