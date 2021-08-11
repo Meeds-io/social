@@ -18,7 +18,8 @@
     :comment-types="commentTypes"
     :comment-actions="commentActions"
     :is-activity-detail="isActivityDetail"
-    class="mb-6 contentBox" />
+    class="mb-6 contentBox"
+    @loaded="$emit('loaded')" />
 </template>
 
 <script>
