@@ -22,7 +22,8 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :is-activity-detail="activityId"
-        class="mb-6 contentBox" />
+        class="mb-6 contentBox"
+        @loaded="activityLoaded(activity.id)" />
     </template>
     <template v-else-if="!loading">
       <activity-not-found v-if="activityId" />
@@ -81,6 +82,7 @@ export default {
     pageSize: 10,
     limit: 10,
     retrievedSize: 0,
+    loadedActivities: new Set(),
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
     canPost: false,
@@ -103,6 +105,9 @@ export default {
           socialUIProfile.initUserProfilePopup('ActivityStream', {});
           document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
         }, 500);
+        if (!this.activities.length || this.loadedActivities >= this.activitiesToDisplay.length) {
+          this.$root.$applicationLoaded();
+        }
       }
     },
   },
@@ -134,8 +139,10 @@ export default {
     this.hasMore = false;
     Promise.resolve(this.init())
       .finally(() => {
+        if (this.$refs && this.$refs.activityUpdater) {
+          this.$refs.activityUpdater.init();
+        }
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-        this.$root.$applicationLoaded();
       });
   },
   methods: {
@@ -155,9 +162,6 @@ export default {
         } else {
           return this.loadActivities();
         }
-      }
-      if (this.$refs && this.$refs.activityUpdater) {
-        this.$refs.activityUpdater.init();
       }
     },
     loadActivity() {
@@ -200,6 +204,12 @@ export default {
         }
       });
       return Promise.all(promises);
+    },
+    activityLoaded(activityId) {
+      this.loadedActivities.add(activityId);
+      if (this.loadedActivities.size && this.loadedActivities.size >= this.activitiesToDisplay.length) {
+        this.$root.$applicationLoaded();
+      }
     },
     setDisplayedActivity(activity) {
       if (activity.activityId) { // a comment

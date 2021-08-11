@@ -200,6 +200,11 @@ export default {
         this.setWindowTitle();
       }
     },
+    displayLoading() {
+      if (!this.displayLoading) {
+        this.$emit('loaded');
+      }
+    },
     activityTypeExtension() {
       if (this.activityTypeExtension) {
         this.retrieveActivityProperties();

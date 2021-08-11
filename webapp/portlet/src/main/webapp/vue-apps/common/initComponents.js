@@ -67,7 +67,10 @@ document.addEventListener('readystatechange', function (event){
 
 Vue.prototype.$applicationLoaded = function() {
   this.$root.$emit('application-loaded');
-  document.dispatchEvent(new CustomEvent('vue-app-loading-end', {detail: this.appName}));
+  document.dispatchEvent(new CustomEvent('vue-app-loading-end', {detail: {
+    appName: this.appName,
+    time: Date.now(),
+  }}));
 };
 
 Vue.createApp = function(params, el, appName) {
@@ -77,7 +80,10 @@ Vue.createApp = function(params, el, appName) {
       params.data = {};
     }
     params.data.appName = appName || element.id;
-    document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: params.data.appName}));
+    document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
+      appName: params.data.appName,
+      time: Date.now(),
+    }}));
     const vueApp = new Vue(params);
     vueApp.$mount(element);
     return vueApp;
