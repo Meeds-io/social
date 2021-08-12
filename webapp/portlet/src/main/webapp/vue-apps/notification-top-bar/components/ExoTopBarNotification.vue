@@ -43,7 +43,7 @@
               </div>
             </div>
           </template>
-          <template v-else slot="content">
+          <template v-else-if="!loading" slot="content">
             <div class="noNoticationWrapper">
               <div class="noNotificationsContent">
                 <i class="uiNoNotifIcon"></i>
@@ -81,14 +81,13 @@
   </v-app>
 </template>
 <script>
-import * as notificationlAPI from '../js/notificationsAPI';
-
 const SLIDE_UP = 300;
 const SLIDE_UP_MORE = 600;
 
 export default {
   data () {
     return {
+      loading: false,
       drawerNotification: false,
       notifications: [],
       badge: 0,
@@ -101,27 +100,41 @@ export default {
     badge() {
       return this.badge;
     },
+    loading() {
+      if (!this.loading && this.$refs.drawerNotificationDrawer) {
+        this.$refs.drawerNotificationDrawer.endLoading();
+      }
+    },
   },
   created() {
-    notificationlAPI.initCometd();
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
-    eXo.env.portal.addOnLoadCallback(() => this.getNotifications());
+    this.getNotifications();
   },
   mounted() {
+    if (this.$refs.drawerNotificationDrawer) {
+      if (this.loading) {
+        this.$refs.drawerNotificationDrawer.startLoading();
+      } else {
+        this.$refs.drawerNotificationDrawer.endLoading();
+      }
+    }
+    this.openDrawer();
     this.$root.$applicationLoaded();
   },
   methods: {
     getNotifications() {
-      return notificationlAPI.getNotifications()
+      this.loading = true;
+      return this.$notificationService.getNotifications()
         .then((data) => {
           this.notifications = data.notifications;
           this.badge = data.badge;
           this.notificationsSize = this.notifications.length;
           return this.$nextTick();
-        });
+        })
+        .finally(() => this.loading = false);
     },
     markAllAsRead() {
-      return notificationlAPI.updateNotification(null, 'markAllAsRead')
+      return this.$notificationService.updateNotification(null, 'markAllAsRead')
         .then(() => {
           $('.notifDrawerItems').find('li').each(function() {
             if ($(this).hasClass('unread')) {
@@ -133,7 +146,7 @@ export default {
     },
     openDrawer() {
       this.$refs.drawerNotificationDrawer.open();
-      return notificationlAPI.updateNotification(null, 'resetNew')
+      return this.$notificationService.updateNotification(null, 'resetNew')
         .then(() => this.badge = 0);
     },
     closeDrawer() {
@@ -166,7 +179,7 @@ export default {
             $(this).removeClass('unread').addClass('read');
           }
 
-          notificationlAPI.updateNotification(dataId, 'markAsRead')
+          this.$notificationService.updateNotification(dataId, 'markAsRead')
             .finally(() => {
               if (linkId != null && linkId.length >1 ) {
                 if (linkId[0].includes('/view_full_activity/')) {
@@ -185,7 +198,7 @@ export default {
         $(this).find('.remove-item').off('click')
           .on('click', function(evt) {
             evt.stopPropagation();
-            notificationlAPI.updateNotification(dataId,'hide');
+            this.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP);
           });
 
@@ -207,7 +220,7 @@ export default {
                 $(document).trigger('exo-invitation-updated');
               });
             }
-            notificationlAPI.updateNotification(dataId,'hide');
+            this.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
           });
 
@@ -229,12 +242,11 @@ export default {
                 $(document).trigger('exo-invitation-updated');
               });
             }
-            notificationlAPI.updateNotification(dataId,'hide');
+            this.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
           });
       });
     },
-
     notificationUpdated(event) {
       if (event && event.detail) {
         this.badge = event.detail.data.numberOnBadge;
