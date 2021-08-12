@@ -715,15 +715,11 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/topbarNotification.html</value>
+      <value>/WEB-INF/jsp/topbarNotification.jsp</value>
     </init-param>
     <init-param>
       <name>preload.resource.bundles</name>
       <value>locale.portlet.Portlets</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.rest</name>
-      <value>/portal/rest/notifications/webNotifications</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
