@@ -5,7 +5,7 @@
       icon
       class="transparent"
       @click="dialog = !dialog">
-      <i class="uiIconPLF24x24Search"></i>
+      <i class="uiIconPLF24x24Search position-static d-flex"></i>
     </v-btn>
     <v-fade-transition>
       <v-flex
@@ -14,17 +14,19 @@
         transition="fade-transition"
         hide-overlay>
         <v-card flat>
-          <search-toolbar
-            ref="toolbar"
-            :standalone="standalone"
-            @search="term = $event"
-            @close-search="dialog = false" />
-          <search-results
-            ref="results"
-            :connectors="connectors"
-            :term="term"
-            :standalone="standalone"
-            @filter-changed="changeURI" />
+          <template v-if="!loading">
+            <search-toolbar
+              ref="toolbar"
+              :standalone="standalone"
+              @search="term = $event"
+              @close-search="dialog = false" />
+            <search-results
+              ref="results"
+              :connectors="connectors"
+              :term="term"
+              :standalone="standalone"
+              @filter-changed="changeURI" />
+          </template>
         </v-card>
       </v-flex>
     </v-fade-transition>
@@ -38,9 +40,14 @@ export default {
       type: Array,
       default: () => [],
     },
+    skinUrls: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: () => ({
     dialog: false,
+    loading: true,
     term: null,
     standalone: false,
     pageUri: null,
@@ -58,6 +65,12 @@ export default {
     term() {
       this.changeURI();
     },
+    loading() {
+      if (!this.loading) {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$root.$applicationLoaded();
+      }
+    },
     dialog() {
       if (this.dialog) {
         $('body').addClass('hide-scroll');
@@ -71,7 +84,31 @@ export default {
     },
   },
   created() {
-    this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+    if (this.skinUrls && this.skinUrls.length) {
+      this.skinUrls.forEach(skinUrl => {
+        if (!document.querySelector(`link[href="${skinUrl}"]`)) {
+          const link = document.createElement('link');
+          link.type = 'text/css';
+          link.rel = 'stylesheet';
+          link.href = skinUrl;
+          document.head.appendChild(link);
+        }
+      });
+    }
+
+    const lang = eXo.env.portal.language;
+    const basePath = `${eXo.env.portal.context}/${eXo.env.portal.rest}`;
+    const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`];
+    if (this.connectors && this.connectors.length) {
+      this.connectors.forEach(connector => {
+        if (connector.i18nBundle) {
+          urls.push(`${basePath}/i18n/bundle/${connector.i18nBundle}-${lang}.json`);
+        }
+      });
+    }
+    exoi18n.loadLanguageAsync(lang, urls)
+      .then(() => this.$nextTick())
+      .finally(() => this.loading = false);
 
     this.pageUri = window.location.href;
     this.pageTitle = window.document.title;
@@ -105,7 +142,7 @@ export default {
     }
   },
   mounted() {
-    this.$root.$applicationLoaded();
+    this.dialog = true;
   },
   methods: {
     changeURI() {
