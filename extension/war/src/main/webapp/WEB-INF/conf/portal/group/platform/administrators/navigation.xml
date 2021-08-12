@@ -52,10 +52,5 @@
       <label>#{administration.notification}</label>
       <page-reference>group::/platform/administrators::notification</page-reference>
     </node>
-    <node>
-      <name>multifactor-authentication</name>
-      <label>#{administration.multifactorAuthentication}</label>
-      <page-reference>group::/platform/administrators::multifactor-authentication</page-reference>
-    </node>
   </page-nodes>
 </node-navigation>
