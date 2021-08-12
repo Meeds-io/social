@@ -47,8 +47,6 @@ let config = {
     activitySearchResultCard: './src/main/webapp/vue-apps/search-activity/main.js',
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     dlpQuarantine : './src/main/webapp/vue-apps/dlp-quarantine/main.js',
-    multifactorAuthentication : './src/main/webapp/vue-apps/multi-factor-authentication/main.js',
-    mfaAccess : './src/main/webapp/vue-apps/mfa-access/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
     userSettingMobile: './src/main/webapp/vue-apps/user-setting-mobile/main.js',
     branding: './src/main/webapp/vue-apps/company-branding-app/main.js'
