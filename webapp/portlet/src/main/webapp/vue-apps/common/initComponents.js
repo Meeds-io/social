@@ -93,6 +93,14 @@ Vue.createApp = function(params, el, appName) {
   }
 };
 
+Vue.startApp = function(jsModule, methodName, params) {
+  window.require([jsModule], app => {
+    if (methodName) {
+      app[methodName](params);
+    }
+  });
+};
+
 Vue.directive('cacheable', {
   bind(el, binding, vnode) {
     const appId = el.id;
@@ -109,7 +117,7 @@ Vue.directive('cacheable', {
     };
 
     const cacheDom = function() {
-      if (window.caches) {
+      if (navigator.serviceWorker && window.caches) {
         window.caches.open('portal-pwa-resources-dom')
           .then(cache => {
             if (cache) {
