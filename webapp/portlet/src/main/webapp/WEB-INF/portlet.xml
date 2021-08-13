@@ -76,10 +76,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/idmUsersManagement.html</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
-    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -107,10 +103,6 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/idmGroupsManagement.html</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
-    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -137,10 +129,6 @@
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/idmMembershipTypesManagement.html</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -181,10 +169,6 @@
       <value>PORTLET/social-portlet/WhoIsOnLinePortlet</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.whoisonline.whoisonline</value>
-    </init-param>
-    <init-param>
       <name>prefetch.resource.rest</name>
       <value>/portal/rest/v1/social/users/?status=online</value>
     </init-param>
@@ -219,10 +203,6 @@
       <name>js-manager-jsModule</name>
       <value>PORTLET/social-portlet/SpaceInfos</value>
     </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.social.SpaceInfosPortlet</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -243,10 +223,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceMembers.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets,locale.portlet.social.PeopleListApplication</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -266,10 +242,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceMenu.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -284,10 +256,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceHeader.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -305,10 +273,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/activityStream.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets,locale.social.Webui,locale.commons.Commons</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -332,10 +296,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/activityStream.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets,locale.social.Webui,locale.commons.Commons</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -356,10 +316,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingLanguage.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.UserSettings</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -377,10 +333,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingNotifications.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets,locale.portlet.notification.UserNotificationPortlet,locale.portlet.social.UserSettings</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -395,10 +347,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingSecurity.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.UserSettings</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -417,10 +365,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingTimezone.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.UserSettings</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -437,10 +381,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/userSettingMobile.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.MobileSettings</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -470,10 +410,6 @@
     <init-param>
       <name>js-manager-jsModule</name>
       <value>PORTLET/social-portlet/SiteHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portal.HamburgerMenu</value>
     </init-param>
     <init-param>
       <name>prefetch.resource.rest</name>
@@ -506,10 +442,6 @@
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portal.HamburgerMenu</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -538,10 +470,6 @@
       <value>true</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portal.HamburgerMenu</value>
-    </init-param>
-    <init-param>
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/portal/social/spaces/lastVisitedSpace/list.json?offset=0&limit=7]]></value>
     </init-param>
@@ -562,10 +490,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spaceSettings.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -584,10 +508,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spacesAdministration.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.SpacesAdministrationPortlet</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -611,10 +531,6 @@
       <value>true</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
-    </init-param>
-    <init-param>
       <name>preload.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/identities/{userId}]]></value>
     </init-param>
@@ -633,10 +549,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileHeader.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.ProfileHeader</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -653,10 +565,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileContactInformation.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.ProfileContactInformation</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -675,10 +583,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileWorkExperience.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.ProfileWorkExperience</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -696,10 +600,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/profileAboutMe.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.ProfileAboutMe</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -716,10 +616,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/topbarNotification.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -753,10 +649,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/externalSpaceList.jsp</value>
     </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.ExternalSpacesListApplication</value>
-    </init-param>
     <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
@@ -774,10 +666,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/spacesList.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.SpacesListApplication</value>
     </init-param>
     <init-param>
       <name>preload.resource.rest</name>
@@ -813,10 +701,6 @@
       <value>true</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.social.SpacesOverview</value>
-    </init-param>
-    <init-param>
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=manager&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=requests&returnSize=true&expand=pending|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=pending&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=invited&returnSize=true&expand=]]></value>
     </init-param>
@@ -836,10 +720,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/peopleList.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.social.PeopleListApplication</value>
     </init-param>
     <init-param>
       <name>preload.resource.rest</name>
@@ -875,10 +755,6 @@
       <value>true</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.social.PeopleOverview</value>
-    </init-param>
-    <init-param>
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/users/connections/pending?offset=0&limit=0&expand=&returnSize=true|/portal/rest/v1/social/users/connections/invitations?offset=0&limit=0&expand=&returnSize=true]]></value>
     </init-param>
@@ -907,10 +783,6 @@
       <name>js-manager-javascript-content</name>
       <value><![CDATA[SuggestionsPeopleAndSpace.init(document.querySelector('#SuggestionsPeopleAndSpace').getAttribute('data-suggestion-type'))]]></value>
     </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portlet.social.SuggestionsPortlet</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -927,10 +799,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/search.jsp</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Portlets</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -950,10 +818,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/dlpQuarantine.html</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.dlpQuarantine.dlpQuarantine</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -993,10 +857,6 @@
       <value>true</value>
     </init-param>
     <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portal.HamburgerMenu</value>
-    </init-param>
-    <init-param>
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/navigations/group?exclude=/spaces.*&visibility=displayed]]></value>
     </init-param>
@@ -1027,10 +887,6 @@
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
-    <init-param>
-      <name>prefetch.resource.bundles</name>
-      <value>locale.portal.HamburgerMenu</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1045,10 +901,6 @@
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/companyBranding.html</value>
-    </init-param>
-    <init-param>
-      <name>preload.resource.bundles</name>
-      <value>locale.portlet.Branding</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
