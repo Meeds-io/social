@@ -1,6 +1,6 @@
 <template>
   <v-app class="hiddenable-widget">
-    <div :class="appVisibilityClass" class="onlinePortlet">
+    <div v-if="display" class="onlinePortlet">
       <div id="onlineContent" class="white">
         <v-card-title class="title center">
           {{ $t('header.label') }}
@@ -14,9 +14,7 @@
               <v-avatar size="37" class="mx-1">
                 <v-img
                   :lazy-src="user.avatar"
-                  :src="user.avatar"
-                  transition="eager"
-                  eager />
+                  :src="user.avatar" />
               </v-avatar>
             </a>
           </li>
@@ -32,64 +30,64 @@ import * as whoIsOnlineServices from '../whoIsOnlineServices';
 export default {
   data() {
     return {
-      users: [],
+      users: null,
+      labels: null,
+      delay: 120000,
     };
   },
   computed: {
-    appVisibilityClass() {
-      if (!this.users || !this.users.length) {
-        return 'd-none hidden';
-      }
-      return '';
+    display() {
+      return this.users && this.users.length;
     },
   },
   created() {
-    this.initOnlineUsers();
-    // And we should use setInterval with 60 seconds
-    const delay = 60000;
+    this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
     setInterval(function () {
-      this.initOnlineUsers();
-    }.bind(this), delay);
-  },
-  updated() {
-    this.initPopup();
+      this.retrieveOnlineUsers();
+    }.bind(this), this.delay);
   },
   methods: {
-    initOnlineUsers() {
+    retrieveOnlineUsers() {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
-        .then(response => {
-          if (response) {
-            const users = response.users || [];
-            for (const user of users) {
-              user.href = `${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_NAME}/profile/${user.username}`;
-              if (!user.avatar) {
-                user.avatar = `${this.$spacesConstants.SOCIAL_USER_API}/${user.username}/avatar`;
-              }
-            }
-            this.users = users;
-          } else {
-            this.users = [];
+        .then(data => this.initOnlineUsers(data && data.users || []));
+    },
+    initOnlineUsers(users) {
+      if (users && users.length) {
+        users = users.filter(user => user.username !== eXo.env.portal.userName).slice(0, 20);
+        for (const user of users) {
+          user.href = `${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_NAME}/profile/${user.username}`;
+          if (!user.avatar) {
+            user.avatar = `${this.$spacesConstants.SOCIAL_USER_API}${user.username}/avatar`;
           }
-          return this.$nextTick();
-        })
-        .finally(() => this.$root.$applicationLoaded());
+        }
+        this.users = users;
+      } else {
+        this.users = [];
+      }
+      return this.$nextTick()
+        .then(() => {
+          this.initPopup();
+          this.$root.$applicationLoaded();
+        });
     },
     initPopup() {
       const restUrl = `//${this.$spacesConstants.HOST_NAME}${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;
-      const labels = {
-        youHaveSentAnInvitation: this.$t('message.label'),
-        StatusTitle: this.$t('Loading.label'),
-        Connect: this.$t('Connect.label'),
-        Confirm: this.$t('Confirm.label'),
-        CancelRequest: this.$t('CancelRequest.label'),
-        RemoveConnection: this.$t('RemoveConnection.label'),
-        Ignore: this.$t('Ignore.label'),
-        Disabled: this.$t('Disabled.label')
-      };
+      if (!this.labels) {
+        this.labels = {
+          youHaveSentAnInvitation: this.$t('message.label'),
+          StatusTitle: this.$t('Loading.label'),
+          Connect: this.$t('Connect.label'),
+          Confirm: this.$t('Confirm.label'),
+          CancelRequest: this.$t('CancelRequest.label'),
+          RemoveConnection: this.$t('RemoveConnection.label'),
+          Ignore: this.$t('Ignore.label'),
+          Disabled: this.$t('Disabled.label')
+        };
+      }
       $('#onlineList').find('a').each(function (idx, el) {
         $(el).userPopup({
           restURL: restUrl,
-          labels: labels,
+          labels: this.labels,
           content: false,
           defaultPosition: 'left',
           keepAlive: true,
