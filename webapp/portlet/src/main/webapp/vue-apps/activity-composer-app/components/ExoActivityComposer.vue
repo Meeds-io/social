@@ -10,7 +10,7 @@
     <v-app id="activityComposerApp" class="activityComposerApp VuetifyApp">
       <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivity editActivityDrawer${activityId}` : '']" class="drawer">
         <div class="header">
-          <img src="/eXoSkin/skin/images/system/composer/composer.png">
+          <img src="/eXoSkin/skin/images/system/composer/composer.png" loading="lazy">
           <span> {{ $t('activity.composer.title') }}</span>
           <a
             class="closebtn"

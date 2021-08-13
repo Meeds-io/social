@@ -10,15 +10,8 @@
       <img
         :src="avatarUrl"
         :class="avatarClass"
-        class="object-fit-cover ma-auto">
-      <v-img
-        :src="avatarUrl"
-        :height="size"
-        :width="size"
-        :max-height="size"
-        :max-width="size"
-        class="mx-auto"
-        eager />
+        class="object-fit-cover ma-auto"
+        loading="lazy">
     </v-avatar>
     <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2 d-flex">
       <p

@@ -9,7 +9,8 @@
       class="ma-0">
       <img
         :src="avatarUrl"
-        class="object-fit-cover my-auto">
+        class="object-fit-cover my-auto"
+        loading="lazy">
     </v-avatar>
     {{ displayName }}
   </a>
