@@ -4,7 +4,8 @@
       :height="height"
       :style="{maxHeight: height}"
       src="/social-portlet/images/emptySpaceStream.png"
-      class="mx-auto">
+      class="mx-auto"
+      loading="lazy">
     <div class="mx-4 mb-4">
       <p v-sanitized-html="welcomeTitle"></p>
       <div v-sanitized-html="welcomeSpaceParagraph1" class="mb-4"></div>
