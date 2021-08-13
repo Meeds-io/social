@@ -8,13 +8,14 @@
         <ul id="onlineList" class="gallery uiContentBox">
           <li
             v-for="user in users"
-            :key="user"
+            :key="user.id"
             :id="user.id">
             <a :href="user.href" class="avatarXSmall">
               <v-avatar size="37" class="mx-1">
-                <v-img
-                  :lazy-src="user.avatar"
-                  :src="user.avatar" />
+                <img
+                  :src="user.avatar"
+                  class="ma-auto object-fit-cover"
+                  loading="lazy">
               </v-avatar>
             </a>
           </li>
@@ -53,12 +54,8 @@ export default {
     },
     initOnlineUsers(users) {
       if (users && users.length) {
-        users = users.filter(user => user.username !== eXo.env.portal.userName).slice(0, 20);
         for (const user of users) {
           user.href = `${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_NAME}/profile/${user.username}`;
-          if (!user.avatar) {
-            user.avatar = `${this.$spacesConstants.SOCIAL_USER_API}${user.username}/avatar`;
-          }
         }
         this.users = users;
       } else {

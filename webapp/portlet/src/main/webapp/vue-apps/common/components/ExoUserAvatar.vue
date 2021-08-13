@@ -10,7 +10,8 @@
         class="ma-0 pull-left">
         <img
           :src="avatarUrl"
-          class="object-fit-cover ma-auto">
+          class="object-fit-cover ma-auto"
+          loading="lazy">
       </v-avatar>
       <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
         <p

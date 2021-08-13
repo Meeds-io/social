@@ -14,7 +14,8 @@
               <img
                 :src="manager.avatar"
                 alt="avatar"
-                class="object-fit-cover ma-auto">
+                class="object-fit-cover ma-auto"
+                loading="lazy">
             </v-avatar>
             {{ manager.fullname }}
           </a>
