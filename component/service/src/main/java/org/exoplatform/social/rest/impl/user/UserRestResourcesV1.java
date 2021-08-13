@@ -16,8 +16,7 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
+import static org.exoplatform.social.rest.api.RestUtils.*;
 
 import java.io.*;
 import java.util.*;
@@ -54,7 +53,6 @@ import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -147,8 +145,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private SpaceService spaceService;
   
   private UserSearchService userSearchService;
-
-  private static final String INVISIBLE = "invisible";
   
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
@@ -245,12 +241,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isNotBlank(spaceId)) {
         space = spaceService.getSpaceById(spaceId);
         if (space != null) {
-          identities = getOnlineIdentitiesOfSpace(userId, space, limit);
+          identities = getOnlineIdentitiesOfSpace(userStateService, userId, space, limit);
         } else {
           return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
         }
       } else {
-        identities = getOnlineIdentities(userId, limit);
+        identities = getOnlineIdentities(userStateService, userId, limit);
       }
     } else {
       ProfileFilter filter = new ProfileFilter();
@@ -1543,58 +1539,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (model.getPassword() != null && !model.getPassword().isEmpty()) {
       user.setPassword(model.getPassword());
     }
-  }
-
-  /**
-   * gets online identities who are members of a space.
-   *
-   * @param userId The current user.
-   * @param space The space of which extract members.
-   * @param limit Maximum number of identities to return.
-   * @return identity array.
-   */
-  private Identity[] getOnlineIdentitiesOfSpace(String userId, Space space, int limit) {
-    List<Identity> identities = new ArrayList<>();
-    String[] spaceMembers = space.getMembers();
-    String superUserName = userACL.getSuperUser();
-    for (String user : spaceMembers) {
-        UserStateModel userModel = userStateService.getUserState(user);
-        boolean isOnline = userStateService.isOnline(user);
-        if (user.equals(userId) || user.equals(superUserName) || userModel == null || INVISIBLE.equals(userModel.getStatus()) || !isOnline) {
-          continue;
-        }
-        Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user, false);
-        identities.add(userIdentity);
-        if (identities.size() == limit) {
-          break;
-        }
-    }
-    return identities.toArray(new Identity[identities.size()]);
-  }
-
-  /**
-   * gets online identities.
-   *
-   * @param userId The current user.
-   * @param limit Maximum number of identities to return.
-   * @return identity array.
-   */
-  private Identity[] getOnlineIdentities(String userId, int limit) {
-    List<Identity> identities = new ArrayList<>();
-    List<UserStateModel> users = userStateService.online();
-    Collections.reverse(users);
-    if (users.size() > limit) {
-      users = users.subList(0, limit);
-    }
-    String superUserName = userACL.getSuperUser();
-    for (UserStateModel userModel : users) {
-      String user = userModel.getUserId();
-      if (user.equals(userId) || user.equals(superUserName) || userModel == null || INVISIBLE.equals(userModel.getStatus()))
-        continue;
-      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user, false);
-      identities.add(userIdentity);
-    }
-    return identities.toArray(new Identity[identities.size()]);
   }
   
   /**

@@ -19,11 +19,7 @@ package org.exoplatform.social.rest.api;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -36,12 +32,16 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.services.user.UserStateModel;
+import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.rest.entity.DataEntity;
 
 public class RestUtils {
@@ -57,6 +57,8 @@ public class RestUtils {
   public static final String ADMIN_GROUP    = "/platform/administrators";
 
   public static final String DELEGATED_GROUP    = "/platform/delegated";
+
+  public static final String     INVISIBLE       = "invisible";
 
   private static IdentityManager identityManager;
 
@@ -263,6 +265,69 @@ public class RestUtils {
 
   public static final String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
+  }
+
+
+  /**
+   * gets online identities who are members of a space.
+   *
+   * @param userStateService {@link UserStateService}
+   * @param userId The current user.
+   * @param space The space of which extract members.
+   * @param limit Maximum number of identities to return.
+   * @return identity array.
+   */
+  public static Identity[] getOnlineIdentitiesOfSpace(UserStateService userStateService, String userId, Space space, int limit) {
+    List<Identity> identities = new ArrayList<>();
+    String[] spaceMembers = space.getMembers();
+    String superUserName = ExoContainerContext.getService(UserACL.class).getSuperUser();
+    if (userStateService == null) {
+      userStateService = ExoContainerContext.getService(UserStateService.class);
+    }
+    for (String user : spaceMembers) {
+      UserStateModel userModel = userStateService.getUserState(user);
+      boolean isOnline = userStateService.isOnline(user);
+      if (!user.equals(userId) && !user.equals(superUserName) && userModel != null && !INVISIBLE.equals(userModel.getStatus()) && isOnline) {
+        Identity userIdentity = getIdentityManager().getOrCreateUserIdentity(user);
+        identities.add(userIdentity);
+        if (identities.size() == limit) {
+          break;
+        }
+      }
+    }
+    return identities.toArray(new Identity[identities.size()]);
+  }
+
+  /**
+   * gets online identities.
+   *
+   * @param userStateService {@link UserStateService}
+   * @param userId The current user.
+   * @param limit Maximum number of identities to return.
+   * @return identity array.
+   */
+  public static Identity[] getOnlineIdentities(UserStateService userStateService, String userId, int limit) {
+    List<Identity> identities = new ArrayList<>();
+    if (userStateService == null) {
+      userStateService = ExoContainerContext.getService(UserStateService.class);
+    }
+    List<UserStateModel> users = userStateService.online();
+    Collections.reverse(users);
+    if (users.size() > limit) {
+      users = users.subList(0, limit);
+    }
+    UserACL userACL = ExoContainerContext.getService(UserACL.class);
+    String superUserName = userACL.getSuperUser();
+    for (UserStateModel userModel : users) {
+      String user = userModel == null ? null : userModel.getUserId();
+      if (StringUtils.isBlank(user) || user.equals(userId) || user.equals(superUserName)
+          || INVISIBLE.equals(userModel.getStatus())) {
+        continue;
+      }
+      Identity userIdentity = getIdentityManager().getOrCreateUserIdentity(user);
+      identities.add(userIdentity);
+    }
+    return identities.toArray(new Identity[identities.size()]);
   }
 
   public static IdentityManager getIdentityManager() {
