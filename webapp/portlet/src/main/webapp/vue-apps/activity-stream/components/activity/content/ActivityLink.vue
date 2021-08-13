@@ -22,7 +22,8 @@
             v-if="thumbnail"
             :src="thumbnail"
             :alt="title"
-            class="object-fit-cover my-auto">
+            class="object-fit-cover my-auto"
+            loading="lazy">
           <v-icon
             v-else
             :size="defaultIconSize"
@@ -60,7 +61,8 @@
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
-          class="object-fit-cover my-auto">
+          class="object-fit-cover my-auto"
+          loading="lazy">
         <v-icon
           v-else
           :size="defaultIconSize"
