@@ -321,20 +321,6 @@ public static final String RESOURCE_URL = "social/notifications";
   }
 
   /**
-   * Get the Redirect Mfa page url
-   *
-   * @return the Mfa page url
-   */
-  public static String getMfaAdminURL() {
-    String portal = PortalContainer.getCurrentPortalContainerName();
-    return CommonsUtils.getCurrentDomain()
-        + "/"
-        + portal
-        + "/"
-        + "g/:platform:administrators/multifactor-authentication";
-  }
-
-  /**
    * Get the Redirect restored item url
    *
    * @return the Redirect restored item url
