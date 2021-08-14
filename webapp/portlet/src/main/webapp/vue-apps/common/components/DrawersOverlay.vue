@@ -13,6 +13,7 @@ export default {
   data: () => ({
     openedModals: 0,
     openedDrawers: 0,
+    uiPortalApplicationElement: null,
   }),
   computed: {
     overlay() {
@@ -27,6 +28,7 @@ export default {
 
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
+    this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
   },
   methods: {
     closeDisplayedDrawerNoEvent() {
@@ -38,17 +40,25 @@ export default {
       }
     },
     showOverlay() {
-      document.querySelector('#UIPortalApplication').classList.add('decrease-z-index');
+      this.uiPortalApplicationElement.classList.add('decrease-z-index');
       window.setTimeout(() => {
         this.openedDrawers += 1;
       }, 10);
+      const searchDialog = document.querySelector('#searchDialog');
+      if (searchDialog) {
+        searchDialog.style.zIndex = 'revert';
+      }
     },
     hideOverlay() {
       if (this.openedDrawers > 0) {
         this.openedDrawers -= 1;
       }
       if (this.openedDrawers === 0) {
-        document.querySelector('#UIPortalApplication').classList.remove('decrease-z-index');
+        this.uiPortalApplicationElement.classList.remove('decrease-z-index');
+      }
+      const searchDialog = document.querySelector('#searchDialog');
+      if (searchDialog) {
+        searchDialog.style.zIndex = '';
       }
     },
     modalOpened() {

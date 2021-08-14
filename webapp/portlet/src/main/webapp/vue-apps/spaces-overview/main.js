@@ -10,10 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-Vue.use(VueEllipsis);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -31,7 +27,7 @@ export function init() {
     Vue.createApp({
       template: `<spaces-overview v-cacheable id="${appId}" />`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Spaces Overview');
   });
 }

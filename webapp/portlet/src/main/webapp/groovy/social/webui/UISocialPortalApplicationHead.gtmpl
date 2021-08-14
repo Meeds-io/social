@@ -34,6 +34,7 @@
      eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
      eXo.env.portal.cometdToken = "<%=cometdToken%>";
      eXo.env.portal.cometdContext = "<%=cometdContext%>";
+     eXo.env.server.sessionId = "<%=rcontext.getRequest().getSession(true).getId()%>";
      eXo.env.portal.vuetifyPreset = {
        dark: true,
        silent: !eXo.developing,

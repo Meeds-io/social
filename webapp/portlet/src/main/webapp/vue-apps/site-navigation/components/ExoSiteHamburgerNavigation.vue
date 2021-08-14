@@ -74,6 +74,9 @@ export default {
   },
   watch: {
     navigations() {
+      if (this.navigations.length && !this.homeLink) {
+        this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
+      }
       this.navigations.forEach(nav => {
         const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
         nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
@@ -82,18 +85,26 @@ export default {
     },
   },
   created(){
+    const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Site_Navigations_${eXo.env.server.sessionId}`);
+    if (cachedNavigations) {
+      this.navigations = JSON.parse(cachedNavigations);
+      this.$root.$applicationLoaded();
+      return;
+    }
     fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
       method: 'GET',
       credentials: 'include',
     })
       .then(resp => resp && resp.ok && resp.json())
-      .then(data => {
-        this.navigations = data;
-        if (this.navigations && this.navigations.length && !this.homeLink) {
-          this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
+      .then(data => this.navigations = data || [])
+      .finally(() => {
+        this.$root.$applicationLoaded();
+        try {
+          window.sessionStorage.setItem(`Site_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(this.navigations));
+        } catch (e) {
+          // Expected Quota Exceeded Error
         }
-      })
-      .finally(() => this.$root.$applicationLoaded());
+      });
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });

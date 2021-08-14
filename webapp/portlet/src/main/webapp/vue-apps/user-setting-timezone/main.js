@@ -12,10 +12,6 @@ if (extensionRegistry) {
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-Vue.use(Vuetify);
-Vue.use(VueEllipsis);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -38,7 +34,7 @@ export function init(timezones) {
       },
       template: `<user-setting-timezone v-cacheable id="${appId}" :timezones="timezones" />`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'User Settings TimeZone');
   });
 }

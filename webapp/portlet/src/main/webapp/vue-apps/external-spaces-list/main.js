@@ -19,9 +19,6 @@ if (extensionRegistry) {
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'ExternalSpacesListPortlet';
 
 export function init() {
@@ -38,7 +35,7 @@ export function init() {
         },
         template: `<external-spaces-list id="${appId}" v-cacheable />`,
         i18n,
-        vuetify,
+        vuetify: Vue.prototype.vuetifyOptions,
       }, appElement, 'External Spaces List');
     });
 }
