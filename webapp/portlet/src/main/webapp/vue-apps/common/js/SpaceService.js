@@ -228,6 +228,9 @@ export function getSpaces(query, offset, limit, filter, expand) {
 }
 
 export function removeSpace(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -239,6 +242,9 @@ export function removeSpace(spaceId) {
 }
 
 export function updateSpace(space) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${space.id}`, {
     method: 'PUT',
     credentials: 'include',
@@ -277,6 +283,9 @@ export function createSpace(space) {
 }
 
 export function leave(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/leave/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -288,6 +297,9 @@ export function leave(spaceId) {
 }
 
 export function cancel(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/cancel/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -299,6 +311,9 @@ export function cancel(spaceId) {
 }
 
 export function join(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/join/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
@@ -310,6 +325,9 @@ export function join(spaceId) {
 }
 
 export function requestJoin(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/request/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
@@ -321,6 +339,9 @@ export function requestJoin(spaceId) {
 }
 
 export function accept(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/accept/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
@@ -332,6 +353,9 @@ export function accept(spaceId) {
 }
 
 export function deny(spaceId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/deny/${spaceId}`, {
     method: 'GET',
     credentials: 'include',
@@ -531,6 +555,10 @@ export function removeMember(spacePrettyName, username) {
 }
 
 export function getSuggestionsSpace(){
+  const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  if (cachedSuggestions) {
+    return Promise.resolve(JSON.parse(cachedSuggestions));
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/suggestions`, {
     credentials: 'include'
   }).then(resp => {
@@ -541,10 +569,22 @@ export function getSuggestionsSpace(){
     } else {
       return resp.json();
     }
+  }).then(data => {
+    if (sessionStorage && data) {
+      try {
+        sessionStorage.setItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`, JSON.stringify(data));
+      } catch (e) {
+        // Expected when Quota Error is thrown 
+      }
+    }
+    return data;
   });
 }
 
 export function ignoreSuggestion(item) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+  }
   const data = {'user': item.username,'space': item.displayName, 'status': 'IGNORED'};
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/`, {
     method: 'POST',
