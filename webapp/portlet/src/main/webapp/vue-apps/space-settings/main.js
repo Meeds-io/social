@@ -12,9 +12,6 @@ if (extensionRegistry) {
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -40,7 +37,7 @@ export function init(maxUploadSize) {
                   :max-upload-size="${maxUploadSize}"
                   class="singlePageApplication" />`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Space Settings');
   });
 }

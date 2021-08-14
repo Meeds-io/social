@@ -10,9 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'SpaceHeader';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
@@ -39,7 +36,7 @@ export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, appElement, 'Space Header');
   });

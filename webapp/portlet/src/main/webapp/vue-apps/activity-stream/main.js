@@ -35,9 +35,6 @@ window.disableSwipeOnPage = true;
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'ActivityStream';
 
 // Attention!!! when changing this, the list of preloaded
@@ -57,7 +54,7 @@ export function init(initialData, initialLimit) {
         activityBaseLink: activityBaseLink,
       },
       template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, `#${appId}`, 'Stream');
   });

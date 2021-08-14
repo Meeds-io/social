@@ -10,9 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'SpaceMenu';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
@@ -29,7 +26,7 @@ export function init(settings) {
       selectedNavigationUri: settings && settings.selectedNavigationUri,
     },
     template: `<space-menu v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
-    vuetify,
+    vuetify: Vue.prototype.vuetifyOptions,
   }, appElement, 'Space Menu');
 
   const actionsElement = document.createElement('div');
@@ -40,7 +37,7 @@ export function init(settings) {
       this.$root.$emit('application-loaded');
     },
     template: `<space-title-action-components v-cacheable="{cacheId: '${cachedIdActions}'}" id="${appIdAction}" />`,
-    vuetify,
+    vuetify: Vue.prototype.vuetifyOptions,
   }).$mount(actionsElement);
 
 }

@@ -1,10 +1,6 @@
 import './components/initComponents.js';
 import * as spacesAdministrationDirectives from './spacesAdministrationDirectives.js';
 
-Vue.use(Vuetify);
-
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 // getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -37,7 +33,7 @@ export function init(applicationsByCategory) {
       },
       template: `<exo-spaces-administration-spaces v-cacheable id="${appId}" :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Spaces Administration');
   });
 }
