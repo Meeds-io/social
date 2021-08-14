@@ -1,3 +1,4 @@
+
 export function getUser(username, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}?expand=${expand || ''}`, {
     method: 'GET',
@@ -129,6 +130,10 @@ export function getPending(offset, limit, expand) {
 }
 
 export function getSuggestionsUsers() {
+  const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  if (cachedSuggestions) {
+    return Promise.resolve(JSON.parse(cachedSuggestions));
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/suggestions`,{
     credentials: 'include'
   }).then(resp => {
@@ -139,10 +144,22 @@ export function getSuggestionsUsers() {
     } else {
       return resp.json();
     }
+  }).then(data => {
+    if (sessionStorage && data) {
+      try {
+        sessionStorage.setItem(`Suggestions_Users_${eXo.env.server.sessionId}`, JSON.stringify(data));
+      } catch (e) {
+        // Expected when Quota Error is thrown 
+      }
+    }
+    return data;
   });
 }
 
 export function sendConnectionRequest(userID) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/connect/${userID}`,{
     method: 'GET',
     credentials: 'include',
@@ -154,6 +171,9 @@ export function sendConnectionRequest(userID) {
 }
 
 export function ignoreSuggestion(receiver) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
   const sender = eXo.env.portal.userName;
   const data = {'sender': sender ,'receiver': receiver,'status': 'IGNORED'};
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships/`, {
@@ -176,6 +196,9 @@ export function ignoreSuggestion(receiver) {
 }
 
 export function connect(userId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships`, {
     method: 'POST',
     credentials: 'include',
@@ -198,6 +221,9 @@ export function connect(userId) {
 }
 
 export function confirm(userId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships`, {
     method: 'PUT',
     credentials: 'include',
@@ -220,6 +246,9 @@ export function confirm(userId) {
 }
 
 export function deleteRelationship(userId) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships/${eXo.env.portal.userName}/${userId}`, {
     method: 'DELETE',
     credentials: 'include',
