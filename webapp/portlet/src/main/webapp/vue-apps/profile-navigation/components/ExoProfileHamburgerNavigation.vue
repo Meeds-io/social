@@ -45,16 +45,17 @@ export default {
         Object.assign(this.profile, event.detail);
       }
     });
-    Promise.resolve(this.retrieveUserInformation())
-      .finally(() => this.$root.$applicationLoaded());
+    this.retrieveUserInformation();
   },
   methods: {
     retrieveUserInformation() {
       this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
       if (!this.profile) {
         return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
-          .then(data => this.profile = data && data.profile);
+          .then(data => this.profile = data && data.profile)
+          .finally(() => this.$root.$applicationLoaded());
       }
+      this.$root.$applicationLoaded();
     },
   },
 };

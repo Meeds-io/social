@@ -10,10 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-Vue.use(VueEllipsis);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -38,7 +34,7 @@ export function init(aboutMe) {
       },
       template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Profile About Me');
   });
 }

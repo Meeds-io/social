@@ -13,9 +13,6 @@ if (extensionRegistry) {
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'GroupsManagement';
@@ -34,7 +31,7 @@ export function init() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<groups-management v-cacheable id="${appId}" />`,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, appElement, 'Group Management');
   });

@@ -19,12 +19,6 @@ export default {
   }),
   mounted() {
     if (this.result && this.result.connector) {
-      const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-      const vueI18n = new VueI18n({
-        locale: this.$i18n.locale,
-        messages: this.$i18n.messages,
-      });
-
       const self = this;
       const SearchResultItem = Vue.extend({
         data: () => ({
@@ -43,8 +37,8 @@ export default {
       });
 
       new SearchResultItem({
-        i18n: vueI18n,
-        vuetify,
+        vuetify: Vue.prototype.vuetifyOptions,
+        i18n: exoi18n.i18n,
       }).$mount(`#${this.id}`);
       this.$forceUpdate();
     }

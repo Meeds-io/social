@@ -17,9 +17,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'SuggestionsPeopleAndSpace';
 
 export function init(suggestionsType) {
@@ -32,7 +29,7 @@ export function init(suggestionsType) {
     Vue.createApp({
       template: `<exo-suggestions-people-and-space v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, `Suggestions ${suggestionsType}`);
   });
 }

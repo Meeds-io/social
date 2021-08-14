@@ -22,9 +22,9 @@
 export default {
   data() {
     return {
-      vuetify: new Vuetify(eXo.env.portal.vuetifyPreset),
       navigationScope: 'ALL',
       navigationVisibilities: ['displayed'],
+      loading: false,
       navigations: [],
       embeddedTree: {
         // users and spaces
@@ -119,23 +119,37 @@ export default {
       if (this.navigations.length) {
         return;
       }
+      const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Administration_Navigations_${eXo.env.server.sessionId}`);
+      if (cachedNavigations) {
+        this.navigations = JSON.parse(cachedNavigations);
+        return;
+      }
+      this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?exclude=/spaces.*&${this.visibilityQueryParams}`, {
         method: 'GET',
         credentials: 'include',
       })
         .then(resp => resp && resp.ok && resp.json())
-        .then(data => this.navigations = data || []);
+        .then(data => this.navigations = data || [])
+        .finally(() => {
+          this.loading = false;
+          try {
+            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(this.navigations));
+          } catch (e) {
+            // Expected Quota Exceeded Error
+          }
+        });
     },
     mountSecondLevel(parentId) {
-      this.retrieveAdministrationMenu();
       const VueHamburgerMenuItem = Vue.extend({
         data: () => {
           return {
             navigations: this.navigationTree,
+            loading: this.loading,
           };
         },
         template: `
-          <exo-administration-navigations :navigations="navigations" />
+          <exo-administration-navigations :navigations="navigations" :loading="loading" />
         `,
       });
       new VueHamburgerMenuItem({
@@ -143,7 +157,7 @@ export default {
           locale: this.$i18n.locale,
           messages: this.$i18n.messages,
         }),
-        vuetify: this.vuetify,
+        vuetify: Vue.prototype.vuetifyOptions,
       }).$mount(parentId);
     },
     openDrawer() {

@@ -4,7 +4,11 @@
     px-0
     py-0
     class="white">
-    <v-row v-if="navigations && navigations.length" class="mx-0">
+    <v-progress-linear
+      v-if="loading"
+      color="primary"
+      height="2" />
+    <v-row v-else-if="navigations && navigations.length" class="mx-0">
       <v-list 
         shaped 
         dense 
@@ -23,6 +27,10 @@
 <script>
 export default {
   props: {
+    loading: {
+      type: Boolean,
+      default: false
+    },
     navigations: {
       type: Object,
       default: null
