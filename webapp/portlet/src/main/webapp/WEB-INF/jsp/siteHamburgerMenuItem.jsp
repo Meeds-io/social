@@ -5,5 +5,5 @@
   String homeLink = portalConfigService.getUserHomePage(request.getRemoteUser());
 %>
 <script type="text/javascript">
-eXo.env.portal.homeLink = '<%=homeLink%>';
+  eXo.env.portal.homeLink = "<%=homeLink%>";
 </script>

@@ -10,9 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'UsersManagement';
@@ -34,7 +31,7 @@ export function init() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<users-management v-cacheable id="${appId}" />`,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, appElement, 'Users Management');
   });

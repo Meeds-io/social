@@ -1,9 +1,5 @@
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-Vue.use(Vuetify);
-Vue.use(VueEllipsis);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -24,7 +20,7 @@ export function init(filter, canCreateSpace) {
       },
       template: `<exo-spaces-list v-cacheable id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Spaces List');
   });
 }

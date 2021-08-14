@@ -16,7 +16,7 @@
       :style="hamburgerMenuStyle"
       left
       eager>
-      <template slot="content">
+      <template v-if="hamburgerMenuInitialized" slot="content">
         <v-row
           class="HamburgerMenuLevelsParent fill-height"
           no-gutters
@@ -52,7 +52,6 @@ export default {
       idleTime: 20,
       isMobile: false,
       idleTimeToDisplaySecondLevel: 20,
-      vuetify: new Vuetify(eXo.env.portal.vuetifyPreset),
     };
   },
   computed: {
@@ -88,6 +87,7 @@ export default {
     $(window).resize(() => {
       this.isMobile = !$('#HamburgerMenuVisibility').is(':visible');
     });
+    this.$root.$applicationLoaded();
   },
   methods: {
     refreshMenu() {
@@ -99,7 +99,6 @@ export default {
       this.contents = extensions;
       const contentsToLoad = this.contents.filter(contentDetail => !contentDetail.loaded);
       this.initializing = contentsToLoad.length;
-      const vuetify = this.vuetify;
       let contentsToLoadLength = contentsToLoad.length;
       const self = this;
       contentsToLoad.forEach(contentDetail => {
@@ -114,7 +113,7 @@ export default {
                       locale: this.$i18n.locale,
                       messages: this.$i18n.messages,
                     }),
-                    vuetify,
+                    vuetify: Vue.prototype.vuetifyOptions,
                     methods: {
                       $applicationLoaded() {
                         contentsToLoadLength--;

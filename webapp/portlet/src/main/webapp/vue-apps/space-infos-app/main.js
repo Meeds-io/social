@@ -16,9 +16,6 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'spaceInfosApp';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
@@ -30,7 +27,7 @@ export function init() {
 
     Vue.createApp({
       template: `<exo-space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-space-infos>`,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, appElement, 'Space Info');
   });

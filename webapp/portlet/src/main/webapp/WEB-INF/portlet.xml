@@ -383,22 +383,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
     </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/SiteHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/navigations/portal/?siteName=dw&scope=children&visibility=displayed]]></value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -414,18 +398,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/blank.html</value>
     </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/ProfileHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -440,18 +412,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/siteHamburgerMenuItem.jsp</value>
-    </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/SpacesHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
     </init-param>
     <init-param>
       <name>prefetch.resource.rest</name>
@@ -828,22 +788,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/blank.html</value>
     </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/AdministrationHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/navigations/group?exclude=/spaces.*&visibility=displayed]]></value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -858,18 +802,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/blank.html</value>
-    </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/UserHamburgerMenu</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>

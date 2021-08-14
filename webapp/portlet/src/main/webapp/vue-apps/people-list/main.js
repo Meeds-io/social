@@ -1,7 +1,3 @@
-Vue.use(Vuetify);
-Vue.use(VueEllipsis);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -23,7 +19,7 @@ export function init(filter) {
       },
       template: `<people-list v-cacheable id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
-      vuetify,
+      vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'People List');
   });
 }
