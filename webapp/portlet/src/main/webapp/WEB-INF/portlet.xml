@@ -719,14 +719,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/suggestions.jsp</value>
     </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-javascript-content</name>
-      <value><![CDATA[SuggestionsPeopleAndSpace.init(document.querySelector('#SuggestionsPeopleAndSpace').getAttribute('data-suggestion-type'))]]></value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
