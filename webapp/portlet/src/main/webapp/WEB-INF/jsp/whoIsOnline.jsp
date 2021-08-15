@@ -1,3 +1,7 @@
+<%@page import="java.util.Locale"%>
+<%@page import="org.exoplatform.services.resources.ResourceBundleService"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="java.util.ResourceBundle"%>
 <%@page import="org.exoplatform.social.rest.entity.CollectionEntity"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="org.exoplatform.social.rest.api.RestUtils"%>
@@ -20,11 +24,38 @@
   }
   CollectionEntity collectionUsers = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, 0, 20);
   String usersOnlineString = EntityBuilder.toJsonString(collectionUsers);
+  String title;
+  try {
+    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.whoisonline.whoisonline", request.getLocale());
+    title = bundle.getString("header.label");
+  } catch (Exception e) {
+    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.whoisonline.whoisonline", Locale.ENGLISH);
+    title = bundle.getString("header.label");
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application v-application--is-ltr hiddenable-widget theme--light"
+    class="v-application hiddenable-widget v-application--is-ltr theme--light"
     id="OnlinePortlet">
+<%
+if (identities.length > 0) {
+%>
+    <div class="v-application--wrap">
+      <div class="onlinePortlet">
+        <div id="onlineContent" class="white">
+          <div class="v-card__title title center"><%=title%></div>
+          <ul id="onlineList" class="gallery uiContentBox">
+            <li id="4">
+              <a href="/portal/dw/profile/testuser" class="avatarXSmall">
+                <div class="v-avatar mx-1" style="height: 37px; min-width: 37px; width: 37px;">
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+<% } %>
     <textarea id="whoIsOnlineDefaultValue" class="hidden"><%=usersOnlineString%></textarea>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/WhoIsOnLinePortlet'], app => app.init());
