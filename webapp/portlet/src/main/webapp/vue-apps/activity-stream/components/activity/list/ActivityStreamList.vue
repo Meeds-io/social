@@ -25,7 +25,16 @@
         class="mb-6 contentBox"
         @loaded="activityLoaded(activity.id)" />
     </template>
-    <template v-else-if="!loading">
+    <div
+      v-else-if="loading"
+      class="white border-radius activity-detail flex d-flex flex-column mb-6 contentBox">
+      <v-progress-circular
+        color="primary"
+        size="32"
+        indeterminate
+        class="mx-auto my-10" />
+    </div>
+    <template v-else>
       <activity-not-found v-if="activityId" />
       <template v-else-if="!error">
         <activity-stream-empty-message-space v-if="spaceId" />
@@ -66,14 +75,6 @@ export default {
     },
     commentActions: {
       type: Object,
-      default: null,
-    },
-    initialData: {
-      type: Object,
-      default: null,
-    },
-    initialLimit: {
-      type: Number,
       default: null,
     },
   },
@@ -135,7 +136,7 @@ export default {
     });
 
     this.limit = this.pageSize;
-    this.retrievedSize = this.initialLimit && (this.initialLimit / 2) || this.limit;
+    this.retrievedSize = this.limit;
     this.hasMore = false;
     Promise.resolve(this.init())
       .finally(() => {
@@ -148,20 +149,9 @@ export default {
   methods: {
     init() {
       if (this.activityId) {
-        if (this.initialData) {
-          this.setDisplayedActivity(this.initialData);
-        } else {
-          return this.loadActivity();
-        }
+        return this.loadActivity();
       } else {
-        if (this.initialData && this.initialData.activityIds) {
-          return this.loadActivityIds(this.initialData);
-        } else if (this.initialData && this.initialData.activities) {
-          this.activities = this.initialData.activities.slice(0, this.limit);
-          return this.loadActivityIds(this.initialData);
-        } else {
-          return this.loadActivities();
-        }
+        return this.loadActivityIds();
       }
     },
     loadActivity() {
@@ -171,39 +161,31 @@ export default {
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
-    loadActivities() {
-      // Load 'retrievedSize + 10' instead of only 'limit' to avoid retrieving count of user activities
-      // Which can be CPU consuming in server side.
-      // If the retrieved elements count > 'limit', then there are more elements to retrieve,
-      // else no more elements to retrieve
-      const limitToRetrieve = this.retrievedSize + 10;
-
+    loadActivityIds() {
       this.loading = true;
-      return this.$activityService.getActivities(this.spaceId, limitToRetrieve, 'ids')
-        .then(this.loadActivityIds)
-        .catch(() => this.error = true)
+      return this.$activityService.getActivities(this.spaceId, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+        .then(data => {
+          this.canPost = data.canPost;
+          const activityIds = data && (data.activityIds || data.activities) || [];
+          this.retrievedSize = activityIds.length;
+          this.hasMore = this.retrievedSize > this.limit;
+          const activityIdsToLoad = activityIds.slice(0, this.limit);
+          const promises = activityIdsToLoad.map(activity => {
+            const activityId = activity && activity.id;
+            const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
+            if (existingActivity) {
+              return Promise.resolve(existingActivity);
+            } else if (activityId) {
+              this.$set(activity, 'loading', true);
+              this.activities.push(activity);
+              return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+                .then(fullActivity => Object.assign(activity, fullActivity))
+                .finally(() => this.$set(activity, 'loading', false));
+            }
+          });
+          return Promise.all(promises);
+        })
         .finally(() => this.loading = false);
-    },
-    loadActivityIds(data) {
-      this.canPost = data.canPost;
-      const activityIds = data && (data.activityIds || data.activities) || [];
-      this.retrievedSize = activityIds.length;
-      this.hasMore = this.retrievedSize > this.limit;
-      const activityIdsToLoad = activityIds.slice(0, this.limit);
-      const promises = activityIdsToLoad.map(activity => {
-        const activityId = activity && activity.id;
-        const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
-        if (existingActivity) {
-          return Promise.resolve(existingActivity);
-        } else if (activityId) {
-          this.$set(activity, 'loading', true);
-          this.activities.push(activity);
-          return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-            .then(fullActivity => Object.assign(activity, fullActivity))
-            .finally(() => this.$set(activity, 'loading', false));
-        }
-      });
-      return Promise.all(promises);
     },
     activityLoaded(activityId) {
       this.loadedActivities.add(activityId);
@@ -234,7 +216,7 @@ export default {
     },
     loadMore() {
       this.limit += this.pageSize;
-      this.loadActivities();
+      this.loadActivityIds();
     },
     addActivities(activities) {
       if (activities && activities.length) {

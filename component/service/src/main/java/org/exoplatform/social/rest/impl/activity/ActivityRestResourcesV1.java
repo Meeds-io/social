@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
@@ -173,8 +174,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
     String entitiesName = null;
     List<DataEntity> activityEntities = null;
-    if (StringUtils.equals(expand, "ids")) {
-      List<String> activityIds = listAccess.loadIdsAsList(offset, limit);
+    boolean retrieveIds = StringUtils.contains(expand, "ids");
+    List<String> activityIds = null;
+    if (retrieveIds) {
+      activityIds = listAccess.loadIdsAsList(offset, limit);
       activityEntities = activityIds.stream().map(id -> {
         DataEntity dataEntity = new DataEntity();
         dataEntity.setProperty("id", id);
@@ -206,7 +209,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       collectionActivity.setSize(listAccess.getSize());
     }
     collectionActivity.put("canPost", canPost);
-    return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+
+    ResponseBuilder responseBuilder = EntityBuilder.getResponseBuilder(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    if (activityIds != null && !activityIds.isEmpty()) {
+      int preloadLimit = limit / 2;
+      String preloadExpand = expand.replaceFirst(",?ids,?", "");
+      addPreloadActivityIds(activityIds, preloadLimit, preloadExpand, responseBuilder);
+    }
+    return responseBuilder.build();
   }
 
   @POST
@@ -965,6 +975,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       activityEntities.add(activityEntity.getDataEntity());
     }
     return activityEntities;
+  }
+
+  private void addPreloadActivityIds(List<String> activityIds, int preloadLimit, String expand, ResponseBuilder responseBuilder) {
+    List<String> preloadActivities = activityIds.size() >= preloadLimit ? activityIds.subList(0, preloadLimit) : activityIds;
+    preloadActivities.forEach(activityId -> {
+      String activityLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=" + expand;
+      responseBuilder.header("Link", "<" + activityLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials");
+    });
   }
 
 }
