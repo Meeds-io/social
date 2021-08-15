@@ -24,10 +24,8 @@ export function init(suggestionsType) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    const cacheId = `${appId}_${suggestionsType || ''}`;
-
     Vue.createApp({
-      template: `<exo-suggestions-people-and-space v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
+      template: `<exo-suggestions-people-and-space id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, `Suggestions ${suggestionsType}`);
