@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
+<%@page import="java.util.Collections"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
@@ -9,6 +11,7 @@
 <%@page import="org.exoplatform.services.security.ConversationState"%>
 <%
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
+  PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
   List<String> activitiesListURL = new ArrayList<>();
   String activityId = rcontext.getRequest().getParameter("id");
   long limitToDisplay = 10;
@@ -16,18 +19,13 @@
   String activitiesLoadingURL;
   if (activityId == null) {
     Space space = SpaceUtils.getSpaceByContext();
-    ExoFeatureService featureService = ExoContainerContext.getService(ExoFeatureService.class);
-    if (featureService.isActiveFeature("ActivitiesSmoothLoading")) {
-      activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids";
-    } else {
-      activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=identity,likes,shared,commentsPreview,subComments";
-    }
+    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments";
   } else {
     activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments";
   }
+  responseWrapper.addHeader("Link", "<" + activitiesLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
 <div class="VuetifyApp">
-  <link rel="preload" href="<%=activitiesLoadingURL%>" as="fetch">
   <div id="ActivityStream"
     class="v-application transparent v-application--is-ltr theme--light activity-stream"
     data-app="true" flat="">
@@ -47,33 +45,7 @@
       </div>
     </div>
     <script type="text/javascript">
-      document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
-        appName: 'Stream',
-        time: Date.now(),
-      }}));
-      fetch('<%=activitiesLoadingURL%>', {
-        method: 'GET',
-        credentials: 'include',
-        mode: 'no-cors',
-      }).then(resp => {
-        if (resp && resp.ok) {
-          return resp.json();
-        }
-      }).then(initialData => {
-<% if (activityId == null) { %>
-        if (initialData && initialData.activityIds && initialData.activityIds.length) {
-          initialData.activityIds.slice(0, <%=limitToDisplay%>).forEach(activity => {
-            const preloadLink = document.createElement("link");
-            preloadLink.href = `/portal/rest/v1/social/activities/\${activity.id}?expand=identity,likes,shared,commentsPreview,subComments`;
-            preloadLink.rel = 'preload';
-            preloadLink.as = 'fetch';
-            preloadLink.crossOrigin = 'use-credentials';
-            document.head.appendChild(preloadLink);
-          });
-        }
-<% } %>
-        require(['SHARED/ActivityStream'], app => app.init(initialData, <%=initialLimit%>));
-      });
+      require(['SHARED/ActivityStream'], app => app.init());
     </script>
   </div>
 </div>
