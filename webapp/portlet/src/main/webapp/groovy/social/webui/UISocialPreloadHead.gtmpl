@@ -12,9 +12,7 @@
 
   def rcontext = _ctx.getRequestContext();
 
-  SearchService searchService = uicomponent.getApplicationComponent(SearchService.class);
   SkinService skinService = uicomponent.getApplicationComponent(SkinService.class);
-  Set<SearchConnector> connectors = searchService.getEnabledConnectors();
 
   def jsConfig = uicomponent.getJSConfig();
   def jsConfigPaths = jsConfig.get("paths");
@@ -26,19 +24,23 @@
   def space = SpaceUtils.getSpaceByContext();
   String spaceId = space == null ? "" : space.getId();
   String spacePrettyName = space == null ? "" : space.getPrettyName();
-  for (restPath in restPaths) {
-    restPath = restPath.replace("{userId}", userId)
-                       .replace("{username}", username)
-                       .replace("{spaceId}", spaceId)
-                       .replace("{spacePrettyName}", spaceId);
+  if (restPaths != null && userId != null && username != null) {
+    for (restPath in restPaths) {
+      restPath = restPath.replace("{userId}", userId)
+                         .replace("{username}", username)
+                         .replace("{spaceId}", spaceId)
+                         .replace("{spacePrettyName}", spacePrettyName);
   %>
   <link rel="preload" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
   <% }
-  for (restPath in prefetchRestPaths) {
-    restPath = restPath.replace("{userId}", userId)
-                       .replace("{username}", username)
-                       .replace("{spaceId}", spaceId)
-                       .replace("{spacePrettyName}", spaceId);
+  }
+  if (prefetchRestPaths != null && userId != null && username != null) {
+    for (restPath in prefetchRestPaths) {
+      restPath = restPath.replace("{userId}", userId)
+                         .replace("{username}", username)
+                         .replace("{spaceId}", spaceId)
+                         .replace("{spacePrettyName}", spacePrettyName);
   %>
-  <link rel="prefetch" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
-  <% } %>
+    <link rel="prefetch" href="<%=restPath%>" as="fetch" crossorigin="use-credentials">
+  <% }
+  } %>
