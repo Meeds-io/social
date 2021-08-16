@@ -10,17 +10,14 @@ const appId = 'spacesListApplication';
 
 export function init(filter, canCreateSpace) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     // init Vue app when locale ressources are ready
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<exo-spaces-list v-cacheable id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
+      template: `<exo-spaces-list id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'Spaces List');
+    }, `#${appId}`, 'Spaces List');
   });
 }

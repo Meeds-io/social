@@ -20,13 +20,10 @@ const appId = 'PeopleOverview';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
-      template: `<people-overview v-cacheable id="${appId}" />`,
+      template: `<people-overview id="${appId}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'People Overview');
+    }, `#${appId}`, 'People Overview');
   });
 }

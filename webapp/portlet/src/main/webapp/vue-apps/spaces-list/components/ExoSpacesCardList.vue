@@ -1,5 +1,10 @@
 <template>
   <v-card flat>
+    <v-progress-linear
+      v-if="loadingSpaces"
+      indeterminate
+      height="2"
+      color="primary" />
     <v-card-text id="spacesListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">

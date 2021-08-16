@@ -25,17 +25,14 @@ export function init() {
   //getting locale ressources
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
-      const appElement = document.createElement('div');
-      appElement.id = appId;
-
       // init Vue app when locale ressources are ready
       Vue.createApp({
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
-        template: `<external-spaces-list id="${appId}" v-cacheable />`,
+        template: `<external-spaces-list id="${appId}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
-      }, appElement, 'External Spaces List');
+      }, `#${appId}`, 'External Spaces List');
     });
 }
