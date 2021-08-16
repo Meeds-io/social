@@ -45,12 +45,14 @@ if (identities.length > 0) {
         <div id="onlineContent" class="white">
           <div class="v-card__title title center"><%=title%></div>
           <ul id="onlineList" class="gallery uiContentBox">
-            <li id="4">
-              <a href="/portal/dw/profile/testuser" class="avatarXSmall">
+            <% for (Identity identity : identities) { %>
+            <li>
+              <a class="avatarXSmall">
                 <div class="v-avatar mx-1" style="height: 37px; min-width: 37px; width: 37px;">
                 </div>
               </a>
             </li>
+            <% } %>
           </ul>
         </div>
       </div>
