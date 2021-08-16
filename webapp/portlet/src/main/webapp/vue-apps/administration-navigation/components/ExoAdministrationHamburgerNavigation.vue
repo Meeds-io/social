@@ -121,9 +121,9 @@ export default {
       }
       const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Administration_Navigations_${eXo.env.server.sessionId}`);
       if (cachedNavigations) {
-        this.navigations = JSON.parse(cachedNavigations);
-        return;
+        this.$nextTick().then(() => this.navigations = JSON.parse(cachedNavigations));
       }
+
       this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?exclude=/spaces.*&${this.visibilityQueryParams}`, {
         method: 'GET',
@@ -131,12 +131,13 @@ export default {
       })
         .then(resp => resp && resp.ok && resp.json())
         .then(data => {
+          const navigations = data || [];
           try {
-            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(data || []));
+            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(navigations));
           } catch (e) {
             // Expected Quota Exceeded Error
           }
-          this.navigations = data || [];
+          this.navigations = navigations;
         })
         .finally(() => {
           this.loading = false;
