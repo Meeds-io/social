@@ -33,14 +33,14 @@
           </template>
           <template v-if="notificationsSize" slot="content">
             <div class="notifDrawerItems">
-              <div
+              <a
                 v-for="(notif, i) in notifications"
                 :key="i"
                 :id="'notifItem-'+i"
                 v-sanitized-html="notif.notification"
                 class="notifDrawerItem"
                 @mouseenter="applyActions(`notifItem-`+i)">
-              </div>
+              </a>
             </div>
           </template>
           <template v-else-if="!loading" slot="content">
@@ -169,36 +169,32 @@ export default {
         }
         const linkId = dataLink.split(`${eXo.env.portal.context}/`);
         const dataId = $(this).data('id').toString();
+        if (linkId != null && linkId.length >1 ) {
+          if (linkId[0].includes('/view_full_activity/')) {
+            const id = linkId[0].split('/view_full_activity/')[1];
+            $(this).parent().attr('href', `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`);
+          } else {
+            $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
+          }
+        } else {
+          $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
+        }
 
         // ----------------- Mark as read
-
-        $(this).on('click', function(evt) {
-          evt.stopPropagation();
-
+        $(this).on('click', function() {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
 
-          this.$notificationService.updateNotification(dataId, 'markAsRead')
-            .finally(() => {
-              if (linkId != null && linkId.length >1 ) {
-                if (linkId[0].includes('/view_full_activity/')) {
-                  const id = linkId[0].split('/view_full_activity/')[1];
-                  location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`;
-                } else {
-                  location.href = `${eXo.env.portal.context}/${linkId[1]}`;
-                }
-              } else {
-                location.href = dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`);
-              }
-            });
+          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
         });
 
         // ------------- hide notif
         $(this).find('.remove-item').off('click')
           .on('click', function(evt) {
+            evt.preventDefault();
             evt.stopPropagation();
-            this.$notificationService.updateNotification(dataId,'hide');
+            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP);
           });
 
@@ -220,7 +216,7 @@ export default {
                 $(document).trigger('exo-invitation-updated');
               });
             }
-            this.$notificationService.updateNotification(dataId,'hide');
+            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
           });
 
@@ -242,7 +238,7 @@ export default {
                 $(document).trigger('exo-invitation-updated');
               });
             }
-            this.$notificationService.updateNotification(dataId,'hide');
+            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
           });
       });
