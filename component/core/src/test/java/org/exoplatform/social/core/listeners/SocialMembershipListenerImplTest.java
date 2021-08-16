@@ -84,6 +84,10 @@ public class SocialMembershipListenerImplTest extends AbstractCoreTest {
     assertEquals(3, sFoo.getManagers().length);
     assertEquals(4, sFoo.getMembers().length);
 
+    // test postSave for redactors membership type
+    addUserToGroupWithMembership("demo", sFoo.getGroupId(), "redactor");
+    assertTrue(spaceService.isRedactor(sFoo, "demo"));
+
     // update space Editor when it's null
     sFoo.setEditor(null);
     addUserToGroupWithMembership("john", sFoo.getGroupId(), "manager");
