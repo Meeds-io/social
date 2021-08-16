@@ -87,22 +87,22 @@ export default {
   created(){
     const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Site_Navigations_${eXo.env.server.sessionId}`);
     if (cachedNavigations) {
-      this.navigations = JSON.parse(cachedNavigations);
-      this.$root.$applicationLoaded();
-      return;
+      this.$nextTick().then(() => this.navigations = JSON.parse(cachedNavigations));
     }
     fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
       method: 'GET',
       credentials: 'include',
     })
       .then(resp => resp && resp.ok && resp.json())
-      .then(data => this.navigations = data || [])
-      .finally(() => {
-        this.$root.$applicationLoaded();
+      .then(data => {
+        const navigations = data || [];
         try {
-          window.sessionStorage.setItem(`Site_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(this.navigations));
+          window.sessionStorage.setItem(`Site_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(navigations));
         } catch (e) {
           // Expected Quota Exceeded Error
+        }
+        if (!this.navigations || !this.navigations.length) {
+          this.navigations = navigations;
         }
       });
     document.addEventListener('homeLinkUpdated', () => {
