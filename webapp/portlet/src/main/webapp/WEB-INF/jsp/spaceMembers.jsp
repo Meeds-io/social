@@ -27,7 +27,6 @@
   <div data-app="true"
     class="v-application transparent v-application--is-ltr theme--light singlePageApplication"
     id="peopleListApplication" flat="">
-    <v-cacheable-dom-app cache-id="peopleListApplication_<%=spaceId%>"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/MembersPortlet'],
           app => app.init('<%=filter%>', <%=isManager%>, <%=isExternalFeatureEnabled%>)

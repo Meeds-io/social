@@ -13,7 +13,7 @@
         class="pb-0">
         <v-list-item-group v-model="selectedNavigationIndex">
           <v-list-item
-            v-for="nav in navigations"
+            v-for="nav in navigationsToDisplay"
             :key="nav.uri"
             :input-value="nav.selected"
             :active="nav.selected"
@@ -71,17 +71,20 @@ export default {
     selectedNavigationIndex() {
       return this.navigations.findIndex(nav => nav.uri === eXo.env.portal.selectedNodeUri);
     },
+    navigationsToDisplay() {
+      this.navigations.forEach(nav => {
+        const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
+        nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
+        nav.fullUri = `${this.BASE_SITE_URI}${nav.uri}`;
+      });
+      return this.navigations.slice();
+    },
   },
   watch: {
     navigations() {
       if (this.navigations.length && !this.homeLink) {
         this.homeLink = `${this.BASE_SITE_URI}${this.navigations[0].uri}`;
       }
-      this.navigations.forEach(nav => {
-        const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
-        nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
-        nav.fullUri = `${this.BASE_SITE_URI}${nav.uri}`;
-      });
     },
   },
   created(){
