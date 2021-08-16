@@ -61,7 +61,9 @@ import io.swagger.annotations.*;
 )
 public class ActivityRestResourcesV1 implements ResourceContainer {
 
-  private static final Log          LOG                    = ExoLogger.getLogger(ActivityRestResourcesV1.class);
+  private static final Log        LOG            = ExoLogger.getLogger(ActivityRestResourcesV1.class);
+
+  private static final int        MAX_TO_PRELOAD = 10;
 
   private ActivityManager         activityManager;
 
@@ -213,8 +215,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     ResponseBuilder responseBuilder = EntityBuilder.getResponseBuilder(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
     if (activityIds != null && !activityIds.isEmpty()) {
       int preloadLimit = limit / 2;
-      String preloadExpand = expand.replaceFirst(",?ids,?", "");
-      addPreloadActivityIds(activityIds, preloadLimit, preloadExpand, responseBuilder);
+      if (preloadLimit > 1) {
+        String preloadExpand = expand.replaceFirst(",?ids,?", "");
+        addPreloadActivityIds(activityIds, preloadLimit, preloadExpand, responseBuilder);
+      }
     }
     return responseBuilder.build();
   }
@@ -978,11 +982,12 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   }
 
   private void addPreloadActivityIds(List<String> activityIds, int preloadLimit, String expand, ResponseBuilder responseBuilder) {
-    List<String> preloadActivities = activityIds.size() >= preloadLimit ? activityIds.subList(0, preloadLimit) : activityIds;
-    preloadActivities.forEach(activityId -> {
+    int offset = preloadLimit > MAX_TO_PRELOAD ? preloadLimit - MAX_TO_PRELOAD : 0;
+    List<String> preloadActivityIds = activityIds.size() >= preloadLimit ? activityIds.subList(offset, preloadLimit) : activityIds;
+    for (String activityId : preloadActivityIds) {
       String activityLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=" + expand;
       responseBuilder.header("Link", "<" + activityLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials");
-    });
+    }
   }
 
 }
