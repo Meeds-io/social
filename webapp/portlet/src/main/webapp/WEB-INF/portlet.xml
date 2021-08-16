@@ -630,7 +630,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/spacesOverview.html</value>
+      <value>/WEB-INF/jsp/spacesOverview.jsp</value>
     </init-param>
     <init-param>
       <name>use-js-manager</name>
@@ -684,7 +684,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/peopleOverview.html</value>
+      <value>/WEB-INF/jsp/peopleOverview.jsp</value>
     </init-param>
     <init-param>
       <name>use-js-manager</name>

@@ -22,17 +22,14 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     // init Vue app when locale ressources are ready
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<membership-types-management v-cacheable id="${appId}" />`,
+      template: `<membership-types-management id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
-    }, appElement, 'Membership Type Management');
+    }, `#${appId}`, 'Membership Type Management');
   });
 }
