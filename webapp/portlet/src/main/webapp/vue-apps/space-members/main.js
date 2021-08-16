@@ -19,19 +19,14 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`;
 
 const appId = 'peopleListApplication';
-const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 export function init(filter, isManager, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-members
-                  v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   :is-manager="${isManager}"
                   :is-external-feature-enabled="${isExternalFeatureEnabled}"
@@ -40,6 +35,6 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
                   class="singlePageApplication" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'Space Members');
+    }, `#${appId}`, 'Space Members');
   });
 }

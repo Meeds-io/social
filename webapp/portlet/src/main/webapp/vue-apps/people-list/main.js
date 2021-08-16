@@ -10,16 +10,13 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<people-list v-cacheable id="${appId}" filter="${filter || 'all'}"></people-list>`,
+      template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'People List');
+    }, `#${appId}`, 'People List');
   });
 }

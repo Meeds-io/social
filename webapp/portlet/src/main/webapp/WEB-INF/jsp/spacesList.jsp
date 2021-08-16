@@ -14,7 +14,6 @@
   <div data-app="true"
     class="v-application transparent v-application--is-ltr theme--light"
     id="spacesListApplication" flat="">
-    <v-cacheable-dom-app cache-id="spacesListApplication"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/SpacesList'],
           app => app.init('<%=filter%>', <%=canCreateSpace%>)

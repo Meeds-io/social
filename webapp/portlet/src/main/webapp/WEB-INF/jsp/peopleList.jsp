@@ -10,7 +10,6 @@
   <div data-app="true"
     class="v-application transparent v-application--is-ltr theme--light peopleList"
     id="peopleListApplication" flat="">
-    <v-cacheable-dom-app cache-id="peopleListApplication"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/PeopleList'],
           app => app.init('<%=filter%>')
