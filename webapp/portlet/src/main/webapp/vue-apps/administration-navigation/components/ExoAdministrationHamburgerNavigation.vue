@@ -67,7 +67,7 @@ export default {
       const navigationTree = [];
       const navigationParentObjects = {};
 
-      let navigationsList = this.navigations.slice();
+      let navigationsList = JSON.parse(JSON.stringify(this.navigations));
       navigationsList = this.filterDisplayedNavigations(navigationsList);
       this.computeLink(navigationsList);
 
@@ -130,14 +130,16 @@ export default {
         credentials: 'include',
       })
         .then(resp => resp && resp.ok && resp.json())
-        .then(data => this.navigations = data || [])
-        .finally(() => {
-          this.loading = false;
+        .then(data => {
           try {
-            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(this.navigations));
+            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(data || []));
           } catch (e) {
             // Expected Quota Exceeded Error
           }
+          this.navigations = data || [];
+        })
+        .finally(() => {
+          this.loading = false;
         });
     },
     mountSecondLevel(parentId) {
