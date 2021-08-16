@@ -21,13 +21,10 @@ const appId = 'SuggestionsPeopleAndSpace';
 
 export function init(suggestionsType) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       template: `<exo-suggestions-people-and-space id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, `Suggestions ${suggestionsType}`);
+    }, `#${appId}`, `Suggestions ${suggestionsType}`);
   });
 }
