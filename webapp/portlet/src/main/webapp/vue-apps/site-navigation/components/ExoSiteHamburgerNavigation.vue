@@ -88,7 +88,8 @@ export default {
     },
   },
   created(){
-    const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Site_Navigations_${eXo.env.server.sessionId}`);
+    const cacheKey = `Site_Navigations_${eXo.env.portal.portalName}_${eXo.env.server.sessionId}`;
+    const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(cacheKey);
     if (cachedNavigations) {
       this.$nextTick().then(() => this.navigations = JSON.parse(cachedNavigations));
     }
@@ -100,7 +101,7 @@ export default {
       .then(data => {
         const navigations = data || [];
         try {
-          window.sessionStorage.setItem(`Site_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(navigations));
+          window.sessionStorage.setItem(cacheKey, JSON.stringify(navigations));
         } catch (e) {
           // Expected Quota Exceeded Error
         }
