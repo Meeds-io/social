@@ -32,6 +32,7 @@ import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -313,25 +314,31 @@ public class PeopleRestService implements ResourceContainer{
       }
       // Search in member of space first
       if (currentSpace != null) {
-        String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
-        for (String spaceMember : spaceMembers) {
-          Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember);
-          if (identity.isEnable() && !identity.isDeleted() && !identity.getRemoteId().equals(currentIdentity.getRemoteId())) {
-            Option opt = new Option();
-            String fullName = identity.getProfile().getFullName();
-            if (Util.isExternal(identity.getId())) {
-              fullName += " " + "(" + Util.getResourceBundleLabel(request.getLocale(), "external.label.tag") + ")";
-            }
-            String userName = (String) identity.getProfile().getProperty(Profile.USERNAME);
-            opt.setType("user");
-            opt.setValue(userName);
-            opt.setText(fullName + " (" + userName + ")");
-            opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
-            excludedIdentityList.add(identity);
-            opt.setOrder(1);
-            nameList.addOption(opt);
-          }
-        }
+        String role = SpaceMemberFilterListAccess.Type.MEMBER.name();
+        SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
+        ListAccess<Identity> spaceIdentitiesListAccess = getIdentityManager().getSpaceIdentityByProfileFilter(currentSpace,
+                identityFilter,
+                type,
+                true);
+        int size = spaceIdentitiesListAccess.getSize();
+        Identity[] spaceIdentities = spaceIdentitiesListAccess.load(0, size < SUGGEST_LIMIT ? size : (int)SUGGEST_LIMIT);
+        Arrays.stream(spaceIdentities).filter(identity -> identity.isEnable() && !identity.isDeleted() &&
+                                      !identity.getRemoteId().equals(currentUser))
+                .forEach(identity -> {
+                  Option option = new Option();
+                  String fullName = identity.getProfile().getFullName();
+                  if(Util.isExternal(identity.getId())) {
+                    fullName += " " + "(" + Util.getResourceBundleLabel(request.getLocale(), "external.label.tag") + ")";
+                  }
+                  String userName = (String) identity.getProfile().getProperty(Profile.USERNAME);
+                  option.setType("user");
+                  option.setValue(userName);
+                  option.setText(fullName + " (" + userName + ")");
+                  option.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
+                  option.setOrder(1);
+                  nameList.addOption(option);
+                });
+        excludedIdentityList.addAll(Arrays.asList(spaceIdentities));
       }
 
       // Search in connections
