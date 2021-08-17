@@ -50,6 +50,8 @@
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
+    <sonar.coverage.jacoco.xmlReportPaths>target/jacoco.exec</sonar.coverage.jacoco.xmlReportPaths>
+
   </properties>
   <dependencyManagement>
     <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
