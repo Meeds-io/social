@@ -19,8 +19,18 @@
                                          : RestUtils.getOnlineIdentitiesOfSpace(null, request.getRemoteUser(), space, 20);
   List<DataEntity> profileInfos = new ArrayList<>();
   for (Identity identity : identities) {
-    ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), "/v1/social/identities", null);
-    profileInfos.add(profileInfo.getDataEntity());
+    try {
+      if (identity == null || identity.getProfile() == null) {
+        continue;
+      }
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), "/v1/social/identities", null);
+      if (profileInfo == null) {
+        continue;
+      }
+      profileInfos.add(profileInfo.getDataEntity());
+    } catch (Exception e) {
+      // When computing User attributes fails, display the application anyway
+    }
   }
   CollectionEntity collectionUsers = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, 0, 20);
   String usersOnlineString = EntityBuilder.toJsonString(collectionUsers);
@@ -38,14 +48,14 @@
     class="v-application hiddenable-widget v-application--is-ltr theme--light"
     id="OnlinePortlet">
 <%
-if (identities.length > 0) {
+if (profileInfos.size() > 0) {
 %>
     <div class="v-application--wrap">
       <div class="onlinePortlet">
         <div id="onlineContent" class="white">
           <div class="v-card__title title center"><%=title%></div>
           <ul id="onlineList" class="gallery uiContentBox">
-            <% for (Identity identity : identities) { %>
+            <% for (DataEntity profileInfo : profileInfos) { %>
             <li>
               <a class="avatarXSmall">
                 <div class="v-avatar mx-1" style="height: 37px; min-width: 37px; width: 37px;">
