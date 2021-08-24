@@ -185,7 +185,7 @@ export default {
       return this.attachments.length * this.percent !== this.uploadingProgress;
     },
     displayHintMessage() {
-      return this.activityComposerHintAction && this.messageLength > this.MESSAGE_MAX_LENGTH;
+      return this.activityComposerHintAction && this.activityComposerHintAction.enabled && this.messageLength > this.MESSAGE_MAX_LENGTH;
     },
     uploadingProgress() {
       return this.attachments.map(attachment => {
