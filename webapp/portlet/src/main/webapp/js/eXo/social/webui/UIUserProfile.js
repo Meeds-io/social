@@ -118,7 +118,10 @@
               //
               UserProfile.loadingProfileSize(componentId);
               //
-              uiProfile.initUserProfilePopup(componentId, {});
+              uiProfile.initUserProfilePopup(componentId, {
+                'External': this.$t('UserProfilePopup.label.External'),
+                'Disabled': this.$t('UserProfilePopup.label.Disabled')
+              });
             } else {
               container.hide();
               portlet.find('div.borderContainer.empty:first').show();
