@@ -15,6 +15,13 @@ if (!Vue.prototype.$activityConstants) {
   });
 }
 
+import * as transferRulesService from './js/transferRulesService.js';
+if (!Vue.prototype.$transferRulesService) {
+  window.Object.defineProperty(Vue.prototype, '$transferRulesService', {
+    value: transferRulesService,
+  });
+}
+
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;

@@ -52,13 +52,14 @@ export default {
   data: () => ({
     menu: false,
     loading: false,
+    downloadAllowed: true,
   }),
   computed: {
     menuButtonStyle() {
       return this.$vuetify && this.$vuetify.rtl && 'top:8px;left:4px;' || 'top:8px;right:4px;';
     },
     enabledActions() {
-      return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension));
+      return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension)).filter(action => !(this.downloadAllowed  && (action.id === 'download'|| action.id === 'downloadAll'))) ;
     },
   },
   created() {
@@ -70,6 +71,10 @@ export default {
         }, 200);
       }
     });
+    this.$transferRulesService.getTransfertRulesDownloadDocumentStatus().then(
+      (data) => {
+        this.downloadAllowed = data.downloadDocumentStatus === 'true';
+      });
   },
   methods: {
     clickOnAction(action) {
