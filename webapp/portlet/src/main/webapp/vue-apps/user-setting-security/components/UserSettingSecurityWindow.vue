@@ -111,9 +111,7 @@
 <script>
 const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
 const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
-const PASSWORD_REGEX_ERROR_CODE = 'PASSWORD_REGEX_ERROR';
-const PASSWORD_MAX_LENGTH_ERROR_CODE = 'PASSWORD_MAX_LENGTH';
-const PASSWORD_MIN_LENGTH_ERROR_CODE = 'PASSWORD_MIN_LENGTH';
+const PASSWORD_UNKNOWN_ERROR_CODE = 'PASSWORD_UNKNOWN_ERROR_CODE';
 
 export default {
   data: () => ({
@@ -175,18 +173,10 @@ export default {
               this.error = this.$t('UserSettings.label.wrongCurrentPassword');
             } else if (error.indexOf(USER_NOT_FOUND_ERROR_CODE) > -1) {
               this.error = this.$t('UserSettings.label.accountNotExist');
-            } else if (error.indexOf(PASSWORD_MIN_LENGTH_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.passwordMinLengthError', {
-                0: error.split(PASSWORD_MIN_LENGTH_ERROR_CODE)[1],
-              });
-            } else if (error.indexOf(PASSWORD_MAX_LENGTH_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.passwordMaxLengthError', {
-                0: error.split(PASSWORD_MAX_LENGTH_ERROR_CODE)[1],
-              });
-            } else if (error.indexOf(PASSWORD_REGEX_ERROR_CODE) > -1) {
-              this.error = error.split(PASSWORD_MAX_LENGTH_ERROR_CODE)[1];
-            } else {
+            } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
               this.error = this.$t('UserSettings.label.changePasswordFail');
+            } else {
+              this.error = error;
             }
           })
           .finally(() => {
