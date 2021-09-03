@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.manager;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
@@ -624,6 +625,8 @@ public interface RelationshipManager {
    * @LevelAPI Platform
    * @since  1.2.3
    */
+  @DeprecatedAPI("Must use getIncoming method instead, ES doesn't index incomings")
+  @Deprecated
   ListAccess<Identity> getIncomingByFilter(Identity existingIdentity, ProfileFilter profileFilter);
   
   /**
@@ -636,6 +639,8 @@ public interface RelationshipManager {
    * @LevelAPI Platform
    * @since  1.2.3
    */
+  @DeprecatedAPI("Must use getIncoming method instead, ES doesn't index outgoings")
+  @Deprecated
   ListAccess<Identity> getOutgoingByFilter(Identity existingIdentity, ProfileFilter profileFilter);
   
   /**
