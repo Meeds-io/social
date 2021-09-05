@@ -38,6 +38,7 @@ public class OpenLinkNewTabFilterPluginTest extends TestCase {
             linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"_parent\">link</a>"));
     assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>",
             linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"frame_name\">link</a>"));
+    System.clearProperty("gatein.email.domain.url");
   }
 
   public void testShouldReturnNullWhenFilteringNullInput() {

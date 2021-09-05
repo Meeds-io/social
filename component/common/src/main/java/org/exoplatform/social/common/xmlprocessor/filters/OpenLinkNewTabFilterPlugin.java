@@ -20,7 +20,6 @@
 package org.exoplatform.social.common.xmlprocessor.filters;
 
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.common.xmlprocessor.BaseXMLFilterPlugin;
 import org.exoplatform.social.common.xmlprocessor.DOMParser;
 import org.exoplatform.social.common.xmlprocessor.Tokenizer;
@@ -39,6 +38,8 @@ import java.util.List;
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public class OpenLinkNewTabFilterPlugin extends BaseXMLFilterPlugin {
+
+  public static final String TARGET = "target";
   @Override
   public Object doFilter(Object input) {
     if (input instanceof String) {
@@ -55,17 +56,13 @@ public class OpenLinkNewTabFilterPlugin extends BaseXMLFilterPlugin {
   }
 
   private void nodeFilter(Node currentNode) {
-    String currentDomain = CommonsUtils.getCurrentDomain();
     if ("a".equalsIgnoreCase(currentNode.getTitle())) {
-      String target = currentNode.getAttributes().get("target");
-      if (target != null && "_blank".equalsIgnoreCase(target) && currentNode.getAttributes().get("href").indexOf(currentDomain) == -1 ) {
-        currentNode.getAttributes().put("target", "_blank");
-      } if (target != null && "_self".equalsIgnoreCase(target) && currentNode.getAttributes().get("href").indexOf(currentDomain) != -1) {
-        currentNode.getAttributes().put("target", "_self");
-      } if (target != null && currentNode.getAttributes().get("href").indexOf(currentDomain) != -1) {
-        currentNode.getAttributes().put("target", "_self");
+      String currentDomain = CommonsUtils.getCurrentDomain();
+      String target = currentNode.getAttributes().get(TARGET);
+      if (target != null && currentNode.getAttributes().get("href").indexOf(currentDomain) == -1 ) {
+        currentNode.getAttributes().put(TARGET, "_blank");
       } else {
-        currentNode.getAttributes().put("target", "_blank");
+        currentNode.getAttributes().put(TARGET, "_self");
       }
       return;
     }
