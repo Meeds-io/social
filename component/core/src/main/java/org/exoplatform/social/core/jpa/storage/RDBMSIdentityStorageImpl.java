@@ -683,7 +683,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       identity = profileFilter.getViewerIdentity();
     }
     if (OrganizationIdentityProvider.NAME.equals(providerId)) {
-      return getProfileSearchConnector().search(identity, profileFilter, type, offset, limit);
+      List<Identity> identities = getProfileSearchConnector().search(identity, profileFilter, type, offset, limit);
+      identities.stream().forEach(identity1 -> {
+        identity1.setProfile(loadProfile(identity1.getProfile()));
+      });
+      return identities;
     } else {
       throw new IllegalStateException("Can't search identities with provider id = " + providerId);
     }
