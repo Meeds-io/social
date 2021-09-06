@@ -250,25 +250,28 @@ public class ProfileSearchConnector {
         subQueryEmpty = false;
         appendCommar = true;
       }
+      esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
+
     }
     if (filter.isConnected() != null) {
-        esSubQuery.append("    \"should\": [\n");
-        esSubQuery.append("                  {\n");
-        esSubQuery.append("                    \"bool\": {\n");
-        if (filter.isConnected()) {
-          esSubQuery.append("                      \"must\": {\n");
-        } else {
-          esSubQuery.append("                      \"must_not\": {\n");
-        }
-        esSubQuery.append("                        \"exists\": {\n");
-        esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
-        esSubQuery.append("                        }\n");
-        esSubQuery.append("                      }\n");
-        esSubQuery.append("                    }\n");
-        esSubQuery.append("                  }\n");
-        esSubQuery.append("                  ]\n");
-        subQueryEmpty = false;
-        appendCommar = true;
+      esSubQuery.append("    \"should\": [\n");
+      esSubQuery.append("                  {\n");
+      esSubQuery.append("                    \"bool\": {\n");
+      if (filter.isConnected()) {
+        esSubQuery.append("                      \"must\": {\n");
+      } else {
+        esSubQuery.append("                      \"must_not\": {\n");
+      }
+      esSubQuery.append("                        \"exists\": {\n");
+      esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
+      esSubQuery.append("                        }\n");
+      esSubQuery.append("                      }\n");
+      esSubQuery.append("                    }\n");
+      esSubQuery.append("                  }\n");
+      esSubQuery.append("                  ]\n");
+      esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
+      subQueryEmpty = false;
+      appendCommar = true;
     }
     if(filter.getEnrollmentStatus() != null && !filter.getEnrollmentStatus().isEmpty()) {
       switch (filter.getEnrollmentStatus()) {
@@ -284,6 +287,7 @@ public class ProfileSearchConnector {
           esSubQuery.append("                    }\n");
           esSubQuery.append("                  }\n");
           esSubQuery.append("                  ]\n");
+          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
           subQueryEmpty = false;
           appendCommar = true;
           break;
@@ -293,24 +297,25 @@ public class ProfileSearchConnector {
           esSubQuery.append("    \"should\": [\n");
           esSubQuery.append("                  {\n");
           esSubQuery.append("                    \"bool\": {\n");
-          esSubQuery.append("                      \"must_not\": {\n");
+          esSubQuery.append("                      \"must_not\": [{\n");
           esSubQuery.append("                        \"exists\": {\n");
           esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
           esSubQuery.append("                          }\n");
           esSubQuery.append("                        },\n");
+          esSubQuery.append("                      {\n");
+          esSubQuery.append("                        \"exists\": {\n");
+          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
+          esSubQuery.append("                        }\n");
+          esSubQuery.append("                      }],\n");
           esSubQuery.append("                      \"must\": {\n");
           esSubQuery.append("                       \"term\": {\n");
           esSubQuery.append("                         \"external\": false\n");
           esSubQuery.append("                         }\n");
-          esSubQuery.append("                      },\n");
-          esSubQuery.append("                      \"must_not\": {\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
-          esSubQuery.append("                        }\n");
           esSubQuery.append("                      }\n");
           esSubQuery.append("                    }\n");
           esSubQuery.append("                  }\n");
           esSubQuery.append("                  ]\n");
+          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
           subQueryEmpty = false;
           appendCommar = true;
           break;
@@ -339,6 +344,7 @@ public class ProfileSearchConnector {
           esSubQuery.append("                    }\n");
           esSubQuery.append("                  }\n");
           esSubQuery.append("                  ]\n");
+          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
           subQueryEmpty = false;
           appendCommar = true;
           break;
