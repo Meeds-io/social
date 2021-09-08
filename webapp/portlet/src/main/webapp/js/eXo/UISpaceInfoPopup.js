@@ -307,7 +307,7 @@
 
                     tiptip_content.empty();
 
-                    if ((isManager && json.manager >1)|| (!isManager && isMember)) {
+                    if ((isManager && json.manager >= 1)|| (!isManager && isMember)) {
                         action = $('<div/>', {
                             "class": "btn-link leave-space",
                             "text": "" + labels.leave,
