@@ -85,11 +85,9 @@
             v-model="user.password"
             :disabled="saving || (!user.isInternal && !newUser)"
             :required="newUser"
-            :minlength="newUser && 8 || 0"
             type="password"
             autocomplete="new-password"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000">
+            class="ignore-vuetify-classes flex-grow-1">
         </v-card-text>
 
         <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -101,11 +99,9 @@
             v-model="confirmNewPassword"
             :disabled="saving || (!user.isInternal && !newUser)"
             :required="newUser"
-            :minlength="newUser && 8 || 0"
             type="password"
             autocomplete="new-password"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000">
+            class="ignore-vuetify-classes flex-grow-1">
         </v-card-text>
       </v-form>
     </template>
