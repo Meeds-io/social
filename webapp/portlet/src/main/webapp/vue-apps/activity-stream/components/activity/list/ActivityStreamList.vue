@@ -103,10 +103,7 @@ export default {
     loading() {
       if (!this.loading) {
         window.setTimeout(() => {
-          socialUIProfile.initUserProfilePopup('ActivityStream', {
-            'External': this.$t('UserProfilePopup.label.External'),
-            'Disabled': this.$t('UserProfilePopup.label.Disabled')
-          });
+          socialUIProfile.initUserProfilePopup('ActivityStream', {});
           document.dispatchEvent(new CustomEvent('analytics-install-watchers'));
         }, 500);
         if (!this.activities.length || this.loadedActivities >= this.activitiesToDisplay.length) {
