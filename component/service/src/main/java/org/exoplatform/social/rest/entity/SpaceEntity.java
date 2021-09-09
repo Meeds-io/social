@@ -222,6 +222,15 @@ public class SpaceEntity extends BaseEntity {
   public Integer getManagersCount() {
     return (Integer) getProperty("managersCount");
   }
+  
+  public SpaceEntity setRedactors(LinkEntity redactors) {
+    setProperty("redactors", redactors.getData());
+    return this;
+  }
+
+  public String getRedactors() {
+    return getString("redactors");
+  }
 
   public SpaceEntity setRedactorsCount(int redactorsCount) {
     setProperty("redactorsCount", redactorsCount);

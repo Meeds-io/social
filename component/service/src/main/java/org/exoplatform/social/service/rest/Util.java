@@ -24,7 +24,6 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -644,16 +643,17 @@ public final class Util {
   }
   
   /**
-   * Get the rest url to load all members or managers of a space
+   * Get the rest url to load members of a space by role
    * 
    * @param id the id of space
-   * @param returnManager return managers or members
-   * @return rest url to load all members or managers of a space
+   * @param role the role in the space
+   * @param restPath base REST path
+   * @return rest url to load members of a space by role
    */
-  public static String getMembersSpaceRestUrl(String id, boolean returnManager, String restPath) {
-    StringBuffer spaceMembersRestUrl = new StringBuffer(getRestUrl(RestUtils.SPACES_TYPE, id, restPath)).append("/").append(RestUtils.USERS_TYPE);
-    if (returnManager) {
-      return spaceMembersRestUrl.append("?role=manager").toString();
+  public static String getMembersSpaceRestUrl(String id, String role, String restPath) {
+    StringBuilder spaceMembersRestUrl = new StringBuilder(getRestUrl(RestUtils.SPACES_TYPE, id, restPath)).append("/").append(RestUtils.USERS_TYPE);
+    if (role != null) {
+      return spaceMembersRestUrl.append("?role=" + role).toString();
     }
     return spaceMembersRestUrl.toString();
   }

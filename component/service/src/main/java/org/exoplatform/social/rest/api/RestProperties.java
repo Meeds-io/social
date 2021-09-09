@@ -27,6 +27,7 @@ public class RestProperties {
   public static final String IDENTITY      = "identity";
   public static final String SHARED        = "shared";
   public static final String MANAGERS      = "managers";
+  public static final String REDACTORS      = "redactors";
   public static final String MEMBERS       = "members";
   public static final String PENDING       = "pending";
   public static final String RECEIVER      = "receiver";

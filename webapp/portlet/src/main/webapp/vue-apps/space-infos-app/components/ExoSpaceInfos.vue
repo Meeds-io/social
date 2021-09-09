@@ -8,7 +8,7 @@
         <li
           v-for="manager in managers"
           :key="manager"
-          class="spaceManagerEntry">
+          class="entry">
           <a :href="`${profileUrl}${manager.username}`">
             <v-avatar :size="30">
               <img
@@ -22,6 +22,26 @@
         </li>
       </ul>
     </div>
+    <div v-if="redactors && redactors.length" id="spaceRedactorsList">
+      <h5>{{ $t("social.space.description.redactors") }}</h5>
+      <ul id="spaceRedactors">
+        <li
+          v-for="redactor in redactors"
+          :key="redactor"
+          class="entry">
+          <a :href="`${profileUrl}${redactor.username}`">
+            <v-avatar :size="30">
+              <img
+                :src="redactor.avatar"
+                alt="avatar"
+                class="object-fit-cover ma-auto"
+                loading="lazy">
+            </v-avatar>
+            {{ redactor.fullname }}
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -31,6 +51,7 @@ export default {
     return {
       description: '',
       managers: [],
+      redactors: [],
       profileUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/`
     };
   },
@@ -41,11 +62,12 @@ export default {
   methods: {
     init(spaceId) {
       if (spaceId) {
-        return this.$spaceService.getSpaceById(spaceId, 'managers')
+        return this.$spaceService.getSpaceById(spaceId, 'managers,redactors')
           .then(space => {
             if (space) {
               this.description = space.description || '';
               this.managers = space.managers && space.managers.filter(manager => manager.enabled && !manager.deleted) || [];
+              this.redactors = space.redactors && space.redactors.filter(redactor => redactor.enabled && !redactor.deleted) || [];
             }
             return this.$nextTick();
           })

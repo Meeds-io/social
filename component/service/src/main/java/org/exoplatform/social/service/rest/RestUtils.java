@@ -138,8 +138,8 @@ public class RestUtils {
       map.put(RestProperties.GROUP_ID, space.getGroupId());
       map.put(RestProperties.AVATAR_URL, space.getAvatarUrl());
       map.put(RestProperties.APPLICATIONS, getSpaceApplications(space));
-      map.put(RestProperties.MANAGERS, Util.getMembersSpaceRestUrl(space.getId(), true, restPath));
-      map.put(RestProperties.MEMBERS, Util.getMembersSpaceRestUrl(space.getId(), false, restPath));
+      map.put(RestProperties.MANAGERS, Util.getMembersSpaceRestUrl(space.getId(), "manager", restPath));
+      map.put(RestProperties.MEMBERS, Util.getMembersSpaceRestUrl(space.getId(), null, restPath));
     }
     map.put(RestProperties.DISPLAY_NAME, space.getDisplayName());
     map.put(RestProperties.URL, LinkProvider.getSpaceUri(space.getPrettyName()));
