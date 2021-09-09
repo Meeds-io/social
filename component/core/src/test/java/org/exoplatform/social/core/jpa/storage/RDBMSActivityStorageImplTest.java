@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -32,6 +33,7 @@ import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.jpa.test.MaxQueryNumber;
 import org.exoplatform.social.core.jpa.test.QueryNumberTest;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -166,16 +168,17 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
   @MaxQueryNumber(123)
   public void testUpdateActivityMention() {
+    System.setProperty("gatein.email.domain.url", "exoplatform.com");
     ExoSocialActivity activity = createActivity(1);
     activityStorage.saveActivity(demoIdentity, activity);
     //
     activity = activityStorage.getActivity(activity.getId());
     assertEquals(0, activity.getMentionedIds().length);
 
+    String currentDomain = CommonsUtils.getCurrentDomain();
     //update
-    String processedTitle = "test <a href=\"/portal/classic/profile/root\" rel=\"nofollow\" target=\"_blank\">Root Root</a> " +
-        "<a href=\"/portal/classic/profile/john\" rel=\"nofollow\" target=\"_blank\">" + johnIdentity.getProfile().getFullName()
-        + "</a>";
+    String processedTitle ="test <a href=\""+ currentDomain +"/portal/classic/profile/root\" rel=\"nofollow\" target=\"_self\">Root Root</a> " +
+        "<a href=\""+ currentDomain +"/portal/classic/profile/john\" rel=\"nofollow\" target=\"_self\">John Anthony</a>";
     activity.setTitle("test @root @john");
     activityStorage.updateActivity(activity);
     //
@@ -212,6 +215,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
     //
     tearDownActivityList.add(activity);
+    System.clearProperty("gatein.email.domain.url");
   }
   
   @MaxQueryNumber(520)
