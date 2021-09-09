@@ -50,6 +50,7 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
 
 
   public void testProcessActivity() throws Exception {
+    System.setProperty("gatein.email.domain.url", "exoplatform.com");
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     String sample = "this is a <strong> tag to keep</strong>";
     activity.setTitle(sample);
@@ -60,12 +61,12 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     assertEquals(sample, activity.getBody());
 
     // tags with attributes
-    sample = "text <a href='#'>bar</a> zed";
+    sample = "text <a href='exoplatform.com'>bar</a> zed";
 
     activity.setTitle(sample);
     processor.processActivity(activity);
 
-    assertEquals("text <a href=\"#\" rel=\"nofollow\" target=\"_blank\">bar</a> zed", activity.getTitle());
+    assertEquals("text <a href=\"exoplatform.com\" rel=\"nofollow\" target=\"_self\">bar</a> zed", activity.getTitle());
 
     // only with open tag
     sample = "<strong> only open!!!";
@@ -90,9 +91,11 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     activity.setTitle(sample);
     processor.processActivity(activity);
     assertEquals("<strong>foo</strong>bar", activity.getTitle());
+    System.clearProperty("gatein.email.domain.url");
   }
   
   public void testProcessActivityWithTemplateParam() throws Exception {
+    System.setProperty("gatein.email.domain.url", "exoplatform.com");
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     String sample = "this is a <strong> tag to keep</strong>";
     activity.setTitle(sample);
@@ -108,8 +111,9 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     
     templateParams = activity.getTemplateParams();
     assertEquals("a\nb", templateParams.get("a"));
-    assertEquals("<a href=\"http://exoplatform.com\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">exoplatform.com</a>", templateParams.get("b"));
+    assertEquals("<a href=\"http://exoplatform.com\" target=\"_self\" rel=\"nofollow noopener noreferrer\">exoplatform.com</a>", templateParams.get("b"));
     assertEquals("exoplatform.com", templateParams.get("d"));
+    System.clearProperty("gatein.email.domain.url");
   }
   
 }

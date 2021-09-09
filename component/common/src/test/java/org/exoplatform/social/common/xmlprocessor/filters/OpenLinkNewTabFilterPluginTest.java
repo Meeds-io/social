@@ -27,16 +27,18 @@ import org.exoplatform.social.common.xmlprocessor.Filter;
  */
 public class OpenLinkNewTabFilterPluginTest extends TestCase {
   public void testFilterLinkTag() {
+    System.setProperty("gatein.email.domain.url", "exoplatform.com");
     Filter linkTagFilter = new OpenLinkNewTabFilterPlugin();
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_blank\">link</a>", linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_blank\">link</a> <a href=\"exoplatform.net\" target=\"_blank\">link2</a>",
+    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>", linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\">link</a>"));
+    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a> <a href=\"exoplatform.net\" target=\"_blank\">link2</a>",
               linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\">link</a> <a href=\"exoplatform.net\">link2</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_blank\">link</a>",
-            linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_blank\">link</a>",
+    assertEquals("This is <a href=\"http://exoplatform.net\" target=\"_blank\">link</a>",
+            linkTagFilter.doFilter("This is <a href=\"http://exoplatform.net\" target=\"_self\">link</a>"));
+    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>",
             linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"_parent\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_blank\">link</a>",
+    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>",
             linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"frame_name\">link</a>"));
+    System.clearProperty("gatein.email.domain.url");
   }
 
   public void testShouldReturnNullWhenFilteringNullInput() {
