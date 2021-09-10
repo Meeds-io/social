@@ -49,7 +49,9 @@ export default {
     document.onreadystatechange = () => {
       if (document.readyState === 'complete' && !this.loaded) {
         this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
-        this.initPopup();
+        this.$nextTick().then(() => {
+          this.initPopup();
+        });
         setInterval(function () {
           this.retrieveOnlineUsers();
         }.bind(this), this.delay);
@@ -62,7 +64,9 @@ export default {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
         .then(data => {
           this.initOnlineUsers(data && data.users || []);
-          this.initPopup();
+          this.$nextTick().then(() => {
+            this.initPopup();
+          });
         });
     },
     initOnlineUsers(users) {
