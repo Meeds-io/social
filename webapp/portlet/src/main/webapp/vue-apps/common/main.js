@@ -82,6 +82,7 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.UserPopup-${lang}.json`,
 ];
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
@@ -98,13 +99,15 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
   new Vue({
     created() {
       this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
-        CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
-        Confirm: this.$t('spacesList.label.profile.Confirm'),
-        Connect: this.$t('spacesList.label.profile.Connect'),
-        Ignore: this.$t('spacesList.label.profile.Ignore'),
-        RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
-        StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
-        External: this.$t('spacesList.label.profile.External'),
+        CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
+        Confirm: this.$t('UserProfilePopup.label.Confirm'),
+        Connect: this.$t('UserProfilePopup.label.Connect'),
+        Ignore: this.$t('UserProfilePopup.label.Ignore'),
+        RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
+        StatusTitle: this.$t('UserProfilePopup.label.Loading'),
+        External: this.$t('UserProfilePopup.label.External'),
+        Disabled: this.$t('UserProfilePopup.label.Disabled'),
+        Loading: this.$t('UserProfilePopup.label.Loading'),
       };
       this.$spacePopupLabels = Vue.prototype.$spacePopupLabels = {
         CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),

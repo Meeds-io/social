@@ -139,7 +139,7 @@ export default {
     },
     refreshTipTip() {
       window.setTimeout(() => {
-        this.$utils.initTipTip(this.$el, this.$userPopupLabels);
+        this.$utils.initTipTip(this.$el, {});
       }, 200);
     },
   },

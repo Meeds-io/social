@@ -34,6 +34,7 @@ export default {
       users: null,
       labels: null,
       delay: 120000,
+      loaded: false,
     };
   },
   computed: {
@@ -41,16 +42,28 @@ export default {
       return this.users && this.users.length;
     },
   },
+  mounted() {
+    this.$root.$applicationLoaded();
+  },
   created() {
-    this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
-    setInterval(function () {
-      this.retrieveOnlineUsers();
-    }.bind(this), this.delay);
+    document.onreadystatechange = () => {
+      if (document.readyState === 'complete' && !this.loaded) {
+        this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
+        this.initPopup();
+        setInterval(function () {
+          this.retrieveOnlineUsers();
+        }.bind(this), this.delay);
+        this.loaded=true;
+      }
+    };
   },
   methods: {
     retrieveOnlineUsers() {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
-        .then(data => this.initOnlineUsers(data && data.users || []));
+        .then(data => {
+          this.initOnlineUsers(data && data.users || []);
+          this.initPopup();
+        });
     },
     initOnlineUsers(users) {
       if (users && users.length) {
@@ -61,24 +74,12 @@ export default {
       } else {
         this.users = [];
       }
-      return this.$nextTick()
-        .then(() => {
-          this.initPopup();
-          this.$root.$applicationLoaded();
-        });
     },
     initPopup() {
       const restUrl = `//${this.$spacesConstants.HOST_NAME}${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;
       if (!this.labels) {
         this.labels = {
           youHaveSentAnInvitation: this.$t('message.label'),
-          StatusTitle: this.$t('Loading.label'),
-          Connect: this.$t('Connect.label'),
-          Confirm: this.$t('Confirm.label'),
-          CancelRequest: this.$t('CancelRequest.label'),
-          RemoveConnection: this.$t('RemoveConnection.label'),
-          Ignore: this.$t('Ignore.label'),
-          Disabled: this.$t('Disabled.label')
         };
       }
       $('#onlineList').find('a').each(function (idx, el) {
