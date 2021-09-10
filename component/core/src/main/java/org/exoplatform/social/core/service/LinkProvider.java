@@ -170,7 +170,7 @@ public class LinkProvider {
                 .append(buildProfileUri(identity.getRemoteId(), null, portalOwner)).append("\" target=\"_parent\">")
                 .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
-      profileLink = profileLink.append("<span \" class=\"externalTagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
+      profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
   }
