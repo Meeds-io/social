@@ -841,7 +841,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(6, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
     assertNotNull(importResultEntity.getErrorMessages());
-    assertEquals(3, importResultEntity.getErrorMessages().size());
+    assertEquals(2, importResultEntity.getErrorMessages().size());
     assertNotNull(importResultEntity.getWarnMessages());
     assertEquals(1, importResultEntity.getWarnMessages().size());
   }
