@@ -62,6 +62,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
+import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
@@ -127,6 +128,8 @@ public class EntityBuilder {
 
   /** Child Groups of group root */
   public static final String              ORGANIZATION_GROUP_TYPE                    = "childGroups";
+  
+  public static final String              MANAGER_MEMBERSHIP                        = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
@@ -436,15 +439,23 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.MANAGERS)) {
           managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
         } else {
-          managers = new LinkEntity(getMembersSpaceRestUrl(space.getId(), true, restPath));
+          managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), MANAGER_MEMBERSHIP, restPath));
         }
         spaceEntity.setManagers(managers);
+        
+        LinkEntity redactors;
+        if (expandFields.contains(RestProperties.REDACTORS)) {
+          redactors = new LinkEntity(buildEntityProfiles(space.getRedactors(), restPath, expand));
+        } else {
+          redactors = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), REDACTOR_MEMBERSHIP, restPath));
+        }
+        spaceEntity.setRedactors(redactors);
 
         LinkEntity members;
         if (expandFields.contains(RestProperties.MEMBERS)) {
           members = new LinkEntity(buildEntityProfiles(space.getMembers(), restPath, expand));
         } else {
-          members = new LinkEntity(getMembersSpaceRestUrl(space.getId(), false, restPath));
+          members = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), null, restPath));
         }
         spaceEntity.setMembers(members);
 
@@ -1058,23 +1069,6 @@ public class EntityBuilder {
       }
     }
     return result;
-  }
-
-  /**
-   * Get the rest url to load all members or managers of a space
-   * 
-   * @param id the id of space
-   * @param returnManager return managers or members
-   * @param restPath base REST path
-   * @return rest url to load all members or managers of a space
-   */
-  public static String getMembersSpaceRestUrl(String id, boolean returnManager, String restPath) {
-    StringBuilder spaceMembersRestUrl = new StringBuilder(RestUtils.getRestUrl(SPACES_TYPE, id, restPath)).append("/")
-                                                                                                          .append(USERS_TYPE);
-    if (returnManager) {
-      return spaceMembersRestUrl.append("?role=manager").toString();
-    }
-    return spaceMembersRestUrl.toString();
   }
 
   /**
