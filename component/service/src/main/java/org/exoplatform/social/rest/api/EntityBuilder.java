@@ -128,6 +128,8 @@ public class EntityBuilder {
 
   /** Child Groups of group root */
   public static final String              ORGANIZATION_GROUP_TYPE                    = "childGroups";
+  
+  public static final String              MANAGER_MEMBERSHIP                        = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
@@ -437,7 +439,7 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.MANAGERS)) {
           managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
         } else {
-          managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), "manager", restPath));
+          managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), MANAGER_MEMBERSHIP, restPath));
         }
         spaceEntity.setManagers(managers);
         
@@ -445,7 +447,7 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.REDACTORS)) {
           redactors = new LinkEntity(buildEntityProfiles(space.getRedactors(), restPath, expand));
         } else {
-          redactors = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), "redactor", restPath));
+          redactors = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), REDACTOR_MEMBERSHIP, restPath));
         }
         spaceEntity.setRedactors(redactors);
 

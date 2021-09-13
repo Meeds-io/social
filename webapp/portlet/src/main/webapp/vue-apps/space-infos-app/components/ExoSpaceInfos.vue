@@ -88,17 +88,7 @@ export default {
         RemoveConnection: this.$t('RemoveConnection.label'),
         Ignore: this.$t('Ignore.label')
       };
-      $('#spaceManagers').find('a').each(function (idx, el) {
-        $(el).userPopup({
-          restURL: restUrl,
-          labels: labels,
-          content: false,
-          defaultPosition: 'left',
-          keepAlive: true,
-          maxWidth: '240px'
-        });
-      });
-      $('#spaceRedactors').find('a').each(function (idx, el) {
+      $('#spaceManagers, #spaceRedactors').find('a').each(function (idx, el) {
         $(el).userPopup({
           restURL: restUrl,
           labels: labels,
