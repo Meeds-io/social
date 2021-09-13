@@ -60,10 +60,6 @@ export default {
         return null;
       },
     },
-    labels: {
-      type: Object,
-      default: null,
-    },
   },
   data() {
     return {
@@ -101,9 +97,6 @@ export default {
   },
   mounted() {
     if (this.spaceId && this.groupId && this.tiptip) {
-      if (!this.labels) {
-        this.labels = this.$spacePopupLabels;
-      }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
     }
@@ -120,7 +113,6 @@ export default {
           membershipRestUrl: '/portal/rest/v1/social/spacesMemberships?space={0}&returnSize=true',
           defaultAvatarUrl: this.avatarUrl,
           deleteMembershipRestUrl: '/portal/rest/v1/social/spacesMemberships/{0}:{1}:{2}',
-          labels: this.labels,
           content: false,
           keepAlive: true,
           defaultPosition: this.tiptipPosition || 'left_bottom',
