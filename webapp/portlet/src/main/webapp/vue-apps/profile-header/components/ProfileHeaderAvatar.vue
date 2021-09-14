@@ -96,7 +96,18 @@ export default {
               this.$emit('input', uploadId);
             }
           })
-          .then(() => this.$emit('refresh'))
+          .then(() => {this.$emit('refresh');
+            if (navigator.serviceWorker && window.caches) {
+              window.caches.open('portal-pwa-resources-image')
+                .then(cache => {
+                  if (cache) {
+                    window.setTimeout(() => {
+                      cache.delete(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/avatar`);
+                    }, 500);
+                  }
+                });
+            }
+          })
           .catch(error => this.$emit('error', error))
           .finally(() => {
             this.sendingImage = false;
