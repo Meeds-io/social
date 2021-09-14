@@ -132,6 +132,9 @@ export default {
           text: this.$t('peopleList.label.filter.member'),
           value: 'member',
         },{
+          text: this.$t('peopleList.label.filter.redactor'),
+          value: 'redactor',
+        },{
           text: this.$t('peopleList.label.filter.manager'),
           value: 'manager',
         }];
