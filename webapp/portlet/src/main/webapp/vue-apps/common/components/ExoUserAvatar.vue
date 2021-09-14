@@ -90,10 +90,6 @@ export default {
         return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       },
     },
-    labels: {
-      type: Object,
-      default: null,
-    },
     title: {
       type: String,
       default: function() {
@@ -134,9 +130,6 @@ export default {
   },
   mounted() {
     if (this.username && this.tiptip) {
-      if (!this.labels) {
-        this.labels = this.$userPopupLabels;
-      }
       // TODO disable tiptip because of high CPU usage using its code
       this.initTiptip();
     }
@@ -147,7 +140,6 @@ export default {
         $(`#${this.id}`).userPopup({
           restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
           userId: this.username,
-          labels: this.labels,
           keepAlive: true,
         });
       });

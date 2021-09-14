@@ -62,17 +62,6 @@ export default {
     isExternal() {
       return this.identity && this.identity.profile && this.identity.profile.dataEntity && this.identity.profile.dataEntity.external === 'true';
     },
-    labels() {
-      return {
-        CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
-        Confirm: this.$t('UserProfilePopup.label.Confirm'),
-        Connect: this.$t('UserProfilePopup.label.Connect'),
-        Ignore: this.$t('UserProfilePopup.label.Ignore'),
-        RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
-        StatusTitle: this.$t('UserProfilePopup.label.Loading'),
-        External: this.$t('UserProfilePopup.label.External'),
-      };
-    },
   },
   mounted() {
     // TODO disable tiptip because of high CPU usage using its code
@@ -84,7 +73,6 @@ export default {
         $(`#${this.id}`).userPopup({
           restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
           userId: this.username,
-          labels: this.labels,
           keepAlive: true,
         });
       });
