@@ -391,7 +391,7 @@ export default {
       this.loading = true;
       const self = this;
       const userNameDeleted = this.selectedUser.userName ;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.selectedUser.userName}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
