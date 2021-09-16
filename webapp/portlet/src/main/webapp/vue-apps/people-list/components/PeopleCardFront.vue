@@ -28,7 +28,17 @@
         class="peopleInfoIcon d-flex not-clickable primary-border-color ms-1"
         icon
         small>
-        <span class="d-flex uiIconMemberAdmin primary--text"></span>
+        <v-icon size="12">mdi-account-cog</v-icon>
+      </v-btn>
+      <v-btn
+        v-if="user.isSpaceRedactor"
+        :title="$t('peopleList.label.spaceRedactor')"
+        :ripple="false"
+        color="primary"
+        class="peopleInfoIcon d-flex not-clickable primary-border-color ms-1"
+        icon
+        small>
+        <v-icon size="12">mdi-account-edit</v-icon>
       </v-btn>
       <v-btn
         v-if="user.isGroupBound"
