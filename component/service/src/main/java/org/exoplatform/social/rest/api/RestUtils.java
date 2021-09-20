@@ -263,6 +263,10 @@ public class RestUtils {
     return isAnonymous() ? null : getUserIdentity(getCurrentUser());
   }
 
+  public static final long getCurrentUserIdentityId() {
+    return isAnonymous() ? 0 : Long.parseLong(getUserIdentity(getCurrentUser()).getId());
+  }
+
   public static final String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }

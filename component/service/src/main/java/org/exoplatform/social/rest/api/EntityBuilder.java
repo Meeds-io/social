@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +62,10 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.entity.*;
-import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.rest.Util;
+import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
@@ -130,8 +133,8 @@ public class EntityBuilder {
 
   /** Child Groups of group root */
   public static final String              ORGANIZATION_GROUP_TYPE                    = "childGroups";
-  
-  public static final String              MANAGER_MEMBERSHIP                        = "manager";
+
+  public static final String              MANAGER_MEMBERSHIP                         = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
@@ -444,7 +447,7 @@ public class EntityBuilder {
           managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), MANAGER_MEMBERSHIP, restPath));
         }
         spaceEntity.setManagers(managers);
-        
+
         LinkEntity redactors;
         if (expandFields.contains(RestProperties.REDACTORS)) {
           redactors = new LinkEntity(buildEntityProfiles(space.getRedactors(), restPath, expand));
@@ -461,10 +464,10 @@ public class EntityBuilder {
         }
         spaceEntity.setMembers(members);
 
-        if(RestProperties.MEMBERS_COUNT.equals(expand)) {
+        if (RestProperties.MEMBERS_COUNT.equals(expand)) {
           spaceEntity.setMembersCount(space.getMembers().length);
         }
-  
+
         if (expandFields.contains(RestProperties.PENDING)) {
           LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
           spaceEntity.setPending(pending);
@@ -670,6 +673,44 @@ public class EntityBuilder {
     }
     if (activity.getLinkedProcessedEntities() != null) {
       activityEntity.getDataEntity().putAll(activity.getLinkedProcessedEntities());
+    }
+    Map<String, List<MetadataItem>> activityMetadatas = activity.getMetadatas();
+    if (activity.getMetadatas() != null && !activityMetadatas.isEmpty()) {
+      long authentiatedUserId = Long.parseLong(authentiatedUser.getId());
+      Identity owner = getStreamOwnerIdentity(activity);
+      long streamOwnerId = owner == null ? 0 : Long.parseLong(owner.getId());
+      Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = new HashMap<>();
+      Set<Entry<String, List<MetadataItem>>> metadataEntries = activityMetadatas.entrySet();
+      for (Entry<String, List<MetadataItem>> metadataEntry : metadataEntries) {
+        String metadataType = metadataEntry.getKey();
+        List<MetadataItem> metadataItems = metadataEntry.getValue();
+        if (MapUtils.isNotEmpty(activityMetadatas)) {
+          List<MetadataItemEntity> activityMetadataEntities = metadataItems.stream()
+                                                                           .filter(metadataItem -> metadataItem.getMetadata()
+                                                                                                               .getAudienceId() == 0
+                                                                               || metadataItem.getMetadata()
+                                                                                              .getAudienceId() == streamOwnerId
+                                                                               || metadataItem.getMetadata()
+                                                                                              .getAudienceId() == authentiatedUserId)
+                                                                           .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
+                                                                                                                       metadataItem.getMetadata()
+                                                                                                                                   .getName(),
+                                                                                                                       metadataItem.getObjectType(),
+                                                                                                                       metadataItem.getObjectId(),
+                                                                                                                       metadataItem.getParentObjectId(),
+                                                                                                                       metadataItem.getCreatorId(),
+                                                                                                                       metadataItem.getMetadata()
+                                                                                                                                   .getAudienceId(),
+                                                                                                                       metadataItem.getProperties()))
+                                                                           .collect(Collectors.toList());
+          if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
+            activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
+          }
+        }
+      }
+      if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
+        activityEntity.setMetadatas(activityMetadatasToPublish);
+      }
     }
     return activityEntity;
   }
@@ -908,6 +949,7 @@ public class EntityBuilder {
    * update the SpaceMemberShip between the user and the space as ignored and
    * then update also the MemberShipType used in
    * SpaceMembershipRestResourcesV1.java
+   * 
    * @param space suggested space to ignore
    * @param userId user ignoring suggested space
    * @param type role to use for space membership
@@ -985,7 +1027,8 @@ public class EntityBuilder {
   /**
    * Get the activityStream's information related to the activity.
    * 
-   * @param activity {@link ExoSocialActivity} to retrieve its Stream information
+   * @param activity {@link ExoSocialActivity} to retrieve its Stream
+   *          information
    * @param restPath base REST path
    * @param authentiatedUser the viewer
    * @return activityStream object, null if the viewer has no permission to view
@@ -997,21 +1040,28 @@ public class EntityBuilder {
     }
 
     DataEntity as = new DataEntity();
-    IdentityManager identityManager = getIdentityManager();
-    Identity owner = identityManager.getIdentity(activity.getStreamId());
-    SpaceService spaceService = getSpaceService();
+    Identity owner = getStreamOwnerIdentity(activity);
     if (owner != null) {
       if (owner.isUser()) { // case of user activity
         as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
-      } else { // case of space activity
+      } else if (owner.isSpace()) { // case of space activity
         as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
-  
-        Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
+
+        Space space = getSpaceService().getSpaceByPrettyName(owner.getRemoteId());
         as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
       }
       as.put(RestProperties.ID, owner.getRemoteId());
     }
     return as;
+  }
+
+  private static Identity getStreamOwnerIdentity(ExoSocialActivity activity) {
+    String streamOwner = activity.getStreamOwner();
+    Identity owner = getIdentityManager().getOrCreateUserIdentity(streamOwner);
+    if (owner == null) {
+      owner = identityManager.getOrCreateSpaceIdentity(activity.getStreamOwner());
+    }
+    return owner;
   }
 
   private static List<DataEntity> getSpaceApplications(Space space) {
