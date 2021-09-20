@@ -26,6 +26,7 @@ import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
@@ -302,6 +303,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     org.exoplatform.services.security.Identity demoACLIdentity = new org.exoplatform.services.security.Identity("demo");
     org.exoplatform.services.security.Identity jamesACLIdentity = new org.exoplatform.services.security.Identity("james");
     org.exoplatform.services.security.Identity maryACLIdentity = new org.exoplatform.services.security.Identity("mary");
+
+    ConversationState.setCurrent(new ConversationState(demoACLIdentity));
 
     InitParams params = new InitParams();
     ValueParam param = new ValueParam();
