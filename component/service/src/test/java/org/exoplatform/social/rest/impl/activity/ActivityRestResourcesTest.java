@@ -3,8 +3,11 @@ package org.exoplatform.social.rest.impl.activity;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -161,6 +164,64 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     activityManager.deleteActivity(maryActivity);
     activityManager.deleteActivity(demoActivity);
+    activityManager.deleteActivity(rootActivity);
+  }
+
+  public void testGetActivity() throws Exception {
+    startSessionAs("root");
+
+    Space space = getSpaceInstance(1, "root");
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("root activity");
+    rootActivity.setPosterId(rootIdentity.getId());
+    rootActivity.setUserId(rootIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, rootActivity);
+
+    restartTransaction();
+
+    rootActivity = activityManager.getActivity(rootActivity.getId());
+
+    ContainerResponse response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    Object responseEtag = response.getHttpHeaders().getFirst("etag");
+    assertNotNull(responseEtag);
+
+    DataEntity dataEntityActivity = (DataEntity) response.getEntity();
+    assertNotNull(dataEntityActivity);
+    assertEquals(rootActivity.getId(), dataEntityActivity.get("id"));
+    assertEquals(rootActivity.getTitle(), dataEntityActivity.get("title"));
+
+    Map<String, List<String>> headers = new HashMap<>();
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // Changing poster identity should return HTTP 200
+    rootIdentity.getProfile().setProperty("test", "test");
+    identityManager.updateProfile(rootIdentity.getProfile());
+
+    response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    responseEtag = response.getHttpHeaders().getFirst("etag");
+    assertNotNull(responseEtag);
+
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // Changing stream owner identity should return HTTP 200
+    spaceService.renameSpace(space, "New Display Name");
+
+    response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
     activityManager.deleteActivity(rootActivity);
   }
 
