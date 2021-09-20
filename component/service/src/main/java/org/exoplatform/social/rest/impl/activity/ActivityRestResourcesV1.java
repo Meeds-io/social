@@ -37,6 +37,7 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -342,9 +343,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    long cacheTime = activity.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
-
+    long cacheTime = computeCacheTime(activity);
+    String eTagValue = StringUtils.isBlank(expand) ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -988,6 +988,31 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       String activityLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=" + expand;
       responseBuilder.header("Link", "<" + activityLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials");
     }
+  }
+
+  private long computeCacheTime(ExoSocialActivity activity) {
+    long cacheTime = activity.getCacheTime();
+    String prettyId = activity.getActivityStream().getPrettyId();
+    Identity streamOwnerIdentity;
+    if (activity.getActivityStream().getType() == Type.SPACE) {
+      streamOwnerIdentity = identityManager.getOrCreateSpaceIdentity(prettyId);
+    } else {
+      streamOwnerIdentity = identityManager.getOrCreateUserIdentity(prettyId);
+    }
+    if (streamOwnerIdentity == null) {
+      // When no stream owner detected or deleted, disable eTag
+      cacheTime = System.currentTimeMillis();
+    } else {
+      cacheTime = streamOwnerIdentity.getCacheTime() + cacheTime * 32;
+    }
+    Identity posterIdentity = identityManager.getIdentity(activity.getPosterId());
+    if (posterIdentity == null) {
+      // When no stream owner detected or deleted, disable eTag
+      cacheTime = System.currentTimeMillis();
+    } else {
+      cacheTime = posterIdentity.getCacheTime() + cacheTime * 32;
+    }
+    return cacheTime;
   }
 
 }
