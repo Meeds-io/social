@@ -59,12 +59,6 @@ export default {
       const restUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/social/people/getPeopleInfo/{0}.json`;
       const labels = {
         youHaveSentAnInvitation: this.$t('message.label'),
-        StatusTitle: this.$t('Loading.label'),
-        Connect: this.$t('Connect.label'),
-        Confirm: this.$t('Confirm.label'),
-        CancelRequest: this.$t('CancelRequest.label'),
-        RemoveConnection: this.$t('RemoveConnection.label'),
-        Ignore: this.$t('Ignore.label')
       };
       $('#spaceManagers').find('a').each(function (idx, el) {
         $(el).userPopup({

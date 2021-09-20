@@ -22,7 +22,9 @@
       <v-list-item-title>
         <a :href="url" class="text-color">
           {{ user.fullname }}
-          <span v-if="user.external === 'true'" class="externalTagClass">{{ "(" + $t('peopleOverview.label.profile.external') + ")" }}</span>
+          <span v-if="user.external === 'true'" class="externalTagClass">{{ "(" + $t('UserProfilePopup.label.profile.external') +
+          ")"
+          }}</span>
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>
@@ -114,17 +116,6 @@ export default {
     url() {
       return this.user && this.user.profile || `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}/`;
     },
-    labels() {
-      return {
-        CancelRequest: this.$t('peopleOverview.label.profile.CancelRequest'),
-        Confirm: this.$t('peopleOverview.label.profile.Confirm'),
-        Connect: this.$t('peopleOverview.label.profile.Connect'),
-        Ignore: this.$t('peopleOverview.label.profile.Ignore'),
-        External: this.$t('peopleOverview.label.profile.external'),
-        RemoveConnection: this.$t('peopleOverview.label.profile.RemoveConnection'),
-        StatusTitle: this.$t('peopleOverview.label.profile.StatusTitle'),
-      };
-    },
   },
   mounted() {
     if (this.user && this.user.username) {
@@ -138,7 +129,6 @@ export default {
         $(`.${this.userItemClass}`).userPopup({
           restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
           userId: this.user.username,
-          labels: this.labels,
           keepAlive: true,
           maxWidth: '420px',
         });

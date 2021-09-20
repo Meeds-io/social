@@ -22,6 +22,7 @@
              exit: function () {}
          };
          var opts = $.extend(defaults, options);
+         opts.labels = Object.assign(opts.labels || {}, Vue.prototype.$userPopupLabels)
          if ($("#tiptip_holder").length <= 0) {
              var tiptip_holder = $('<div id="tiptip_holder" style="max-width:' + opts.maxWidth + ';"></div>');
              var tiptip_content = $('<div id="tiptip_content"></div>');
