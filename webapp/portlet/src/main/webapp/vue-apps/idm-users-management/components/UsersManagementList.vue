@@ -389,7 +389,9 @@ export default {
     },
     deleteUserConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.selectedUser.userName}`, {
+      const self = this;
+      const userNameDeleted = this.selectedUser.userName ;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -401,8 +403,9 @@ export default {
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
+        } else {
+          self.users = self.users.filter(u => u.userName !== userNameDeleted);
         }
-        return this.searchUsers();
       }).catch(error => {
         error = error.message || String(error);
         const errorI18NKey = `UsersManagement.error.${error}`;
