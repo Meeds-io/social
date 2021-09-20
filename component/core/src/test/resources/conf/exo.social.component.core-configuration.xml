@@ -274,6 +274,15 @@
     <key>org.exoplatform.social.core.jpa.storage.dao.IdentityDAO</key>
     <type>org.exoplatform.social.core.jpa.storage.dao.jpa.IdentityDAOImpl</type>
   </component>
+
+  <component>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataItemDAO</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO</type>
+  </component>
+
    <!--
     Activity storage components.
   -->
@@ -349,6 +358,10 @@
   </component>
 
   <component>
+    <type>org.exoplatform.social.core.metadata.storage.MetadataStorage</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.social.core.service.LinkProvider</type>
   </component>
 
@@ -374,6 +387,11 @@
 
   <component>
     <type>org.exoplatform.social.core.identity.provider.SpaceIdentityProvider</type>
+  </component>
+
+  <component>
+    <key>org.exoplatform.social.metadata.MetadataService</key>
+    <type>org.exoplatform.social.core.metadata.MetadataServiceImpl</type>
   </component>
 
   <component>
