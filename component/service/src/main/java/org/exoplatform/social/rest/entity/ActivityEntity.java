@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
@@ -260,6 +261,16 @@ public class ActivityEntity extends BaseEntity {
   @SuppressWarnings("unchecked")
   public List<ActivityFile> getFiles() {
     return (List<ActivityFile>) getProperty("files");
+  }
+
+  public ActivityEntity setMetadatas(Map<String, List<MetadataItemEntity>> metadatas) {
+    setProperty("metadatas", metadatas);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, List<MetadataItemEntity>> getMetadatas() {
+    return (Map<String, List<MetadataItemEntity>>) getProperty("metadatas");
   }
 
   public ActivityEntity setFiles(List<ActivityFile> files) {

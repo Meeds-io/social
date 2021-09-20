@@ -25,5 +25,6 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
   <include file="db/changelog/social-rdbms.db.changelog-1.0.0.xml"/>
+  <include file="db/changelog/metadata-rdbms.db.changelog-1.0.0.xml"/>
 
 </databaseChangeLog>

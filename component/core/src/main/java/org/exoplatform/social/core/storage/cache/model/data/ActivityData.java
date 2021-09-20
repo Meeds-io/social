@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.cache.model.data;
 import java.util.*;
 
 import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.metadata.model.MetadataItem;
 
 /**
  * Immutable activity data.
@@ -66,6 +67,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final String parentCommentId;
   private final Set<ActivityShareAction> shareActions;
   private final List<ActivityFile> files;
+  private final Map<String, List<MetadataItem>> metadatas;
 
   public ActivityData(final ExoSocialActivity activity) {
     this.id = activity.getId();
@@ -100,6 +102,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.parentCommentId = activity.getParentCommentId();
     this.shareActions = activity.getShareActions() == null ? null : Collections.unmodifiableSet(activity.getShareActions());
     this.files = activity.getFiles() == null ? null : Collections.unmodifiableList(activity.getFiles());
+    this.metadatas = activity.getMetadatas() == null ? null : Collections.unmodifiableMap(activity.getMetadatas());
 
     if (activity.getTemplateParams() != null) {
       this.templateParams = Collections.unmodifiableMap(activity.getTemplateParams());
@@ -146,6 +149,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setExternalId(externalId);
     activity.setShareActions(shareActions == null ? null : Collections.unmodifiableSet(shareActions));
     activity.setFiles(files == null ? null : Collections.unmodifiableList(files));
+    activity.setMetadatas(metadatas == null ? null : Collections.unmodifiableMap(metadatas));
     activity.setUrl(url);
     if (mentioners != null) { activity.setMentionedIds(mentioners); }
     if (commenters != null) { activity.setCommentedIds(commenters); }
@@ -181,6 +185,10 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
   public List<ActivityFile> getFiles() {
     return files;
+  }
+
+  public Map<String, List<MetadataItem>> getMetadatas() {
+    return metadatas;
   }
 
   @Override

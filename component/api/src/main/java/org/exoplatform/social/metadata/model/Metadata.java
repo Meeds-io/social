@@ -1,0 +1,22 @@
+package org.exoplatform.social.metadata.model;
+
+import java.util.Map;
+
+import lombok.Data;
+
+@Data
+public class Metadata {
+
+  private MetadataType        type;
+
+  private long                id;
+
+  private String              name;
+
+  private long                creatorId;
+
+  private long                audienceId;
+
+  private Map<String, String> properties;
+
+}

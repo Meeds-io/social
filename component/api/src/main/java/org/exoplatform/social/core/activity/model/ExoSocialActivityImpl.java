@@ -20,6 +20,8 @@ import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import org.exoplatform.social.metadata.model.MetadataItem;
+
 /**
  * Implementation of {@link org.exoplatform.social.core.activity.model.ExoSocialActivity}.
  *
@@ -128,6 +130,8 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   private String parentId;
 
   private List<ActivityFile> files;
+
+  private Map<String, List<MetadataItem>> metadatas;
 
   private String userId;
 
@@ -666,6 +670,16 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   @Override
   public void setFiles(List<ActivityFile> files) {
     this.files = files;
+  }
+
+  @Override
+  public Map<String, List<MetadataItem>> getMetadatas() {
+    return this.metadatas;
+  }
+
+  @Override
+  public void setMetadatas(Map<String, List<MetadataItem>> metadatas) {
+    this.metadatas = metadatas;
   }
 
   @Override
