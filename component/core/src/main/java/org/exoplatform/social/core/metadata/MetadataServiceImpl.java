@@ -188,6 +188,11 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
+  public void deleteMetadataItemsByObject(String objectType, String objectId) {
+    this.metadataStorage.deleteMetadataItemsByObject(objectType, objectId);
+  }
+
+  @Override
   public List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
     return this.metadataStorage.getMetadataItemsByObject(objectType, objectId);
   }

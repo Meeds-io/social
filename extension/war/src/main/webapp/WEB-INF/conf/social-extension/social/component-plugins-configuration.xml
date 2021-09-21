@@ -176,4 +176,13 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
+    <component-plugin>
+      <name>ActivityMetadataListener</name>
+      <set-method>registerActivityListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ActivityMetadataListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
