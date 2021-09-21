@@ -44,7 +44,6 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
@@ -1442,7 +1441,7 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public boolean canRedactOnSpace(Space space, org.exoplatform.services.security.Identity viewer) {
     String username = viewer.getUserId();
-    return (isMember(space, username) && (!hasRedactor(space) || isRedactor(space, username) || isPublisherOrAdministratorOnContentManegementGroup()))
+    return (isMember(space, username) && (!hasRedactor(space) || isRedactor(space, username) || viewer.isMemberOf(PLATFORM_WEB_CONTRIBUTORS_GROUP, "publisher")))
         || isManagerOrSpaceManager(viewer, space);
   }
 
@@ -1794,12 +1793,6 @@ public class SpaceServiceImpl implements SpaceService {
       return true;
     }
     return isManager(space, username);
-  }
-
-  private boolean isPublisherOrAdministratorOnContentManegementGroup() {
-    org.exoplatform.services.security.Identity currentIdentity = ConversationState.getCurrent().getIdentity();
-    return currentIdentity.isMemberOf(PLATFORM_WEB_CONTRIBUTORS_GROUP, "publisher") ||
-            currentIdentity.isMemberOf(PLATFORM_WEB_CONTRIBUTORS_GROUP, "*");
   }
 
 }
