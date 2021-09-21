@@ -9,6 +9,7 @@ import * as dateUtil from './js/DateUtil.js';
 import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
 import * as activityService from './js/ActivityService.js';
+import * as favoriteService from './js/FavoriteService.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 
@@ -55,6 +56,9 @@ window.Object.defineProperty(Vue.prototype, '$featureService', {
 });
 window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,
+});
+window.Object.defineProperty(Vue.prototype, '$favoriteService', {
+  value: favoriteService,
 });
 window.Object.defineProperty(Vue.prototype, '$utils', {
   value: utils,
