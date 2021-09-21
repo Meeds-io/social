@@ -411,4 +411,16 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
         activity.getPostedTime() == null ? 0 :activity.getPostedTime(), (Long) entity.get("postedTime"));
   }
 
+  protected String toJsonString(Object object) {
+    try {
+      if (object instanceof Collection) {
+        return new JsonGeneratorImpl().createJsonArray((Collection<?>) object).toString();
+      } else {
+        return new JsonGeneratorImpl().createJsonObject(object).toString();
+      }
+    } catch (JsonException e) {
+      throw new IllegalStateException("Error parsing object to string " + object, e);
+    }
+  }
+
 }

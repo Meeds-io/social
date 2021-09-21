@@ -40,7 +40,7 @@ public class MetadataProcessor extends BaseActivityProcessorPlugin {
 
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
-      List<MetadataItem> metadataItems = metadataService.getMetadatasByObject(ACTIVITY_METADATA_TYPE, activity.getId());
+      List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(ACTIVITY_METADATA_TYPE, activity.getId());
       Map<String, List<MetadataItem>> metadatas = new HashMap<>();
       metadataItems.forEach(metadataItem -> {
         String type = metadataItem.getMetadata().getType().getName();
