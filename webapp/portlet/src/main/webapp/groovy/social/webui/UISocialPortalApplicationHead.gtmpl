@@ -7,6 +7,7 @@
   import org.exoplatform.portal.application.PortalRequestContext;
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.core.search.SearchConnector;
+  import org.exoplatform.commons.utils.PropertyManager;
   import java.util.TimeZone;
   import java.util.HashSet;
 
@@ -26,6 +27,7 @@
      eXo.env.portal.spaceDisplayName = "<%=space == null ? "" : space.getDisplayName()%>" ;
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
+     eXo.env.portal.activityFavoritesEnabled = <%=PropertyManager.getProperty("exo.feature.ActivityFavorites.enabled")%>;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
