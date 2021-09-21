@@ -19,7 +19,7 @@ public class MetadataItem {
 
   private long                creatorId;
 
-  private long                creationDate;
+  private long                createdDate;
 
   private Map<String, String> properties;
 
