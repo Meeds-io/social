@@ -76,6 +76,16 @@ public interface MetadataService {
                                                                                               ObjectNotFoundException;
 
   /**
+   * Deletes Metadata items for a given {@link MetadataItem} objectId and
+   * objectType. This is generally called when the associated object has been
+   * removed (activity removed, comment removed ...)
+   * 
+   * @param objectType
+   * @param objectId
+   */
+  void deleteMetadataItemsByObject(String objectType, String objectId);
+
+  /**
    * Retrieves the list of Metadata attached to an object identified by its name
    * and identifier
    * 

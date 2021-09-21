@@ -29,9 +29,9 @@ import org.exoplatform.social.metadata.model.MetadataItem;
  */
 public class MetadataProcessor extends BaseActivityProcessorPlugin {
 
-  private static final String ACTIVITY_METADATA_TYPE = "ACTIVITY";
+  public static final String ACTIVITY_METADATA_TYPE = "activity";
 
-  private MetadataService     metadataService;
+  private MetadataService    metadataService;
 
   public MetadataProcessor(MetadataService metadataService, InitParams params) {
     super(params);
