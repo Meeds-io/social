@@ -14,11 +14,22 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @NamedQueries(
   {
       @NamedQuery(
-          name = "SocMetadataItemEntity.getMetadatasByObject",
-          query = "SELECT mi FROM SocSpaceEntity mi WHERE "
+          name = "SocMetadataItemEntity.getMetadataItemsByObject",
+          query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
               + " mi.objectType = :objectType AND"
               + " mi.objectId = :objectId"
-      )
+      ),
+      @NamedQuery(
+          name = "SocMetadataItemEntity.deleteMetadataItemsByObject",
+          query = "DELETE FROM SocMetadataItemEntity mi WHERE "
+              + " mi.objectType = :objectType AND"
+              + " mi.objectId = :objectId"
+      ),
+      @NamedQuery(
+                  name = "SocMetadataItemEntity.deleteMetadataItemById",
+                  query = "DELETE FROM SocMetadataItemEntity mi WHERE "
+                      + " mi.id = :id"
+          ),
   }
 )
 public class MetadataItemEntity implements Serializable {
@@ -47,8 +58,8 @@ public class MetadataItemEntity implements Serializable {
   @Column(name = "CREATOR_ID", nullable = false)
   private long                creatorId;
 
-  @Column(name = "CREATION_DATE", nullable = false)
-  private Date                creationDate;
+  @Column(name = "CREATED_DATE", nullable = false)
+  private Date                createdDate;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "NAME")
@@ -104,12 +115,12 @@ public class MetadataItemEntity implements Serializable {
     this.creatorId = creatorId;
   }
 
-  public Date getCreationDate() {
-    return creationDate;
+  public Date getCreatedDate() {
+    return createdDate;
   }
 
-  public void setCreationDate(Date creationDate) {
-    this.creationDate = creationDate;
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 
   public Map<String, String> getProperties() {
