@@ -1,6 +1,7 @@
 <%
   import org.exoplatform.ws.frameworks.cometd.ContinuationService;
   import org.mortbay.cometd.continuation.EXoContinuationBayeux;
+  import org.exoplatform.commons.api.settings.ExoFeatureService;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.social.webui.Utils;
   import org.apache.commons.lang.StringUtils;
@@ -16,6 +17,7 @@
   TimeZone timezone = Utils.getViewerTimezone();
   ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
   EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
+  ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
   def userName = rcontext.getRemoteUser();
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
@@ -27,7 +29,7 @@
      eXo.env.portal.spaceDisplayName = "<%=space == null ? "" : space.getDisplayName()%>" ;
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
-     eXo.env.portal.activityFavoritesEnabled = <%=PropertyManager.getProperty("exo.feature.ActivityFavorites.enabled")%>;
+     eXo.env.portal.activityFavoritesEnabled = <%=featureService.isActiveFeature("ActivityFavorites")%>;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;

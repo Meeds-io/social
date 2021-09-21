@@ -87,6 +87,11 @@ public class MetadataServiceImpl implements MetadataService {
       throw new IllegalAccessException("User with identifier '" + userIdentityId + "' is not allowed to create Metadata "
           + metadata);
     }
+    try {
+      this.listenerService.broadcast("social.metadata.deleted", userIdentityId, metadata);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata creation", e);
+    }
     return metadataStorage.deleteMetadataById(metadata.getId());
   }
 
@@ -134,7 +139,7 @@ public class MetadataServiceImpl implements MetadataService {
     }
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
     try {
-      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadata);
+      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event for metadata item creation", e);
     }
@@ -184,7 +189,13 @@ public class MetadataServiceImpl implements MetadataService {
       throw new IllegalAccessException("User with identifier '" + userIdentityId + "' is not allowed to delete Metadata Item "
           + metadataItem);
     }
-    return this.metadataStorage.deleteMetadataItemById(itemId);
+    metadataItem = this.metadataStorage.deleteMetadataItemById(itemId);
+    try {
+      this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata item creation", e);
+    }
+    return metadataItem;
   }
 
   @Override
