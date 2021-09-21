@@ -30,7 +30,11 @@ public class MetadataStorage {
   }
 
   public Metadata getMetadata(String type, String name, long audienceId) {
-    MetadataEntity metadataEntity = this.metadataDAO.findMetadata(type, name, audienceId);
+    MetadataType metadataType = getMetadataType(type);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + type + " isn't defined");
+    }
+    MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(), name, audienceId);
     return fromEntity(metadataEntity);
   }
 
@@ -40,23 +44,39 @@ public class MetadataStorage {
     return fromEntity(metadataEntity);
   }
 
-  public MetadataItem createMetadataItem(MetadataItem metadataItem) {
-    MetadataEntity metadataEntity = this.metadataDAO.find(metadataItem.getMetadata().getId());
+  public Metadata deleteMetadataById(long id) {
+    MetadataEntity metadataEntity = this.metadataDAO.find(id);
+    if (metadataEntity != null) {
+      this.metadataDAO.delete(metadataEntity);
+    }
+    return fromEntity(metadataEntity);
+  }
 
-    MetadataItemEntity metadataItemEntity = new MetadataItemEntity();
-    metadataItemEntity.setMetadata(metadataEntity);
-    metadataItemEntity.setId(metadataItem.getId() <= 0 ? null : metadataItem.getId());
-    metadataItemEntity.setCreationDate(new Date());
-    metadataItemEntity.setCreatorId(metadataItem.getCreatorId());
-    metadataItemEntity.setObjectId(metadataItem.getObjectId());
-    metadataItemEntity.setObjectType(metadataItem.getObjectType());
-    metadataItemEntity.setParentObjectId(metadataItem.getParentObjectId());
-    metadataItemEntity.setProperties(metadataItem.getProperties());
+  public MetadataItem createMetadataItem(MetadataItem metadataItem) {
+    MetadataItemEntity metadataItemEntity = toEntity(metadataItem);
+    metadataItemEntity = this.metadataItemDAO.create(metadataItemEntity);
     return fromEntity(metadataItemEntity);
   }
 
-  public List<MetadataItem> getMetadatasByObject(String objectType, String objectId) {
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadatasByObject(objectType, objectId);
+  public MetadataItem deleteMetadataItemById(long id) {
+    MetadataItemEntity metadataItemEntity = this.metadataItemDAO.find(id);
+    if (metadataItemEntity != null) {
+      this.metadataItemDAO.deleteMetadataItemById(id);
+    }
+    return fromEntity(metadataItemEntity);
+  }
+
+  public MetadataItem getMetadataItemById(long itemId) {
+    MetadataItemEntity metadataItemEntity = this.metadataItemDAO.find(itemId);
+    return fromEntity(metadataItemEntity);
+  }
+
+  public int deleteMetadataItemsByObject(String objectType, String objectId) {
+    return this.metadataItemDAO.deleteMetadataItemsByObject(objectType, objectId);
+  }
+
+  public List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(objectType, objectId);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -64,33 +84,18 @@ public class MetadataStorage {
   }
 
   public void addMetadataType(MetadataType metadataType) {
-    if (metadataTypes.stream()
-                     .anyMatch(
-                               registeredType -> StringUtils.equals(registeredType.getName(), metadataType.getName())
-                                   || registeredType.getId() == metadataType.getId())) {
-      throw new UnsupportedOperationException("Overriding existing Metadata Type by another one is not allowed");
-    }
     metadataTypes.add(metadataType);
+  }
+
+  public MetadataType getMetadataType(String name) {
+    return metadataTypes.stream()
+                        .filter(metadataType -> StringUtils.equals(metadataType.getName(), name))
+                        .findFirst()
+                        .orElse(null);
   }
 
   public List<MetadataType> getMetadataTypes() {
     return metadataTypes;
-  }
-
-  private MetadataItem fromEntity(MetadataItemEntity metadataItemEntity) {
-    MetadataItem metadataItem = new MetadataItem();
-    metadataItem.setId(metadataItemEntity.getId());
-    metadataItem.setObjectId(metadataItemEntity.getObjectId());
-    metadataItem.setObjectType(metadataItemEntity.getObjectType());
-    metadataItem.setParentObjectId(metadataItemEntity.getParentObjectId());
-    metadataItem.setCreationDate(metadataItemEntity.getCreationDate().getTime());
-    if (metadataItemEntity.getProperties() != null && !metadataItemEntity.getProperties().isEmpty()) {
-      metadataItem.setProperties(new HashMap<>(metadataItemEntity.getProperties()));
-    }
-    MetadataEntity metadataEntity = metadataItemEntity.getMetadata();
-    Metadata metadata = fromEntity(metadataEntity);
-    metadataItem.setMetadata(metadata);
-    return metadataItem;
   }
 
   private Metadata fromEntity(MetadataEntity metadataEntity) {
@@ -102,6 +107,7 @@ public class MetadataStorage {
     metadata.setName(metadataEntity.getName());
     metadata.setAudienceId(metadataEntity.getAudienceId());
     metadata.setCreatorId(metadataEntity.getCreatorId());
+    metadata.setCreatedDate(metadataEntity.getCreatedDate().getTime());
     MetadataType metadataType = metadataTypes.stream()
                                              .filter(registeredType -> registeredType.getId() == metadataEntity.getType())
                                              .findFirst()
@@ -118,13 +124,67 @@ public class MetadataStorage {
   }
 
   private MetadataEntity toEntity(Metadata metadata) {
-    MetadataEntity metadataEntity = new MetadataEntity();
+    MetadataEntity metadataEntity;
+    if (metadata.getId() <= 0) {
+      metadataEntity = new MetadataEntity();
+      metadataEntity.setId(null);
+      metadataEntity.setCreatedDate(new Date());
+      metadataEntity.setCreatorId(metadata.getCreatorId());
+      metadataEntity.setType(metadata.getType().getId());
+    } else {
+      metadataEntity = metadataDAO.find(metadata.getId());
+      if (metadataEntity == null) {
+        throw new IllegalStateException("Can't find Metadata with id " + metadata.getId());
+      }
+    }
     metadataEntity.setAudienceId(metadata.getAudienceId());
-    metadataEntity.setCreatorId(metadata.getCreatorId());
     metadataEntity.setName(metadata.getName());
-    metadataEntity.setType(metadata.getType().getId());
-    metadataEntity.setId(metadata.getId() <= 0 ? null : metadata.getId());
+    metadataEntity.setProperties(metadata.getProperties());
     return metadataEntity;
+  }
+
+  private MetadataItem fromEntity(MetadataItemEntity metadataItemEntity) {
+    if (metadataItemEntity == null) {
+      return null;
+    }
+    MetadataItem metadataItem = new MetadataItem();
+    metadataItem.setId(metadataItemEntity.getId());
+    metadataItem.setObjectId(metadataItemEntity.getObjectId());
+    metadataItem.setObjectType(metadataItemEntity.getObjectType());
+    metadataItem.setParentObjectId(metadataItemEntity.getParentObjectId());
+    metadataItem.setCreatorId(metadataItemEntity.getCreatorId());
+    metadataItem.setCreatedDate(metadataItemEntity.getCreatedDate().getTime());
+    if (metadataItemEntity.getProperties() != null && !metadataItemEntity.getProperties().isEmpty()) {
+      metadataItem.setProperties(new HashMap<>(metadataItemEntity.getProperties()));
+    }
+    MetadataEntity metadataEntity = metadataItemEntity.getMetadata();
+    Metadata metadata = fromEntity(metadataEntity);
+    metadataItem.setMetadata(metadata);
+    return metadataItem;
+  }
+
+  private MetadataItemEntity toEntity(MetadataItem metadataItem) {
+    MetadataItemEntity metadataItemEntity;
+    if (metadataItem.getId() <= 0) {
+      metadataItemEntity = new MetadataItemEntity();
+      metadataItemEntity.setId(null);
+      metadataItemEntity.setCreatedDate(new Date());
+      metadataItemEntity.setCreatorId(metadataItem.getCreatorId());
+
+      MetadataEntity metadataEntity = this.metadataDAO.find(metadataItem.getMetadata().getId());
+      metadataItemEntity.setMetadata(metadataEntity);
+    } else {
+      metadataItemEntity = metadataItemDAO.find(metadataItem.getId());
+      if (metadataItemEntity == null) {
+        throw new IllegalStateException("Can't find Metadata item with id " + metadataItem.getId());
+      }
+    }
+
+    metadataItemEntity.setObjectId(metadataItem.getObjectId());
+    metadataItemEntity.setObjectType(metadataItem.getObjectType());
+    metadataItemEntity.setParentObjectId(metadataItem.getParentObjectId());
+    metadataItemEntity.setProperties(metadataItem.getProperties());
+    return metadataItemEntity;
   }
 
 }

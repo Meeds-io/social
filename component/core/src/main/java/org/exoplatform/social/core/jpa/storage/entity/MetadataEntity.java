@@ -45,7 +45,7 @@ public class MetadataEntity implements Serializable {
   private long                audienceId;
 
   @Column(name = "CREATED_DATE", nullable = false)
-  private Date                creationDate;
+  private Date                createdDate;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "NAME")
@@ -101,4 +101,11 @@ public class MetadataEntity implements Serializable {
     this.properties = properties;
   }
 
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
 }

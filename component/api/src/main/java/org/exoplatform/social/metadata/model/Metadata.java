@@ -15,6 +15,8 @@ public class Metadata {
 
   private long                creatorId;
 
+  private long                createdDate;
+
   private long                audienceId;
 
   private Map<String, String> properties;

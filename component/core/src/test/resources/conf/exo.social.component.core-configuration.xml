@@ -1189,6 +1189,7 @@
           <name>changelogs</name>
           <description>Change logs of Social RDBMS</description>
           <value>db/changelog/social-rdbms.db.changelog-1.0.0.xml</value>
+          <value>db/changelog/metadata-rdbms.db.changelog-1.0.0.xml</value>
         </values-param>
       </init-params>
     </component-plugin>
