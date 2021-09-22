@@ -5,6 +5,7 @@ import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -135,6 +136,9 @@ public class ActivitySearchConnector {
                                                          viewerIdentity.getId(),
                                                          "activity",
                                                          SEARCH_FAVORITES_HARD_LIMIT);
+      if (filter.isFavorites() && CollectionUtils.isEmpty(activityIds)) {
+        return Collections.emptyList();
+      }
     } else {
       activityIds = Collections.emptyList();
     }
@@ -148,7 +152,6 @@ public class ActivitySearchConnector {
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-
     String term = removeSpecialCharacters(filter.getTerm());
     List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
       word = word.trim();

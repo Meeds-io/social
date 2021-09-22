@@ -15,6 +15,11 @@
           <date-format :value="postedTime" />
         </template>
       </exo-user-avatar>
+      <activity-favorite-action
+        :activity="result"
+        top="3px"
+        right="5px"
+        @removed="$emit('refresh-favorite')" />
     </v-card-text>
     <div class="mx-auto flex-grow-1 px-3 py-0">
       <div
