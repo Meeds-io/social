@@ -67,7 +67,9 @@ export default {
           .then(() => {
             delete this.activity.metadatas.favorites;
             this.computeIsFavorite();
-          });
+            this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
+          })
+          .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')})), 'error');
       } else {
         this.$favoriteService.addFavorite('activity', this.activityId)
           .then(favorite => {
@@ -76,8 +78,17 @@ export default {
             }
             this.activity.metadatas.favorites = [favorite];
             this.computeIsFavorite();
-          });
+            this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('activity.label')}));
+          })
+          .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('activity.label')})), 'error');
       }
+    },
+    displayAlert(message, type) {
+      this.$root.$emit('activity-notification-alert', {
+        activityId: this.activityId,
+        message,
+        type: type || 'success',
+      });
     },
   },
 };
