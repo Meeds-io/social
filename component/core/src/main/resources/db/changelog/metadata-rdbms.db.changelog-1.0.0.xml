@@ -134,4 +134,12 @@
     <addUniqueConstraint tableName="SOC_METADATAS" columnNames="TYPE,NAME,AUDIENCE_ID" constraintName="UC_SOC_METADATA_01" />
   </changeSet>
 
+  <changeSet author="metadata" id="1.0.0-7">
+    <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_OBJECT_02">
+      <column name="METADATA_ID" type="BIGINT"></column>
+      <column name="OBJECT_TYPE" type="NVARCHAR(255)"></column>
+      <column name="OBJECT_ID" type="NVARCHAR(255)"></column>
+    </createIndex>
+  </changeSet>
+
 </databaseChangeLog>

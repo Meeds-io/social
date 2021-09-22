@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.model.*;
 
@@ -42,6 +43,17 @@ public interface MetadataService {
                                                                                           IllegalAccessException;
 
   /**
+   * Retrieves a {@link Metadata} identified by a unique constraint for
+   * 'Metadata Type', 'Metadata Name' and 'Metadata Audience'.
+   * 
+   * @param metadataType {@link MetadataType} name
+   * @param metadataName {@link Metadata} name
+   * @param audienceId {@link Metadata} audienceId
+   * @return {@link Metadata} if found, else null
+   */
+  Metadata getMetadataByTypeAndNameAndAudience(String metadataType, String metadataName, long audienceId);
+
+  /**
    * Creates a new Metadata Item. When the metadata with the designated name
    * doesn't exists, it will create a new one
    * 
@@ -54,12 +66,15 @@ public interface MetadataService {
    * @return Created {@link MetadataItem}
    * @throws IllegalAccessException when the user isn't allowed to create a
    *           Metadata item on designated Type and Name
+   * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
+   *           doesn't allow multiple objects per {@link Metadata} and an object
+   *           is already associated to the designated {@link Metadata}
    */
   MetadataItem createMetadataItem(MetadataItem metadataItem,
                                   String type,
                                   String name,
                                   long audienceId,
-                                  long userIdentityId) throws IllegalAccessException;
+                                  long userIdentityId) throws IllegalAccessException, ObjectAlreadyExistsException;
 
   /**
    * @param type {@link MetadataType} name
@@ -96,6 +111,19 @@ public interface MetadataService {
    * @return {@link List} of linked {@link MetadataItem}
    */
   List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId);
+
+  /**
+   * Retrieves the list of Metadata items attached to a {@link Metadata} and an
+   * object identified by its name and identifier
+   * 
+   * @param metadataId {@link Metadata} technical identifier
+   * @param objectType an object type identifier like, ACTIVITY, COMMENT, NOTE,
+   *          FILE ...
+   * @param objectId the object technical identifier. In general we use here the
+   *          DB identifier of the object.
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId);
 
   /**
    * Registers a new {@link MetadataType}

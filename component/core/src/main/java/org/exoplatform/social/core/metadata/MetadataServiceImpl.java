@@ -9,6 +9,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
@@ -96,11 +97,19 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
+  public Metadata getMetadataByTypeAndNameAndAudience(String metadataType, String metadataName, long audienceId) {
+    if (StringUtils.isBlank(metadataType)) {
+      throw new IllegalArgumentException("Metadata Type is mandatory");
+    }
+    return metadataStorage.getMetadata(metadataType, metadataName, audienceId);
+  }
+
+  @Override
   public MetadataItem createMetadataItem(MetadataItem metadataItem,
                                          String type,
                                          String name,
                                          long audienceId,
-                                         long userIdentityId) throws IllegalAccessException {
+                                         long userIdentityId) throws IllegalAccessException, ObjectAlreadyExistsException {
     if (metadataItem == null) {
       throw new IllegalArgumentException("Metadata Item is mandatory");
     }
@@ -122,7 +131,7 @@ public class MetadataServiceImpl implements MetadataService {
       throw new IllegalArgumentException("Metadata Type " + type + " is not a registered plugin");
     }
 
-    Metadata metadata = metadataStorage.getMetadata(type, name, audienceId);
+    Metadata metadata = getMetadataByTypeAndNameAndAudience(type, name, audienceId);
     if (metadata == null) {
       metadata = new Metadata();
       metadata.setName(name);
@@ -136,6 +145,14 @@ public class MetadataServiceImpl implements MetadataService {
     if (!metadataTypePlugin.canCreateMetadataItem(metadataItem, userIdentityId)) {
       throw new IllegalAccessException("User with identifier '" + userIdentityId + "' is not allowed to create Metadata Item "
           + metadataItem);
+    }
+    if (!metadataTypePlugin.allowMultipleItemsPerObject()) {
+      List<MetadataItem> storedMetadataItems = metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(),
+                                                                                                   metadataItem.getObjectType(),
+                                                                                                   metadataItem.getObjectId());
+      if (!storedMetadataItems.isEmpty()) {
+        throw new ObjectAlreadyExistsException(storedMetadataItems.get(0));
+      }
     }
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
     try {
@@ -209,22 +226,26 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId) {
+    return this.metadataStorage.getMetadataItemsByMetadataAndObject(metadataId, objectType, objectId);
+  }
+
+  @Override
   public void addMetadataTypePlugin(MetadataTypePlugin metadataTypePlugin) {
-    MetadataType metadataType = metadataTypePlugin.getMetadataType();
     if (metadataTypePlugins.stream()
-                           .anyMatch(registeredPlugin -> StringUtils.equals(registeredPlugin.getMetadataType().getName(),
-                                                                            metadataType.getName())
-                               || registeredPlugin.getMetadataType().getId() == metadataType.getId())) {
+                           .anyMatch(registeredPlugin -> StringUtils.equals(registeredPlugin.getName(),
+                                                                            metadataTypePlugin.getName())
+                               || registeredPlugin.getId() == metadataTypePlugin.getId())) {
       throw new UnsupportedOperationException("Overriding existing Metadata Type is not allowed. Please verify the unicity of Metadata Type id and name.");
     }
-    this.metadataStorage.addMetadataType(metadataType);
+    this.metadataStorage.addMetadataType(metadataTypePlugin.getMetadataType());
     this.metadataTypePlugins.add(metadataTypePlugin);
   }
 
   @Override
   public MetadataTypePlugin getMetadataTypePluginByName(String name) {
     return metadataTypePlugins.stream()
-                              .filter(metadataTypePlugin -> StringUtils.equals(metadataTypePlugin.getMetadataType().getName(),
+                              .filter(metadataTypePlugin -> StringUtils.equals(metadataTypePlugin.getName(),
                                                                                name))
                               .findFirst()
                               .orElse(null);

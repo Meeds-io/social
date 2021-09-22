@@ -20,16 +20,23 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " mi.objectId = :objectId"
       ),
       @NamedQuery(
+          name = "SocMetadataItemEntity.getMetadataItemsByMetadataAndObject",
+          query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+              + " mi.metadata.id = :metadataId AND"
+              + " mi.objectType = :objectType AND"
+              + " mi.objectId = :objectId"
+      ),
+      @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByObject",
           query = "DELETE FROM SocMetadataItemEntity mi WHERE "
               + " mi.objectType = :objectType AND"
               + " mi.objectId = :objectId"
       ),
       @NamedQuery(
-                  name = "SocMetadataItemEntity.deleteMetadataItemById",
-                  query = "DELETE FROM SocMetadataItemEntity mi WHERE "
-                      + " mi.id = :id"
-          ),
+          name = "SocMetadataItemEntity.deleteMetadataItemById",
+          query = "DELETE FROM SocMetadataItemEntity mi WHERE "
+              + " mi.id = :id"
+      ),
   }
 )
 public class MetadataItemEntity implements Serializable {
