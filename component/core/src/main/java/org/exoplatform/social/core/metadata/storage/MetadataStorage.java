@@ -83,6 +83,16 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataAndObject(metadataId,
+                                                                                                        objectType,
+                                                                                                        objectId);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public void addMetadataType(MetadataType metadataType) {
     metadataTypes.add(metadataType);
   }
@@ -138,7 +148,7 @@ public class MetadataStorage {
       }
     }
     metadataEntity.setAudienceId(metadata.getAudienceId());
-    metadataEntity.setName(metadata.getName());
+    metadataEntity.setName(StringUtils.isBlank(metadata.getName()) ? "" : metadata.getName());
     metadataEntity.setProperties(metadata.getProperties());
     return metadataEntity;
   }

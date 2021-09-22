@@ -12,6 +12,15 @@ public abstract class MetadataTypePlugin extends BaseComponentPlugin {
     this.metadataType = metadataType;
   }
 
+  @Override
+  public String getName() {
+    return this.metadataType.getName();
+  }
+
+  public long getId() {
+    return this.metadataType.getId();
+  }
+
   /**
    * @return {@link MetadataType} handled by the current {@link MetadataService}
    *         Plugin
@@ -91,5 +100,11 @@ public abstract class MetadataTypePlugin extends BaseComponentPlugin {
    *         else false
    */
   public abstract boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId);
+
+  /**
+   * @return true when allowing to define multiple {@link MetadataItem} per same
+   *         object (type/id), else false
+   */
+  public abstract boolean allowMultipleItemsPerObject();
 
 }

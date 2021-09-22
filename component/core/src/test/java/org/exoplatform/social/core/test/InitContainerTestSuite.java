@@ -31,6 +31,7 @@ import org.exoplatform.social.core.feature.WhatsHotTest;
 import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
 import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
 import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.metadata.favorite.FavoriteMetadataPluginTest;
 import org.exoplatform.social.core.processor.*;
 import org.exoplatform.social.core.search.SortingTest;
 import org.exoplatform.social.core.service.LinkProviderTest;
@@ -39,6 +40,7 @@ import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
 import org.exoplatform.social.core.storage.*;
 import org.exoplatform.social.core.storage.impl.ActivityStorageImplTestCase;
+import org.exoplatform.social.metadata.MetadataServiceTest;
 
 @SuiteClasses({
 //FIXME regression JCR to RDBMS migration
@@ -80,8 +82,9 @@ import org.exoplatform.social.core.storage.impl.ActivityStorageImplTestCase;
     SpaceTemplateServiceTest.class,
     SortingTest.class,
     GroupSpaceBindingServiceTest.class,
-    RDBMSGroupSpaceBindingStorageTest.class
-  
+    RDBMSGroupSpaceBindingStorageTest.class,
+    MetadataServiceTest.class,
+    FavoriteMetadataPluginTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
