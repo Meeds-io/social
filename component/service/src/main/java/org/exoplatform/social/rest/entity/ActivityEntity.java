@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {

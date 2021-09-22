@@ -11,19 +11,33 @@ import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
+  private static final String OBJECT_ID   = "objectId";
+
+  private static final String OBJECT_TYPE = "objectType";
+
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
                                                                                MetadataItemEntity.class);
-    query.setParameter("objectType", objectType);
-    query.setParameter("objectId", objectId);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataAndObject",
+                                                                             MetadataItemEntity.class);
+    query.setParameter("metadataId", metadataId);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
     return query.getResultList();
   }
 
   @ExoTransactional
   public int deleteMetadataItemsByObject(String objectType, String objectId) {
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByObject");
-    query.setParameter("objectType", objectType);
-    query.setParameter("objectId", objectId);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
     return query.executeUpdate();
   }
 

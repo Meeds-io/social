@@ -1,5 +1,5 @@
 export function addFavorite(type, id, parentId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites?ignoreWhenExisting=true`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -22,7 +22,7 @@ export function addFavorite(type, id, parentId) {
 }
 
 export function removeFavorite(itemId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites/${eXo.env.portal.userIdentityId}/${itemId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites/${eXo.env.portal.userIdentityId}/${itemId}?ignoreNotExisting=true`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
