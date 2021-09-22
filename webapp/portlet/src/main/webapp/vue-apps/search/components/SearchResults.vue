@@ -2,6 +2,7 @@
   <v-flex>
     <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
       <v-chip
+        v-if="favoritesEnabled"
         :outlined="!favorites"
         :color="favorites ? 'primary' : ''"
         class="ms-1 me-8 border-color"
@@ -89,6 +90,7 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
+    favoritesEnabled: eXo.env.portal.activityFavoritesEnabled,
     favorites: false,
     allEnabled: true,
     searching: 0,
@@ -162,9 +164,11 @@ export default {
     },
   },
   created() {
-    this.$root.$on('refresh', (searchConnector) => {
-      this.$set(this.results, searchConnector.name, []);
-      this.retrieveConnectorResults(searchConnector);
+    this.$root.$on('refresh', (searchConnector, favorites) => {
+      if (!!favorites === !!this.favorites) {
+        this.$set(this.results, searchConnector.name, []);
+        this.retrieveConnectorResults(searchConnector);
+      }
     });
     let allEnabled = true;
     this.connectors.forEach(connector => {

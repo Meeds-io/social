@@ -26,6 +26,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -944,10 +945,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity currentUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
     ActivitySearchFilter filter = new ActivitySearchFilter(query, favorites);
-    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUser, filter, offset, limit);
+    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
       entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
@@ -965,6 +966,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       int commentsCount = activityStorage.getNumberOfComments(existingActivity);
       entity.setCommentsCount(commentsCount);
       entity.setLikesCount(existingActivity.getNumberOfLikes());
+      Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = EntityBuilder.retrieveMetadataItems(existingActivity, currentUserIdentity);
+      if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
+        entity.setMetadatas(activityMetadatasToPublish);
+      }
       return entity;
     }).collect(Collectors.toList());
 
