@@ -36,6 +36,14 @@
           <name>query.file.path</name>
           <value>${exo.social.activities.es.query.path:war:/conf/social-extension/social/search/activities-search-query.json}</value>
         </value-param>
+        <value-param>
+          <name>queryByIds.file.path</name>
+          <value>${exo.social.activities.es.queryByIds.path:war:/conf/social-extension/social/search/activities-search-queryByIds.json}</value>
+        </value-param>
+        <value-param>
+          <name>emptyQueryByIds.file.path</name>
+          <value>${exo.social.activities.es.emptyQueryByIds.path:war:/conf/social-extension/social/search/activities-search-emptyQueryByIds.json}</value>
+        </value-param>
         <properties-param>
           <name>constructor.params</name>
           <property name="index" value="activity_alias" />
@@ -133,6 +141,9 @@
             </field>
             <field name="enabled">
               <boolean>${exo.search.activity.enabled:true}</boolean>
+            </field>
+            <field name="favoritesEnabled">
+              <boolean>true</boolean>
             </field>
             <field name="jsModule">
               <string>SHARED/ActivitySearchResultCard</string>
