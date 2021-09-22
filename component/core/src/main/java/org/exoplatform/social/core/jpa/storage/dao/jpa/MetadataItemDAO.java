@@ -11,9 +11,15 @@ import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
-  private static final String OBJECT_ID   = "objectId";
+  private static final String METADATA_ID   = "metadataId";
 
-  private static final String OBJECT_TYPE = "objectType";
+  private static final String METADATA_NAME = "metadataName";
+
+  private static final String METADATA_TYPE = "metadataType";
+
+  private static final String OBJECT_ID     = "objectId";
+
+  private static final String OBJECT_TYPE   = "objectType";
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -27,9 +33,22 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     TypedQuery<MetadataItemEntity> query =
                                          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataAndObject",
                                                                              MetadataItemEntity.class);
-    query.setParameter("metadataId", metadataId);
+    query.setParameter(METADATA_ID, metadataId);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
+    return query.getResultList();
+  }
+
+  public List<String> getMetadataObjectIds(long metadataType,
+                                                          String metadataName,
+                                                          String objectType,
+                                                          int limit) {
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataObjectIds",
+                                                                   String.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(METADATA_NAME, metadataName);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setMaxResults(limit);
     return query.getResultList();
   }
 
