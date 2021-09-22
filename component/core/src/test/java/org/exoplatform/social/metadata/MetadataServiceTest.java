@@ -547,6 +547,81 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataItems.size());
   }
 
+  public void testGetMetadataObjectIds() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String type = userMetadataTypePlugin.getMetadataType().getName();
+    Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
+
+    createNewMetadataItem(type,
+                          "testMetadata5",
+                          "objectType1",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+    createNewMetadataItem(type,
+                          "testMetadata5",
+                          "objectType1",
+                          "objectId2",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+    createNewMetadataItem(type,
+                          "testMetadata6",
+                          "objectType1",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+    createNewMetadataItem(type,
+                          "testMetadata6",
+                          "objectType2",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+    createNewMetadataItem(type,
+                          "testMetadata6",
+                          "objectType3",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+    createNewMetadataItem(type,
+                          "testMetadata5",
+                          "objectType4",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId,
+                          properties);
+
+    List<String> metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 2);
+    assertNotNull(metadataItems);
+    assertEquals(2, metadataItems.size());
+    assertEquals("objectId2", metadataItems.get(0));
+    assertEquals("objectId1", metadataItems.get(1));
+
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 1);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    assertEquals("objectId2", metadataItems.get(0));
+
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType2", 1);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata6", "objectType2", 5);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+  }
+
   public void testDeleteMetadataItemsByObject() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;

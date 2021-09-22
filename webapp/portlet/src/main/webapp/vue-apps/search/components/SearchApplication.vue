@@ -25,6 +25,7 @@
               :connectors="connectors"
               :term="term"
               :standalone="standalone"
+              @favorites-changed="favorites = $event"
               @filter-changed="changeURI" />
           </template>
         </v-card>
@@ -49,6 +50,7 @@ export default {
     dialog: false,
     loading: true,
     term: null,
+    favorites: false,
     standalone: false,
     pageUri: null,
     pageTitle: null,
@@ -65,6 +67,9 @@ export default {
     term() {
       this.changeURI();
     },
+    favorites() {
+      this.changeURI();
+    },
     loading() {
       if (!this.loading) {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
@@ -75,7 +80,7 @@ export default {
       if (this.dialog) {
         $('body').addClass('hide-scroll');
         this.$root.$emit('search-opened');
-        window.history.replaceState('', this.$t('Search.page.title'), `${this.searchUri}?q=${this.term || ''}`);
+        this.changeURI();
       } else {
         $('body').removeClass('hide-scroll');
         this.$root.$emit('search-closed');
@@ -129,6 +134,8 @@ export default {
             connector.enabled = selectedTypes.includes(connector.name);
           });
         }
+        this.term = parameters['q'] || '';
+        this.favorites = parameters['favorites'] === 'true';
       }
     } else {
       $(document).on('keydown', (event) => {
@@ -152,7 +159,11 @@ export default {
       if (enabledConnectorNames.length !== this.connectors.length) {
         enabledConnectorsParam = window.encodeURIComponent(enabledConnectorNames.join(','));
       }
-      window.history.replaceState('', this.$t('Search.page.title'), `${this.searchUri}?q=${term}&types=${enabledConnectorsParam}`);
+      let pageUri = `${this.searchUri}?q=${term}&types=${enabledConnectorsParam}`;
+      if (this.favorites) {
+        pageUri += '&favorites=true';
+      }
+      window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     }
   },
 };
