@@ -231,6 +231,11 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
+  public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, int limit) {
+    return this.metadataStorage.getMetadataObjectIds(metadataType, metadataName, objectType, limit);
+  }
+
+  @Override
   public void addMetadataTypePlugin(MetadataTypePlugin metadataTypePlugin) {
     if (metadataTypePlugins.stream()
                            .anyMatch(registeredPlugin -> StringUtils.equals(registeredPlugin.getName(),

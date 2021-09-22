@@ -126,6 +126,19 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId);
 
   /**
+   * Retieves a list of object identifiers switch Metadata type, name and
+   * objectType
+   * 
+   * @param metadataType {@link Metadata} type
+   * @param metadataName {@link Metadata} name
+   * @param objectType {@link MetadataItem} objectType
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of associated objects ordered by {@link MetadataItem}
+   *         creationDate desc
+   */
+  List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, int limit);
+
+  /**
    * Registers a new {@link MetadataType}
    * 
    * @param metadataTypePlugin a {@link ComponentPlugin} defining
