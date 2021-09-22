@@ -1,32 +1,33 @@
 package org.exoplatform.social.rest.entity;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.social.core.activity.model.ActivitySearchResult;
 
 public class ActivitySearchResultEntity extends BaseEntity {
 
-  private static final long          serialVersionUID = 5467324200693836628L;
+  private static final long                     serialVersionUID = 5467324200693836628L;
 
-  private IdentityEntity             streamOwner;
+  private IdentityEntity                        streamOwner;
 
-  private IdentityEntity             poster;
+  private IdentityEntity                        poster;
 
-  private String                     type;
+  private String                                type;
 
-  private String                     body;
+  private String                                body;
 
-  private List<String>               excerpts;
+  private List<String>                          excerpts;
 
-  private long                       postedTime;
+  private long                                  postedTime;
 
-  private long                       lastUpdatedTime;
+  private long                                  likesCount;
 
-  private long                       likesCount;
+  private long                                  commentsCount;
 
-  private long                       commentsCount;
+  private ActivitySearchResultEntity            comment;
 
-  private ActivitySearchResultEntity comment;
+  private Map<String, List<MetadataItemEntity>> metadatas;                              // NOSONAR
 
   public ActivitySearchResultEntity() {
   }
@@ -37,7 +38,7 @@ public class ActivitySearchResultEntity extends BaseEntity {
     this.body = activitySearchResult.getBody();
     this.excerpts = activitySearchResult.getExcerpts();
     this.postedTime = activitySearchResult.getPostedTime();
-    this.lastUpdatedTime = activitySearchResult.getLastUpdatedTime();
+    this.setLastUpdatedTime(activitySearchResult.getLastUpdatedTime());
   }
 
   public IdentityEntity getStreamOwner() {
@@ -88,14 +89,6 @@ public class ActivitySearchResultEntity extends BaseEntity {
     this.postedTime = postedTime;
   }
 
-  public long getLastUpdatedTime() {
-    return lastUpdatedTime;
-  }
-
-  public void setLastUpdatedTime(long lastUpdatedTime) {
-    this.lastUpdatedTime = lastUpdatedTime;
-  }
-
   public ActivitySearchResultEntity getComment() {
     return comment;
   }
@@ -118,6 +111,14 @@ public class ActivitySearchResultEntity extends BaseEntity {
 
   public void setCommentsCount(long commentsCount) {
     this.commentsCount = commentsCount;
+  }
+
+  public void setMetadatas(Map<String, List<MetadataItemEntity>> metadatas) {
+    this.metadatas = metadatas;
+  }
+
+  public Map<String, List<MetadataItemEntity>> getMetadatas() {
+    return this.metadatas;
   }
 
 }

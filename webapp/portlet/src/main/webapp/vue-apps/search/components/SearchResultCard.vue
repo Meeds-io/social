@@ -30,9 +30,12 @@ export default {
           refresh() {
             self.$root.$emit('refresh', self.result.connector);
           },
+          refreshFavorites() {
+            self.$root.$emit('refresh', self.result.connector, true);
+          },
         },
         template: `
-          <${this.result.connector.uiComponent} :id="id" :result="result" :term="term" @refresh="refresh" />
+          <${this.result.connector.uiComponent} :id="id" :result="result" :term="term" @refresh="refresh" @refresh-favorite="refreshFavorites()" />
         `,
       });
 
