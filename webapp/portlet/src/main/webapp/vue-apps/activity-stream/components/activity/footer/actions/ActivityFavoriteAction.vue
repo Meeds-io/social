@@ -36,13 +36,25 @@ export default {
       type: Object,
       default: null,
     },
+    top: {
+      type: String,
+      default: () => '8px',
+    },
+    right: {
+      type: Object,
+      default: () => '30px',
+    },
   },
   data: () => ({
     isFavorite: false,
   }),
   computed: {
     buttonStyle() {
-      return {position: 'absolute', top: '8px', right: '30px'};
+      if (this.$vuetify.rtl) {
+        return {position: 'absolute', top: this.top, left: this.right};
+      } else {
+        return {position: 'absolute', top: this.top, right: this.right};
+      }
     },
     activityId() {
       return this.activity && this.activity.id;
@@ -68,6 +80,7 @@ export default {
             delete this.activity.metadatas.favorites;
             this.computeIsFavorite();
             this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
+            this.$emit('removed');
           })
           .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')})), 'error');
       } else {
@@ -79,6 +92,7 @@ export default {
             this.activity.metadatas.favorites = [favorite];
             this.computeIsFavorite();
             this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('activity.label')}));
+            this.$emit('added');
           })
           .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('activity.label')})), 'error');
       }
