@@ -671,45 +671,52 @@ public class EntityBuilder {
     if (activity.getLinkedProcessedEntities() != null) {
       activityEntity.getDataEntity().putAll(activity.getLinkedProcessedEntities());
     }
-    Map<String, List<MetadataItem>> activityMetadatas = activity.getMetadatas();
-    if (activity.getMetadatas() != null && !activityMetadatas.isEmpty()) {
-      long authentiatedUserId = Long.parseLong(authentiatedUser.getId());
-      Identity owner = getStreamOwnerIdentity(activity);
-      long streamOwnerId = owner == null ? 0 : Long.parseLong(owner.getId());
-      Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = new HashMap<>();
-      Set<Entry<String, List<MetadataItem>>> metadataEntries = activityMetadatas.entrySet();
-      for (Entry<String, List<MetadataItem>> metadataEntry : metadataEntries) {
-        String metadataType = metadataEntry.getKey();
-        List<MetadataItem> metadataItems = metadataEntry.getValue();
-        if (MapUtils.isNotEmpty(activityMetadatas)) {
-          List<MetadataItemEntity> activityMetadataEntities = metadataItems.stream()
-                                                                           .filter(metadataItem -> metadataItem.getMetadata()
-                                                                                                               .getAudienceId() == 0
-                                                                               || metadataItem.getMetadata()
-                                                                                              .getAudienceId() == streamOwnerId
-                                                                               || metadataItem.getMetadata()
-                                                                                              .getAudienceId() == authentiatedUserId)
-                                                                           .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
-                                                                                                                       metadataItem.getMetadata()
-                                                                                                                                   .getName(),
-                                                                                                                       metadataItem.getObjectType(),
-                                                                                                                       metadataItem.getObjectId(),
-                                                                                                                       metadataItem.getParentObjectId(),
-                                                                                                                       metadataItem.getCreatorId(),
-                                                                                                                       metadataItem.getMetadata()
-                                                                                                                                   .getAudienceId(),
-                                                                                                                       metadataItem.getProperties()))
-                                                                           .collect(Collectors.toList());
-          if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
-            activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
-          }
-        }
-      }
-      if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
-        activityEntity.setMetadatas(activityMetadatasToPublish);
-      }
+    Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = retrieveMetadataItems(activity, authentiatedUser);
+    if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
+      activityEntity.setMetadatas(activityMetadatasToPublish);
     }
     return activityEntity;
+  }
+
+  public static Map<String, List<MetadataItemEntity>> retrieveMetadataItems(ExoSocialActivity activity,
+                                                                            Identity authentiatedUser) {
+    Map<String, List<MetadataItem>> activityMetadatas = activity.getMetadatas();
+    if (MapUtils.isEmpty(activityMetadatas)) {
+      return null;// NOSONAR
+    }
+    long authentiatedUserId = Long.parseLong(authentiatedUser.getId());
+    Identity owner = getStreamOwnerIdentity(activity);
+    long streamOwnerId = owner == null ? 0 : Long.parseLong(owner.getId());
+    Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = new HashMap<>();
+    Set<Entry<String, List<MetadataItem>>> metadataEntries = activityMetadatas.entrySet();
+    for (Entry<String, List<MetadataItem>> metadataEntry : metadataEntries) {
+      String metadataType = metadataEntry.getKey();
+      List<MetadataItem> metadataItems = metadataEntry.getValue();
+      if (MapUtils.isNotEmpty(activityMetadatas)) {
+        List<MetadataItemEntity> activityMetadataEntities = metadataItems.stream()
+                                                                         .filter(metadataItem -> metadataItem.getMetadata()
+                                                                                                             .getAudienceId() == 0
+                                                                             || metadataItem.getMetadata()
+                                                                                            .getAudienceId() == streamOwnerId
+                                                                             || metadataItem.getMetadata()
+                                                                                            .getAudienceId() == authentiatedUserId)
+                                                                         .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
+                                                                                                                     metadataItem.getMetadata()
+                                                                                                                                 .getName(),
+                                                                                                                     metadataItem.getObjectType(),
+                                                                                                                     metadataItem.getObjectId(),
+                                                                                                                     metadataItem.getParentObjectId(),
+                                                                                                                     metadataItem.getCreatorId(),
+                                                                                                                     metadataItem.getMetadata()
+                                                                                                                                 .getAudienceId(),
+                                                                                                                     metadataItem.getProperties()))
+                                                                         .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
+          activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
+        }
+      }
+    }
+    return activityMetadatasToPublish;
   }
 
   public static void buildActivityFromEntity(ActivityEntity model,
