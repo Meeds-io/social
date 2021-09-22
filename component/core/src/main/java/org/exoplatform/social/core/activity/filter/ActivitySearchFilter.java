@@ -18,13 +18,20 @@ package org.exoplatform.social.core.activity.filter;
 
 public class ActivitySearchFilter {
 
-  private String term;
+  private String  term;
+
+  private boolean favorites;
 
   public ActivitySearchFilter() {
   }
 
   public ActivitySearchFilter(String term) {
     this.term = term;
+  }
+
+  public ActivitySearchFilter(String term, boolean favorites) {
+    this.term = term;
+    this.favorites = favorites;
   }
 
   public String getTerm() {
@@ -35,4 +42,11 @@ public class ActivitySearchFilter {
     this.term = term;
   }
 
+  public boolean isFavorites() {
+    return favorites;
+  }
+
+  public void setFavorites(boolean favorites) {
+    this.favorites = favorites;
+  }
 }

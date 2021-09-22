@@ -1,7 +1,7 @@
 package org.exoplatform.social.core.activity;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -13,7 +13,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.IOUtil;
@@ -28,6 +28,7 @@ import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.jpa.search.ActivitySearchProcessor;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.metadata.MetadataService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActivitySearchConnectorTest {
@@ -42,6 +43,9 @@ public class ActivitySearchConnectorTest {
 
   @Mock
   IdentityManager             identityManager;
+
+  @Mock
+  MetadataService             metadataService;
 
   @Mock
   ActivityStorage             activityStorage;
@@ -81,6 +85,7 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchArguments() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -119,6 +124,7 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchNoResult() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -144,6 +150,7 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchWithResult() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -209,23 +216,24 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchWithIdentityResult() throws IOException {// NOSONAR
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
-            identityManager,
-            activityStorage,
-            configurationManager,
-            client,
-            getParams());
+                                                                                  metadataService,
+                                                                                  identityManager,
+                                                                                  activityStorage,
+                                                                                  configurationManager,
+                                                                                  client,
+                                                                                  getParams());
 
     ActivitySearchFilter filter = new ActivitySearchFilter("John");
     HashSet<Long> permissions = new HashSet<>(Arrays.asList(10L, 20L, 30L));
     Identity identity = mock(Identity.class);
     lenient().when(identity.getId()).thenReturn("1");
-    when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
+    when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(permissions);
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
-            .replaceAll("@permissions@", StringUtils.join(permissions, ","))
-            .replaceAll("@offset@", "0")
-            .replaceAll("@limit@", "10");
+                                          .replaceAll("@permissions@", StringUtils.join(permissions, ","))
+                                          .replaceAll("@offset@", "0")
+                                          .replaceAll("@limit@", "10");
     searchResult = IOUtil.getStreamContentAsString(getClass().getClassLoader()
-            .getResourceAsStream("activities-search-result-by-identity.json"));
+                                                             .getResourceAsStream("activities-search-result-by-identity.json"));
     when(client.sendRequest(expectedESQuery, ES_INDEX)).thenReturn(searchResult);
 
     ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
@@ -256,8 +264,8 @@ public class ActivitySearchConnectorTest {
     assertEquals(4321L, activitySearchResult.getLastUpdatedTime());
     assertNotNull(activitySearchResult.getExcerpts());
     assertEquals(0, activitySearchResult.getExcerpts().size());
-    assertEquals(streamOwner, activitySearchResult.getStreamOwner()); }
-
+    assertEquals(streamOwner, activitySearchResult.getStreamOwner());
+  }
 
   private InitParams getParams() {
     InitParams params = new InitParams();

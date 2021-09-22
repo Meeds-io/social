@@ -920,6 +920,11 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                      "q"
                                    )
                                    String query,
+                                   @ApiParam(value = "Whether to search in favorites only or not", required = true)
+                                   @QueryParam(
+                                     "favorites"
+                                   )
+                                   boolean favorites,
                                    @ApiParam(value = "Offset", required = false, defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -934,14 +939,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    if (StringUtils.isBlank(query)) {
+    if (StringUtils.isBlank(query) && !favorites) {
       return Response.status(Status.BAD_REQUEST).entity("'q' parameter is mandatory").build();
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query);
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, favorites);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUser, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);

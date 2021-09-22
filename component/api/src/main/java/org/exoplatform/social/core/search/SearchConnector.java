@@ -27,6 +27,8 @@ public class SearchConnector implements Cloneable {
 
   private boolean enabled;
 
+  private boolean favoritesEnabled;
+
   private String  jsModule;
 
   private String  cssModule;
@@ -41,6 +43,7 @@ public class SearchConnector implements Cloneable {
   public SearchConnector(String name,
                          String uri,
                          boolean enabled,
+                         boolean favoritesEnabled,
                          String jsModule,
                          String cssModule,
                          String i18nBundle,
@@ -49,6 +52,7 @@ public class SearchConnector implements Cloneable {
     this.name = name;
     this.uri = uri;
     this.enabled = enabled;
+    this.favoritesEnabled = favoritesEnabled;
     this.jsModule = jsModule;
     this.cssModule = cssModule;
     this.i18nBundle = i18nBundle;
@@ -111,6 +115,14 @@ public class SearchConnector implements Cloneable {
     this.i18nBundle = i18nBundle;
   }
 
+  public boolean isFavoritesEnabled() {
+    return favoritesEnabled;
+  }
+
+  public void setFavoritesEnabled(boolean favoritesEnabled) {
+    this.favoritesEnabled = favoritesEnabled;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -139,6 +151,6 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, enabled, jsModule, cssModule, i18nBundle, uiComponent);
+    return new SearchConnector(name, uri, enabled, favoritesEnabled, jsModule, cssModule, i18nBundle, uiComponent);
   }
 }
