@@ -40,4 +40,9 @@ public final class FavoriteMetadataPlugin extends MetadataTypePlugin {
   public boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId) {
     return userIdentityId > 0 && metadataItem.getMetadata().getAudienceId() == userIdentityId;
   }
+
+  @Override
+  public boolean allowMultipleItemsPerObject() {
+    return false;
+  }
 }

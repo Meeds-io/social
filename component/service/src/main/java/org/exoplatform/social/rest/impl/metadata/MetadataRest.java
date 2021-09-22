@@ -8,9 +8,11 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.api.RestUtils;
@@ -54,11 +56,20 @@ public class MetadataRest implements ResourceContainer {
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input"),
           @ApiResponse(code = 401, message = "Unauthorized"),
+          @ApiResponse(code = 409, message = "Conflict"),
       }
   )
   public Response createMetadataItem(
+                                     @ApiParam(value = "Metadata type", required = true)
                                      @PathParam("type")
                                      String type,
+                                     @ApiParam(
+                                         value = "Whether override existing Metadata item or not",
+                                         required = false,
+                                         defaultValue = "false"
+                                     )
+                                     @QueryParam("ignoreWhenExisting")
+                                     boolean ignoreWhenExisting,
                                      MetadataItemEntity metadataItemEntity) {
     if (StringUtils.isBlank(type)) {
       return Response.status(Status.BAD_REQUEST).entity("MetadataTypeRequired").build();
@@ -91,6 +102,12 @@ public class MetadataRest implements ResourceContainer {
                metadataItemEntity.getAudienceId(),
                e);
       return Response.status(Status.UNAUTHORIZED).entity(e.getMessage()).build();
+    } catch (ObjectAlreadyExistsException e) {
+      if (ignoreWhenExisting) {
+        return Response.ok(toEntity((MetadataItem) e.getExistingObject())).build();
+      } else {
+        return Response.status(Status.CONFLICT).build();
+      }
     } catch (Exception e) {
       LOG.warn("Error creating a metadata item", e);
       return Response.serverError().entity(e.getMessage()).build();
@@ -112,18 +129,30 @@ public class MetadataRest implements ResourceContainer {
   @ApiResponses(
       value = {
           @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 204, message = "Request fulfilled"),
           @ApiResponse(code = 500, message = "Internal server error"),
           @ApiResponse(code = 400, message = "Invalid query input"),
           @ApiResponse(code = 401, message = "Unauthorized"),
       }
   )
   public Response deleteMetadataItem(
+                                     @ApiParam(value = "Metadata type", required = true)
                                      @PathParam("type")
                                      String type,
+                                     @ApiParam(value = "Metadata name", required = true)
                                      @PathParam("name")
                                      String name,
+                                     @ApiParam(value = "Metadata Item technical identifier", required = true)
                                      @PathParam("id")
-                                     long itemId) {
+                                     long itemId,
+                                     @ApiParam(
+                                         value = "Whether ignore when not existing Metadata item or not."
+                                             + "If true, it will return a HTTP code 204 when not existing else a 404.",
+                                         required = false,
+                                         defaultValue = "false"
+                                     )
+                                     @QueryParam("ignoreNotExisting")
+                                     boolean ignoreNotExisting) {
     if (StringUtils.isBlank(type)) {
       return Response.status(Status.BAD_REQUEST).entity("MetadataTypeRequired").build();
     }
@@ -149,6 +178,12 @@ public class MetadataRest implements ResourceContainer {
                itemId,
                e);
       return Response.status(Status.UNAUTHORIZED).entity(e.getMessage()).build();
+    } catch (ObjectNotFoundException e) {
+      if (ignoreNotExisting) {
+        return Response.noContent().build();
+      } else {
+        return Response.status(Status.NOT_FOUND).build();
+      }
     } catch (Exception e) {
       LOG.warn("Error deleting a metadata item", e);
       return Response.serverError().entity(e.getMessage()).build();

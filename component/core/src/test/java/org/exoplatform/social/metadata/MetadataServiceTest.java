@@ -3,7 +3,9 @@ package org.exoplatform.social.metadata;
 import java.util.*;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -23,6 +25,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private MetadataService                metadataService;
 
+  private MetadataDAO                    metadataDAO;
+
   private UserOnlyMetadataPlugin         userMetadataTypePlugin  = new UserOnlyMetadataPlugin();
 
   private SpaceManagerOnlyMetadataPlugin spaceMetadataTypePlugin = new SpaceManagerOnlyMetadataPlugin();
@@ -33,6 +37,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
+    metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     try {
       metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
       metadataService.addMetadataTypePlugin(spaceMetadataTypePlugin);
@@ -50,6 +55,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     begin();
     identityManager.deleteIdentity(rootIdentity);
     identityManager.deleteIdentity(johnIdentity);
+    metadataDAO.deleteAll();
 
     super.tearDown();
   }
@@ -245,6 +251,65 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
     assertEquals(objectId, storedMetadataItem.getObjectId());
     assertEquals(objectType, storedMetadataItem.getObjectType());
+  }
+
+  public void testCreateDuplicatedMetadataItem() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectId";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType";
+    String name = "testMetadata21";
+    Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
+
+    createNewMetadataItem(userMetadataTypePlugin.getMetadataType().getName(),
+                          name,
+                          objectType,
+                          objectId,
+                          parentObjectId,
+                          creatorId,
+                          audienceId,
+                          properties);
+    try {
+      createNewMetadataItem(userMetadataTypePlugin.getMetadataType().getName(),
+                            name,
+                            objectType,
+                            objectId,
+                            parentObjectId,
+                            creatorId,
+                            audienceId,
+                            properties);
+      fail("MetadataTypePlugin shouldn't allow to have twice the same object for a same Metadata");
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+
+    Space space = getSpaceInstance(1, Space.PUBLIC, Space.VALIDATION, johnIdentity.getRemoteId());
+    space = createSpaceNonInitApps(space, johnIdentity.getRemoteId(), null);
+
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    long spaceIdentityId = Long.parseLong(spaceIdentity.getId());
+
+    createNewMetadataItem(spaceMetadataTypePlugin.getMetadataType().getName(),
+                          name,
+                          objectType,
+                          objectId,
+                          parentObjectId,
+                          creatorId,
+                          spaceIdentityId,
+                          properties);
+    try {
+      createNewMetadataItem(spaceMetadataTypePlugin.getMetadataType().getName(),
+                            name,
+                            objectType,
+                            objectId,
+                            parentObjectId,
+                            creatorId,
+                            spaceIdentityId,
+                            properties);
+    } catch (ObjectAlreadyExistsException e) {
+      fail("MetadataTypePlugin should allow to have twice the same object for a same Metadata");
+    }
   }
 
   public void testDeleteMetadataItem() throws Exception {
@@ -571,7 +636,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                              String parentObjectId,
                                              long creatorId,
                                              long audienceId,
-                                             Map<String, String> properties) throws IllegalAccessException {
+                                             Map<String, String> properties) throws IllegalAccessException,
+                                                                             ObjectAlreadyExistsException {
     MetadataItem metadataItem = new MetadataItem();
     metadataItem.setObjectId(objectId);
     metadataItem.setObjectType(objectType);
@@ -645,6 +711,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
     public boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId) {
       return userIdentityId > 0 && metadataItem.getMetadata().getAudienceId() == userIdentityId;
     }
+
+    @Override
+    public boolean allowMultipleItemsPerObject() {
+      return false;
+    }
   }
 
   public final class SpaceManagerOnlyMetadataPlugin extends MetadataTypePlugin {
@@ -680,6 +751,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
     @Override
     public boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId) {
       return isSpaceAudienceManager(metadataItem.getMetadata(), userIdentityId);
+    }
+
+    @Override
+    public boolean allowMultipleItemsPerObject() {
+      return true;
     }
 
     private boolean isSpaceAudienceManager(Metadata metadata, long userIdentityId) {
