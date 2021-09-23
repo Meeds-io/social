@@ -395,6 +395,11 @@
   </component>
 
   <component>
+    <key>org.exoplatform.social.metadata.favorite.FavoriteService</key>
+    <type>org.exoplatform.social.core.metadata.favorite.FavoriteServiceImpl</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.social.core.manager.IdentityManager</key>
     <type>org.exoplatform.social.core.manager.IdentityManagerImpl</type>
     <component-plugins>
@@ -604,6 +609,28 @@
     <key>org.exoplatform.social.core.processor.I18NActivityProcessor</key>
     <type>org.exoplatform.social.core.processor.I18NActivityProcessor</type>
   </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
+    <component-plugin>
+      <name>FavoriteMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>1</int>
+            </field>
+            <field name="name">
+              <string>favorites</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.commons.search.index.IndexingOperationProcessor</target-component>

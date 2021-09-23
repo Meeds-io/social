@@ -1,32 +1,15 @@
 <template>
-  <div
-    class="d-inline-flex">
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          :id="`FavoriteLink${activityId}`"
-          :style="buttonStyle"
-          class="pa-0 mt-0"
-          icon
-          small
-          v-bind="attrs"
-          v-on="on"
-          @click="changeFavorite">
-          <div class="d-flex flex-lg-row flex-column">
-            <v-icon
-              class="mx-auto"
-              color="orange"
-              size="14">
-              {{ favoriteIcon }}
-            </v-icon>
-          </div>
-        </v-btn>
-      </template>
-      <span>
-        {{ favoriteTooltip }}
-      </span>
-    </v-tooltip>
-  </div>
+  <favorite-button
+    :id="activityId"
+    :favorite="isFavorite"
+    :absolute="absolute"
+    :top="top"
+    :right="right"
+    type="activity"
+    @removed="removed"
+    @remove-error="removeError"
+    @added="added"
+    @add-error="addError" />
 </template>
 
 <script>
@@ -53,56 +36,27 @@ export default {
     isFavorite: false,
   }),
   computed: {
-    buttonStyle() {
-      if (this.absolute) {
-        if (this.$vuetify.rtl) {
-          return {position: 'absolute', top: `${this.top}px`, left: `${this.right}px`};
-        } else {
-          return {position: 'absolute', top: `${this.top}px`, right: `${this.right}px`};
-        }
-      }
-      return '';
-    },
     activityId() {
       return this.activity && this.activity.id;
     },
-    favoriteTooltip() {
-      return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
-    },
-    favoriteIcon() {
-      return this.isFavorite && 'fa-star' || 'far fa-star';
-    },
   },
   created() {
-    this.computeIsFavorite();
+    this.isFavorite = this.activity && this.activity.metadatas && this.activity.metadatas.favorites && this.activity.metadatas.favorites.length;
   },
   methods: {
-    computeIsFavorite() {
-      this.isFavorite = this.activity && this.activity.metadatas && this.activity.metadatas.favorites && this.activity.metadatas.favorites.length;
+    removed() {
+      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
+      this.$emit('removed');
     },
-    changeFavorite() {
-      if (this.isFavorite) {
-        this.$favoriteService.removeFavorite(this.activity.metadatas.favorites[0].id)
-          .then(() => {
-            delete this.activity.metadatas.favorites;
-            this.computeIsFavorite();
-            this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
-            this.$emit('removed');
-          })
-          .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')})), 'error');
-      } else {
-        this.$favoriteService.addFavorite('activity', this.activityId)
-          .then(favorite => {
-            if (!this.activity.metadatas) {
-              this.activity.metadatas = {};
-            }
-            this.activity.metadatas.favorites = [favorite];
-            this.computeIsFavorite();
-            this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('activity.label')}));
-            this.$emit('added');
-          })
-          .catch(() => this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('activity.label')})), 'error');
-      }
+    removeError() {
+      this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')}), 'error');
+    },
+    added() {
+      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('activity.label')}));
+      this.$emit('added');
+    },
+    addError() {
+      this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('activity.label')}), 'error');
     },
     displayAlert(message, type) {
       this.$root.$emit('activity-notification-alert', {

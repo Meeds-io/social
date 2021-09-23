@@ -27,7 +27,7 @@ import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesTest;
 import org.exoplatform.social.rest.impl.comment.CommentRestResourcesTest;
 import org.exoplatform.social.rest.impl.identity.IdentityRestResourcesTest;
-import org.exoplatform.social.rest.impl.metadata.MetadataRestTest;
+import org.exoplatform.social.rest.impl.metadata.FavoriteRestTest;
 import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.space.SpaceRestResourcesTest;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesTest;
@@ -62,7 +62,7 @@ import org.exoplatform.social.service.rest.notification.IntranetNotificationsRes
   UserRestResourcesTest.class,
   GroupSpaceBindingRestServiceTest.class,
   MalwareDetectionServiceTest.class,
-  MetadataRestTest.class,
+  FavoriteRestTest.class,
   })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
