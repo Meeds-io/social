@@ -14,12 +14,16 @@
         <template slot="subTitle">
           <date-format :value="postedTime" />
         </template>
+        <template slot="actions">
+          <activity-favorite-action
+            :activity="result"
+            class="ms-3"
+            absolute
+            top="0"
+            right="0"
+            @removed="$emit('refresh-favorite')" />
+        </template>
       </exo-user-avatar>
-      <activity-favorite-action
-        :activity="result"
-        top="3px"
-        right="5px"
-        @removed="$emit('refresh-favorite')" />
     </v-card-text>
     <div class="mx-auto flex-grow-1 px-3 py-0">
       <div
