@@ -123,7 +123,7 @@ public class MetadataStorage {
   }
 
   public List<MetadataType> getMetadataTypes() {
-    return metadataTypes;
+    return Collections.unmodifiableList(metadataTypes);
   }
 
   private Metadata fromEntity(MetadataEntity metadataEntity) {
