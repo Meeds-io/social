@@ -561,6 +561,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           audienceId,
                           properties);
+    restartTransaction();
     createNewMetadataItem(type,
                           "testMetadata5",
                           "objectType1",
@@ -569,6 +570,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           audienceId,
                           properties);
+    restartTransaction();
     createNewMetadataItem(type,
                           "testMetadata6",
                           "objectType1",
@@ -577,6 +579,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           audienceId,
                           properties);
+    restartTransaction();
     createNewMetadataItem(type,
                           "testMetadata6",
                           "objectType2",
@@ -585,6 +588,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           audienceId,
                           properties);
+    restartTransaction();
     createNewMetadataItem(type,
                           "testMetadata6",
                           "objectType3",
@@ -593,6 +597,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           audienceId,
                           properties);
+    restartTransaction();
     createNewMetadataItem(type,
                           "testMetadata5",
                           "objectType4",
