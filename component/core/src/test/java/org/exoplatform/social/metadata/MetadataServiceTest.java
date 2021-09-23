@@ -1,45 +1,52 @@
 package org.exoplatform.social.metadata;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.*;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.*;
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
-  private Identity                       rootIdentity;
+  private Identity        rootIdentity;
 
-  private Identity                       johnIdentity;
+  private Identity        johnIdentity;
 
-  private IdentityManager                identityManager;
+  private IdentityManager identityManager;
 
-  private SpaceService                   spaceService;
+  private MetadataService metadataService;
 
-  private MetadataService                metadataService;
+  private MetadataDAO     metadataDAO;
 
-  private MetadataDAO                    metadataDAO;
+  private MetadataType    userMetadataType;
 
-  private UserOnlyMetadataPlugin         userMetadataTypePlugin  = new UserOnlyMetadataPlugin();
-
-  private SpaceManagerOnlyMetadataPlugin spaceMetadataTypePlugin = new SpaceManagerOnlyMetadataPlugin();
+  private MetadataType    spaceMetadataType;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     try {
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user"));
+      userMetadataType = userMetadataTypePlugin.getMetadataType();
       metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
+    } catch (UnsupportedOperationException e) {
+      // Expected when already added
+    }
+    try {
+      MetadataTypePlugin spaceMetadataTypePlugin = new MetadataTypePlugin(newParam(2000, "space"));
+      spaceMetadataType = spaceMetadataTypePlugin.getMetadataType();
       metadataService.addMetadataTypePlugin(spaceMetadataTypePlugin);
     } catch (UnsupportedOperationException e) {
       // Expected when already added
@@ -62,7 +69,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   public void testMetadataTypePlugin() {
     try {
-      metadataService.addMetadataTypePlugin(new UserOnlyMetadataPlugin());
+      metadataService.addMetadataTypePlugin(new MetadataTypePlugin(newParam(2, "space")));
       fail("Should throw an exception when attempting to redefine an existing ");
     } catch (UnsupportedOperationException e) {
       // Expected when already added
@@ -70,12 +77,10 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     List<MetadataType> metadataTypes = metadataService.getMetadataTypes();
     assertNotNull(metadataTypes);
-    assertEquals(2, metadataTypes.size());
+    assertTrue(metadataTypes.size() >= 2);
 
     assertNotNull(metadataService.getMetadataTypePluginByName("user"));
-    assertTrue(metadataService.getMetadataTypePluginByName("user") instanceof UserOnlyMetadataPlugin);
     assertNotNull(metadataService.getMetadataTypePluginByName("space"));
-    assertTrue(metadataService.getMetadataTypePluginByName("space") instanceof SpaceManagerOnlyMetadataPlugin);
   }
 
   public void testCreateMetadata() throws Exception {
@@ -105,7 +110,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
       metadataService.createMetadata(newMetadataInstance(audienceId,
                                                          creatorId,
                                                          name,
-                                                         userMetadataTypePlugin.getMetadataType(),
+                                                         userMetadataType,
                                                          properties),
                                      0);
       fail();
@@ -123,22 +128,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (IllegalArgumentException e) {
       // Expected
     }
-    try {
-      metadataService.createMetadata(newMetadataInstance(audienceId,
-                                                         creatorId,
-                                                         name,
-                                                         userMetadataTypePlugin.getMetadataType(),
-                                                         properties),
-                                     Long.parseLong(rootIdentity.getId()));
-      fail();
-    } catch (IllegalAccessException e) {
-      // Expected
-    }
 
     Metadata storedMetadata = metadataService.createMetadata(newMetadataInstance(audienceId,
                                                                                  creatorId,
                                                                                  name,
-                                                                                 userMetadataTypePlugin.getMetadataType(),
+                                                                                 userMetadataType,
                                                                                  properties),
                                                              creatorId);
     assertNotNull(storedMetadata);
@@ -148,16 +142,16 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(audienceId, storedMetadata.getAudienceId());
     assertEquals(name, storedMetadata.getName());
     assertEquals(properties, storedMetadata.getProperties());
-    assertEquals(userMetadataTypePlugin.getMetadataType(), storedMetadata.getType());
+    assertEquals(userMetadataType, storedMetadata.getType());
   }
 
-  public void testCreateMetadataItem() throws Exception {
+  public void testCreateMetadataItem() throws Exception { // NOSONAR
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
     String objectId = "objectId";
     String parentObjectId = "parentObjectId";
     String objectType = "objectType";
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     String name = "testMetadata2";
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
@@ -168,7 +162,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId);
+                                         creatorId,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -178,7 +173,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId);
+                                         creatorId,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -188,7 +184,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId);
+                                         creatorId,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -198,7 +195,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          null,
                                          name,
                                          audienceId,
-                                         creatorId);
+                                         creatorId,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -208,7 +206,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         0);
+                                         0,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -218,19 +217,10 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          "test",
                                          name,
                                          audienceId,
-                                         creatorId);
+                                         creatorId,
+                                         false);
       fail();
     } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.createMetadataItem(metadataItem,
-                                         type,
-                                         name,
-                                         audienceId,
-                                         Long.parseLong(rootIdentity.getId()));
-      fail();
-    } catch (IllegalAccessException e) {
       // Expected
     }
 
@@ -238,7 +228,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                          type,
                                                                          name,
                                                                          audienceId,
-                                                                         creatorId);
+                                                                         creatorId,
+                                                                         false);
     assertNotNull(storedMetadataItem);
     assertTrue(storedMetadataItem.getId() > 0);
     assertTrue(storedMetadataItem.getCreatedDate() > 0);
@@ -246,11 +237,41 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(storedMetadataItem.getMetadata());
     assertEquals(audienceId, storedMetadataItem.getMetadata().getAudienceId());
     assertEquals(name, storedMetadataItem.getMetadata().getName());
-    assertEquals(userMetadataTypePlugin.getMetadataType(), storedMetadataItem.getMetadata().getType());
+    assertEquals(userMetadataType, storedMetadataItem.getMetadata().getType());
     assertEquals(properties, storedMetadataItem.getProperties());
     assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
     assertEquals(objectId, storedMetadataItem.getObjectId());
     assertEquals(objectType, storedMetadataItem.getObjectType());
+
+    try {
+      storedMetadataItem = metadataService.createMetadataItem(metadataItem,
+                                                              type,
+                                                              name,
+                                                              audienceId,
+                                                              creatorId,
+                                                              false);
+      fail();
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    MetadataItem secondStoredMetadataItem = metadataService.createMetadataItem(metadataItem,
+                                                                               type,
+                                                                               name,
+                                                                               audienceId,
+                                                                               creatorId,
+                                                                               true);
+    assertNotNull(secondStoredMetadataItem);
+    assertNotEquals(storedMetadataItem.getId(), secondStoredMetadataItem.getId());
+    assertTrue(secondStoredMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, secondStoredMetadataItem.getCreatorId());
+    assertNotNull(secondStoredMetadataItem.getMetadata());
+    assertEquals(audienceId, secondStoredMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, secondStoredMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, secondStoredMetadataItem.getMetadata().getType());
+    assertEquals(properties, secondStoredMetadataItem.getProperties());
+    assertEquals(parentObjectId, secondStoredMetadataItem.getParentObjectId());
+    assertEquals(objectId, secondStoredMetadataItem.getObjectId());
+    assertEquals(objectType, secondStoredMetadataItem.getObjectType());
   }
 
   public void testCreateDuplicatedMetadataItem() throws Exception {
@@ -262,7 +283,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String name = "testMetadata21";
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
-    createNewMetadataItem(userMetadataTypePlugin.getMetadataType().getName(),
+    createNewMetadataItem(userMetadataType.getName(),
                           name,
                           objectType,
                           objectId,
@@ -271,14 +292,15 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           audienceId,
                           properties);
     try {
-      createNewMetadataItem(userMetadataTypePlugin.getMetadataType().getName(),
+      createNewMetadataItem(userMetadataType.getName(),
                             name,
                             objectType,
                             objectId,
                             parentObjectId,
                             creatorId,
                             audienceId,
-                            properties);
+                            properties,
+                            false);
       fail("MetadataTypePlugin shouldn't allow to have twice the same object for a same Metadata");
     } catch (ObjectAlreadyExistsException e) {
       // Expected
@@ -290,7 +312,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     long spaceIdentityId = Long.parseLong(spaceIdentity.getId());
 
-    createNewMetadataItem(spaceMetadataTypePlugin.getMetadataType().getName(),
+    createNewMetadataItem(spaceMetadataType.getName(),
                           name,
                           objectType,
                           objectId,
@@ -299,14 +321,15 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           spaceIdentityId,
                           properties);
     try {
-      createNewMetadataItem(spaceMetadataTypePlugin.getMetadataType().getName(),
+      createNewMetadataItem(spaceMetadataType.getName(),
                             name,
                             objectType,
                             objectId,
                             parentObjectId,
                             creatorId,
                             spaceIdentityId,
-                            properties);
+                            properties,
+                            true);
     } catch (ObjectAlreadyExistsException e) {
       fail("MetadataTypePlugin should allow to have twice the same object for a same Metadata");
     }
@@ -318,7 +341,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String objectId = "objectId10";
     String parentObjectId = "parentObjectId";
     String objectType = "objectType11";
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     String name = "testMetadata8";
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
@@ -327,83 +350,22 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                          type,
                                                                          name,
                                                                          audienceId,
-                                                                         creatorId);
+                                                                         creatorId,
+                                                                         false);
 
     try {
-      metadataService.deleteMetadataItem(null,
-                                         name,
-                                         storedMetadataItem.getId(),
-                                         creatorId);
+      metadataService.deleteMetadataItem(0, creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
     }
     try {
-      metadataService.deleteMetadataItem(type,
-                                         null,
-                                         storedMetadataItem.getId(),
-                                         creatorId);
+      metadataService.deleteMetadataItem(storedMetadataItem.getId(), 0);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
     }
-    try {
-      metadataService.deleteMetadataItem(type,
-                                         name,
-                                         0,
-                                         creatorId);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem(type,
-                                         name,
-                                         storedMetadataItem.getId(),
-                                         0);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem("test",
-                                         name,
-                                         storedMetadataItem.getId(),
-                                         creatorId);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem("space",
-                                         name,
-                                         storedMetadataItem.getId(),
-                                         creatorId);
-      fail();
-    } catch (IllegalStateException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem(type,
-                                         "name2",
-                                         storedMetadataItem.getId(),
-                                         creatorId);
-      fail();
-    } catch (IllegalStateException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem(type,
-                                         name,
-                                         storedMetadataItem.getId(),
-                                         Long.parseLong(rootIdentity.getId()));
-      fail();
-    } catch (IllegalAccessException e) {
-      // Expected
-    }
-    MetadataItem deletedMetadataItem = metadataService.deleteMetadataItem(type,
-                                                                          name,
-                                                                          storedMetadataItem.getId(),
+    MetadataItem deletedMetadataItem = metadataService.deleteMetadataItem(storedMetadataItem.getId(),
                                                                           creatorId);
 
     assertNotNull(deletedMetadataItem);
@@ -413,7 +375,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(deletedMetadataItem.getMetadata());
     assertEquals(audienceId, deletedMetadataItem.getMetadata().getAudienceId());
     assertEquals(name, deletedMetadataItem.getMetadata().getName());
-    assertEquals(userMetadataTypePlugin.getMetadataType(), deletedMetadataItem.getMetadata().getType());
+    assertEquals(userMetadataType, deletedMetadataItem.getMetadata().getType());
     assertEquals(properties, deletedMetadataItem.getProperties());
     assertEquals(parentObjectId, deletedMetadataItem.getParentObjectId());
     assertEquals(objectId, deletedMetadataItem.getObjectId());
@@ -430,7 +392,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String objectId = "objectId";
     String parentObjectId = "parentObjectId";
     String objectType = "objectType";
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     String name = "testMetadata3";
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
@@ -438,12 +400,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     try {
       metadataService.deleteMetadata(null, name, audienceId, creatorId);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadata(type, name, audienceId, 0);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -460,12 +416,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (IllegalArgumentException e) {
       // Expected
     }
-    try {
-      metadataService.deleteMetadata(type, name, audienceId, Long.parseLong(rootIdentity.getId()));
-      fail();
-    } catch (IllegalAccessException e) {
-      // Expected
-    }
 
     Metadata storedMetadata = metadataService.deleteMetadata(type, name, audienceId, creatorId);
 
@@ -476,13 +426,13 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(audienceId, storedMetadata.getAudienceId());
     assertEquals(name, storedMetadata.getName());
     assertNull(storedMetadata.getProperties());
-    assertEquals(userMetadataTypePlugin.getMetadataType(), storedMetadata.getType());
+    assertEquals(userMetadataType, storedMetadata.getType());
   }
 
   public void testGetMetadataItemsByObject() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
     createNewMetadataItem(type,
@@ -550,7 +500,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
   public void testGetMetadataObjectIds() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
     createNewMetadataItem(type,
@@ -630,7 +580,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
   public void testDeleteMetadataItemsByObject() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
-    String type = userMetadataTypePlugin.getMetadataType().getName();
+    String type = userMetadataType.getName();
     Map<String, String> properties = Collections.singletonMap("testMetadataItem1Key", "testMetadataItem1Value");
 
     createNewMetadataItem(type,
@@ -716,8 +666,27 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                              String parentObjectId,
                                              long creatorId,
                                              long audienceId,
-                                             Map<String, String> properties) throws IllegalAccessException,
-                                                                             ObjectAlreadyExistsException {
+                                             Map<String, String> properties) throws ObjectAlreadyExistsException {
+    return createNewMetadataItem(type,
+                                 name,
+                                 objectType,
+                                 objectId,
+                                 parentObjectId,
+                                 creatorId,
+                                 audienceId,
+                                 properties,
+                                 false);
+  }
+
+  private MetadataItem createNewMetadataItem(String type,
+                                             String name,
+                                             String objectType,
+                                             String objectId,
+                                             String parentObjectId,
+                                             long creatorId,
+                                             long audienceId,
+                                             Map<String, String> properties,
+                                             boolean allowMultiple) throws ObjectAlreadyExistsException {
     MetadataItem metadataItem = new MetadataItem();
     metadataItem.setObjectId(objectId);
     metadataItem.setObjectType(objectType);
@@ -728,7 +697,18 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                               type,
                                               name,
                                               audienceId,
-                                              creatorId);
+                                              creatorId,
+                                              allowMultiple);
+  }
+
+  private InitParams newParam(long id, String name) {
+    InitParams params = new InitParams();
+    MetadataType metadataType = new MetadataType(id, name);
+    ObjectParameter parameter = new ObjectParameter();
+    parameter.setName("metadataType");
+    parameter.setObject(metadataType);
+    params.addParameter(parameter);
+    return params;
   }
 
   private MetadataItem newMetadataItemInstance(String objectType,
@@ -755,98 +735,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     metadata.setType(metadataType);
     metadata.setProperties(properties);
     return metadata;
-  }
-
-  public final class UserOnlyMetadataPlugin extends MetadataTypePlugin {
-    public UserOnlyMetadataPlugin() {
-      super(new MetadataType(1, "user"));
-    }
-
-    @Override
-    public boolean canCreateMetadata(Metadata metadata, long userIdentityId) {
-      return userIdentityId > 0 && metadata.getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean canUpdateMetadata(Metadata metadata, long userIdentityId) {
-      return userIdentityId > 0 && metadata.getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean canDeleteMetadata(Metadata metadata, long userIdentityId) {
-      return userIdentityId > 0 && metadata.getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean canCreateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return userIdentityId > 0 && metadataItem.getMetadata().getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean canUpdateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return userIdentityId > 0 && metadataItem.getMetadata().getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return userIdentityId > 0 && metadataItem.getMetadata().getAudienceId() == userIdentityId;
-    }
-
-    @Override
-    public boolean allowMultipleItemsPerObject() {
-      return false;
-    }
-  }
-
-  public final class SpaceManagerOnlyMetadataPlugin extends MetadataTypePlugin {
-    public SpaceManagerOnlyMetadataPlugin() {
-      super(new MetadataType(2, "space"));
-    }
-
-    @Override
-    public boolean canCreateMetadata(Metadata metadata, long userIdentityId) {
-      return isSpaceAudienceManager(metadata, userIdentityId);
-    }
-
-    @Override
-    public boolean canUpdateMetadata(Metadata metadata, long userIdentityId) {
-      return isSpaceAudienceManager(metadata, userIdentityId);
-    }
-
-    @Override
-    public boolean canDeleteMetadata(Metadata metadata, long userIdentityId) {
-      return isSpaceAudienceManager(metadata, userIdentityId);
-    }
-
-    @Override
-    public boolean canCreateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return isSpaceAudienceManager(metadataItem.getMetadata(), userIdentityId);
-    }
-
-    @Override
-    public boolean canUpdateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return isSpaceAudienceManager(metadataItem.getMetadata(), userIdentityId);
-    }
-
-    @Override
-    public boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-      return isSpaceAudienceManager(metadataItem.getMetadata(), userIdentityId);
-    }
-
-    @Override
-    public boolean allowMultipleItemsPerObject() {
-      return true;
-    }
-
-    private boolean isSpaceAudienceManager(Metadata metadata, long userIdentityId) {
-      Identity audienceIdentity = identityManager.getIdentity(String.valueOf(metadata.getAudienceId()));
-      if (audienceIdentity == null || !audienceIdentity.isSpace()) {
-        return false;
-      }
-      Identity userIdentity = identityManager.getIdentity(String.valueOf(userIdentityId));
-      Space space = spaceService.getSpaceByPrettyName(audienceIdentity.getRemoteId());
-      return SpaceUtils.isSpaceManagerOrSuperManager(userIdentity.getRemoteId(), space.getGroupId());
-    }
   }
 
 }

@@ -24,7 +24,20 @@
     <component-plugin>
       <name>FavoriteMetadataPlugin</name>
       <set-method>addMetadataTypePlugin</set-method>
-      <type>org.exoplatform.social.core.metadata.favorite.FavoriteMetadataPlugin</type>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>1</int>
+            </field>
+            <field name="name">
+              <string>favorites</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
     </component-plugin>
   </external-component-plugins>
 
