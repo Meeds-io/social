@@ -19,6 +19,7 @@ import ExoGroupSuggester from './components/ExoGroupSuggester.vue';
 import CardCarousel from './components/CardCarousel.vue';
 import DrawersOverlay from './components/DrawersOverlay.vue';
 import ActivityShareDrawer from './components/ActivityShareDrawer.vue';
+import FavoriteButton from './components/FavoriteButton.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -42,6 +43,7 @@ const components = {
   'extension-registry-components': ExtensionRegistryComponents,
   'dynamic-html-element': DynamicHTMLElement,
   'exo-group-suggester': ExoGroupSuggester,
+  'favorite-button': FavoriteButton,
 };
 
 for (const key in components) {

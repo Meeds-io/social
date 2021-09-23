@@ -1,15 +1,24 @@
 package org.exoplatform.social.metadata;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.container.component.BaseComponentPlugin;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.social.metadata.model.MetadataType;
 
-public abstract class MetadataTypePlugin extends BaseComponentPlugin {
+public class MetadataTypePlugin extends BaseComponentPlugin {
 
-  protected MetadataType metadataType;
+  private static final String METADATA_TYPE_PARAM_NAME = "metadataType";
 
-  protected MetadataTypePlugin(MetadataType metadataType) {
-    this.metadataType = metadataType;
+  protected MetadataType      metadataType;
+
+  public MetadataTypePlugin(InitParams params) {
+    if (params != null && params.containsKey(METADATA_TYPE_PARAM_NAME)) {
+      this.metadataType = (MetadataType) params.getObjectParam(METADATA_TYPE_PARAM_NAME).getObject();
+    }
+    if (this.metadataType == null || this.metadataType.getId() == 0 || StringUtils.isBlank(this.metadataType.getName())) {
+      throw new IllegalStateException("MetadataType is mandatory");
+    }
   }
 
   @Override
@@ -21,90 +30,8 @@ public abstract class MetadataTypePlugin extends BaseComponentPlugin {
     return this.metadataType.getId();
   }
 
-  /**
-   * @return {@link MetadataType} handled by the current {@link MetadataService}
-   *         Plugin
-   */
   public MetadataType getMetadataType() {
     return metadataType;
   }
-
-  /**
-   * A method to test whether the user can create a metadata for targeted
-   * audience or not
-   * 
-   * @param metadata {@link Metadata} object
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to create the {@link Metadata}, else
-   *         false
-   */
-  public abstract boolean canCreateMetadata(Metadata metadata, long userIdentityId);
-
-  /**
-   * A method to test whether the user can update a metadata for targeted
-   * audience or not
-   * 
-   * @param metadata {@link Metadata} object
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to update the {@link Metadata}, else
-   *         false
-   */
-  public abstract boolean canUpdateMetadata(Metadata metadata, long userIdentityId);
-
-  /**
-   * A method to test whether the user can delete a metadata for targeted
-   * audience or not
-   * 
-   * @param metadata {@link Metadata} object
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to delete the {@link Metadata}, else
-   *         false
-   */
-  public abstract boolean canDeleteMetadata(Metadata metadata, long userIdentityId);
-
-  /**
-   * A method to test whether the user can associate a {@link Metadata} to an
-   * object or not
-   * 
-   * @param metadataItem {@link MetadataItem}
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to create the {@link MetadataItem},
-   *         else false
-   */
-  public abstract boolean canCreateMetadataItem(MetadataItem metadataItem, long userIdentityId);
-
-  /**
-   * A method to test whether the user can update an association of a
-   * {@link Metadata} to an object or not
-   * 
-   * @param metadataItem {@link MetadataItem}
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to create the {@link MetadataItem},
-   *         else false
-   */
-  public abstract boolean canUpdateMetadataItem(MetadataItem metadataItem, long userIdentityId);
-
-  /**
-   * A method to test whether the user can delete association of a
-   * {@link Metadata} to an object or not
-   * 
-   * @param metadataItem {@link MetadataItem}
-   * @param userIdentityId {@link Identity} identifier of the user making the
-   *          operation
-   * @return true if the user is allowed to delete the {@link MetadataItem},
-   *         else false
-   */
-  public abstract boolean canDeleteMetadataItem(MetadataItem metadataItem, long userIdentityId);
-
-  /**
-   * @return true when allowing to define multiple {@link MetadataItem} per same
-   *         object (type/id), else false
-   */
-  public abstract boolean allowMultipleItemsPerObject();
 
 }

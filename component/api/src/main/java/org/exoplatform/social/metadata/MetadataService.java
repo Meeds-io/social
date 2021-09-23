@@ -21,10 +21,8 @@ public interface MetadataService {
    * @param metadata {@link Metadata}
    * @param userIdentityId {@link Identity} identifier of the creator
    * @return created {@link Metadata}
-   * @throws IllegalAccessException when the user is not allowed to create a
-   *           {@link Metadata} for designated type
    */
-  Metadata createMetadata(Metadata metadata, long userIdentityId) throws IllegalAccessException;
+  Metadata createMetadata(Metadata metadata, long userIdentityId);
 
   /**
    * Delete Metadata object identified by type, name and audienceId.
@@ -36,11 +34,8 @@ public interface MetadataService {
    *          deleting the {@link Metadata}
    * @return deleted {@link Metadata}
    * @throws ObjectNotFoundException when the {@link Metadata} isn't found
-   * @throws IllegalAccessException when the user isn't allowed to delete
-   *           {@link Metadata}
    */
-  Metadata deleteMetadata(String type, String name, long audienceId, long userIdentityId) throws ObjectNotFoundException,
-                                                                                          IllegalAccessException;
+  Metadata deleteMetadata(String type, String name, long audienceId, long userIdentityId) throws ObjectNotFoundException;
 
   /**
    * Retrieves a {@link Metadata} identified by a unique constraint for
@@ -63,9 +58,10 @@ public interface MetadataService {
    * @param audienceId {@link Metadata} audience
    * @param userIdentityId {@link Identity} technical identifier designating the
    *          user making the operation
+   * @param allowMultipleItemsPerObject whether allow to create multiple items
+   *          for one single metadata and object or throw
+   *          {@link ObjectAlreadyExistsException} when already exists
    * @return Created {@link MetadataItem}
-   * @throws IllegalAccessException when the user isn't allowed to create a
-   *           Metadata item on designated Type and Name
    * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
    *           doesn't allow multiple objects per {@link Metadata} and an object
    *           is already associated to the designated {@link Metadata}
@@ -74,21 +70,17 @@ public interface MetadataService {
                                   String type,
                                   String name,
                                   long audienceId,
-                                  long userIdentityId) throws IllegalAccessException, ObjectAlreadyExistsException;
+                                  long userIdentityId,
+                                  boolean allowMultipleItemsPerObject) throws ObjectAlreadyExistsException;
 
   /**
-   * @param type {@link MetadataType} name
-   * @param name {@link Metadata} name
    * @param itemId {@link MetadataItem} technical identifier
    * @param userIdentityId {@link Identity} technical identifier designating the
    *          user making the operation
    * @return Deleted {@link MetadataItem}
-   * @throws IllegalAccessException when the user isn't allowed to delete a
-   *           Metadata item on designated Type and Name
    * @throws ObjectNotFoundException when the {@link MetadataItem} isn't found
    */
-  MetadataItem deleteMetadataItem(String type, String name, long itemId, long userIdentityId) throws IllegalAccessException,
-                                                                                              ObjectNotFoundException;
+  MetadataItem deleteMetadataItem(long itemId, long userIdentityId) throws ObjectNotFoundException;
 
   /**
    * Deletes Metadata items for a given {@link MetadataItem} objectId and
@@ -153,6 +145,14 @@ public interface MetadataService {
    * @return {@link MetadataTypePlugin}
    */
   MetadataTypePlugin getMetadataTypePluginByName(String name);
+
+  /**
+   * Retrieves a registered {@link MetadataType} by name
+   * 
+   * @param name {@link MetadataType} name
+   * @return {@link MetadataType}
+   */
+  MetadataType getMetadataTypeByName(String name);
 
   /**
    * @return {@link List} of Managed {@link MetadataType}

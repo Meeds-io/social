@@ -25,9 +25,9 @@ import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.metadata.favorite.FavoriteMetadataPlugin;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
 
 public class ActivitySearchConnector {
 
@@ -132,11 +132,11 @@ public class ActivitySearchConnector {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
     List<String> activityIds;
     if (filter.isFavorites()) {
-      activityIds = metadataService.getMetadataObjectIds(FavoriteMetadataPlugin.METADATA_TYPE.getName(),
+      activityIds = metadataService.getMetadataObjectIds(FavoriteService.METADATA_TYPE.getName(),
                                                          viewerIdentity.getId(),
                                                          "activity",
                                                          SEARCH_FAVORITES_HARD_LIMIT);
-      if (filter.isFavorites() && CollectionUtils.isEmpty(activityIds)) {
+      if (CollectionUtils.isEmpty(activityIds)) {
         return Collections.emptyList();
       }
     } else {
