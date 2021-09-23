@@ -4,7 +4,7 @@
     dense>
     <activity-head-user
       :identity="posterIdentity"
-      class="me-3"
+      class="me-3 py-2"
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
       <v-list-item-title class="font-weight-bold body-2 mb-0">
@@ -27,6 +27,14 @@
       </v-list-item-title>
       <activity-head-time :activity="activity" class="d-flex activity-head-time" />
     </v-list-item-content>
+    <extension-registry-components
+      :params="params"
+      class="d-flex flex-no-wrap mx-0 mt-0 mb-auto activity-header-actions"
+      name="ActivityHeader"
+      type="activity-header-actions"
+      parent-element="div"
+      element="div"
+      element-class="mx-auto activity-header-action" />
     <activity-head-menu
       :activity="activity"
       :activity-actions="activityActions"
@@ -57,6 +65,11 @@ export default {
   computed: {
     space() {
       return this.activity && this.activity.activityStream && this.activity.activityStream.space;
+    },
+    params() {
+      return {
+        activity: this.activity,
+      };
     },
     posterIdentity() {
       return this.activity && this.activity.identity;
