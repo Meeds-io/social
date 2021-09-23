@@ -1,9 +1,12 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
@@ -40,16 +43,24 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   }
 
   public List<String> getMetadataObjectIds(long metadataType,
-                                                          String metadataName,
-                                                          String objectType,
-                                                          int limit) {
-    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataObjectIds",
-                                                                   String.class);
+                                           String metadataName,
+                                           String objectType,
+                                           int limit) {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataObjectIds",
+                                                                  Tuple.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(METADATA_NAME, metadataName);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setMaxResults(limit);
-    return query.getResultList();
+    List<Tuple> result = query.getResultList();
+    if (CollectionUtils.isEmpty(result)) {
+      return Collections.emptyList();
+    } else {
+      return result.stream()
+                   .map(tuple -> (String) tuple.get(0))
+                   .distinct()
+                   .collect(Collectors.toList());
+    }
   }
 
   @ExoTransactional

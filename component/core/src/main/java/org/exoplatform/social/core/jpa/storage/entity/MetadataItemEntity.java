@@ -28,11 +28,11 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.getMetadataObjectIds",
-          query = "SELECT mi.objectId FROM SocMetadataItemEntity mi WHERE "
+          query = "SELECT mi.objectId, mi.createdDate, mi.id FROM SocMetadataItemEntity mi WHERE "
               + " mi.metadata.type = :metadataType AND"
               + " mi.metadata.name = :metadataName AND"
               + " mi.objectType = :objectType"
-              + " ORDER BY mi.createdDate DESC"
+              + " ORDER BY mi.createdDate, mi.id DESC"
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByObject",
