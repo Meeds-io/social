@@ -1,11 +1,11 @@
 <template>
   <div
-    class="d-inline-flex"
-    :style="buttonStyle">
+    class="d-inline-flex">
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           :id="`FavoriteLink${activityId}`"
+          :style="buttonStyle"
           class="pa-0 mt-0"
           icon
           small
@@ -36,13 +36,17 @@ export default {
       type: Object,
       default: null,
     },
+    absolute: {
+      type: Boolean,
+      default: false,
+    },
     top: {
-      type: String,
-      default: () => '8px',
+      type: Number,
+      default: () => 0,
     },
     right: {
-      type: Object,
-      default: () => '30px',
+      type: Number,
+      default: () => 0,
     },
   },
   data: () => ({
@@ -50,11 +54,14 @@ export default {
   }),
   computed: {
     buttonStyle() {
-      if (this.$vuetify.rtl) {
-        return {position: 'absolute', top: this.top, left: this.right};
-      } else {
-        return {position: 'absolute', top: this.top, right: this.right};
+      if (this.absolute) {
+        if (this.$vuetify.rtl) {
+          return {position: 'absolute', top: `${this.top}px`, left: `${this.right}px`};
+        } else {
+          return {position: 'absolute', top: `${this.top}px`, right: `${this.right}px`};
+        }
       }
+      return '';
     },
     activityId() {
       return this.activity && this.activity.id;
