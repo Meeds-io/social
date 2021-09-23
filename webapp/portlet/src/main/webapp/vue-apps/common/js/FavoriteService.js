@@ -1,28 +1,16 @@
-export function addFavorite(type, id, parentId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites?ignoreWhenExisting=true`, {
+export function addFavorite(objectType, objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?ignoreWhenExisting=true`, {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: eXo.env.portal.userIdentityId,
-      audienceId: eXo.env.portal.userIdentityId,
-      objectType: type,
-      objectId: id,
-      parentObjectId: parentId,
-    }),
   }).then(resp => {
-    if (resp && resp.ok) {
-      return resp.json();
-    } else {
+    if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function removeFavorite(itemId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/metadatas/favorites/${eXo.env.portal.userIdentityId}/${itemId}?ignoreNotExisting=true`, {
+export function removeFavorite(objectType, objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?ignoreNotExisting=true`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
