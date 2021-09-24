@@ -1,5 +1,5 @@
-export function addFavorite(objectType, objectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?ignoreWhenExisting=true`, {
+export function addFavorite(objectType, objectId, parentObjectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&ignoreWhenExisting=true`, {
     method: 'POST',
     credentials: 'include',
   }).then(resp => {

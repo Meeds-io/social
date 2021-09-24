@@ -14,6 +14,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 public class FavoriteServiceTest extends AbstractCoreTest {
@@ -63,17 +64,25 @@ public class FavoriteServiceTest extends AbstractCoreTest {
   public void testCreateFavorite() throws ObjectAlreadyExistsException {
     String objectType = "type";
     String objectId = "1";
+    String parentObjectId = "2";
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
 
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
-    favoriteService.createFavorite(objectType, objectId, Long.parseLong(johnIdentity.getId()));
+    favoriteService.createFavorite(favorite);
 
     metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
     assertEquals(1, metadataItemsByObject.size());
+    MetadataItem metadataItem = metadataItemsByObject.get(0);
+    assertEquals(userIdentityId, metadataItem.getCreatorId());
+    assertEquals(objectId, metadataItem.getObjectId());
+    assertEquals(objectType, metadataItem.getObjectType());
+    assertEquals(parentObjectId, metadataItem.getParentObjectId());
 
     try {
-      favoriteService.createFavorite(objectType, objectId, Long.parseLong(johnIdentity.getId()));
+      favoriteService.createFavorite(favorite);
       fail();
     } catch (ObjectAlreadyExistsException e) {
       // Expected
@@ -83,23 +92,25 @@ public class FavoriteServiceTest extends AbstractCoreTest {
   public void testDeleteFavorite() throws ObjectAlreadyExistsException, ObjectNotFoundException {
     String objectType = "type";
     String objectId = "1";
+    String parentObjectId = "2";
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
 
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
-    long userIdentityId = Long.parseLong(johnIdentity.getId());
-    favoriteService.createFavorite(objectType, objectId, userIdentityId);
+    favoriteService.createFavorite(favorite);
 
     metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
     assertEquals(1, metadataItemsByObject.size());
 
-    favoriteService.deleteFavorite(objectType, objectId, userIdentityId);
+    favoriteService.deleteFavorite(favorite);
 
     metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
     assertEquals(0, metadataItemsByObject.size());
 
     try {
-      favoriteService.deleteFavorite(objectType, objectId, userIdentityId);
+      favoriteService.deleteFavorite(favorite);
       fail();
     } catch (ObjectNotFoundException e) {
       // Expected

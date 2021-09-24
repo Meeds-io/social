@@ -14,6 +14,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -68,6 +69,13 @@ public class FavoriteRest implements ResourceContainer {
                                  @PathParam("objectId")
                                  String objectId,
                                  @ApiParam(
+                                     value = "Object parent identifier: technical id to identify "
+                                         + "the parent of an object like the activity Id for a comment entity",
+                                     required = false
+                                 )
+                                 @QueryParam("parentObjectId")
+                                 String parentObjectId,
+                                 @ApiParam(
                                      value = "Whether ignore favorite when already exists or return a HTTP 409 code",
                                      required = false,
                                      defaultValue = "false"
@@ -83,7 +91,8 @@ public class FavoriteRest implements ResourceContainer {
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
-      favoriteService.createFavorite(objectType, objectId, userIdentityId);
+      Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
+      favoriteService.createFavorite(favorite);
       return Response.noContent().build();
     } catch (ObjectAlreadyExistsException e) {
       if (ignoreWhenExisting) {
@@ -148,7 +157,8 @@ public class FavoriteRest implements ResourceContainer {
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
-      favoriteService.deleteFavorite(objectType, objectId, userIdentityId);
+      Favorite favorite = new Favorite(objectType, objectId, null, userIdentityId);
+      favoriteService.deleteFavorite(favorite);
       return Response.noContent().build();
     } catch (ObjectNotFoundException e) {
       if (ignoreNotExisting) {

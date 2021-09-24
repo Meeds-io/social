@@ -40,6 +40,10 @@ export default {
       type: String,
       default: null,
     },
+    parentId: {
+      type: String,
+      default: null,
+    },
     favorite: {
       type: Boolean,
       default: false,
@@ -120,7 +124,7 @@ export default {
           })
           .catch(() => this.$emit('remove-error'));
       } else {
-        this.$favoriteService.addFavorite(this.type, this.id)
+        this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
           .then(() => {
             this.isFavorite = true;
             this.$emit('added');
