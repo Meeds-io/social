@@ -132,10 +132,12 @@ public class ActivitySearchConnector {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
     List<String> activityIds;
     if (filter.isFavorites()) {
+      int favoriteActivitiesLimit = StringUtils.isBlank(filter.getTerm()) ? ((int) (offset + limit))
+                                                                          : SEARCH_FAVORITES_HARD_LIMIT;
       activityIds = metadataService.getMetadataObjectIds(FavoriteService.METADATA_TYPE.getName(),
                                                          viewerIdentity.getId(),
                                                          "activity",
-                                                         SEARCH_FAVORITES_HARD_LIMIT);
+                                                         favoriteActivitiesLimit);
       if (CollectionUtils.isEmpty(activityIds)) {
         return Collections.emptyList();
       }
