@@ -25,10 +25,10 @@
           <slot name="subTitle"></slot>
         </p>
       </div>
-      <template v-if="$slots.actions">
-        <slot name="actions"></slot>
-      </template>
     </a>
+    <template v-if="$slots.actions">
+      <slot name="actions"></slot>
+    </template>
   </div>
 </template>
 
