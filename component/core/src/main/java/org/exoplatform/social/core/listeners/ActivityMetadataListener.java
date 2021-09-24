@@ -2,9 +2,12 @@ package org.exoplatform.social.core.listeners;
 
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
-import org.exoplatform.social.core.processor.MetadataProcessor;
+import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.metadata.MetadataService;
 
+/**
+ * A listener to handle Metadata lifecycle switch Activity lifecycle
+ */
 public class ActivityMetadataListener extends ActivityListenerPlugin {
 
   private MetadataService metadataService;
@@ -15,7 +18,8 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
 
   @Override
   public void deleteActivity(ActivityLifeCycleEvent event) {
-    metadataService.deleteMetadataItemsByObject(MetadataProcessor.ACTIVITY_METADATA_TYPE, event.getActivityId());
+    // Cleanup all related Metadatas of the activity once deleted
+    metadataService.deleteMetadataItemsByObject(MetadataActivityProcessor.ACTIVITY_METADATA_TYPE, event.getActivityId());
   }
 
 }

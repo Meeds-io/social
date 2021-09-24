@@ -25,15 +25,17 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 /**
- * Retrieves the list of Metadatas to attach to activity
+ * Retrieves the list of Metadatas to attach to activity. This will allow to
+ * cache metadata items for a given activity without having to retrieve it again
+ * each time someone accesses the activity
  */
-public class MetadataProcessor extends BaseActivityProcessorPlugin {
+public class MetadataActivityProcessor extends BaseActivityProcessorPlugin {
 
   public static final String ACTIVITY_METADATA_TYPE = "activity";
 
   private MetadataService    metadataService;
 
-  public MetadataProcessor(MetadataService metadataService, InitParams params) {
+  public MetadataActivityProcessor(MetadataService metadataService, InitParams params) {
     super(params);
     this.metadataService = metadataService;
   }
