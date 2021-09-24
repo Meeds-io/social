@@ -1,5 +1,7 @@
 package org.exoplatform.social.rest.impl.metadata;
 
+import java.util.List;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -9,6 +11,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FavoriteRestTest extends AbstractResourceTest {
@@ -63,21 +66,13 @@ public class FavoriteRestTest extends AbstractResourceTest {
   public void testCreateFavorites() throws Exception {
     String objectType = "objectType";
     String objectId = "objectId";
+    String parentObjectId = "parentObjectId";
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
 
     startSessionAs(johnIdentity.getRemoteId());
     ContainerResponse response = getResponse("POST",
-                                             getURLResource("favorites/" + objectType + "/" + objectId),
-                                             null);
-    assertEquals(204, response.getStatus());
-  }
-
-  public void testCreateDuplicatedMetadataItem() throws Exception {
-    String objectType = "objectType";
-    String objectId = "objectId";
-
-    startSessionAs(johnIdentity.getRemoteId());
-    ContainerResponse response = getResponse("POST",
-                                             getURLResource("favorites/" + objectType + "/" + objectId),
+                                             getURLResource("favorites/" + objectType + "/" + objectId) + "?parentObjectId="
+                                                 + parentObjectId,
                                              null);
     assertEquals(204, response.getStatus());
 
@@ -91,6 +86,20 @@ public class FavoriteRestTest extends AbstractResourceTest {
                                + "?ignoreWhenExisting=true",
                            null);
     assertEquals(204, response.getStatus());
+
+    response = getResponse("POST",
+                           getURLResource("favorites/" + objectType + "/" + objectId)
+                               + "?parentObjectId=" + parentObjectId + "&ignoreWhenExisting=true",
+                           null);
+    assertEquals(204, response.getStatus());
+
+    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    assertEquals(1, metadataItemsByObject.size());
+    MetadataItem metadataItem = metadataItemsByObject.get(0);
+    assertEquals(userIdentityId, metadataItem.getCreatorId());
+    assertEquals(objectId, metadataItem.getObjectId());
+    assertEquals(objectType, metadataItem.getObjectType());
+    assertEquals(parentObjectId, metadataItem.getParentObjectId());
   }
 
   public void testDeleteFavorite() throws Exception {
