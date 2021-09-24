@@ -315,16 +315,19 @@ public class ActivitySearchConnector {
 
   private String retrieveSearchQuery(List<String> activityIds, String term) {
     if (activityIds.isEmpty()) {
+      // When this is not about favorites nor any other Metadata selection
       if (StringUtils.isBlank(this.searchQuery) || PropertyManager.isDevelopping()) {
         this.searchQuery = retrieveSearchQuery(searchQueryFilePath);
       }
       return this.searchQuery;
     } else if (StringUtils.isBlank(term)) {
+      // When this is about searching favorites without a search term
       if (StringUtils.isBlank(this.searchEmptyQueryByIds) || PropertyManager.isDevelopping()) {
         this.searchEmptyQueryByIds = retrieveSearchQuery(searchEmptyQueryByIdsFilePath);
       }
       return this.searchEmptyQueryByIds;
     } else {
+      // When this is about searching favorites with a search term
       if (StringUtils.isBlank(this.searchQueryByIds) || PropertyManager.isDevelopping()) {
         this.searchQueryByIds = retrieveSearchQuery(searchQueryByIdsFilePath);
       }
