@@ -86,7 +86,26 @@ export default {
       },
     },
   },
+  created() {
+    document.addEventListener('metadata.favorite.updated', this.favoriteUpdated);
+  },
+  destroyed() {
+    document.removeEventListener('metadata.favorite.updated', this.favoriteUpdated);
+  },
   methods: {
+    favoriteUpdated(event) {
+      const metadata = event && event.detail;
+      if (metadata && metadata.objectType === this.type && metadata.objectId === this.id && metadata.favorite !== this.isFavorite) {
+        this.isFavorite = metadata.favorite;
+      }
+    },
+    updateFavorite() {
+      document.dispatchEvent(new CustomEvent('metadata.favorite.updated', {detail: {
+        objectType: this.type,
+        objectId: this.id,
+        favorite: this.isFavorite,
+      }}));
+    },
     changeFavorite(event) {
       if (event) {
         event.stopPropagation();
@@ -97,6 +116,7 @@ export default {
           .then(() => {
             this.isFavorite = false;
             this.$emit('removed');
+            this.updateFavorite();
           })
           .catch(() => this.$emit('remove-error'));
       } else {
@@ -104,6 +124,7 @@ export default {
           .then(() => {
             this.isFavorite = true;
             this.$emit('added');
+            this.updateFavorite();
           })
           .catch(() => this.$emit('add-error'));
       }
