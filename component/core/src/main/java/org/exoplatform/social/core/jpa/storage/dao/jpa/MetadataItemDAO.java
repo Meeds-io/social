@@ -45,13 +45,19 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   public List<String> getMetadataObjectIds(long metadataType,
                                            String metadataName,
                                            String objectType,
-                                           int limit) {
+                                           long offset,
+                                           long limit) {
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataObjectIds",
                                                                   Tuple.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(METADATA_NAME, metadataName);
     query.setParameter(OBJECT_TYPE, objectType);
-    query.setMaxResults(limit);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
     List<Tuple> result = query.getResultList();
     if (CollectionUtils.isEmpty(result)) {
       return Collections.emptyList();

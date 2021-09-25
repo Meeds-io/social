@@ -23,4 +23,8 @@ public class MetadataItem {
 
   private Map<String, String> properties;
 
+  public String getMetadataTypeName() {
+    return metadata == null ? null
+                            : metadata.getTypeName();
+  }
 }

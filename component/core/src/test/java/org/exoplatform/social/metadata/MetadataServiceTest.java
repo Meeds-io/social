@@ -557,22 +557,27 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           audienceId,
                           properties);
 
-    List<String> metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 2);
+    List<String> metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 0, 2);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
     assertEquals("objectId2", metadataItems.get(0));
     assertEquals("objectId1", metadataItems.get(1));
 
-    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 1);
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 1, 2);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    assertEquals("objectId1", metadataItems.get(0));
+
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType1", 0, 1);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals("objectId2", metadataItems.get(0));
 
-    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType2", 1);
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata5", "objectType2", 0, 1);
     assertNotNull(metadataItems);
     assertEquals(0, metadataItems.size());
 
-    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata6", "objectType2", 5);
+    metadataItems = metadataService.getMetadataObjectIds(type, "testMetadata6", "objectType2", 0, 5);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
   }
