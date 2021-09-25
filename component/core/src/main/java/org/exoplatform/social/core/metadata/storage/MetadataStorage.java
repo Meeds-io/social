@@ -96,7 +96,8 @@ public class MetadataStorage {
   public List<String> getMetadataObjectIds(String type,
                                            String metadataName,
                                            String objectType,
-                                           int limit) {
+                                           long offset,
+                                           long limit) {
     MetadataType metadataType = getMetadataType(type);
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
@@ -104,6 +105,7 @@ public class MetadataStorage {
     List<String> objectIds = metadataItemDAO.getMetadataObjectIds(metadataType.getId(),
                                                                   metadataName,
                                                                   objectType,
+                                                                  offset,
                                                                   limit);
     if (CollectionUtils.isEmpty(objectIds)) {
       return Collections.emptyList();

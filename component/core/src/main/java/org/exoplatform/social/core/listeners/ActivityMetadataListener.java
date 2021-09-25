@@ -19,7 +19,7 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
   @Override
   public void deleteActivity(ActivityLifeCycleEvent event) {
     // Cleanup all related Metadatas of the activity once deleted
-    metadataService.deleteMetadataItemsByObject(MetadataActivityProcessor.ACTIVITY_METADATA_TYPE, event.getActivityId());
+    metadataService.deleteMetadataItemsByObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE, event.getActivityId());
   }
 
 }

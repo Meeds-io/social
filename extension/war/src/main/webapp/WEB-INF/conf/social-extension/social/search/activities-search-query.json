@@ -3,11 +3,14 @@
   "size": "@limit@",
   "query":{
     "bool":{
-      "filter":{
-        "terms":{
-          "permissions": [@permissions@]
+      "filter":[
+        @metadatas_query@
+        {
+          "terms":{
+            "permissions": [@permissions@]
+          }
         }
-      },
+      ],
       "should": {
         "match_phrase": {
           "body": {
