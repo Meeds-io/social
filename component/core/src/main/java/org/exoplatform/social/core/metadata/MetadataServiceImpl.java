@@ -178,8 +178,8 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, int limit) {
-    return this.metadataStorage.getMetadataObjectIds(metadataType, metadataName, objectType, limit);
+  public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, long offset, long limit) {
+    return this.metadataStorage.getMetadataObjectIds(metadataType, metadataName, objectType, offset, limit);
   }
 
   @Override

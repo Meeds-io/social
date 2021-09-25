@@ -21,4 +21,8 @@ public class Metadata {
 
   private Map<String, String> properties;
 
+  public String getTypeName() {
+    return type == null ? null : type.getName();
+  }
+
 }
