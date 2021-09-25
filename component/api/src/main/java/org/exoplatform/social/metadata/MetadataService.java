@@ -124,11 +124,12 @@ public interface MetadataService {
    * @param metadataType {@link Metadata} type
    * @param metadataName {@link Metadata} name
    * @param objectType {@link MetadataItem} objectType
+   * @param offset offset of ids to retrieve
    * @param limit limit of ids to retrieve
    * @return {@link List} of associated objects ordered by {@link MetadataItem}
    *         creationDate desc
    */
-  List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, int limit);
+  List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, long offset, long limit);
 
   /**
    * Registers a new {@link MetadataType}
