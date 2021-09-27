@@ -29,7 +29,8 @@
       <div
         ref="excerptNode"
         :title="excerptText"
-        class="text-wrap text-break caption">
+        class="text-wrap text-break caption text-truncate-4"
+        v-sanitized-html="excerptHtml">
       </div>
     </div>
     <v-list class="light-grey-background flex-grow-0 border-top-color no-border-radius pa-0">
@@ -93,10 +94,10 @@ export default {
       return this.streamOwner && this.streamOwner.displayName;
     },
     excerpts() {
-      return this.activity && this.activity.excerpts;
+      return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
     },
     excerptHtml() {
-      return this.excerpts && this.excerpts.join('\r\n...');
+      return this.excerpts && this.excerpts.join('<br />...') || '';
     },
     excerptText() {
       return $('<div />').html(this.excerptHtml).text();
@@ -152,59 +153,5 @@ export default {
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
   },
-  mounted() {
-    this.computeEllipsis();
-  },
-  methods: {
-    computeEllipsis() {
-      if ((!this.excerptHtml || this.excerptHtml.length === 0) && (!this.result || !this.result.body || this.result.body.length === 0)) {
-        return;
-      }
-      const excerptParent = this.$refs.excerptNode;
-      if (!excerptParent) {
-        return;
-      }
-      excerptParent.innerHTML = this.excerptHtml || this.result.body;
-
-      let charsToDelete = 20;
-      let excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;
-      if (excerptParentHeight > this.maxEllipsisHeight) {
-        while (excerptParentHeight > this.maxEllipsisHeight) {
-          const newHtml = this.deleteLastChars(excerptParent.innerHTML.replace(/&[a-z]*;/, ''), charsToDelete);
-          const oldLength = excerptParent.innerHTML.length;
-          excerptParent.innerHTML = newHtml;
-          if (excerptParent.innerHTML.length === oldLength) {
-            charsToDelete = charsToDelete * 2;
-          }
-          excerptParentHeight = excerptParent.getBoundingClientRect().height || this.lineHeight;
-        }
-        excerptParent.innerHTML = this.deleteLastChars(excerptParent.innerHTML, 4);
-        excerptParent.innerHTML = `${excerptParent.innerHTML}...`;
-      }
-    },
-    deleteLastChars(html, charsToDelete) {
-      if (html.slice(-1) === '>') {
-        // Replace empty tags
-        html = html.replace(/<[a-zA-Z 0-9 "'=]*><\/[a-zA-Z 0-9]*>$/g, '');
-      }
-      html = html.replace(/<br>(\.*)$/g, '');
-
-      charsToDelete = charsToDelete || 1;
-
-      let newHtml = '';
-      if (html.slice(-1) === '>') {
-        // Delete last inner html char
-        html = html.replace(/(<br>)*$/g, '');
-        newHtml = html.replace(new RegExp(`([^>]{${charsToDelete}})(</)([a-zA-Z 0-9]*)(>)$`), '$2$3');
-        newHtml = $('<div />').html(newHtml).html().replace(/&[a-z]*;/, '');
-        if (newHtml.length === html.length) {
-          newHtml = html.replace(new RegExp('([^>]*)(</)([a-zA-Z 0-9]*)(>)$'), '$2$3');
-        }
-      } else {
-        newHtml = html.substring(0, html.trimRight().length - charsToDelete);
-      }
-      return newHtml;
-    },
-  }
 };
 </script>
