@@ -9,7 +9,6 @@
   import org.exoplatform.social.core.identity.model.Identity;
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.core.search.SearchConnector;
-  import org.exoplatform.commons.utils.PropertyManager;
   import java.util.TimeZone;
   import java.util.HashSet;
 
@@ -32,7 +31,6 @@
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
-     eXo.env.portal.activityFavoritesEnabled = <%=featureService.isActiveFeature("ActivityFavorites")%>;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
@@ -48,4 +46,7 @@
        iconfont: 'mdi',
        rtl: eXo.env.portal.orientation === 'rtl',
      };
+
+     eXo.env.portal.activityFavoritesEnabled = <%=featureService.isActiveFeature("ActivityFavorites")%>;
+     eXo.env.portal.activityTagsEnabled = <%=featureService.isActiveFeature("ActivityTags")%>;
 </script>
