@@ -372,6 +372,9 @@
         <module>suggester</module>
       </depends>
       <depends>
+        <module>tagSuggester</module>
+      </depends>
+      <depends>
         <module>commons-editor</module>
         <as>editor</as>
       </depends>
@@ -421,6 +424,9 @@
       </depends>
       <depends>
         <module>suggester</module>
+      </depends>
+      <depends>
+        <module>tagSuggester</module>
       </depends>
       <depends>
         <module>commons-editor</module>
@@ -1347,6 +1353,9 @@
     </depends>
     <depends>
       <module>suggester</module>
+    </depends>
+    <depends>
+      <module>tagSuggester</module>
     </depends>
     <depends>
       <module>commons-editor</module>
