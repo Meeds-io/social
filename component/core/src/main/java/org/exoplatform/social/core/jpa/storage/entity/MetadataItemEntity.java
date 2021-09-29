@@ -42,6 +42,12 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " mi.objectId = :objectId"
       ),
       @NamedQuery(
+          name = "SocMetadataItemEntity.deleteMetadataItemsByParentObject",
+          query = "DELETE FROM SocMetadataItemEntity mi WHERE "
+              + " mi.objectType = :objectType AND"
+              + " mi.parentObjectId = :parentObjectId"
+      ),
+      @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemById",
           query = "DELETE FROM SocMetadataItemEntity mi WHERE "
               + " mi.id = :id"
