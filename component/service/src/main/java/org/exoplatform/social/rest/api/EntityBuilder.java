@@ -655,8 +655,8 @@ public class EntityBuilder {
     //
     updateCachedLastModifiedValue(activity.getUpdated());
     if (expandFields.contains(RestProperties.SHARED) && activity.getTemplateParams() != null
-        && activity.getTemplateParams().containsKey("originalActivityId")) {
-      String originalActivityId = activity.getTemplateParams().get("originalActivityId");
+        && activity.getTemplateParams().containsKey(ActivityManager.SHARED_ACTIVITY_ID_PARAM)) {
+      String originalActivityId = activity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM);
       if (StringUtils.isNotBlank(originalActivityId)) {
         ExoSocialActivity originalActivity = getActivityManager().getActivity(originalActivityId);
         if (originalActivity != null) {

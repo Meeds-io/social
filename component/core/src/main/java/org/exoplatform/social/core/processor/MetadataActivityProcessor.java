@@ -33,6 +33,8 @@ public class MetadataActivityProcessor extends BaseActivityProcessorPlugin {
 
   public static final String ACTIVITY_METADATA_OBJECT_TYPE = "activity";
 
+  public static final String COMMENT_METADATA_OBJECT_TYPE  = "comment";
+
   private MetadataService    metadataService;
 
   public MetadataActivityProcessor(MetadataService metadataService, InitParams params) {
@@ -42,7 +44,8 @@ public class MetadataActivityProcessor extends BaseActivityProcessorPlugin {
 
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
-      List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(ACTIVITY_METADATA_OBJECT_TYPE, activity.getId());
+      List<MetadataItem> metadataItems =
+                                       metadataService.getMetadataItemsByObject(ACTIVITY_METADATA_OBJECT_TYPE, activity.getId());
       Map<String, List<MetadataItem>> metadatas = new HashMap<>();
       metadataItems.forEach(metadataItem -> {
         String type = metadataItem.getMetadata().getType().getName();

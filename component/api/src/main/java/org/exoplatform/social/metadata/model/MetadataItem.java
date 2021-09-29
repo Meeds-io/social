@@ -1,11 +1,14 @@
 package org.exoplatform.social.metadata.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
-public class MetadataItem {
+@NoArgsConstructor
+@AllArgsConstructor
+public class MetadataItem implements Cloneable {
 
   private Metadata            metadata;
 
@@ -26,5 +29,17 @@ public class MetadataItem {
   public String getMetadataTypeName() {
     return metadata == null ? null
                             : metadata.getTypeName();
+  }
+
+  @Override
+  public MetadataItem clone() { // NOSONAR
+    return new MetadataItem(metadata,
+                            id,
+                            objectType,
+                            objectId,
+                            parentObjectId,
+                            creatorId,
+                            createdDate,
+                            properties == null ? null : new HashMap<>(properties));
   }
 }
