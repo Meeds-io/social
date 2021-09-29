@@ -373,14 +373,12 @@ public interface ExoSocialActivity extends CacheEntry {
   void setFiles(List<ActivityFile> files);
 
   /**
-   * Get Metadata items of the activity.
-   *
    * @return {@link Map} of {@link MetadataItem} of the activity grouped by Metadata type
    */
   Map<String, List<MetadataItem>> getMetadatas();
 
   /**
-   * Defines a list of Metadata Items for the activity
+   * Set a {@link Map} of {@link MetadataItem} of the activity grouped by Metadata type
    * 
    * @param metadatas
    */

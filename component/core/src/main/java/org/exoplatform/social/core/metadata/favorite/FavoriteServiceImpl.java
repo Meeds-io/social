@@ -32,8 +32,7 @@ public class FavoriteServiceImpl implements FavoriteService {
                                        METADATA_TYPE.getName(),
                                        String.valueOf(userIdentityId),
                                        userIdentityId,
-                                       userIdentityId,
-                                       false);
+                                       userIdentityId);
   }
 
   @Override

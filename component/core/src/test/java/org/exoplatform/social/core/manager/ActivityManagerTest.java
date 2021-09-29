@@ -485,7 +485,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(shareMessage, sharedactivity.getTitle());
     assertEquals(targetSpace.getPrettyName(), sharedactivity.getStreamOwner());
     assertNotNull(sharedactivity.getTemplateParams());
-    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get("originalActivityId"));
+    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
 
     // Verify again from storage
     sharedactivity = activityManager.getActivity(sharedactivity.getId());
@@ -494,7 +494,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(shareMessage, sharedactivity.getTitle());
     assertEquals(targetSpace.getPrettyName(), sharedactivity.getStreamOwner());
     assertNotNull(sharedactivity.getTemplateParams());
-    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get("originalActivityId"));
+    assertEquals(originalActivity.getId(), sharedactivity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
 
     originalActivity = activityManager.getActivity(originalActivity.getId());
     Set<ActivityShareAction> shareActions = originalActivity.getShareActions();
@@ -709,6 +709,30 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals("activityManager.getComments(demoActivity).size() must return: 0",
                  0,
                  activityManager.getCommentsWithListAccess(demoActivity).getSize());
+  }
+
+  /**
+   * {@link ActivityManager#getActivityStreamOwnerIdentity(String)}
+   */
+  public void testGetActivityStreamOwnerIdentity() {
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("demo activity");
+    demoActivity.setUserId(demoActivity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    tearDownActivityList.add(demoActivity);
+
+    Identity streamOwnerIdentity = activityManager.getActivityStreamOwnerIdentity(demoActivity.getId());
+    assertNotNull(streamOwnerIdentity);
+    assertEquals(demoIdentity.getId(), streamOwnerIdentity.getId());
+
+    ExoSocialActivity maryComment = new ExoSocialActivityImpl();
+    maryComment.setTitle("mary comment");
+    maryComment.setUserId(maryIdentity.getId());
+    activityManager.saveComment(demoActivity, maryComment);
+
+    streamOwnerIdentity = activityManager.getActivityStreamOwnerIdentity(maryComment.getId());
+    assertNotNull(streamOwnerIdentity);
+    assertEquals(demoIdentity.getId(), streamOwnerIdentity.getId());
   }
 
   /**
