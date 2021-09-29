@@ -14,15 +14,17 @@ import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
-  private static final String METADATA_ID   = "metadataId";
+  private static final String METADATA_ID      = "metadataId";
 
-  private static final String METADATA_NAME = "metadataName";
+  private static final String METADATA_NAME    = "metadataName";
 
-  private static final String METADATA_TYPE = "metadataType";
+  private static final String METADATA_TYPE    = "metadataType";
 
-  private static final String OBJECT_ID     = "objectId";
+  private static final String PARENT_OBJECT_ID = "parentObjectId";
 
-  private static final String OBJECT_TYPE   = "objectType";
+  private static final String OBJECT_ID        = "objectId";
+
+  private static final String OBJECT_TYPE      = "objectType";
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -74,6 +76,14 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByObject");
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
+    return query.executeUpdate();
+  }
+
+  @ExoTransactional
+  public int deleteMetadataItemsByParentObject(String objectType, String parentObjectId) {
+    Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByParentObject");
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(PARENT_OBJECT_ID, parentObjectId);
     return query.executeUpdate();
   }
 

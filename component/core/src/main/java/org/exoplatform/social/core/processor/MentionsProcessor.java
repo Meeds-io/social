@@ -18,10 +18,6 @@ package org.exoplatform.social.core.processor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserPortalConfigService;
@@ -36,8 +32,6 @@ import org.exoplatform.social.core.utils.MentionUtils;
  * @version $Revision$
  */
 public class MentionsProcessor extends BaseActivityProcessorPlugin {
-
-  private static final Pattern pattern = Pattern.compile("@([^\\s]+)|@([^\\s]+)$");
 
   private UserPortalConfigService userPortalConfigService;
 

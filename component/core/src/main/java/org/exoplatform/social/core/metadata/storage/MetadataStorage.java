@@ -75,6 +75,10 @@ public class MetadataStorage {
     return this.metadataItemDAO.deleteMetadataItemsByObject(objectType, objectId);
   }
 
+  public int deleteMetadataItemsByParentObject(String objectType, String parentObjectId) {
+    return this.metadataItemDAO.deleteMetadataItemsByParentObject(objectType, parentObjectId);
+  }
+
   public List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(objectType, objectId);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {

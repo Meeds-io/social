@@ -17,6 +17,8 @@ import org.exoplatform.social.metadata.model.*;
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
+  private static boolean  allowMultipleItemsPerObject;
+
   private Identity        rootIdentity;
 
   private Identity        johnIdentity;
@@ -38,14 +40,24 @@ public class MetadataServiceTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     try {
-      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user"));
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user")) {
+        @Override
+        public boolean isAllowMultipleItemsPerObject() {
+          return MetadataServiceTest.allowMultipleItemsPerObject;
+        }
+      };
       userMetadataType = userMetadataTypePlugin.getMetadataType();
       metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
     } catch (UnsupportedOperationException e) {
       // Expected when already added
     }
     try {
-      MetadataTypePlugin spaceMetadataTypePlugin = new MetadataTypePlugin(newParam(2000, "space"));
+      MetadataTypePlugin spaceMetadataTypePlugin = new MetadataTypePlugin(newParam(2000, "space")) {
+        @Override
+        public boolean isAllowMultipleItemsPerObject() {
+          return true;
+        }
+      };
       spaceMetadataType = spaceMetadataTypePlugin.getMetadataType();
       metadataService.addMetadataTypePlugin(spaceMetadataTypePlugin);
     } catch (UnsupportedOperationException e) {
@@ -54,6 +66,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     rootIdentity = identityManager.getOrCreateUserIdentity("root");
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    MetadataServiceTest.allowMultipleItemsPerObject = false;
   }
 
   @Override
@@ -162,8 +175,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId,
-                                         false);
+                                         creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -173,8 +185,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId,
-                                         false);
+                                         creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -184,8 +195,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         creatorId,
-                                         false);
+                                         creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -195,8 +205,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          null,
                                          name,
                                          audienceId,
-                                         creatorId,
-                                         false);
+                                         creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -206,8 +215,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          type,
                                          name,
                                          audienceId,
-                                         0,
-                                         false);
+                                         0);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -217,8 +225,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                          "test",
                                          name,
                                          audienceId,
-                                         creatorId,
-                                         false);
+                                         creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
@@ -228,8 +235,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                          type,
                                                                          name,
                                                                          audienceId,
-                                                                         creatorId,
-                                                                         false);
+                                                                         creatorId);
     assertNotNull(storedMetadataItem);
     assertTrue(storedMetadataItem.getId() > 0);
     assertTrue(storedMetadataItem.getCreatedDate() > 0);
@@ -248,30 +254,34 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                               type,
                                                               name,
                                                               audienceId,
-                                                              creatorId,
-                                                              false);
+                                                              creatorId);
       fail();
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    MetadataItem secondStoredMetadataItem = metadataService.createMetadataItem(metadataItem,
-                                                                               type,
-                                                                               name,
-                                                                               audienceId,
-                                                                               creatorId,
-                                                                               true);
-    assertNotNull(secondStoredMetadataItem);
-    assertNotEquals(storedMetadataItem.getId(), secondStoredMetadataItem.getId());
-    assertTrue(secondStoredMetadataItem.getCreatedDate() > 0);
-    assertEquals(creatorId, secondStoredMetadataItem.getCreatorId());
-    assertNotNull(secondStoredMetadataItem.getMetadata());
-    assertEquals(audienceId, secondStoredMetadataItem.getMetadata().getAudienceId());
-    assertEquals(name, secondStoredMetadataItem.getMetadata().getName());
-    assertEquals(userMetadataType, secondStoredMetadataItem.getMetadata().getType());
-    assertEquals(properties, secondStoredMetadataItem.getProperties());
-    assertEquals(parentObjectId, secondStoredMetadataItem.getParentObjectId());
-    assertEquals(objectId, secondStoredMetadataItem.getObjectId());
-    assertEquals(objectType, secondStoredMetadataItem.getObjectType());
+
+    MetadataServiceTest.allowMultipleItemsPerObject = true;
+    try {
+      MetadataItem secondStoredMetadataItem = metadataService.createMetadataItem(metadataItem,
+                                                                                 type,
+                                                                                 name,
+                                                                                 audienceId,
+                                                                                 creatorId);
+      assertNotNull(secondStoredMetadataItem);
+      assertNotEquals(storedMetadataItem.getId(), secondStoredMetadataItem.getId());
+      assertTrue(secondStoredMetadataItem.getCreatedDate() > 0);
+      assertEquals(creatorId, secondStoredMetadataItem.getCreatorId());
+      assertNotNull(secondStoredMetadataItem.getMetadata());
+      assertEquals(audienceId, secondStoredMetadataItem.getMetadata().getAudienceId());
+      assertEquals(name, secondStoredMetadataItem.getMetadata().getName());
+      assertEquals(userMetadataType, secondStoredMetadataItem.getMetadata().getType());
+      assertEquals(properties, secondStoredMetadataItem.getProperties());
+      assertEquals(parentObjectId, secondStoredMetadataItem.getParentObjectId());
+      assertEquals(objectId, secondStoredMetadataItem.getObjectId());
+      assertEquals(objectType, secondStoredMetadataItem.getObjectType());
+    } finally {
+      MetadataServiceTest.allowMultipleItemsPerObject = false;
+    }
   }
 
   public void testCreateDuplicatedMetadataItem() throws Exception {
@@ -299,8 +309,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                             parentObjectId,
                             creatorId,
                             audienceId,
-                            properties,
-                            false);
+                            properties);
       fail("MetadataTypePlugin shouldn't allow to have twice the same object for a same Metadata");
     } catch (ObjectAlreadyExistsException e) {
       // Expected
@@ -320,6 +329,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                           creatorId,
                           spaceIdentityId,
                           properties);
+
     try {
       createNewMetadataItem(spaceMetadataType.getName(),
                             name,
@@ -328,8 +338,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                             parentObjectId,
                             creatorId,
                             spaceIdentityId,
-                            properties,
-                            true);
+                            properties);
     } catch (ObjectAlreadyExistsException e) {
       fail("MetadataTypePlugin should allow to have twice the same object for a same Metadata");
     }
@@ -350,8 +359,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                          type,
                                                                          name,
                                                                          audienceId,
-                                                                         creatorId,
-                                                                         false);
+                                                                         creatorId);
 
     try {
       metadataService.deleteMetadataItem(0, creatorId);
@@ -672,26 +680,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                              long creatorId,
                                              long audienceId,
                                              Map<String, String> properties) throws ObjectAlreadyExistsException {
-    return createNewMetadataItem(type,
-                                 name,
-                                 objectType,
-                                 objectId,
-                                 parentObjectId,
-                                 creatorId,
-                                 audienceId,
-                                 properties,
-                                 false);
-  }
-
-  private MetadataItem createNewMetadataItem(String type,
-                                             String name,
-                                             String objectType,
-                                             String objectId,
-                                             String parentObjectId,
-                                             long creatorId,
-                                             long audienceId,
-                                             Map<String, String> properties,
-                                             boolean allowMultiple) throws ObjectAlreadyExistsException {
     MetadataItem metadataItem = new MetadataItem();
     metadataItem.setObjectId(objectId);
     metadataItem.setObjectType(objectType);
@@ -702,8 +690,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                               type,
                                               name,
                                               audienceId,
-                                              creatorId,
-                                              allowMultiple);
+                                              creatorId);
   }
 
   private InitParams newParam(long id, String name) {
