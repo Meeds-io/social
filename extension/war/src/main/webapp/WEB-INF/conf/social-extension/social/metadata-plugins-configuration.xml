@@ -80,11 +80,37 @@
   </external-component-plugins>
 
   <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
+    <component-plugin>
+      <name>ActivityMetadataListener</name>
+      <set-method>registerActivityListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ActivityMetadataListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>ActivityMetadataListener</name>
+      <set-method>registerActivityListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ActivityTagMetadataListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>MetadataActivityProcessor</name>
+      <set-method>addProcessorPlugin</set-method>
+      <type>org.exoplatform.social.core.processor.MetadataActivityProcessor</type>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <description>priority of this processor (lower are executed first)</description>
+          <value>60</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.services.listener.ListenerService</target-component>
     <component-plugin>
       <name>social.metadataItem.created</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemListener.MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemListener$MetadataItemModified</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.deleted</name>

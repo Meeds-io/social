@@ -1,3 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.exoplatform.social.rest.impl.metadata;
 
 import java.util.List;
@@ -12,6 +30,7 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObjectKey;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FavoriteRestTest extends AbstractResourceTest {
@@ -93,7 +112,8 @@ public class FavoriteRestTest extends AbstractResourceTest {
                            null);
     assertEquals(204, response.getStatus());
 
-    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(new MetadataObjectKey(objectType,
+                                                                                                              objectId));
     assertEquals(1, metadataItemsByObject.size());
     MetadataItem metadataItem = metadataItemsByObject.get(0);
     assertEquals(userIdentityId, metadataItem.getCreatorId());

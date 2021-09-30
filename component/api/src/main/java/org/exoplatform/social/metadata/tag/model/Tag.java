@@ -16,27 +16,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.core.jpa.storage.dao.jpa;
+package org.exoplatform.social.metadata.tag.model;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import lombok.*;
 
-import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Tag {
 
-public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
+  private TagName name;
 
-  public MetadataEntity findMetadata(long type, String name, long audienceId) {
-    TypedQuery<MetadataEntity> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadata",
-                                                                           MetadataEntity.class);
-    query.setParameter("type", type);
-    query.setParameter("name", name);
-    query.setParameter("audienceId", audienceId);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
+  private long    audienceId;
+
+  private long    creatorId;
+
+  public Tag(String name, long audienceId, long creatorId) {
+    this.name = new TagName(name);
+    this.audienceId = audienceId;
+    this.creatorId = creatorId;
+  }
+
+  public String getTagName() {
+    return name == null ? null : name.getName();
   }
 
 }

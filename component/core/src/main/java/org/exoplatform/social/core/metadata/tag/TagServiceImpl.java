@@ -1,3 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.exoplatform.social.core.metadata.tag;
 
 import java.util.*;
@@ -12,15 +30,16 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.Metadata;
-import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.*;
 import org.exoplatform.social.metadata.tag.TagService;
+import org.exoplatform.social.metadata.tag.model.TagName;
+import org.exoplatform.social.metadata.tag.model.TagObject;
 
 public class TagServiceImpl implements TagService {
 
   private static final Log     LOG         = ExoLogger.getLogger(TagServiceImpl.class);
 
-  private static final Pattern TAG_PATTERN = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'].*>#([^\\s]+)<.*/a>");
+  private static final Pattern TAG_PATTERN = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s]+)<[^>]*/a>");
 
   private MetadataService      metadataService;
 
@@ -29,54 +48,68 @@ public class TagServiceImpl implements TagService {
   }
 
   @Override
-  public Set<String> detectTags(String content) {
-    Set<String> tags = new HashSet<>();
+  public Set<TagName> detectTagNames(String content) {
+    if (StringUtils.isBlank(content)) {
+      return Collections.emptySet();
+    }
+    Set<TagName> tags = new HashSet<>();
     Matcher matcher = TAG_PATTERN.matcher(content);
     while (matcher.find()) {
       // Get the match result
-      String tagName = matcher.group().substring(1);
+      String tagName = matcher.group(1);
       if (StringUtils.isNotBlank(tagName)) {
-        tags.add(tagName);
+        tags.add(new TagName(tagName));
       }
     }
     return tags;
   }
 
   @Override
-  public void saveTags(String objectType,
-                       String objectId,
-                       String parentObjectId,
-                       long audienceId,
-                       long creatorId,
-                       Set<String> tagNames) {
-    if (StringUtils.isBlank(objectType)) {
-      throw new IllegalArgumentException("objectType is mandatory");
-    }
-    if (StringUtils.isBlank(objectId)) {
-      throw new IllegalArgumentException("objectId is mandatory");
-    }
-    List<MetadataItem> metadataItems = this.metadataService.getMetadataItemsByObject(objectType, objectId);
-    Set<String> storedTagNames = metadataItems.stream()
-                                              .map(MetadataItem::getMetadata)
-                                              .map(Metadata::getName)
-                                              .collect(Collectors.toSet());
-
-    // Tags to create
-    Set<String> tagsToCreate = new HashSet<>(tagNames);
-    tagsToCreate.removeAll(storedTagNames);
-    createTags(objectType, objectId, parentObjectId, audienceId, creatorId, tagsToCreate);
-
-    // Tags to delete
-    Set<String> tagsToDelete = new HashSet<>(storedTagNames);
-    tagsToDelete.removeAll(tagNames);
-    List<MetadataItem> metadataItemsToDelete = metadataItems.stream()
-                                                            .filter(item -> tagsToDelete.contains(item.getMetadata().getName()))
-                                                            .collect(Collectors.toList());
-    deleteTags(metadataItemsToDelete);
+  public Set<TagName> getTagNames(TagObject object) {
+    Set<String> metadataNames = metadataService.getMetadataNamesByObject(object);
+    return metadataNames.stream().map(TagName::new).collect(Collectors.toSet());
   }
 
-  private void deleteTags(List<MetadataItem> tagMetadataItems) {
-    for (MetadataItem metadataItem : tagMetadataItems) {
+  @Override
+  public Set<TagName> saveTags(TagObject object,
+                               Set<TagName> tagNames,
+                               long audienceId,
+                               long creatorId) {
+    if (object == null) {
+      throw new IllegalArgumentException("Tag object is mandatory");
+    }
+    if (StringUtils.isBlank(object.getId())) {
+      throw new IllegalArgumentException("objectId is mandatory");
+    }
+    if (StringUtils.isBlank(object.getType())) {
+      throw new IllegalArgumentException("objectType is mandatory");
+    }
+    List<MetadataItem> metadataItems = this.metadataService.getMetadataItemsByObject(object);
+    Set<TagName> storedTagNames = metadataItems.stream()
+                                               .map(MetadataItem::getMetadata)
+                                               .map(Metadata::getName)
+                                               .map(TagName::new)
+                                               .collect(Collectors.toSet());
+
+    // Tags to create
+    Set<TagName> tagsToCreate = new HashSet<>(tagNames);
+    tagsToCreate.removeAll(storedTagNames);
+    createTags(object, tagsToCreate, audienceId, creatorId);
+
+    // Tags to delete
+    Set<TagName> tagsToDelete = new HashSet<>(storedTagNames);
+    tagsToDelete.removeAll(tagNames);
+    deleteTags(metadataItems, tagsToDelete);
+
+    return getTagNames(object);
+  }
+
+  private void deleteTags(List<MetadataItem> tagMetadataItems, Set<TagName> tagsToDelete) {
+    List<MetadataItem> metadataItemsToDelete = tagMetadataItems.stream()
+                                                               .filter(item -> tagsToDelete.contains(new TagName(item.getMetadata()
+                                                                                                                     .getName())))
+                                                               .collect(Collectors.toList());
+    for (MetadataItem metadataItem : metadataItemsToDelete) {
       try {
         metadataService.deleteMetadataItem(metadataItem.getId(), metadataItem.getCreatorId());
       } catch (ObjectNotFoundException e) {
@@ -89,28 +122,22 @@ public class TagServiceImpl implements TagService {
     }
   }
 
-  private void createTags(String objectType,
-                          String objectId,
-                          String parentObjectId,
+  private void createTags(TagObject taggedObject,
+                          Set<TagName> tagsToCreate,
                           long audienceId,
-                          long creatorId,
-                          Set<String> tagsToCreate) {
-    for (String newTag : tagsToCreate) {
-      MetadataItem metadataItem = new MetadataItem();
-      metadataItem.setObjectType(objectType);
-      metadataItem.setObjectId(objectId);
-      metadataItem.setParentObjectId(parentObjectId);
+                          long creatorId) {
+    for (TagName newTag : tagsToCreate) {
       try {
-        metadataService.createMetadataItem(metadataItem,
-                                           TagService.METADATA_TYPE.getName(),
-                                           newTag,
-                                           audienceId,
+        MetadataKey metadataKey = new MetadataKey(TagService.METADATA_TYPE.getName(),
+                                                  newTag.getName(),
+                                                  audienceId);
+        metadataService.createMetadataItem(taggedObject,
+                                           metadataKey,
                                            creatorId);
       } catch (ObjectAlreadyExistsException e) {
-        LOG.warn("Tag with name {} is already associated to object {}/{}. Ignore error since it will not affect result.",
+        LOG.warn("Tag with name {} is already associated to object {}. Ignore error since it will not affect result.",
                  newTag,
-                 objectType,
-                 objectId,
+                 taggedObject,
                  e);
       }
     }
