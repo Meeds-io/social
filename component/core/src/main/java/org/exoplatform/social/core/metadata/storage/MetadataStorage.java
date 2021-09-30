@@ -1,3 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.exoplatform.social.core.metadata.storage;
 
 import java.util.*;
@@ -29,12 +47,15 @@ public class MetadataStorage {
     this.metadataItemDAO = metadataItemDAO;
   }
 
-  public Metadata getMetadata(String type, String name, long audienceId) {
+  public Metadata getMetadataByKey(MetadataKey metadataKey) {
+    String type = metadataKey.getType();
     MetadataType metadataType = getMetadataType(type);
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + type + " isn't defined");
     }
-    MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(), name, audienceId);
+    MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(),
+                                                                  metadataKey.getName(),
+                                                                  metadataKey.getAudienceId());
     return fromEntity(metadataEntity);
   }
 
@@ -71,42 +92,46 @@ public class MetadataStorage {
     return fromEntity(metadataItemEntity);
   }
 
-  public int deleteMetadataItemsByObject(String objectType, String objectId) {
-    return this.metadataItemDAO.deleteMetadataItemsByObject(objectType, objectId);
+  public int deleteMetadataItemsByObject(MetadataObjectKey object) {
+    return this.metadataItemDAO.deleteMetadataItemsByObject(object.getType(), object.getId());
   }
 
-  public int deleteMetadataItemsByParentObject(String objectType, String parentObjectId) {
-    return this.metadataItemDAO.deleteMetadataItemsByParentObject(objectType, parentObjectId);
+  public int deleteMetadataItemsByParentObject(MetadataObjectKey object) {
+    return this.metadataItemDAO.deleteMetadataItemsByParentObject(object.getType(), object.getParentId());
   }
 
-  public List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(objectType, objectId);
+  public List<MetadataItem> getMetadataItemsByObject(MetadataObjectKey object) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(object.getType(), object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
-  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId) {
+  public Set<String> getMetadataNamesByObject(MetadataObjectKey object) {
+    return metadataItemDAO.getMetadataNamesByObject(object.getType(), object.getId());
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, MetadataObjectKey object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataAndObject(metadataId,
-                                                                                                        objectType,
-                                                                                                        objectId);
+                                                                                                        object.getType(),
+                                                                                                        object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
-  public List<String> getMetadataObjectIds(String type,
+  public List<String> getMetadataObjectIds(String metadataType,
                                            String metadataName,
                                            String objectType,
                                            long offset,
                                            long limit) {
-    MetadataType metadataType = getMetadataType(type);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
+    MetadataType type = getMetadataType(metadataType);
+    if (type == null) {
+      throw new IllegalStateException("Metadata type with name " + type + " isn't defined");
     }
-    List<String> objectIds = metadataItemDAO.getMetadataObjectIds(metadataType.getId(),
+    List<String> objectIds = metadataItemDAO.getMetadataObjectIds(type.getId(),
                                                                   metadataName,
                                                                   objectType,
                                                                   offset,

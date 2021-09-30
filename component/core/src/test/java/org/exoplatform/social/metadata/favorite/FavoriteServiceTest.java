@@ -1,3 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.exoplatform.social.metadata.favorite;
 
 import java.util.List;
@@ -68,12 +86,12 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     long userIdentityId = Long.parseLong(johnIdentity.getId());
     Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
 
-    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
     favoriteService.createFavorite(favorite);
 
-    metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertEquals(1, metadataItemsByObject.size());
     MetadataItem metadataItem = metadataItemsByObject.get(0);
     assertEquals(userIdentityId, metadataItem.getCreatorId());
@@ -96,17 +114,17 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     long userIdentityId = Long.parseLong(johnIdentity.getId());
     Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
 
-    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
     favoriteService.createFavorite(favorite);
 
-    metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertEquals(1, metadataItemsByObject.size());
 
     favoriteService.deleteFavorite(favorite);
 
-    metadataItemsByObject = metadataService.getMetadataItemsByObject(objectType, objectId);
+    metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertEquals(0, metadataItemsByObject.size());
 
     try {

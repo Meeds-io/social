@@ -20,7 +20,7 @@ import org.exoplatform.social.common.lifecycle.LifeCycleEvent;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
 public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, String> {
-  
+
   public enum Type {
     SAVE_ACTIVITY,
     UPDATE_ACTIVITY,
@@ -33,10 +33,10 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
     SHARED_ACTIVITY,
     HIDE_ACTIVITY
   }
-  
-  private Type type;
+
+  private Type              type;
+
   private ExoSocialActivity activity;
-  private String            activityId;
 
   public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity) {
     // temp set source as activityId
@@ -44,7 +44,7 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
     this.activity = activity;
     this.type = type;
   }
-  
+
   public Type getType() {
     return type;
   }
@@ -54,6 +54,6 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
   }
 
   public String getActivityId() {
-    return activityId;
+    return activity.getId();
   }
 }

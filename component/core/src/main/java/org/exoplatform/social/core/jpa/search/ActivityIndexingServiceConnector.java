@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.util.*;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,6 +37,7 @@ import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.core.search.DocumentWithMetadata;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObjectKey;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
@@ -185,10 +187,9 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
   }
 
   private void addDocumentMetadata(DocumentWithMetadata document, String documentId) {
-    List<MetadataItem> metadataItems =
-                                     metadataService.getMetadataItemsByObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                              documentId);
-
+    MetadataObjectKey metadataObject = new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+                                                               documentId);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     document.setMetadataItems(metadataItems);
   }
 
