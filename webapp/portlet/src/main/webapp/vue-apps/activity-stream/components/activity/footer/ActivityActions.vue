@@ -9,7 +9,6 @@
     element="div"
     element-class="mx-auto ma-lg-0 activity-footer-action" />
 </template>
-
 <script>
 export default {
   props: {

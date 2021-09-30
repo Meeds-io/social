@@ -16,27 +16,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.core.jpa.storage.dao.jpa;
+package org.exoplatform.social.metadata.model;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import lombok.*;
 
-import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
+/**
+ * The unique indentifier composite key of a {@link Metadata}
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MetadataKey implements Cloneable {
 
-public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
+  private String type;
 
-  public MetadataEntity findMetadata(long type, String name, long audienceId) {
-    TypedQuery<MetadataEntity> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadata",
-                                                                           MetadataEntity.class);
-    query.setParameter("type", type);
-    query.setParameter("name", name);
-    query.setParameter("audienceId", audienceId);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
+  private String name;
+
+  private long   audienceId;
+
+  @Override
+  public MetadataKey clone() { // NOSONAR
+    return new MetadataKey(type, name, audienceId);
   }
-
 }
