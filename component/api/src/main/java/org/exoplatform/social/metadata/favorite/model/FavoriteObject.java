@@ -16,27 +16,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.core.jpa.storage.dao.jpa;
+package org.exoplatform.social.metadata.favorite.model;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import org.exoplatform.social.metadata.model.MetadataObjectKey;
 
-import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
+public class FavoriteObject extends MetadataObjectKey {
 
-public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
+  public FavoriteObject() {
+  }
 
-  public MetadataEntity findMetadata(long type, String name, long audienceId) {
-    TypedQuery<MetadataEntity> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadata",
-                                                                           MetadataEntity.class);
-    query.setParameter("type", type);
-    query.setParameter("name", name);
-    query.setParameter("audienceId", audienceId);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
+  public FavoriteObject(String objectType, String objectId, String parentObjectId) {
+    super(objectType, objectId, parentObjectId);
   }
 
 }

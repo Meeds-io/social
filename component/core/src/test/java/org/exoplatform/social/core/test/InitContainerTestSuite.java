@@ -22,25 +22,23 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
-import org.exoplatform.social.core.application.*;
+import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
 import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
-
-import org.exoplatform.social.core.feature.SpaceLastVisitedTest;
-import org.exoplatform.social.core.feature.WhatsHotTest;
 import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
-import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
+import org.exoplatform.social.core.listeners.*;
 import org.exoplatform.social.core.manager.*;
-import org.exoplatform.social.core.processor.*;
+import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessorTest;
+import org.exoplatform.social.core.processor.TemplateParamsProcessorTest;
 import org.exoplatform.social.core.search.SortingTest;
 import org.exoplatform.social.core.service.LinkProviderTest;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceLifeCycleTest;
+import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
-import org.exoplatform.social.core.storage.*;
-import org.exoplatform.social.core.storage.impl.ActivityStorageImplTestCase;
 import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
+import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 @SuiteClasses({
 //FIXME regression JCR to RDBMS migration
@@ -85,6 +83,10 @@ import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
     RDBMSGroupSpaceBindingStorageTest.class,
     MetadataServiceTest.class,
     FavoriteServiceTest.class,
+    TagServiceTest.class,
+    ActivityMetadataListenerTest.class,
+    ActivityTagMetadataListenerTest.class,
+    MetadataActivityProcessorTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

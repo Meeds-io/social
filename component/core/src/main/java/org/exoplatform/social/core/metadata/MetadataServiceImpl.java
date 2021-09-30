@@ -1,3 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.exoplatform.social.core.metadata;
 
 import java.util.*;
@@ -37,9 +55,10 @@ public class MetadataServiceImpl implements MetadataService {
     if (metadata.getType() == null) {
       throw new IllegalArgumentException("Metadata Type is mandatory");
     }
-    MetadataType type = getMetadataTypeByName(metadata.getType().getName());
+    String metadataTypeName = metadata.getType().getName();
+    MetadataType type = getMetadataTypeByName(metadataTypeName);
     if (type == null) {
-      throw new IllegalArgumentException("Metadata Type is not registered as a plugin");
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
     }
     if (userIdentityId <= 0) {
       throw new IllegalArgumentException("userIdentityId is mandatory");
@@ -57,75 +76,67 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public Metadata deleteMetadata(String type, String name, long audienceId, long userIdentityId) throws ObjectNotFoundException {
-    if (type == null) {
+  public Metadata getMetadataByKey(MetadataKey metadataKey) {
+    if (metadataKey == null) {
+      throw new IllegalArgumentException("Metadata Key is mandatory");
+    }
+    if (StringUtils.isBlank(metadataKey.getType())) {
       throw new IllegalArgumentException("Metadata Type is mandatory");
     }
-    if (getMetadataTypeByName(type) == null) {
-      throw new IllegalArgumentException("Metadata Type is not registered as a plugin");
+    if (StringUtils.isBlank(metadataKey.getName())) {
+      throw new IllegalArgumentException("Metadata Name is mandatory");
     }
-    Metadata metadata = metadataStorage.getMetadata(type, name, audienceId);
-    if (metadata == null) {
-      throw new ObjectNotFoundException("Metadata with type=" + type + ",name=" + name + ",audienceId=" + audienceId
-          + " not found");
-    }
-
-    try {
-      this.listenerService.broadcast("social.metadata.deleted", userIdentityId, metadata);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata creation", e);
-    }
-    return metadataStorage.deleteMetadataById(metadata.getId());
+    return metadataStorage.getMetadataByKey(metadataKey);
   }
 
   @Override
-  public Metadata getMetadataByTypeAndNameAndAudience(String metadataType, String metadataName, long audienceId) {
-    if (StringUtils.isBlank(metadataType)) {
-      throw new IllegalArgumentException("Metadata Type is mandatory");
-    }
-    return metadataStorage.getMetadata(metadataType, metadataName, audienceId);
-  }
-
-  @Override
-  public MetadataItem createMetadataItem(MetadataItem metadataItem,
-                                         String metadataType,
-                                         String metadataName,
-                                         long audienceId,
+  public MetadataItem createMetadataItem(MetadataObjectKey metadataObject,
+                                         MetadataKey metadataKey,
                                          long userIdentityId) throws ObjectAlreadyExistsException {
-    if (metadataItem == null) {
-      throw new IllegalArgumentException("Metadata Item is mandatory");
+    if (metadataObject == null) {
+      throw new IllegalArgumentException("Metadata Item Object is mandatory");
     }
-    if (StringUtils.isBlank(metadataItem.getObjectType())) {
+    if (metadataKey == null) {
+      throw new IllegalArgumentException("Metadata Key is mandatory");
+    }
+    if (StringUtils.isBlank(metadataObject.getType())) {
       throw new IllegalArgumentException("Metadata Item Object Type is mandatory");
     }
-    if (StringUtils.isBlank(metadataItem.getObjectId())) {
+    if (StringUtils.isBlank(metadataObject.getId())) {
       throw new IllegalArgumentException("Metadata Item Object Id is mandatory");
     }
-    if (StringUtils.isBlank(metadataType)) {
+    String metadataTypeName = metadataKey.getType();
+    if (StringUtils.isBlank(metadataTypeName)) {
       throw new IllegalArgumentException("Metadata Type is mandatory");
     }
-    if (getMetadataTypeByName(metadataType) == null) {
-      throw new IllegalArgumentException("Metadata Type is not registered as a plugin");
+    if (StringUtils.isBlank(metadataKey.getName())) {
+      throw new IllegalArgumentException("Metadata Name is mandatory");
+    }
+    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
     }
     if (userIdentityId <= 0) {
       throw new IllegalArgumentException("userIdentityId is mandatory");
     }
 
-    Metadata metadata = getMetadataByTypeAndNameAndAudience(metadataType, metadataName, audienceId);
+    Metadata metadata = getMetadataByKey(metadataKey);
     if (metadata == null) {
       metadata = new Metadata();
-      metadata.setName(metadataName);
-      metadata.setType(getMetadataTypeByName(metadataType));
-      metadata.setAudienceId(audienceId);
+      metadata.setName(metadataKey.getName());
+      metadata.setType(metadataType);
+      metadata.setAudienceId(metadataKey.getAudienceId());
       metadata = createMetadata(metadata, userIdentityId);
     }
-    metadataItem.setMetadata(metadata);
-    metadataItem.setCreatorId(userIdentityId);
-    metadataItem.setCreatedDate(System.currentTimeMillis());
-    if (!isAllowMultipleItemsPerObject(metadataType)) {
+    MetadataItem metadataItem = new MetadataItem(0,
+                                                 metadata,
+                                                 metadataObject,
+                                                 userIdentityId,
+                                                 System.currentTimeMillis(),
+                                                 null);
+    if (!isAllowMultipleItemsPerObject(metadataTypeName)) {
       List<MetadataItem> storedMetadataItems = metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(),
-                                                                                                   metadataItem.getObjectType(),
-                                                                                                   metadataItem.getObjectId());
+                                                                                                   metadataItem.getObject());
       if (!storedMetadataItems.isEmpty()) {
         throw new ObjectAlreadyExistsException(storedMetadataItems.get(0));
       }
@@ -162,32 +173,35 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public void deleteMetadataItemsByObject(String objectType, String objectId) {
-    this.metadataStorage.deleteMetadataItemsByObject(objectType, objectId);
+  public void deleteMetadataItemsByObject(MetadataObjectKey object) {
+    this.metadataStorage.deleteMetadataItemsByObject(object);
   }
 
   @Override
-  public void deleteMetadataItemsByParentObject(String objectType, String parentObjectId) {
-    this.metadataStorage.deleteMetadataItemsByParentObject(objectType, parentObjectId);
+  public void deleteMetadataItemsByParentObject(MetadataObjectKey object) {
+    this.metadataStorage.deleteMetadataItemsByParentObject(object);
   }
 
   @Override
-  public List<MetadataItem> shareMetadataItemsByObject(String objectType,
-                                                       String sharedObjectId,
+  public List<MetadataItem> shareMetadataItemsByObject(MetadataObjectKey sourceObject,
                                                        String targetObjectId,
                                                        long audienceId,
                                                        long creatorId) {
     List<MetadataItem> sharedMetadataItems = new ArrayList<>();
 
-    List<MetadataItem> metadataItems = getMetadataItemsByObject(objectType, sharedObjectId);
+    List<MetadataItem> metadataItems = getMetadataItemsByObject(sourceObject);
     for (MetadataItem metadataItem : metadataItems) {
-      MetadataItem sharedMetadataItem = shareMetadataItem(metadataItem, targetObjectId, audienceId, creatorId);
+      MetadataItem sharedMetadataItem = shareMetadataItem(metadataItem.getObject(),
+                                                          metadataItem.getMetadata().key(),
+                                                          targetObjectId,
+                                                          audienceId,
+                                                          creatorId);
       if (sharedMetadataItem != null) {
         sharedMetadataItems.add(sharedMetadataItem);
       }
     }
     try {
-      this.listenerService.broadcast("social.metadataItem.shared", objectType, targetObjectId);
+      this.listenerService.broadcast("social.metadataItem.shared", sourceObject, targetObjectId);
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event for metadata item creation", e);
     }
@@ -195,13 +209,22 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
-    return this.metadataStorage.getMetadataItemsByObject(objectType, objectId);
+  public List<MetadataItem> getMetadataItemsByObject(MetadataObjectKey object) {
+    return this.metadataStorage.getMetadataItemsByObject(object);
   }
 
   @Override
-  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, String objectType, String objectId) {
-    return this.metadataStorage.getMetadataItemsByMetadataAndObject(metadataId, objectType, objectId);
+  public Set<String> getMetadataNamesByObject(MetadataObjectKey object) {
+    return this.metadataStorage.getMetadataNamesByObject(object);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(MetadataKey metadataKey, MetadataObjectKey object) {
+    Metadata metadata = getMetadataByKey(metadataKey);
+    if (metadata == null) {
+      return Collections.emptyList();
+    }
+    return this.metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(), object);
   }
 
   @Override
@@ -238,32 +261,33 @@ public class MetadataServiceImpl implements MetadataService {
     return this.metadataStorage.getMetadataTypes();
   }
 
-  private MetadataItem shareMetadataItem(MetadataItem metadataItem, String targetObjectId, long audienceId, long creatorId) {
-    if (isShareable(metadataItem)) {
-      metadataItem = metadataItem.clone();
-      metadataItem.setId(0);
-      metadataItem.setObjectId(targetObjectId);
+  private MetadataItem shareMetadataItem(MetadataObjectKey metadataObject,
+                                         MetadataKey metadataKey,
+                                         String targetObjectId,
+                                         long audienceId,
+                                         long creatorId) {
+    if (isShareable(metadataKey.getType())) {
+      MetadataObjectKey metadataObjectToShare = metadataObject.clone();
+      metadataObjectToShare.setId(targetObjectId);
+      MetadataKey metadataKeyToShare = metadataKey.clone();
+      metadataKeyToShare.setAudienceId(audienceId);
+
       try {
-        return createMetadataItem(metadataItem,
-                                  metadataItem.getMetadataTypeName(),
-                                  metadataItem.getMetadata().getName(),
-                                  audienceId,
+        return createMetadataItem(metadataObjectToShare,
+                                  metadataKeyToShare,
                                   creatorId);
       } catch (ObjectAlreadyExistsException e) {
-        LOG.warn("The metadata item {}/{} is already associated to Metadata {}/{}."
+        LOG.warn("The metadata object {} is already associated to Metadata with unique key {}."
             + " This doesn't affect the expected result, so continue processing.",
-                 metadataItem.getObjectType(),
-                 metadataItem.getObjectId(),
-                 metadataItem.getMetadataTypeName(),
-                 metadataItem.getMetadata().getName(),
+                 metadataObjectToShare,
+                 metadataKeyToShare,
                  e);
       }
     }
     return null;
   }
 
-  private boolean isShareable(MetadataItem metadataItem) {
-    String metadataTypeName = metadataItem.getMetadataTypeName();
+  private boolean isShareable(String metadataTypeName) {
     MetadataTypePlugin metadataTypePlugin = getMetadataTypePluginByName(metadataTypeName);
     return metadataTypePlugin != null && metadataTypePlugin.isShareable();
   }
