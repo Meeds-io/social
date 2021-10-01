@@ -1,4 +1,4 @@
-package org.exoplatform.social.rest.impl.metadata;
+package org.exoplatform.social.rest.impl.favorite;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;

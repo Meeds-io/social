@@ -21,15 +21,11 @@ package org.exoplatform.social.metadata.tag;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.*;
 import org.exoplatform.social.metadata.tag.model.TagName;
 import org.exoplatform.social.metadata.tag.model.TagObject;
@@ -56,18 +52,6 @@ public class TagServiceTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     tagService = getContainer().getComponentInstanceOfType(TagService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-
-    try {
-      InitParams params = new InitParams();
-      ObjectParameter parameter = new ObjectParameter();
-      parameter.setName("metadataType");
-      parameter.setObject(FavoriteService.METADATA_TYPE);
-      params.addParameter(parameter);
-      metadataService.addMetadataTypePlugin(new MetadataTypePlugin(params));
-    } catch (UnsupportedOperationException e) {
-      // Expected when already added
-    }
-
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
   }
 
