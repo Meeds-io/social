@@ -23,15 +23,12 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
@@ -54,18 +51,6 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-
-    try {
-      InitParams params = new InitParams();
-      ObjectParameter parameter = new ObjectParameter();
-      parameter.setName("metadataType");
-      parameter.setObject(FavoriteService.METADATA_TYPE);
-      params.addParameter(parameter);
-      metadataService.addMetadataTypePlugin(new MetadataTypePlugin(params));
-    } catch (UnsupportedOperationException e) {
-      // Expected when already added
-    }
-
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
   }
 

@@ -167,7 +167,7 @@ public class MetadataServiceImpl implements MetadataService {
     try {
       this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
     } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item creation", e);
+      LOG.warn("Error while broadcasting event for metadata item deleted", e);
     }
     return metadataItem;
   }
@@ -203,7 +203,7 @@ public class MetadataServiceImpl implements MetadataService {
     try {
       this.listenerService.broadcast("social.metadataItem.shared", sourceObject, targetObjectId);
     } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item creation", e);
+      LOG.warn("Error while broadcasting event for metadata item shared", e);
     }
     return sharedMetadataItems;
   }
@@ -236,10 +236,16 @@ public class MetadataServiceImpl implements MetadataService {
   public void addMetadataTypePlugin(MetadataTypePlugin metadataTypePlugin) {
     if (metadataTypePlugins.values()
                            .stream()
-                           .anyMatch(registeredPlugin -> StringUtils.equals(registeredPlugin.getName(),
-                                                                            metadataTypePlugin.getName())
-                               || registeredPlugin.getId() == metadataTypePlugin.getId())) {
-      throw new UnsupportedOperationException("Overriding existing Metadata Type is not allowed. Please verify the unicity of Metadata Type id and name.");
+                           .anyMatch(registeredPlugin -> {
+                             boolean sameIdWithdifferentName = !StringUtils.equals(registeredPlugin.getName(),
+                                                                                   metadataTypePlugin.getName())
+                                 && registeredPlugin.getId() == metadataTypePlugin.getId();
+                             boolean sameNameWithDifferentId = StringUtils.equals(registeredPlugin.getName(),
+                                                                                  metadataTypePlugin.getName())
+                                 && registeredPlugin.getId() != metadataTypePlugin.getId();
+                             return sameIdWithdifferentName || sameNameWithDifferentId;
+                           })) {
+      throw new UnsupportedOperationException("Overriding existing Metadata Type with different ID or Name is not allowed. Please verify the unicity of Metadata Type id and name.");
     }
     this.metadataStorage.addMetadataType(metadataTypePlugin.getMetadataType());
     this.metadataTypePlugins.put(metadataTypePlugin.getName(), metadataTypePlugin);

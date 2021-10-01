@@ -213,12 +213,12 @@ public class MetadataStorage {
     metadataItem.setParentObjectId(metadataItemEntity.getParentObjectId());
     metadataItem.setCreatorId(metadataItemEntity.getCreatorId());
     metadataItem.setCreatedDate(metadataItemEntity.getCreatedDate().getTime());
-    if (metadataItemEntity.getProperties() != null && !metadataItemEntity.getProperties().isEmpty()) {
-      metadataItem.setProperties(new HashMap<>(metadataItemEntity.getProperties()));
-    }
     MetadataEntity metadataEntity = metadataItemEntity.getMetadata();
     Metadata metadata = fromEntity(metadataEntity);
     metadataItem.setMetadata(metadata);
+    if (metadataItemEntity.getProperties() != null && !metadataItemEntity.getProperties().isEmpty()) {
+      metadataItem.setProperties(new HashMap<>(metadataItemEntity.getProperties()));
+    }
     return metadataItem;
   }
 

@@ -21,6 +21,65 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
+    <component-plugin>
+      <name>FavoriteMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>1</int>
+            </field>
+            <field name="name">
+              <string>favorites</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>TagMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>3</int>
+            </field>
+            <field name="name">
+              <string>tags</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
@@ -53,22 +112,22 @@
     <component-plugin>
       <name>social.metadataItem.created</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemListener$MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemModified</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.deleted</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemListener$MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemModified</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.updated</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemListener$MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemModified</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.shared</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemListener$MetadataItemShared</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemShared</type>
     </component-plugin>
   </external-component-plugins>
 

@@ -31,6 +31,7 @@ import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.rest.impl.favorite.FavoriteRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FavoriteRestTest extends AbstractResourceTest {
