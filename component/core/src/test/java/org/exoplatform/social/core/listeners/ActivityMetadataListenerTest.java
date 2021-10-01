@@ -47,7 +47,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
 
   private static final Log        LOG                = ExoLogger.getLogger(ActivityMetadataListenerTest.class);
 
-  private static final String     METADATA_TYPE_NAME = String.valueOf(Math.random());
+  private static final String     METADATA_TYPE_NAME = "testMetadataListener";
 
   private Identity                rootIdentity;
 
@@ -69,13 +69,17 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
 
   @Override
   public void setUp() throws Exception {
-    super.setUp();
+    try {
+      super.setUp();
+    } catch (Exception e) {
+      LOG.error("Error initializing parent Test class", e);
+    }
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-    try {
-      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, METADATA_TYPE_NAME)) {
+    if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(2654, METADATA_TYPE_NAME)) {
         @Override
         public boolean isAllowMultipleItemsPerObject() {
           return true;
@@ -87,8 +91,6 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
         }
       };
       metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
-    } catch (UnsupportedOperationException e) {
-      // Expected when already added
     }
 
     rootIdentity = identityManager.getOrCreateUserIdentity("root");

@@ -36,7 +36,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
           query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
               + " mi.objectType = :objectType AND"
               + " mi.objectId = :objectId"
-              + " ORDER BY mi.createdDate DESC, mi.id ASC"
+              + " ORDER BY mi.createdDate DESC, mi.id DESC"
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.getMetadataNamesByObject",
@@ -57,7 +57,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " mi.metadata.type = :metadataType AND"
               + " mi.metadata.name = :metadataName AND"
               + " mi.objectType = :objectType"
-              + " ORDER BY mi.createdDate DESC, mi.id ASC"
+              + " ORDER BY mi.createdDate DESC, mi.id DESC"
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByObject",
