@@ -64,6 +64,9 @@ export default {
   created() {
     this.retrieveActivityProperties();
   },
+  mounted() {
+    this.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
+  },
   methods: {
     retrieveActivityProperties() {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
