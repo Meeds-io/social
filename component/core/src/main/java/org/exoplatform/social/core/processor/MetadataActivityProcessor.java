@@ -25,7 +25,7 @@ import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 /**
  * Retrieves the list of Metadatas to attach to activity. This will allow to
@@ -46,7 +46,7 @@ public class MetadataActivityProcessor extends BaseActivityProcessorPlugin {
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
       List<MetadataItem> metadataItems =
-                                       metadataService.getMetadataItemsByObject(new MetadataObjectKey(ACTIVITY_METADATA_OBJECT_TYPE,
+                                       metadataService.getMetadataItemsByObject(new MetadataObject(ACTIVITY_METADATA_OBJECT_TYPE,
                                                                                                       activity.getId()));
       Map<String, List<MetadataItem>> metadatas = new HashMap<>();
       metadataItems.forEach(metadataItem -> {

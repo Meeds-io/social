@@ -67,7 +67,7 @@ public interface MetadataService {
    *           doesn't allow multiple objects per {@link Metadata} and an object
    *           is already associated to the designated {@link Metadata}
    */
-  MetadataItem createMetadataItem(MetadataObjectKey metadataObject,
+  MetadataItem createMetadataItem(MetadataObject metadataObject,
                                   MetadataKey metadataKey,
                                   long userIdentityId) throws ObjectAlreadyExistsException;
 
@@ -85,27 +85,27 @@ public interface MetadataService {
    * objectType. This is generally called when the associated object has been
    * removed (activity removed, comment removed ...)
    * 
-   * @param object {@link MetadataObjectKey} that defines an objectType (an
-   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
-   *          and an objectId (the object technical identifier. In general we
-   *          use here the DB identifier of the object).
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and an
+   *          objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
    */
-  void deleteMetadataItemsByObject(MetadataObjectKey object);
+  void deleteMetadataItemsByObject(MetadataObject object);
 
   /**
    * Shares/copy the {@link MetadataItem} list of a shared object to the newly
    * created object.
    * 
-   * @param sourceObject {@link MetadataObjectKey} that defines an objectType
-   *          (an object type identifier like, ACTIVITY, COMMENT, NOTE, FILE
-   *          ...) and an objectId (the object technical identifier. In general
-   *          we use here the DB identifier of the object).
+   * @param sourceObject {@link MetadataObject} that defines an objectType (an
+   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
+   *          and an objectId (the object technical identifier. In general we
+   *          use here the DB identifier of the object).
    * @param targetObjectId target content that will receive the metadata items
    * @param audienceId targeted audience {@link Identity} identifier
    * @param creatorId {@link Identity} identifier of user sharing object
    * @return newly created {@link MetadataItem} associated to targetObjectId
    */
-  List<MetadataItem> shareMetadataItemsByObject(MetadataObjectKey sourceObject,
+  List<MetadataItem> shareMetadataItemsByObject(MetadataObject sourceObject,
                                                 String targetObjectId,
                                                 long audienceId,
                                                 long creatorId);
@@ -114,19 +114,19 @@ public interface MetadataService {
    * @param object
    * @return {@link Set} of {@link Metadata} name
    */
-  Set<String> getMetadataNamesByObject(MetadataObjectKey object);
+  Set<String> getMetadataNamesByObject(MetadataObject object);
 
   /**
    * Retrieves the list of Metadata attached to an object identified by its name
    * and identifier
    * 
-   * @param object {@link MetadataObjectKey} that defines an objectType (an
-   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
-   *          and an objectId (the object technical identifier. In general we
-   *          use here the DB identifier of the object).
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and an
+   *          objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
    * @return {@link List} of linked {@link MetadataItem}
    */
-  List<MetadataItem> getMetadataItemsByObject(MetadataObjectKey object);
+  List<MetadataItem> getMetadataItemsByObject(MetadataObject object);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
@@ -134,13 +134,13 @@ public interface MetadataService {
    * 
    * @param metadataKey {@link MetadataKey} that contains {@link MetadataType}
    *          name {@link Metadata} name and {@link Metadata} audience
-   * @param object {@link MetadataObjectKey} that defines an objectType (an
-   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
-   *          and an objectId (the object technical identifier. In general we
-   *          use here the DB identifier of the object).
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and an
+   *          objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
    * @return {@link List} of linked {@link MetadataItem}
    */
-  List<MetadataItem> getMetadataItemsByMetadataAndObject(MetadataKey metadataKey, MetadataObjectKey object);
+  List<MetadataItem> getMetadataItemsByMetadataAndObject(MetadataKey metadataKey, MetadataObject object);
 
   /**
    * Retieves a list of object identifiers switch Metadata type, name and
@@ -191,11 +191,35 @@ public interface MetadataService {
    * been removed (activity removed bu example, its comments metadata items has
    * to be deleted as well)
    * 
-   * @param object {@link MetadataObjectKey} that defines an objectType (an
-   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
-   *          and a parentObjectId (the object technical identifier. In general
-   *          we use here the DB identifier of the object).
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and a
+   *          parentObjectId (the object technical identifier. In general we use
+   *          here the DB identifier of the object).
    */
-  void deleteMetadataItemsByParentObject(MetadataObjectKey object);
+  void deleteMetadataItemsByParentObject(MetadataObject object);
+
+  /**
+   * Retrieves a {@link Set} of {@link Metadata} name matching the given
+   * {@link MetadataType} and {@link Set} of audience {@link Identity} ids
+   * 
+   * @param term Search query matching {@link Metadata} name
+   * @param metadataTypeName {@link MetadataType} name
+   * @param audienceIds {@link Set} of {@link Identity} identifiers
+   * @param limit limit of results to retrieve
+   * @return {@link List} of {@link Metadata} names
+   */
+  List<String> findMetadataNamesByAudiences(String term, String metadataTypeName, Set<Long> audienceIds, long limit);
+
+  /**
+   * Retrieves a {@link Set} of {@link Metadata} name matching the given
+   * {@link MetadataType} and {@link Set} of audience {@link Identity} ids
+   * 
+   * @param term Search query matching {@link Metadata} name
+   * @param metadataTypeName {@link MetadataType} name
+   * @param creatorId {@link Identity} identifier of creator
+   * @param limit limit of results to retrieve
+   * @return {@link List} of {@link Metadata} names
+   */
+  List<String> findMetadataNamesByCreator(String term, String metadataTypeName, long creatorId, long limit);
 
 }

@@ -90,7 +90,7 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public MetadataItem createMetadataItem(MetadataObjectKey metadataObject,
+  public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
                                          long userIdentityId) throws ObjectAlreadyExistsException {
     if (metadataObject == null) {
@@ -173,17 +173,17 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public void deleteMetadataItemsByObject(MetadataObjectKey object) {
+  public void deleteMetadataItemsByObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByObject(object);
   }
 
   @Override
-  public void deleteMetadataItemsByParentObject(MetadataObjectKey object) {
+  public void deleteMetadataItemsByParentObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByParentObject(object);
   }
 
   @Override
-  public List<MetadataItem> shareMetadataItemsByObject(MetadataObjectKey sourceObject,
+  public List<MetadataItem> shareMetadataItemsByObject(MetadataObject sourceObject,
                                                        String targetObjectId,
                                                        long audienceId,
                                                        long creatorId) {
@@ -209,17 +209,49 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   @Override
-  public List<MetadataItem> getMetadataItemsByObject(MetadataObjectKey object) {
+  public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataItemsByObject(object);
   }
 
   @Override
-  public Set<String> getMetadataNamesByObject(MetadataObjectKey object) {
+  public Set<String> getMetadataNamesByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataNamesByObject(object);
   }
 
   @Override
-  public List<MetadataItem> getMetadataItemsByMetadataAndObject(MetadataKey metadataKey, MetadataObjectKey object) {
+  public List<String> findMetadataNamesByCreator(String term,
+                                                 String metadataTypeName,
+                                                 long creatorId,
+                                                 long limit) {
+    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
+    }
+    if (StringUtils.isBlank(term)) {
+      return this.metadataStorage.getMetadataNamesByCreator(metadataType.getId(), creatorId, limit);
+    } else {
+      return this.metadataStorage.findMetadataNameByCreatorAndQuery(term, metadataType.getId(), creatorId, limit);
+    }
+  }
+
+  @Override
+  public List<String> findMetadataNamesByAudiences(String term,
+                                                   String metadataTypeName,
+                                                   Set<Long> audienceIds,
+                                                   long limit) {
+    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
+    }
+    if (StringUtils.isBlank(term)) {
+      return this.metadataStorage.getMetadataNamesByAudiences(metadataType.getId(), audienceIds, limit);
+    } else {
+      return this.metadataStorage.findMetadataNameByAudiencesAndQuery(term, metadataType.getId(), audienceIds, limit);
+    }
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(MetadataKey metadataKey, MetadataObject object) {
     Metadata metadata = getMetadataByKey(metadataKey);
     if (metadata == null) {
       return Collections.emptyList();
@@ -267,13 +299,13 @@ public class MetadataServiceImpl implements MetadataService {
     return this.metadataStorage.getMetadataTypes();
   }
 
-  private MetadataItem shareMetadataItem(MetadataObjectKey metadataObject,
+  private MetadataItem shareMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
                                          String targetObjectId,
                                          long audienceId,
                                          long creatorId) {
     if (isShareable(metadataKey.getType())) {
-      MetadataObjectKey metadataObjectToShare = metadataObject.clone();
+      MetadataObject metadataObjectToShare = metadataObject.clone();
       metadataObjectToShare.setId(targetObjectId);
       MetadataKey metadataKeyToShare = metadataKey.clone();
       metadataKeyToShare.setAudienceId(audienceId);

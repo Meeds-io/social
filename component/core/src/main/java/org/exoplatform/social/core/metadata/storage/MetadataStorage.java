@@ -92,15 +92,15 @@ public class MetadataStorage {
     return fromEntity(metadataItemEntity);
   }
 
-  public int deleteMetadataItemsByObject(MetadataObjectKey object) {
+  public int deleteMetadataItemsByObject(MetadataObject object) {
     return this.metadataItemDAO.deleteMetadataItemsByObject(object.getType(), object.getId());
   }
 
-  public int deleteMetadataItemsByParentObject(MetadataObjectKey object) {
+  public int deleteMetadataItemsByParentObject(MetadataObject object) {
     return this.metadataItemDAO.deleteMetadataItemsByParentObject(object.getType(), object.getParentId());
   }
 
-  public List<MetadataItem> getMetadataItemsByObject(MetadataObjectKey object) {
+  public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(object.getType(), object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
@@ -108,11 +108,27 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
-  public Set<String> getMetadataNamesByObject(MetadataObjectKey object) {
+  public Set<String> getMetadataNamesByObject(MetadataObject object) {
     return metadataItemDAO.getMetadataNamesByObject(object.getType(), object.getId());
   }
 
-  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, MetadataObjectKey object) {
+  public List<String> getMetadataNamesByAudiences(long metadataTypeId, Set<Long> audienceIds, long limit) {
+    return metadataDAO.getMetadataNamesByAudiences(metadataTypeId, audienceIds, limit);
+  }
+
+  public List<String> getMetadataNamesByCreator(long metadataTypeId, Long creatorId, long limit) {
+    return metadataDAO.getMetadataNamesByCreator(metadataTypeId, creatorId, limit);
+  }
+
+  public List<String> findMetadataNameByAudiencesAndQuery(String term, long metadataTypeId, Set<Long> audienceIds, long limit) {
+    return metadataDAO.findMetadataNameByAudiencesAndQuery(term, metadataTypeId, audienceIds, limit);
+  }
+
+  public List<String> findMetadataNameByCreatorAndQuery(String term, long metadataTypeId, long creatorId, long limit) {
+    return metadataDAO.findMetadataNameByCreatorAndQuery(term, metadataTypeId, creatorId, limit);
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataAndObject(metadataId,
                                                                                                         object.getType(),
                                                                                                         object.getId());

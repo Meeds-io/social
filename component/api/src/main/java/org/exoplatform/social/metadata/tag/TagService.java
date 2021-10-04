@@ -18,13 +18,13 @@
  */
 package org.exoplatform.social.metadata.tag;
 
+import java.util.List;
 import java.util.Set;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataType;
-import org.exoplatform.social.metadata.tag.model.TagName;
-import org.exoplatform.social.metadata.tag.model.TagObject;
+import org.exoplatform.social.metadata.tag.model.*;
 
 public interface TagService {
 
@@ -59,5 +59,15 @@ public interface TagService {
    * @return {@link Set} of detected {@link TagName}
    */
   Set<TagName> detectTagNames(String content);
+
+  /**
+   * Searches in Tags switch name and audienceId
+   * 
+   * @param tagFilter Search filter of tag
+   * @param userIdentityId user {@link Identity} identifier
+   * @return {@link List} of {@link TagName}
+   * @throws IllegalAccessException when user wasn't found
+   */
+  List<TagName> findTags(TagFilter tagFilter, long userIdentityId) throws IllegalAccessException;
 
 }

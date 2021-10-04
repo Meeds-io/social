@@ -35,7 +35,7 @@ public class MetadataItem implements Cloneable {
   private Metadata            metadata;
 
   @Getter
-  private MetadataObjectKey  object;
+  private MetadataObject  object;
 
   @Getter
   @Setter
@@ -50,19 +50,19 @@ public class MetadataItem implements Cloneable {
   private Map<String, String> properties;
 
   public MetadataItem() {
-    object = new MetadataObjectKey();
+    object = new MetadataObject();
   }
 
   public MetadataItem(long id,
                       Metadata metadata,
-                      MetadataObjectKey object,
+                      MetadataObject object,
                       long creatorId,
                       long createdDate,
                       Map<String, String> properties) {
     super();
     this.id = id;
     this.metadata = metadata;
-    this.object = object == null ? new MetadataObjectKey() : object;
+    this.object = object == null ? new MetadataObject() : object;
     this.creatorId = creatorId;
     this.createdDate = createdDate;
     this.properties = properties;
