@@ -3,6 +3,7 @@
   "size": "@limit@",
   "query":{
     "bool":{
+      @term_query@
       "filter":[
         @metadatas_query@
         {
@@ -10,21 +11,7 @@
             "permissions": [@permissions@]
           }
         }
-      ],
-      "should": {
-        "match_phrase": {
-          "body": {
-            "query": "@term@",
-            "boost": 5
-          }
-        }
-      },
-      "must":{
-        "query_string":{
-          "fields": ["body", "posterName"],
-          "query": "@term_query@"
-        }
-      }
+      ]
     }
   },
   "highlight" : {

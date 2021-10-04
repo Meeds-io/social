@@ -1,6 +1,9 @@
 <template>
   <v-flex>
     <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+      <search-tag-selector
+        v-if="tagsEnabled"
+        @tags-changed="selectTags" />
       <v-chip
         v-if="favoritesEnabled"
         :outlined="!favorites"
@@ -90,6 +93,8 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
+    tagsEnabled: eXo.env.portal.activityTagsEnabled,
+    selectedTags: [],
     favoritesEnabled: eXo.env.portal.activityFavoritesEnabled,
     favorites: false,
     allEnabled: true,
@@ -125,7 +130,10 @@ export default {
       return this.enabledConnectors.map(connector => connector.name);
     },
     searchEnabledConnectors() {
-      return this.favorites && this.enabledConnectors.filter(connector => connector.favoritesEnabled) || this.enabledConnectors;
+      return this.enabledConnectors.filter(connector => {
+        return (connector.favoritesEnabled || !this.favorites)
+                && (connector.tagsEnabled || !this.selectedTags.length);
+      });
     },
     resultsArray() {
       if (!this.results || !this.totalSize || this.searching < 0) {
@@ -147,6 +155,12 @@ export default {
         document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       } else if (oldValue && !newValue) {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      }
+    },
+    selectedTags() {
+      this.$emit('tags-changed', this.selectedTags);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
       }
     },
     favorites() {
@@ -197,6 +211,10 @@ export default {
       this.favorites = !this.favorites;
       this.$emit('filter-changed');
     },
+    selectTags(tags) {
+      this.selectedTags = tags || [];
+      this.$emit('filter-changed');
+    },
     selectAllConnector() {
       if (this.allEnabled) {
         return;
@@ -245,7 +263,7 @@ export default {
       if (this.abortController) {
         this.abortController.abort();
       }
-      if (!this.term && !this.favorites) {
+      if (!this.term && !this.favorites && !this.selectedTags.length) {
         this.results = null;
         return;
       }
@@ -294,6 +312,16 @@ export default {
           } else {
             uri += '?favorites=true';
           }
+        }
+        if (this.selectedTags && this.selectedTags.length) {
+          this.selectedTags.forEach(selectedTag => {
+            const tag = selectedTag.replace('#', '');
+            if (uri.includes('?')) {
+              uri += `&tags=${tag}`;
+            } else {
+              uri += `?tags=${tag}`;
+            }
+          });
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
