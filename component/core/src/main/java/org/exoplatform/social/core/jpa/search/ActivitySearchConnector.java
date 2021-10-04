@@ -26,23 +26,35 @@ import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.tag.TagService;
 
 public class ActivitySearchConnector {
 
   private static final Log              LOG                          =
                                             ExoLogger.getLogger(ActivitySearchConnector.class);
 
-  private static final String           SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
+  public static final String            SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
+
+  public static final String            SEARCH_QUERY_TERM            = "\"should\": {" +
+      "  \"match_phrase\": {" +
+      "    \"body\": {" +
+      "      \"query\": \"@term@\"," +
+      "      \"boost\": 5" +
+      "    }" +
+      "  }" +
+      "}," +
+      "\"must\":{" +
+      "  \"query_string\":{" +
+      "    \"fields\": [\"body\", \"posterName\"]," +
+      "    \"query\": \"@term_query@\"" +
+      "  }" +
+      "},";
 
   private final ConfigurationManager    configurationManager;                                  // NOSONAR
 
   private final ActivitySearchProcessor activitySearchProcessor;                               // NOSONAR
-
-  private final MetadataService         metadataService;                                       // NOSONAR
 
   private final IdentityManager         identityManager;
 
@@ -57,7 +69,6 @@ public class ActivitySearchConnector {
   private String                        searchQuery;
 
   public ActivitySearchConnector(ActivitySearchProcessor activitySearchProcessor,
-                                 MetadataService metadataService,
                                  IdentityManager identityManager,
                                  ActivityStorage activityStorage,
                                  ConfigurationManager configurationManager,
@@ -65,7 +76,6 @@ public class ActivitySearchConnector {
                                  InitParams initParams) {
     this.configurationManager = configurationManager;
     this.activitySearchProcessor = activitySearchProcessor;
-    this.metadataService = metadataService;
     this.identityManager = identityManager;
     this.activityStorage = activityStorage;
     this.client = client;
@@ -98,15 +108,13 @@ public class ActivitySearchConnector {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
-    if (StringUtils.isBlank(filter.getTerm()) && !filter.isFavorites()) {
+    if (StringUtils.isBlank(filter.getTerm())
+        && !filter.isFavorites()
+        && CollectionUtils.isEmpty(filter.getTagNames())) {
       throw new IllegalArgumentException("Filter term is mandatory");
     }
 
-    if (StringUtils.isBlank(filter.getTerm()) && filter.isFavorites()) {
-      return getUserFavorites(viewerIdentity, offset, limit);
-    } else {
-      return searchActivities(viewerIdentity, filter, offset, limit);
-    }
+    return searchActivities(viewerIdentity, filter, offset, limit);
   }
 
   private List<ActivitySearchResult> searchActivities(Identity viewerIdentity,
@@ -120,36 +128,14 @@ public class ActivitySearchConnector {
     return buildResult(jsonResponse, viewerIdentity, streamFeedOwnerIds);
   }
 
-  private List<ActivitySearchResult> getUserFavorites(Identity viewerIdentity, long offset, long limit) {
-    List<String> activityIds = metadataService.getMetadataObjectIds(FavoriteService.METADATA_TYPE.getName(),
-                                                                    viewerIdentity.getId(),
-                                                                    MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                    offset,
-                                                                    limit);
-    if (CollectionUtils.isEmpty(activityIds)) {
-      return Collections.emptyList();
-    }
-    return activityIds.stream().map(this::transformActivityToResult).collect(Collectors.toList());
-  }
-
   private String buildQueryStatement(Set<Long> streamFeedOwnerIds,
                                      Map<String, List<String>> metadataFilters,
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-    String term = removeSpecialCharacters(filter.getTerm());
-    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
-      word = word.trim();
-      if (word.length() > 5) {
-        word = word + "~1";
-      }
-      return word;
-    }).collect(Collectors.toList());
-    String termQuery = StringUtils.join(termsQuery, " AND ");
-
     String metadataQuery = buildMetadatasQueryStatement(metadataFilters);
-    return retrieveSearchQuery().replace("@term@", term)
-                                .replace("@term_query@", termQuery)
+    String termQuery = buildTermQueryStatement(filter.getTerm());
+    return retrieveSearchQuery().replace("@term_query@", termQuery)
                                 .replace("@metadatas_query@", metadataQuery)
                                 .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
                                 .replace("@offset@", String.valueOf(offset))
@@ -262,12 +248,6 @@ public class ActivitySearchConnector {
     return results;
   }
 
-  private ActivitySearchResult transformActivityToResult(String activityId) {
-    ActivitySearchResult activitySearchResult = new ActivitySearchResult();
-    transformActivityToResult(activitySearchResult, Long.parseLong(activityId));
-    return activitySearchResult;
-  }
-
   private void transformActivityToResult(ActivitySearchResult activitySearchResult, Long parentId) {
     ExoSocialActivity activity = activityStorage.getActivity(parentId.toString());
 
@@ -328,6 +308,9 @@ public class ActivitySearchConnector {
     if (filter.isFavorites()) {
       metadataFilters.put(FavoriteService.METADATA_TYPE.getName(), Collections.singletonList(viewerIdentity.getId()));
     }
+    if (CollectionUtils.isNotEmpty(filter.getTagNames())) {
+      metadataFilters.put(TagService.METADATA_TYPE.getName(), filter.getTagNames());
+    }
     return metadataFilters;
   }
 
@@ -337,12 +320,29 @@ public class ActivitySearchConnector {
     for (Entry<String, List<String>> metadataFilterEntry : metadataFilterEntries) {
       metadataQuerySB.append("{\"terms\":{\"metadatas.")
                      .append(metadataFilterEntry.getKey())
-                     .append(".metadataName")
+                     .append(".metadataName.keyword")
                      .append("\": [\"")
                      .append(StringUtils.join(metadataFilterEntry.getValue(), "\",\""))
                      .append("\"]}},");
     }
     return metadataQuerySB.toString();
+  }
+
+  private String buildTermQueryStatement(String term) {
+    if (StringUtils.isBlank(term)) {
+      return term;
+    }
+    term = removeSpecialCharacters(term);
+    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
+      word = word.trim();
+      if (word.length() > 5) {
+        word = word + "~1";
+      }
+      return word;
+    }).collect(Collectors.toList());
+    String termQuery = StringUtils.join(termsQuery, " AND ");
+    return SEARCH_QUERY_TERM.replace("@term@", term)
+                            .replace("@term_query@", termQuery);
   }
 
   private Long parseLong(JSONObject hitSource, String key) {

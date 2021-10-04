@@ -156,6 +156,8 @@ export default {
       }
       if (eXo.env.portal.activityTagsEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
+      } else {
+        removePlugins = `${removePlugins},tagSuggester`;
       }
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
