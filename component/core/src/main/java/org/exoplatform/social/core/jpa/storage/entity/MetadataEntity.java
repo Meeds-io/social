@@ -37,7 +37,37 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " sm.type = :type AND"
               + " sm.name = :name AND"
               + " sm.audienceId = :audienceId"
-      )
+      ),
+      @NamedQuery(
+          name = "SocMetadataEntity.getMetadataNamesByAudiences",
+          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+              + " sm.type = :type AND"
+              + " sm.audienceId IN ( :audienceIds )"
+              + " ORDER BY sm.name ASC"
+      ),
+      @NamedQuery(
+          name = "SocMetadataEntity.getMetadataNamesByCreator",
+          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+              + " sm.type = :type AND"
+              + " sm.creatorId = :creatorId"
+              + " ORDER BY sm.name ASC"
+      ),
+      @NamedQuery(
+          name = "SocMetadataEntity.findMetadataNameByAudiencesAndQuery",
+          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+              + " sm.type = :type AND"
+              + " sm.audienceId IN ( :audienceIds ) AND"
+              + " LOWER(sm.name) LIKE :term"
+              + " ORDER BY sm.name ASC"
+      ),
+      @NamedQuery(
+          name = "SocMetadataEntity.findMetadataNameByCreatorAndQuery",
+          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+              + " sm.type = :type AND"
+              + " sm.creatorId = :creatorId AND"
+              + " LOWER(sm.name) LIKE :term"
+              + " ORDER BY sm.name ASC"
+      ),
   }
 )
 public class MetadataEntity implements Serializable {

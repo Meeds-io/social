@@ -18,9 +18,9 @@
  */
 package org.exoplatform.social.metadata.favorite.model;
 
-import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
-public class FavoriteObject extends MetadataObjectKey {
+public class FavoriteObject extends MetadataObject {
 
   public FavoriteObject() {
   }

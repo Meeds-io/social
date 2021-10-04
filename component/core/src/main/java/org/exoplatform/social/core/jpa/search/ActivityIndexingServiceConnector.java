@@ -37,7 +37,7 @@ import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.core.search.DocumentWithMetadata;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
@@ -187,7 +187,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
   }
 
   private void addDocumentMetadata(DocumentWithMetadata document, String documentId) {
-    MetadataObjectKey metadataObject = new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                                documentId);
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     document.setMetadataItems(metadataItems);

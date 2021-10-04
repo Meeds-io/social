@@ -23,28 +23,43 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.*;
 import org.exoplatform.social.metadata.tag.TagService;
-import org.exoplatform.social.metadata.tag.model.TagName;
-import org.exoplatform.social.metadata.tag.model.TagObject;
+import org.exoplatform.social.metadata.tag.model.*;
 
 public class TagServiceImpl implements TagService {
 
-  private static final Log     LOG         = ExoLogger.getLogger(TagServiceImpl.class);
+  private static final Log     LOG           = ExoLogger.getLogger(TagServiceImpl.class);
 
-  private static final Pattern TAG_PATTERN = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s]+)<[^>]*/a>");
+  private static final Pattern TAG_PATTERN   = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s]+)<[^>]*/a>");
+
+  private static final int     DEFAULT_LIMIT = 10000;
+
+  private IdentityManager      identityManager;
+
+  private SpaceService         spaceService;
 
   private MetadataService      metadataService;
 
-  public TagServiceImpl(MetadataService metadataService) {
+  public TagServiceImpl(MetadataService metadataService,
+                        SpaceService spaceService,
+                        IdentityManager identityManager) {
     this.metadataService = metadataService;
+    this.identityManager = identityManager;
+    this.spaceService = spaceService;
   }
 
   @Override
@@ -104,6 +119,44 @@ public class TagServiceImpl implements TagService {
     return getTagNames(object);
   }
 
+  @Override
+  public List<TagName> findTags(TagFilter tagFilter, long userIdentityId) {
+    if (userIdentityId <= 0) {
+      throw new IllegalArgumentException("userIdentityId is mandatory.");
+    }
+    if (tagFilter == null) {
+      tagFilter = new TagFilter();
+      tagFilter.setLimit(DEFAULT_LIMIT);
+    }
+    if (tagFilter.getLimit() <= 0) {
+      tagFilter.setLimit(DEFAULT_LIMIT);
+    }
+    Identity identity = identityManager.getIdentity(String.valueOf(userIdentityId));
+    if (identity == null) {
+      throw new IllegalArgumentException("User with identity id " + userIdentityId + " wasn't found.");
+    }
+
+    Set<Long> audienceIds = getUserSpaceAudienceIds(identity.getRemoteId());
+
+    long limit = tagFilter.getLimit();
+
+    List<String> metadataNames = new ArrayList<>();
+    List<String> metadataNamesByCreator = metadataService.findMetadataNamesByCreator(tagFilter.getTerm(),
+                                                                                     TagService.METADATA_TYPE.getName(),
+                                                                                     userIdentityId,
+                                                                                     limit);
+    metadataNames.addAll(metadataNamesByCreator);
+    if (metadataNames.size() < limit) {
+      List<String> metadataNamesBySpaces = metadataService.findMetadataNamesByAudiences(tagFilter.getTerm(),
+                                                                                        TagService.METADATA_TYPE.getName(),
+                                                                                        audienceIds,
+                                                                                        limit);
+      metadataNames.addAll(metadataNamesBySpaces);
+    }
+    return metadataNames.stream().map(TagName::new).distinct().limit(limit).collect(Collectors.toList());
+
+  }
+
   private void deleteTags(List<MetadataItem> tagMetadataItems, Set<TagName> tagsToDelete) {
     List<MetadataItem> metadataItemsToDelete = tagMetadataItems.stream()
                                                                .filter(item -> tagsToDelete.contains(new TagName(item.getMetadata()
@@ -141,6 +194,26 @@ public class TagServiceImpl implements TagService {
                  e);
       }
     }
+  }
+
+  private Set<Long> getUserSpaceAudienceIds(String username) {
+    Set<Long> audienceIds = new HashSet<>();
+    ListAccess<Space> spacesListAccess = spaceService.getMemberSpaces(username);
+    Space[] spaces;
+    try {
+      spaces = spacesListAccess.load(0, DEFAULT_LIMIT);
+      if (ArrayUtils.isNotEmpty(spaces)) {
+        for (Space space : spaces) {
+          Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+          if (spaceIdentity != null) {
+            audienceIds.add(Long.parseLong(spaceIdentity.getId()));
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Error retrieving list of spaces of user " + username, e);
+    }
+    return audienceIds;
   }
 
 }
