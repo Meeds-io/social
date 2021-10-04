@@ -16,11 +16,15 @@
  */
 package org.exoplatform.social.core.activity.filter;
 
+import java.util.List;
+
 public class ActivitySearchFilter {
 
-  private String  term;
+  private String       term;
 
-  private boolean favorites;
+  private List<String> tagNames;
+
+  private boolean      favorites;
 
   public ActivitySearchFilter() {
   }
@@ -29,8 +33,9 @@ public class ActivitySearchFilter {
     this.term = term;
   }
 
-  public ActivitySearchFilter(String term, boolean favorites) {
+  public ActivitySearchFilter(String term, List<String> tagNames, boolean favorites) {
     this.term = term;
+    this.tagNames = tagNames;
     this.favorites = favorites;
   }
 
@@ -48,5 +53,13 @@ public class ActivitySearchFilter {
 
   public void setFavorites(boolean favorites) {
     this.favorites = favorites;
+  }
+
+  public void setTagNames(List<String> tagNames) {
+    this.tagNames = tagNames;
+  }
+
+  public List<String> getTagNames() {
+    return tagNames;
   }
 }

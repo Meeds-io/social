@@ -78,6 +78,9 @@ export default {
     poster() {
       return this.activity && this.activity.poster.profile;
     },
+    body() {
+      return this.activity && this.activity.body;
+    },
     posterFullname() {
       return this.poster && this.poster.fullname;
     },
@@ -97,7 +100,7 @@ export default {
       return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
     },
     excerptHtml() {
-      return this.excerpts && this.excerpts.join('<br />...') || '';
+      return this.excerpts && this.excerpts.join('<br />...') || this.body || '';
     },
     excerptText() {
       return $('<div />').html(this.excerptHtml).text();
