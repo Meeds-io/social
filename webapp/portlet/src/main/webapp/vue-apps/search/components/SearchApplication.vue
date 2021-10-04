@@ -26,6 +26,7 @@
               :term="term"
               :standalone="standalone"
               @favorites-changed="favorites = $event"
+              @tags-changed="selectedTags = $event"
               @filter-changed="changeURI" />
           </template>
         </v-card>
@@ -51,6 +52,7 @@ export default {
     loading: true,
     term: null,
     favorites: false,
+    selectedTags: [],
     standalone: false,
     pageUri: null,
     pageTitle: null,
@@ -68,6 +70,9 @@ export default {
       this.changeURI();
     },
     favorites() {
+      this.changeURI();
+    },
+    selectedTags() {
       this.changeURI();
     },
     loading() {
@@ -136,6 +141,7 @@ export default {
         }
         this.term = parameters['q'] || '';
         this.favorites = parameters['favorites'] === 'true';
+        this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
       }
     } else {
       $(document).on('keydown', (event) => {
@@ -147,11 +153,15 @@ export default {
         }
       });
     }
+    document.addEventListener('search-metadata-tag', this.open);
   },
   mounted() {
     this.dialog = true;
   },
   methods: {
+    open() {
+      this.dialog = true;
+    },
     changeURI() {
       const term = window.encodeURIComponent(this.term || '');
       const enabledConnectorNames = this.connectors.filter(connector => connector.enabled).map(connector => connector.name);
@@ -162,6 +172,9 @@ export default {
       let pageUri = `${this.searchUri}?q=${term}&types=${enabledConnectorsParam}`;
       if (this.favorites) {
         pageUri += '&favorites=true';
+      }
+      if (this.selectedTags && this.selectedTags.length) {
+        pageUri += `&tags=${this.selectedTags.join(',')}`;
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     }

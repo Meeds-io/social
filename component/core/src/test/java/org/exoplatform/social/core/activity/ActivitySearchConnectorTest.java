@@ -36,7 +36,7 @@ public class ActivitySearchConnectorTest {
   private static final String ES_INDEX         = "activity_alias";
 
   public static final String  FAKE_ES_QUERY    =
-                                            "{offset: @offset@, limit: @limit@, term1: @term@, term2: @term@, permissions: @permissions@}";
+                                            "{offset: @offset@, limit: @limit@, @term_query@ permissions: @permissions@}";
 
   @Mock
   ActivitySearchProcessor     activitySearchProcessor;
@@ -85,7 +85,6 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchArguments() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
-                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -124,7 +123,6 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchNoResult() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
-                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -136,7 +134,11 @@ public class ActivitySearchConnectorTest {
     Identity identity = mock(Identity.class);
     lenient().when(identity.getId()).thenReturn("1");
     lenient().when(activityStorage.getStreamFeedOwnerIds(eq(identity))).thenReturn(permissions);
-    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
+    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
+                                                      ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
+                                                                                                        filter.getTerm())
+                                                                                               .replace("@term_query@",
+                                                                                                        filter.getTerm()))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
@@ -150,7 +152,6 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchWithResult() {
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
-                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -162,7 +163,11 @@ public class ActivitySearchConnectorTest {
     Identity identity = mock(Identity.class);
     when(identity.getId()).thenReturn("1");
     when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(permissions);
-    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
+    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
+                                                      ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
+                                                                                                        filter.getTerm())
+                                                                                               .replace("@term_query@",
+                                                                                                        filter.getTerm()))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
@@ -216,7 +221,6 @@ public class ActivitySearchConnectorTest {
   @Test
   public void testSearchWithIdentityResult() throws IOException {// NOSONAR
     ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
-                                                                                  metadataService,
                                                                                   identityManager,
                                                                                   activityStorage,
                                                                                   configurationManager,
@@ -228,7 +232,11 @@ public class ActivitySearchConnectorTest {
     Identity identity = mock(Identity.class);
     lenient().when(identity.getId()).thenReturn("1");
     when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(permissions);
-    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term@", filter.getTerm())
+    String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
+                                                      ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
+                                                                                                        filter.getTerm())
+                                                                                               .replace("@term_query@",
+                                                                                                        filter.getTerm()))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
