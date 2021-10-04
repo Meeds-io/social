@@ -20,13 +20,15 @@ package org.exoplatform.social.metadata;
 
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
@@ -55,6 +57,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private MetadataType    spaceMetadataType;
 
+  private List<Space>     tearDownSpaceList;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -63,6 +67,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
+    tearDownSpaceList = new ArrayList<>();
 
     if (metadataService.getMetadataTypeByName(userMetadataType.getName()) == null) {
       MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user")) {
@@ -103,6 +108,14 @@ public class MetadataServiceTest extends AbstractCoreTest {
     identityManager.deleteIdentity(johnIdentity);
     identityManager.deleteIdentity(maryIdentity);
     metadataDAO.deleteAll();
+
+    for (Space space : tearDownSpaceList) {
+      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+      if (spaceIdentity != null) {
+        identityManager.deleteIdentity(spaceIdentity);
+      }
+      spaceService.deleteSpace(space);
+    }
 
     super.tearDown();
   }
@@ -189,7 +202,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String name = "testMetadata2";
     MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
 
-    MetadataObjectKey metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
     try {
       metadataService.createMetadataItem(null,
                                          metadataKey,
@@ -356,7 +369,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String type = userMetadataType.getName();
     String name = "testMetadata8";
 
-    MetadataObjectKey metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataObject metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
     MetadataItem storedMetadataItem = metadataService.createMetadataItem(metadataItemObject,
                                                                          new MetadataKey(type,
                                                                                          name,
@@ -614,7 +627,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
 
-    metadataService.deleteMetadataItemsByObject(new MetadataObjectKey("objectType11", "objectId1"));
+    metadataService.deleteMetadataItemsByObject(new MetadataObject("objectType11", "objectId1"));
 
     metadataItems = getMetadataItemsByObject("objectType11", "objectId1");
     assertNotNull(metadataItems);
@@ -709,8 +722,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
 
-    metadataService.shareMetadataItemsByObject(new MetadataObjectKey(objectType1,
-                                                                     objectId1),
+    metadataService.shareMetadataItemsByObject(new MetadataObject(objectType1,
+                                                                  objectId1),
                                                objectId2,
                                                audienceId2,
                                                Long.parseLong(maryIdentity.getId()));
@@ -725,8 +738,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     MetadataServiceTest.shareable = true;
     try {
-      metadataService.shareMetadataItemsByObject(new MetadataObjectKey(objectType1,
-                                                                       objectId1),
+      metadataService.shareMetadataItemsByObject(new MetadataObject(objectType1,
+                                                                    objectId1),
                                                  objectId2,
                                                  audienceId2,
                                                  Long.parseLong(maryIdentity.getId()));
@@ -827,7 +840,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
 
-    metadataService.deleteMetadataItemsByParentObject(new MetadataObjectKey(objectType1, null, parentObjectId));
+    metadataService.deleteMetadataItemsByParentObject(new MetadataObject(objectType1, null, parentObjectId));
 
     metadataItems = getMetadataItemsByObject(objectType1, objectId1);
     assertNotNull(metadataItems);
@@ -838,8 +851,288 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataItems.size());
   }
 
+  public void testFindMetadataNamesByCreator() throws Exception { // NOSONAR
+    String objectId = "objectId";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType";
+    String type = userMetadataType.getName();
+
+    List<Space> spaces = new ArrayList<>();
+    List<Long> spaceCreators = new ArrayList<>();
+    Space space = createSpace("FindMetadataNamesByCreator1",
+                              maryIdentity.getRemoteId(),
+                              maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+    space = createSpace("FindMetadataNamesByCreator2",
+                        johnIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(johnIdentity.getId()));
+    space = createSpace("FindMetadataNamesByCreator3",
+                        maryIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId(),
+                        maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+
+    List<String> metadataNames = Arrays.asList("foo",
+                                               "bar",
+                                               "baz",
+                                               "qux",
+                                               "quux",
+                                               "bar",
+                                               "baz",
+                                               "qux",
+                                               "quux",
+                                               "quuz",
+                                               "corge",
+                                               "grault",
+                                               "garply",
+                                               "waldo",
+                                               "fred",
+                                               "plugh",
+                                               "xyzzy",
+                                               "thud",
+                                               "Wibble",
+                                               "WOBBLE",
+                                               "WUBBLE",
+                                               "FLOB",
+                                               "FOO",
+                                               "BAR",
+                                               "BAZ",
+                                               "QUX",
+                                               "QUUX",
+                                               "QUUZ",
+                                               "CORGE",
+                                               "GRAULT",
+                                               "GARPLY",
+                                               "WALDO",
+                                               "FRED",
+                                               "PLUGH",
+                                               "XYZZY",
+                                               "THUD",
+                                               "WIBBLE",
+                                               "WOBBLE",
+                                               "WUBBLE",
+                                               "FLOB");
+
+    for (int i = 0; i < metadataNames.size(); i++) {
+      long audienceId = Long.parseLong(spaces.get(i % 3).getId());
+      MetadataKey metadataKey = new MetadataKey(type, metadataNames.get(i), audienceId);
+      MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId + i, parentObjectId);
+      metadataService.createMetadataItem(metadataObject,
+                                         metadataKey,
+                                         spaceCreators.get(i % 3));
+    }
+
+    List<String> allUserNames = metadataService.findMetadataNamesByCreator(null, type, Long.parseLong(rootIdentity.getId()), 100);
+    assertNotNull(allUserNames);
+    assertEquals(0, allUserNames.size());
+
+    allUserNames = metadataService.findMetadataNamesByCreator(null, type, Long.parseLong(maryIdentity.getId()), 100);
+    assertNotNull(allUserNames);
+    assertEquals(24, allUserNames.size());
+
+    String term = "ar";
+    int count = countTerms(allUserNames, term);
+    List<String> names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(maryIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "az";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(maryIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "oo";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(maryIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    allUserNames = metadataService.findMetadataNamesByCreator(null, type, Long.parseLong(johnIdentity.getId()), 100);
+    assertNotNull(allUserNames);
+    assertEquals(12, allUserNames.size());
+
+    term = "ar";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(johnIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "az";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(johnIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "oo";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByCreator(term, type, Long.parseLong(johnIdentity.getId()), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+  }
+
+  public void testFindMetadataNamesByAudiences() throws Exception { // NOSONAR
+    String objectId = "objectId";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType";
+    String type = userMetadataType.getName();
+
+    List<Space> spaces = new ArrayList<>();
+    List<Long> spaceIds = new ArrayList<>();
+    List<Long> spaceCreators = new ArrayList<>();
+    Space space = createSpace("FindMetadataNamesByAudiences1",
+                              maryIdentity.getRemoteId(),
+                              maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+    spaceIds.add(Long.parseLong(space.getId()));
+    space = createSpace("FindMetadataNamesByAudiences2",
+                        johnIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(johnIdentity.getId()));
+    spaceIds.add(Long.parseLong(space.getId()));
+    space = createSpace("FindMetadataNamesByAudiences3",
+                        maryIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId(),
+                        maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+    spaceIds.add(Long.parseLong(space.getId()));
+
+    List<String> metadataNames = Arrays.asList("foo",
+                                               "bar",
+                                               "baz",
+                                               "qux",
+                                               "quux",
+                                               "bar",
+                                               "baz",
+                                               "qux",
+                                               "quux",
+                                               "quuz",
+                                               "corge",
+                                               "grault",
+                                               "garply",
+                                               "waldo",
+                                               "fred",
+                                               "plugh",
+                                               "xyzzy",
+                                               "thud",
+                                               "Wibble",
+                                               "WOBBLE",
+                                               "WUBBLE",
+                                               "FLOB",
+                                               "FOO",
+                                               "BAR",
+                                               "BAZ",
+                                               "QUX",
+                                               "QUUX",
+                                               "QUUZ",
+                                               "CORGE",
+                                               "GRAULT",
+                                               "GARPLY",
+                                               "WALDO",
+                                               "FRED",
+                                               "PLUGH",
+                                               "XYZZY",
+                                               "THUD",
+                                               "WIBBLE",
+                                               "WOBBLE",
+                                               "WUBBLE",
+                                               "FLOB");
+
+    for (int i = 0; i < metadataNames.size(); i++) {
+      long audienceId = Long.parseLong(spaces.get(i % 3).getId());
+      MetadataKey metadataKey = new MetadataKey(type, metadataNames.get(i), audienceId);
+      MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId + i, parentObjectId);
+      metadataService.createMetadataItem(metadataObject,
+                                         metadataKey,
+                                         spaceCreators.get(i % 3));
+    }
+
+    List<String> allUserNames = metadataService.findMetadataNamesByAudiences(null, type, Collections.emptySet(), 100);
+    assertNotNull(allUserNames);
+    assertEquals(0, allUserNames.size());
+
+    allUserNames = metadataService.findMetadataNamesByAudiences(null, type, Collections.singleton(spaceIds.get(0)), 100);
+    assertNotNull(allUserNames);
+    assertEquals(13, allUserNames.size());
+
+    String term = "ar";
+    int count = countTerms(allUserNames, term);
+    List<String> names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(0)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "az";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(0)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "oo";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(0)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    allUserNames = metadataService.findMetadataNamesByAudiences(null, type, Collections.singleton(spaceIds.get(1)), 100);
+    assertNotNull(allUserNames);
+    assertEquals(12, allUserNames.size());
+
+    term = "ar";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(1)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "az";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(1)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "oo";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(1)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    allUserNames = metadataService.findMetadataNamesByAudiences(null, type, Collections.singleton(spaceIds.get(2)), 100);
+    assertNotNull(allUserNames);
+    assertEquals(12, allUserNames.size());
+
+    term = "ar";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(2)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "az";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(2)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+
+    term = "oo";
+    count = countTerms(allUserNames, term);
+    names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(2)), 100);
+    assertNotNull(names);
+    assertEquals(count, names.size());
+  }
+
+  private int countTerms(List<String> names, String term) {
+    return (int) names.stream()
+                      .filter(name -> StringUtils.containsIgnoreCase(name, term))
+                      .count();
+  }
+
   private List<MetadataItem> getMetadataItemsByObject(String objectType, String objectId) {
-    return metadataService.getMetadataItemsByObject(new MetadataObjectKey(objectType, objectId));
+    return metadataService.getMetadataItemsByObject(new MetadataObject(objectType, objectId));
   }
 
   private MetadataItem createNewMetadataItem(String type,
@@ -870,8 +1163,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
     return params;
   }
 
-  private MetadataObjectKey newMetadataObjectInstance(String objectType, String objectId, String parentObjectId) {
-    return new MetadataObjectKey(objectType, objectId, parentObjectId);
+  private MetadataObject newMetadataObjectInstance(String objectType, String objectId, String parentObjectId) {
+    return new MetadataObject(objectType, objectId, parentObjectId);
   }
 
   private Metadata newMetadataInstance(long audienceId,
@@ -886,4 +1179,23 @@ public class MetadataServiceTest extends AbstractCoreTest {
     return metadata;
   }
 
+  @SuppressWarnings("deprecation")
+  private Space createSpace(String spaceName, String creator, String... members) throws Exception {
+    Space space = new Space();
+    space.setDisplayName(spaceName);
+    space.setPrettyName(spaceName);
+    space.setGroupId("/spaces/" + space.getPrettyName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("description of space" + spaceName);
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.OPEN);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    String[] managers = new String[] { creator };
+    String[] spaceMembers = members == null ? new String[] { creator } : members;
+    space.setManagers(managers);
+    space.setMembers(spaceMembers);
+    spaceService.saveSpace(space, true); // NOSONAR
+    tearDownSpaceList.add(space);
+    return space;
+  }
 }

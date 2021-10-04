@@ -18,19 +18,21 @@
  */
 package org.exoplatform.social.metadata.tag.model;
 
-import org.exoplatform.social.metadata.model.MetadataObject;
+import lombok.Data;
 
-public class TagObject extends MetadataObject {
+@Data
+public class TagFilter {
 
-  public TagObject() {
+  private String term;
+
+  private long   limit;
+
+  public TagFilter() {
   }
 
-  public TagObject(String objectType, String objectId) {
-    super(objectType, objectId);
-  }
-
-  public TagObject(String objectType, String objectId, String parentObjectId) {
-    super(objectType, objectId, parentObjectId);
+  public TagFilter(String term, long limit) {
+    this.term = term;
+    this.limit = limit;
   }
 
 }

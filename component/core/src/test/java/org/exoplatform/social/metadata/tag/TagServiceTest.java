@@ -22,22 +22,24 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.*;
-import org.exoplatform.social.metadata.tag.model.TagName;
-import org.exoplatform.social.metadata.tag.model.TagObject;
+import org.exoplatform.social.metadata.tag.model.*;
 
 /**
  * Test class for {@link TagService}
  */
 public class TagServiceTest extends AbstractCoreTest {
 
+  private Identity        rootIdentity;
+
   private Identity        johnIdentity;
 
-  private IdentityManager identityManager;
+  private Identity        maryIdentity;
 
   private TagService      tagService;
 
@@ -45,22 +47,37 @@ public class TagServiceTest extends AbstractCoreTest {
 
   private MetadataDAO     metadataDAO;
 
+  private List<Space>     tearDownSpaceList;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     tagService = getContainer().getComponentInstanceOfType(TagService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    tearDownSpaceList = new ArrayList<>();
+
+    rootIdentity = identityManager.getOrCreateUserIdentity("root");
+    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    maryIdentity = identityManager.getOrCreateUserIdentity("mary");
   }
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
+    identityManager.deleteIdentity(rootIdentity);
     identityManager.deleteIdentity(johnIdentity);
+    identityManager.deleteIdentity(maryIdentity);
     metadataDAO.deleteAll();
+
+    for (Space space : tearDownSpaceList) {
+      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+      if (spaceIdentity != null) {
+        identityManager.deleteIdentity(spaceIdentity);
+      }
+      spaceService.deleteSpace(space);
+    }
 
     super.tearDown();
   }
@@ -195,4 +212,116 @@ public class TagServiceTest extends AbstractCoreTest {
                               .collect(Collectors.toSet()));
   }
 
+  public void testFindTags() throws Exception {
+    List<Space> spaces = new ArrayList<>();
+    List<Long> spaceIdentityIds = new ArrayList<>();
+    List<Long> spaceCreators = new ArrayList<>();
+    Space space = createSpace("FindTags1",
+                              maryIdentity.getRemoteId(),
+                              maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+    spaceIdentityIds.add(Long.parseLong(identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getId()));
+
+    space = createSpace("FindTags2",
+                        johnIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(johnIdentity.getId()));
+    spaceIdentityIds.add(Long.parseLong(identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getId()));
+
+    space = createSpace("FindTags3",
+                        maryIdentity.getRemoteId(),
+                        johnIdentity.getRemoteId(),
+                        maryIdentity.getRemoteId());
+    spaces.add(space);
+    spaceCreators.add(Long.parseLong(maryIdentity.getId()));
+    spaceIdentityIds.add(Long.parseLong(identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getId()));
+
+    Set<TagName> tagNames = new HashSet<>();
+    tagNames.add(new TagName("tagMary1"));
+    tagNames.add(new TagName("tagMary2"));
+
+    Set<TagName> savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"),
+                                                 tagNames,
+                                                 spaceIdentityIds.get(0),
+                                                 spaceCreators.get(0));
+    assertEquals(savedTags, tagNames);
+
+    tagNames = new HashSet<>();
+    tagNames.add(new TagName("tagJohn1"));
+    tagNames.add(new TagName("tagJohn2"));
+
+    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"), tagNames, spaceIdentityIds.get(1), spaceCreators.get(1));
+    assertEquals(savedTags, tagNames);
+
+    tagNames = new HashSet<>();
+    tagNames.add(new TagName("tagJohnMary1"));
+    tagNames.add(new TagName("tagJohnMary2"));
+
+    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"), tagNames, spaceIdentityIds.get(2), spaceCreators.get(2));
+    assertEquals(savedTags, tagNames);
+
+    List<TagName> marySavedTags = tagService.findTags(null, Long.parseLong(maryIdentity.getId()));
+    assertNotNull(marySavedTags);
+    assertEquals(Arrays.asList("tagJohnMary1",
+                               "tagJohnMary2",
+                               "tagMary1",
+                               "tagMary2"),
+                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+
+    marySavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(maryIdentity.getId()));
+    assertNotNull(marySavedTags);
+    assertEquals(Arrays.asList("tagJohnMary1",
+                               "tagJohnMary2",
+                               "tagMary1",
+                               "tagMary2"),
+                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+
+    marySavedTags = tagService.findTags(new TagFilter("mar", 3), Long.parseLong(maryIdentity.getId()));
+    assertNotNull(marySavedTags);
+    assertEquals(Arrays.asList("tagJohnMary1",
+                               "tagJohnMary2",
+                               "tagMary1"),
+                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+
+    List<TagName> johnSavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(johnIdentity.getId()));
+    assertNotNull(johnSavedTags);
+    assertEquals(Arrays.asList("tagJohnMary1",
+                               "tagJohnMary2"),
+                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+
+    johnSavedTags = tagService.findTags(new TagFilter("mar", 1), Long.parseLong(johnIdentity.getId()));
+    assertNotNull(johnSavedTags);
+    assertEquals(Arrays.asList("tagJohnMary1"),
+                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+
+    johnSavedTags = tagService.findTags(new TagFilter("joh", 10), Long.parseLong(johnIdentity.getId()));
+    assertNotNull(johnSavedTags);
+    assertEquals(Arrays.asList("tagJohn1",
+                               "tagJohn2",
+                               "tagJohnMary1",
+                               "tagJohnMary2"),
+                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+  }
+
+  @SuppressWarnings("deprecation")
+  private Space createSpace(String spaceName, String creator, String... members) throws Exception {
+    Space space = new Space();
+    space.setDisplayName(spaceName);
+    space.setPrettyName(spaceName);
+    space.setGroupId("/spaces/" + space.getPrettyName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("description of space" + spaceName);
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.OPEN);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    String[] managers = new String[] { creator };
+    String[] spaceMembers = members == null ? new String[] { creator } : members;
+    space.setManagers(managers);
+    space.setMembers(spaceMembers);
+    spaceService.saveSpace(space, true); // NOSONAR
+    tearDownSpaceList.add(space);
+    return space;
+  }
 }

@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.rest.impl.metadata;
+package org.exoplatform.social.rest.impl.favorite;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.rest.impl.favorite.FavoriteRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
@@ -113,7 +113,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
                            null);
     assertEquals(204, response.getStatus());
 
-    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(new MetadataObjectKey(objectType,
+    List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(new MetadataObject(objectType,
                                                                                                               objectId));
     assertEquals(1, metadataItemsByObject.size());
     MetadataItem metadataItem = metadataItemsByObject.get(0);

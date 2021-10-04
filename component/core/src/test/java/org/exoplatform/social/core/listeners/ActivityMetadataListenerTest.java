@@ -141,7 +141,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
                                               "testMetadata2",
                                               audienceId);
-    MetadataObjectKey metadataObject = new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                              activity.getId());
     MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
     assertNotNull(metadataItem);
@@ -172,7 +172,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     originalActivity.setUserId(johnIdentity.getId());
     activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
 
-    MetadataObjectKey metadataObject = new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                              originalActivity.getId());
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
                                               "testMetadata2",
@@ -212,8 +212,8 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     assertNotEquals(originalActivity.getId(), sharedActivity.getId());
     restartTransaction();
 
-    MetadataObjectKey sharedActivityMetadataObject =
-                                                   new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    MetadataObject sharedActivityMetadataObject =
+                                                   new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                                          sharedActivity.getId());
     metadataItems = metadataService.getMetadataItemsByObject(sharedActivityMetadataObject);
     assertNotNull(metadataItem);
