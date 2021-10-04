@@ -27,7 +27,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.MetadataObjectKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 /**
  * A listener to handle Metadata lifecycle switch Activity lifecycle
@@ -47,9 +47,9 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
   public void deleteActivity(ActivityLifeCycleEvent event) {
     // Cleanup all related Metadatas of the activity once deleted
     String activityId = event.getActivityId();
-    metadataService.deleteMetadataItemsByObject(new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    metadataService.deleteMetadataItemsByObject(new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                                       activityId));
-    metadataService.deleteMetadataItemsByParentObject(new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    metadataService.deleteMetadataItemsByParentObject(new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                                             null,
                                                                             activityId));
   }
@@ -62,7 +62,7 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
                                                     .get(ActivityManager.SHARED_ACTIVITY_ID_PARAM);
     String posterId = StringUtils.isBlank(targetActivity.getUserId()) ? targetActivity.getUserId() : targetActivity.getPosterId();
     Identity targetStreamOwnerIdentity = this.activityManager.getActivityStreamOwnerIdentity(targetActivity.getId());
-    metadataService.shareMetadataItemsByObject(new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    metadataService.shareMetadataItemsByObject(new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                                      originalSharedActivityId),
                                                targetActivityId,
                                                Long.parseLong(targetStreamOwnerIdentity.getId()),

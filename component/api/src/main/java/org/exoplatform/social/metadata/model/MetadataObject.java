@@ -23,7 +23,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetadataObjectKey implements Cloneable {
+public class MetadataObject implements Cloneable {
 
   private String type;
 
@@ -31,13 +31,13 @@ public class MetadataObjectKey implements Cloneable {
 
   private String parentId;
 
-  public MetadataObjectKey(String type, String id) {
+  public MetadataObject(String type, String id) {
     this.type = type;
     this.id = id;
   }
 
   @Override
-  public MetadataObjectKey clone() { // NOSONAR
-    return new MetadataObjectKey(type, id, parentId);
+  public MetadataObject clone() { // NOSONAR
+    return new MetadataObject(type, id, parentId);
   }
 }

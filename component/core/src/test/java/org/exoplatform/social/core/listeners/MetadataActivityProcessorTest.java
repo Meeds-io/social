@@ -126,7 +126,7 @@ public class MetadataActivityProcessorTest extends AbstractCoreTest {
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
                                               metadataName,
                                               audienceId);
-    MetadataObjectKey metadataObject = new MetadataObjectKey(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
                                                              activity.getId(),
                                                              null);
     MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
