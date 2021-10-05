@@ -1,5 +1,6 @@
 <template>
   <span>
+    <search-tag-list v-model="selectedTags" />
     <v-chip
       v-for="(selectedTag, index) in selectedTags"
       :key="selectedTag"
