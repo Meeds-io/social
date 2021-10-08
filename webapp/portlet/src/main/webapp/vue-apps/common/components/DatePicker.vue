@@ -12,7 +12,7 @@
       :left="left"
       class="datePickerMenu"
       transition="scale-transition"
-      attach
+      :attach="attach"
       allow-overflow
       offset-y
       eager>
@@ -124,6 +124,12 @@ export default {
       type: Boolean,
       default: function() {
         return false;
+      },
+    },
+    attach: {
+      type: Boolean,
+      default: function() {
+        return true;
       },
     },
     format: {
