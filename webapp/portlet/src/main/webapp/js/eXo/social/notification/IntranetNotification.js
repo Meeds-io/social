@@ -47,7 +47,7 @@
       initIndicator : function() {
         var me = IntranetNotification;
         //
-        $(window).scroll(function(e) {
+        $('#UISiteBody').scroll(function(e) {
           // wait 200ms before call load more.
           if (me.T) {
             clearTimeout(me.T);
