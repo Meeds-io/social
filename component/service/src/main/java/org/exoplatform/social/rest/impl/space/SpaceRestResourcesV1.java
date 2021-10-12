@@ -279,7 +279,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     long cacheTime = space.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(authenticatedUser.hashCode() + expand.hashCode() + cacheTime);
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
