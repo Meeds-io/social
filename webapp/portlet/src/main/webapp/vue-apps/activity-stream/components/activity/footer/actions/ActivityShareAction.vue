@@ -7,6 +7,7 @@
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
           :class="shareTextColorClass"
+          :disabled="disableButtons"
           class="pa-0 mt-0"
           text
           link
@@ -68,6 +69,9 @@ export default {
     shareIconColorClass() {
       return this.hasShared && 'primary--text' || 'disabled--text';
     },
+    disableButtons() {
+      return this.activityTypeExtension && this.activityTypeExtension.disableButtons(this.activity);
+    }
   },
   created() {
     this.$root.$on('activity-shared', this.setHasShared);

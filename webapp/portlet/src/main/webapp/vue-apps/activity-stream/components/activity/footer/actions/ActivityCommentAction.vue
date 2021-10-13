@@ -6,6 +6,7 @@
         <v-btn
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
+          :disabled="disableButtons"
           class="pa-0 mt-0"
           text
           link
@@ -39,6 +40,10 @@ export default {
     activity: {
       type: Object,
       default: null,
+    },
+    disableButtons: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
