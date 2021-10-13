@@ -1871,7 +1871,7 @@ public class SpaceUtils {
       computeNavigationLabels(navigations, locale);
       computeNavigationIcons(navigations);
     } catch (Exception e) {
-      LOG.warn("Get UserNode of Space failed.");
+      LOG.error("Get UserNode of Space failed.",e);
     }
     return navigations;
   }
