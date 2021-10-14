@@ -1299,6 +1299,15 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>TopBarLogo</name>
+    <module>
+      <depends>
+        <module>spaceBannerLogoPopover</module>
+      </depends>
+    </module>
+  </portlet>
+
   <module>
     <name>commonVueComponents</name>
     <script>
@@ -1804,4 +1813,23 @@
     </depends>
   </module>
 
+  <module>
+    <name>spaceBannerLogoPopover</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/spaceBannerLogoPopover.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
 </gatein-resources>
