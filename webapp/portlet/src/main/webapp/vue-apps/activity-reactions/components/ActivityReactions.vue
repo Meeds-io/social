@@ -42,6 +42,8 @@
         </p>
       </div>
     </div>
+    <activity-lock-reactions :activity="activity" class="d-none d-lg-inline" />
+    <activity-lock-reactions-mobile :activity="activity" class="d-flex d-lg-none align-center" />
     <activity-reactions-drawer
       ref="reactionsDrawer"
       :likers-number="likersNumber"
