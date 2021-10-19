@@ -11,7 +11,7 @@
       v-if="!activityId"
       :space-id="spaceId"
       :activities="activities"
-      @addActivities="addActivities" />
+      @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-loader
         v-for="activity of activitiesToDisplay"
@@ -170,14 +170,18 @@ export default {
           this.retrievedSize = activityIds.length;
           this.hasMore = this.retrievedSize > this.limit;
           const activityIdsToLoad = activityIds.slice(0, this.limit);
-          const promises = activityIdsToLoad.map(activity => {
+          const promises = activityIdsToLoad.map((activity, index) => {
             const activityId = activity && activity.id;
             const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
             if (existingActivity) {
               return Promise.resolve(existingActivity);
             } else if (activityId) {
               this.$set(activity, 'loading', true);
-              this.activities.push(activity);
+              if (index < this.activities.length) {
+                this.activities.splice(index, 0, activity);
+              } else {
+                this.activities.push(activity);
+              }
               return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
                 .then(fullActivity => Object.assign(activity, fullActivity))
                 .finally(() => this.$set(activity, 'loading', false));
@@ -218,14 +222,9 @@ export default {
       this.limit += this.pageSize;
       this.loadActivityIds();
     },
-    addActivities(activities) {
-      if (activities && activities.length) {
-        this.loading = true;
-        const activity = activities[0];
-        activity.highlight = true;
-        this.activities.unshift(...activities);
-        this.$nextTick().then(() => this.loading = false);
-      }
+    loadActivities(newActivitiesCount) {
+      this.limit += newActivitiesCount;
+      this.loadActivityIds().catch(() => window.location.reload());
     },
   },
 };
