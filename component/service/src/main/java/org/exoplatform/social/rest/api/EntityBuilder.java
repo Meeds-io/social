@@ -983,19 +983,19 @@ public class EntityBuilder {
 
     DataEntity as = new DataEntity();
     IdentityManager identityManager = getIdentityManager();
-    Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner());
+    Identity owner = identityManager.getIdentity(activity.getStreamId());
     SpaceService spaceService = getSpaceService();
-    if (owner != null) { // case of user activity
-      as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
-    } else { // case of space activity
-      owner = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
-      as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
-
-      Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
-      as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
+    if (owner != null) {
+      if (owner.isUser()) { // case of user activity
+        as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
+      } else { // case of space activity
+        as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
+  
+        Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
+        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
+      }
+      as.put(RestProperties.ID, owner.getRemoteId());
     }
-    //
-    as.put(RestProperties.ID, owner.getRemoteId());
     return as;
   }
 
