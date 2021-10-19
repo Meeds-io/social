@@ -70,16 +70,22 @@
         </v-tab-item>
       </v-tabs-items>
     </template>
+    <template v-if="hasMoreLikers" slot="footer">
+      <v-btn
+        :loading="loading"
+        :disabled="loading"
+        block
+        class="btn pa-0"
+        @click="loadMore">
+        {{ $t('Search.button.loadMore') }}
+      </v-btn>
+    </template>
   </exo-drawer>
 </template>
 
 <script>
 export default {
   props: {
-    likers: {
-      type: Array,
-      default: null,
-    },
     likersNumber: {
       type: Number,
       default: 0
@@ -99,9 +105,12 @@ export default {
   },
   data () {
     return {
+      lastLoadedActivityId: null,
+      limit: 10,
       selectedTab: null,
       drawerOpened: false,
       activityReactionsExtensions: [],
+      likers: [],
       user: {}
     };
   },
@@ -112,6 +121,9 @@ export default {
         allReactionsNumber += item.reactionListItems.length;
       });
       return allReactionsNumber;
+    },
+    hasMoreLikers() {
+      return this.likersNumber > this.limit;
     },
     kudosNumber() {
       return this.reactionsNumber - this.likersNumber;
@@ -125,9 +137,25 @@ export default {
   },
   methods: {
     open() {
-      this.drawerOpened = true;
       this.refreshReactions();
       this.$refs.activityReactionsDrawer.open();
+      this.drawerOpened = true;
+      if (this.lastLoadedActivityId !== this.activityId) {
+        this.limit = 10;
+        this.likers = [];
+        this.lastLoadedActivityId = this.activityId;
+        this.retrieveLikers();
+      }
+    },
+    loadMore() {
+      this.limit += 10;
+      this.retrieveLikers();
+    },
+    retrieveLikers() {
+      this.$refs.activityReactionsDrawer.startLoading();
+      this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
+        .then(data => this.likers = data && data.likes || [])
+        .finally(() => this.$refs.activityReactionsDrawer.endLoading());
     },
     cancel() {
       this.$refs.activityReactionsDrawer.close();
