@@ -67,6 +67,8 @@ import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
 
+  private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
+
   private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
 
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
@@ -634,7 +636,7 @@ public class EntityBuilder {
                                                                        restPath,
                                                                        "",
                                                                        RestUtils.DEFAULT_OFFSET,
-                                                                       RestUtils.HARD_LIMIT);
+                                                                       DEFAULT_LIKERS_LIMIT);
       activityEntity.setLikes(new LinkEntity(likesEntity));
     } else {
       activityEntity.setLikes(new LinkEntity(getLikesActivityRestUrl(activity.getId(), restPath)));

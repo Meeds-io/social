@@ -44,7 +44,6 @@
     </div>
     <activity-reactions-drawer
       ref="reactionsDrawer"
-      :likers="likers"
       :likers-number="likersNumber"
       :activity-id="activityId"
       :max-items-to-show="maxLikersToShow"
