@@ -3,7 +3,7 @@
     <v-menu
       rounded="rounded"
       elevation="2"
-      v-model="showPopover"
+      v-model="menu"
       open-on-hover
       :close-on-content-click="false"
       :nudge-width="200"

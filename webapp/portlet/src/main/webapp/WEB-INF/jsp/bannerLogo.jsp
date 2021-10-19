@@ -13,6 +13,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.exoplatform.social.core.manager.IdentityManager" %>
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
+<%@ page import="java.util.Optional" %>
 <%
   String logoPath = null;
   String logoTitle = null;
@@ -46,7 +47,7 @@
     String permanentSpaceName = space.getGroupId().split("/")[2];
     portalPath = "/portal/g/:spaces:" + permanentSpaceName + "/" + space.getPrettyName();
     membersNumber = space.getMembers().length;
-    spaceDescription = space.getDescription();
+    spaceDescription = Optional.ofNullable(space.getDescription()).orElse("");
     for(String username : space.getManagers()) {
       Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
       managers.add(profile);

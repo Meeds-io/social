@@ -30,7 +30,6 @@ export function init(params) {
           spaceDescription: params.spaceDescription,
           managers: params.managers,
           homePath: params.homePath,
-          showPopover: false,
         };
       },
       template: `<exo-space-logo-banner
@@ -45,7 +44,7 @@ export function init(params) {
                     :space-description="spaceDescription" />`,
       i18n,
       vuetify,
-    }, `#${appId}`);
+    }, `#${appId}`, 'social-portlet');
   });
 }
 export function destroy() {
