@@ -29,31 +29,21 @@ export default {
     },
   },
   data: () => ({
-    newActivities: [],
     updatedActivities: new Set(),
-    limitToRetrieve: 0,
-    activityCreatedEventName: 'createActivity',
-    activityUpdatedEventName: 'updateActivity',
-    commentCreatedEventName: 'createComment',
-    commentUpdatedEventName: 'updateComment',
-    activityLikedEventName: 'likeActivity',
-    commentLikedEventName: 'likeComment',
+    newerActivitiesCount: 0,
   }),
   computed: {
     hasNewActivity() {
-      return this.newActivities.length > 0;
+      return this.newerActivitiesCount > 0;
     },
   },
   created() {
     this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
-    this.$root.$on(`activity-stream-activity-${this.activityCreatedEventName}`, this.checkNewerActivities);
-    this.$root.$on(`activity-stream-activity-${this.activityUpdatedEventName}`, this.increaseActivitiesLimitToRetrieve);
-    this.$root.$on(`activity-stream-activity-${this.commentCreatedEventName}`, this.increaseActivitiesLimitToRetrieve);
-    this.$root.$on(`activity-stream-activity-${this.commentUpdatedEventName}`, this.increaseActivitiesLimitToRetrieve);
+    this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
   },
   methods: {
     init() {
-      this.newActivities = [];
+      this.newerActivitiesCount = 0;
       this.updatedActivities = new Set();
     },
     handleActivityStreamUpdates(updateParams) {
@@ -62,43 +52,15 @@ export default {
     },
     increaseActivitiesLimitToRetrieve(activityId) {
       this.updatedActivities.add(activityId);
-      this.limitToRetrieve = this.updatedActivities.size;
-    },
-    checkNewerActivities(activityId) {
-      this.increaseActivitiesLimitToRetrieve(activityId);
-      this.$activityService.getActivities(this.spaceId, this.limitToRetrieve, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-        .then(data => {
-          const activities = data.activities || [];
-          if (activities && activities.length) {
-            if (this.activities && this.activities.length) {
-              const firstDisplayedActivity = this.activities[0];
-              const firstDisplayedActivityDate = firstDisplayedActivity.updateDate && new Date(firstDisplayedActivity.updateDate) || new Date(firstDisplayedActivity.createDate);
-              this.newActivities = activities.filter(newActivity => {
-                const activityDate = newActivity.updateDate && new Date(newActivity.updateDate) || new Date(newActivity.createDate);
-                return activityDate > firstDisplayedActivityDate && !this.activities.find(tmpActivity => tmpActivity.id === newActivity.id);
-              });
-            } else {
-              this.newActivities = activities;
-            }
-          }
-        })
-        .catch(() => {
-          // Just catch the error when user can't access activity to not log an exception
-        });
+      this.newerActivitiesCount = this.updatedActivities.size;
     },
     displayNewActivities() {
       if (this.$activityStreamWebSocket.isDisconnected()) {
         window.location.reload();
         return;
       }
-      const newestActivityId = this.newActivities[0].id;
-
-      this.$emit('addActivities', this.newActivities.slice());
+      this.$emit('loadActivities', this.updatedActivities.size);
       this.init();
-
-      // check if network is disconnected (checking websocket connection isn't sufficient)
-      this.$activityService.getActivityById(newestActivityId)
-        .catch(() => window.location.reload());
     },
   },
 };
