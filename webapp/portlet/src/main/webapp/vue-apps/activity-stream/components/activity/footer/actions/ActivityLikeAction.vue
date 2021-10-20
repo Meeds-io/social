@@ -7,7 +7,7 @@
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
           :class="likeTextColorClass"
-          :disabled="disableButtons"
+          :disabled="disable"
           class="pa-0 mt-0"
           text
           link
@@ -42,7 +42,7 @@ export default {
       type: Object,
       default: null,
     },
-    disableButtons: {
+    disable: {
       type: Boolean,
       default: false,
     },

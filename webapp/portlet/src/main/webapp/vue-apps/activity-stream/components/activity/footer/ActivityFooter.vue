@@ -14,7 +14,7 @@
         :likers="likers"
         :likers-number="likersCount"
         :comment-number="commentsCount"
-        :disable-buttons="disableButtons"
+        :disable-buttons="disable"
         class="flex-grow-1 ps-4" />
       <activity-actions
         :activity="activity"
@@ -67,8 +67,8 @@ export default {
     isDesktop() {
       return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm' && this.$vuetify.breakpoint.name !== 'md';
     },
-    disableButtons() {
-      return this.activityTypeExtension && this.activityTypeExtension.disableButtons && this.activityTypeExtension.disableButtons(this.activity);
+    disable() {
+      return this.activityTypeExtension && this.activityTypeExtension.isReactionsDisabled && this.activityTypeExtension.isReactionsDisabled(this.activity);
     }
   },
   created() {

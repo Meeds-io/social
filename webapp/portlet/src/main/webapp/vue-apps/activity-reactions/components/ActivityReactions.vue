@@ -87,7 +87,7 @@ export default {
       // eslint-disable-next-line no-magic-numbers
       default: () => 30,
     },
-    disableButtons: {
+    disable: {
       type: Boolean,
       default: false,
     },

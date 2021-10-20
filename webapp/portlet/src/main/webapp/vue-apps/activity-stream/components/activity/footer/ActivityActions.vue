@@ -27,7 +27,7 @@ export default {
       return {
         activity: this.activity,
         activityTypeExtension: this.activityTypeExtension,
-        disableButtons: this.activityTypeExtension.disableButtons && this.activityTypeExtension.disableButtons(this.activity),
+        disable: this.activityTypeExtension.isReactionsDisabled && this.activityTypeExtension.isReactionsDisabled(this.activity),
       };
     },
     actionBarBorderClass() {

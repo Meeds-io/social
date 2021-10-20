@@ -28,7 +28,7 @@
         <activity-footer
           v-if="!extendedComponent.overrideFooter"
           :activity="activity"
-          :disable-buttons="disableButtons"
+          :disable-buttons="disable"
           :is-activity-detail="isActivityDetail"
           :activity-types="activityTypes"
           :activity-type-extension="activityTypeExtension" />
@@ -188,8 +188,8 @@ export default {
     activityLoading() {
       return this.activity && this.activity.loading;
     },
-    disableButtons() {
-      return this.activityTypeExtension && this.activityTypeExtension.disableButtons && this.activityTypeExtension.disableButtons(this.activity);
+    disable() {
+      return this.activityTypeExtension && this.activityTypeExtension.isReactionsDisabled && this.activityTypeExtension.isReactionsDisabled(this.activity);
     }
   },
   watch: {
