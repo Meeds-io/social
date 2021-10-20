@@ -52,4 +52,15 @@ public interface HTMLUploadImageProcessor {
    * @return The updated HTML content with the permanent images URLs
    */
   public String processUserImages(String content, String userId, String imagesSubLocationPath);
+
+  /**
+   * Process the given HTML content, export Files
+   * and replace URLs in the HTML content with files name
+   * @param content The HTML content
+ * @return The updated HTML content with the images name
+   */
+  public String processImagesForExport(String content);
+
+
+
 }
