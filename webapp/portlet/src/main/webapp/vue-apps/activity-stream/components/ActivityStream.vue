@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="loaded">
+  <v-app v-if="loaded" role="main">
     <activity-notification-alerts />
     <activity-stream-list
       :activity-id="activityId"
