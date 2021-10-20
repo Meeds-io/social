@@ -8,6 +8,7 @@
       :close-on-content-click="false"
       :nudge-width="200"
       max-width="350"
+      min-width="300"
       offset-y>
       <template v-slot:activator="{ on, attrs }">
         <div class="d-inline-flex">
@@ -211,10 +212,10 @@ export default {
       return this.managers && this.managers.slice(0, this.sizeToDisplay);
     },
     lastManagerToDisplay() {
-      return this.managers && this.managers.length > this.sizeToDisplay && this.managers[this.sizeToDisplay + 1];
+      return this.managers && this.managers.length > this.sizeToDisplay && this.managers[this.sizeToDisplay];
     },
     showMoreManagers() {
-      return this.managers && this.managers.length - this.sizeToDisplay - 1;
+      return this.managers && this.managers.length - this.sizeToDisplay;
     }
   },
   methods: {
