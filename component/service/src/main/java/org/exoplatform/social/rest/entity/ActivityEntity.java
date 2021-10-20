@@ -191,6 +191,15 @@ public class ActivityEntity extends BaseEntity {
     return count == null ? 0 : Integer.parseInt(count.toString());
   }
 
+  public void setHasLiked(boolean hasLiked) {
+    setProperty("hasLiked", String.valueOf(hasLiked));
+  }
+
+  public boolean isHasLiked() {
+    Object hasLiked = getProperty("hasLiked");
+    return hasLiked != null && Boolean.parseBoolean(hasLiked.toString());
+  }
+
   public void setHasCommented(boolean hasCommented) {
     setProperty("hasCommented", String.valueOf(hasCommented));
   }
