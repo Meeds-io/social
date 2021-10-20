@@ -643,6 +643,7 @@ public class EntityBuilder {
     }
 
     activityEntity.setLikesCount(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
+    activityEntity.setHasLiked(ArrayUtils.contains(activity.getLikeIdentityIds(), authentiatedUser.getId()));
     activityEntity.setHasCommented(ArrayUtils.contains(activity.getCommentedIds(), authentiatedUser.getId()));
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
@@ -772,6 +773,7 @@ public class EntityBuilder {
     commentEntity.setLikesCount(comment.getLikeIdentityIds() == null ? 0 : comment.getLikeIdentityIds().length);
     commentEntity.setCommentsCount(comment.getCommentedIds() == null ? 0 : comment.getCommentedIds().length);
     commentEntity.setHasCommented(ArrayUtils.contains(comment.getCommentedIds(), authentiatedUser.getId()));
+    commentEntity.setHasLiked(ArrayUtils.contains(comment.getLikeIdentityIds(), authentiatedUser.getId()));
     //
     if (!isBuildList) {
       updateCachedLastModifiedValue(comment.getUpdated());
