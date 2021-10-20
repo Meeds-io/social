@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app role="search">
     <v-btn
       :title="buttonTooltip"
       icon
