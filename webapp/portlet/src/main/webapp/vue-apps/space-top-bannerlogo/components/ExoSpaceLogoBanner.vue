@@ -11,22 +11,22 @@
       min-width="300"
       offset-y>
       <template v-slot:activator="{ on, attrs }">
-        <div class="d-inline-flex">
+        <div
+          v-on="on"
+          v-bind="attrs"
+          class="d-inline-flex">
           <a
             v-if="logoPath"
             id="UserHomePortalLink"
             :href="portalPath"
             class="pe-3 logoContainer">
             <img
-              v-bind="attrs"
-              v-on="on"
               :src="logoPath"
               class="spaceAvatar"
               :alt="logoTitle">
           </a>
           <a
             :href="portalPath"
-            :title="logoTitle"
             :class="'ps-2 align-self-center brandingContainer space'">
             <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
               {{ logoTitle }}
@@ -46,9 +46,17 @@
             </v-list-item-avatar>
             <v-list-item-content class="pb-0">
               <v-list-item-title>
-                <span class="blue--text text--darken-3 font-weight-bold">
-                  {{ logoTitle }}
-                </span>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <span
+                      v-on="on"
+                      v-bind="attrs"
+                      class="blue--text text--darken-3 font-weight-bold">
+                      {{ logoTitle }}
+                    </span>
+                  </template>
+                  <span>{{ logoTitle }}</span>
+                </v-tooltip>
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ membersNumber }} {{ $t('space.logo.banner.popover.members') }}
