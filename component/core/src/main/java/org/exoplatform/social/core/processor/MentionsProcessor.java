@@ -68,6 +68,9 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
       if (templateParams.containsKey("default_title")) {
         templateParams.put("default_title", MentionUtils.substituteUsernames(portalOwner, templateParams.get("default_title")));
       }
+      if (templateParams.containsKey("kudosMessage")) {
+        templateParams.put("kudosMessage", MentionUtils.substituteUsernames(portalOwner, templateParams.get("kudosMessage")));
+      }
     }
   }
 
