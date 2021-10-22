@@ -515,6 +515,15 @@ public class SpaceUtils {
     return currentSpace;
   }
 
+  public static Identity getSpaceIdentityByContext() {
+    Space space = getSpaceByContext();
+    if (space != null) {
+      IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+      return identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    }
+    return null;
+  }
+
   /**
    * Remove pages and group navigation of space when delete space.
    * 
