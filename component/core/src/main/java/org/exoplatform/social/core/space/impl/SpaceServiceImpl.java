@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.space.impl;
 
-import java.io.InputStream;
 import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -41,7 +40,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.IdentityConstants;
@@ -53,7 +51,6 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
 import org.exoplatform.social.core.space.SpaceException;
@@ -71,7 +68,6 @@ import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
@@ -1751,26 +1747,25 @@ public class SpaceServiceImpl implements SpaceService {
       return true;
     }
     org.exoplatform.services.security.Identity identity = identityRegistry.getIdentity(userId);
-    if (identity == null) {
-      Collection<Membership> memberships;
-      try {
-        memberships = getOrgService().getMembershipHandler().findMembershipsByUser(userId);
-      } catch (Exception e) {
-        throw new RuntimeException("Can't get user '" + userId + "' memberships", e);
-      }
-      List<MembershipEntry> entries = new ArrayList<>();
-      for (Membership membership : memberships) {
-        entries.add(new MembershipEntry(membership.getGroupId(), membership.getMembershipType()));
-      }
-      identity = new org.exoplatform.services.security.Identity(userId, entries);
-    }
     List<MembershipEntry> superManagersMemberships = spacesAdministrationService.getSpacesAdministratorsMemberships();
-    if (superManagersMemberships != null && !superManagersMemberships.isEmpty()) {
-      for (MembershipEntry superManagerMembership : superManagersMemberships) {
-        if (identity.isMemberOf(superManagerMembership)) {
-          return true;
-        }
-      }
+    if (identity == null) {
+      //user is not already loggued, and identity not present in identityRegistry
+      //so we dont load it, and check only concerned membershipEntry
+      return superManagersMemberships.parallelStream()
+                                         .anyMatch(membershipEntry -> isUserInGroup(userId, membershipEntry));
+    } else {
+      return superManagersMemberships.parallelStream()
+                                     .anyMatch(identity::isMemberOf);
+    }
+  }
+
+  private boolean isUserInGroup(String userId, MembershipEntry membershipEntry) {
+    try {
+      return getOrgService().getMembershipHandler().findMembershipByUserGroupAndType(userId, membershipEntry.getGroup(),
+                                                                              membershipEntry.getMembershipType()) != null;
+    } catch (Exception e) {
+      LOG.error("Error when check {} have membershipType {} in group {}", userId, membershipEntry.getMembershipType(),
+                membershipEntry.getGroup());
     }
     return false;
   }
