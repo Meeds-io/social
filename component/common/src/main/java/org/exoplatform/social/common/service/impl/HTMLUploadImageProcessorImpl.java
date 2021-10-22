@@ -17,4 +17,9 @@ public class HTMLUploadImageProcessorImpl implements HTMLUploadImageProcessor {
     public String processUserImages(String content, String userId, String imagesSubLocationPath) {
         return content;
     }
+
+    @Override
+    public String processImagesForExport(String content) {
+        return content;
+    }
 }

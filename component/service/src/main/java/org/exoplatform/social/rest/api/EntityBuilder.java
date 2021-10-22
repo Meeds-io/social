@@ -67,6 +67,8 @@ import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class EntityBuilder {
 
+  private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
+
   private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
 
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
@@ -634,13 +636,14 @@ public class EntityBuilder {
                                                                        restPath,
                                                                        "",
                                                                        RestUtils.DEFAULT_OFFSET,
-                                                                       RestUtils.HARD_LIMIT);
+                                                                       DEFAULT_LIKERS_LIMIT);
       activityEntity.setLikes(new LinkEntity(likesEntity));
     } else {
       activityEntity.setLikes(new LinkEntity(getLikesActivityRestUrl(activity.getId(), restPath)));
     }
 
     activityEntity.setLikesCount(activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length);
+    activityEntity.setHasLiked(ArrayUtils.contains(activity.getLikeIdentityIds(), authentiatedUser.getId()));
     activityEntity.setHasCommented(ArrayUtils.contains(activity.getCommentedIds(), authentiatedUser.getId()));
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
@@ -770,6 +773,7 @@ public class EntityBuilder {
     commentEntity.setLikesCount(comment.getLikeIdentityIds() == null ? 0 : comment.getLikeIdentityIds().length);
     commentEntity.setCommentsCount(comment.getCommentedIds() == null ? 0 : comment.getCommentedIds().length);
     commentEntity.setHasCommented(ArrayUtils.contains(comment.getCommentedIds(), authentiatedUser.getId()));
+    commentEntity.setHasLiked(ArrayUtils.contains(comment.getLikeIdentityIds(), authentiatedUser.getId()));
     //
     if (!isBuildList) {
       updateCachedLastModifiedValue(comment.getUpdated());
@@ -994,19 +998,19 @@ public class EntityBuilder {
 
     DataEntity as = new DataEntity();
     IdentityManager identityManager = getIdentityManager();
-    Identity owner = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, activity.getStreamOwner());
+    Identity owner = identityManager.getIdentity(activity.getStreamId());
     SpaceService spaceService = getSpaceService();
-    if (owner != null) { // case of user activity
-      as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
-    } else { // case of space activity
-      owner = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
-      as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
-
-      Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
-      as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
+    if (owner != null) {
+      if (owner.isUser()) { // case of user activity
+        as.put(RestProperties.TYPE, USER_ACTIVITY_TYPE);
+      } else { // case of space activity
+        as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
+  
+        Space space = spaceService.getSpaceByPrettyName(owner.getRemoteId());
+        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
+      }
+      as.put(RestProperties.ID, owner.getRemoteId());
     }
-    //
-    as.put(RestProperties.ID, owner.getRemoteId());
     return as;
   }
 

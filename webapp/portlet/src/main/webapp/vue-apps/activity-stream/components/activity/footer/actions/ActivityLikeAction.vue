@@ -78,6 +78,7 @@ export default {
       this.changingLike = true;
       return this.$activityService.likeActivity(this.activityId)
         .then(data => {
+          this.activity.hasLiked = 'true';
           this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activity);
         })
@@ -87,6 +88,7 @@ export default {
       this.changingLike = true;
       return this.$activityService.unlikeActivity(this.activityId)
         .then(data => {
+          this.activity.hasLiked = 'false';
           this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activity);
         })
@@ -97,7 +99,7 @@ export default {
         this.$set(this.activity, 'likes', data && data.likes || []);
         this.$set(this.activity, 'likesCount', data && data.size || 0);
       }
-      this.hasLiked = this.activity && this.activity.likes && this.activity.likes.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
+      this.hasLiked = this.activity && this.activity.hasLiked === 'true';
     },
   },
 };
