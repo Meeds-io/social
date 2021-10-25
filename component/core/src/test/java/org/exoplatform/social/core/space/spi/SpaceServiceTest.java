@@ -3179,75 +3179,56 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   }
 
+  public void testIsSuperManager() throws Exception {
+    Space space = createSpace("spacename1", "root");
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.OPEN);
+    spaceService.updateSpace(space);
 
-//FIXME regression JCR to RDBMS migration
-//  public void testSpacesSuperManager() throws Exception {
-//    Space space = createSpace("spacename1", "root");
-//    space.setVisibility(Space.PUBLIC);
-//    space.setRegistration(Space.OPEN);
-//    spaceService.updateSpace(space);
-//
-//    space = createSpace("spacename2", "root");
-//    space.setVisibility(Space.PUBLIC);
-//    space.setRegistration(Space.CLOSE);
-//    spaceService.updateSpace(space);
-//
-//    space = createSpace("spacename3", "root");
-//    space.setVisibility(Space.PRIVATE);
-//    space.setRegistration(Space.OPEN);
-//    spaceService.updateSpace(space);
-//
-//    space = createSpace("spacename4", "root");
-//    space.setVisibility(Space.PRIVATE);
-//    space.setRegistration(Space.CLOSE);
-//    spaceService.updateSpace(space);
-//
-//    space = createSpace("spacename5", "root");
-//    space.setVisibility(Space.HIDDEN);
-//    space.setRegistration(Space.OPEN);
-//    spaceService.updateSpace(space);
-//
-//    space = createSpace("spacename6", "root");
-//    space.setVisibility(Space.HIDDEN);
-//    space.setRegistration(Space.CLOSE);
-//    spaceService.updateSpace(space);
-//
-//    User user = organizationService.getUserHandler().createUserInstance("user-super-1");
-//    organizationService.getUserHandler().createUser(user, false);
-//    Group group = organizationService.getGroupHandler().createGroupInstance();
-//    group.setGroupName("testgroup");
-//    organizationService.getGroupHandler().addChild(null, group, true);
-//    MembershipType mstype = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
-//    mstype.setName("mstypetest");
-//    organizationService.getMembershipTypeHandler().createMembershipType(mstype, true);
-//
-//    organizationService.getMembershipHandler().linkMembership(user, group, mstype, true);
-//
-//    String userName = user.getUserName();
-//
-//    assertEquals(6, spaceService.getAllSpacesWithListAccess().getSize());
-//
-//    assertFalse(spaceService.isSuperManager(userName));
-//    assertFalse(spaceService.hasAccessPermission(space, userName));
-//    assertFalse(spaceService.hasSettingPermission(space, userName));
-//    assertEquals(2, spaceService.getVisibleSpacesWithListAccess(userName, null).getSize());
-//    assertEquals(0, spaceService.getPublicSpacesByFilter(userName, null).getSize());
-//    assertEquals(0, spaceService.getAccessibleSpacesByFilter(userName, null).getSize());
-//    assertEquals(0, spaceService.getSettingableSpaces(userName).getSize());
-//
-//    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/testgroup",
-//                                                                                                        "mstypetest")));
-//    assertTrue(spaceService.isSuperManager(userName));
-//    assertTrue(spaceService.hasAccessPermission(space, userName));
-//    assertTrue(spaceService.hasSettingPermission(space, userName));
-//    assertEquals(6, spaceService.getVisibleSpacesWithListAccess(userName, null).getSize());
-//
-//    // number fixed to 0 for super users in SpaceListAccess.getSize()
-//    assertEquals(0, spaceService.getPublicSpacesByFilter(userName, null).getSize());
-//
-//    assertEquals(6, spaceService.getAccessibleSpacesByFilter(userName, null).getSize());
-//    assertEquals(6, spaceService.getSettingableSpaces(userName).getSize());
-//  }
+    space = createSpace("spacename2", "root");
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.CLOSE);
+    spaceService.updateSpace(space);
+
+    space = createSpace("spacename3", "root");
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.OPEN);
+    spaceService.updateSpace(space);
+
+    space = createSpace("spacename4", "root");
+    space.setVisibility(Space.PRIVATE);
+    space.setRegistration(Space.CLOSE);
+    spaceService.updateSpace(space);
+
+    space = createSpace("spacename5", "root");
+    space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.OPEN);
+    spaceService.updateSpace(space);
+
+    space = createSpace("spacename6", "root");
+    space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSE);
+    spaceService.updateSpace(space);
+
+    User user = organizationService.getUserHandler().createUserInstance("user-space-admin");
+    organizationService.getUserHandler().createUser(user, false);
+    Group group = organizationService.getGroupHandler().createGroupInstance();
+    group.setGroupName("testgroup");
+    organizationService.getGroupHandler().addChild(null, group, true);
+    MembershipType mstype = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
+    mstype.setName("mstypetest");
+    organizationService.getMembershipTypeHandler().createMembershipType(mstype, true);
+
+    organizationService.getMembershipHandler().linkMembership(user, group, mstype, true);
+
+    String userName = user.getUserName();
+
+    assertEquals(6, spaceService.getAllSpacesWithListAccess().getSize());
+    assertFalse(spaceService.isSuperManager(userName));
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/testgroup",
+                                                                                                                "mstypetest")));
+    assertTrue(spaceService.isSuperManager(userName));
+  }
 
   private Space populateData() throws Exception {
     String spaceDisplayName = "Space1";
