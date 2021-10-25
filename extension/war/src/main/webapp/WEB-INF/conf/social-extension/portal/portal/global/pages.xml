@@ -328,51 +328,6 @@
         <show-info-bar>false</show-info-bar>
         <show-application-state>false</show-application-state>
       </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
-          <portlet-ref>UserSettingLanguage</portlet-ref>
-        </portlet>
-        <title>User Setting Language</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
-          <portlet-ref>UserSettingTimezone</portlet-ref>
-        </portlet>
-        <title>User Setting Timezone</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
-          <portlet-ref>UserSettingNotifications</portlet-ref>
-        </portlet>
-        <title>User Setting Notifications</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
-          <portlet-ref>UserSettingSecurity</portlet-ref>
-        </portlet>
-        <title>User Setting Security</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <container id="settings-bottom-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
-        <name>settings-bottom-container</name>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <factory-id>addonContainer</factory-id>
-      </container>
     </container>
   </page>
   <page>

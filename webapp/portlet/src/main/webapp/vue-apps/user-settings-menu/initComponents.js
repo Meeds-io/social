@@ -1,3 +1,9 @@
 import UserSettingsMenu from './components/UserSettingsMenu.vue';
 
-Vue.component('user-settings-menu', UserSettingsMenu);
+const components = {
+  'user-settings-menu': UserSettingsMenu,
+};
+
+for (const key in components) {
+  Vue.component(key, components[key]);
+}
