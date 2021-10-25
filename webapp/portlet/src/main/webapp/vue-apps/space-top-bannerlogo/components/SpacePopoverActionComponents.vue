@@ -1,14 +1,12 @@
 <template>
-  <v-app class="white">
-    <div class="space-title-action-components">
-      <div
-        v-for="action in enabledComponents"
-        :key="action.key"
-        :class="`${action.appClass} ${action.typeClass}`"
-        :ref="action.key">
-      </div>
-    </div>
-  </v-app>
+  <div class="d-inline-flex">
+    <span
+      v-for="action in enabledComponents"
+      :key="action.key"
+      :class="`${action.appClass} ${action.typeClass}`"
+      :ref="action.key">
+    </span>
+  </div>
 </template>
 <script>
 import { spaceTitleActionComponents } from '../extension.js';
