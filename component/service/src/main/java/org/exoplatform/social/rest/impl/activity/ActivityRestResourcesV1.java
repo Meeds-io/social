@@ -386,6 +386,12 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                      @QueryParam("expand")
                                      String expand,
                                      @ApiParam(
+                                         value = "Is current activity editable",
+                                         required = false
+                                     )
+                                     @QueryParam("isEditabled")
+                                     boolean isEditabled,
+                                     @ApiParam(
                                          value = "Activity object to be updated, ex: <br/>{<br/>\"title\" : \"My activity\"<br/>}",
                                          required = true
                                      )
@@ -400,7 +406,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
     ExoSocialActivity activity = activityManager.getActivity(activityId);
-    if (!activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
+    if (!isEditabled && !activityManager.isActivityEditable(activity, authenticatedUserIdentity)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     EntityBuilder.buildActivityFromEntity(model, activity);
