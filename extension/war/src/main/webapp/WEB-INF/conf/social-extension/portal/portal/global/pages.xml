@@ -321,6 +321,16 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
+          <portlet-ref>UserSettingsMenu</portlet-ref>
+        </portlet>
+        <title>User Settings Menu</title>
+        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
+        <show-info-bar>false</show-info-bar>
+        <show-application-state>false</show-application-state>
+      </portlet-application>
+      <portlet-application>
+        <portlet>
+          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingLanguage</portlet-ref>
         </portlet>
         <title>User Setting Language</title>

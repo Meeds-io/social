@@ -31,6 +31,7 @@ let config = {
     userSettingNotifications: './src/main/webapp/vue-apps/user-setting-notifications/main.js',
     userSettingSecurity: './src/main/webapp/vue-apps/user-setting-security/main.js',
     userSettingTimezone: './src/main/webapp/vue-apps/user-setting-timezone/main.js',
+    userSettingsMenu: './src/main/webapp/vue-apps/user-settings-menu/main.js',
     spaceInfos: './src/main/webapp/vue-apps/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/vue-apps/who-is-online-app/main.js',
     activityComposer: './src/main/webapp/vue-apps/activity-composer-app/main.js',

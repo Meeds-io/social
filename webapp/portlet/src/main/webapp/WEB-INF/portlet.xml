@@ -294,6 +294,23 @@
   </portlet>
 
   <portlet>
+    <portlet-name>UserSettingsMenu</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/userSettingsMenu.html</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
+    <portlet-info>
+      <title>User Setting Menu</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>UserSettingLanguage</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
