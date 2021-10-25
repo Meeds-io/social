@@ -103,11 +103,13 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
     Mockito.when(activity.isComment()).thenReturn(false);
     Mockito.when(activity.getPosterId()).thenReturn("1");
+    Mockito.when(activity.getType()).thenReturn("Test_activity");
     // prepare comment
     ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
     Mockito.when(comment.isComment()).thenReturn(true);
     Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     Mockito.when(comment.getPosterId()).thenReturn("1");
+    Mockito.when(comment.getType()).thenReturn("Test_comment");
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");

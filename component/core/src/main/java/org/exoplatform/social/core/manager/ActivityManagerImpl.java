@@ -130,6 +130,8 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
+  public static final String          NEWS_TYPE                           = "news";
+
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
                              SpaceService spaceService,
@@ -708,7 +710,13 @@ public class ActivityManagerImpl implements ActivityManager {
         enableEdit = enableEditActivity;
       }
       Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, viewer.getUserId());
-      if (enableEdit && identity != null && StringUtils.equals(identity.getId(), activity.getPosterId())) {
+      if(activity.getType() != null && activity.getType().equals(NEWS_TYPE)) {
+        Space space = spaceService.getSpaceByPrettyName(activity.getActivityStream().getPrettyId());
+        if(enableEdit && identity != null && space!= null && spaceService.isManager(space, identity.getRemoteId())) {
+          return !isAutomaticActivity(activity);
+        }
+      }
+      if (enableEdit && identity != null && (StringUtils.equals(identity.getId(), activity.getPosterId()))) {
         return !isAutomaticActivity(activity);
       }
     }
