@@ -18,6 +18,7 @@
   String logoPath = null;
   String logoTitle = null;
   String portalPath = null;
+  String defaultHomePath = "";
   String titleClass = "";
   String imageClass = "";
   String homePath= "";
@@ -27,7 +28,9 @@
   Space space = SpaceUtils.getSpaceByContext();
   PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+  UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
 
+  defaultHomePath = "/portal/" + requestContext.getPortalOwner();
   if (space == null) {
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
     Branding branding = brandingService.getBrandingInformation();
@@ -35,10 +38,9 @@
     logoPath = logo == null ? null : "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
     logoTitle = branding.getCompanyName();
 
-    UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (portalPath == null) {
-      portalPath = "/portal/" + requestContext.getPortalOwner();
+      portalPath = defaultHomePath;
     }
     titleClass = "company";
   } else {
@@ -52,7 +54,7 @@
       Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
       managers.add(profile);
     }
-    homePath = "/portal/" + requestContext.getPortalOwner();
+    homePath = Optional.ofNullable(portalConfigService.getUserHomePage(request.getRemoteUser())).orElse(defaultHomePath);
   }
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
