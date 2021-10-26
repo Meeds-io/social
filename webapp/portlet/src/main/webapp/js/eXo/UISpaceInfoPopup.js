@@ -189,8 +189,6 @@
                     var spaceUrl = $(el).attr('href');
                     var spaceId= opts.spaceID;
                     var spaceRestUrl = opts.restURL.replace('{0}', window.encodeURI(spaceId));
-                    var membersRestUrl = opts.membersRestURL.replace('{0}', window.encodeURI(spaceId));
-                    var managerRestUrl = opts.managerRestUrl.replace('{0}', window.encodeURI(spaceId));
 
                     //
                     initPopup();
@@ -208,58 +206,16 @@
                             type: "GET",
                             url: spaceRestUrl,
                             complete: function(jqXHR) {
-
                               if (jqXHR.readyState === 4) {
                                 var spaceData = $.parseJSON(jqXHR.responseText);
-                                var membersData = null;
-                                var managerData = null;
-                                var membership = null;
                                 if (!spaceData) {
                                   return;
                                 }
-                                window.profileXHR = $.ajax({
-                                  type: "GET",
-                                  url: membersRestUrl,
-                                  complete: function(jqXHR) {
-
-                                    if (jqXHR.readyState === 4) {
-                                      membersData = $.parseJSON(jqXHR.responseText);
-                                    }
-                                    window.profileXHR = $.ajax({
-                                      type: "GET",
-                                      url: managerRestUrl,
-                                      complete: function(jqXHR) {
-                                        if (jqXHR.readyState === 4) {
-                                          managerData = $.parseJSON(jqXHR.responseText);
-                                        }
-                                        var rolesArray = {
-                                          roles: []
-                                        };
-                                        var currentUser = membersData.users.find(user => {
-                                          return user.username === eXo.env.portal.userName
-                                        })
-                                        if (currentUser.isManager){
-                                          rolesArray.roles.push("manager");
-                                        }
-                                        if (currentUser.isMember){
-                                          rolesArray.roles.push("member");
-                                        }
-
-                                        if(!spaceData.avatarUrl){
-                                          spaceData.avatarUrl= opts.defaultAvatarUrl;
-                                        }
-
-                                        spaceData.member = membersData.size;
-                                        spaceData.manager = managerData.size;
-                                        spaceData.membership = rolesArray;
-
-                                        buildPopup(spaceData, spaceUrl);
-                                        putToCache(spaceId, spaceData);
-
-                                      }
-                                    });
-                                  }
-                                });
+                                if(!spaceData.avatarUrl){
+                                  spaceData.avatarUrl= opts.defaultAvatarUrl;
+                                }
+                                buildPopup(spaceData, spaceUrl);
+                                putToCache(spaceId, spaceData);
                               }
                             }
                         });
@@ -294,21 +250,14 @@
 
                 function buildPopup(json, spaceUrl) {
                     var action = null;
-                    var isManager = false;
-                    var isMember = false;
+                    var isManager = json.isManager;
+                    var isMember = json.isMember;
                     var labels = opts.labels;
                     var spaceName = json.prettyName;
-                    if(json.membership.roles.indexOf('manager')>=0) {
-                        isManager = true;
-                    }
-
-                    if(json.membership.roles.indexOf('member')>=0) {
-                        isMember = true;
-                    }
 
                     tiptip_content.empty();
 
-                    if ((isManager && json.manager >= 1)|| (!isManager && isMember)) {
+                    if ((isManager && json.managersCount && json.managersCount >= 1)|| (!isManager && isMember)) {
                         action = $('<div/>', {
                             "class": "btn-link leave-space",
                             "text": "" + labels.leave,
@@ -358,7 +307,7 @@
                     });
 
                     tdProfile.append(aProfile);
-                    if(json.member > 0){
+                    if(json.membersCount){
                         var divMembersCount = $("<div/>", {
                             "class" : "space-members",
                         });
@@ -368,7 +317,7 @@
                         divMembersSpan = $("<span/>", {
                             "class" : "space-members-count",
                             "font-weight":"normal",
-                            "text":json.member + " " + opts.labels.members
+                            "text":json.membersCount + " " + opts.labels.members
                         });
                         divMembersCount.append(divMembersIcon);
                         divMembersCount.append(divMembersSpan);
