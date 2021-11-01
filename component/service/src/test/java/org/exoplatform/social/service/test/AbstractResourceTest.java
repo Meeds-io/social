@@ -26,6 +26,8 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.services.rest.ContainerResponseWriter;
 import org.exoplatform.services.rest.impl.*;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
@@ -49,7 +51,7 @@ import org.exoplatform.ws.frameworks.json.value.JsonValue;
 public abstract class AbstractResourceTest extends AbstractServiceTest {
 
   public ContainerResponse getResponse(String method, String restPath, String input) throws Exception {
-    byte[] jsonData = input.getBytes("UTF-8");
+    byte[] jsonData = (StringUtils.isBlank(input) ? "" : input).getBytes("UTF-8");
     MultivaluedMap<String, String> h = new MultivaluedMapImpl();
     h.putSingle("content-type", "application/json");
     h.putSingle("content-length", "" + jsonData.length);
@@ -409,6 +411,18 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
 
     assertEquals("activity.getId() must be equal:" + activity.getPostedTime() == null ? 0 :activity.getPostedTime(),
         activity.getPostedTime() == null ? 0 :activity.getPostedTime(), (Long) entity.get("postedTime"));
+  }
+
+  protected String toJsonString(Object object) {
+    try {
+      if (object instanceof Collection) {
+        return new JsonGeneratorImpl().createJsonArray((Collection<?>) object).toString();
+      } else {
+        return new JsonGeneratorImpl().createJsonObject(object).toString();
+      }
+    } catch (JsonException e) {
+      throw new IllegalStateException("Error parsing object to string " + object, e);
+    }
   }
 
 }

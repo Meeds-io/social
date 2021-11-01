@@ -3,8 +3,10 @@ package org.exoplatform.social.core.jpa.search;
 import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -25,15 +27,34 @@ import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.tag.TagService;
 
 public class ActivitySearchConnector {
-  private static final Log              LOG                          = ExoLogger.getLogger(ActivitySearchConnector.class);
 
-  private static final String           SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
+  private static final Log              LOG                          =
+                                            ExoLogger.getLogger(ActivitySearchConnector.class);
 
-  private final ConfigurationManager    configurationManager;                                                             // NOSONAR
+  public static final String            SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
 
-  private final ActivitySearchProcessor activitySearchProcessor;                                                          // NOSONAR
+  public static final String            SEARCH_QUERY_TERM            = "\"should\": {" +
+      "  \"match_phrase\": {" +
+      "    \"body\": {" +
+      "      \"query\": \"@term@\"," +
+      "      \"boost\": 5" +
+      "    }" +
+      "  }" +
+      "}," +
+      "\"must\":{" +
+      "  \"query_string\":{" +
+      "    \"fields\": [\"body\", \"posterName\"]," +
+      "    \"query\": \"@term_query@\"" +
+      "  }" +
+      "},";
+
+  private final ConfigurationManager    configurationManager;                                  // NOSONAR
+
+  private final ActivitySearchProcessor activitySearchProcessor;                               // NOSONAR
 
   private final IdentityManager         identityManager;
 
@@ -64,7 +85,7 @@ public class ActivitySearchConnector {
     if (initParams.containsKey(SEARCH_QUERY_FILE_PATH_PARAM)) {
       searchQueryFilePath = initParams.getValueParam(SEARCH_QUERY_FILE_PATH_PARAM).getValue();
       try {
-        retrieveSearchQuery();
+        searchQuery = retrieveSearchQueryFromFile(searchQueryFilePath);
       } catch (Exception e) {
         LOG.error("Can't read elasticsearch search query from path {}", searchQueryFilePath, e);
       }
@@ -87,37 +108,41 @@ public class ActivitySearchConnector {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
-    if (StringUtils.isBlank(filter.getTerm())) {
+    if (StringUtils.isBlank(filter.getTerm())
+        && !filter.isFavorites()
+        && CollectionUtils.isEmpty(filter.getTagNames())) {
       throw new IllegalArgumentException("Filter term is mandatory");
     }
+
+    return searchActivities(viewerIdentity, filter, offset, limit);
+  }
+
+  private List<ActivitySearchResult> searchActivities(Identity viewerIdentity,
+                                                      ActivitySearchFilter filter,
+                                                      long offset,
+                                                      long limit) {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
-    String esQuery = buildQueryStatement(streamFeedOwnerIds, filter, offset, limit);
+    Map<String, List<String>> metadataFilters = buildMetadatasFilter(filter, viewerIdentity);
+    String esQuery = buildQueryStatement(streamFeedOwnerIds, metadataFilters, filter, offset, limit);
     String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return buildResult(jsonResponse, viewerIdentity, streamFeedOwnerIds);
   }
 
   private String buildQueryStatement(Set<Long> streamFeedOwnerIds,
+                                     Map<String, List<String>> metadataFilters,
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-
-    String term = removeSpecialCharacters(filter.getTerm());
-    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
-      word = word.trim();
-      if (word.length() > 5) {
-        word = word + "~1";
-      }
-      return word;
-    }).collect(Collectors.toList());
-    String termQuery = StringUtils.join(termsQuery, " AND ");
-    return retrieveSearchQuery().replaceAll("@term@", term)
-                                .replaceAll("@term_query@", termQuery)
-                                .replaceAll("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
-                                .replaceAll("@offset@", String.valueOf(offset))
-                                .replaceAll("@limit@", String.valueOf(limit));
+    String metadataQuery = buildMetadatasQueryStatement(metadataFilters);
+    String termQuery = buildTermQueryStatement(filter.getTerm());
+    return retrieveSearchQuery().replace("@term_query@", termQuery)
+                                .replace("@metadatas_query@", metadataQuery)
+                                .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
+                                .replace("@offset@", String.valueOf(offset))
+                                .replace("@limit@", String.valueOf(limit));
   }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private List<ActivitySearchResult> buildResult(String jsonResponse, Identity viewerIdentity, Set<Long> streamFeedOwnerIds) {
     LOG.debug("Search Query response from ES : {} ", jsonResponse);
 
@@ -160,9 +185,9 @@ public class ActivitySearchConnector {
         String type = (String) hitSource.get("type");
         JSONObject highlightSource = (JSONObject) jsonHitObject.get("highlight");
         List<String> excerpts = new ArrayList<>();
-        if(highlightSource != null) {
+        if (highlightSource != null) {
           JSONArray bodyExcepts = (JSONArray) highlightSource.get("body");
-          if(bodyExcepts != null) {
+          if (bodyExcepts != null) {
             String[] bodyExceptsArray = (String[]) bodyExcepts.toArray(new String[0]);
             excerpts = Arrays.asList(bodyExceptsArray);
           }
@@ -256,26 +281,72 @@ public class ActivitySearchConnector {
     activitySearchProcessor.formatSearchResult(activitySearchResult);
   }
 
-  private Long parseLong(JSONObject hitSource, String key) {
-    String value = (String) hitSource.get(key);
-    return StringUtils.isBlank(value) ? null : Long.parseLong(value);
-  }
-
   private String retrieveSearchQuery() {
     if (StringUtils.isBlank(this.searchQuery) || PropertyManager.isDevelopping()) {
-      try {
-        InputStream queryFileIS = this.configurationManager.getInputStream(searchQueryFilePath);
-        this.searchQuery = IOUtil.getStreamContentAsString(queryFileIS);
-      } catch (Exception e) {
-        throw new IllegalStateException("Error retrieving search query from file: " + searchQueryFilePath, e);
-      }
+      this.searchQuery = retrieveSearchQueryFromFile(searchQueryFilePath);
     }
     return this.searchQuery;
   }
 
+  private String retrieveSearchQueryFromFile(String filePath) {
+    try {
+      InputStream queryFileIS = this.configurationManager.getInputStream(filePath);
+      return IOUtil.getStreamContentAsString(queryFileIS);
+    } catch (Exception e) {
+      throw new IllegalStateException("Error retrieving search query from file: " + filePath, e);
+    }
+  }
+
   private String removeSpecialCharacters(String string) {
     string = Normalizer.normalize(string, Normalizer.Form.NFD);
-    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replaceAll("'", " ");
+    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replace("'", " ");
     return string;
+  }
+
+  private Map<String, List<String>> buildMetadatasFilter(ActivitySearchFilter filter, Identity viewerIdentity) {
+    Map<String, List<String>> metadataFilters = new HashMap<>();
+    if (filter.isFavorites()) {
+      metadataFilters.put(FavoriteService.METADATA_TYPE.getName(), Collections.singletonList(viewerIdentity.getId()));
+    }
+    if (CollectionUtils.isNotEmpty(filter.getTagNames())) {
+      metadataFilters.put(TagService.METADATA_TYPE.getName(), filter.getTagNames());
+    }
+    return metadataFilters;
+  }
+
+  private String buildMetadatasQueryStatement(Map<String, List<String>> metadataFilters) {
+    StringBuilder metadataQuerySB = new StringBuilder();
+    Set<Entry<String, List<String>>> metadataFilterEntries = metadataFilters.entrySet();
+    for (Entry<String, List<String>> metadataFilterEntry : metadataFilterEntries) {
+      metadataQuerySB.append("{\"terms\":{\"metadatas.")
+                     .append(metadataFilterEntry.getKey())
+                     .append(".metadataName.keyword")
+                     .append("\": [\"")
+                     .append(StringUtils.join(metadataFilterEntry.getValue(), "\",\""))
+                     .append("\"]}},");
+    }
+    return metadataQuerySB.toString();
+  }
+
+  private String buildTermQueryStatement(String term) {
+    if (StringUtils.isBlank(term)) {
+      return term;
+    }
+    term = removeSpecialCharacters(term);
+    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
+      word = word.trim();
+      if (word.length() > 5) {
+        word = word + "~1";
+      }
+      return word;
+    }).collect(Collectors.toList());
+    String termQuery = StringUtils.join(termsQuery, " AND ");
+    return SEARCH_QUERY_TERM.replace("@term@", term)
+                            .replace("@term_query@", termQuery);
+  }
+
+  private Long parseLong(JSONObject hitSource, String key) {
+    String value = (String) hitSource.get(key);
+    return StringUtils.isBlank(value) ? null : Long.parseLong(value);
   }
 }

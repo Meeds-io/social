@@ -3,25 +3,15 @@
   "size": "@limit@",
   "query":{
     "bool":{
-      "filter":{
-        "terms":{
-          "permissions": [@permissions@]
-        }
-      },
-      "should": {
-        "match_phrase": {
-          "body": {
-            "query": "@term@",
-            "boost": 5
+      @term_query@
+      "filter":[
+        @metadatas_query@
+        {
+          "terms":{
+            "permissions": [@permissions@]
           }
         }
-      },
-      "must":{
-        "query_string":{
-          "fields": ["body", "posterName"],
-          "query": "@term_query@"
-        }
-      }
+      ]
     }
   },
   "highlight" : {

@@ -33,30 +33,39 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
+import org.exoplatform.social.core.processor.MetadataActivityProcessor;
+import org.exoplatform.social.core.search.DocumentWithMetadata;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String            TYPE             = "activity";
+  public static final String            TYPE = "activity";
 
-  private static final Log              LOG              = ExoLogger.getLogger(ActivityIndexingServiceConnector.class);
+  private static final Log              LOG  = ExoLogger.getLogger(ActivityIndexingServiceConnector.class);
 
-  private final ActivitySearchProcessor activitySearchProcessor;                                                       // NOSONAR
+  private final ActivitySearchProcessor activitySearchProcessor;                                           // NOSONAR
 
-  private final I18NActivityProcessor   i18nActivityProcessor;                                                         // NOSONAR
+  private final I18NActivityProcessor   i18nActivityProcessor;                                             // NOSONAR
 
-  private final ActivityManager         activityManager;                                                               // NOSONAR
+  private final ActivityManager         activityManager;                                                   // NOSONAR
 
-  private final IdentityManager         identityManager;                                                               // NOSONAR
+  private final IdentityManager         identityManager;                                                   // NOSONAR
+
+  private final MetadataService         metadataService;                                                   // NOSONAR
 
   public ActivityIndexingServiceConnector(ActivitySearchProcessor activitySearchProcessor,
                                           I18NActivityProcessor i18nActivityProcessor,
                                           IdentityManager identityManager,
                                           ActivityManager activityManager,
+                                          MetadataService metadataService,
                                           InitParams initParams) {
     super(initParams);
 
     this.activityManager = activityManager;
     this.identityManager = identityManager;
+    this.metadataService = metadataService;
     this.activitySearchProcessor = activitySearchProcessor;
     this.i18nActivityProcessor = i18nActivityProcessor;
   }
@@ -92,7 +101,9 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
       throw new IllegalStateException("activity with id '" + id + "' is mandatory");
     }
     Map<String, String> fields = new HashMap<>();
-    fields.put("id", activity.getId().replace("comment", ""));
+    String activityId = activity.getId();
+    String documentId = activityId.replace("comment", "");
+    fields.put("id", documentId);
 
     if (activity.getTitleId() != null) {
       try {
@@ -118,7 +129,8 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     if (StringUtils.isNotBlank(activity.getPosterId())) {
       fields.put("posterId", activity.getPosterId());
       Identity posterIdentity = identityManager.getIdentity(activity.getPosterId());
-      if(posterIdentity != null && posterIdentity.getProfile() != null && StringUtils.isNotBlank(posterIdentity.getProfile().getFullName())) {
+      if (posterIdentity != null && posterIdentity.getProfile() != null
+          && StringUtils.isNotBlank(posterIdentity.getProfile().getFullName())) {
         fields.put("posterName", posterIdentity.getProfile().getFullName());
       }
     }
@@ -143,7 +155,11 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     if (activity.getPostedTime() != null) {
       fields.put("postedTime", activity.getPostedTime().toString());
     }
-    Document document = new Document(id, null, activity.getUpdated(), Collections.singleton(ownerIdentityId), fields);
+    DocumentWithMetadata document = new DocumentWithMetadata();
+    document.setId(id);
+    document.setLastUpdatedDate(activity.getUpdated());
+    document.setPermissions(Collections.singleton(ownerIdentityId));
+    document.setFields(fields);
     activitySearchProcessor.index(activity, document);
     body = document.getFields().get("body");
 
@@ -166,7 +182,15 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
       document.addField("body", body);
     }
 
+    addDocumentMetadata(document, activityId);
     return document;
+  }
+
+  private void addDocumentMetadata(DocumentWithMetadata document, String documentId) {
+    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
+                                                               documentId);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
+    document.setMetadataItems(metadataItems);
   }
 
   private String htmlToText(String source) {

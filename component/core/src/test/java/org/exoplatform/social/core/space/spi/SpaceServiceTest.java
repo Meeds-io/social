@@ -3316,25 +3316,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
    * @param number
    * @return an instance of space
    */
-  private Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
-    Space space = new Space();
-    space.setApp("app");
-    space.setDisplayName("my space " + number);
-    space.setPrettyName(space.getDisplayName());
-    space.setRegistration(registration);
-    space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
-    space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    space.setGroupId("/spaces/space" + number);
-    String[] managers = new String[] { manager };
-    String[] invitedUsers = new String[] {};
-    String[] pendingUsers = new String[] {};
-    space.setInvitedUsers(invitedUsers);
-    space.setPendingUsers(pendingUsers);
-    space.setManagers(managers);
-    space.setMembers(members);
-    space.setUrl(space.getPrettyName());
+  public Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
+    Space space = super.getSpaceInstance(number, visible, registration, manager, members);
     tearDownSpaceList.add(space);
     return space;
   }

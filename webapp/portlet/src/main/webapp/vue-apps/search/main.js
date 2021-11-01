@@ -3,12 +3,35 @@ import './initComponents.js';
 const appId = 'SearchApplication';
 const appName = 'Search';
 
-export function init() {
+let initialized = false;
+
+// Handle Tag Link click
+document.onclick = (event) => {
+  if (event && event.target && event.target.className && event.target.className.includes('metadata-tag')) {
+    const tagName = event.target.innerText;
+    if (tagName) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (initialized) {
+        document.dispatchEvent(new CustomEvent('search-metadata-tag', {detail: tagName.replace('#', '')}));
+      } else {
+        init(tagName.replace('#', ''));
+      }
+    }
+  }
+};
+
+export function init(tagName) {
+  if (initialized) {
+    return;
+  }
+  initialized = true;
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
   const connectors = JSON.parse(document.getElementById('searchConnectorsDefaultValue').value);
   const skinUrls = JSON.parse(document.getElementById('searchSkinUrlsDefaultValue').value);
   Vue.createApp({
     data: {
+      tagName,
       connectors,
       skinUrls,
     },
