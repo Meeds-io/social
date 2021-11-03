@@ -1781,9 +1781,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   private boolean isManagerOrSpaceManager(org.exoplatform.services.security.Identity viewer, Space space) {
     String username = viewer.getUserId();
-    if (viewer.isMemberOf(userACL.getAdminGroups()) || StringUtils.equals(userACL.getSuperUser(), username)) {
-      return true;
-    }
     if (isSuperManager(username)) {
       return true;
     }
