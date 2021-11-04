@@ -23,12 +23,10 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipStorageImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
@@ -197,18 +195,13 @@ public class CachedRelationshipStorage implements RelationshipStorage {
   }
 
   /**
-   * Remove identity and profile cache.
+   * Remove identity cache.
    *
    * @param identity
    */
   private void removeIdentityCache(Identity identity) {
-    CachedIdentityStorage cachedIdentityStorage =
-                                                (CachedIdentityStorage) PortalContainer.getInstance()
-                                                                                       .getComponentInstanceOfType(IdentityStorage.class);
-    Identity cachedIdentity = cachedIdentityStorage.findIdentity(OrganizationIdentityProvider.NAME, identity.getRemoteId());
-
-    if (cachedIdentity != null) {
-      cachedIdentityStorage.clearIdentityCache(cachedIdentity, false);
+    if (identityStorage instanceof CachedIdentityStorage) {
+      ((CachedIdentityStorage) identityStorage).clearIdentityCache(identity, false);
     }
   }
 
