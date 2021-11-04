@@ -208,7 +208,7 @@ public class CachedRelationshipStorage implements RelationshipStorage {
     Identity cachedIdentity = cachedIdentityStorage.findIdentity(OrganizationIdentityProvider.NAME, identity.getRemoteId());
 
     if (cachedIdentity != null) {
-      cachedIdentityStorage.clearIdentityCached(cachedIdentity, identity.getRemoteId());
+      cachedIdentityStorage.clearIdentityCache(cachedIdentity, false);
     }
   }
 
