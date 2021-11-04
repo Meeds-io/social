@@ -194,6 +194,17 @@ public class CachedRelationshipStorage implements RelationshipStorage {
 
   }
 
+  /**
+   * Remove identity cache.
+   *
+   * @param identity
+   */
+  private void removeIdentityCache(Identity identity) {
+    if (identityStorage instanceof CachedIdentityStorage) {
+      ((CachedIdentityStorage) identityStorage).clearIdentityCache(identity, false);
+    }
+  }
+
   public CachedRelationshipStorage(final RDBMSRelationshipStorageImpl storage,
                                    final IdentityStorage identityStorage,
                                    final SocialStorageCacheService cacheService) {
@@ -237,6 +248,10 @@ public class CachedRelationshipStorage implements RelationshipStorage {
     exoRelationshipCache.put(key, new RelationshipData(r));
     exoRelationshipByIdentityCache.put(identityKey1, key);
     exoRelationshipByIdentityCache.put(identityKey2, key);
+
+    removeIdentityCache(r.getSender());
+    removeIdentityCache(r.getReceiver());
+
     clearCacheFor(relationship);
 
     return r;
@@ -261,6 +276,9 @@ public class CachedRelationshipStorage implements RelationshipStorage {
 
       identityKey = new RelationshipIdentityKey(relationship.getReceiver().getId(), relationship.getSender().getId());
       relationshipCacheIdentity.remove(identityKey);
+
+      removeIdentityCache(relationship.getSender());
+      removeIdentityCache(relationship.getReceiver());
     }
 
     //
