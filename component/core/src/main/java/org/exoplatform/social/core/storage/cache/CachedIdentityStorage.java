@@ -336,6 +336,24 @@ public class CachedIdentityStorage implements IdentityStorage {
     exoProfileCache.remove(key);
     clearCache();
   }
+
+  /**
+   * Clear the identity cache.
+   *
+   * @param identity
+   * @param clearList
+   */
+  public void clearIdentityCache(Identity identity, boolean clearList) {
+    IdentityKey key = new IdentityKey(new Identity(identity.getId()));
+    exoIdentityCache.remove(key);
+    IdentityCompositeKey compositeKey = new IdentityCompositeKey(identity.getProviderId(), identity.getRemoteId());
+    if (exoIdentityIndexCache.get(compositeKey) != null) {
+      exoIdentityIndexCache.remove(compositeKey);
+    }
+    if (clearList) {
+      clearCache();
+    }
+  }
   
   /**
    * {@inheritDoc}
