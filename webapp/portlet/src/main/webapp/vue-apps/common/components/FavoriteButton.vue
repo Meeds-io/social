@@ -15,9 +15,9 @@
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
               class="mx-auto"
-              color="orange"
-              size="14">
-              {{ favoriteIcon }}
+              :class="favoriteIconColor"
+              size="16">
+              fas fa-star
             </v-icon>
           </div>
         </v-btn>
@@ -78,8 +78,8 @@ export default {
     favoriteTooltip() {
       return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
     },
-    favoriteIcon() {
-      return this.isFavorite && 'fa-star' || 'far fa-star';
+    favoriteIconColor() {
+      return this.isFavorite && 'yellow--text text--darken-2' || 'disabled--text';
     },
   },
   watch: {
