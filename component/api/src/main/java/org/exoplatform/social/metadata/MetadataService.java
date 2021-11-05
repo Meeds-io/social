@@ -173,6 +173,14 @@ public interface MetadataService {
   MetadataTypePlugin getMetadataTypePluginByName(String name);
 
   /**
+   * Save a new {@link Metadata}
+   * 
+   * @param metadataInitPlugin a {@link ComponentPlugin} defining
+   *          {@link Metadata} to save
+   */
+  void addMetadataPlugin(MetadataInitPlugin metadataInitPlugin);
+
+  /**
    * Retrieves a registered {@link MetadataType} by name
    * 
    * @param name {@link MetadataType} name
