@@ -38,6 +38,7 @@ export default {
         // content
         'siteExplorer': 'content',
         'wcmAdmin': 'content',
+        'newsTargets': 'content',
         // gamification
         'hook_management': 'gamification',
         'gamification/rules': 'gamification',
