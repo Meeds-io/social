@@ -1,13 +1,12 @@
 package org.exoplatform.social.core.activity;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Locale;
 
-import org.exoplatform.social.core.identity.model.Profile;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,11 +18,13 @@ import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector;
 import org.exoplatform.social.core.jpa.search.ActivitySearchProcessor;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
+import org.exoplatform.social.metadata.MetadataService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActivityIndexingServiceConnectorTest {
@@ -42,12 +43,16 @@ public class ActivityIndexingServiceConnectorTest {
   @Mock
   ActivityManager                  activityManager;
 
+  @Mock
+  MetadataService                  metadataService;
+
   @Test
   public void testGetAllIds() {
     activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
                                                                             i18nActivityProcessor,
                                                                             identityManager,
                                                                             activityManager,
+                                                                            metadataService,
                                                                             getParams());
     try {
       activityIndexingServiceConnector.getAllIds(0, 10);
@@ -63,6 +68,7 @@ public class ActivityIndexingServiceConnectorTest {
                                                                             i18nActivityProcessor,
                                                                             identityManager,
                                                                             activityManager,
+                                                                            metadataService,
                                                                             getParams());
     try {
       activityIndexingServiceConnector.create(null);
@@ -131,6 +137,7 @@ public class ActivityIndexingServiceConnectorTest {
                                                                             i18nActivityProcessor,
                                                                             identityManager,
                                                                             activityManager,
+                                                                            metadataService,
                                                                             getParams());
     try {
       activityIndexingServiceConnector.update(null);

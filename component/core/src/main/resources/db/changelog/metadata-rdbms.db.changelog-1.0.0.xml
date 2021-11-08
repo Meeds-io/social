@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (C) 2003-2021 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+  <!-- Managing both DB that use sequences and db that use auto increment -->
+  <property name="autoIncrement" value="true" dbms="mysql,mssql,h2,sybase,db2,hsqldb" />
+  <property name="autoIncrement" value="false" dbms="oracle,postgresql" />
+
+  <!-- Managing auto generation of timestamp by Database -->
+  <property name="now" value="now()" dbms="mysql,hsqldb,postgresql,h2"/>
+  <property name="now" value="sysdate" dbms="oracle"/>
+  <property name="now" value="CURRENT_TIMESTAMP" dbms="mssql"/>
+
+  <changeSet author="metadata" id="1.0.0-0" dbms="oracle,postgresql">
+    <createSequence sequenceName="SEQ_SOC_METADATA_ID" startValue="1" />
+    <createSequence sequenceName="SEQ_SOC_METADATA_ITEM_ID" startValue="1" />
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-1">
+    <createTable tableName="SOC_METADATAS">
+      <column name="METADATA_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_METADATAS" />
+      </column>
+      <column name="TYPE" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="NAME" type="NVARCHAR(255)" />
+      <column name="CREATOR_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="AUDIENCE_ID" type="BIGINT" />
+      <column name="CREATED_DATE" type="TIMESTAMP" defaultValueDate="${now}">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-2">
+    <createTable tableName="SOC_METADATA_PROPERTIES">
+      <column name="METADATA_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_METADATA_PROPERTIES_METADATAS" references="SOC_METADATAS(METADATA_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
+      </column>
+      <column name="NAME" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="VALUE" type="LONGTEXT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-3">
+    <createTable tableName="SOC_METADATA_ITEMS">
+      <column name="METADATA_ITEM_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_METADATA_ITEMS" />
+      </column>
+      <column name="METADATA_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_METADATA_ITEMS_METADATAS" references="SOC_METADATAS(METADATA_ID)" deleteCascade="true" />
+      </column>
+      <column name="OBJECT_TYPE" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="OBJECT_ID" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="PARENT_OBJECT_ID" type="NVARCHAR(255)" />
+      <column name="CREATOR_ID" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="CREATED_DATE" type="TIMESTAMP" defaultValueDate="${now}">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-4">
+    <createTable tableName="SOC_METADATA_ITEMS_PROPERTIES">
+      <column name="METADATA_ITEM_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_METADATA_ITEM_PROPERTIES_METADATA_ITEMS" references="SOC_METADATA_ITEMS(METADATA_ITEM_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
+      </column>
+      <column name="NAME" type="NVARCHAR(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="VALUE" type="LONGTEXT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-5">
+    <createIndex tableName="SOC_METADATAS" indexName="IDX_SOC_METADATA_01">
+      <column name="TYPE" type="BIGINT"></column>
+      <column name="NAME" type="NVARCHAR(255)"></column>
+      <column name="AUDIENCE_ID" type="BIGINT"></column>
+    </createIndex>
+    <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_OBJECT_01">
+      <column name="OBJECT_TYPE" type="NVARCHAR(255)"></column>
+      <column name="OBJECT_ID" type="NVARCHAR(255)"></column>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-6">
+    <addUniqueConstraint tableName="SOC_METADATAS" columnNames="TYPE,NAME,AUDIENCE_ID" constraintName="UC_SOC_METADATA_01" />
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-7">
+    <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_OBJECT_02">
+      <column name="METADATA_ID" type="BIGINT"></column>
+      <column name="OBJECT_TYPE" type="NVARCHAR(255)"></column>
+      <column name="OBJECT_ID" type="NVARCHAR(255)"></column>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

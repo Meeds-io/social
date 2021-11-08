@@ -42,6 +42,8 @@ import org.exoplatform.social.core.identity.model.Identity;
  */
 public interface ActivityManager {
 
+  public static final String SHARED_ACTIVITY_ID_PARAM = "originalActivityId";
+
   /**
    * Saves a newly created activity to a stream. The stream owner will be
    * <code>Activity.userId</code> in case that information has not already been
@@ -439,7 +441,8 @@ public interface ActivityManager {
    * Shares an existing activity to a list of spaces identified by its pretty
    * names with an optional message
    * 
-   * @param activityTemplate Activity to create as shared activity in all targeted spaces
+   * @param activityTemplate Activity to create as shared activity in all
+   *          targeted spaces
    * @param activityId {@link ExoSocialActivity} identifier to share
    * @param targetSpaces {@link List} of space pretty names to share with
    * @param viewer current user making the share operation
@@ -461,7 +464,8 @@ public interface ActivityManager {
    * names with an optional message
    * 
    * @param activityShareAction {@link ActivityShareAction} for share
-   * @param activityTemplate Activity to create as shared activity in all targeted spaces
+   * @param activityTemplate Activity to create as shared activity in all
+   *          targeted spaces
    * @param viewer current user making the share operation
    * @return {@link List} of shared {@link ExoSocialActivity}
    * @throws ObjectNotFoundException when activity or target space not found
@@ -470,7 +474,18 @@ public interface ActivityManager {
    */
   default List<ExoSocialActivity> shareActivity(ExoSocialActivity activityTemplate,
                                                 ActivityShareAction activityShareAction,
-                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException, IllegalAccessException {
+                                                org.exoplatform.services.security.Identity viewer) throws ObjectNotFoundException,
+                                                                                                   IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves an {@link ExoSocialActivity} (activity or comment) stream owner
+   * 
+   * @param activityId {@link ExoSocialActivity} technical identifier
+   * @return stream owner {@link Identity}
+   */
+  default Identity getActivityStreamOwnerIdentity(String activityId) {
     throw new UnsupportedOperationException();
   }
 

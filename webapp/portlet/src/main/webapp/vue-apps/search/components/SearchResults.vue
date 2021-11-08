@@ -1,6 +1,23 @@
 <template>
   <v-flex>
     <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+      <search-tag-selector
+        v-if="tagsEnabled"
+        @tags-changed="selectTags" />
+      <v-chip
+        v-if="favoritesEnabled"
+        :outlined="!favorites"
+        :color="favorites ? 'primary' : ''"
+        class="ms-1 me-8 border-color"
+        @click="selectFavorites">
+        <v-icon
+          color="orange"
+          size="14"
+          class="pb-1 pe-2">
+          fa-star
+        </v-icon>
+        <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
+      </v-chip>
       <v-chip
         :outlined="!allEnabled"
         :color="allEnabled ? 'primary' : ''"
@@ -76,6 +93,10 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
+    tagsEnabled: eXo.env.portal.activityTagsEnabled,
+    selectedTags: [],
+    favoritesEnabled: eXo.env.portal.activityFavoritesEnabled,
+    favorites: false,
     allEnabled: true,
     searching: 0,
     abortController: null,
@@ -89,7 +110,7 @@ export default {
       return this.resultsArray && this.resultsArray.length;
     },
     noResults() {
-      return this.searchInitialized && !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
+      return this.searchInitialized && !this.hasResults && (this.term || this.favorites) && !this.searching && this.results && Object.keys(this.results).length;
     },
     sortedConnectors() {
       if (!this.connectors) {
@@ -107,6 +128,12 @@ export default {
     },
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
+    },
+    searchEnabledConnectors() {
+      return this.enabledConnectors.filter(connector => {
+        return (connector.favoritesEnabled || !this.favorites)
+                && (connector.tagsEnabled || !this.selectedTags.length);
+      });
     },
     resultsArray() {
       if (!this.results || !this.totalSize || this.searching < 0) {
@@ -130,34 +157,64 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       }
     },
+    selectedTags() {
+      this.$emit('tags-changed', this.selectedTags);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
+    favorites() {
+      this.$emit('favorites-changed', this.favorites);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
     term() {
       this.totalSize = 0;
       this.limit = this.pageSize;
-      if (this.term) {
-        this.results = {};
+      if (this.searchInitialized) {
+        this.search();
       }
-      this.connectors.forEach(connector => {
-        connector.size = -1;
-        if (this.term) {
-          this.results[connector.name] = [];
-        }
-      });
-
-      this.search();
     },
   },
   created() {
-    this.$root.$on('refresh', (searchConnector) => {
-      this.$set(this.results, searchConnector.name, []);
-      this.retrieveConnectorResults(searchConnector);
+    this.$root.$on('refresh', (searchConnector, favorites) => {
+      if (!!favorites === !!this.favorites) {
+        this.$set(this.results, searchConnector.name, []);
+        this.retrieveConnectorResults(searchConnector);
+      }
     });
     let allEnabled = true;
     this.connectors.forEach(connector => {
       allEnabled = allEnabled && connector.enabled;
     });
-    this.allEnabled = allEnabled;
+    this.allEnabled = !!allEnabled;
+
+    const search = window.location.search && window.location.search.substring(1);
+    if (search) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      this.favorites = parameters['favorites'] === 'true';
+    }
+    if (this.favorites || this.term) {
+      this.search();
+    } else {
+      this.searchInitialized = true;
+    }
   },
   methods: {
+    selectFavorites() {
+      this.favorites = !this.favorites;
+      this.$emit('filter-changed');
+    },
+    selectTags(tags) {
+      this.selectedTags = tags || [];
+      this.$emit('filter-changed');
+    },
     selectAllConnector() {
       if (this.allEnabled) {
         return;
@@ -206,17 +263,22 @@ export default {
       if (this.abortController) {
         this.abortController.abort();
       }
-      if (!this.term) {
+      if (!this.term && !this.favorites && !this.selectedTags.length) {
         this.results = null;
         return;
       }
+      this.results = {};
+      this.connectors.forEach(connector => {
+        connector.size = -1;
+        this.results[connector.name] = [];
+      });
       let signal = {};
       if (window.AbortController) {
         this.abortController = new window.AbortController();
         signal = this.abortController.signal;
       }
 
-      this.enabledConnectors.forEach(searchConnector => {
+      this.searchEnabledConnectors.forEach(searchConnector => {
         // If not first loading or connector doesn't have more
         if (searchConnector.size !== -1 && !searchConnector.hasMore) {
           return;
@@ -241,9 +303,26 @@ export default {
           options.credentials = 'include';
         }
         this.searching++;
-        const uri = searchConnector.uri
-          .replace('{keyword}', window.encodeURIComponent(this.term))
+        let uri = searchConnector.uri
+          .replace('{keyword}', window.encodeURIComponent(this.term || ''))
           .replace('{limit}', this.limit);
+        if (this.favorites) {
+          if (uri.includes('?')) {
+            uri += '&favorites=true';
+          } else {
+            uri += '?favorites=true';
+          }
+        }
+        if (this.selectedTags && this.selectedTags.length) {
+          this.selectedTags.forEach(selectedTag => {
+            const tag = selectedTag.replace('#', '');
+            if (uri.includes('?')) {
+              uri += `&tags=${tag}`;
+            } else {
+              uri += `?tags=${tag}`;
+            }
+          });
+        }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
           : fetch(uri, options);
@@ -251,11 +330,13 @@ export default {
           .then(resp => {
             if (resp && resp.ok) {
               return resp.json();
+            } else {
+              throw new Error('Error getting result');
             }
           })
           .then(result => {
             if (connectorModule && connectorModule.formatSearchResult) {
-              return connectorModule.formatSearchResult(result, this.term);
+              return connectorModule.formatSearchResult(result, this.term || '');
             } else {
               return result;
             }

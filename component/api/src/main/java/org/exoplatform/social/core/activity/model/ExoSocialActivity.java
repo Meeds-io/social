@@ -19,6 +19,7 @@ package org.exoplatform.social.core.activity.model;
 import java.util.*;
 
 import org.exoplatform.social.core.CacheEntry;
+import org.exoplatform.social.metadata.model.MetadataItem;
 
 /**
  * ExoSocialActivity interface
@@ -370,6 +371,18 @@ public interface ExoSocialActivity extends CacheEntry {
    * @param files
    */
   void setFiles(List<ActivityFile> files);
+
+  /**
+   * @return {@link Map} of {@link MetadataItem} of the activity grouped by Metadata type
+   */
+  Map<String, List<MetadataItem>> getMetadatas();
+
+  /**
+   * Set a {@link Map} of {@link MetadataItem} of the activity grouped by Metadata type
+   * 
+   * @param metadatas
+   */
+  void setMetadatas(Map<String, List<MetadataItem>> metadatas);
 
   String getUserId();
 

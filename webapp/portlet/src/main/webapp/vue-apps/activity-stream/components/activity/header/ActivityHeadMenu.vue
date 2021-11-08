@@ -11,10 +11,9 @@
         <v-btn
           :disabled="loading"
           :loading="loading"
-          :style="menuButtonStyle"
-          absolute
           icon
           small
+          class="me-2"
           v-bind="attrs"
           v-on="on">
           <v-icon size="18" class="primary--text">mdi-dots-vertical</v-icon>
@@ -54,9 +53,6 @@ export default {
     loading: false,
   }),
   computed: {
-    menuButtonStyle() {
-      return this.$vuetify && this.$vuetify.rtl && 'top:8px;left:4px;' || 'top:8px;right:4px;';
-    },
     enabledActions() {
       return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension));
     },

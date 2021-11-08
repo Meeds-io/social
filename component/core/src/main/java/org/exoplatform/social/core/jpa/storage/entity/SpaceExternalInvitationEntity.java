@@ -22,8 +22,6 @@ import java.io.Serializable;
 import javax.persistence.*;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 
 @Entity(name = "SocSpaceExternalInvitations")
 @ExoEntity
@@ -36,8 +34,6 @@ import org.exoplatform.services.log.Log;
 public class SpaceExternalInvitationEntity implements Serializable {
 
     private static final long serialVersionUID = -8893364434133832686L;
-
-    private static final Log  LOG              = ExoLogger.getLogger(SpaceExternalInvitationEntity.class);
 
     @Id
     @SequenceGenerator(name = "SEQ_INVITATION_ID", sequenceName = "SEQ_INVITATION_ID")

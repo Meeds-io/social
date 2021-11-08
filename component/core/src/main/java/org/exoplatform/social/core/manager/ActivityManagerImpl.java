@@ -54,6 +54,7 @@ import org.exoplatform.social.core.storage.api.ActivityStorage;
  * @since 1.2.0-GA
  */
 public class ActivityManagerImpl implements ActivityManager {
+
   /** Logger */
   private static final Log            LOG                             = ExoLogger.getLogger(ActivityManagerImpl.class);
 
@@ -201,7 +202,7 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   public void saveActivityNoReturn(ExoSocialActivity newActivity) {
-    Identity owner = getStreamOwner(newActivity);
+    Identity owner = getActivityPoster(newActivity);
     saveActivityNoReturn(owner, newActivity);
   }
 
@@ -277,6 +278,28 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   public ExoSocialActivity getParentActivity(ExoSocialActivity comment) {
     return activityStorage.getParentActivity(comment);
+  }
+
+  @Override
+  public Identity getActivityStreamOwnerIdentity(String activityId) {
+    ExoSocialActivity activity = getActivity(activityId);
+    if (activity == null) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(activity.getParentId())) {
+      activity = getActivity(activity.getParentId());
+      if (activity == null) {
+        return null;
+      }
+    }
+    switch (activity.getActivityStream().getType()) {
+      case SPACE:
+        return identityManager.getOrCreateSpaceIdentity(activity.getActivityStream().getPrettyId());
+      case USER:
+        return identityManager.getOrCreateUserIdentity(activity.getActivityStream().getPrettyId());
+      default:
+        return null;
+    }
   }
 
   /**
@@ -638,7 +661,7 @@ public class ActivityManagerImpl implements ActivityManager {
    * @param newActivity the new activity
    * @return the identity stream owner
    */
-  private Identity getStreamOwner(ExoSocialActivity newActivity) {
+  private Identity getActivityPoster(ExoSocialActivity newActivity) {
     Validate.notNull(newActivity.getUserId(), "activity.getUserId() must not be null!");
     return identityManager.getIdentity(newActivity.getUserId());
   }
@@ -835,7 +858,7 @@ public class ActivityManagerImpl implements ActivityManager {
     String type = activityTemplate == null ? null : activityTemplate.getType();
     Map<String, String> templateParams = activityTemplate == null
         || activityTemplate.getTemplateParams() == null ? new HashMap<>() : activityTemplate.getTemplateParams();
-    templateParams.put("originalActivityId", String.valueOf(activityShareAction.getActivityId()));
+    templateParams.put(SHARED_ACTIVITY_ID_PARAM, String.valueOf(activityShareAction.getActivityId()));
 
     if (StringUtils.isBlank(activityShareAction.getMessage())) {
       activityShareAction.setMessage(title);

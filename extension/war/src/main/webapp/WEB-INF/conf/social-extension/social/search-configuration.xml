@@ -134,6 +134,12 @@
             <field name="enabled">
               <boolean>${exo.search.activity.enabled:true}</boolean>
             </field>
+            <field name="favoritesEnabled">
+              <boolean>true</boolean>
+            </field>
+            <field name="tagsEnabled">
+              <boolean>true</boolean>
+            </field>
             <field name="jsModule">
               <string>SHARED/ActivitySearchResultCard</string>
             </field>
