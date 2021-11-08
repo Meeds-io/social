@@ -13,10 +13,8 @@
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
             :href="`#tab-${tab.order}`"
-            :class="`all${tab.class}`"
-            class="pe-3 ps-0">
-            <i :class="tab.icon"></i>
-            <span :class="`${tab.class}NumberLabel`">{{ tab.kudosNumber }}</span>
+            class="text-capitalize">
+            <span>{{ tab.componentOptions.reactionType }}</span>
           </v-tab>
         </v-tabs>
       </div>
@@ -58,15 +56,9 @@
           :key="i"
           :eager="true"
           :value="`tab-${tab.order}`">
-          <activity-reactions-list-items
-            v-for="(item, index) in tab.reactionListItems"
-            :key="index"
-            :user-id="item.senderId"
-            :avatar="item.senderAvatar"
-            :name="item.senderFullName"
-            :class="`${tab.class}List`"
-            :profile-url="item.senderURL"
-            class="px-3" />
+          <extension-registry-component
+            :component="tab"
+            :params="reactionParams" />
         </v-tab-item>
       </v-tabs-items>
     </template>
@@ -134,6 +126,11 @@ export default {
       }
       return this.activityReactionsExtensions;
     },
+    reactionParams() {
+      return {
+        activityId: this.activityId,
+      };
+    },
   },
   methods: {
     open() {
@@ -162,10 +159,9 @@ export default {
     },
     refreshReactions() {
       this.activityReactionsExtensions= [];
-      const contentsToLoad = extensionRegistry.loadExtensions('activity-reactions', 'activity-reactions') || [];
+      const componentsToLoad = extensionRegistry.loadComponents('ActivityReactions') || [];
       // eslint-disable-next-line eqeqeq
-      this.activityReactionsExtensions = contentsToLoad.filter(contentDetail => contentDetail.activityId == this.activityId );
-      this.$emit('reactions', this.kudosNumber);
+      this.activityReactionsExtensions = componentsToLoad;
     },
   },
 };
