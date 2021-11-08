@@ -512,7 +512,7 @@ public class LinkProvider {
    * @param portalOwner The owner of portal (for example, classic or public).
    * @return The portal owner.
    */
-  private static String getPortalOwner(String portalOwner) {
+  public static String getPortalOwner(String portalOwner) {
     if (portalOwner == null || portalOwner.trim().length() == 0) {
       portalOwner = CommonsUtils.getCurrentPortalOwner();
     }
@@ -525,7 +525,7 @@ public class LinkProvider {
    * @param portalName The name of portal.
    * @return The portal name.
    */
-  private static String getPortalName(String portalName) {
+  public static String getPortalName(String portalName) {
     if (portalName == null || portalName.trim().length() == 0) {
       return PortalContainer.getCurrentPortalContainerName();
     }
