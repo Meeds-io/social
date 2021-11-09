@@ -1,26 +1,18 @@
 <template>
   <div v-if="likes">
-    <v-list-item
-      v-for="(like ,i) in likes"
-      :key="i"
-      class="likerItem">
-      <v-list-item-avatar
-        v-if="like"
-        :size="15">
-        <v-img :src="like.avatar" class="likerAvatar" />
-      </v-list-item-avatar>
-      <v-list-item-content class="pb-3">
-        <v-list-item-title class="body-2 font-weight-bold text-color">
-          <a
-            :id="cmpId"
-            :href="like.href"
-            rel="nofollow"
-            class="text-color"
-            v-html="like.fullname">
-          </a>
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
+    <div
+      v-for="(like , i) in likes"
+      :key="i">
+      <exo-user-avatar
+        :username="like.username"
+        :fullname="like.fullname"
+        :avatar-url="like.avatar"
+        :url="profileUrl(like.fullname)"
+        bold-title
+        size="32"
+        class="pl-3 pt-2 pb-2" />
+      <v-divider dark />
+    </div>
   </div>
 </template>
 <script>
@@ -52,18 +44,12 @@ export default {
     notConnected() {
       return this.user && !this.user.relationshipStatus && !this.sameUser;
     },
-    profileUrl() {
-      return this.user && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}`;
+    numberOfReactions() {
+      return this.likes && this.likes.length;
     },
-    numberOfLikes() {
-      return this.likes && this.likes.length ;
-    }
-
   },
   created() {
     this.retrieveLikers();
-    //this.retrieveUserInformations();
-    this.initTiptip();
   },
   methods: {
     retrieveUserInformations() {
@@ -78,11 +64,14 @@ export default {
     retrieveLikers() {
       return this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
         .then(data => {
-          this.likes = data;
+          this.likes = data.likes;
         })
         .catch((e => {
           console.error('error retrieving activity likers' , e) ;
         }));
+    },
+    profileUrl(fullName) {
+      return fullName && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${fullName}`;
     },
     connect() {
       this.$userService.connect(this.userId)
@@ -91,18 +80,6 @@ export default {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         });
-    },
-    initTiptip() {
-      this.$nextTick(() => {
-        $(`#${this.cmpId}`).userPopup({
-          restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
-          userId: this.id,
-          content: false,
-          keepAlive: true,
-          defaultPosition: 'top_left',
-          maxWidth: '240px',
-        });
-      });
     },
   },
 };

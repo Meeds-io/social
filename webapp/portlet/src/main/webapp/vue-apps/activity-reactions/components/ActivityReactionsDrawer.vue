@@ -5,22 +5,25 @@
     right
     fixed>
     <template slot="title">
+      {{ $t('UIActivity.label.Reactions_Number') }}
+    </template>
+    <template v-if="drawerOpened" slot="content">
       <div>
         <v-tabs
           fixed-tabs
+          slider-size="4"
           v-model="selectedTab">
           <v-tab
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
             :href="`#tab-${tab.componentOptions.order}`"
             class="text-capitalize">
-            <span>{{ tab.componentOptions.reactionType }}</span>
+            <span>{{ tab.componentOptions.reactionType }} ({{ numberOfReactions(tab) }})</span>
           </v-tab>
         </v-tabs>
+        <v-divider dark />
       </div>
-    </template>
-    <template v-if="drawerOpened" slot="content">
-      <v-tabs-items v-model="selectedTab">
+      <v-tabs-items v-model="selectedTab" class="pt-3">
         <v-tab-item
           v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
@@ -68,7 +71,6 @@ export default {
       selectedTab: null,
       drawerOpened: false,
       activityReactionsExtensions: [],
-      likers: [],
       user: {}
     };
   },
@@ -100,6 +102,9 @@ export default {
     },
     cancel() {
       this.$refs.activityReactionsDrawer.close();
+    },
+    numberOfReactions(tab) {
+      return tab && tab.componentOptions.vueComponent.$options.computed.numberOfReactions();
     },
     refreshReactions() {
       this.activityReactionsExtensions= [];
