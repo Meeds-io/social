@@ -34,6 +34,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.*;
+import org.picocontainer.Startable;
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
@@ -1123,6 +1124,33 @@ public class MetadataServiceTest extends AbstractCoreTest {
     names = metadataService.findMetadataNamesByAudiences(term, type, Collections.singleton(spaceIds.get(2)), 100);
     assertNotNull(names);
     assertEquals(count, names.size());
+  }
+
+  public void testAddMetadataInitPlugin() {
+    InitParams params = new InitParams();
+    Metadata metadata = new Metadata();
+    metadata.setAudienceId(2l);
+    metadata.setName("test8");
+    metadata.setType(userMetadataType);
+    metadata.setProperties(Collections.singletonMap("propName", "propValue"));
+
+    ObjectParameter parameter = new ObjectParameter();
+    parameter.setName("metadata");
+    parameter.setObject(metadata);
+    params.addParameter(parameter);
+    MetadataInitPlugin initPlugin = new MetadataInitPlugin(params);
+    metadataService.addMetadataPlugin(initPlugin);
+
+    ((Startable) metadataService).start();
+
+    Metadata storedMetadata = metadataService.getMetadataByKey(new MetadataKey(metadata.getTypeName(), metadata.getName(), metadata.getAudienceId()));
+    assertNotNull(storedMetadata);
+    assertEquals(metadata.getName(), storedMetadata.getName());
+    assertEquals(metadata.getTypeName(), storedMetadata.getTypeName());
+    assertEquals(metadata.getAudienceId(), storedMetadata.getAudienceId());
+    assertEquals(metadata.getProperties(), storedMetadata.getProperties());
+    assertTrue(storedMetadata.getCreatedDate() > 0);
+    assertEquals(0, storedMetadata.getCreatorId());
   }
 
   private int countTerms(List<String> names, String term) {

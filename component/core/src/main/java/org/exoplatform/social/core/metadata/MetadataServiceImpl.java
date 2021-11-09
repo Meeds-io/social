@@ -28,11 +28,13 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
+import org.exoplatform.social.metadata.MetadataInitPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.model.*;
+import org.picocontainer.Startable;
 
-public class MetadataServiceImpl implements MetadataService {
+public class MetadataServiceImpl implements MetadataService, Startable {
 
   private static final Log                LOG                 = ExoLogger.getLogger(MetadataServiceImpl.class);
 
@@ -41,6 +43,8 @@ public class MetadataServiceImpl implements MetadataService {
   private ListenerService                 listenerService;
 
   private Map<String, MetadataTypePlugin> metadataTypePlugins = new HashMap<>();
+
+  private List<MetadataInitPlugin>        metadataPlugins     = new ArrayList<>();
 
   public MetadataServiceImpl(MetadataStorage metadataStorage, ListenerService listenerService) {
     this.metadataStorage = metadataStorage;
@@ -297,6 +301,34 @@ public class MetadataServiceImpl implements MetadataService {
   @Override
   public List<MetadataType> getMetadataTypes() {
     return this.metadataStorage.getMetadataTypes();
+  }
+
+  @Override
+  public void addMetadataPlugin(MetadataInitPlugin metadataInitPlugin) {
+    this.metadataPlugins.add(metadataInitPlugin);
+  }
+
+  @Override
+  public void start() {
+    this.metadataPlugins.forEach(plugin -> {
+      Metadata metadata = plugin.getMetadata();
+      try {
+        MetadataKey metadataKey = new MetadataKey(metadata.getTypeName(), metadata.getName(), metadata.getAudienceId());
+        Metadata storedMetadata = metadataStorage.getMetadataByKey(metadataKey);
+        if (storedMetadata == null) {
+          metadata.setId(0);
+          metadata.setCreatorId(0);
+          metadataStorage.createMetadata(metadata);
+        }
+      } catch (Exception e) {
+        LOG.warn("Can't process initialization of metadata : " + metadata, e);
+      }
+    });
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to stop
   }
 
   private MetadataItem shareMetadataItem(MetadataObject metadataObject,
