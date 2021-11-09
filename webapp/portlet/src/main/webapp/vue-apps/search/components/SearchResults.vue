@@ -11,10 +11,9 @@
         class="ms-1 me-8 border-color"
         @click="selectFavorites">
         <v-icon
-          color="orange"
-          size="14"
-          class="pb-1 pe-2">
-          fa-star
+          size="16"
+          class="pb-1 pe-2 yellow--text text--darken-2">
+          fas fa-star
         </v-icon>
         <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
@@ -140,13 +139,18 @@ export default {
         return;
       }
       const connectorNames = Object.keys(this.results);
-      const results = {};
+      let results = {};
       connectorNames.forEach(connectorName => {
         if (this.enabledConnectorNames.includes(connectorName)) {
           results[connectorName] = this.results[connectorName];
         }
       });
-      return Object.values(results).flat().sort((a, b) => a.index - b.index);
+
+      results = Object.values(results).flat();
+      if (this.favorites) {
+        results = results.filter(result => result.metadatas && result.metadatas.favorites);
+      }
+      return results.sort((a, b) => a.index - b.index);
     },
   },
   watch: {
