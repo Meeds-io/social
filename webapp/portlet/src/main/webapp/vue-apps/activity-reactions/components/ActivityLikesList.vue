@@ -1,37 +1,25 @@
 <template>
-  <div>
+  <div v-if="likes">
     <v-list-item
-      v-for="(like ,i) in numberOfLikes "
+      v-for="(like ,i) in likes"
       :key="i"
       class="likerItem">
-      <v-list-item-avatar :size="like.avatarSize">
+      <v-list-item-avatar
+        v-if="like"
+        :size="15">
         <v-img :src="like.avatar" class="likerAvatar" />
       </v-list-item-avatar>
       <v-list-item-content class="pb-3">
         <v-list-item-title class="body-2 font-weight-bold text-color">
           <a
             :id="cmpId"
-            :href="like.profileUrl"
+            :href="like.href"
             rel="nofollow"
             class="text-color"
-            v-html="like.name">
+            v-html="like.fullname">
           </a>
         </v-list-item-title>
-        <v-list-item-subtitle v-if="attributesLoaded && !sameUser" class="caption text-bold">
-          {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
-        </v-list-item-subtitle>
       </v-list-item-content>
-      <v-list-item-action v-if="notConnected">
-        <v-btn-toggle class="transparent">
-          <a
-            text
-            icon
-            min-width="auto"
-            @click="connect()">
-            <i class="uiIconInviteUser"></i>
-          </a>
-        </v-btn-toggle>
-      </v-list-item-action>
     </v-list-item>
   </div>
 </template>
@@ -49,7 +37,7 @@ export default {
       cmpId: `react${parseInt(Math.random() * 10000)
         .toString()}`,
       user: null,
-      likes: null,
+      likes: [],
       attributesLoaded: false,
       limit: 10,
     };
@@ -70,10 +58,11 @@ export default {
     numberOfLikes() {
       return this.likes && this.likes.length ;
     }
+
   },
   created() {
     this.retrieveLikers();
-    this.retrieveUserInformations();
+    //this.retrieveUserInformations();
     this.initTiptip();
   },
   methods: {
