@@ -65,6 +65,12 @@ export default {
       return this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
         .then(data => {
           this.likes = data.likes;
+          document.dispatchEvent(new CustomEvent('updateReaction', {
+            detail: {
+              numberOfReactions: this.numberOfReactions ,
+              type: 'like'
+            }
+          }));
         })
         .catch((e => {
           console.error('error retrieving activity likers' , e) ;

@@ -18,7 +18,7 @@
             :key="i"
             :href="`#tab-${tab.componentOptions.order}`"
             class="text-capitalize">
-            <span>{{ tab.componentOptions.reactionType }} ({{ numberOfReactions(tab) }})</span>
+            <span>{{ tab.componentOptions.reactionType }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
         <v-divider dark />
@@ -87,6 +87,9 @@ export default {
       };
     },
   },
+  created() {
+    document.addEventListener('updateReaction' , this.updateReaction );
+  },
   methods: {
     open() {
       this.refreshReactions();
@@ -103,15 +106,20 @@ export default {
     cancel() {
       this.$refs.activityReactionsDrawer.close();
     },
-    numberOfReactions(tab) {
-      return tab && tab.componentOptions.vueComponent.$options.computed.numberOfReactions();
-    },
     refreshReactions() {
       this.activityReactionsExtensions= [];
       const componentsToLoad = extensionRegistry.loadComponents('ActivityReactions') || [];
       // eslint-disable-next-line eqeqeq
       this.activityReactionsExtensions = componentsToLoad;
     },
+    updateReaction(event) {
+      if (event && event.detail) {
+        const extensionIndex = this.enabledReactionsTabsExtensions.findIndex(extension => extension.componentOptions.id === event.detail.type);
+        const extension = this.enabledReactionsTabsExtensions[extensionIndex];
+        extension.componentOptions.numberOfReactions = event.detail.numberOfReactions;
+        this.enabledReactionsTabsExtensions.splice(extensionIndex,1,extension);
+      }
+    }
   },
 };
 </script>
