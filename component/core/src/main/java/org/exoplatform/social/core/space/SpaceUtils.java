@@ -27,7 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.web.url.navigation.NodeURL;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -940,6 +941,7 @@ public class SpaceUtils {
       GroupHandler groupHandler = organizationService.getGroupHandler();
       Group existingGroup = groupHandler.findGroupById(groupId);
       membershipHandler.linkMembership(user, existingGroup, membershipType, true);
+      clearIdentityCaching(remoteId);
     } catch (Exception e) {
       throw new RuntimeException("Unable to add user: " + remoteId + " to group: " + groupId + " with membership: " + membership,
                                  e);
@@ -1023,6 +1025,7 @@ public class SpaceUtils {
         GroupHandler groupHandler = organizationService.getGroupHandler();
         memberShipHandler.linkMembership(user, groupHandler.findGroupById(groupId), mbShipTypeMember, true);
       }
+      clearIdentityCaching(remoteId);
     } catch (Exception e) {
       LOG.warn("Failed to remove user: " + remoteId + " to group: " + groupId + " with membership: " + membership, e);
     }
@@ -2032,5 +2035,12 @@ public class SpaceUtils {
     }
 
     return trimmed.toArray(new String[trimmed.size()]);
+  }
+
+  private static void clearIdentityCaching(String remoteId) {
+    ExoContainer container = ExoContainerContext.getCurrentContainer();
+    CachedIdentityStorage cachedIdentityStorage = container.getComponentInstanceOfType(CachedIdentityStorage.class);
+    // clear caching for identity
+    cachedIdentityStorage.clearIdentityCache(OrganizationIdentityProvider.NAME, remoteId, false);
   }
 }
