@@ -2037,15 +2037,10 @@ public class SpaceUtils {
     return trimmed.toArray(new String[trimmed.size()]);
   }
 
-  private static void clearIdentityCaching(String username) {
+  private static void clearIdentityCaching(String remoteId) {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-
-    IdentityManager identityManager = container.getComponentInstanceOfType(IdentityManager.class);
     CachedIdentityStorage cachedIdentityStorage = container.getComponentInstanceOfType(CachedIdentityStorage.class);
-
-    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-
     // clear caching for identity
-    cachedIdentityStorage.clearIdentityCache(userIdentity, false);
+    cachedIdentityStorage.clearIdentityCache(OrganizationIdentityProvider.NAME, remoteId, false);
   }
 }
