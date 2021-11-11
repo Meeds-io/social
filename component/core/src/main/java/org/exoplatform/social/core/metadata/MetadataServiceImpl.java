@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -309,6 +310,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  @ExoTransactional
   public void start() {
     this.metadataPlugins.forEach(plugin -> {
       Metadata metadata = plugin.getMetadata();
