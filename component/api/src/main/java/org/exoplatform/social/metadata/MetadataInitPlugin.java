@@ -32,10 +32,8 @@ public class MetadataInitPlugin extends BaseComponentPlugin {
   protected Metadata          metadata;
 
   public MetadataInitPlugin(InitParams params) {
-    if (params != null) {
-      if (params.containsKey(METADATA_PARAM_NAME)) {
-        this.metadata = (Metadata) params.getObjectParam(METADATA_PARAM_NAME).getObject();
-      }
+    if (params != null && params.containsKey(METADATA_PARAM_NAME)) {
+      this.metadata = (Metadata) params.getObjectParam(METADATA_PARAM_NAME).getObject();
     }
     if (this.metadata == null) {
       throw new IllegalStateException("Metadata is mandatory");
