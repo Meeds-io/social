@@ -715,17 +715,6 @@
         <type>org.exoplatform.social.core.binding.impl.GroupSpaceBindingServiceImpl</type>
     </component>
 
-    <component>
-      <key>ActivityFavoritesFeatureProperties</key>
-      <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
-      <init-params>
-        <properties-param>
-          <name>ActivityFavoritesFeatureProperties</name>
-          <description>New Activity Stream Feature enablement flag</description>
-          <property name="exo.feature.ActivityFavorites.enabled" value="${exo.feature.ActivityFavorites.enabled:false}" />
-        </properties-param>
-      </init-params>
-    </component>
 
     <component>
       <key>ActivityTagsFeatureProperties</key>

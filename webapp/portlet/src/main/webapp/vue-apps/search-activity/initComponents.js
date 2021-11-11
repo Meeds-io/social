@@ -5,9 +5,8 @@ import ActivityFavoriteAction from '../activity-stream/components/activity/foote
 const components = {
   'activity-search-result-card': SearchActivityCard,
 };
-if (eXo.env.portal.activityFavoritesEnabled) {
-  components['activity-favorite-action'] = ActivityFavoriteAction;
-}
+components['activity-favorite-action'] = ActivityFavoriteAction;
+
 
 for (const key in components) {
   Vue.component(key, components[key]);
