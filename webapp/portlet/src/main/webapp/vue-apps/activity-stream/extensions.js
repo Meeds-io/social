@@ -212,13 +212,11 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
   rank: 20,
 });
 
-if (eXo.env.portal.activityFavoritesEnabled) {
-  extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', {
-    id: 'favorite',
-    vueComponent: Vue.options.components['activity-favorite-action'],
-    rank: 30,
-  });
-}
+extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', {
+  id: 'favorite',
+  vueComponent: Vue.options.components['activity-favorite-action'],
+  rank: 30,
+});
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'share',

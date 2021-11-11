@@ -5,7 +5,6 @@
         v-if="tagsEnabled"
         @tags-changed="selectTags" />
       <v-chip
-        v-if="favoritesEnabled"
         :outlined="!favorites"
         :color="favorites ? 'primary' : ''"
         class="ms-1 me-8 border-color"
@@ -94,7 +93,6 @@ export default {
     limit: 10,
     tagsEnabled: eXo.env.portal.activityTagsEnabled,
     selectedTags: [],
-    favoritesEnabled: eXo.env.portal.activityFavoritesEnabled,
     favorites: false,
     allEnabled: true,
     searching: 0,

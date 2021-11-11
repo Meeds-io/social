@@ -47,6 +47,5 @@
        rtl: eXo.env.portal.orientation === 'rtl',
      };
 
-     eXo.env.portal.activityFavoritesEnabled = <%=featureService.isFeatureActiveForUser("ActivityFavorites", userName)%>;
      eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
 </script>
