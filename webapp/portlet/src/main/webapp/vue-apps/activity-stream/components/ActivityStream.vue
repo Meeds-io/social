@@ -49,7 +49,6 @@ export default {
     },
   },
   created() {
-    console.warn(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, () => {
       this.refreshActivityTypes();
     });
