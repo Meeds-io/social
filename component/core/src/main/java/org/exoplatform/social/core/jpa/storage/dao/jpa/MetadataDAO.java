@@ -132,4 +132,18 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     }
   }
 
+  public List<MetadataEntity> getMetadatas(long type, long limit) {
+    TypedQuery<MetadataEntity> query = getEntityManager().createNamedQuery("SocMetadataEntity.getMetadatas",
+                                                                           MetadataEntity.class);
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    query.setParameter("type", type);
+    try {
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return Collections.emptyList();
+    }
+  }
+
 }

@@ -162,6 +162,15 @@ public class MetadataStorage {
     metadataTypes.add(metadataType);
   }
 
+  public List<Metadata> getMetadatas(String metadataTypeName, long limit) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataTypeName + " isn't defined");
+    }
+    List<MetadataEntity> metadatasEntities = metadataDAO.getMetadatas(metadataType.getId(), limit);
+    return metadatasEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public MetadataType getMetadataType(String name) {
     return metadataTypes.stream()
                         .filter(metadataType -> StringUtils.equals(metadataType.getName(), name))

@@ -68,6 +68,12 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " LOWER(sm.name) LIKE :term"
               + " ORDER BY sm.name ASC"
       ),
+      @NamedQuery(
+          name = "SocMetadataEntity.getMetadatas",
+          query = "SELECT sm FROM SocMetadataEntity sm WHERE"
+              + " sm.type = :type"
+              + " ORDER BY sm.name ASC"
+      ),
   }
 )
 public class MetadataEntity implements Serializable {
