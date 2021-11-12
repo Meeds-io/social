@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-
 export default {
   props: {
     activityId: {
@@ -36,7 +35,7 @@ export default {
       return this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
         .then(data => {
           this.likers = data.likes;
-          document.dispatchEvent(new CustomEvent('updateReaction', {
+          document.dispatchEvent(new CustomEvent('update-reaction-extension', {
             detail: {
               numberOfReactions: this.numberOfReactions ,
               type: 'like'
@@ -46,14 +45,6 @@ export default {
         .catch((e => {
           console.error('error retrieving activity likers' , e) ;
         }));
-    },
-    connect() {
-      this.$userService.connect(this.userId)
-        .then(this.retrieveUserInformations())
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        });
     },
   },
 };

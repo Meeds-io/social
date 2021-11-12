@@ -5,27 +5,26 @@
     right
     fixed>
     <template slot="title">
-      {{ $t('UIActivity.label.Reactions_Number') }}
+      {{ $t('UIActivity.label.reactions') }}
     </template>
     <template v-if="drawerOpened" slot="content">
       <div>
         <v-tabs
-          fixed-tabs
           slider-size="4"
           v-model="selectedTab">
           <v-tab
-            v-for="(tab, i) in enabledReactionsTabsExtensions"
+            v-for="(tab, i) in enabledReactionsTabsExtensionsToDisplay"
             :key="i"
             :href="`#tab-${tab.componentOptions.order}`"
             class="text-capitalize">
-            <span>{{ tab.componentOptions.reactionType }} ({{ tab.componentOptions.numberOfReactions }})</span>
+            <span>  {{ $t(`UIActivity.label.${tab.componentOptions.reactionLabel}`) }}({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
         <v-divider dark />
       </div>
       <v-tabs-items v-model="selectedTab" class="pt-3">
         <v-tab-item
-          v-for="(tab, i) in enabledReactionsTabsExtensions"
+          v-for="(tab, i) in enabledReactionsTabsExtensionsToDisplay"
           :key="i"
           :eager="true"
           :value="`tab-${tab.componentOptions.order}`">
@@ -81,6 +80,9 @@ export default {
       }
       return this.activityReactionsExtensions;
     },
+    enabledReactionsTabsExtensionsToDisplay() {
+      return this.enabledReactionsTabsExtensions && this.enabledReactionsTabsExtensions.slice().filter(extension => extension.componentOptions.numberOfReactions > 0) || [];
+    },
     reactionParams() {
       return {
         activityId: this.activityId,
@@ -88,7 +90,10 @@ export default {
     },
   },
   created() {
-    document.addEventListener('updateReaction' , this.updateReaction );
+    document.addEventListener('update-reaction-extension' ,
+      (event) => {
+        this.updateReaction(event);
+      });
   },
   methods: {
     open() {
@@ -108,9 +113,7 @@ export default {
     },
     refreshReactions() {
       this.activityReactionsExtensions= [];
-      const componentsToLoad = extensionRegistry.loadComponents('ActivityReactions') || [];
-      // eslint-disable-next-line eqeqeq
-      this.activityReactionsExtensions = componentsToLoad;
+      this.activityReactionsExtensions = extensionRegistry.loadComponents('ActivityReactions') || [];
     },
     updateReaction(event) {
       if (event && event.detail) {

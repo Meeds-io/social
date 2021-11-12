@@ -1,14 +1,14 @@
 <template>
-  <div v-if="liker">
+  <div v-if="liker" class="activityLikerItem">
     <exo-user-avatar
       :username="userName"
       :fullname="fullName"
-      :avatar-url="avatar"
-      avatar-class="mr-5"
+      :avatar-url="avatarUrl"
       :url="profileUrl"
-      bold-title
+      avatar-class="mr-5"
       size="42"
-      class="pl-3 pt-2 pb-1">
+      class="pl-3 pt-2 pb-1"
+      bold-title>
       <template slot="subTitle">
         <span v-if="!sameUser">
           {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
@@ -29,9 +29,7 @@
     <v-divider />
   </div>
 </template>
-
 <script>
-
 
 export default {
   props: {
@@ -61,11 +59,11 @@ export default {
     fullName() {
       return this.liker && this.liker.fullname;
     },
-    avatar() {
+    avatarUrl() {
       return this.liker && this.liker.avatar;
     },
     profileUrl() {
-      return this.liker && this.liker.fullname && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.liker.fullname}`;
+      return this.liker && this.userName && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.userName}`;
     },
   },
   created() {
@@ -76,7 +74,6 @@ export default {
       return this.$userService.getUser(this.liker.username, 'all,connectionsInCommonCount,relationshipStatus')
         .then(item => this.userInformations = item)
         .catch((e) => {
-          // eslint-disable-next-line no-console
           console.error('Error while getting user details', e);
         });
     },
@@ -84,8 +81,7 @@ export default {
       this.$userService.connect(this.liker.username)
         .then(this.retrieveUserInformations())
         .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
+          console.error('Error while connecting to user', e);
         });
     },
   },
