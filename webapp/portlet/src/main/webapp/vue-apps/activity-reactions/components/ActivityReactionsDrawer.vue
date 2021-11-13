@@ -11,23 +11,24 @@
       <div>
         <v-tabs
           slider-size="4"
+          fixed-tabs
           v-model="selectedTab">
           <v-tab
-            v-for="(tab, i) in enabledReactionsTabsExtensionsToDisplay"
+            v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
-            :href="`#tab-${tab.componentOptions.order}`"
+            :href="`#tab-${tab.componentOptions.rank}`"
             class="text-capitalize">
-            <span>  {{ $t(`UIActivity.label.${tab.componentOptions.reactionLabel}`) }}({{ tab.componentOptions.numberOfReactions }})</span>
+            <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }}({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
         <v-divider dark />
       </div>
       <v-tabs-items v-model="selectedTab" class="pt-3">
         <v-tab-item
-          v-for="(tab, i) in enabledReactionsTabsExtensionsToDisplay"
+          v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
           :eager="true"
-          :value="`tab-${tab.componentOptions.order}`">
+          :value="`tab-${tab.componentOptions.rank}`">
           <extension-registry-component
             :component="tab"
             :params="reactionParams" />
@@ -78,10 +79,9 @@ export default {
       if (!this.activityReactionsExtensions) {
         return [];
       }
-      return this.activityReactionsExtensions;
-    },
-    enabledReactionsTabsExtensionsToDisplay() {
-      return this.enabledReactionsTabsExtensions && this.enabledReactionsTabsExtensions.slice().filter(extension => extension.componentOptions.numberOfReactions > 0) || [];
+      return this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
+        return extension1.componentOptions.rank - extension2.componentOptions.rank;
+      });
     },
     reactionParams() {
       return {
@@ -90,10 +90,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('update-reaction-extension' ,
-      (event) => {
-        this.updateReaction(event);
-      });
+    document.addEventListener('update-reaction-extension' , this.updateReaction);
   },
   methods: {
     open() {
@@ -118,9 +115,11 @@ export default {
     updateReaction(event) {
       if (event && event.detail) {
         const extensionIndex = this.enabledReactionsTabsExtensions.findIndex(extension => extension.componentOptions.id === event.detail.type);
-        const extension = this.enabledReactionsTabsExtensions[extensionIndex];
-        extension.componentOptions.numberOfReactions = event.detail.numberOfReactions;
-        this.enabledReactionsTabsExtensions.splice(extensionIndex,1,extension);
+        if (extensionIndex >= 0 ) {
+          const extension = this.enabledReactionsTabsExtensions[extensionIndex];
+          extension.componentOptions.numberOfReactions = event.detail.numberOfReactions;
+          this.enabledReactionsTabsExtensions.splice(extensionIndex, 1, extension);
+        }
       }
     }
   },

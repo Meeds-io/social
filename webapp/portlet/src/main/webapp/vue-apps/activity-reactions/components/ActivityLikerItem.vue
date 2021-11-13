@@ -5,25 +5,14 @@
       :fullname="fullName"
       :avatar-url="avatarUrl"
       :url="profileUrl"
-      avatar-class="mr-5"
+      avatar-class="me-2"
       size="42"
       class="pl-3 pt-2 pb-1"
       bold-title>
       <template slot="subTitle">
-        <span v-if="!sameUser">
+        <span v-if="!sameUser" class="caption text-bold">
           {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
         </span>
-      </template>
-      <template slot="actions" v-if="notConnected">
-        <v-btn-toggle class="mr-5">
-          <a
-            text
-            icon
-            min-width="auto"
-            @click="connect()">
-            <i class="uiIconInviteUser"></i>
-          </a>
-        </v-btn-toggle>
       </template>
     </exo-user-avatar>
     <v-divider />

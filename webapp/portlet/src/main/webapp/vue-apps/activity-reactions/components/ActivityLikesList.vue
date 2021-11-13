@@ -1,11 +1,9 @@
 <template>
-  <div v-if="likers">
-    <div
+  <div v-if="likers.length" class="likers-list">
+    <activity-liker-item
       v-for="(liker , i) in likers"
-      :key="i">
-      <activity-liker-item
-        :liker="liker" />
-    </div>
+      :key="i"
+      :liker="liker" />
   </div>
 </template>
 <script>
@@ -22,22 +20,17 @@ export default {
       limit: 10,
     };
   },
-  computed: {
-    numberOfReactions() {
-      return this.likers && this.likers.length;
-    },
-  },
   created() {
     this.retrieveLikers();
   },
   methods: {
     retrieveLikers() {
-      return this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
+      return this.$activityService.getActivityLikers(this.activityId, 0)
         .then(data => {
           this.likers = data.likes;
           document.dispatchEvent(new CustomEvent('update-reaction-extension', {
             detail: {
-              numberOfReactions: this.numberOfReactions ,
+              numberOfReactions: this.likers.length,
               type: 'like'
             }
           }));
