@@ -91,7 +91,7 @@ export default {
     },
     refreshActivityActions() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionExtension);
-      const newActivityActions=new Array(extensions.length);
+      const newActivityActions={};
       extensions.forEach(extension => {
         if (extension.id) {
           newActivityActions[extension.id] = extension;
