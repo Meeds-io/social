@@ -223,10 +223,6 @@
       <depends>
         <module>userPopupPlugin</module>
       </depends>
-      <depends>
-        <module>walletCommon</module>
-        <as>WalletCommon</as>
-      </depends>
     </module>
   </portlet>
 
