@@ -102,7 +102,6 @@ export default {
       extensions.forEach(extension => {
         if (extension.id) {
           this.$set(this.commentActions, extension.id, extension);
-
         }
       });
     },
