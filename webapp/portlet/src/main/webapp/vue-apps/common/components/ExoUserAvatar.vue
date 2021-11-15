@@ -3,7 +3,7 @@
     <a
       :id="id"
       :href="url"
-      class="flex-nowrap flex-shrink-0 d-flex text-truncate container--fluid">
+      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid">
       <v-avatar
         :size="size"
         :class="avatarClass"
@@ -13,7 +13,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy">
       </v-avatar>
-      <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
+      <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column align-start text-truncate">
         <p
           v-if="fullname"
           :class="fullnameStyle"
