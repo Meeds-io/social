@@ -1,10 +1,11 @@
 <template>
-  <v-app class="transparent" flat>
+  <v-app class="transparent" flat v-if="displayed">
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
-    <template v-if="displaySpaceExternalSettings">
+    <template>
       <template v-for="(spaceExternalSetting, index) in spaceExternalSettings">
         <component
+          class="mb-6"
           :index="index"
           :space-id="spaceId"
           :is="spaceExternalSetting"
@@ -18,16 +19,22 @@
 export default {
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
-    displaySpaceExternalSettings: true,
+    displayed: true,
     spaceExternalSettings: []
   }),
   created() {
     // add external components
     const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
     this.spaceExternalSettings.push(...externalComponents);
-    
-    document.addEventListener('hideSettingsApps', () => this.displaySpaceExternalSettings = false);
-    document.addEventListener('showSettingsApps', () => this.displaySpaceExternalSettings = true);
+
+    document.addEventListener('addExternalComponents', (event) => {
+      if (event && event.detail) {
+        this.spaceExternalSettings.push(event.detail.componentImpl);
+      }
+    });
+
+    document.addEventListener('hideSettingsApps', () => this.displayed = true);
+    document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$applicationLoaded());
