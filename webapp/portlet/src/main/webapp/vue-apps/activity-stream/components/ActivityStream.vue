@@ -49,15 +49,9 @@ export default {
     },
   },
   created() {
-    document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, () => {
-      this.refreshActivityTypes();
-    });
-    document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, () => {
-      this.refreshActivityActions();
-    });
-    document.addEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, () => {
-      this.refreshCommentActions();
-    });
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
+    document.addEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
