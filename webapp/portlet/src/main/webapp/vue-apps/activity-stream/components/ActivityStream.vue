@@ -91,13 +91,11 @@ export default {
     },
     refreshActivityActions() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionExtension);
-      const newActivityActions={};
       extensions.forEach(extension => {
         if (extension.id) {
-          newActivityActions[extension.id] = extension;
+          this.$set(this.activityActions, extension.id, extension);
         }
       });
-      this.activityActions=newActivityActions;
     },
     refreshCommentActions() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.commentActionExtension);
