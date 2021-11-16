@@ -24,7 +24,8 @@
               :src="seeMoreLikerToDisplay.avatar"
               :title="seeMoreLikerToDisplay.fullname"
               class="object-fit-cover"
-              loading="lazy">
+              loading="lazy"
+              role="presentation">
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </v-avatar>
         </div>
