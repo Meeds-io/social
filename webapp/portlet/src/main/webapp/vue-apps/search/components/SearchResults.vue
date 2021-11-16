@@ -69,7 +69,7 @@
           :key="connector.name"
           color="primary"
           class="mx-1 border-color">
-          <span>{{ connector.name }}</span>
+          <span class="text-capitalize-first-letter">{{ connector.label }}</span>
           <v-icon
             size="10"
             class="ms-2"
@@ -169,7 +169,8 @@ export default {
       });
     },
     enabledConnectors() {
-      return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
+      return this.connectors && this.connectors.filter(connector => connector.enabled)
+        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) || [];
     },
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
