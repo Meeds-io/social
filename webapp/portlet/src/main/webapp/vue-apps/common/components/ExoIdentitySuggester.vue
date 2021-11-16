@@ -57,7 +57,7 @@
           class="identitySuggesterItem"
           @click:close="remove(item)">
           <v-avatar left>
-            <v-img :src="item.profile.avatarUrl" />
+            <v-img :src="item.profile.avatarUrl" role="presentation" />
           </v-avatar>
           <span class="text-truncate">
             {{ item.profile.external ? item.profile.fullName.concat(' (').concat($t('userAvatar.external.label')).concat(')') : item.profile.fullName }}
