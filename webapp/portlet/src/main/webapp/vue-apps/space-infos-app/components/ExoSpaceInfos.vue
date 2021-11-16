@@ -15,7 +15,8 @@
                 :src="manager.avatar"
                 alt="avatar"
                 class="object-fit-cover ma-auto"
-                loading="lazy">
+                loading="lazy"
+                role="presentation">
             </v-avatar>
             {{ manager.fullname }}
           </a>
@@ -35,7 +36,8 @@
                 :src="redactor.avatar"
                 alt="avatar"
                 class="object-fit-cover ma-auto"
-                loading="lazy">
+                loading="lazy"
+                role="presentation">
             </v-avatar>
             {{ redactor.fullname }}
           </a>
