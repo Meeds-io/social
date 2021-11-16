@@ -27,7 +27,7 @@
           <v-chip
             :outlined="!allEnabled"
             :color="allEnabled ? 'primary' : ''"
-            class="border-color mx-1"
+            class="border-color mx-1 subtitle-1"
             v-bind="attrs"
             v-on="on">
             <span class="me-8">{{ $t('search.connector.label.all') }}</span>
@@ -43,7 +43,7 @@
                 readonly
                 dense
                 class="ma-0" />
-              <span>{{ $t('search.connector.label.all') }}</span>
+              <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
             </v-list-item-title>
           </v-list-item>
           <v-list-item
@@ -58,7 +58,7 @@
                 :ripple="false"
                 dense
                 class="ma-0" />
-              <span>{{ connector.label }}</span>
+              <span class="subtitle-1">{{ connector.label }}</span>
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -69,7 +69,7 @@
           :key="connector.name"
           color="primary"
           class="mx-1 border-color">
-          <span>{{ connector.name }}</span>
+          <span class="text-capitalize-first-letter subtitle-1">{{ connector.label }}</span>
           <v-icon
             size="10"
             class="ms-2"
@@ -169,7 +169,8 @@ export default {
       });
     },
     enabledConnectors() {
-      return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
+      return this.connectors && this.connectors.filter(connector => connector.enabled)
+        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) || [];
     },
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
