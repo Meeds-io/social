@@ -11,7 +11,8 @@
           :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto spaceAvatar" />
+          class="mx-auto spaceAvatar"
+          role="presentation" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
