@@ -23,7 +23,8 @@
             :src="thumbnail"
             :alt="title"
             class="object-fit-cover my-auto"
-            loading="lazy">
+            loading="lazy"
+            role="presentation">
           <v-icon
             v-else
             :size="defaultIconSize"
@@ -62,7 +63,8 @@
           :src="thumbnail"
           :alt="title"
           class="object-fit-cover my-auto"
-          loading="lazy">
+          loading="lazy"
+          role="presentation">
         <v-icon
           v-else
           :size="defaultIconSize"
