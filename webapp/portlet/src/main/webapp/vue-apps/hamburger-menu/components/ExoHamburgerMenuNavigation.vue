@@ -21,7 +21,8 @@
           class="HamburgerMenuLevelsParent fill-height"
           no-gutters
           @mouseleave="hideSecondLevel()">
-          <div :class="secondLevel && 'd-none d-sm-block'"
+          <div
+            :class="secondLevel && 'd-none d-sm-block'"
             class="HamburgerMenuFirstLevelParent border-box-sizing"
             role="navigation"
             :aria-label="$t('menu.role.navigation.first.level')">
