@@ -101,6 +101,7 @@
                         :title="lastManagerToDisplay.fullName"
                         class="object-fit-cover"
                         loading="lazy"
+                        role="presentation"
                         :alt="lastManagerToDisplay.fullName">
                       <span
                         id="showMoreManagers"

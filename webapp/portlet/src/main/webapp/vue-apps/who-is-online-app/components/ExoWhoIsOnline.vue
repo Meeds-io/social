@@ -15,7 +15,8 @@
                 <img
                   :src="user.avatar"
                   class="ma-auto object-fit-cover"
-                  loading="lazy">
+                  loading="lazy"
+                  role="presentation">
               </v-avatar>
             </a>
           </li>
