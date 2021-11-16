@@ -10,7 +10,8 @@
       <img
         :src="avatarUrl"
         class="object-fit-cover my-auto"
-        loading="lazy">
+        loading="lazy"
+        role="presentation">
     </v-avatar>
     {{ displayName }}
   </a>
