@@ -1,6 +1,6 @@
 <template>
   <v-flex>
-    <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+    <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
       <search-tag-selector
         v-if="tagsEnabled"
         @tags-changed="selectTags" />
@@ -16,23 +16,70 @@
         </v-icon>
         <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
-      <v-chip
-        :outlined="!allEnabled"
-        :color="allEnabled ? 'primary' : ''"
-        class="mx-1 border-color"
-        @click="selectAllConnector">
-        <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
-      </v-chip>
-      <v-chip
-        v-for="connector in sortedConnectors"
-        :key="connector.name"
-        :outlined="allEnabled || !connector.enabled"
-        :color="!allEnabled && connector.enabled ? 'primary' : ''"
-        class="mx-1 border-color"
-        @click="selectConnector(connector)">
-        <span class="subtitle-1">{{ connector.label }}</span>
-      </v-chip>
-    </v-flex>
+      <v-menu
+        v-model="connectorsListOpened"
+        :close-on-content-click="false"
+        content-class="connectors-list"
+        bottom
+        right
+        offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-chip
+            :outlined="!allEnabled"
+            :color="allEnabled ? 'primary' : ''"
+            class="border-color mx-1"
+            v-bind="attrs"
+            v-on="on">
+            <span class="me-8">{{ $t('search.connector.label.all') }}</span>
+            <i class="fas fa-chevron-down"></i>
+          </v-chip>
+        </template>
+        <v-list dense class="pa-0">
+          <v-list-item @click="selectAllConnector()">
+            <v-list-item-title class="d-flex align-center">
+              <v-checkbox
+                :input-value="allEnabled"
+                :ripple="false"
+                readonly
+                dense
+                class="ma-0" />
+              <span>{{ $t('search.connector.label.all') }}</span>
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-for="connector in sortedConnectors"
+            :key="connector.name"
+            class="clickable"
+            dense
+            @click="selectConnector(connector)">
+            <v-list-item-title class="d-flex align-center">
+              <v-checkbox
+                :input-value="!allEnabled && connector.enabled"
+                :ripple="false"
+                dense
+                class="ma-0" />
+              <span>{{ connector.label }}</span>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <div v-if="!allEnabled" class="selected-connectors">
+        <v-chip
+          v-for="connector in enabledConnectors"
+          :key="connector.name"
+          color="primary"
+          class="mx-1 border-color">
+          <span>{{ connector.name }}</span>
+          <v-icon
+            size="10"
+            class="ms-2"
+            right
+            @click="selectConnector(connector)">
+            fas fa-times
+          </v-icon>
+        </v-chip>
+      </div>
+    </div>
     <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
@@ -98,6 +145,7 @@ export default {
     searching: 0,
     abortController: null,
     searchInitialized: false,
+    connectorsListOpened: false,
   }),
   computed: {
     hasMore() {
@@ -129,7 +177,7 @@ export default {
     searchEnabledConnectors() {
       return this.enabledConnectors.filter(connector => {
         return (connector.favoritesEnabled || !this.favorites)
-                && (connector.tagsEnabled || !this.selectedTags.length);
+          && (connector.tagsEnabled || !this.selectedTags.length);
       });
     },
     resultsArray() {
@@ -180,6 +228,12 @@ export default {
     },
   },
   created() {
+    // Workaround to fix closing menu when clicking outside
+    $(document).on('click', (e) => {
+      if (e.target && !$(e.target).parents('.connectors-list').length) {
+        this.connectorsListOpened = false;
+      }
+    });
     this.$root.$on('refresh', (searchConnector, favorites) => {
       if (!!favorites === !!this.favorites) {
         this.$set(this.results, searchConnector.name, []);
@@ -295,9 +349,11 @@ export default {
       }
 
       return window.require([searchConnector.jsModule], connectorModule => {
-        let options = {headers: {
-          Accept: 'application/json',
-        }};
+        let options = {
+          headers: {
+            Accept: 'application/json',
+          }
+        };
         if (signal) {
           options = Object.assign(options, signal);
         }
