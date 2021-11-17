@@ -27,7 +27,7 @@ export default {
     const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
     this.spaceExternalSettings.push(...externalComponents);
 
-    document.addEventListener('addExternalComponents', (event) => {
+    document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
       if (event && event.detail) {
         this.spaceExternalSettings.push(event.detail.componentImpl);
       }
