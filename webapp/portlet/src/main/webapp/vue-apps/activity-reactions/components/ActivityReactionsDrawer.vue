@@ -18,7 +18,7 @@
             :key="i"
             :href="`#tab-${tab.componentOptions.rank}`"
             class="text-capitalize">
-            <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }}({{ tab.componentOptions.numberOfReactions }})</span>
+            <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
         <v-divider dark />
