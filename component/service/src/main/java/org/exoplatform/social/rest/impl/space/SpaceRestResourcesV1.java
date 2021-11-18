@@ -1152,8 +1152,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     if (StringUtils.equalsIgnoreCase(Space.OPEN, model.getSubscription())) {
       space.setRegistration(Space.OPEN);
-    } else if (StringUtils.equalsIgnoreCase(Space.CLOSE, model.getSubscription())) {
-      space.setRegistration(Space.CLOSE);
+    } else if (StringUtils.equalsIgnoreCase(Space.CLOSED, model.getSubscription())) {
+      space.setRegistration(Space.CLOSED);
     } else if (StringUtils.equalsIgnoreCase(Space.VALIDATION, model.getSubscription())) {
       space.setRegistration(Space.VALIDATION);
     } else if (StringUtils.isBlank(model.getSubscription()) && space.getId() == null) {
