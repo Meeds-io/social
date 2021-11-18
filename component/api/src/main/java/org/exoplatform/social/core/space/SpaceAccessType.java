@@ -84,7 +84,7 @@ public enum SpaceAccessType {
       if (space == null) {
         result = true;
       } else if (space != null) {
-        result = Space.HIDDEN.equals(space.getVisibility()) && !getSpaceService().isMember(space, remoteId) && Space.CLOSE.equals(space.getRegistration());
+        result = Space.HIDDEN.equals(space.getVisibility()) && !getSpaceService().isMember(space, remoteId) && Space.CLOSED.equals(space.getRegistration());
       }
       
       return result;
