@@ -3,7 +3,8 @@
     ref="activityReactionsDrawer"
     disable-pull-to-refresh
     right
-    fixed>
+    fixed
+    @closed="selectedTab= null">
     <template slot="title">
       {{ $t('UIActivity.label.reactions') }}
     </template>
@@ -16,7 +17,7 @@
           <v-tab
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
-            :href="`#tab-${tab.componentOptions.rank}`"
+            :href="`#${tab.componentOptions.id}`"
             class="text-capitalize">
             <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
@@ -28,7 +29,7 @@
           v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
           :eager="true"
-          :value="`tab-${tab.componentOptions.rank}`">
+          :value="`${tab.componentOptions.id}`">
           <extension-registry-component
             :component="tab"
             :params="reactionParams" />
@@ -79,7 +80,7 @@ export default {
       if (!this.activityReactionsExtensions) {
         return [];
       }
-      return this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
+      return  this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
         return extension1.componentOptions.rank - extension2.componentOptions.rank;
       });
     },
@@ -91,6 +92,7 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
+    document.addEventListener('exo-kudos-open-kudos-drawer' , this.openDrawer);
   },
   methods: {
     open() {
@@ -100,6 +102,13 @@ export default {
       if (this.lastLoadedActivityId !== this.activityId) {
         this.limit = 10;
         this.lastLoadedActivityId = this.activityId;
+      }
+    },
+    openDrawer(event) {
+      if (event && event.detail && event.detail.id && event.detail.id === this.activityId) {
+        this.activityId = event.detail.id;
+        this.selectedTab = event.detail.tab;
+        this.open();
       }
     },
     loadMore() {
