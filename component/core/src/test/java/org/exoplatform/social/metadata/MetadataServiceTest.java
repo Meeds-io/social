@@ -306,6 +306,27 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
   }
 
+  public void testGetMetadatas() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String name = "testMetadata1User1";
+
+    try {
+      metadataService.createMetadata(newMetadataInstance(audienceId,
+              creatorId,
+              name,
+              spaceMetadataType),
+              creatorId);
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+
+    List<Metadata> metadataList = metadataService.getMetadatas("space", 100);
+
+    assertNotNull(metadataList);
+    assertEquals(1, metadataList.size());
+  }
+
   public void testCreateDuplicatedMetadataItem() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;

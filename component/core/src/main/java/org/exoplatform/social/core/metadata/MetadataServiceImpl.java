@@ -310,6 +310,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public List<Metadata> getMetadatas(String metadataTypeName, long limit) {
+    return metadataStorage.getMetadatas(metadataTypeName, limit);
+  }
+
+  @Override
   @ExoTransactional
   public void start() {
     this.metadataPlugins.forEach(plugin -> {
