@@ -42,7 +42,7 @@ public class LegacySpaceRestServiceTest extends BaseRestServicesTestCase {
     space2.setId("space2");
     space2.setGroupId("/spaces/space2");
     space2.setVisibility(Space.PUBLIC);
-    space2.setRegistration(Space.CLOSE);
+    space2.setRegistration(Space.CLOSED);
     space2.setMembers(new String[] { "foo" });
     Space space3 = new Space();
     space3.setPrettyName("space3");

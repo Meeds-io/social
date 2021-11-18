@@ -291,6 +291,6 @@ public class SpaceEntity implements Serializable {
   }
 
   public static enum REGISTRATION {
-    OPEN, VALIDATION, CLOSE
+    OPEN, VALIDATION, CLOSED
   }
 }
