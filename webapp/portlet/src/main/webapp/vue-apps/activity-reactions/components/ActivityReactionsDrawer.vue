@@ -3,7 +3,8 @@
     ref="activityReactionsDrawer"
     disable-pull-to-refresh
     right
-    fixed>
+    fixed
+    @closed="selectedTab= null">
     <template slot="title">
       <div class="activityReactionsTitle">
         <v-tabs v-model="selectedTab">
@@ -12,11 +13,9 @@
           <v-tab
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
-            :href="`#tab-${tab.order}`"
-            :class="`all${tab.class}`"
-            class="pe-3 ps-0">
-            <i :class="tab.icon"></i>
-            <span :class="`${tab.class}NumberLabel`">{{ tab.kudosNumber }}</span>
+            :href="`#${tab.componentOptions.id}`"
+            class="text-capitalize">
+            <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
       </div>
@@ -57,16 +56,10 @@
           v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
           :eager="true"
-          :value="`tab-${tab.order}`">
-          <activity-reactions-list-items
-            v-for="(item, index) in tab.reactionListItems"
-            :key="index"
-            :user-id="item.senderId"
-            :avatar="item.senderAvatar"
-            :name="item.senderFullName"
-            :class="`${tab.class}List`"
-            :profile-url="item.senderURL"
-            class="px-3" />
+          :value="`${tab.componentOptions.id}`">
+          <extension-registry-component
+            :component="tab"
+            :params="reactionParams" />
         </v-tab-item>
       </v-tabs-items>
     </template>
@@ -132,8 +125,20 @@ export default {
       if (!this.activityReactionsExtensions) {
         return [];
       }
-      return this.activityReactionsExtensions;
+
+      return  this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
+        return extension1.componentOptions.rank - extension2.componentOptions.rank;
+      });
     },
+    reactionParams() {
+      return {
+        activityId: this.activityId,
+      };
+    },
+  },
+  created() {
+    document.addEventListener('update-reaction-extension' , this.updateReaction);
+    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
   },
   methods: {
     open() {
@@ -145,6 +150,12 @@ export default {
         this.likers = [];
         this.lastLoadedActivityId = this.activityId;
         this.retrieveLikers();
+      }
+    },
+    openSelectedTab(event) {
+      if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
+        this.selectedTab = event.detail.tab;
+        this.open();
       }
     },
     loadMore() {
