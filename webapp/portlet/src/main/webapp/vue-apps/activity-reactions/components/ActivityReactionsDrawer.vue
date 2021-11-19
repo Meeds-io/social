@@ -6,10 +6,14 @@
     fixed
     @closed="selectedTab= null">
     <template slot="title">
-      <div class="activityReactionsTitle">
-        <v-tabs v-model="selectedTab">
-          <v-tab class="allLikersAndKudos text-color pe-3 ps-0" href="#tab-1">{{ $t('UIActivity.label.Show_All_Likers') }} {{ reactionsNumber }}</v-tab>
-          <v-tab class="allLikers pe-3 ps-0" href="#tab-2"><i class="uiIconThumbUp"></i> <span class="primary--text">{{ likersNumber }}</span></v-tab>
+      {{ $t('UIActivity.label.reactions') }}
+    </template>
+    <template v-if="drawerOpened" slot="content">
+      <div>
+        <v-tabs
+          slider-size="4"
+          fixed-tabs
+          v-model="selectedTab">
           <v-tab
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
@@ -18,40 +22,9 @@
             <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
         </v-tabs>
+        <v-divider dark />
       </div>
-    </template>
-    <template v-if="drawerOpened" slot="content">
-      <v-tabs-items v-model="selectedTab">
-        <v-tab-item value="tab-1">
-          <activity-reactions-list-items
-            v-for="liker in likers"
-            :key="liker.id"
-            :user-id="liker.username"
-            :avatar="liker.avatar"
-            :name="liker.fullname"
-            class="px-3 likersList" />
-          <div v-for="(tab, i) in enabledReactionsTabsExtensions" :key="i">
-            <activity-reactions-list-items
-              v-for="(item, index) in tab.reactionListItems"
-              :key="index"
-              :user-id="item.senderId"
-              :avatar="item.senderAvatar"
-              :name="item.senderFullName"
-              :class="`${tab.class}List`"
-              :profile-url="item.senderURL"
-              class="px-3" />
-          </div>
-        </v-tab-item>
-        <v-tab-item value="tab-2">
-          <activity-reactions-list-items
-            v-for="liker in likers"
-            :key="liker.id"
-            :user-id="liker.username"
-            :avatar="liker.personLikeAvatarImageSource"
-            :name="liker.personLikeFullName"
-            :profile-url="liker.personLikeProfileUri"
-            class="px-3 likersList" />
-        </v-tab-item>
+      <v-tabs-items v-model="selectedTab" class="pt-3">
         <v-tab-item
           v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
@@ -79,10 +52,6 @@
 <script>
 export default {
   props: {
-    likersNumber: {
-      type: Number,
-      default: 0
-    },
     extensionsReactions: {
       type: Array,
       default: null
@@ -103,30 +72,15 @@ export default {
       selectedTab: null,
       drawerOpened: false,
       activityReactionsExtensions: [],
-      likers: [],
       user: {}
     };
   },
   computed: {
-    reactionsNumber () {
-      let allReactionsNumber = this.likersNumber;
-      this.enabledReactionsTabsExtensions.forEach(item => {
-        allReactionsNumber += item.reactionListItems.length;
-      });
-      return allReactionsNumber;
-    },
-    hasMoreLikers() {
-      return this.likersNumber > this.limit;
-    },
-    kudosNumber() {
-      return this.reactionsNumber - this.likersNumber;
-    },
     enabledReactionsTabsExtensions() {
       if (!this.activityReactionsExtensions) {
         return [];
       }
-
-      return  this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
+      return this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
         return extension1.componentOptions.rank - extension2.componentOptions.rank;
       });
     },
@@ -147,9 +101,7 @@ export default {
       this.drawerOpened = true;
       if (this.lastLoadedActivityId !== this.activityId) {
         this.limit = 10;
-        this.likers = [];
         this.lastLoadedActivityId = this.activityId;
-        this.retrieveLikers();
       }
     },
     openSelectedTab(event) {
@@ -160,24 +112,24 @@ export default {
     },
     loadMore() {
       this.limit += 10;
-      this.retrieveLikers();
-    },
-    retrieveLikers() {
-      this.$refs.activityReactionsDrawer.startLoading();
-      this.$activityService.getActivityLikers(this.activityId, 0, this.limit)
-        .then(data => this.likers = data && data.likes || [])
-        .finally(() => this.$refs.activityReactionsDrawer.endLoading());
     },
     cancel() {
       this.$refs.activityReactionsDrawer.close();
     },
     refreshReactions() {
       this.activityReactionsExtensions= [];
-      const contentsToLoad = extensionRegistry.loadExtensions('activity-reactions', 'activity-reactions') || [];
-      // eslint-disable-next-line eqeqeq
-      this.activityReactionsExtensions = contentsToLoad.filter(contentDetail => contentDetail.activityId == this.activityId );
-      this.$emit('reactions', this.kudosNumber);
+      this.activityReactionsExtensions = extensionRegistry.loadComponents('ActivityReactions') || [];
     },
+    updateReaction(event) {
+      if (event && event.detail) {
+        const extensionIndex = this.enabledReactionsTabsExtensions.findIndex(extension => extension.componentOptions.id === event.detail.type);
+        if (extensionIndex >= 0 ) {
+          const extension = this.enabledReactionsTabsExtensions[extensionIndex];
+          extension.componentOptions.numberOfReactions = event.detail.numberOfReactions;
+          this.enabledReactionsTabsExtensions.splice(extensionIndex, 1, extension);
+        }
+      }
+    }
   },
 };
 </script>
