@@ -8,6 +8,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -118,6 +120,46 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     relationshipManager.delete(relationship);
     headers = new MultivaluedMapImpl();
     headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testCacheWhenUserJoinsSpace() throws Exception {
+    startSessionAs("root");
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(),
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
+
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // a user has been added to a space, the cache identity should be cleared
+    SpaceService spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+
+    Space newSpace = new Space();
+    newSpace.setDisplayName("space");
+    newSpace.setPrettyName("space");
+    newSpace.setManagers(new String[] { "root" });
+    newSpace.setRegistration(Space.OPEN);
+    newSpace.setVisibility(Space.PRIVATE);
+    spaceService.createSpace(newSpace, "root");
+
+    spaceService.addMember(newSpace, johnIdentity.getRemoteId());
+
     response =
              service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
     assertNotNull(response);
