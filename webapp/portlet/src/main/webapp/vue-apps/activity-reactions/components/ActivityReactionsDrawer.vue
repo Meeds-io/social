@@ -3,7 +3,8 @@
     ref="activityReactionsDrawer"
     disable-pull-to-refresh
     right
-    fixed>
+    fixed
+    @closed="selectedTab= null">
     <template slot="title">
       {{ $t('UIActivity.label.reactions') }}
     </template>
@@ -16,7 +17,7 @@
           <v-tab
             v-for="(tab, i) in enabledReactionsTabsExtensions"
             :key="i"
-            :href="`#tab-${tab.componentOptions.rank}`"
+            :href="`#${tab.componentOptions.id}`"
             class="text-capitalize">
             <span>{{ $t(`${tab.componentOptions.reactionLabel}`) }} ({{ tab.componentOptions.numberOfReactions }})</span>
           </v-tab>
@@ -28,7 +29,7 @@
           v-for="(tab, i) in enabledReactionsTabsExtensions"
           :key="i"
           :eager="true"
-          :value="`tab-${tab.componentOptions.rank}`">
+          :value="`${tab.componentOptions.id}`">
           <extension-registry-component
             :component="tab"
             :params="reactionParams" />
@@ -91,6 +92,7 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
+    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
   },
   methods: {
     open() {
@@ -100,6 +102,12 @@ export default {
       if (this.lastLoadedActivityId !== this.activityId) {
         this.limit = 10;
         this.lastLoadedActivityId = this.activityId;
+      }
+    },
+    openSelectedTab(event) {
+      if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
+        this.selectedTab = event.detail.tab;
+        this.open();
       }
     },
     loadMore() {
