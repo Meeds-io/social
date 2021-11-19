@@ -79,7 +79,7 @@ public class TestSpaceRestServices extends BaseRestServicesTestCase {
         space2.setPrettyName("space2");
         space2.setId("space2");
         space2.setVisibility(Space.PUBLIC);
-        space2.setRegistration(Space.CLOSE);
+        space2.setRegistration(Space.CLOSED);
         Space space3 = new Space();
         space3.setPrettyName("space3");
         space3.setId("space3");
