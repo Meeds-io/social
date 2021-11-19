@@ -106,7 +106,6 @@ export default {
     },
     openSelectedTab(event) {
       if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
-        this.activityId = event.detail.activityId;
         this.selectedTab = event.detail.tab;
         this.open();
       }
