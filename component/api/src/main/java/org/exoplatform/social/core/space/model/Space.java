@@ -178,8 +178,8 @@ public class Space implements CacheEntry {
   /** The Constant VALIDATION. */
   public final static String VALIDATION = "validation";
 
-  /** The Constant CLOSE. */
-  public final static String CLOSE = "close";
+  /** The Constant CLOSED. */
+  public final static String CLOSED = "closed";
 
   /** The Constant HIGH_PRIORITY. */
   public final static String HIGH_PRIORITY = "1";
