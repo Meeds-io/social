@@ -121,7 +121,7 @@ public class SpaceRestServices implements ResourceContainer {
                 //
                 if (Space.HIDDEN.equals(space.getVisibility()))
                   continue;
-                if (Space.CLOSE.equals(space.getRegistration()))
+                if (Space.CLOSED.equals(space.getRegistration()))
                   continue;
                 if (!spaceService.isMember(space, connector.getRemoteId())) 
                   continue;
@@ -169,7 +169,7 @@ public class SpaceRestServices implements ResourceContainer {
               for (Space space : lastSpaces) {
                 if (Space.HIDDEN.equals(space.getVisibility()))
                   continue;
-                if (Space.CLOSE.equals(space.getRegistration()))
+                if (Space.CLOSED.equals(space.getRegistration()))
                   continue;
                 if (spaceService.isMember(space, identity.getRemoteId())) 
                   continue;
@@ -444,7 +444,7 @@ public class SpaceRestServices implements ResourceContainer {
 
                     if (space.getVisibility().equals(Space.HIDDEN))
                         continue;
-                    if (space.getRegistration().equals(Space.CLOSE))
+                    if (space.getRegistration().equals(Space.CLOSED))
                         continue;
 
                     JSONObject json = new JSONObject();
