@@ -27,6 +27,7 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipStorageImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
@@ -197,11 +198,11 @@ public class CachedRelationshipStorage implements RelationshipStorage {
   /**
    * Remove identity cache.
    *
-   * @param identity
+   * @param remoteId
    */
-  private void removeIdentityCache(Identity identity) {
+  private void removeIdentityCache(String remoteId) {
     if (identityStorage instanceof CachedIdentityStorage) {
-      ((CachedIdentityStorage) identityStorage).clearIdentityCache(identity, false);
+      ((CachedIdentityStorage) identityStorage).clearIdentityCache(OrganizationIdentityProvider.NAME, remoteId, false);
     }
   }
 
@@ -249,8 +250,8 @@ public class CachedRelationshipStorage implements RelationshipStorage {
     exoRelationshipByIdentityCache.put(identityKey1, key);
     exoRelationshipByIdentityCache.put(identityKey2, key);
 
-    removeIdentityCache(r.getSender());
-    removeIdentityCache(r.getReceiver());
+    removeIdentityCache(r.getSender().getRemoteId());
+    removeIdentityCache(r.getReceiver().getRemoteId());
 
     clearCacheFor(relationship);
 
@@ -277,8 +278,8 @@ public class CachedRelationshipStorage implements RelationshipStorage {
       identityKey = new RelationshipIdentityKey(relationship.getReceiver().getId(), relationship.getSender().getId());
       relationshipCacheIdentity.remove(identityKey);
 
-      removeIdentityCache(relationship.getSender());
-      removeIdentityCache(relationship.getReceiver());
+      removeIdentityCache(relationship.getSender().getRemoteId());
+      removeIdentityCache(relationship.getReceiver().getRemoteId());
     }
 
     //
