@@ -92,7 +92,7 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
-    document.addEventListener('open-reaction-drawer-selected-tab' , this.openSelectedTab);
+    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
   },
   methods: {
     open() {
@@ -105,8 +105,8 @@ export default {
       }
     },
     openSelectedTab(event) {
-      if (event && event.detail && event.detail.id && event.detail.activityId === this.activityId) {
-        this.activityId = event.detail.id;
+      if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
+        this.activityId = event.detail.activityId;
         this.selectedTab = event.detail.tab;
         this.open();
       }
