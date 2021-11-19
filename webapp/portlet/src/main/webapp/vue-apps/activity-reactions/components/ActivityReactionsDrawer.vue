@@ -80,7 +80,7 @@ export default {
       if (!this.activityReactionsExtensions) {
         return [];
       }
-      return this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
+      return  this.activityReactionsExtensions.slice().sort((extension1, extension2) => {
         return extension1.componentOptions.rank - extension2.componentOptions.rank;
       });
     },
