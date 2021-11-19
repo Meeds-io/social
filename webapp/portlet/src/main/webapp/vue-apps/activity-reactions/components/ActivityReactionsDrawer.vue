@@ -92,7 +92,7 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
-    document.addEventListener('exo-kudos-open-kudos-drawer' , this.openDrawer);
+    document.addEventListener('open-reaction-drawer-selected-tab' , this.openSelectedTab);
   },
   methods: {
     open() {
@@ -104,8 +104,8 @@ export default {
         this.lastLoadedActivityId = this.activityId;
       }
     },
-    openDrawer(event) {
-      if (event && event.detail && event.detail.id && event.detail.id === this.activityId) {
+    openSelectedTab(event) {
+      if (event && event.detail && event.detail.id && event.detail.activityId === this.activityId) {
         this.activityId = event.detail.id;
         this.selectedTab = event.detail.tab;
         this.open();
