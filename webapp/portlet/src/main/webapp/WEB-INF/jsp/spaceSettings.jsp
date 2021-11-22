@@ -4,6 +4,7 @@
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
 <%
   Space space = SpaceUtils.getSpaceByContext();
+  boolean walletIsInstalled = SpaceUtils.isInstalledApp(space,"SpaceWallet");
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   int maxUploadSize = identityManager.getImageUploadLimit();
 %>
@@ -14,7 +15,7 @@
     <v-cacheable-dom-app cache-id="SpaceSettings_<%=space.getId()%>"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/SpaceSettingPortlet'],
-          app => app.init(<%=maxUploadSize%>)
+          app => app.init(<%=maxUploadSize%>, <%=walletIsInstalled%>)
       );
     </script>
   </div>

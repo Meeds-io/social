@@ -21,7 +21,7 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 const appId = 'SpaceSettings';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
-export function init(maxUploadSize) {
+export function init(maxUploadSize, walletIsInstalled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     
@@ -35,6 +35,7 @@ export function init(maxUploadSize) {
                   v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   :max-upload-size="${maxUploadSize}"
+                  :wallet-is-installed="${walletIsInstalled}"
                   class="singlePageApplication" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,

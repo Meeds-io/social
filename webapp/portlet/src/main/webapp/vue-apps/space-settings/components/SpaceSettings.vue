@@ -17,6 +17,12 @@
 
 <script>
 export default {
+  props: {
+    walletIsInstalled: {
+      type: Boolean,
+      default: false
+    },
+  },
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
     displayed: true,
@@ -26,17 +32,17 @@ export default {
     // add external components
     const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
     this.spaceExternalSettings.push(...externalComponents);
-
-    document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
-      if (event && event.detail) {
-        this.spaceExternalSettings.push(event.detail.componentImpl);
-      }
-    });
-
     document.addEventListener('hideSettingsApps', () => this.displayed = true);
     document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   mounted() {
+    if (this.walletIsInstalled) {
+      document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
+        if (event && event.detail) {
+          this.spaceExternalSettings.push(event.detail.componentImpl);
+        }
+      });
+    }
     this.$nextTick().then(() => this.$root.$applicationLoaded());
   },
 };
