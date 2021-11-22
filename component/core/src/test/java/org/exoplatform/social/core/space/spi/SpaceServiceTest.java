@@ -23,8 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
@@ -35,11 +33,9 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
@@ -2962,10 +2958,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
       if (i < 6)
         // [0->5] :: there are 6 spaces with visible = 'private'
-        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSED, "demo");
       else
         // [6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
 
       spaceService.saveSpace(listSpace[i], true);
     }
@@ -3006,10 +3002,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
       if (i < 6)
         // [0->5] :: there are 6 spaces with visible = 'private'
         listSpace[i] =
-                     this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSE, new String[] { "mary", "hacker" }, "demo");
+                     this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSED, new String[] { "mary", "hacker" }, "demo");
       else
         // [6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
 
       spaceService.saveSpace(listSpace[i], true);
     }
@@ -3187,7 +3183,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename2", "root");
     space.setVisibility(Space.PUBLIC);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     space = createSpace("spacename3", "root");
@@ -3197,7 +3193,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename4", "root");
     space.setVisibility(Space.PRIVATE);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     space = createSpace("spacename5", "root");
@@ -3207,7 +3203,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename6", "root");
     space.setVisibility(Space.HIDDEN);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     User user = organizationService.getUserHandler().createUserInstance("user-space-admin");

@@ -1,8 +1,6 @@
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,12 +17,10 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -493,7 +489,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     //root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
     space.setVisibility(Space.HIDDEN);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
 
     startSessionAs("root");
@@ -504,7 +500,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertEquals("space1", spaceEntity.getDisplayName());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
-    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
+    assertEquals(Space.CLOSED, spaceEntity.getSubscription());
     EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotNull(eTag);
 
@@ -521,7 +517,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals("displayName_updated", spaceEntity.getDisplayName());
     assertEquals("description_updated", spaceEntity.getDescription());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
-    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
+    assertEquals(Space.CLOSED, spaceEntity.getSubscription());
     EntityTag updatedETag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotSame(eTag, updatedETag);
     //root delete his space

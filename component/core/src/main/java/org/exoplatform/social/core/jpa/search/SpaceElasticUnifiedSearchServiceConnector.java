@@ -138,7 +138,7 @@ public class SpaceElasticUnifiedSearchServiceConnector extends ElasticSearchServ
         sb.append(" - Free to Join");
       } else if (Space.VALIDATION.equals(space.getRegistration())) {
         sb.append(" - Register");
-      } else if (Space.CLOSE.equals(space.getRegistration())) {
+      } else if (Space.CLOSED.equals(space.getRegistration())) {
         sb.append(" - Invitation Only");
       } else {
         LOG.debug(space.getRegistration() + " registration unknown");
