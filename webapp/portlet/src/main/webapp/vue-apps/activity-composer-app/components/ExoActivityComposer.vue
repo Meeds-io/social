@@ -41,6 +41,7 @@
               <v-btn
                 :disabled="postDisabled"
                 :loading="loading"
+                :aria-label="$t(`activity.composer.${composerAction}`)"
                 type="button"
                 class="primary btn no-box-shadow"
                 @click="postMessage()">
