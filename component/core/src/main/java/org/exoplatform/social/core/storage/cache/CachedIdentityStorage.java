@@ -340,10 +340,15 @@ public class CachedIdentityStorage implements IdentityStorage {
   /**
    * Clear the identity cache.
    *
-   * @param identity
+   * @param remoteId
+   * @param providerId
    * @param clearList
    */
-  public void clearIdentityCache(Identity identity, boolean clearList) {
+  public void clearIdentityCache(String providerId, String remoteId, boolean clearList) {
+    Identity identity = findIdentity(providerId, remoteId);
+    if (identity == null) {
+      return;
+    }
     IdentityKey key = new IdentityKey(new Identity(identity.getId()));
     exoIdentityCache.remove(key);
     IdentityCompositeKey compositeKey = new IdentityCompositeKey(identity.getProviderId(), identity.getRemoteId());
