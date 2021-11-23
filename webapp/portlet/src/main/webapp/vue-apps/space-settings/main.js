@@ -21,21 +21,22 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 const appId = 'SpaceSettings';
 const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
-export function init(maxUploadSize, walletIsInstalled) {
+export function init(space) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
-    
     appElement.id = appId;
 
     Vue.createApp({
+      data: () => ({
+        space: space,
+      }),
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-settings
                   v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
-                  :max-upload-size="${maxUploadSize}"
-                  :wallet-is-installed="${walletIsInstalled}"
+                  :space="space"
                   class="singlePageApplication" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,

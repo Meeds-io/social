@@ -1,5 +1,8 @@
 <template>
-  <v-app class="transparent" flat v-if="displayed">
+  <v-app
+    class="transparent"
+    flat
+    v-if="displayed">
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
     <template>
@@ -18,9 +21,9 @@
 <script>
 export default {
   props: {
-    walletIsInstalled: {
-      type: Boolean,
-      default: false
+    space: {
+      type: Object,
+      default: () => null
     },
   },
   data: () => ({
@@ -36,14 +39,27 @@ export default {
     document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   mounted() {
-    if (this.walletIsInstalled) {
-      document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
-        if (event && event.detail) {
-          this.spaceExternalSettings.push(event.detail.componentImpl);
-        }
-      });
-    }
+    document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
+      if (event && event.detail && this.isApplicationInstalled(event.detail.appId)) {
+        this.spaceExternalSettings.push(event.detail.componentImpl);
+      }
+    });
     this.$nextTick().then(() => this.$root.$applicationLoaded());
   },
+  methods: {
+    isApplicationInstalled(appId) {
+      const allApplication = this.space && this.space.app.split(',');
+      if (allApplication) {
+        let applicationDetails = [];
+        for (let  i =0;i< allApplication.length;i++) {
+          applicationDetails =  allApplication[i].split(':');
+          if (applicationDetails[1] === appId) {
+            return true;
+          }
+        }
+        return false;
+      }
+    }
+  }
 };
 </script>
