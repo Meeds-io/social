@@ -219,9 +219,9 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     Profile profile = identity.getProfile();
     boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
     Map<String, String> fields = new HashMap<>();
-    fields.put("name", removeAccents(profile.getFullName()));
-    fields.put("firstName", removeAccents((String) profile.getProperty(Profile.FIRST_NAME)));
-    fields.put("lastName", removeAccents((String) profile.getProperty(Profile.LAST_NAME)));
+    fields.put("name", profile.getFullName());
+    fields.put("firstName", (String) profile.getProperty(Profile.FIRST_NAME));
+    fields.put("lastName", (String) profile.getProperty(Profile.LAST_NAME));
     fields.put("position", removeAccents(profile.getPosition()));
     fields.put("aboutMe", removeAccents(profile.getAboutMe()));
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
