@@ -46,6 +46,7 @@
       ref="reactionsDrawer"
       :likers-number="likersNumber"
       :activity-id="activityId"
+      :activity-poster-id="activityPosterId"
       :max-items-to-show="maxLikersToShow"
       @reactions="reactionsNumber" />
     <activity-reactions-mobile
@@ -99,6 +100,9 @@ export default {
     },
     showMoreLikersNumber() {
       return this.likersNumber - this.maxLikersToShow + 1;
+    },
+    activityPosterId() {
+      return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.username;
     }
   },
   methods: {
