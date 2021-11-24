@@ -2,41 +2,6 @@
   <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
       
   
-    
-      <!--  <v-dialog
-      v-if="isMobile"
-      overlay-opacity='0.15'
-      :value="true"
-      hide-overlay
-      persistent
-      scrollable
-      internal-activator
-      content-class="spaceButtomNavigation white">
-
-
-      <v-bottom-navigation
-        :value="selectedNavigationUri"
-        grow
-        color="tertiary"
-        background-color="transparent"
-        class="spaceButtomNavigationParent"
-        flat>
-        <v-btn
-          v-for="nav in navigations"
-          :key="nav.id"
-          :value="nav.uri"
-          :href="nav.uri"
-          class="subtitle-2 spaceButtomNavigationItem">
-          <span>{{ nav.label }}</span>
-          <i :class="nav.icon"></i>
-        </v-btn>
-      </v-bottom-navigation>
-    
-    
-    </v-dialog>  
-  -->
-
-     
   <v-footer 
       v-if="isMobile" 
        position='fixed'
