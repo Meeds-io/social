@@ -29,7 +29,8 @@
           x-small
           icon
           v-bind="attrs"
-          v-on="on">
+          v-on="on"
+          @click="openLikesList">
           ({{ likesCount }})
         </v-btn>
       </template>
@@ -56,6 +57,9 @@ export default {
   computed: {
     commentId() {
       return this.comment && this.comment.id;
+    },
+    activityId() {
+      return this.activity && this.activity.id;
     },
     likers() {
       return this.comment && this.comment.likes && this.comment.likes.slice().reverse() || [];
@@ -128,6 +132,16 @@ export default {
         })
         .finally(() => this.changingLike = false);
     },
+    openLikesList(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
+        activityId: this.commentId,
+        tab: 'like',
+      }}));
+    }
   },
 };
 </script>

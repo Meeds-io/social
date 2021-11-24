@@ -107,6 +107,7 @@ export default {
   },
   methods: {
     openDrawer() {
+      this.$refs.reactionsDrawer.activityId = this.activityId;
       this.$refs.reactionsDrawer.open();
     },
     reactionsNumber(kudosCount) {

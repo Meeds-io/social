@@ -71,7 +71,6 @@ export default {
   },
   data () {
     return {
-      lastLoadedActivityId: null,
       limit: 10,
       selectedTab: null,
       drawerOpened: false,
@@ -104,13 +103,10 @@ export default {
       this.refreshReactions();
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
-      if (this.lastLoadedActivityId !== this.activityId) {
-        this.limit = 10;
-        this.lastLoadedActivityId = this.activityId;
-      }
     },
     openSelectedTab(event) {
-      if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
+      if (event && event.detail && event.detail.activityId) {
+        this.activityId = event.detail.activityId;
         this.selectedTab = event.detail.tab;
         this.open();
       }
