@@ -315,6 +315,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
+    return metadataStorage.getMetadatasByProperty(propertyKey, propertyValue, limit);
+  }
+
+  @Override
   @ExoTransactional
   public void start() {
     this.metadataPlugins.forEach(plugin -> {

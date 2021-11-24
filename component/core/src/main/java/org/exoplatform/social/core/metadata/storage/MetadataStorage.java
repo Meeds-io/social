@@ -171,6 +171,20 @@ public class MetadataStorage {
     return metadatasEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
+  public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
+    List<String> metadatasEntitiesIds = metadataDAO.getMetadatasByProperty(propertyKey, propertyValue, limit);
+    List<MetadataEntity> metadatasEntities = new ArrayList<>();
+    if (metadatasEntitiesIds != null && !metadatasEntitiesIds.isEmpty()) {
+      for (String id : metadatasEntitiesIds) {
+        MetadataEntity metadataEntity = this.metadataDAO.find(Long.parseLong(id));
+        if (metadataEntity != null) {
+          metadatasEntities.add(metadataEntity);
+        }
+      }
+    }
+    return metadatasEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public MetadataType getMetadataType(String name) {
     return metadataTypes.stream()
                         .filter(metadataType -> StringUtils.equals(metadataType.getName(), name))
