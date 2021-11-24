@@ -19,13 +19,8 @@
 </template>
 
 <script>
+import {getSpaceApplications} from '../utils.js';
 export default {
-  props: {
-    space: {
-      type: Object,
-      default: () => null
-    },
-  },
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
     displayed: true,
@@ -40,26 +35,15 @@ export default {
   },
   mounted() {
     document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
-      if (event && event.detail && this.isApplicationInstalled(event.detail.appId)) {
-        this.spaceExternalSettings.push(event.detail.componentImpl);
+      if (event && event.detail ) {
+        getSpaceApplications(this.spaceId).then(applications => {
+          if (applications.find(app => app.id === event.detail.appId)) {
+            this.spaceExternalSettings.push(event.detail.componentImpl);
+          }
+        });
       }
     });
     this.$nextTick().then(() => this.$root.$applicationLoaded());
   },
-  methods: {
-    isApplicationInstalled(appId) {
-      const allApplication = this.space && this.space.app.split(',');
-      if (allApplication) {
-        let applicationDetails = [];
-        for (let  i =0;i< allApplication.length;i++) {
-          applicationDetails =  allApplication[i].split(':');
-          if (applicationDetails[1] === appId) {
-            return true;
-          }
-        }
-        return false;
-      }
-    }
-  }
 };
 </script>
