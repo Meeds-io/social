@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import {getSpaceApplications} from '../utils.js';
 export default {
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
@@ -36,7 +35,7 @@ export default {
   mounted() {
     document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
       if (event && event.detail ) {
-        getSpaceApplications(this.spaceId).then(applications => {
+        this.$spaceService.getSpaceApplications(this.spaceId).then(applications => {
           if (applications.find(app => app.id === event.detail.appId)) {
             this.spaceExternalSettings.push(event.detail.componentImpl);
           }
