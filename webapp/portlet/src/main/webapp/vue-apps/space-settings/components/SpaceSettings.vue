@@ -5,15 +5,13 @@
     v-if="displayed">
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
-    <template>
-      <template v-for="(spaceExternalSetting, index) in spaceExternalSettings">
-        <component
-          class="mb-6"
-          :index="index"
-          :space-id="spaceId"
-          :is="spaceExternalSetting"
-          :key="spaceExternalSetting.name" />
-      </template>
+    <template v-for="(spaceExternalSetting, index) in spaceExternalSettings">
+      <component
+        class="mb-6"
+        :index="index"
+        :space-id="spaceId"
+        :is="spaceExternalSetting"
+        :key="spaceExternalSetting.name" />
     </template>
   </v-app>
 </template>
