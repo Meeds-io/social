@@ -283,7 +283,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       activity.setTitle(model.getTitle());
     }
     activity.setBody(model.getBody());
-    activity.setType(model.getType());
+    activity.setType(model.getType() != null ? model.getType() : "");
     activity.setUserId(authenticatedUserIdentity.getId());
     activity.setFiles(model.getFiles());
 
