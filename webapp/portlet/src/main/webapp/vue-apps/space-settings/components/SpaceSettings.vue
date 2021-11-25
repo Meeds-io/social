@@ -31,11 +31,11 @@ export default {
     document.addEventListener('showSettingsApps', () => this.displayed = true);
   },
   mounted() {
-    document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
+    document.addEventListener('component-external-space-settings-updated', (event) => {
       if (event && event.detail ) {
         this.$spaceService.getSpaceApplications(this.spaceId).then(applications => {
-          if (applications.find(app => app.id === event.detail.appId)) {
-            this.spaceExternalSettings.push(event.detail.componentImpl);
+          if (applications.find(app => app.id === event.detail.componentOptions.appId)) {
+            this.spaceExternalSettings.push(event.detail.componentOptions.componentImpl);
           }
         });
       }
