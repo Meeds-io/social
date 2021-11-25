@@ -1,14 +1,9 @@
 <template>
   <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
-      
-  
   <v-footer 
       v-if="isMobile" 
-       position='fixed'
-       app bottom fixed padless
       class="spaceButtomNavigation white">
-    <v-slide-group
-       >
+    <v-slide-group>
       <v-bottom-navigation
         :value="selectedNavigationUri"
         grow
@@ -28,10 +23,6 @@
       </v-bottom-navigation>
     </v-slide-group>
   </v-footer>    
-     
-
- 
-
     <v-tabs
       v-else
       :value="selectedNavigationUri"
