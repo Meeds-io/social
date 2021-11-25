@@ -1,7 +1,5 @@
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
-<%@ page import="java.util.List" %>
-<%@ page import="org.json.JSONArray" %>
 <%
   Space space = SpaceUtils.getSpaceByContext();
 %>
