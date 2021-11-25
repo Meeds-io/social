@@ -98,6 +98,12 @@ export default {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
     document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
   },
+  mounted() {
+    this.$root.$on(`open-reaction-drawer-${this.activityId}`,activityId => {
+      this.activityId = activityId;
+      this.open();
+    });
+  },
   methods: {
     open() {
       this.refreshReactions();

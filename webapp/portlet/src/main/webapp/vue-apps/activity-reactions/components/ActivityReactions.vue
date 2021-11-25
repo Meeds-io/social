@@ -107,8 +107,7 @@ export default {
   },
   methods: {
     openDrawer() {
-      this.$refs.reactionsDrawer.activityId = this.activityId;
-      this.$refs.reactionsDrawer.open();
+      this.$root.$emit(`open-reaction-drawer-${this.activityId}` ,this.activityId);
     },
     reactionsNumber(kudosCount) {
       this.kudosNumber = kudosCount;

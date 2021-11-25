@@ -133,10 +133,6 @@ export default {
         .finally(() => this.changingLike = false);
     },
     openLikesList(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
       document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
         activityId: this.commentId,
         tab: 'like',
