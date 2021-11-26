@@ -96,13 +96,12 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
-    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
-  },
-  mounted() {
-    this.$root.$on(`open-reaction-drawer-${this.activityId}`,activityId => {
-      this.activityId = activityId;
-      this.open();
+    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
+      if (event && event.detail) {
+        this.openSelectedTab(event.detail.activityId , event.detail.tab);
+      }
     });
+    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, this.openSelectedTab);
   },
   methods: {
     open() {
@@ -110,10 +109,10 @@ export default {
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
     },
-    openSelectedTab(event) {
-      if (event && event.detail && event.detail.activityId) {
-        this.activityId = event.detail.activityId;
-        this.selectedTab = event.detail.tab;
+    openSelectedTab(activityId,tab) {
+      if (activityId && tab) {
+        this.activityId = activityId;
+        this.selectedTab = tab;
         this.open();
       }
     },
