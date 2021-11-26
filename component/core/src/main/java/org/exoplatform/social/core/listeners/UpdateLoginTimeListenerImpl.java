@@ -2,6 +2,7 @@ package org.exoplatform.social.core.listeners;
 
 import java.util.Calendar;
 
+import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.listener.*;
 import org.exoplatform.services.organization.User;
@@ -24,7 +25,9 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
     Profile profile = userIdentity.getProfile();
     if (profile != null) {
       profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
-      identityManager.updateProfile(profile, true);
+      identityManager.updateProfile(profile, false);
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      indexingService.reindex("profile", userIdentity.getId());
     }
   }
 }
