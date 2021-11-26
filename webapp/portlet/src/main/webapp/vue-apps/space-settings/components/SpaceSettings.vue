@@ -34,7 +34,7 @@ export default {
     document.addEventListener('component-external-space-settings-updated', (event) => {
       if (event && event.detail ) {
         this.$spaceService.getSpaceApplications(this.spaceId).then(applications => {
-          if (applications.find(app => app.id === event.detail.componentOptions.appId)) {
+          if (applications.find(app => app.id === event.detail.componentOptions.appId) || !event.detail.componentOptions.appId) {
             this.spaceExternalSettings.push(event.detail.componentOptions.componentImpl);
           }
         });
