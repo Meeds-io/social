@@ -23,6 +23,11 @@ export default {
   created() {
     this.retrieveLikers();
   },
+  watch: {
+    activityId() {
+      this.retrieveLikers();
+    }
+  },
   methods: {
     retrieveLikers() {
       return this.$activityService.getActivityLikers(this.activityId, 0)
