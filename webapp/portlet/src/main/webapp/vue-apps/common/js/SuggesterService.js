@@ -32,8 +32,8 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
-            providerId: 'space',
             spaceId: item.id,
+            providerId: 'space',
             displayName: item.displayName,
             profile: {
               fullName: item.displayName,
