@@ -14,7 +14,7 @@
       type="activity-stream-drawers"
       parent-element="div"
       element="div"
-      class="drawer-parent" />
+      />
   </v-app>
 </template>
 
