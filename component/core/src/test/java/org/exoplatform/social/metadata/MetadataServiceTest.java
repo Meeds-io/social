@@ -19,6 +19,7 @@
 package org.exoplatform.social.metadata;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.when;
 
 import java.util.*;
 
@@ -35,6 +36,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.*;
 import org.picocontainer.Startable;
+
+import javax.annotation.meta.When;
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
@@ -322,6 +325,42 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
 
     List<Metadata> metadataList = metadataService.getMetadatas("space", 100);
+
+    assertNotNull(metadataList);
+    assertEquals(1, metadataList.size());
+  }
+
+  public void testGetReferencedMetadatas() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String name = "testMetadata1User1";
+    String name1 = "testMetadata1User12";
+
+    try {
+      Metadata metadata = new Metadata();
+      metadata.setType(spaceMetadataType);
+      metadata.setName(name);
+      metadata.setAudienceId(audienceId);
+      metadata.setCreatorId(creatorId);
+      HashMap<String, String> properties = new HashMap<>();
+      properties.put("referenced", "true");
+      metadata.setProperties(properties);
+      metadataService.createMetadata(metadata, creatorId);
+
+      Metadata metadata1 = new Metadata();
+      metadata1.setType(spaceMetadataType);
+      metadata1.setName(name1);
+      metadata1.setAudienceId(audienceId);
+      metadata1.setCreatorId(creatorId);
+      HashMap<String, String> properties1 = new HashMap<>();
+      properties1.put("referenced", "false");
+      metadata1.setProperties(properties1);
+      metadataService.createMetadata(metadata1, creatorId);
+
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    List<Metadata> metadataList = metadataService.getMetadatasByProperty("referenced", "true", 100);
 
     assertNotNull(metadataList);
     assertEquals(1, metadataList.size());
