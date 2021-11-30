@@ -111,7 +111,7 @@ export default {
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
     },
-    openSelectedTab(activityId,tab,activityType) {
+    openSelectedTab(activityId, tab, activityType) {
       if (activityId && tab) {
         this.activityId = activityId;
         this.activityType = activityType;
