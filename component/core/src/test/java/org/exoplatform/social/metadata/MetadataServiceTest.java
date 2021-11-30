@@ -356,12 +356,10 @@ public class MetadataServiceTest extends AbstractCoreTest {
       properties1.put("referenced", "false");
       metadata1.setProperties(properties1);
       metadataService.createMetadata(metadata1, creatorId);
-
     } catch (IllegalArgumentException e) {
       // Expected
     }
     List<Metadata> metadataList = metadataService.getMetadatasByProperty("referenced", "true", 100);
-
     assertNotNull(metadataList);
     assertEquals(1, metadataList.size());
   }

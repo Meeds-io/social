@@ -173,7 +173,6 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     if (limit > 0) {
       query.setMaxResults((int) limit);
     }
-
     List<?> resultList = query.getResultList();
     List<String> result = new ArrayList<>();
     for (Object object : resultList) {

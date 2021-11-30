@@ -199,7 +199,7 @@ public interface MetadataService {
    * @param limit limit of results to retrieve
    * @return {@link List} of Managed {@link Metadata} by property
    */
-  List<Metadata> getMetadatasByProperty(String propertyKey,String propertyValue, long limit);
+  List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit);
 
   /**
    * @param metadataTypeName metadata name {@link Metadata} name
