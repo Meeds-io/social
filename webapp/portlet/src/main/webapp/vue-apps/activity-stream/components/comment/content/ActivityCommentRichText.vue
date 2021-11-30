@@ -24,6 +24,7 @@
     <v-btn
       :loading="commenting"
       :disabled="disableButton"
+      :aria-label="label"
       class="btn btn-primary ms-10"
       color="primary"
       @click="postComment">
