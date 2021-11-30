@@ -19,7 +19,6 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 
 const appId = 'SpaceSettings';
-const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
@@ -31,7 +30,6 @@ export function init() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-settings
-                  v-cacheable="{cacheId: '${cacheId}'}"
                   id="${appId}"
                   class="singlePageApplication" />`,
       i18n,
