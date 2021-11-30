@@ -56,12 +56,14 @@
       <div class="d-flex justify-end">
         <v-btn
           class="btn me-2"
+          :aria-label="$t('Confirmation.label.Cancel')"
           @click="close">
           {{ $t('Confirmation.label.Cancel') }}
         </v-btn>
         <v-btn
           :loading="sharing"
           :disabled="buttonDisabled"
+          :aria-label="$t('UIActivity.share')"
           class="btn btn-primary me-2"
           @click="shareActivity">
           {{ $t('UIActivity.share') }}
