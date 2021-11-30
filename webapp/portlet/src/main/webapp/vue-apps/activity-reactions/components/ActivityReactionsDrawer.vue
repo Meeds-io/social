@@ -60,6 +60,10 @@ export default {
       type: String,
       default: () => ''
     },
+    activityPosterId: {
+      type: String,
+      default: () => ''
+    },
     maxItemsToShow: {
       type: Number,
       default: 0
@@ -87,6 +91,7 @@ export default {
     reactionParams() {
       return {
         activityId: this.activityId,
+        activityPosterId: this.activityPosterId
       };
     },
   },
