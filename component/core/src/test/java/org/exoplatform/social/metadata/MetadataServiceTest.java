@@ -335,7 +335,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     long audienceId = creatorId;
     String name = "testMetadata1User1";
     String name1 = "testMetadata1User12";
-
     try {
       Metadata metadata = new Metadata();
       metadata.setType(spaceMetadataType);
