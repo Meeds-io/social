@@ -71,6 +71,7 @@ export default {
   },
   data () {
     return {
+      activityType: '',
       limit: 10,
       selectedTab: null,
       drawerOpened: false,
@@ -90,6 +91,7 @@ export default {
     reactionParams() {
       return {
         activityId: this.activityId,
+        activityType: this.activityType,
         activityPosterId: this.activityPosterId
       };
     },
@@ -98,10 +100,12 @@ export default {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
     document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
       if (event && event.detail) {
-        this.openSelectedTab(event.detail.activityId , event.detail.tab);
+        this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType);
       }
     });
-    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, this.openSelectedTab);
+    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails => {
+      this.openSelectedTab(reactionTabDetails.activityId, reactionTabDetails.tab, reactionTabDetails.activityType);
+    });
   },
   methods: {
     open() {
@@ -109,9 +113,10 @@ export default {
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
     },
-    openSelectedTab(activityId,tab) {
+    openSelectedTab(activityId, tab, activityType) {
       if (activityId && tab) {
         this.activityId = activityId;
+        this.activityType = activityType;
         this.selectedTab = tab;
         this.open();
       }

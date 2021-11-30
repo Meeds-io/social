@@ -134,8 +134,9 @@ export default {
     },
     openLikesList() {
       document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
-        activityId: this.commentId,
+        activityId: this.commentId.replace('comment',''),
         tab: 'like',
+        activityType: 'COMMENT'
       }}));
     }
   },
