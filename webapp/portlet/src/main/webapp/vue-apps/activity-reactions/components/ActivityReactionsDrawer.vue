@@ -100,7 +100,7 @@ export default {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
     document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
       if (event && event.detail) {
-        this.openSelectedTab(event.detail.activityId , event.detail.tab , event.detail.activityType);
+        this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType);
       }
     });
     this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, this.openSelectedTab);
