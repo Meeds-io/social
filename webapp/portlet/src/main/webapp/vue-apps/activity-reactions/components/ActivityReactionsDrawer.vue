@@ -103,7 +103,7 @@ export default {
         this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType);
       }
     });
-    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`,event => {
+    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, event => {
       this.openSelectedTab(event.activityId, event.tab, event.activityType);
     });
   },
