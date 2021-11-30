@@ -71,6 +71,8 @@ export default {
   },
   data () {
     return {
+      parentId: '',
+      activityType: '',
       limit: 10,
       selectedTab: null,
       drawerOpened: false,
@@ -90,18 +92,23 @@ export default {
     reactionParams() {
       return {
         activityId: this.activityId,
+        parentId: this.parentId,
+        activityType: this.activityType,
         activityPosterId: this.activityPosterId
       };
     },
   },
   created() {
+    this.parentId = this.activityId;
     document.addEventListener('update-reaction-extension' , this.updateReaction);
     document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
       if (event && event.detail) {
-        this.openSelectedTab(event.detail.activityId , event.detail.tab);
+        this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType,event.detail.activityPosterId);
       }
     });
-    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, this.openSelectedTab);
+    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails => {
+      this.openSelectedTab(reactionTabDetails.activityId, reactionTabDetails.tab, reactionTabDetails.activityType,reactionTabDetails.activityPosterId);
+    });
   },
   methods: {
     open() {
@@ -109,9 +116,11 @@ export default {
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
     },
-    openSelectedTab(activityId,tab) {
+    openSelectedTab(activityId, tab, activityType, activityPosterId) {
       if (activityId && tab) {
         this.activityId = activityId;
+        this.activityPosterId = activityPosterId;
+        this.activityType = activityType;
         this.selectedTab = tab;
         this.open();
       }
