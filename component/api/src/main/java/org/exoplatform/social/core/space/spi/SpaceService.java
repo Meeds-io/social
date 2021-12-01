@@ -1507,6 +1507,16 @@ public interface SpaceService {
   }
 
   /**
+   * Checks if a specific space contains external users
+   *
+   * @param spaceId
+   * @return true if the space contains external users
+   */
+  default boolean isSpaceContainsExternals(Long spaceId){
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Retrieves the list of pending 'requests to join' a space that the user
    * manages
    * 

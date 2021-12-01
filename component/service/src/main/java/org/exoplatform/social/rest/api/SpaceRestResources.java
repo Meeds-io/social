@@ -29,6 +29,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.annotations.ApiParam;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 
 public interface SpaceRestResources extends SocialRest {
@@ -72,6 +73,20 @@ public interface SpaceRestResources extends SocialRest {
   public abstract Response createSpace(@Context UriInfo uriInfo, 
                                        @QueryParam("expand") String expand,
                                        SpaceEntity model) throws Exception;
+
+  /**
+   * Checks if a specific space contains external users
+   *
+   * @param uriInfo
+   * @param request
+   * @param spaceId
+   * @return space info of a space contains an external members
+   */
+  @GET
+  @Path("{spaceId}")
+  public abstract Response isSpaceContainsExternals(@Context UriInfo uriInfo,
+                                           @Context Request request,
+                                           @ApiParam(value = "Space Id", required = true) @PathParam("spaceId") String spaceId);
 
   /**
    * Process to return a space by id
