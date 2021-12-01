@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -144,6 +145,44 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     } catch (NoResultException e) {
       return Collections.emptyList();
     }
+  }
+
+  public List<String> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
+    try {
+      Query query = getMetadatasByPropertyQuery(propertyKey, propertyValue);
+      return getResultsFromQuery(query, limit);
+    } catch (NoResultException e) {
+      return Collections.emptyList();
+    }
+  }
+
+  private Query getMetadatasByPropertyQuery(String propertyKey, String propertyValue) {
+    StringBuilder queryStringBuilder = null;
+    queryStringBuilder = new StringBuilder("SELECT DISTINCT sm.metadata_id ");
+    queryStringBuilder.append(" FROM SOC_METADATAS sm \n");
+    queryStringBuilder.append(" INNER JOIN SOC_METADATA_PROPERTIES sm_prop \n");
+    queryStringBuilder.append(" ON sm.metadata_id = sm_prop.metadata_id \n");
+    queryStringBuilder.append(" AND EXISTS ( SELECT sm_prop_tmp.metadata_id FROM SOC_METADATA_PROPERTIES as sm_prop_tmp \n");
+    queryStringBuilder.append(" WHERE sm_prop_tmp.metadata_id = sm.metadata_id \n");
+    queryStringBuilder.append(" AND sm_prop_tmp.name = '").append(propertyKey).append("' \n");
+    queryStringBuilder.append(" AND sm_prop_tmp.value = '").append(propertyValue).append("' ) \n");
+    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
+  }
+
+  private List<String> getResultsFromQuery(Query query, long limit) {
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    List<?> resultList = query.getResultList();
+    List<String> result = new ArrayList<>();
+    for (Object object : resultList) {
+      String resultObject = String.valueOf(object);
+      if (resultObject == null) {
+        continue;
+      }
+      result.add(resultObject);
+    }
+    return result;
   }
 
 }
