@@ -109,6 +109,7 @@ export default {
     openDrawer() {
       const reactionTabDetails = {
         activityId: this.activityId,
+        activityPosterId: this.activityPosterId,
         tab: 'like',
         activityType: 'ACTIVITY'
       };
