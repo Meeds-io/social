@@ -1,13 +1,9 @@
 <template>
   <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
-    <v-dialog
-      v-if="isMobile"
-      :value="true"
-      hide-overlay
-      persistent
-      scrollable
-      internal-activator
-      content-class="spaceButtomNavigation white">
+  <v-footer 
+      v-if="isMobile" 
+      class="spaceButtomNavigation white">
+    <v-slide-group>
       <v-bottom-navigation
         :value="selectedNavigationUri"
         grow
@@ -25,7 +21,8 @@
           <i :class="nav.icon"></i>
         </v-btn>
       </v-bottom-navigation>
-    </v-dialog>
+    </v-slide-group>
+  </v-footer>    
     <v-tabs
       v-else
       :value="selectedNavigationUri"
