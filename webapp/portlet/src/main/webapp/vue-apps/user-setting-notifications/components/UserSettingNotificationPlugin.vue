@@ -20,7 +20,12 @@
         <v-list-item-title class="text-wrap">
           <template v-if="enabledDigestLabel">
             <v-chip class="ma-2" color="primary">
-              {{ enabledDigestLabel }}
+               <span v-if="isMobile" class="mobile-chip-ellipsis">
+                  {{ enabledDigestLabel }}
+              </span>
+              <span v-else>
+                {{ enabledDigestLabel }}
+              </span>
             </v-chip>
           </template>
           <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
@@ -29,7 +34,10 @@
               :key="enabledNotificationLabel"
               class="ma-2"
               color="primary">
-              {{ enabledNotificationLabel }}
+              <span v-if="isMobile" class="mobile-chip-ellipsis">
+                {{ enabledNotificationLabel }}
+              </span>
+              <span v-else>{{ enabledNotificationLabel }}</span>
             </v-chip>
           </template>
         </v-list-item-title>
@@ -58,6 +66,9 @@ export default {
     },
   },
   computed: {
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
     },
