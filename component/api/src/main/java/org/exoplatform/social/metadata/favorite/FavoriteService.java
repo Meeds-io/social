@@ -41,9 +41,21 @@ public interface FavoriteService {
   public void createFavorite(Favorite favorite) throws ObjectAlreadyExistsException;
 
   /**
+   * Check if an object identified by its type/id for a user has favorite metadata
+   * or not
+   * 
+   * @param favorite {@link Favorite} object that has to define: - objectType
+   *          object type, can be of any type: activity, comment, notes... -
+   *          objectId object technical unique identifier - userIdentityId
+   *          {@link Identity} technical identifier of the user
+   * @throws ObjectNotFoundException when the favorite doesn't exists
+   */
+  public Boolean isFavorite(Favorite favorite);
+
+  /**
    * Deletes an existing Favorite for corresponding object identified by its
    * type/id for a user
-   * 
+   *
    * @param favorite {@link Favorite} object that has to define:
    *    - objectType object type, can be of any type: activity, comment, notes...
    *    - objectId object technical unique identifier
