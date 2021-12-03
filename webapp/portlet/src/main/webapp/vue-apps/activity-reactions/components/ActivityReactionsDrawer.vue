@@ -71,7 +71,6 @@ export default {
   },
   data () {
     return {
-      lastLoadedActivityId: null,
       limit: 10,
       selectedTab: null,
       drawerOpened: false,
@@ -97,21 +96,23 @@ export default {
   },
   created() {
     document.addEventListener('update-reaction-extension' , this.updateReaction);
-    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , this.openSelectedTab);
+    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
+      if (event && event.detail) {
+        this.openSelectedTab(event.detail.activityId , event.detail.tab);
+      }
+    });
+    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, this.openSelectedTab);
   },
   methods: {
     open() {
       this.refreshReactions();
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
-      if (this.lastLoadedActivityId !== this.activityId) {
-        this.limit = 10;
-        this.lastLoadedActivityId = this.activityId;
-      }
     },
-    openSelectedTab(event) {
-      if (event && event.detail && event.detail.activityId && event.detail.activityId === this.activityId) {
-        this.selectedTab = event.detail.tab;
+    openSelectedTab(activityId,tab) {
+      if (activityId && tab) {
+        this.activityId = activityId;
+        this.selectedTab = tab;
         this.open();
       }
     },
