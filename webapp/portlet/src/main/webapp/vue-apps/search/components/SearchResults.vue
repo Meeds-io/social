@@ -195,7 +195,7 @@ export default {
 
       results = Object.values(results).flat();
       if (this.favorites) {
-        results = results.filter(result => result.metadatas && result.metadatas.favorites);
+        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite);
       }
       return results.sort((a, b) => a.index - b.index);
     },
