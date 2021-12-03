@@ -20,11 +20,8 @@
         <v-list-item-title class="text-wrap">
           <template v-if="enabledDigestLabel">
             <v-chip class="ma-2" color="primary">
-               <span v-if="isMobile" class="mobile-chip-ellipsis">
+                <span :class="{ 'mobile-chip-ellipsis' : isMobile }">
                   {{ enabledDigestLabel }}
-              </span>
-              <span v-else>
-                {{ enabledDigestLabel }}
               </span>
             </v-chip>
           </template>
@@ -34,10 +31,9 @@
               :key="enabledNotificationLabel"
               class="ma-2"
               color="primary">
-              <span v-if="isMobile" class="mobile-chip-ellipsis">
-                {{ enabledNotificationLabel }}
+               <span :class="{ 'mobile-chip-ellipsis' : isMobile }">
+                  {{ enabledNotificationLabel }}
               </span>
-              <span v-else>{{ enabledNotificationLabel }}</span>
             </v-chip>
           </template>
         </v-list-item-title>
