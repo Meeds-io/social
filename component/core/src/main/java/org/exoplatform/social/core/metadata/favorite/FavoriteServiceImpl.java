@@ -51,6 +51,14 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
+  public boolean isFavorite(Favorite favorite) {
+    long userIdentityId = favorite.getUserIdentityId();
+    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), String.valueOf(userIdentityId), userIdentityId);
+    List<MetadataItem> favorites = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, favorite.getObject());
+    return !favorites.isEmpty();
+  }
+
+  @Override
   public void deleteFavorite(Favorite favorite) throws ObjectNotFoundException {
     long userIdentityId = favorite.getUserIdentityId();
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(),
