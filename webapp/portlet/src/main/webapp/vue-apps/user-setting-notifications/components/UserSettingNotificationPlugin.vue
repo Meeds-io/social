@@ -21,7 +21,7 @@
           <template v-if="enabledDigestLabel">
             <v-chip class="ma-2" color="primary">
               <span :class="{ 'mobile-chip-ellipsis' : isMobile }">
-                  {{ enabledDigestLabel }}
+                {{ enabledDigestLabel }}
               </span>
             </v-chip>
           </template>
