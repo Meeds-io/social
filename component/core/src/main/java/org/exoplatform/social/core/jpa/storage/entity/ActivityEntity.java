@@ -440,7 +440,7 @@ public class ActivityEntity implements Serializable {
   public void addLiker(String likerId) {
     LikerEntity liker = new LikerEntity(likerId);
     if (!this.likers.contains(liker)) {
-      this.likers.add(liker);
+      this.likers.add(0,liker);
     }
   }
 
