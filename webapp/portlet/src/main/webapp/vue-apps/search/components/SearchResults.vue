@@ -289,7 +289,12 @@ export default {
       if (!selectedConnector) {
         return;
       }
-
+      if (!selectedConnector.enabled || this.connectors.length === this.enabledConnectors.length) {
+        document.dispatchEvent(new CustomEvent('search-connector-selected', {
+          detail:
+          selectedConnector.name,
+        }));
+      }
       if (this.connectors.length === this.enabledConnectors.length) {
         this.connectors.forEach(connector => {
           connector.enabled = connector.name === selectedConnector.name;
