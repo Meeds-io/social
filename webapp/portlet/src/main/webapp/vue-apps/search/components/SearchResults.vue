@@ -290,16 +290,7 @@ export default {
         return;
       }
       if (!selectedConnector.enabled || this.connectors.length === this.enabledConnectors.length) {
-        const searchFilterAnalytics = {
-          'module': 'portal',
-          'subModule': 'ui',
-          'userId': eXo.env.portal.userIdentityId,
-          'userName': eXo.env.portal.userName,
-          'operation': 'click',
-          'name': `search${selectedConnector.name.charAt(0).toUpperCase()}${selectedConnector.name.slice(1)}`,
-          'timestamp': Date.now()
-        };
-        document.dispatchEvent(new CustomEvent('exo-statistic-message', {detail: searchFilterAnalytics}));
+        this.addSearchFilterAnalytics(selectedConnector.name);
       }
       if (this.connectors.length === this.enabledConnectors.length) {
         this.connectors.forEach(connector => {
@@ -430,6 +421,41 @@ export default {
             this.searchInitialized = true;
           });
       });
+    },
+    addSearchFilterAnalytics(connectorName) {
+      let name;
+      switch (connectorName) {
+      case 'activity':
+        name = 'searchActivities';
+        break;
+      case 'news':
+        name = 'searchNews';
+        break;
+      case 'wiki':
+        name = 'searchNotes';
+        break;
+      case 'people':
+        name = 'searchPeople';
+        break;
+      case 'perkstore':
+        name = 'searchProducts';
+        break;
+      case 'agenda':
+        name = 'searchEvents';
+        break;
+      default:
+        name = `search${connectorName.charAt(0).toUpperCase()}${connectorName.slice(1)}s`;
+      }
+      const searchFilterAnalytics = {
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'operation': 'click',
+        'name': name,
+        'timestamp': Date.now()
+      };
+      document.dispatchEvent(new CustomEvent('exo-statistic-message', {detail: searchFilterAnalytics}));
     },
   },
 };
