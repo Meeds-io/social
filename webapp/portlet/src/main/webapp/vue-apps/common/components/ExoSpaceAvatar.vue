@@ -11,7 +11,8 @@
         :src="avatarUrl"
         :class="avatarClass"
         class="object-fit-cover ma-auto"
-        loading="lazy">
+        loading="lazy"
+        role="presentation">
     </v-avatar>
     <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2 d-flex">
       <p
