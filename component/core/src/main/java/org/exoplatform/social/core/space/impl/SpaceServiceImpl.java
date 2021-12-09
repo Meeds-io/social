@@ -468,6 +468,11 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
 
+  @Override
+  public boolean isSpaceContainsExternals(Long spaceId) {
+    return spaceStorage.countExternalMembers(spaceId) != 0;
+  }
+
   private Set<String> getUsersToInvite(List<Identity> identities) {
     Set<String> invitedUserIds = new HashSet<>();
     for (Identity identity : identities) {
