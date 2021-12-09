@@ -290,16 +290,10 @@ export default {
         return;
       }
       if (!selectedConnector.enabled || this.connectors.length === this.enabledConnectors.length) {
-        const searchFilterAnalytics = {
-          'module': 'portal',
-          'subModule': 'ui',
-          'userId': eXo.env.portal.userIdentityId,
-          'userName': eXo.env.portal.userName,
-          'operation': 'click',
-          'name': `search${selectedConnector.name.charAt(0).toUpperCase()}${selectedConnector.name.slice(1)}`,
-          'timestamp': Date.now()
-        };
-        document.dispatchEvent(new CustomEvent('exo-statistic-message', {detail: searchFilterAnalytics}));
+        document.dispatchEvent(new CustomEvent('search-connector-selected', {
+          detail:
+          selectedConnector.name,
+        }));
       }
       if (this.connectors.length === this.enabledConnectors.length) {
         this.connectors.forEach(connector => {
