@@ -236,4 +236,18 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     return query.getSingleResult().intValue();
   }
 
+  @Override
+  public int countExternalMembers(Long spaceId) {
+    Query q = getEntityManager().createNativeQuery("SELECT COUNT(DISTINCT USER_ID) FROM SOC_SPACES_MEMBERS ssm " +
+            "INNER JOIN SOC_IDENTITIES si ON ssm.USER_ID = si.REMOTE_ID " +
+            "INNER JOIN SOC_IDENTITY_PROPERTIES sip ON si.IDENTITY_ID = sip.IDENTITY_ID " +
+            "WHERE sip.NAME = 'external' AND sip.VALUE = 'true' AND ssm.SPACE_ID = :spaceId AND si.ENABLED = 1");
+    q.setParameter("spaceId", spaceId);
+    try {
+      return ((Number) q.getSingleResult()).intValue();
+    } catch (NoResultException e) {
+      return 0;
+    }
+  }
+
 }
