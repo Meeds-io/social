@@ -752,4 +752,14 @@ public interface SpaceStorage {
   default List<Space> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Counts the number of external users in a specific space
+   *
+   * @param spaceId
+   * @return counts the external members in the space
+   */
+  default int countExternalMembers(Long spaceId) {
+    throw new UnsupportedOperationException();
+  }
 }

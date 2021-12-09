@@ -782,4 +782,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     this.identityStorage = identityStorage;
   }
 
+  @Override
+  public int countExternalMembers(Long spaceId) {
+    return spaceMemberDAO.countExternalMembers(spaceId);
+  }
 }
