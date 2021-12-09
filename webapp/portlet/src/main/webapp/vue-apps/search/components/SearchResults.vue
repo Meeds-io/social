@@ -265,6 +265,9 @@ export default {
   },
   methods: {
     selectFavorites() {
+      if (!this.favorites) {
+        document.dispatchEvent(new CustomEvent('search-favorites-selected'));
+      }
       this.favorites = !this.favorites;
       this.$emit('filter-changed');
     },
