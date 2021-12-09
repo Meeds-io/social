@@ -126,20 +126,10 @@ export default {
       } else {
         this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
           .then(() => {
-            const favorite = {
-              'module': 'portal',
-              'subModule': 'ui',
-              'userId': eXo.env.portal.userIdentityId,
-              'userName': eXo.env.portal.userName,
-              'parameters': {
-                'type': this.type,
-                'activityId': this.id,
-                'spaceId': eXo.env.portal.spaceId,
-              },
-              'operation': 'Bookmark',
-              'timestamp': Date.now()
-            };
-            document.dispatchEvent(new CustomEvent('exo-statistic-message', {detail: favorite}));
+            document.dispatchEvent(new CustomEvent('favorite-added', {detail: {
+              'type': this.type,
+              'id': this.id,
+            }}));
             this.isFavorite = true;
             this.$emit('added');
             this.updateFavorite();
