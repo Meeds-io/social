@@ -604,6 +604,21 @@ export function ignoreSuggestion(item) {
   });
 }
 
+export function checkExternals(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/checkExternals`, {
+    method: 'GET',
+    credentials: 'include'
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.text();
+    }
+  });
+}
+
 export function shareActivityOnSpaces(spaceId, sharedActivity) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${spaceId}/share`, {
     method: 'POST',
