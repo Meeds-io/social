@@ -49,6 +49,7 @@ import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+
 public class SpaceServiceTest extends AbstractCoreTest {
   private IdentityStorage               identityStorage;
 
@@ -110,6 +111,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   private Identity                      member3;
 
+  private Identity                      externalUser;
+
 
   @Override
   public void setUp() throws Exception {
@@ -144,6 +147,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     member1 = new Identity(OrganizationIdentityProvider.NAME, "member1");
     member2 = new Identity(OrganizationIdentityProvider.NAME, "member2");
     member3 = new Identity(OrganizationIdentityProvider.NAME, "member3");
+    externalUser = new Identity(OrganizationIdentityProvider.NAME, "externalUser");
+
 
     identityStorage.saveIdentity(demo);
     identityStorage.saveIdentity(tom);
@@ -3383,5 +3388,22 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.saveSpace(space2, true);
     tearDownSpaceList.add(space2);
     return space2;
+  }
+
+  public void testSpaceContainsExternalMembers() throws Exception {
+    externalUser.getProfile().setProperty("external", "true");
+    identityStorage.saveIdentity(externalUser);
+    User external = organizationService.getUserHandler().createUserInstance("externalUser");
+    organizationService.getUserHandler().createUser(external, false);
+    Space space = getSpaceInstance(10);
+    boolean hasExternals;
+
+    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
+    assertEquals(false, hasExternals);
+
+    spaceService.addMember(space, "externalUser");
+    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
+    assertEquals(true, hasExternals);
+    tearDownUserList.add(externalUser);
   }
 }

@@ -190,6 +190,17 @@
             </form>
           </v-stepper-content>
         </v-stepper>
+        <div>
+          <v-alert
+            v-if="selectedSpacesWithExternals.length != 0"
+            v-model="externalAlert"
+            dismissible
+            class="elevation-0 mb-14 me-2 pe-4"
+            icon="mdi-alert-circle"
+            type="warning">
+            <p v-sanitized-html="invitedSpacesWithExternals" />
+          </v-alert>
+        </div>
       </div>
     </template>
     <template slot="footer">
@@ -221,6 +232,7 @@
   </exo-drawer>
 </template>
 <script>
+
 export default {
   data: () => ({
     savingSpace: false,
@@ -233,6 +245,8 @@ export default {
     template: null,
     spaceTemplate: null,
     templates: [],
+    selectedSpacesWithExternals: [],
+    externalAlert: false
   }),
   computed: {
     saveButtonDisabled() {
@@ -246,6 +260,11 @@ export default {
         placeholder: this.$t('spacesList.label.inviteMembers'),
         noDataLabel: this.$t('spacesList.label.noDataLabel'),
       };
+    },
+    invitedSpacesWithExternals() {
+      return this.$t && this.$t('spaceList.checkExternals.warning', {
+        0: `<strong>[${this.selectedSpacesWithExternals.join(',')}]</strong>`,
+      });
     }
   },
   watch: {
@@ -283,6 +302,18 @@ export default {
         this.setSpaceTemplateProperties();
       }
     },
+    'space.invitedMembers': function (items){
+      this.selectedSpacesWithExternals = [];
+      items.filter(item => item.providerId === 'space')
+        .forEach(space => {
+          this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
+            if (hasExternals && hasExternals === 'true') {
+              this.selectedSpacesWithExternals.push(space.displayName);
+              this.externalAlert = true;
+            }
+          });
+        });
+    }
   },
   created() {
     const search = window.location.search && window.location.search.substring(1);
