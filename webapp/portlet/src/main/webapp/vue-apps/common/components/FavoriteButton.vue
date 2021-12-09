@@ -126,6 +126,10 @@ export default {
       } else {
         this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
           .then(() => {
+            document.dispatchEvent(new CustomEvent('favorite-added', {detail: {
+              'type': this.type,
+              'id': this.id,
+            }}));
             this.isFavorite = true;
             this.$emit('added');
             this.updateFavorite();
