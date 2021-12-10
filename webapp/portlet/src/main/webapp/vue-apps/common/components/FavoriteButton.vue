@@ -44,6 +44,10 @@ export default {
       type: String,
       default: null,
     },
+    spaceId: {
+      type: String,
+      default: null,
+    },
     favorite: {
       type: Boolean,
       default: false,
@@ -129,6 +133,7 @@ export default {
             document.dispatchEvent(new CustomEvent('favorite-added', {detail: {
               'type': this.type,
               'id': this.id,
+              'spaceId': this.spaceId,
             }}));
             this.isFavorite = true;
             this.$emit('added');
