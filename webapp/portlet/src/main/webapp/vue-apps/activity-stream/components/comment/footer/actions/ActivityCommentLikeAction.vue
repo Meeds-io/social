@@ -58,6 +58,9 @@ export default {
     commentId() {
       return this.comment && this.comment.id;
     },
+    commentPoster() {
+      return this.comment && this.comment.poster;
+    },
     activityId() {
       return this.activity && this.activity.id;
     },
@@ -134,8 +137,10 @@ export default {
     },
     openLikesList() {
       document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
-        activityId: this.commentId,
+        activityId: this.commentId.replace('comment',''),
+        activityPosterId: this.commentPoster,
         tab: 'like',
+        activityType: 'COMMENT'
       }}));
     }
   },
