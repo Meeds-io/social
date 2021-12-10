@@ -14,13 +14,10 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-
-    <v-list-item v-if="hasNotificationSettings" dense>
-      <v-list-item-content class="pa-0">
-        <v-list-item-title class="text-wrap">
+        <v-flex v-if="hasNotificationSettings" class="d-flex flex-wrap" >
           <template v-if="enabledDigestLabel">
             <v-chip class="ma-2" color="primary">
-              <span :class="{ 'mobile-chip-ellipsis' : isMobile }">
+              <span class="text-truncate">
                 {{ enabledDigestLabel }}
               </span>
             </v-chip>
@@ -31,14 +28,12 @@
               :key="enabledNotificationLabel"
               class="ma-2"
               color="primary">
-              <span :class="{ 'mobile-chip-ellipsis' : isMobile }">
+              <span class="text-truncate">
                 {{ enabledNotificationLabel }}
               </span>
             </v-chip>
           </template>
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
+        </v-flex>
     <v-list-item v-else dense>
       <v-list-item-content class="pa-0">
         <v-list-item-subtitle class="text-sub-title font-italic">
