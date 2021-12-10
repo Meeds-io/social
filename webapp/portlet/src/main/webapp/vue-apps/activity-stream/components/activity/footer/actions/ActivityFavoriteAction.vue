@@ -1,6 +1,7 @@
 <template>
   <favorite-button
     :id="activityId"
+    :space-id="spaceId"
     :favorite="isFavorite"
     :absolute="absolute"
     :top="top"
@@ -38,6 +39,9 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+    spaceId() {
+      return this.activity && this.activity.activityStream && this.activity.activityStream.space && this.activity.activityStream.space.id;
     },
   },
   created() {
