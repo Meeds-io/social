@@ -97,7 +97,7 @@
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents order-first ma-2 mb-0">
+      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-1' : 'ma-2'}`">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
@@ -150,6 +150,9 @@ export default {
     resolveMounting: null
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
     enabledProfileHeaderActionComponents() {
       return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
     },
