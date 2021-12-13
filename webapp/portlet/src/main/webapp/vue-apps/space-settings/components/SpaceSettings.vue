@@ -24,7 +24,7 @@ export default {
   }),
   created() {
     // add external components
-    const externalComponents = extensionRegistry.loadComponents('external-space').map(component => component.componentOptions.componentImpl);
+    const externalComponents = extensionRegistry.loadComponents('external-apps-space-settings').map(component => component.componentOptions.componentImpl);
     this.spaceExternalSettings.push(...externalComponents);
 
     document.addEventListener('addSpaceSettingsExternalComponents', (event) => {
