@@ -64,6 +64,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    templateParams: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     isFavorite: false,
@@ -130,11 +134,14 @@ export default {
       } else {
         this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
           .then(() => {
-            document.dispatchEvent(new CustomEvent('favorite-added', {detail: {
-              'type': this.type,
-              'id': this.id,
-              'spaceId': this.spaceId,
-            }}));
+            document.dispatchEvent(new CustomEvent('favorite-added', {
+              detail: {
+                'type': this.type,
+                'id': this.id,
+                'spaceId': this.spaceId,
+                'templateParams': this.templateParams,
+              }
+            }));
             this.isFavorite = true;
             this.$emit('added');
             this.updateFavorite();
