@@ -762,4 +762,26 @@ public interface SpaceStorage {
   default int countExternalMembers(Long spaceId) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Get common spaces between two users
+   *
+   * @param userId        connected user id
+   * @param profileUserId visited profile user id
+   * @return list of common spaces between two users in param
+   */
+  default List<Space> getCommonSpaces(String userId, String profileUserId, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Count common spaces between two users
+   *
+   * @param userId        connected user id
+   * @param profileUserId visited profile user id
+   * @return list of common spaces between two users in param
+   */
+  default int countCommonSpaces(String userId, String profileUserId) {
+    throw new UnsupportedOperationException();
+  }
 }

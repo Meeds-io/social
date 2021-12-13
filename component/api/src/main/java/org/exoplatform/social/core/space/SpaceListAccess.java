@@ -31,12 +31,18 @@ public class SpaceListAccess implements ListAccess<Space> {
   
   /** The user id. */
   private String userId;
+
+  /** The visited profile id, used while getting list of common spaces between two users. */
+  private String profileUserId;
   
   /** The space filter */
   private SpaceFilter spaceFilter;
   
   /** The type. */
   Type type;
+
+  /** used to specify which constructor is used for commons spaces service */
+  private String methodName;
   
   /**
    * The space list access Type Enum.
@@ -85,7 +91,9 @@ public class SpaceListAccess implements ListAccess<Space> {
     /** Provides Relationship of Users requesting to join a Space  */
     PENDING_REQUESTS,
     /** Gets the spaces which are visited at least once */
-    VISITED
+    VISITED,
+    /** Gets the common spaces between two users */
+    COMMON
   }
   
   /**
@@ -170,6 +178,23 @@ public class SpaceListAccess implements ListAccess<Space> {
     this.spaceFilter = spaceFilter;
     this.type = type;
   }
+
+  /**
+   * The constructor.
+   *
+   * @param spaceStorage
+   * @param userId
+   * @param profileUserId
+   * @param type
+   * @param methodName used to specify that this constructor is used only for commons spaces service
+   */
+  public SpaceListAccess(SpaceStorage spaceStorage, String userId, String profileUserId, Type type,String methodName) {
+    this.spaceStorage = spaceStorage;
+    this.profileUserId = profileUserId;
+    this.userId = userId;
+    this.type = type;
+    this.methodName = methodName;
+  }
   
   /**
    * {@inheritDoc}
@@ -197,6 +222,7 @@ public class SpaceListAccess implements ListAccess<Space> {
       case UNIFIED_SEARCH: return spaceStorage.getUnifiedSearchSpacesCount(this.userId, this.spaceFilter);
       case LASTEST_ACCESSED: return spaceStorage.getLastAccessedSpaceCount(this.spaceFilter);
       case PENDING_REQUESTS: return spaceStorage.countPendingSpaceRequestsToManage(userId);
+      case COMMON: return spaceStorage.countCommonSpaces(this.userId, this.profileUserId);
       default: return 0;
     }
   }
@@ -249,6 +275,8 @@ public class SpaceListAccess implements ListAccess<Space> {
       case LASTEST_ACCESSED:listSpaces = spaceStorage.getLastAccessedSpace(this.spaceFilter, offset, limit);
         break;
       case VISITED: listSpaces = spaceStorage.getVisitedSpaces(this.spaceFilter, offset, limit);
+        break;
+      case COMMON: listSpaces = spaceStorage.getCommonSpaces(this.userId, this.profileUserId, offset, limit);
         break;
       case PENDING_REQUESTS: {
         // The computing of spaces content is done here to use cached spaceStorage to retrieve contents

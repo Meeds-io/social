@@ -1138,38 +1138,19 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    List<String> userSpaceInfos = new ArrayList<String>();
-    List<String> profileSpaceInfos = new ArrayList<String>();
+    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId,offset,limit);
     List<DataEntity> commonSpaceInfos = new ArrayList<DataEntity>();
 
-    ListAccess<Space> cureentUserListAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(userId);
-    ListAccess<Space> profileUserlistAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(profileId);
-
-    for (Space space : cureentUserListAccess.load(offset, limit)) {
+    for (Space space : commonSpacesAccessList.load(offset, limit)) {
       SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand);
-      userSpaceInfos.add(spaceInfo.getId());
-    }
-
-    for (Space space : profileUserlistAccess.load(offset, limit)) {
-      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, profileId, uriInfo.getPath(), expand);
-      profileSpaceInfos.add(spaceInfo.getId());
-    }
-
-    List<String> commonSpacesId = userSpaceInfos.stream()
-                                                .filter(profileSpaceInfos::contains)
-                                                .collect(Collectors.toList());
-
-    for(String id : commonSpacesId){
-      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id), profileId, uriInfo.getPath(), expand);
+      //
       commonSpaceInfos.add(spaceInfo.getDataEntity());
     }
-
-    CollectionEntity collectionCommonSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
-
+    CollectionEntity collectionSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
-      collectionCommonSpace.setSize( commonSpaceInfos.size());
+      collectionSpace.setSize(commonSpacesAccessList.getSize());
     }
-    return EntityBuilder.getResponse(collectionCommonSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @POST
