@@ -265,6 +265,9 @@ export default {
   },
   methods: {
     selectFavorites() {
+      if (!this.favorites) {
+        document.dispatchEvent(new CustomEvent('search-favorites-selected'));
+      }
       this.favorites = !this.favorites;
       this.$emit('filter-changed');
     },
@@ -289,7 +292,12 @@ export default {
       if (!selectedConnector) {
         return;
       }
-
+      if (!selectedConnector.enabled || this.connectors.length === this.enabledConnectors.length) {
+        document.dispatchEvent(new CustomEvent('search-connector-selected', {
+          detail:
+          selectedConnector.name,
+        }));
+      }
       if (this.connectors.length === this.enabledConnectors.length) {
         this.connectors.forEach(connector => {
           connector.enabled = connector.name === selectedConnector.name;
