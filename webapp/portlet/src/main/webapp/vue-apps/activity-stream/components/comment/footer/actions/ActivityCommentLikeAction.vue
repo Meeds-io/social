@@ -137,7 +137,7 @@ export default {
     },
     openLikesList() {
       document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
-        activityId: this.commentId.replace('comment',''),
+        activityId: this.commentId,
         activityPosterId: this.commentPoster,
         tab: 'like',
         activityType: 'COMMENT'

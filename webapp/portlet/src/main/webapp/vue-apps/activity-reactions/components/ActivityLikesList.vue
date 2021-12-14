@@ -22,6 +22,9 @@ export default {
   },
   created() {
     this.retrieveLikers();
+    document.addEventListener(`check-reactions-${this.activityId}`, this.updateLikers);
+    document.addEventListener(`activity-liked-${this.activityId}`,this.retrieveLikers);
+
   },
   watch: {
     activityId() {
@@ -33,17 +36,20 @@ export default {
       return this.$activityService.getActivityLikers(this.activityId, 0)
         .then(data => {
           this.likers = data.likes;
-          document.dispatchEvent(new CustomEvent('update-reaction-extension', {
-            detail: {
-              numberOfReactions: this.likers.length,
-              type: 'like'
-            }
-          }));
+          this.updateLikers();
         })
         .catch((e => {
           console.error('error retrieving activity likers' , e) ;
         }));
     },
+    updateLikers() {
+      document.dispatchEvent(new CustomEvent(`update-reaction-extension-${this.activityId}`, {
+        detail: {
+          numberOfReactions: this.likers.length,
+          type: 'like'
+        }
+      }));
+    }
   },
 };
 </script>

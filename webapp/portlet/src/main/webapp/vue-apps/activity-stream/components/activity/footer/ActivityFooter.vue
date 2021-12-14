@@ -72,7 +72,7 @@ export default {
     this.$root.$on('activity-comment-updated', this.checkCommentsSize);
     this.$root.$on('activity-comment-deleted', this.checkCommentsSize);
     this.$root.$on('activity-comments-retrieved', this.checkCommentsSize);
-    this.$root.$on('activity-liked', this.checkLikesSize);
+    document.addEventListener(`activity-liked-${this.activityId}`,this.checkLikesSize);
     this.checkCommentsSize();
     this.checkLikesSize();
   },
@@ -81,7 +81,7 @@ export default {
     this.$root.$off('activity-comment-updated', this.checkCommentsSize);
     this.$root.$off('activity-comment-deleted', this.checkCommentsSize);
     this.$root.$off('activity-comments-retrieved', this.checkCommentsSize);
-    this.$root.$off('activity-liked', this.checkLikesSize);
+    document.removeEventListener(`activity-liked-${this.activityId}`,this.checkLikesSize);
   },
   methods: {
     checkLikesSize() {
