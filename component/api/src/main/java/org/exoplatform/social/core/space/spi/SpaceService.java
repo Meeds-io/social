@@ -1621,10 +1621,10 @@ public interface SpaceService {
    * Gets a list access containing all common spaces between two users
    *
    * @param userId connected user id
-   * @param profileUserId visited profile user id
+   * @param otherUserId visited profile user id
    * @return list of common spaces between two users in param
    */
-  default ListAccess<Space> getCommonSpaces(String userId, String profileUserId,int offset,int limit) {
+  default ListAccess<Space> getCommonSpaces(String userId, String otherUserId,int offset,int limit) {
     throw new UnsupportedOperationException();
   }
 

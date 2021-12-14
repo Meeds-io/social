@@ -35,8 +35,8 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
                 query = "SELECT * FROM SOC_SPACES t " +
                         "            where t.SPACE_ID in ( " +
                         "            SELECT distinct t1.SPACE_ID FROM SOC_SPACES_MEMBERS t1 " +
-                        "            where t1.USER_ID = :user1 " +
-                        "            and (SELECT distinct t2.SPACE_ID FROM SOC_SPACES_MEMBERS t2 where t1.SPACE_ID=t2.SPACE_ID and t2.USER_ID = :user2 ) " +
+                        "            where t1.USER_ID = :userId " +
+                        "            and (SELECT distinct t2.SPACE_ID FROM SOC_SPACES_MEMBERS t2 where t1.SPACE_ID=t2.SPACE_ID and t2.USER_ID = :otherUserId ) " +
                         "            )",
                 resultClass = SpaceEntity.class
         ),

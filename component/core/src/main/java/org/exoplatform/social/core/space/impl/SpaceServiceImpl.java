@@ -1796,8 +1796,8 @@ public class SpaceServiceImpl implements SpaceService {
     return isManager(space, username);
   }
 
-  public ListAccess<Space> getCommonSpaces(String userId, String profileUserId,int offset,int limit) {
-    return new SpaceListAccess(this.spaceStorage, userId,profileUserId, SpaceListAccess.Type.COMMON,COMMON_SPACES_METHOD);
+  public ListAccess<Space> getCommonSpaces(String userId, String otherUserId,int offset,int limit) {
+    return new SpaceListAccess(this.spaceStorage, userId,otherUserId, SpaceListAccess.Type.COMMON,COMMON_SPACES_METHOD);
   }
 
 }

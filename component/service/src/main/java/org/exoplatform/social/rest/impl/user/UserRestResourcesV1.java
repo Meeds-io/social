@@ -1139,13 +1139,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId,offset,limit);
-    List<DataEntity> commonSpaceInfos = new ArrayList<DataEntity>();
 
-    for (Space space : commonSpacesAccessList.load(offset, limit)) {
-      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand);
-      //
-      commonSpaceInfos.add(spaceInfo.getDataEntity());
-    }
+    List<DataEntity> commonSpaceInfos = Arrays.stream(commonSpacesAccessList.load(offset, limit))
+            .map(space -> EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand).getDataEntity())
+            .collect(Collectors.toList());
     CollectionEntity collectionSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
       collectionSpace.setSize(commonSpacesAccessList.getSize());

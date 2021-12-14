@@ -89,12 +89,12 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
   }
 
   @Override
-  public List<SpaceEntity> getCommonSpaces(String userId, String profileUserId, int offset, int limit) {
+  public List<SpaceEntity> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
     if (userId == null || userId == "") {
-      throw new IllegalArgumentException("userId is null or equals to 0");
+      throw new IllegalArgumentException("the userId is null or equals to 0");
     }
-    if (profileUserId == null || profileUserId == "") {
-      throw new IllegalArgumentException("profileUserId is null or equals to 0");
+    if (otherUserId == null || otherUserId == "") {
+      throw new IllegalArgumentException("the otherUserId is null or equals to 0");
     }
     if (offset < 0) {
       throw new IllegalArgumentException("offset must be positive");
@@ -104,8 +104,8 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     }
     TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getCommonSpacesBetweenTwoUsers",
             SpaceEntity.class);
-    query.setParameter("user1", userId);
-    query.setParameter("user2", profileUserId);
+    query.setParameter("userId", userId);
+    query.setParameter("otherUserId", otherUserId);
     query.setFirstResult(offset);
     query.setMaxResults(limit);
     return query.getResultList();
@@ -113,25 +113,21 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
   }
 
   @Override
-  public int countCommonSpaces(String userId, String profileUserId) {
+  public int countCommonSpaces(String userId, String otherUserId) {
     if (userId == null || userId == "") {
       throw new IllegalArgumentException("userId is null or equals to 0");
     }
-    if (profileUserId == null || profileUserId == "") {
-      throw new IllegalArgumentException("profileUserId is null or equals to 0");
+    if (otherUserId == null || otherUserId == "") {
+      throw new IllegalArgumentException("otherUserId is null or equals to 0");
     }
 
     Query q = getEntityManager().createNativeQuery("SELECT count(*) FROM SOC_SPACES t where t.SPACE_ID in " +
             "( SELECT distinct t1.SPACE_ID FROM SOC_SPACES_MEMBERS t1  " +
-            "where t1.USER_ID = :user1  " +
+            "where t1.USER_ID = :userId  " +
             "and (SELECT distinct t2.SPACE_ID FROM SOC_SPACES_MEMBERS t2 " +
-            "where t1.SPACE_ID=t2.SPACE_ID and t2.USER_ID = :user2 ))");
-    q.setParameter("user1", userId);
-    q.setParameter("user2", profileUserId);
-    try {
-      return ((Number) q.getSingleResult()).intValue();
-    } catch (NoResultException e) {
-      return 0;
-    }
+            "where t1.SPACE_ID=t2.SPACE_ID and t2.USER_ID = :otherUserId ))");
+    q.setParameter("userId", userId);
+    q.setParameter("otherUserId", otherUserId);
+    return ((Number) q.getSingleResult()).intValue();
   }
 }

@@ -787,23 +787,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceMemberDAO.countExternalMembers(spaceId);
   }
 
-  public List<Space> getCommonSpaces(String userId, String profileUserId,int offset, int limit)  {
+  public List<Space> getCommonSpaces(String userId, String otherUserId,int offset, int limit)  {
 
-    int countCommonSpaces = spaceDAO.countCommonSpaces(userId, profileUserId);
-    if (countCommonSpaces == 0) {
-      return Collections.emptyList();
-    }
-    List<Space> spaces = new ArrayList<>();
+    List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
 
-    List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, profileUserId, offset, limit);
-
-    for(SpaceEntity sp : commonSpaces){
-      spaces.add(fillSpaceFromEntity(sp));
-    }
-    return spaces;
+    return commonSpaces.stream()
+            .map(sp -> fillSpaceFromEntity(sp))
+            .collect(Collectors.toList());
   }
-  public int countCommonSpaces(String userId, String profileUserId) {
-    return spaceDAO.countCommonSpaces(userId, profileUserId);
+  public int countCommonSpaces(String userId, String otherUserId) {
+    return spaceDAO.countCommonSpaces(userId, otherUserId);
   }
 
 }

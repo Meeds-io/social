@@ -33,17 +33,14 @@ public class SpaceListAccess implements ListAccess<Space> {
   private String userId;
 
   /** The visited profile id, used while getting list of common spaces between two users. */
-  private String profileUserId;
+  private String otherUserId;
   
   /** The space filter */
   private SpaceFilter spaceFilter;
   
   /** The type. */
   Type type;
-
-  /** used to specify which constructor is used for commons spaces service */
-  private String methodName;
-  
+           
   /**
    * The space list access Type Enum.
    */
@@ -184,16 +181,15 @@ public class SpaceListAccess implements ListAccess<Space> {
    *
    * @param spaceStorage
    * @param userId
-   * @param profileUserId
+   * @param otherUserId
    * @param type
    * @param methodName used to specify that this constructor is used only for commons spaces service
    */
-  public SpaceListAccess(SpaceStorage spaceStorage, String userId, String profileUserId, Type type,String methodName) {
+  public SpaceListAccess(SpaceStorage spaceStorage, String userId, String otherUserId, Type type,String methodName) {
     this.spaceStorage = spaceStorage;
-    this.profileUserId = profileUserId;
+    this.otherUserId = otherUserId;
     this.userId = userId;
     this.type = type;
-    this.methodName = methodName;
   }
   
   /**
@@ -222,7 +218,7 @@ public class SpaceListAccess implements ListAccess<Space> {
       case UNIFIED_SEARCH: return spaceStorage.getUnifiedSearchSpacesCount(this.userId, this.spaceFilter);
       case LASTEST_ACCESSED: return spaceStorage.getLastAccessedSpaceCount(this.spaceFilter);
       case PENDING_REQUESTS: return spaceStorage.countPendingSpaceRequestsToManage(userId);
-      case COMMON: return spaceStorage.countCommonSpaces(this.userId, this.profileUserId);
+      case COMMON: return spaceStorage.countCommonSpaces(this.userId, this.otherUserId);
       default: return 0;
     }
   }
@@ -276,7 +272,7 @@ public class SpaceListAccess implements ListAccess<Space> {
         break;
       case VISITED: listSpaces = spaceStorage.getVisitedSpaces(this.spaceFilter, offset, limit);
         break;
-      case COMMON: listSpaces = spaceStorage.getCommonSpaces(this.userId, this.profileUserId, offset, limit);
+      case COMMON: listSpaces = spaceStorage.getCommonSpaces(this.userId, this.otherUserId, offset, limit);
         break;
       case PENDING_REQUESTS: {
         // The computing of spaces content is done here to use cached spaceStorage to retrieve contents
