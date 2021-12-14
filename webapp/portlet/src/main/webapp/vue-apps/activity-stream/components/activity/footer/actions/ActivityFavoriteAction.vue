@@ -1,10 +1,12 @@
 <template>
   <favorite-button
     :id="activityId"
+    :space-id="spaceId"
     :favorite="isFavorite"
     :absolute="absolute"
     :top="top"
     :right="right"
+    :template-params="templateParams"
     type="activity"
     @removed="removed"
     @remove-error="removeError"
@@ -38,6 +40,12 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+    spaceId() {
+      return this.activity && this.activity.activityStream && this.activity.activityStream.space && this.activity.activityStream.space.id;
+    },
+    templateParams() {
+      return this.activity && this.activity.templateParams;
     },
   },
   created() {
