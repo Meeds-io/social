@@ -93,6 +93,19 @@ public interface MetadataService {
   void deleteMetadataItemsByObject(MetadataObject object);
 
   /**
+   * Deletes Metadata items for a given {@link MetadataItem} objectId and
+   * objectType. This is generally called when the associated object has been
+   * removed (activity removed, comment removed ...)
+   *
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and an
+   *          objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
+   * @param metadataTypeName {@link Metadata} type name
+   */
+  void deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object);
+
+  /**
    * Shares/copy the {@link MetadataItem} list of a shared object to the newly
    * created object.
    * 
@@ -127,6 +140,19 @@ public interface MetadataService {
    * @return {@link List} of linked {@link MetadataItem}
    */
   List<MetadataItem> getMetadataItemsByObject(MetadataObject object);
+
+  /**
+   * Retrieves the list of Metadata attached to an object identified by its name
+   * and identifier
+   *
+   * @param object {@link MetadataObject} that defines an objectType (an object
+   *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and an
+   *          objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
+   * @param metadataTypeName {@link Metadata} type name
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and

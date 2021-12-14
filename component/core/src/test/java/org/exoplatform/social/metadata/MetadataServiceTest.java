@@ -363,6 +363,51 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataList.size());
   }
 
+  public void testGetMetadataItemsByMetadataTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTest";
+    String parentObjectId = "parentObjectIdTest";
+    String objectType = "objectTypeTest";
+    String name = "testMetadataJohn";
+    String type = userMetadataType.getName();
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    try {
+      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+  }
+
+  public void testDeleteMetadataItemsByMetadataTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTest1";
+    String parentObjectId = "parentObjectIdTest1";
+    String objectType = "objectTypeTest1";
+    String name = "testMetadataJohn1";
+    String type = userMetadataType.getName();
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    try {
+      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    metadataService.deleteMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertEquals(0, metadataItems.size());
+  }
+
   public void testCreateDuplicatedMetadataItem() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;

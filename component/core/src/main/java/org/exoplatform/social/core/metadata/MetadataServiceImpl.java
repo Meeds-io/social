@@ -183,6 +183,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public void deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
+    this.metadataStorage.deleteMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
+  }
+
+  @Override
   public void deleteMetadataItemsByParentObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByParentObject(object);
   }
@@ -216,6 +221,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   @Override
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataItemsByObject(object);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
+    return this.metadataStorage.getMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
   }
 
   @Override
@@ -265,8 +275,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
-  public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, long offset, long limit) {
-    return this.metadataStorage.getMetadataObjectIds(metadataType, metadataName, objectType, offset, limit);
+  public List<String> getMetadataObjectIds(String metadataTypeName, String metadataName, String objectType, long offset, long limit) {
+    return this.metadataStorage.getMetadataObjectIds(metadataTypeName, metadataName, objectType, offset, limit);
   }
 
   @Override
