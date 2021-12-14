@@ -6,6 +6,8 @@
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
+          :loading="loading"
+          :disabled="loading"
           class="pa-0 mt-0"
           icon
           small
@@ -63,6 +65,7 @@ export default {
   },
   data: () => ({
     isFavorite: false,
+    loading: false,
   }),
   computed: {
     buttonStyle() {
@@ -115,6 +118,7 @@ export default {
         event.stopPropagation();
         event.preventDefault();
       }
+      this.loading = true;
       if (this.isFavorite) {
         this.$favoriteService.removeFavorite(this.type, this.id)
           .then(() => {
@@ -122,7 +126,8 @@ export default {
             this.$emit('removed');
             this.updateFavorite();
           })
-          .catch(() => this.$emit('remove-error'));
+          .catch(() => this.$emit('remove-error'))
+          .finally(() => this.loading = false);
       } else {
         this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
           .then(() => {
@@ -130,7 +135,8 @@ export default {
             this.$emit('added');
             this.updateFavorite();
           })
-          .catch(() => this.$emit('add-error'));
+          .catch(() => this.$emit('add-error'))
+          .finally(() => this.loading = false);
       }
     },
   },
