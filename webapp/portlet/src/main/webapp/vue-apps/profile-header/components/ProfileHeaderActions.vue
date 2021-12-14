@@ -90,14 +90,14 @@
         :loading="sendingAction"
         :disabled="sendingAction || skeleton"
         :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
-        class="btn ma-2 mb-0 connectUserButton"
+        class="btn ma-1 mb-0 connectUserButton"
         @click="connect">
         <i class="uiIconSocConnectUser"></i>
         <span class="buttonText">
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-1' : 'ma-2'}`">
+      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-0' : 'ma-2'}`">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
