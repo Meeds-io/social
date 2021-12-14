@@ -183,9 +183,8 @@ public class SpaceListAccess implements ListAccess<Space> {
    * @param userId
    * @param otherUserId
    * @param type
-   * @param methodName used to specify that this constructor is used only for commons spaces service
    */
-  public SpaceListAccess(SpaceStorage spaceStorage, String userId, String otherUserId, Type type,String methodName) {
+  public SpaceListAccess(SpaceStorage spaceStorage, Type type, String userId, String otherUserId) {
     this.spaceStorage = spaceStorage;
     this.otherUserId = otherUserId;
     this.userId = userId;
