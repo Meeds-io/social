@@ -101,7 +101,6 @@ public class SpaceServiceImpl implements SpaceService {
   private SpaceLifecycle                       spaceLifeCycle           = new SpaceLifecycle();
 
   List<String>                                 portletPrefsRequired = null;
-  public static final String                   COMMON_SPACES_METHOD = "getCommonSpaces";
 
   /** The offset for list access loading. */
   private static final int                   OFFSET = 0;
@@ -1797,7 +1796,7 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   public ListAccess<Space> getCommonSpaces(String userId, String otherUserId,int offset,int limit) {
-    return new SpaceListAccess(this.spaceStorage, userId,otherUserId, SpaceListAccess.Type.COMMON,COMMON_SPACES_METHOD);
+    return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.COMMON,userId,otherUserId);
   }
 
 }
