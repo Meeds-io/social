@@ -100,7 +100,7 @@ export default {
   },
   created() {
     this.parentId = this.activityId;
-    document.addEventListener('update-reaction-extension' , this.updateReaction);
+    document.addEventListener(`update-reaction-extension-${this.activityId}` , this.updateReaction);
     document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
       if (event && event.detail) {
         this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType,event.detail.activityPosterId);
@@ -112,7 +112,12 @@ export default {
   },
   methods: {
     open() {
-      this.refreshReactions();
+      if (this.enabledReactionsTabsExtensions.length === 0) {
+        this.refreshReactions();
+      }
+      else {
+        document.dispatchEvent(new CustomEvent('check-reactions', {detail: this.activityId}));
+      }
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;
     },
