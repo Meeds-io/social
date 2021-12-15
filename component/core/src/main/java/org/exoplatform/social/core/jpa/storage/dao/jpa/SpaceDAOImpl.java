@@ -132,14 +132,5 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     query.setParameter("otherUserId", otherUserId);
     return query.getSingleResult().intValue();
 
-
-/*    Query q = getEntityManager().createNativeQuery("SELECT count(*) FROM SOC_SPACES t where t.SPACE_ID in " +
-            "( SELECT distinct t1.SPACE_ID FROM SOC_SPACES_MEMBERS t1  " +
-            "where t1.USER_ID = :userId  " +
-            "and (SELECT distinct t2.SPACE_ID FROM SOC_SPACES_MEMBERS t2 " +
-            "where t1.SPACE_ID=t2.SPACE_ID and t2.USER_ID = :otherUserId ))");
-    q.setParameter("userId", userId);
-    q.setParameter("otherUserId", otherUserId);
-    return ((Number) q.()).intValue();*/
   }
 }
