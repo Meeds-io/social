@@ -80,7 +80,7 @@ export default {
         .then(data => {
           this.activity.hasLiked = 'true';
           this.computeLikes(data);
-          document.dispatchEvent(new CustomEvent(`activity-liked-${this.activityId}`));
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.activityId}));
         })
         .finally(() => this.changingLike = false);
     },
@@ -90,7 +90,7 @@ export default {
         .then(data => {
           this.activity.hasLiked = 'false';
           this.computeLikes(data);
-          document.dispatchEvent(new CustomEvent(`activity-liked-${this.activityId}`));
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.activityId}));
         })
         .finally(() => this.changingLike = false);
     },
