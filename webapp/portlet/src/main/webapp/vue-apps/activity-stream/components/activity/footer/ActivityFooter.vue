@@ -72,7 +72,11 @@ export default {
     this.$root.$on('activity-comment-updated', this.checkCommentsSize);
     this.$root.$on('activity-comment-deleted', this.checkCommentsSize);
     this.$root.$on('activity-comments-retrieved', this.checkCommentsSize);
-    document.addEventListener(`activity-liked-${this.activityId}`,this.checkLikesSize);
+    document.addEventListener('activity-liked', event => {
+      if (event && event.detail && event.detail === this.activityId) {
+        this.checkLikesSize();
+      }
+    });
     this.checkCommentsSize();
     this.checkLikesSize();
   },

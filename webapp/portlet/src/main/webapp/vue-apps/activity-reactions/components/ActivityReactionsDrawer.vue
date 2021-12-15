@@ -116,7 +116,7 @@ export default {
         this.refreshReactions();
       }
       else {
-        document.dispatchEvent(new CustomEvent(`check-reactions-${this.activityId}`, this.updateLikers));
+        document.dispatchEvent(new CustomEvent('check-reactions', {detail: this.activityId}));
       }
       this.$refs.activityReactionsDrawer.open();
       this.drawerOpened = true;

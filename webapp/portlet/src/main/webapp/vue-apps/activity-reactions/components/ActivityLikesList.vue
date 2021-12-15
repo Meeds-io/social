@@ -26,7 +26,11 @@ export default {
   },
   created() {
     this.retrieveLikers();
-    document.addEventListener(`check-reactions-${this.parentId}`, this.updateLikers);
+    document.addEventListener('check-reactions', event => {
+      if (event && event.detail && event.detail === this.activityId) {
+        this.updateLikers();
+      }
+    });
     document.addEventListener('activity-liked', event => {
       if (event && event.detail && event.detail === this.activityId) {
         this.retrieveLikers();
