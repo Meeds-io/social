@@ -80,10 +80,11 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByMetadataTypeAndObject",
-          query = "DELETE FROM SocMetadataItemEntity mi WHERE "
-              + " mi.metadata.id = :metadataId AND"
-              + " mi.objectType = :objectType AND"
-              + " mi.objectId = :objectId"
+          query = "DELETE FROM SocMetadataItemEntity mi"
+              + " WHERE mi IN (SELECT mitems FROM SocMetadataItemEntity mitems"
+              + " JOIN mitems.metadata m WHERE m.type = :metadataType"
+              + " AND mi.objectType = :objectType AND"
+              + " mi.objectId = :objectId)"
       ),
       @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemById",

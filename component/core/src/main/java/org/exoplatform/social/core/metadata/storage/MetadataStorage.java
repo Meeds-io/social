@@ -101,12 +101,11 @@ public class MetadataStorage {
   }
 
   public int deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
-    int deletedItem = 0;
-    List<MetadataItem> metadataItems = this.getMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
-    for(MetadataItem metadataItem : metadataItems) {
-      deletedItem = this.metadataItemDAO.deleteMetadataItemsByMetadataTypeAndObject(metadataItem.getMetadata().getId(), object.getType(), object.getId());
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
     }
-    return deletedItem;
+    return this.metadataItemDAO.deleteMetadataItemsByMetadataTypeAndObject(metadataType.getId(), object.getType(), object.getId());
   }
 
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {

@@ -116,9 +116,9 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   }
 
   @ExoTransactional
-  public int deleteMetadataItemsByMetadataTypeAndObject(long metadataId, String objectType, String objectId) {
+  public int deleteMetadataItemsByMetadataTypeAndObject(long metadataType, String objectType, String objectId) {
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByMetadataTypeAndObject");
-    query.setParameter(METADATA_ID, metadataId);
+    query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
     return query.executeUpdate();

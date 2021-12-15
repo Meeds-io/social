@@ -392,17 +392,20 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String objectType = "objectTypeTest1";
     String name = "testMetadataJohn1";
     String type = userMetadataType.getName();
-    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
     MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
-
     try {
-      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+      MetadataKey metadataKey1 = new MetadataKey(type, name, audienceId);
+      metadataService.createMetadataItem(metadataObject, metadataKey1, creatorId);
+      name = "testMetadataJohn2";
+      MetadataKey metadataKey2 = new MetadataKey(type, name, audienceId);
+      metadataService.createMetadataItem(metadataObject, metadataKey2, creatorId);
+      
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
     assertNotNull(metadataItems);
-    assertEquals(1, metadataItems.size());
+    assertEquals(2, metadataItems.size());
     metadataService.deleteMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
     metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
     assertEquals(0, metadataItems.size());
