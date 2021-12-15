@@ -29,7 +29,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @Entity(name = "SocSpaceEntity")
 @ExoEntity
 @Table(name = "SOC_SPACES")
-@NamedNativeQueries({
+/*@NamedNativeQueries({
         @NamedNativeQuery(
                 name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
                 query = "SELECT * FROM SOC_SPACES t " +
@@ -40,7 +40,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
                         "            )",
                 resultClass = SpaceEntity.class
         ),
-})
+})*/
 
 @NamedQueries({
         @NamedQuery(name = "SpaceEntity.getLastSpaces", query = "SELECT sp.id, sp.createdDate FROM SocSpaceEntity sp ORDER BY sp.createdDate DESC"),
@@ -48,6 +48,32 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         @NamedQuery(name = "SpaceEntity.getSpaceByPrettyName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName"),
         @NamedQuery(name = "SpaceEntity.getSpaceByDisplayName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.displayName = :displayName"),
         @NamedQuery(name = "SpaceEntity.getSpaceByURL", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.url = :url"),
+        @NamedQuery(
+                name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
+                query =
+                        "SELECT spaces FROM SocSpaceEntity spaces "
+                        + "WHERE spaces.id IN ( "
+                        + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
+                        //+ " INNER JOIN SocSpaceMember t2 "
+                        + " WHERE t1.userId = :userId "
+                        + " AND t2.userId = :otherUserId "
+                        + " AND t1.space.id = t2.space.id"
+                        + " )"
+        ),
+        @NamedQuery(
+                name = "SpaceEntity.countCommonSpacesBetweenTwoUsers",
+                query =
+                        "SELECT COUNT(*) FROM SocSpaceEntity spaces "
+                                + "WHERE spaces.id IN ( "
+                                + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
+                                //+ " INNER JOIN SocSpaceMember t2 "
+                                + " WHERE t1.userId = :userId "
+                                + " AND t2.userId = :otherUserId "
+                                + " AND t1.space.id = t2.space.id"
+                                + " )"
+        ),
+        /*SELECT * from SOC_SPACES WHERE SPACE_ID in (SELECT distinct t1.SPACE_ID FROM SOC_SPACES_MEMBERS t1
+          INNER JOIN SOC_SPACES_MEMBERS t2 ON t1.SPACE_ID = t2.SPACE_ID WHERE t1.USER_ID='root' AND t2.USER_ID='testuser' AND t1.SPACE_ID=t2.SPACE_ID);;*/
 })
 public class SpaceEntity implements Serializable {
 
