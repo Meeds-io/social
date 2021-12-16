@@ -4,6 +4,14 @@
     :id="id"
     :href="url"
     class="activity-head-user-link">
+   
+    <v-list-item-avatar v-if="!isMobile" :size="size" class="ma-0">
+      <img
+        :src="avatarUrl"
+        class="object-fit-cover my-auto"
+        loading="lazy"
+        role="presentation">
+    </v-list-item-avatar>
   </a>
   <a
     v-else
@@ -41,6 +49,9 @@ export default {
     };
   },
   computed: {
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
     username() {
       return this.identity && this.identity.remoteId;
     },
