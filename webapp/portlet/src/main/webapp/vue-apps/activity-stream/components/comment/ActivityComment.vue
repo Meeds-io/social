@@ -78,10 +78,10 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentEditing"
-        class="ps-10"
+        class="ps-6"
         @comment-initialized="$emit('comment-initialized')" />
     </div>
-    <div v-if="newReplyEditor" class="ps-10 py-0 mb-2 align-start border-box-sizing">
+    <div v-if="newReplyEditor" class="ps-8 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
         ref="commentRichEditor"
         class="col-auto pa-0 mt-0 mb-2 flex-shrink-1"

@@ -4,13 +4,6 @@
     :id="id"
     :href="url"
     class="activity-head-user-link">
-    <v-list-item-avatar :size="size" class="ma-0">
-      <img
-        :src="avatarUrl"
-        class="object-fit-cover my-auto"
-        loading="lazy"
-        role="presentation">
-    </v-list-item-avatar>
   </a>
   <a
     v-else
