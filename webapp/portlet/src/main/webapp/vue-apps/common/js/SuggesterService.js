@@ -30,7 +30,6 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, exclud
             remoteId: item.prettyName,
             spaceId: item.id,
             providerId: 'space',
-            spaceId: item.id,
             displayName: item.displayName,
             profile: {
               fullName: item.displayName,
