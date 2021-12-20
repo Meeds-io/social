@@ -787,14 +787,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceMemberDAO.countExternalMembers(spaceId);
   }
 
+  @Override
   public List<Space> getCommonSpaces(String userId, String otherUserId,int offset, int limit)  {
 
     List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
 
     return commonSpaces.stream()
-            .map(sp -> fillSpaceFromEntity(sp))
+            .map(this:: fillSpaceFromEntity)
             .collect(Collectors.toList());
   }
+  @Override
   public int countCommonSpaces(String userId, String otherUserId) {
     return spaceDAO.countCommonSpaces(userId, otherUserId);
   }

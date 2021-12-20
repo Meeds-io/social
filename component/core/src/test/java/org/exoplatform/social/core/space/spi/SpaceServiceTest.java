@@ -3392,4 +3392,35 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(true, hasExternals);
     tearDownUserList.add(externalUser);
   }
+
+
+  public void testGetCommonSpaces() throws Exception {
+
+    getSpaceInstance(11);
+    Space space1 = getSpaceInstance(12);
+    Space space2 = getSpaceInstance(13);
+
+    User otherUser = organizationService.getUserHandler().createUserInstance("otherUser");
+    organizationService.getUserHandler().createUser(otherUser, false);
+
+    spaceService.addMember(space1,"otherUser");
+    spaceService.addMember(space2,"otherUser");
+
+    assertEquals("otherUser",space1.getMembers()[space1.getMembers().length-1]);
+    assertEquals("otherUser",space2.getMembers()[space2.getMembers().length-1]);
+
+    ListAccess<Space> resultListCommonSpacesAccessList = spaceService.getCommonSpaces("root","otherUser",0,10);
+
+    List<Space> listSpaces =spaceService.getSpaces("root");
+
+    assertEquals(2, resultListCommonSpacesAccessList.getSize());
+    assertEquals(3, listSpaces.size());
+
+    Space testSpace1 = resultListCommonSpacesAccessList.load(0,1)[0];
+    assertEquals(space1,testSpace1);
+
+    Space testSpace2 = resultListCommonSpacesAccessList.load(1,1)[0];
+    assertEquals(space2,testSpace2);
+
+  }
 }

@@ -100,7 +100,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     spaceEntity.setVisibility(SpaceEntity.VISIBILITY.PRIVATE);
     spaceEntity.setBannerLastUpdated(new Date());
 
-    addMember(spaceEntity, "root", SpaceMemberEntity.Status.PENDING);
+    addMember(spaceEntity, "root", SpaceMemberEntity.Status.MEMBER);
     return spaceEntity;
   }
 
@@ -242,5 +242,50 @@ public class SpaceDAOTest extends BaseCoreTest {
     entity.setEnabled(true);
     entity.setDeleted(false);
     return entity;
+  }
+
+  public void testGetCommonSpaces() throws Exception {
+
+    SpaceEntity space1 = createSpace("space1");
+    SpaceEntity space2 = createSpace("space2");
+    SpaceEntity space3 = createSpace("space3");
+    
+    addMember(space2, "otherUser", SpaceMemberEntity.Status.MEMBER);
+    addMember(space3, "otherUser", SpaceMemberEntity.Status.MEMBER);
+
+    spaceDAO.create(space1);
+    spaceDAO.create(space2);
+    spaceDAO.create(space3);
+
+    end();
+    begin();
+
+    List<SpaceEntity> result = spaceDAO.getCommonSpaces("root","otherUser",0,10);
+
+    assertEquals(2,result.size());
+    assertEquals(space2,result.get(0));
+    assertEquals(space3,result.get(1));
+
+  }
+
+  public void testCountCommonSpaces() throws Exception {
+
+    SpaceEntity space1 = createSpace("space1");
+    SpaceEntity space2 = createSpace("space2");
+    SpaceEntity space3 = createSpace("space3");
+
+    addMember(space2, "otherUser", SpaceMemberEntity.Status.MEMBER);
+    addMember(space3, "otherUser", SpaceMemberEntity.Status.MEMBER);
+
+    spaceDAO.create(space1);
+    spaceDAO.create(space2);
+    spaceDAO.create(space3);
+
+    end();
+    begin();
+
+    int result = spaceDAO.countCommonSpaces("root","otherUser");
+
+    assertEquals(2,result);
   }
 }

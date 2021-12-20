@@ -770,9 +770,7 @@ public interface SpaceStorage {
    * @param otherUserId visited profile user id
    * @return list of common spaces between two users in param
    */
-  default List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
-    throw new UnsupportedOperationException();
-  }
+  public List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) ;
 
   /**
    * Count common spaces between two users
@@ -781,7 +779,5 @@ public interface SpaceStorage {
    * @param otherUserId visited profile user id
    * @return list of common spaces between two users in param
    */
-  default int countCommonSpaces(String userId, String otherUserId) {
-    throw new UnsupportedOperationException();
-  }
+  public int countCommonSpaces(String userId, String otherUserId);
 }

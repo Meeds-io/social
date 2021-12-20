@@ -177,4 +177,56 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
     assertEquals("my_space_test_0", spaces.get(3).getPrettyName());
   }
 
+
+  public void testGetCommonSpaces() throws Exception {
+
+    //Get instances of 3 spaces with different members and 1 common manager
+    Space space3 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
+    Space space1 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space2 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+
+    spaceStorage.saveSpace(space3,true);
+    spaceStorage.saveSpace(space1,true);
+    spaceStorage.saveSpace(space2,true);
+
+    assertEquals("raul",space1.getMembers()[space1.getMembers().length-1]);
+    assertEquals("raul",space2.getMembers()[space2.getMembers().length-1]);
+
+    List<Space> resultListCommonSpaces = spaceStorage.getCommonSpaces("demo","raul",0,10);
+
+    List<Space> allSpaces = spaceStorage.getAllSpaces();
+    assertEquals(2, resultListCommonSpaces.size());
+    assertEquals(3, allSpaces.size());
+
+    Space testSpace1 = resultListCommonSpaces.get(0);
+    assertEquals(space1,testSpace1);
+
+    Space testSpace2 = resultListCommonSpaces.get(1);
+    assertEquals(space2,testSpace2);
+
+  }
+
+  public void testCountCommonSpaces() throws Exception {
+
+    //Get instances of 3 spaces with different members and 1 common manager
+    Space space3 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
+    Space space1 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space2 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+
+    spaceStorage.saveSpace(space3,true);
+    spaceStorage.saveSpace(space1,true);
+    spaceStorage.saveSpace(space2,true);
+
+    assertEquals("raul",space1.getMembers()[space1.getMembers().length-1]);
+    assertEquals("raul",space2.getMembers()[space2.getMembers().length-1]);
+
+    int resultListCommonSpaces = spaceStorage.countCommonSpaces("demo","raul");
+
+    int allSpaces = spaceStorage.getAllSpacesCount();
+    assertEquals(2, resultListCommonSpaces);
+    assertEquals(3, allSpaces);
+
+  }
+
+
 }
