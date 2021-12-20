@@ -42,8 +42,6 @@
             type="password"
             autocomplete="current-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -56,8 +54,6 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -70,8 +66,6 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
 
