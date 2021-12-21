@@ -177,4 +177,61 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
     assertEquals("my_space_test_0", spaces.get(3).getPrettyName());
   }
 
+
+  public void testGetCommonSpaces() throws Exception {
+
+    //Get instances of 3 spaces with different members and 1 common manager
+    Space space1 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
+    Space space2 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space3 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space4 = getSpaceInstance( 14, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space5 = getSpaceInstance( 15, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space6 = getSpaceInstance( 16, "public", "open", "demo", "ghost", "dragon","raul");
+
+    spaceStorage.saveSpace(space1,true);
+    spaceStorage.saveSpace(space2,true);
+    spaceStorage.saveSpace(space3,true);
+    spaceStorage.saveSpace(space4,true);
+    spaceStorage.saveSpace(space5,true);
+    spaceStorage.saveSpace(space6,true);
+
+    List<Space> resultListCommonSpaces1 = spaceStorage.getCommonSpaces("demo","raul",0,2);
+    assertEquals(2, resultListCommonSpaces1.size());
+    Space testSpace2 = resultListCommonSpaces1.get(0);
+    assertEquals(space2,testSpace2);
+    Space testSpace3 = resultListCommonSpaces1.get(1);
+    assertEquals(space3,testSpace3);
+
+    List<Space> resultListCommonSpaces2 = spaceStorage.getCommonSpaces("demo","raul",2,2);
+    assertEquals(2, resultListCommonSpaces2.size());
+    Space testSpace4 = resultListCommonSpaces2.get(0);
+    assertEquals(space4,testSpace4);
+    Space testSpace5 = resultListCommonSpaces2.get(1);
+    assertEquals(space5,testSpace5);
+
+    List<Space> resultListCommonSpaces3 = spaceStorage.getCommonSpaces("demo","raul",4,2);
+    assertEquals(1,resultListCommonSpaces3.size());
+    Space testSpace6 = resultListCommonSpaces3.get(0);
+    assertEquals(space6,testSpace6);
+
+
+  }
+
+  public void testCountCommonSpaces() throws Exception {
+
+    //Get instances of 3 spaces with different members and 1 common manager
+    Space space3 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
+    Space space1 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space2 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+
+    spaceStorage.saveSpace(space3,true);
+    spaceStorage.saveSpace(space1,true);
+    spaceStorage.saveSpace(space2,true);
+
+    int resultListCommonSpaces = spaceStorage.countCommonSpaces("demo","raul");
+    assertEquals(2, resultListCommonSpaces);
+
+  }
+
+
 }
