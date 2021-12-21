@@ -793,7 +793,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
 
     return commonSpaces.stream()
-            .map(this:: fillSpaceFromEntity)
+            .map(this::fillSpaceFromEntity)
             .collect(Collectors.toList());
   }
   @Override

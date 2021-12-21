@@ -181,28 +181,37 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
   public void testGetCommonSpaces() throws Exception {
 
     //Get instances of 3 spaces with different members and 1 common manager
-    Space space3 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
-    Space space1 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
-    Space space2 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space1 = getSpaceInstance( 11, "public", "open", "demo",  "ghost", "dragon");
+    Space space2 = getSpaceInstance( 12, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space3 = getSpaceInstance( 13, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space4 = getSpaceInstance( 14, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space5 = getSpaceInstance( 15, "public", "open", "demo", "ghost", "dragon","raul");
+    Space space6 = getSpaceInstance( 16, "public", "open", "demo", "ghost", "dragon","raul");
 
-    spaceStorage.saveSpace(space3,true);
     spaceStorage.saveSpace(space1,true);
     spaceStorage.saveSpace(space2,true);
+    spaceStorage.saveSpace(space3,true);
+    spaceStorage.saveSpace(space4,true);
+    spaceStorage.saveSpace(space5,true);
+    spaceStorage.saveSpace(space6,true);
 
-    assertEquals("raul",space1.getMembers()[space1.getMembers().length-1]);
-    assertEquals("raul",space2.getMembers()[space2.getMembers().length-1]);
-
-    List<Space> resultListCommonSpaces = spaceStorage.getCommonSpaces("demo","raul",0,10);
-
-    List<Space> allSpaces = spaceStorage.getAllSpaces();
-    assertEquals(2, resultListCommonSpaces.size());
-    assertEquals(3, allSpaces.size());
-
-    Space testSpace1 = resultListCommonSpaces.get(0);
-    assertEquals(space1,testSpace1);
-
-    Space testSpace2 = resultListCommonSpaces.get(1);
+    List<Space> resultListCommonSpaces1 = spaceStorage.getCommonSpaces("demo","raul",0,2);
+    Space testSpace2 = resultListCommonSpaces1.get(0);
     assertEquals(space2,testSpace2);
+    Space testSpace3 = resultListCommonSpaces1.get(1);
+    assertEquals(space3,testSpace3);
+
+    List<Space> resultListCommonSpaces2 = spaceStorage.getCommonSpaces("demo","raul",2,2);
+    Space testSpace4 = resultListCommonSpaces2.get(0);
+    assertEquals(space4,testSpace4);
+    Space testSpace5 = resultListCommonSpaces2.get(1);
+    assertEquals(space5,testSpace5);
+
+    List<Space> resultListCommonSpaces3 = spaceStorage.getCommonSpaces("demo","raul",4,2);
+    Space testSpace6 = resultListCommonSpaces3.get(0);
+    assertEquals(space6,testSpace6);
+    assertEquals(1,resultListCommonSpaces3.size());
+
 
   }
 
@@ -217,14 +226,8 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
     spaceStorage.saveSpace(space1,true);
     spaceStorage.saveSpace(space2,true);
 
-    assertEquals("raul",space1.getMembers()[space1.getMembers().length-1]);
-    assertEquals("raul",space2.getMembers()[space2.getMembers().length-1]);
-
     int resultListCommonSpaces = spaceStorage.countCommonSpaces("demo","raul");
-
-    int allSpaces = spaceStorage.getAllSpacesCount();
     assertEquals(2, resultListCommonSpaces);
-    assertEquals(3, allSpaces);
 
   }
 
