@@ -64,7 +64,6 @@ export function formatDateObjectToDisplay(dateObj, format, lang) {
     lang = eXo.env.portal.language;
   }
   if (format) {
-    lang = lang.replace(/[-_][a-z]+$/i, '');
     return new window.Intl.DateTimeFormat(lang, format).format(dateObj);
   } else {
     return getISODate(dateObj);
