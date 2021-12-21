@@ -70,6 +70,16 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType, String objectType, String objectId) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObject",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    return query.getResultList();
+  }
+
   public List<String> getMetadataObjectIds(long metadataType,
                                            String metadataName,
                                            String objectType,
