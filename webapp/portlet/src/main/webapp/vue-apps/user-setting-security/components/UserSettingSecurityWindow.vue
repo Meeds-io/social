@@ -106,6 +106,7 @@
 const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
 const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
 const PASSWORD_UNKNOWN_ERROR_CODE = 'PASSWORD_UNKNOWN_ERROR_CODE';
+const WRONG_NEW_PASSWORD_ERROR_CODE = 'WRONG_NEW_PASSWORD';
 
 export default {
   data: () => ({
@@ -143,21 +144,12 @@ export default {
       if (!this.$refs.form.$el.reportValidity()) {
         return;
       }
-
-      if (this.newPassword === this.currentPassword) {
-        this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.changePasswordIdentical'));
-        if (!this.$refs.form.$el.reportValidity()) {
-          return;
-        }
-      }
       if (this.confirmNewPassword !== this.newPassword) {
         this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.newPasswordsDoesNotMatch'));
         if (!this.$refs.form.$el.reportValidity()) {
           return;
         }
       }
-
-
       if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
         this.success = null;
         this.error = null;
@@ -176,6 +168,8 @@ export default {
               this.error = this.$t('UserSettings.label.accountNotExist');
             } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
               this.error = this.$t('UserSettings.label.changePasswordFail');
+            } else if (error.indexOf(WRONG_NEW_PASSWORD_ERROR_CODE) > -1) {
+              this.error = this.$t('UserSettings.label.changePasswordIdentical');
             } else {
               this.error = error;
             }
