@@ -78,10 +78,10 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :comment-editing="commentEditing"
-        :class="`${isMobile ? 'ps-6' : 'ps-10'}`"
+        class="ps-10"
         @comment-initialized="$emit('comment-initialized')" />
     </div>
-    <div v-if="newReplyEditor" class="py-0 mb-2 align-start border-box-sizing" :class="`${isMobile ? 'ps-8' : 'ps-10'}`">
+    <div v-if="newReplyEditor" class="ps-10 py-0 mb-2 align-start border-box-sizing">
       <activity-comment-rich-text
         ref="commentRichEditor"
         class="col-auto pa-0 mt-0 mb-2 flex-shrink-1"
@@ -133,9 +133,6 @@ export default {
     displayedSubCommentCount: 2,
   }),
   computed: {
-    isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
-    },
     activityId() {
       return this.activity && this.activity.id || '';
     },
