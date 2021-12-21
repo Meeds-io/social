@@ -90,7 +90,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
    * @param number
    * @return an instance of space
    */
-  private Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
+  protected Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
     Space space = new Space();
     space.setApp("app:appName:true:active");
     space.setDisplayName("my space test " + number);

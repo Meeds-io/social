@@ -22,23 +22,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
@@ -50,7 +34,30 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         @NamedQuery(name = "SpaceEntity.getSpaceByGroupId", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.groupId = :groupId"),
         @NamedQuery(name = "SpaceEntity.getSpaceByPrettyName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName"),
         @NamedQuery(name = "SpaceEntity.getSpaceByDisplayName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.displayName = :displayName"),
-        @NamedQuery(name = "SpaceEntity.getSpaceByURL", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.url = :url") })
+        @NamedQuery(name = "SpaceEntity.getSpaceByURL", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.url = :url"),
+        @NamedQuery(
+                name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
+                query =
+                        "SELECT spaces FROM SocSpaceEntity spaces "
+                        + "WHERE spaces.id IN ( "
+                        + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
+                        + " WHERE t1.userId = :userId "
+                        + " AND t2.userId = :otherUserId "
+                        + " AND t1.space.id = t2.space.id"
+                        + " )"
+        ),
+        @NamedQuery(
+                name = "SpaceEntity.countCommonSpacesBetweenTwoUsers",
+                query =
+                        "SELECT COUNT(*) FROM SocSpaceEntity spaces "
+                                + "WHERE spaces.id IN ( "
+                                + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
+                                + " WHERE t1.userId = :userId "
+                                + " AND t2.userId = :otherUserId "
+                                + " AND t1.space.id = t2.space.id"
+                                + " )"
+        ),
+})
 public class SpaceEntity implements Serializable {
 
   private static final long serialVersionUID = 3223615477747436986L;

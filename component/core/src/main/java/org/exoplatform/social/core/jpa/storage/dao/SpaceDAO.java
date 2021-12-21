@@ -32,4 +32,26 @@ public interface SpaceDAO extends GenericDAO<SpaceEntity, Long> {
   SpaceEntity getSpaceByDisplayName(String spaceDisplayName);
 
   SpaceEntity getSpaceByPrettyName(String spacePrettyName);
+
+
+  /**
+   * Get common spaces between two users
+   *
+   * @param userId connected user id
+   * @param otherUserId visited profile user id
+   * @param offset
+   * @param limit
+   * @return list of common spaces between two users in param
+   */
+  List<SpaceEntity> getCommonSpaces(String userId,String otherUserId, int offset, int limit);
+
+  /**
+   * Count common spaces between two users
+   *
+   * @param userId connected user id
+   * @param otherUserId visited profile user id
+   * @return list of common spaces between two users in param
+   */
+  int countCommonSpaces(String userId,String otherUserId);
+
 }
