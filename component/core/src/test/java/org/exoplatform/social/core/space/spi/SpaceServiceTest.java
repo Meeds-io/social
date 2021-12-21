@@ -3413,22 +3413,24 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(space5,"otherUser");
 
     ListAccess<Space> resultListCommonSpacesAccessList1 = spaceService.getCommonSpaces("root","otherUser");
-    assertEquals(2,resultListCommonSpacesAccessList1.load(0,2).length);
-    Space testSpace1 = resultListCommonSpacesAccessList1.load(0,1)[0];
+    assertEquals(5,resultListCommonSpacesAccessList1.getSize());
+    Space[] spaceArray = resultListCommonSpacesAccessList1.load(0,2);
+    assertEquals(2,spaceArray.length);
+    Space testSpace1 = spaceArray[0];
     assertEquals(space1,testSpace1);
-    Space testSpace2 = resultListCommonSpacesAccessList1.load(1,1)[0];
+    Space testSpace2 = spaceArray[1];
     assertEquals(space2,testSpace2);
 
-    ListAccess<Space> resultListCommonSpacesAccessList2 = spaceService.getCommonSpaces("root","otherUser");
-    assertEquals(2,resultListCommonSpacesAccessList1.load(2,2).length);
-    Space testSpace3 = resultListCommonSpacesAccessList2.load(2,1)[0];
+    spaceArray = resultListCommonSpacesAccessList1.load(2,2);
+    assertEquals(2,spaceArray.length);
+    Space testSpace3 = spaceArray[0];
     assertEquals(space3,testSpace3);
-    Space testSpace4 = resultListCommonSpacesAccessList2.load(3,1)[0];
+    Space testSpace4 = spaceArray[1];
     assertEquals(space4,testSpace4);
 
-    ListAccess<Space> resultListCommonSpacesAccessList3 = spaceService.getCommonSpaces("root","otherUser");
-    assertEquals(1,resultListCommonSpacesAccessList3.load(4,2).length);
-    Space testSpace5 = resultListCommonSpacesAccessList3.load(4,1)[0];
+    spaceArray = resultListCommonSpacesAccessList1.load(4,2);
+    assertEquals(1,spaceArray.length);
+    Space testSpace5 = spaceArray[0];
     assertEquals(space5,testSpace5);
 
   }
