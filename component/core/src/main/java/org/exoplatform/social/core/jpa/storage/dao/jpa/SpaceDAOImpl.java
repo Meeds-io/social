@@ -88,4 +88,44 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     }
   }
 
+  @Override
+  public List<SpaceEntity> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
+    if (userId == null || userId.equals("")) {
+      throw new IllegalArgumentException("the userId is null or equals to 0");
+    }
+    if (otherUserId == null || otherUserId.equals("")) {
+      throw new IllegalArgumentException("the otherUserId is null or equals to 0");
+    }
+    if (offset < 0) {
+      throw new IllegalArgumentException("offset must be positive");
+    }
+    if (limit <= 0) {
+      throw new IllegalArgumentException("limit must be > 0");
+    }
+    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getCommonSpacesBetweenTwoUsers",
+            SpaceEntity.class);
+    query.setParameter("userId", userId);
+    query.setParameter("otherUserId", otherUserId);
+    query.setFirstResult(offset);
+    query.setMaxResults(limit);
+    return query.getResultList();
+
+  }
+
+  @Override
+  public int countCommonSpaces(String userId, String otherUserId) {
+    if (userId == null || userId.equals("")) {
+      throw new IllegalArgumentException("userId is null or equals to 0");
+    }
+    if (otherUserId == null || otherUserId.equals("")) {
+      throw new IllegalArgumentException("otherUserId is null or equals to 0");
+    }
+
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceEntity.countCommonSpacesBetweenTwoUsers",
+            Long.class);
+    query.setParameter("userId", userId);
+    query.setParameter("otherUserId", otherUserId);
+    return query.getSingleResult().intValue();
+
+  }
 }
