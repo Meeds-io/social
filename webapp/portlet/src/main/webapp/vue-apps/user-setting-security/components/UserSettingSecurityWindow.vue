@@ -144,12 +144,19 @@ export default {
         return;
       }
 
+      if (this.newPassword === this.currentPassword) {
+        this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.changePasswordIdentical'));
+        if (!this.$refs.form.$el.reportValidity()) {
+          return;
+        }
+      }
       if (this.confirmNewPassword !== this.newPassword) {
         this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.newPasswordsDoesNotMatch'));
         if (!this.$refs.form.$el.reportValidity()) {
           return;
         }
       }
+
 
       if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
         this.success = null;
