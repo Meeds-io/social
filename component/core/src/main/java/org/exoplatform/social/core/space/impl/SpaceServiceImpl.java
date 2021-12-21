@@ -1796,7 +1796,7 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getCommonSpaces(String userId, String otherUserId,int offset,int limit) {
+  public ListAccess<Space> getCommonSpaces(String userId, String otherUserId) {
     return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.COMMON,userId,otherUserId);
   }
 

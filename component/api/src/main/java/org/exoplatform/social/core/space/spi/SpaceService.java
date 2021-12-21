@@ -1624,7 +1624,7 @@ public interface SpaceService {
    * @param otherUserId visited profile user id
    * @return list of common spaces between two users in param
    */
-  default ListAccess<Space> getCommonSpaces(String userId, String otherUserId,int offset,int limit) {
+  default ListAccess<Space> getCommonSpaces(String userId, String otherUserId) {
     throw new UnsupportedOperationException();
   }
 

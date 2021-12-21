@@ -196,21 +196,23 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
     spaceStorage.saveSpace(space6,true);
 
     List<Space> resultListCommonSpaces1 = spaceStorage.getCommonSpaces("demo","raul",0,2);
+    assertEquals(2, resultListCommonSpaces1.size());
     Space testSpace2 = resultListCommonSpaces1.get(0);
     assertEquals(space2,testSpace2);
     Space testSpace3 = resultListCommonSpaces1.get(1);
     assertEquals(space3,testSpace3);
 
     List<Space> resultListCommonSpaces2 = spaceStorage.getCommonSpaces("demo","raul",2,2);
+    assertEquals(2, resultListCommonSpaces2.size());
     Space testSpace4 = resultListCommonSpaces2.get(0);
     assertEquals(space4,testSpace4);
     Space testSpace5 = resultListCommonSpaces2.get(1);
     assertEquals(space5,testSpace5);
 
     List<Space> resultListCommonSpaces3 = spaceStorage.getCommonSpaces("demo","raul",4,2);
+    assertEquals(1,resultListCommonSpaces3.size());
     Space testSpace6 = resultListCommonSpaces3.get(0);
     assertEquals(space6,testSpace6);
-    assertEquals(1,resultListCommonSpaces3.size());
 
 
   }

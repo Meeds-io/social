@@ -1138,7 +1138,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId,offset,limit);
+    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId);
 
     List<DataEntity> commonSpaceInfos = Arrays.stream(commonSpacesAccessList.load(offset, limit))
             .map(space -> EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand).getDataEntity())
