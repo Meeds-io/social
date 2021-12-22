@@ -35,13 +35,21 @@ import org.exoplatform.social.metadata.model.*;
 public interface MetadataService {
 
   /**
-   * Creates a new Metadata object
+   * Creates a new {@link Metadata} object
    * 
    * @param metadata {@link Metadata}
    * @param userIdentityId {@link Identity} identifier of the creator
    * @return created {@link Metadata}
    */
   Metadata createMetadata(Metadata metadata, long userIdentityId);
+  
+  /**
+   * Deletes a {@link Metadata} by a given {@link Metadata} identifier
+   * 
+   * @param metadataId {@link Metadata} technical identifier
+   * @return Deleted {@link Metadata}
+   */
+  Metadata deleteMetadataById(long metadataId);
 
   /**
    * Retrieves a {@link Metadata} identified by a unique constraint for
