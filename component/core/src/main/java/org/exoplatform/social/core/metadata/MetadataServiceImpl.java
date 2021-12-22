@@ -79,6 +79,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     return metadata;
   }
+  
+  @Override
+  public Metadata deleteMetadataById(long metadataId) {
+    if (metadataId <= 0) {
+      throw new IllegalArgumentException("Metadata Technical Identifier is mandatory");
+    }
+    return this.metadataStorage.deleteMetadataById(metadataId);
+  }
 
   @Override
   public Metadata getMetadataByKey(MetadataKey metadataKey) {
