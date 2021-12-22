@@ -10,7 +10,7 @@
           :disabled="loading"
           class="pa-0 mt-0"
           icon
-          small
+          :small="small"
           v-bind="attrs"
           v-on="on"
           @click="changeFavorite">
@@ -65,6 +65,10 @@ export default {
     right: {
       type: Number,
       default: () => 0,
+    },
+    small: {
+      type: Boolean,
+      default: true,
     },
     templateParams: {
       type: Object,
