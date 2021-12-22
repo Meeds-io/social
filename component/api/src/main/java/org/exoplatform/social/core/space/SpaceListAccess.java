@@ -40,7 +40,7 @@ public class SpaceListAccess implements ListAccess<Space> {
   
   /** The type. */
   Type type;
-           
+
   /**
    * The space list access Type Enum.
    */
