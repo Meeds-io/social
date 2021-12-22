@@ -52,6 +52,13 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " mi.objectId = :objectId"
       ),
       @NamedQuery(
+          name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObject",
+          query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+              + " mi.metadata.type = :metadataType AND"
+              + " mi.objectType = :objectType AND"
+              + " mi.objectId = :objectId"
+      ),
+      @NamedQuery(
           name = "SocMetadataItemEntity.getMetadataObjectIds",
           query = "SELECT mi.objectId, mi.createdDate, mi.id FROM SocMetadataItemEntity mi WHERE "
               + " mi.metadata.type = :metadataType AND"

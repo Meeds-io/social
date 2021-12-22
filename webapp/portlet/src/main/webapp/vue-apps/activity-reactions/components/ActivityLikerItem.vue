@@ -15,7 +15,6 @@
         </span>
       </template>
     </exo-user-avatar>
-    <v-divider />
   </div>
 </template>
 <script>
