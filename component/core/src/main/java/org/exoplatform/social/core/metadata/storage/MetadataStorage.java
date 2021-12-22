@@ -100,8 +100,27 @@ public class MetadataStorage {
     return this.metadataItemDAO.deleteMetadataItemsByParentObject(object.getType(), object.getParentId());
   }
 
+  public void deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
+    List<MetadataItem> metadataItems = getMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
+    for(MetadataItem metadataItem : metadataItems) {
+      deleteMetadataItemById(metadataItem.getId());
+    }
+  }
+
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(object.getType(), object.getId());
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
+    }
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(), object.getType(), object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
