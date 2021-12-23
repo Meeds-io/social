@@ -96,7 +96,7 @@
         <v-card-text class="d-flex confirmPasswordField py-0">
           <input
             ref="confirmNewPassword"
-            v-model="confirmNewPassword"
+            v-model="user.confirmNewPassword"
             :disabled="saving || (!user.isInternal && !newUser)"
             :required="newUser"
             type="password"
