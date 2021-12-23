@@ -1795,4 +1795,9 @@ public class SpaceServiceImpl implements SpaceService {
     return isManager(space, username);
   }
 
+  @Override
+  public ListAccess<Space> getCommonSpaces(String userId, String otherUserId) {
+    return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.COMMON,userId,otherUserId);
+  }
+
 }
