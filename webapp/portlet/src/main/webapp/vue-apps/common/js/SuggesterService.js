@@ -79,6 +79,7 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
             items.push({
               id: `organization:${username}`,
               remoteId: username,
+              identityId: item.identityId,
               providerId: 'organization',
               profile: {
                 fullName: item.name || item.text,
