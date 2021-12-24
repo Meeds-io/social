@@ -237,6 +237,15 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                           String metadataTypeName,
+                                                                           String objectType,
+                                                                           long offset,
+                                                                           long limit) {
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, offset, limit);
+  }
+
+  @Override
   public Set<String> getMetadataNamesByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataNamesByObject(object);
   }

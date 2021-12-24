@@ -338,6 +338,29 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
   }
 
+  public void testGetMetadataItemsByMetadataNameAndTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTestSam";
+    String parentObjectId = "parentObjectIdTestSam";
+    String objectType = "objectTypeTestSam";
+    String name = "testMetadataSam";
+    String type = userMetadataType.getName();
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+
+    try {
+      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name, type, objectType, 0, 10);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    assertEquals(objectType, metadataItems.get(0).getObjectType());
+    assertEquals(type, metadataItems.get(0).getMetadataTypeName());
+  }
+
   public void testGetMetadatas() {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
