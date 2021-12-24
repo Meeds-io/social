@@ -39,13 +39,16 @@ export default {
       return this.space && this.space.id;
     },
     displayName() {
-      return this.space && this.space.displayName;
+      return this.space && this.space.isMember ? this.space.displayName : this.$t('spacesList.label.hiddenSpace');
     },
     groupId() {
       return this.space && this.space.groupId;
     },
     avatarUrl() {
-      return this.space && this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`;
+      return this.space && !this.space.isMember ? this.defaultAvatarUrl : this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`;
+    },
+    defaultAvatarUrl() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
     },
     url() {
       if (!this.groupId) {
