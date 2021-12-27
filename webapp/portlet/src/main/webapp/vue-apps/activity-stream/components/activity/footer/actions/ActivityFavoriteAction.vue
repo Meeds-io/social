@@ -1,5 +1,6 @@
 <template>
   <favorite-button
+    v-if="!isActivityShared"
     :id="activityId"
     :space-id="spaceId"
     :favorite="isFavorite"
@@ -20,6 +21,10 @@ export default {
     activity: {
       type: Object,
       default: null,
+    },
+    isActivityShared: {
+      type: Boolean,
+      default: false,
     },
     absolute: {
       type: Boolean,
