@@ -49,6 +49,10 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityShared: {
+      type: Boolean,
+      default: () => false
+    },
     activityTypeExtension: {
       type: Object,
       default: null,
@@ -69,6 +73,7 @@ export default {
     params() {
       return {
         activity: this.activity,
+        isActivityShared: this.isActivityShared
       };
     },
     posterIdentity() {
