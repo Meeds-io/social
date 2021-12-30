@@ -236,6 +236,11 @@ export default {
               this.fieldError = error;
               throw new Error(error);
             });
+          } else if (resp.status === 500){
+            return resp.text().then(error => {
+              this.fieldError = error;
+              throw new Error(this.$t('IDMManagement.error.LoginForDeletedUser'));
+            });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
