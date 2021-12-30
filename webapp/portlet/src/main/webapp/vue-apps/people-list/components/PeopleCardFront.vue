@@ -267,8 +267,8 @@ export default {
             || extension.title === this.$t('peopleList.button.removeRedactor')) && extension.enabled(this.user));
       }
       if (this.isSameUser && this.user.isManager) {
-        return this.profileActionExtensions.slice().filter(extension => (extension.title === this.$t('peopleList.button.removeManager')
-            || extension.title === this.$t('peopleList.button.setAsRedactor')) && extension.enabled(this.user));
+        return this.profileActionExtensions.slice().filter(extension => ((extension.title === this.$t('peopleList.button.removeManager'))
+            || (extension.title === this.$t('peopleList.button.setAsRedactor') || extension.title === this.$t('peopleList.button.removeRedactor')) && (extension.enabled(this.user))));
       }
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
