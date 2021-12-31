@@ -75,7 +75,7 @@
                 <v-row no-gutters>
                   <v-col
                     cols="6"
-                    class="pt-1 body-2 grey--text text--darken-1 text-truncate"
+                    class="pt-1 body-2 grey--text text-truncate text--darken-1"
                     justify="center">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
@@ -209,7 +209,7 @@ export default {
     sizeToDisplay: {
       type: Number,
       default: function () {
-        return 2;
+        return 3;
       },
     },
   },
