@@ -4,6 +4,7 @@
     :id="id"
     :href="url"
     class="activity-head-user-link">
+   
     <v-list-item-avatar :size="size" class="ma-0">
       <img
         :src="avatarUrl"

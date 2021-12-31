@@ -79,6 +79,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     return metadata;
   }
+  
+  @Override
+  public Metadata deleteMetadataById(long metadataId) {
+    if (metadataId <= 0) {
+      throw new IllegalArgumentException("Metadata Technical Identifier is mandatory");
+    }
+    return this.metadataStorage.deleteMetadataById(metadataId);
+  }
 
   @Override
   public Metadata getMetadataByKey(MetadataKey metadataKey) {
@@ -183,6 +191,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public void deleteMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object) {
+    this.metadataStorage.deleteMetadataItemsByMetadataTypeAndObject(metadataType, object);
+  }
+
+  @Override
   public void deleteMetadataItemsByParentObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByParentObject(object);
   }
@@ -216,6 +229,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   @Override
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataItemsByObject(object);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object) {
+    return this.metadataStorage.getMetadataItemsByMetadataTypeAndObject(metadataType, object);
   }
 
   @Override

@@ -12,6 +12,10 @@ export default {
     activityId: {
       type: String,
       default: () => ''
+    },
+    parentId: {
+      type: String,
+      default: () => ''
     }
   },
   data () {
@@ -22,6 +26,16 @@ export default {
   },
   created() {
     this.retrieveLikers();
+    document.addEventListener('check-reactions', event => {
+      if (event && event.detail && event.detail === this.activityId) {
+        this.updateLikers();
+      }
+    });
+    document.addEventListener('activity-liked', event => {
+      if (event && event.detail && event.detail === this.activityId) {
+        this.retrieveLikers();
+      }
+    });
   },
   watch: {
     activityId() {
@@ -33,17 +47,20 @@ export default {
       return this.$activityService.getActivityLikers(this.activityId, 0)
         .then(data => {
           this.likers = data.likes;
-          document.dispatchEvent(new CustomEvent('update-reaction-extension', {
-            detail: {
-              numberOfReactions: this.likers.length,
-              type: 'like'
-            }
-          }));
+          this.updateLikers();
         })
         .catch((e => {
           console.error('error retrieving activity likers' , e) ;
         }));
     },
+    updateLikers() {
+      document.dispatchEvent(new CustomEvent(`update-reaction-extension-${this.parentId}`, {
+        detail: {
+          numberOfReactions: this.likers.length,
+          type: 'like'
+        }
+      }));
+    }
   },
 };
 </script>

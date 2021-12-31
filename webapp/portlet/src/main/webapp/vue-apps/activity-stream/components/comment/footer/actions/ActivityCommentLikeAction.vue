@@ -122,6 +122,7 @@ export default {
           this.comment.likes = [...this.likers, liker];
           this.comment.likesCount++;
           this.$root.$emit('activity-comment-liked', this.comment);
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.commentId}));
         })
         .finally(() => this.changingLike = false);
     },
@@ -132,12 +133,13 @@ export default {
           this.comment.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
           this.comment.likesCount--;
           this.$root.$emit('activity-comment-liked', this.comment);
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.commentId}));
         })
         .finally(() => this.changingLike = false);
     },
     openLikesList() {
       document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
-        activityId: this.commentId.replace('comment',''),
+        activityId: this.commentId,
         activityPosterId: this.commentPoster,
         tab: 'like',
         activityType: 'COMMENT'

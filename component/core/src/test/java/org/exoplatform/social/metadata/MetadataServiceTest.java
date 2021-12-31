@@ -19,7 +19,6 @@
 package org.exoplatform.social.metadata;
 
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.when;
 
 import java.util.*;
 
@@ -37,7 +36,6 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.*;
 import org.picocontainer.Startable;
 
-import javax.annotation.meta.When;
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
@@ -194,6 +192,37 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(audienceId, storedMetadata.getAudienceId());
     assertEquals(name, storedMetadata.getName());
     assertEquals(userMetadataType, storedMetadata.getType());
+  }
+  
+  public void testDeleteMetadata() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String metadata1Name = "testMetadata1";
+    Metadata metadata1 = metadataService.createMetadata(newMetadataInstance(audienceId,
+                                                                                 creatorId,
+                                                                                 metadata1Name,
+                                                                                 userMetadataType),
+                                                             creatorId);
+    String metadata2Name = "testMetadata2";
+    Metadata metadata2 = metadataService.createMetadata(newMetadataInstance(audienceId,
+                                                                                 creatorId,
+                                                                                 metadata2Name,
+                                                                                 userMetadataType),
+                                                             creatorId);
+    List<Metadata> metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
+    assertEquals(2, metadatas.size());
+    assertEquals(metadata1Name, metadatas.get(0).getName());
+    
+    metadataService.deleteMetadataById(metadata1.getId());
+    metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
+    
+    assertEquals(1, metadatas.size());
+    assertEquals(metadata2Name, metadatas.get(0).getName());
+    
+    metadataService.deleteMetadataById(metadata2.getId());
+    metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
+    
+    assertEquals(0, metadatas.size());
   }
 
   public void testCreateMetadataItem() throws Exception { // NOSONAR
@@ -361,6 +390,54 @@ public class MetadataServiceTest extends AbstractCoreTest {
     List<Metadata> metadataList = metadataService.getMetadatasByProperty("referenced", "true", 100);
     assertNotNull(metadataList);
     assertEquals(1, metadataList.size());
+  }
+
+  public void testGetMetadataItemsByMetadataTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTest";
+    String parentObjectId = "parentObjectIdTest";
+    String objectType = "objectTypeTest";
+    String name = "testMetadataJohn";
+    String type = userMetadataType.getName();
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    try {
+      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+  }
+
+  public void testDeleteMetadataItemsByMetadataTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTest1";
+    String parentObjectId = "parentObjectIdTest1";
+    String objectType = "objectTypeTest1";
+    String name = "testMetadataJohn1";
+    String type = userMetadataType.getName();
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    try {
+      MetadataKey metadataKey1 = new MetadataKey(type, name, audienceId);
+      metadataService.createMetadataItem(metadataObject, metadataKey1, creatorId);
+      name = "testMetadataJohn2";
+      MetadataKey metadataKey2 = new MetadataKey(type, name, audienceId);
+      metadataService.createMetadataItem(metadataObject, metadataKey2, creatorId);
+      
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertNotNull(metadataItems);
+    assertEquals(2, metadataItems.size());
+    metadataService.deleteMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    assertEquals(0, metadataItems.size());
   }
 
   public void testCreateDuplicatedMetadataItem() throws Exception {

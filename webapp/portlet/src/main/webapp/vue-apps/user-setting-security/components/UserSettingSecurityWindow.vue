@@ -42,8 +42,6 @@
             type="password"
             autocomplete="current-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -56,8 +54,6 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -70,8 +66,6 @@
             type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            minlength="8"
-            maxlength="2000"
             required>
         </v-card-text>
 
@@ -112,6 +106,7 @@
 const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
 const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
 const PASSWORD_UNKNOWN_ERROR_CODE = 'PASSWORD_UNKNOWN_ERROR_CODE';
+const UNCHANGED_NEW_PASSWORD_ERROR_CODE = 'UNCHANGED_NEW_PASSWORD';
 
 export default {
   data: () => ({
@@ -175,6 +170,8 @@ export default {
               this.error = this.$t('UserSettings.label.accountNotExist');
             } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
               this.error = this.$t('UserSettings.label.changePasswordFail');
+            } else if (error.indexOf(UNCHANGED_NEW_PASSWORD_ERROR_CODE) > -1) {
+              this.error = this.$t('UserSettings.label.changePasswordIdentical');
             } else {
               this.error = error;
             }
