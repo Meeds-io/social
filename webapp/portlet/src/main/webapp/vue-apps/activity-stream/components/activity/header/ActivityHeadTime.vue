@@ -11,6 +11,7 @@
         <v-btn
           :href="activityLink"
           :height="20"
+          :disabled="isActivityShared"
           class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
@@ -44,6 +45,10 @@ export default {
     noIcon: {
       type: Boolean,
       default: false,
+    },
+    isActivityShared: {
+      type: Boolean,
+      default: () => false
     },
   },
   data: () => ({
