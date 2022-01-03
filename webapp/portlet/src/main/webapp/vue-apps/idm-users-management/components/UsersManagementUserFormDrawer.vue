@@ -236,11 +236,6 @@ export default {
               this.fieldError = error;
               throw new Error(error);
             });
-          } else if (resp.status === 500){
-            return resp.text().then(error => {
-              this.fieldError = error;
-              throw new Error(this.$t('IDMManagement.error.LoginForDeletedUser'));
-            });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
@@ -264,6 +259,8 @@ export default {
             const usernameError = this.fieldError.replace('USERNAME:', '');
             this.$refs.userNameInput.setCustomValidity(usernameError);
           }
+        } else if (this.fieldError === 'USER:ALREADY_EXISTS_DELETED') {
+          this.$refs.userNameInput.setCustomValidity(this.$t('UsersManagement.message.LoginForDeletedUser'));
         } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
           const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
           this.$refs.firstNameInput.setCustomValidity(firstNameError);
