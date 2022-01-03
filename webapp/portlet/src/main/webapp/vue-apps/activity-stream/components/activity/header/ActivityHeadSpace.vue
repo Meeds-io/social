@@ -2,7 +2,8 @@
   <a
     :id="id"
     :href="url"
-    :class="linkStyle">
+    :class="!this.space.isMember && 'not-clickable-link'"
+    class="text-none primary--text space-avatar activity-head-space-link">
     <v-avatar
       size="20"
       rounded
@@ -57,9 +58,6 @@ export default {
       const uri = this.groupId.replace(/\//g, ':');
       return `${eXo.env.portal.context}/g/${uri}/`;
     },
-    linkStyle() {
-      return `text-none primary--text space-avatar activity-head-space-link ${!this.space.isMember && 'not-clickable-link'}`;
-    }
   },
   mounted() {
     if (this.spaceId && this.groupId && this.space.isMember) {
