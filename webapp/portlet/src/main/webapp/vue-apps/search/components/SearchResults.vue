@@ -169,8 +169,7 @@ export default {
       });
     },
     enabledConnectors() {
-      return this.connectors && this.connectors.filter(connector => connector.enabled)
-        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) || [];
+      return this.sortedConnectors && this.sortedConnectors.filter(connector => connector.enabled) || [];
     },
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
