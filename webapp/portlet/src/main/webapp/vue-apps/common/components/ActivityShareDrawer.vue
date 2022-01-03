@@ -82,6 +82,7 @@ export default {
     validInput: true,
     description: '',
     activityId: null,
+    selectedApps: '',
     spaces: [],
   }),
   computed: {
@@ -111,8 +112,9 @@ export default {
       this.description = '';
       this.sharing = false;
     },
-    open(activityId) {
+    open(activityId, selectedApps) {
       this.activityId = activityId;
+      this.selectedApps = selectedApps;
       if (this.activityId) {
         this.$refs.activityShareDrawer.open();
       }
@@ -125,11 +127,19 @@ export default {
       this.sharing = true;
       this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
         .then(() => {
-          this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
-            prettyName: space.remoteId,
-            displayName: space && space.profile && space.profile.fullName,
-            avatarUrl: space && space.profile && space.profile.avatarUrl,
-          })));
+          if (this.selectedApps === 'newsApp') {
+            this.$root.$emit('activity-apps-shared', this.activityId, this.spaces.map(space => ({
+              prettyName: space.remoteId,
+              displayName: space && space.profile && space.profile.fullName,
+              avatarUrl: space && space.profile && space.profile.avatarUrl,
+            })));
+          } else {
+            this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
+              prettyName: space.remoteId,
+              displayName: space && space.profile && space.profile.fullName,
+              avatarUrl: space && space.profile && space.profile.avatarUrl,
+            })));
+          }
           this.close();
           this.clear();
         })
