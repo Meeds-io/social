@@ -79,6 +79,22 @@ public class MetadataStorage {
     return fromEntity(metadataItemEntity);
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                           String metadataTypeName,
+                                                                           String objectType,
+                                                                           long offset,
+                                                                           long limit) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
+    }
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataType.getId(), objectType, offset, limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public MetadataItem deleteMetadataItemById(long id) {
     MetadataItemEntity metadataItemEntity = this.metadataItemDAO.find(id);
     if (metadataItemEntity != null) {
