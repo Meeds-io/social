@@ -2,7 +2,7 @@
   <a
     :id="id"
     :href="url"
-    class="text-none primary--text space-avatar activity-head-space-link">
+    :class="linkStyle">
     <v-avatar
       size="20"
       rounded
@@ -57,9 +57,12 @@ export default {
       const uri = this.groupId.replace(/\//g, ':');
       return `${eXo.env.portal.context}/g/${uri}/`;
     },
+    linkStyle() {
+      return `text-none primary--text space-avatar activity-head-space-link ${!this.space.isMember && 'not-clickable-link'}`;
+    }
   },
   mounted() {
-    if (this.spaceId && this.groupId) {
+    if (this.spaceId && this.groupId && this.space.isMember) {
       window.setTimeout(() => {
         this.initTiptip();
       }, 500);
