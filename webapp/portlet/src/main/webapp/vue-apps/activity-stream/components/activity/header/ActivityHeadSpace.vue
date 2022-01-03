@@ -2,6 +2,7 @@
   <a
     :id="id"
     :href="url"
+    :class="!this.space.isMember && 'not-clickable-link'"
     class="text-none primary--text space-avatar activity-head-space-link">
     <v-avatar
       size="20"
@@ -59,7 +60,7 @@ export default {
     },
   },
   mounted() {
-    if (this.spaceId && this.groupId) {
+    if (this.spaceId && this.groupId && this.space.isMember) {
       window.setTimeout(() => {
         this.initTiptip();
       }, 500);
