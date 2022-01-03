@@ -166,8 +166,8 @@ public interface MetadataService {
    * Retrieves the Metadata item attached to a given {@link Metadata} name, type and {@link MetadataItem} object type
    *
    * @param metadataName {@link Metadata} name
-   * @param metadataTypeName metadata name {@link Metadata} name
-   * @param objectType objectType {@link MetadataItem} object type
+   * @param metadataTypeName {@link Metadata} type name
+   * @param objectType objectType {@link MetadataItem} objectType
    * @param offset offset of ids to retrieve
    * @param limit limit of ids to retrieve
    * @return {@link List} of linked {@link MetadataItem}
