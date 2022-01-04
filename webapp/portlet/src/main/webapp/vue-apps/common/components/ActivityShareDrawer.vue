@@ -82,7 +82,7 @@ export default {
     validInput: true,
     description: '',
     activityId: null,
-    selectedApps: '',
+    currentApp: '',
     spaces: [],
   }),
   computed: {
@@ -112,9 +112,9 @@ export default {
       this.description = '';
       this.sharing = false;
     },
-    open(activityId, selectedApps) {
+    open(activityId, currentApp) {
       this.activityId = activityId;
-      this.selectedApps = selectedApps;
+      this.currentApp = currentApp;
       if (this.activityId) {
         this.$refs.activityShareDrawer.open();
       }
@@ -131,7 +131,7 @@ export default {
             prettyName: space.remoteId,
             displayName: space && space.profile && space.profile.fullName,
             avatarUrl: space && space.profile && space.profile.avatarUrl,
-          })), this.selectedApps);
+          })), this.currentApp);
           this.close();
           this.clear();
         })
