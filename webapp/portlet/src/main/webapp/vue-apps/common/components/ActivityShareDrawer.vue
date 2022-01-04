@@ -127,19 +127,11 @@ export default {
       this.sharing = true;
       this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
         .then(() => {
-          if (this.selectedApps === 'newsApp') {
-            this.$root.$emit('activity-apps-shared', this.activityId, this.spaces.map(space => ({
-              prettyName: space.remoteId,
-              displayName: space && space.profile && space.profile.fullName,
-              avatarUrl: space && space.profile && space.profile.avatarUrl,
-            })));
-          } else {
-            this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
-              prettyName: space.remoteId,
-              displayName: space && space.profile && space.profile.fullName,
-              avatarUrl: space && space.profile && space.profile.avatarUrl,
-            })));
-          }
+          this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
+            prettyName: space.remoteId,
+            displayName: space && space.profile && space.profile.fullName,
+            avatarUrl: space && space.profile && space.profile.avatarUrl,
+          })), this.selectedApps);
           this.close();
           this.clear();
         })
