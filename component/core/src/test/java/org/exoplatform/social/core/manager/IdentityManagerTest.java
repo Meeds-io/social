@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
+import java.io.InputStream;
 import java.util.*;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -29,6 +30,8 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.*;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
@@ -39,6 +42,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+import org.exoplatform.upload.UploadResource;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
@@ -589,6 +593,57 @@ public class IdentityManagerTest extends AbstractCoreTest {
     identityManager.updateProfile(profile, true);
     assertEquals(3, changes.size());
     assertTrue(changes.contains(1));
+  }
+  public void testUpdateProfileAndDetectChangeBanner() throws Exception {
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Profile profile = rootIdentity.getProfile();
+
+    List<Integer> changes = new ArrayList<>();
+    identityManager.registerProfileListener(new ProfileListenerPlugin() {
+      @Override
+      public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
+        changes.add(1);
+      }
+
+      @Override
+      public void createProfile(ProfileLifeCycleEvent event) {
+        // noop
+      }
+
+      @Override
+      public void technicalUpdated(ProfileLifeCycleEvent event) {
+        // noop
+      }
+
+      @Override
+      public void contactSectionUpdated(ProfileLifeCycleEvent event) {
+        changes.add(2);
+      }
+
+      @Override
+      public void bannerUpdated(ProfileLifeCycleEvent event) {
+        changes.add(3);
+      }
+
+      @Override
+      public void avatarUpdated(ProfileLifeCycleEvent event) {
+        changes.add(4);
+      }
+
+      @Override
+      public void aboutMeUpdated(ProfileLifeCycleEvent event) {
+        changes.add(5);
+      }
+    });
+
+
+    InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
+    BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, System.currentTimeMillis());
+    profile.setProperty(Profile.BANNER, bannerAttachment);
+    identityManager.updateProfile(profile, true);
+    assertEquals(1, changes.size());
+    assertTrue(changes.contains(3));
+
   }
 
   public void testUpdateProfileActivity() throws Exception {
