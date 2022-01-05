@@ -12,7 +12,7 @@
         class="border-color mx-1"
         v-bind="attrs"
         v-on="on">
-        #{{ $t('Tag.search.button') }}
+        <span class="subtitle-1"><span class="text-sub-title">#</span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
     <v-card>
