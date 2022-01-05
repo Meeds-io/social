@@ -18,7 +18,7 @@ package org.exoplatform.social.service.rest;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -508,7 +508,9 @@ public class PeopleRestService implements ResourceContainer{
     if (identityFilter.getExcludedIdentityList().contains(userIdentity)) {
       return userInfos;
     }
-    if(filterByName && !userIdentity.getRemoteId().toLowerCase().contains(identityFilter.getName().toLowerCase()) && !userIdentity.getProfile().getFullName().toLowerCase().contains(identityFilter.getName().toLowerCase())) {
+    String profileFullName = StringUtils.stripAccents(userIdentity.getProfile().getFullName().toLowerCase());
+    String queriedName = StringUtils.stripAccents(identityFilter.getName().toLowerCase());
+    if(filterByName && !userIdentity.getRemoteId().toLowerCase().contains(queriedName) && !profileFullName.contains(queriedName)) {
       return userInfos;
     }
     UserInfo user = new UserInfo();
