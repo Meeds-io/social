@@ -1,13 +1,10 @@
 <template>
   <v-flex>
     <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
-      <search-tag-selector
-        v-if="tagsEnabled"
-        @tags-changed="selectTags" />
       <v-chip
         :outlined="!favorites"
         :color="favorites ? 'primary' : ''"
-        class="ms-1 me-8 border-color"
+        class="ms-1 me-2 border-color"
         @click="selectFavorites">
         <v-icon
           size="16"
@@ -16,6 +13,9 @@
         </v-icon>
         <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
+      <search-tag-selector
+          v-if="tagsEnabled"
+          @tags-changed="selectTags" />
       <v-menu
         v-model="connectorsListOpened"
         :close-on-content-click="false"
