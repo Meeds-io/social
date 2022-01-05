@@ -25,7 +25,7 @@
           <activity-head-space :space="space" />
         </template>
       </v-list-item-title>
-      <activity-head-time :activity="activity" class="d-flex activity-head-time" />
+      <activity-head-time :activity="activity" :is-activity-shared="isActivityShared" class="d-flex activity-head-time" />
     </v-list-item-content>
     <extension-registry-components
       :params="params"
@@ -49,6 +49,10 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityShared: {
+      type: Boolean,
+      default: () => false
+    },
     activityTypeExtension: {
       type: Object,
       default: null,
@@ -69,6 +73,7 @@ export default {
     params() {
       return {
         activity: this.activity,
+        isActivityShared: this.isActivityShared
       };
     },
     posterIdentity() {
