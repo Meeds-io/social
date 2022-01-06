@@ -43,12 +43,6 @@
       <groupId>javax.portlet</groupId>
       <artifactId>portlet-api</artifactId>
     </dependency>
-    <!-- Log4J is required by wikbook to compile but we don't want to propagate it -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <optional>true</optional>
-    </dependency>
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-api</artifactId>
@@ -119,10 +113,6 @@
       <artifactId>common-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.gatein.common</groupId>
-      <artifactId>common-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.exoplatform.gatein.pc</groupId>
       <artifactId>pc-api</artifactId>
     </dependency>
@@ -142,10 +132,6 @@
       <groupId>org.exoplatform.gatein.portal</groupId>
       <artifactId>exo.portal.component.portal</artifactId>
       <exclusions>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>javax.xml.stream</groupId>
           <artifactId>stax-api</artifactId>
@@ -185,10 +171,6 @@
         <exclusion>
           <groupId>org.apache.tomcat</groupId>
           <artifactId>jasper-el</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
         </exclusion>
         <exclusion>
           <groupId>javax.servlet</groupId>
@@ -298,11 +280,6 @@
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-component-common</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

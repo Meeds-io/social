@@ -40,8 +40,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.image.ImageUtils;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.gatein.security.oauth.spi.AccessTokenContext;
 import org.gatein.security.oauth.spi.OAuthPrincipal;
 import org.gatein.security.oauth.spi.OAuthProviderType;
@@ -59,7 +59,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices {
-  private static Logger log = LoggerFactory.getLogger(OAuthRegistrationServicesImpl.class);
+  private static Log                log = ExoLogger.getLogger(OAuthRegistrationServicesImpl.class);
 
     private final List<String> registerOnFly;
 
