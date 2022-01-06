@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorSpace, onlyManager, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorInSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, noRedactorSpace, onlyManager)
+    searchSpaces(filter, result, onlyRedactor, noRedactorInSpace, onlyManager)
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -12,8 +12,7 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
       .finally(() => searchEndCallback && searchEndCallback('organization'));
   }
 }
-
-function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, excludeNonManager) {
+function searchSpaces(filter, items, onlyRedactor, noRedactorInSpace, onlyManager) {
   const formData = new FormData();
   formData.append('filterType', 'member');
   formData.append('limit', '20');
@@ -24,7 +23,7 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, exclud
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-        if ((!noRedactorSpace || !item.redactorsCount) && (!excludeNonRedactor || item.isRedactor || !item.redactorsCount) || (!excludeNonManager || item.canEdit)) {
+        if ((noRedactorInSpace && item.redactorsCount === 0 ) || (onlyRedactor && item.isRedactor && item.redactorsCount > 0) || (onlyManager && item.canEdit) || (!onlyRedactor && !onlyManager && !noRedactorInSpace) ){
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
@@ -41,6 +40,7 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, exclud
       });
     });
 }
+
 
 function searchUsers(filter, items, typeOfRelation, searchOptions) {
   const options = {
