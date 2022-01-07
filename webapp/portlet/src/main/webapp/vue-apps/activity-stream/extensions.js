@@ -163,6 +163,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'delete',
   rank: 20,
   labelKey: 'UIActivity.label.Delete',
+  icon: 'fa-trash-alt',
   confirmDialog: true,
   confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Comment',
   confirmTitleKey: 'UIActivity.label.Confirmation',
@@ -182,6 +183,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
 extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'edit',
   labelKey: 'UIActivity.label.Edit',
+  icon: 'fa-edit',
   rank: 10,
   isEnabled: (activity, comment, activityTypeExtension) => {
     if (activityTypeExtension.canEdit) {
