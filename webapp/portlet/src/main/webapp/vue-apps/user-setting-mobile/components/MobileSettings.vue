@@ -11,7 +11,7 @@
         @back="closeDetail"/>
         
       <v-card
-        v-if="!displayDetails&&!displayDownloadDetails"
+        v-if="!displayDetails && !displayDownloadDetails"
         class="ma-4 border-radius"
         flat>
         <v-list>

@@ -54,20 +54,20 @@
           <div class="mb-10 mr-5">
             <div v-if="getMobileOperatingSystem()==='android'||getMobileOperatingSystem()==='unknown'" class="d-block-flex">
                 <a class= "mr-16 mb-6  d-block" :class="`${isMobile ? 'ml-14' : ''}`"
-                href='https://play.google.com/store/apps/details?id=org.exoplatform&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' 
+                href='https://play.google.com/store/apps/details?id=org.exoplatform' 
                 >
                 <img 
-                    alt='Get it on Google Play' 
+                    :alt="$t('MobileSettings.download.google.play.alt')"
                     src='/social-portlet/images/googlePlay.png'/>
                 </a>
             </div>
         
              <div v-if="getMobileOperatingSystem()==='ios'||getMobileOperatingSystem()==='unknown'" class="d-block-flex mt-n5"> 
                 <a  class=" ml-1 d-block" :class="`${isMobile ? 'ml-14 mt-6' : ''}`"
-                    href="https://apps.apple.com/tn/app/exo/id410476273?itsct=apps_box_badge&amp;itscg=30200" 
+                    href="https://apps.apple.com/tn/app/exo/id410476273" 
                   >
                   <img 
-                    alt='Get it on app store' 
+                    :alt="$t('MobileSettings.download.app.store.alt')" 
                     src='/social-portlet/images/appStore.png'/>
                 </a>
             </div>
@@ -103,9 +103,6 @@ export default {
   methods: {
     getMobileOperatingSystem() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-      if (/windows phone/i.test(userAgent)) {
-        return 'Windows Phone';
-      }
       if (/android/i.test(userAgent)) {
         return 'android';
       }
