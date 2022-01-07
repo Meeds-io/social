@@ -24,7 +24,8 @@
               :src="seeMoreLikerToDisplay.avatar"
               :title="seeMoreLikerToDisplay.fullname"
               class="object-fit-cover"
-              loading="lazy">
+              loading="lazy"
+              role="presentation">
             <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
           </v-avatar>
         </div>
@@ -46,6 +47,7 @@
       ref="reactionsDrawer"
       :likers-number="likersNumber"
       :activity-id="activityId"
+      :activity-poster-id="activityPosterId"
       :max-items-to-show="maxLikersToShow"
       @reactions="reactionsNumber" />
     <activity-reactions-mobile
@@ -99,11 +101,20 @@ export default {
     },
     showMoreLikersNumber() {
       return this.likersNumber - this.maxLikersToShow + 1;
+    },
+    activityPosterId() {
+      return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.username;
     }
   },
   methods: {
     openDrawer() {
-      this.$refs.reactionsDrawer.open();
+      const reactionTabDetails = {
+        activityId: this.activityId,
+        activityPosterId: this.activityPosterId,
+        tab: 'like',
+        activityType: 'ACTIVITY'
+      };
+      this.$root.$emit(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails);
     },
     reactionsNumber(kudosCount) {
       this.kudosNumber = kudosCount;

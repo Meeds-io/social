@@ -74,13 +74,13 @@
               <v-container class="pa-0">
                 <v-row no-gutters>
                   <v-col
-                    cols="4"
-                    class="pt-1 body-2 grey--text text--darken-1"
+                    cols="6"
+                    class="pt-1 body-2 grey--text text-truncate text--darken-1"
                     justify="center">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
                   <v-col
-                    cols="8"
+                    cols="6"
                     justify="center"
                     class="d-flex flex-nowrap pa-0">
                     <exo-user-avatar
@@ -101,6 +101,7 @@
                         :title="lastManagerToDisplay.fullName"
                         class="object-fit-cover"
                         loading="lazy"
+                        role="presentation"
                         :alt="lastManagerToDisplay.fullName">
                       <span
                         id="showMoreManagers"
@@ -208,7 +209,7 @@ export default {
     sizeToDisplay: {
       type: Number,
       default: function () {
-        return 4;
+        return 3;
       },
     },
   },

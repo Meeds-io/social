@@ -29,6 +29,8 @@ function searchSpaces(filter, items, excludeNonRedactor, noRedactorSpace, exclud
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
             providerId: 'space',
+            spaceId: item.id,
+            displayName: item.displayName,
             profile: {
               fullName: item.displayName,
               originalName: item.shortName,
@@ -77,6 +79,7 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
             items.push({
               id: `organization:${username}`,
               remoteId: username,
+              identityId: item.identityId,
               providerId: 'organization',
               profile: {
                 fullName: item.name || item.text,

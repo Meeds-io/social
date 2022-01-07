@@ -140,6 +140,7 @@ export default {
         }
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
+
       let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
       const windowWidth = $(window).width();
@@ -149,10 +150,14 @@ export default {
         extraPlugins = 'simpleLink';
       }
       if (this.templateParams) {
-        CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
-        extraPlugins = `${extraPlugins},embedsemantic`;
+        extraPlugins = `${extraPlugins},embedsemantic,tagSuggester`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
+      }
+      if (eXo.env.portal.activityTagsEnabled) {
+        extraPlugins = `${extraPlugins},tagSuggester`;
+      } else {
+        removePlugins = `${removePlugins},tagSuggester`;
       }
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';

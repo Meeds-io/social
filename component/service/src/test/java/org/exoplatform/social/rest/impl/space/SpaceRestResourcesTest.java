@@ -1,8 +1,6 @@
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,22 +12,25 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
@@ -39,9 +40,11 @@ import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
+import org.json.JSONObject;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
   private IdentityManager identityManager;
+  private OrganizationService organizationService;
   private UserACL userACL;
   private ActivityManager activityManager;
   private SpaceService spaceService;
@@ -52,6 +55,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   private Identity johnIdentity;
   private Identity maryIdentity;
   private Identity demoIdentity;
+  private Identity externalUserIdentity;
 
   private MockUploadService    uploadService;
 
@@ -63,6 +67,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+    organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
 
     rootIdentity = identityManager.getOrCreateIdentity("organization", "root");
@@ -493,7 +498,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     //root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
     space.setVisibility(Space.HIDDEN);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
 
     startSessionAs("root");
@@ -504,7 +509,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertEquals("space1", spaceEntity.getDisplayName());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
-    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
+    assertEquals(Space.CLOSED, spaceEntity.getSubscription());
     EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotNull(eTag);
 
@@ -521,7 +526,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals("displayName_updated", spaceEntity.getDisplayName());
     assertEquals("description_updated", spaceEntity.getDescription());
     assertEquals(Space.HIDDEN, spaceEntity.getVisibility());
-    assertEquals(Space.CLOSE, spaceEntity.getSubscription());
+    assertEquals(Space.CLOSED, spaceEntity.getSubscription());
     EntityTag updatedETag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotSame(eTag, updatedETag);
     //root delete his space
@@ -695,6 +700,28 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+    endSession();
+  }
+
+  public void testIsSpaceContainsExternals() throws Exception {
+    startSessionAs("root");
+    User external = organizationService.getUserHandler().createUserInstance("externalUser");
+    organizationService.getUserHandler().createUser(external, false);
+    externalUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "externalUser");
+    externalUserIdentity.getProfile().setProperty("username", "externalUser");
+    externalUserIdentity.getProfile().setProperty("external", "true");
+    identityManager.updateProfile(externalUserIdentity.getProfile());
+    Space space = getSpaceInstance(10, "root");
+    ContainerResponse response;
+    response = service("GET", getURLResource("spaces/" + space.getId()+ "/checkExternals"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertEquals("false", response.getEntity());
+    spaceService.addMember(space, "externalUser");
+    response = service("GET", getURLResource("spaces/" + space.getId()+ "/checkExternals"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertEquals("true", response.getEntity());
     endSession();
   }
 }

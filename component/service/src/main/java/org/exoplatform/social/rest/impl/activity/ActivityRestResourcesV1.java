@@ -26,6 +26,8 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -213,7 +215,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
     collectionActivity.put("canPost", canPost);
 
-    ResponseBuilder responseBuilder = EntityBuilder.getResponseBuilder(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    ResponseBuilder responseBuilder = EntityBuilder.getResponseBuilder(collectionActivity,
+                                                                       uriInfo,
+                                                                       RestUtils.getJsonMediaType(),
+                                                                       Response.Status.OK);
     if (activityIds != null && !activityIds.isEmpty()) {
       int preloadLimit = limit / 2;
       if (preloadLimit > 1) {
@@ -261,7 +266,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
 
     String authenticatedUser = currentUser.getUserId();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity authenticatedUserIdentity =
+                                       identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
     Identity spaceIdentity = null;
     if (StringUtils.isNotBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
@@ -599,10 +605,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     activityManager.saveComment(activity, comment);
 
     CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
-                                                                          currentUser,
-                                                                          uriInfo.getPath(),
-                                                                          expand,
-                                                                          false);
+                                                                       currentUser,
+                                                                       uriInfo.getPath(),
+                                                                       expand,
+                                                                       false);
     return EntityBuilder.getResponse(commentEntity.getDataEntity(),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
@@ -679,10 +685,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     comment.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(comment, true);
     CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),
-                                                                          currentUser,
-                                                                          uriInfo.getPath(),
-                                                                          expand,
-                                                                          false);
+                                                                       currentUser,
+                                                                       uriInfo.getPath(),
+                                                                       expand,
+                                                                       false);
     return EntityBuilder.getResponse(commentEntity.getDataEntity(),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
@@ -736,7 +742,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     org.exoplatform.services.security.Identity currentUser = ConversationState.getCurrent().getIdentity();
 
     String authenticatedUser = currentUser.getUserId();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity authenticatedUserIdentity =
+                                       identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
     ExoSocialActivity activityTemplate = new ExoSocialActivityImpl();
     activityTemplate.setTitle(model.getTitle());
@@ -761,7 +768,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     List<DataEntity> sharedActivityEntities = convertToEntities(sharedActivities, authenticatedUserIdentity, uriInfo, expand);
-    CollectionEntity collectionActivity = new CollectionEntity(sharedActivityEntities, EntityBuilder.ACTIVITIES_TYPE, 0, sharedActivityEntities.size());
+    CollectionEntity collectionActivity = new CollectionEntity(sharedActivityEntities,
+                                                               EntityBuilder.ACTIVITIES_TYPE,
+                                                               0,
+                                                               sharedActivityEntities.size());
     return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
@@ -920,6 +930,16 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                      "q"
                                    )
                                    String query,
+                                   @ApiParam(value = "Whether to search in favorites only or not", required = true)
+                                   @QueryParam(
+                                     "favorites"
+                                   )
+                                   boolean favorites,
+                                   @ApiParam(value = "Tag names used to search activities", required = true)
+                                   @QueryParam(
+                                     "tags"
+                                   )
+                                   List<String> tagNames,
                                    @ApiParam(value = "Offset", required = false, defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -934,15 +954,15 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    if (StringUtils.isBlank(query)) {
+    if (StringUtils.isBlank(query) && !favorites && CollectionUtils.isEmpty(tagNames)) {
       return Response.status(Status.BAD_REQUEST).entity("'q' parameter is mandatory").build();
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query);
-    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUser, filter, offset, limit);
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, favorites);
+    List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
       entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
@@ -960,6 +980,11 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       int commentsCount = activityStorage.getNumberOfComments(existingActivity);
       entity.setCommentsCount(commentsCount);
       entity.setLikesCount(existingActivity.getNumberOfLikes());
+      Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = EntityBuilder.retrieveMetadataItems(existingActivity,
+                                                                                                             currentUserIdentity);
+      if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
+        entity.setMetadatas(activityMetadatasToPublish);
+      }
       return entity;
     }).collect(Collectors.toList());
 
@@ -983,7 +1008,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   private void addPreloadActivityIds(List<String> activityIds, int preloadLimit, String expand, ResponseBuilder responseBuilder) {
     int offset = preloadLimit > MAX_TO_PRELOAD ? preloadLimit - MAX_TO_PRELOAD : 0;
-    List<String> preloadActivityIds = activityIds.size() >= preloadLimit ? activityIds.subList(offset, preloadLimit) : activityIds;
+    List<String> preloadActivityIds =
+                                    activityIds.size() >= preloadLimit ? activityIds.subList(offset, preloadLimit) : activityIds;
     for (String activityId : preloadActivityIds) {
       String activityLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=" + expand;
       responseBuilder.header("Link", "<" + activityLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials");

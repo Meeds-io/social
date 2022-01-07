@@ -3,7 +3,7 @@
     <a
       :id="id"
       :href="url"
-      class="flex-nowrap flex-shrink-0 d-flex text-truncate container--fluid">
+      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid">
       <v-avatar
         :size="size"
         :class="avatarClass"
@@ -11,9 +11,10 @@
         <img
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
-          loading="lazy">
+          loading="lazy"
+          role="presentation">
       </v-avatar>
-      <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column text-truncate">
+      <div v-if="fullname || $slots.subTitle" class="pull-left ms-2 d-flex flex-column align-start text-truncate">
         <p
           v-if="fullname"
           :class="fullnameStyle"
@@ -25,10 +26,10 @@
           <slot name="subTitle"></slot>
         </p>
       </div>
-      <template v-if="$slots.actions">
-        <slot name="actions"></slot>
-      </template>
     </a>
+    <template v-if="$slots.actions">
+      <slot name="actions"></slot>
+    </template>
   </div>
 </template>
 

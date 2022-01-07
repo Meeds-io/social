@@ -24,8 +24,8 @@ public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExter
     }
 
     @Override
+    @ExoTransactional
     public void deleteExternalUserInvitations(String email) {
-        getEntityManager().getTransaction().begin();
         getEntityManager().createNamedQuery("SocSpaceExternalInvitations.deleteExternalUserInvitations")
                 .setParameter("email", email)
                 .executeUpdate();

@@ -470,6 +470,11 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
 
+  @Override
+  public boolean isSpaceContainsExternals(Long spaceId) {
+    return spaceStorage.countExternalMembers(spaceId) != 0;
+  }
+
   private Set<String> getUsersToInvite(List<Identity> identities) {
     Set<String> invitedUserIds = new HashSet<>();
     for (Identity identity : identities) {
@@ -1288,7 +1293,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     String registration = space.getRegistration();
     String visibility = space.getVisibility();
-    if (visibility.equals(Space.HIDDEN) && registration.equals(Space.CLOSE)) {
+    if (visibility.equals(Space.HIDDEN) && registration.equals(Space.CLOSED)) {
       LOG.warn("Unable request to join hidden");
       return;
     }
@@ -1788,6 +1793,11 @@ public class SpaceServiceImpl implements SpaceService {
       return true;
     }
     return isManager(space, username);
+  }
+
+  @Override
+  public ListAccess<Space> getCommonSpaces(String userId, String otherUserId) {
+    return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.COMMON,userId,otherUserId);
   }
 
 }

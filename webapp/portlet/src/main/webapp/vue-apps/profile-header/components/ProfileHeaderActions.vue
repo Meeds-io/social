@@ -90,14 +90,14 @@
         :loading="sendingAction"
         :disabled="sendingAction || skeleton"
         :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
-        class="btn ma-2 mb-0 connectUserButton"
+        class="btn ma-1 mb-0 connectUserButton"
         @click="connect">
         <i class="uiIconSocConnectUser"></i>
         <span class="buttonText">
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents order-first ma-2 mb-0">
+      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-0 mt-0 mr-n2' : 'ma-2'}`">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
@@ -150,6 +150,9 @@ export default {
     resolveMounting: null
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
     enabledProfileHeaderActionComponents() {
       return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
     },

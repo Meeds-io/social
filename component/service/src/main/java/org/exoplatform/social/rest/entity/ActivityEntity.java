@@ -262,6 +262,16 @@ public class ActivityEntity extends BaseEntity {
     return (List<ActivityFile>) getProperty("files");
   }
 
+  public ActivityEntity setMetadatas(Map<String, List<MetadataItemEntity>> metadatas) {
+    setProperty("metadatas", metadatas);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, List<MetadataItemEntity>> getMetadatas() {
+    return (Map<String, List<MetadataItemEntity>>) getProperty("metadatas");
+  }
+
   public ActivityEntity setFiles(List<ActivityFile> files) {
     if (CollectionUtils.isNotEmpty(files)) {
       files = files.stream().filter(file -> !file.isDeleted()).collect(Collectors.toList());

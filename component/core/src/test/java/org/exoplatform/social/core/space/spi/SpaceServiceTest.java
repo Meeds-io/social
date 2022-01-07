@@ -23,8 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
@@ -36,11 +34,9 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
@@ -53,6 +49,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+
 
 public class SpaceServiceTest extends AbstractCoreTest {
   private IdentityStorage               identityStorage;
@@ -115,6 +112,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   private Identity                      member3;
 
+  private Identity                      externalUser;
+
 
   @Override
   public void setUp() throws Exception {
@@ -149,6 +148,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     member1 = new Identity(OrganizationIdentityProvider.NAME, "member1");
     member2 = new Identity(OrganizationIdentityProvider.NAME, "member2");
     member3 = new Identity(OrganizationIdentityProvider.NAME, "member3");
+    externalUser = new Identity(OrganizationIdentityProvider.NAME, "externalUser");
+
 
     identityStorage.saveIdentity(demo);
     identityStorage.saveIdentity(tom);
@@ -2965,10 +2966,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
       if (i < 6)
         // [0->5] :: there are 6 spaces with visible = 'private'
-        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSED, "demo");
       else
         // [6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
 
       spaceService.saveSpace(listSpace[i], true);
     }
@@ -3009,10 +3010,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
       if (i < 6)
         // [0->5] :: there are 6 spaces with visible = 'private'
         listSpace[i] =
-                     this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSE, new String[] { "mary", "hacker" }, "demo");
+                     this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSED, new String[] { "mary", "hacker" }, "demo");
       else
         // [6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
 
       spaceService.saveSpace(listSpace[i], true);
     }
@@ -3190,7 +3191,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename2", "root");
     space.setVisibility(Space.PUBLIC);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     space = createSpace("spacename3", "root");
@@ -3200,7 +3201,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename4", "root");
     space.setVisibility(Space.PRIVATE);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     space = createSpace("spacename5", "root");
@@ -3210,7 +3211,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = createSpace("spacename6", "root");
     space.setVisibility(Space.HIDDEN);
-    space.setRegistration(Space.CLOSE);
+    space.setRegistration(Space.CLOSED);
     spaceService.updateSpace(space);
 
     User user = organizationService.getUserHandler().createUserInstance("user-space-admin");
@@ -3316,25 +3317,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
    * @param number
    * @return an instance of space
    */
-  private Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
-    Space space = new Space();
-    space.setApp("app");
-    space.setDisplayName("my space " + number);
-    space.setPrettyName(space.getDisplayName());
-    space.setRegistration(registration);
-    space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
-    space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    space.setGroupId("/spaces/space" + number);
-    String[] managers = new String[] { manager };
-    String[] invitedUsers = new String[] {};
-    String[] pendingUsers = new String[] {};
-    space.setInvitedUsers(invitedUsers);
-    space.setPendingUsers(pendingUsers);
-    space.setManagers(managers);
-    space.setMembers(members);
-    space.setUrl(space.getPrettyName());
+  public Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
+    Space space = super.getSpaceInstance(number, visible, registration, manager, members);
     tearDownSpaceList.add(space);
     return space;
   }
@@ -3390,5 +3374,64 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.saveSpace(space2, true);
     tearDownSpaceList.add(space2);
     return space2;
+  }
+
+  public void testSpaceContainsExternalMembers() throws Exception {
+    externalUser.getProfile().setProperty("external", "true");
+    identityStorage.saveIdentity(externalUser);
+    User external = organizationService.getUserHandler().createUserInstance("externalUser");
+    organizationService.getUserHandler().createUser(external, false);
+    Space space = getSpaceInstance(10);
+    boolean hasExternals;
+
+    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
+    assertEquals(false, hasExternals);
+
+    spaceService.addMember(space, "externalUser");
+    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
+    assertEquals(true, hasExternals);
+    tearDownUserList.add(externalUser);
+  }
+
+
+  public void testGetCommonSpaces() throws Exception {
+
+    getSpaceInstance(11);
+    Space space1 = getSpaceInstance(12);
+    Space space2 = getSpaceInstance(13);
+    Space space3 = getSpaceInstance(14);
+    Space space4 = getSpaceInstance(15);
+    Space space5 = getSpaceInstance(16);
+
+    User otherUser = organizationService.getUserHandler().createUserInstance("otherUser");
+    organizationService.getUserHandler().createUser(otherUser, false);
+
+    spaceService.addMember(space1,"otherUser");
+    spaceService.addMember(space2,"otherUser");
+    spaceService.addMember(space3,"otherUser");
+    spaceService.addMember(space4,"otherUser");
+    spaceService.addMember(space5,"otherUser");
+
+    ListAccess<Space> resultListCommonSpacesAccessList1 = spaceService.getCommonSpaces("root","otherUser");
+    assertEquals(5,resultListCommonSpacesAccessList1.getSize());
+    Space[] spaceArray = resultListCommonSpacesAccessList1.load(0,2);
+    assertEquals(2,spaceArray.length);
+    Space testSpace1 = spaceArray[0];
+    assertEquals(space1,testSpace1);
+    Space testSpace2 = spaceArray[1];
+    assertEquals(space2,testSpace2);
+
+    spaceArray = resultListCommonSpacesAccessList1.load(2,2);
+    assertEquals(2,spaceArray.length);
+    Space testSpace3 = spaceArray[0];
+    assertEquals(space3,testSpace3);
+    Space testSpace4 = spaceArray[1];
+    assertEquals(space4,testSpace4);
+
+    spaceArray = resultListCommonSpacesAccessList1.load(4,2);
+    assertEquals(1,spaceArray.length);
+    Space testSpace5 = spaceArray[0];
+    assertEquals(space5,testSpace5);
+
   }
 }

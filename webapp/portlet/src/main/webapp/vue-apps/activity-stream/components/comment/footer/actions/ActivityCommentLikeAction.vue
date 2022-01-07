@@ -29,7 +29,8 @@
           x-small
           icon
           v-bind="attrs"
-          v-on="on">
+          v-on="on"
+          @click="openLikesList">
           ({{ likesCount }})
         </v-btn>
       </template>
@@ -56,6 +57,12 @@ export default {
   computed: {
     commentId() {
       return this.comment && this.comment.id;
+    },
+    commentPoster() {
+      return this.comment && this.comment.poster;
+    },
+    activityId() {
+      return this.activity && this.activity.id;
     },
     likers() {
       return this.comment && this.comment.likes && this.comment.likes.slice().reverse() || [];
@@ -115,6 +122,7 @@ export default {
           this.comment.likes = [...this.likers, liker];
           this.comment.likesCount++;
           this.$root.$emit('activity-comment-liked', this.comment);
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.commentId}));
         })
         .finally(() => this.changingLike = false);
     },
@@ -125,9 +133,18 @@ export default {
           this.comment.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
           this.comment.likesCount--;
           this.$root.$emit('activity-comment-liked', this.comment);
+          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.commentId}));
         })
         .finally(() => this.changingLike = false);
     },
+    openLikesList() {
+      document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activityId}`, {detail: {
+        activityId: this.commentId,
+        activityPosterId: this.commentPoster,
+        tab: 'like',
+        activityType: 'COMMENT'
+      }}));
+    }
   },
 };
 </script>

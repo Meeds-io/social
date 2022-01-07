@@ -26,13 +26,11 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.model.AvatarAttachment;
-import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.core.test.MaxQueryNumber;
 import org.exoplatform.social.core.test.QueryNumberTest;
@@ -172,7 +170,7 @@ public class SpaceStorageTest extends AbstractCoreTest {
    * @param number
    * @return an instance of space
    */
-  private Space getSpaceInstance(int number, String visible, String registration, String manager, String...members) {
+  public Space getSpaceInstance(int number, String visible, String registration, String manager, String...members) {
     Space space = new Space();
     space.setApp("app");
     space.setDisplayName("my space " + number);
@@ -1908,10 +1906,10 @@ public class SpaceStorageTest extends AbstractCoreTest {
     
       if (i < 6)
          //[0->5] :: there are 6 spaces with visible = 'private'
-        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSED, "demo");
       else
         //[6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
       
       spaceStorage.saveSpace(listSpace[i], true);
       
@@ -1951,10 +1949,10 @@ public class SpaceStorageTest extends AbstractCoreTest {
     
       if (i < 6)
          //[0->5] :: there are 6 spaces with visible = 'private' and manager = "demo"
-        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.PRIVATE, Space.CLOSED, "demo");
       else
         //[6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
       
       spaceStorage.saveSpace(listSpace[i], true);
       
@@ -2047,10 +2045,10 @@ public class SpaceStorageTest extends AbstractCoreTest {
     
       if (i < 6)
          //[0->5] :: there are 6 spaces with visible = 'private'
-        listSpace[i] = this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSE, new String[] {"mary", "hacker"}, "demo");
+        listSpace[i] = this.getSpaceInstanceInvitedMember(i, Space.PRIVATE, Space.CLOSED, new String[] {"mary", "hacker"}, "demo");
       else
         //[6->9]:: there are 4 spaces with visible = 'hidden'
-        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSE, "demo");
+        listSpace[i] = this.getSpaceInstance(i, Space.HIDDEN, Space.CLOSED, "demo");
       
       spaceStorage.saveSpace(listSpace[i], true);
       

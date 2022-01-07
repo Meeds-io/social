@@ -5,7 +5,8 @@
         <img
           :src="avatarUrl"
           class="object-fit-cover my-auto"
-          loading="lazy">
+          loading="lazy"
+          role="presentation">
       </v-list-item-avatar>
       <v-list-item-content class="flex px-0 py-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
         <exo-activity-rich-editor
@@ -24,6 +25,7 @@
     <v-btn
       :loading="commenting"
       :disabled="disableButton"
+      :aria-label="label"
       class="btn btn-primary ms-10"
       color="primary"
       @click="postComment">

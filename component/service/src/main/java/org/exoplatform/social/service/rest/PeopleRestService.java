@@ -18,7 +18,7 @@ package org.exoplatform.social.service.rest;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -508,7 +508,9 @@ public class PeopleRestService implements ResourceContainer{
     if (identityFilter.getExcludedIdentityList().contains(userIdentity)) {
       return userInfos;
     }
-    if(filterByName && !userIdentity.getRemoteId().toLowerCase().contains(identityFilter.getName().toLowerCase()) && !userIdentity.getProfile().getFullName().toLowerCase().contains(identityFilter.getName().toLowerCase())) {
+    String profileFullName = StringUtils.stripAccents(userIdentity.getProfile().getFullName().toLowerCase());
+    String queriedName = StringUtils.stripAccents(identityFilter.getName().toLowerCase());
+    if(filterByName && !userIdentity.getRemoteId().toLowerCase().contains(queriedName) && !profileFullName.contains(queriedName)) {
       return userInfos;
     }
     UserInfo user = new UserInfo();
@@ -522,6 +524,7 @@ public class PeopleRestService implements ResourceContainer{
     }
     user.setName(userIdentity.getProfile() == null ? null : fullName);
     user.setAvatar(userIdentity.getProfile() == null ? null : userIdentity.getProfile().getAvatarUrl());
+    user.setIdentityId(userIdentity.getId());
     user.setType("contact");
     userInfos.add(user);
     return userInfos;
@@ -666,6 +669,7 @@ public class PeopleRestService implements ResourceContainer{
       }
       userInfo.setName(identity.getProfile().getFullName());
       userInfo.setAvatar(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
+      userInfo.setIdentityId(identity.getId());
       userInfo.setType("contact"); //hardcode for test
       userInfos.add(userInfo);
     }
@@ -1148,6 +1152,7 @@ public class PeopleRestService implements ResourceContainer{
     String name;
     String avatar;
     String type;
+    String identityId;
 
     public void setId(String id) {
       this.id = "@" + id;
@@ -1180,6 +1185,14 @@ public class PeopleRestService implements ResourceContainer{
 
     public void setType(String type) {
       this.type = type;
+    }
+
+    public String getIdentityId() {
+      return identityId;
+    }
+
+    public void setIdentityId(String identityId) {
+      this.identityId = identityId;
     }
 
     @Override

@@ -814,7 +814,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ActivityEntity sharedActivity = getBaseEntity(sharedActivities.getEntities().get(0), ActivityEntity.class);
     assertNotNull(sharedActivity);
     assertNotNull(sharedActivity.getId());
-    assertEquals(originalActivity.getId(), sharedActivity.getTemplateParams().get("originalActivityId"));
+    assertEquals(originalActivity.getId(), sharedActivity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
 
     restartTransaction();
     startSessionAs("demo");

@@ -1,23 +1,85 @@
 <template>
   <v-flex>
-    <v-flex class="searchConnectorsParent mx-4 mb-4 border-box-sizing">
+    <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
+      <search-tag-selector
+        v-if="tagsEnabled"
+        @tags-changed="selectTags" />
       <v-chip
-        :outlined="!allEnabled"
-        :color="allEnabled ? 'primary' : ''"
-        class="mx-1 border-color"
-        @click="selectAllConnector">
-        <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
+        :outlined="!favorites"
+        :color="favorites ? 'primary' : ''"
+        class="ms-1 me-8 border-color"
+        @click="selectFavorites">
+        <v-icon
+          size="16"
+          class="pb-1 pe-2 yellow--text text--darken-2">
+          fas fa-star
+        </v-icon>
+        <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
-      <v-chip
-        v-for="connector in sortedConnectors"
-        :key="connector.name"
-        :outlined="allEnabled || !connector.enabled"
-        :color="!allEnabled && connector.enabled ? 'primary' : ''"
-        class="mx-1 border-color"
-        @click="selectConnector(connector)">
-        <span class="subtitle-1">{{ connector.label }}</span>
-      </v-chip>
-    </v-flex>
+      <v-menu
+        v-model="connectorsListOpened"
+        :close-on-content-click="false"
+        content-class="connectors-list"
+        bottom
+        right
+        offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-chip
+            :outlined="!allEnabled"
+            :color="allEnabled ? 'primary' : ''"
+            class="border-color mx-1 subtitle-1"
+            v-bind="attrs"
+            v-on="on">
+            <span class="me-8">{{ $t('search.connector.label.all') }}</span>
+            <i class="fas fa-chevron-down"></i>
+          </v-chip>
+        </template>
+        <v-list dense class="pa-0">
+          <v-list-item @click="selectAllConnector()">
+            <v-list-item-title class="d-flex align-center">
+              <v-checkbox
+                :input-value="allEnabled"
+                :ripple="false"
+                readonly
+                dense
+                class="ma-0" />
+              <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-for="connector in sortedConnectors"
+            :key="connector.name"
+            class="clickable"
+            dense
+            @click="selectConnector(connector)">
+            <v-list-item-title class="d-flex align-center">
+              <v-checkbox
+                :input-value="!allEnabled && connector.enabled"
+                :ripple="false"
+                dense
+                class="ma-0" />
+              <span class="subtitle-1">{{ connector.label }}</span>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <div v-if="!allEnabled" class="selected-connectors">
+        <v-chip
+          v-for="connector in enabledConnectors"
+          :key="connector.name"
+          color="primary"
+          class="mx-1 border-color">
+          <span class="text-capitalize-first-letter subtitle-1">{{ connector.label }}</span>
+          <v-icon
+            size="10"
+            class="ms-2"
+            right
+            @click="selectConnector(connector)">
+            fas fa-times
+          </v-icon>
+        </v-chip>
+      </div>
+    </div>
     <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
@@ -76,10 +138,14 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
+    tagsEnabled: eXo.env.portal.activityTagsEnabled,
+    selectedTags: [],
+    favorites: false,
     allEnabled: true,
     searching: 0,
     abortController: null,
     searchInitialized: false,
+    connectorsListOpened: false,
   }),
   computed: {
     hasMore() {
@@ -89,7 +155,7 @@ export default {
       return this.resultsArray && this.resultsArray.length;
     },
     noResults() {
-      return this.searchInitialized && !this.hasResults && this.term && !this.searching && this.results && Object.keys(this.results).length;
+      return this.searchInitialized && !this.hasResults && (this.term || this.favorites) && !this.searching && this.results && Object.keys(this.results).length;
     },
     sortedConnectors() {
       if (!this.connectors) {
@@ -103,23 +169,34 @@ export default {
       });
     },
     enabledConnectors() {
-      return this.connectors && this.connectors.filter(connector => connector.enabled) || [];
+      return this.sortedConnectors && this.sortedConnectors.filter(connector => connector.enabled) || [];
     },
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
+    },
+    searchEnabledConnectors() {
+      return this.enabledConnectors.filter(connector => {
+        return (connector.favoritesEnabled || !this.favorites)
+          && (connector.tagsEnabled || !this.selectedTags.length);
+      });
     },
     resultsArray() {
       if (!this.results || !this.totalSize || this.searching < 0) {
         return;
       }
       const connectorNames = Object.keys(this.results);
-      const results = {};
+      let results = {};
       connectorNames.forEach(connectorName => {
         if (this.enabledConnectorNames.includes(connectorName)) {
           results[connectorName] = this.results[connectorName];
         }
       });
-      return Object.values(results).flat().sort((a, b) => a.index - b.index);
+
+      results = Object.values(results).flat();
+      if (this.favorites) {
+        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite);
+      }
+      return results.sort((a, b) => a.index - b.index);
     },
   },
   watch: {
@@ -130,34 +207,73 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       }
     },
+    selectedTags() {
+      this.$emit('tags-changed', this.selectedTags);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
+    favorites() {
+      this.$emit('favorites-changed', this.favorites);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
     term() {
       this.totalSize = 0;
       this.limit = this.pageSize;
-      if (this.term) {
-        this.results = {};
+      if (this.searchInitialized) {
+        this.search();
       }
-      this.connectors.forEach(connector => {
-        connector.size = -1;
-        if (this.term) {
-          this.results[connector.name] = [];
-        }
-      });
-
-      this.search();
     },
   },
   created() {
-    this.$root.$on('refresh', (searchConnector) => {
-      this.$set(this.results, searchConnector.name, []);
-      this.retrieveConnectorResults(searchConnector);
+    // Workaround to fix closing menu when clicking outside
+    $(document).on('click', (e) => {
+      if (e.target && !$(e.target).parents('.connectors-list').length) {
+        this.connectorsListOpened = false;
+      }
+    });
+    this.$root.$on('refresh', (searchConnector, favorites) => {
+      if (!!favorites === !!this.favorites) {
+        this.$set(this.results, searchConnector.name, []);
+        this.retrieveConnectorResults(searchConnector);
+      }
     });
     let allEnabled = true;
     this.connectors.forEach(connector => {
       allEnabled = allEnabled && connector.enabled;
     });
-    this.allEnabled = allEnabled;
+    this.allEnabled = !!allEnabled;
+
+    const search = window.location.search && window.location.search.substring(1);
+    if (search) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      this.favorites = parameters['favorites'] === 'true';
+    }
+    if (this.favorites || this.term) {
+      this.search();
+    } else {
+      this.searchInitialized = true;
+    }
   },
   methods: {
+    selectFavorites() {
+      if (!this.favorites) {
+        document.dispatchEvent(new CustomEvent('search-favorites-selected'));
+      }
+      this.favorites = !this.favorites;
+      this.$emit('filter-changed');
+    },
+    selectTags(tags) {
+      this.selectedTags = tags || [];
+      this.$emit('filter-changed');
+    },
     selectAllConnector() {
       if (this.allEnabled) {
         return;
@@ -175,7 +291,12 @@ export default {
       if (!selectedConnector) {
         return;
       }
-
+      if (!selectedConnector.enabled || this.connectors.length === this.enabledConnectors.length) {
+        document.dispatchEvent(new CustomEvent('search-connector-selected', {
+          detail:
+          selectedConnector.name,
+        }));
+      }
       if (this.connectors.length === this.enabledConnectors.length) {
         this.connectors.forEach(connector => {
           connector.enabled = connector.name === selectedConnector.name;
@@ -206,17 +327,22 @@ export default {
       if (this.abortController) {
         this.abortController.abort();
       }
-      if (!this.term) {
+      if (!this.term && !this.favorites && !this.selectedTags.length) {
         this.results = null;
         return;
       }
+      this.results = {};
+      this.connectors.forEach(connector => {
+        connector.size = -1;
+        this.results[connector.name] = [];
+      });
       let signal = {};
       if (window.AbortController) {
         this.abortController = new window.AbortController();
         signal = this.abortController.signal;
       }
 
-      this.enabledConnectors.forEach(searchConnector => {
+      this.searchEnabledConnectors.forEach(searchConnector => {
         // If not first loading or connector doesn't have more
         if (searchConnector.size !== -1 && !searchConnector.hasMore) {
           return;
@@ -231,9 +357,11 @@ export default {
       }
 
       return window.require([searchConnector.jsModule], connectorModule => {
-        let options = {headers: {
-          Accept: 'application/json',
-        }};
+        let options = {
+          headers: {
+            Accept: 'application/json',
+          }
+        };
         if (signal) {
           options = Object.assign(options, signal);
         }
@@ -241,9 +369,26 @@ export default {
           options.credentials = 'include';
         }
         this.searching++;
-        const uri = searchConnector.uri
-          .replace('{keyword}', window.encodeURIComponent(this.term))
+        let uri = searchConnector.uri
+          .replace('{keyword}', window.encodeURIComponent(this.term || ''))
           .replace('{limit}', this.limit);
+        if (this.favorites) {
+          if (uri.includes('?')) {
+            uri += '&favorites=true';
+          } else {
+            uri += '?favorites=true';
+          }
+        }
+        if (this.selectedTags && this.selectedTags.length) {
+          this.selectedTags.forEach(selectedTag => {
+            const tag = selectedTag.replace('#', '');
+            if (uri.includes('?')) {
+              uri += `&tags=${tag}`;
+            } else {
+              uri += `?tags=${tag}`;
+            }
+          });
+        }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
           : fetch(uri, options);
@@ -251,11 +396,13 @@ export default {
           .then(resp => {
             if (resp && resp.ok) {
               return resp.json();
+            } else {
+              throw new Error('Error getting result');
             }
           })
           .then(result => {
             if (connectorModule && connectorModule.formatSearchResult) {
-              return connectorModule.formatSearchResult(result, this.term);
+              return connectorModule.formatSearchResult(result, this.term || '');
             } else {
               return result;
             }

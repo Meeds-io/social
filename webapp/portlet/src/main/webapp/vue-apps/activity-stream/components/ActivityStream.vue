@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="loaded">
+  <v-app v-if="loaded" role="main">
     <activity-notification-alerts />
     <activity-stream-list
       :activity-id="activityId"
@@ -93,7 +93,7 @@ export default {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionExtension);
       extensions.forEach(extension => {
         if (extension.id) {
-          this.activityActions[extension.id] = extension;
+          this.$set(this.activityActions, extension.id, extension);
         }
       });
     },
@@ -101,7 +101,7 @@ export default {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.commentActionExtension);
       extensions.forEach(extension => {
         if (extension.id) {
-          this.commentActions[extension.id] = extension;
+          this.$set(this.commentActions, extension.id, extension);
         }
       });
     },

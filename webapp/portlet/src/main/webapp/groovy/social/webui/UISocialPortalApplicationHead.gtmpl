@@ -1,6 +1,7 @@
 <%
   import org.exoplatform.ws.frameworks.cometd.ContinuationService;
   import org.mortbay.cometd.continuation.EXoContinuationBayeux;
+  import org.exoplatform.commons.api.settings.ExoFeatureService;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.social.webui.Utils;
   import org.apache.commons.lang.StringUtils;
@@ -17,6 +18,7 @@
   TimeZone timezone = Utils.getViewerTimezone();
   ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
   EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
+  ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
   def userName = rcontext.getRemoteUser();
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
@@ -44,4 +46,6 @@
        iconfont: 'mdi',
        rtl: eXo.env.portal.orientation === 'rtl',
      };
+
+     eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
 </script>

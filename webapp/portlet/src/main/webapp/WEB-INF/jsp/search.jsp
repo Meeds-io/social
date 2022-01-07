@@ -37,7 +37,8 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
-    id="SearchApplication">
+    id="SearchApplication"
+    role="search">
     <div class="v-application--wrap">
       <button
         type="button"

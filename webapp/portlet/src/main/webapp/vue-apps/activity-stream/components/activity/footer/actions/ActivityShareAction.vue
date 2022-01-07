@@ -90,7 +90,7 @@ export default {
       }
     },
     openShareDrawer() {
-      this.$root.$emit('activity-share-drawer-open', this.activityId);
+      this.$root.$emit('activity-share-drawer-open', this.activityId, 'activityStream');
     },
   },
 };

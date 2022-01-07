@@ -1,5 +1,5 @@
 <template>
-  <div id="spaceInfosApp" class="uiBox">
+  <div id="spaceInfosApp" >
     <h5 class="center">{{ $t("social.space.description.title") }}</h5>
     <p id="spaceDescription">{{ description }}</p>
     <div id="spaceManagersList">
@@ -15,7 +15,8 @@
                 :src="manager.avatar"
                 alt="avatar"
                 class="object-fit-cover ma-auto"
-                loading="lazy">
+                loading="lazy"
+                role="presentation">
             </v-avatar>
             {{ manager.fullname }}
           </a>
@@ -35,7 +36,8 @@
                 :src="redactor.avatar"
                 alt="avatar"
                 class="object-fit-cover ma-auto"
-                loading="lazy">
+                loading="lazy"
+                role="presentation">
             </v-avatar>
             {{ redactor.fullname }}
           </a>

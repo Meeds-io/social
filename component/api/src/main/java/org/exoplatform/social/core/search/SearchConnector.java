@@ -16,16 +16,20 @@
  */
 package org.exoplatform.social.core.search;
 
+import lombok.*;
+
 /**
  * An object defining a plugged search connector
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchConnector implements Cloneable {
 
   private String  name;
 
   private String  uri;
-
-  private boolean enabled;
 
   private String  jsModule;
 
@@ -35,81 +39,11 @@ public class SearchConnector implements Cloneable {
 
   private String  uiComponent;
 
-  public SearchConnector() {
-  }
+  private boolean enabled;
 
-  public SearchConnector(String name,
-                         String uri,
-                         boolean enabled,
-                         String jsModule,
-                         String cssModule,
-                         String i18nBundle,
-                         String uiComponent) {
-    super();
-    this.name = name;
-    this.uri = uri;
-    this.enabled = enabled;
-    this.jsModule = jsModule;
-    this.cssModule = cssModule;
-    this.i18nBundle = i18nBundle;
-    this.uiComponent = uiComponent;
-  }
+  private boolean favoritesEnabled;
 
-  public String getJsModule() {
-    return jsModule;
-  }
-
-  public void setJsModule(String module) {
-    this.jsModule = module;
-  }
-
-  public String getUiComponent() {
-    return uiComponent;
-  }
-
-  public void setUiComponent(String uiComponent) {
-    this.uiComponent = uiComponent;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getUri() {
-    return uri;
-  }
-
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getCssModule() {
-    return cssModule;
-  }
-
-  public void setCssModule(String cssModule) {
-    this.cssModule = cssModule;
-  }
-
-  public String getI18nBundle() {
-    return i18nBundle;
-  }
-
-  public void setI18nBundle(String i18nBundle) {
-    this.i18nBundle = i18nBundle;
-  }
+  private boolean tagsEnabled;
 
   @Override
   public int hashCode() {
@@ -139,6 +73,6 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, enabled, jsModule, cssModule, i18nBundle, uiComponent);
+    return new SearchConnector(name, uri, jsModule, cssModule, i18nBundle, uiComponent, enabled, favoritesEnabled, tagsEnabled);
   }
 }

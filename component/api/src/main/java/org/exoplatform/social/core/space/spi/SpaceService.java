@@ -1507,6 +1507,16 @@ public interface SpaceService {
   }
 
   /**
+   * Checks if a specific space contains external users
+   *
+   * @param spaceId
+   * @return true if the space contains external users
+   */
+  default boolean isSpaceContainsExternals(Long spaceId){
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Retrieves the list of pending 'requests to join' a space that the user
    * manages
    * 
@@ -1606,5 +1616,17 @@ public interface SpaceService {
   default void deleteSpacesApplication(String applicationName) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Gets a list access containing all common spaces between two users
+   *
+   * @param userId connected user id
+   * @param otherUserId visited profile user id
+   * @return list of common spaces between two users in param
+   */
+  default ListAccess<Space> getCommonSpaces(String userId, String otherUserId) {
+    throw new UnsupportedOperationException();
+  }
+
 
 }

@@ -21,7 +21,11 @@
           class="HamburgerMenuLevelsParent fill-height"
           no-gutters
           @mouseleave="hideSecondLevel()">
-          <div :class="secondLevel && 'd-none d-sm-block'" class="HamburgerMenuFirstLevelParent border-box-sizing">
+          <div
+            :class="secondLevel && 'd-none d-sm-block'"
+            class="HamburgerMenuFirstLevelParent border-box-sizing"
+            role="navigation"
+            :aria-label="$t('menu.role.navigation.first.level')">
             <v-flex v-for="contentDetail in contents" :key="contentDetail.id">
               <div :id="contentDetail.id"></div>
             </v-flex>
@@ -29,7 +33,9 @@
           <div
             v-show="secondLevel"
             :class="secondLevel && 'open'"
-            class="HamburgerMenuSecondLevelParent border-box-sizing">
+            class="HamburgerMenuSecondLevelParent border-box-sizing"
+            role="navigation"
+            :aria-label="$t('menu.role.navigation.second.level')">
             <div id="HamburgerMenuSecondLevel"></div>
           </div>
           <span id="HamburgerMenuVisibility" class="d-none d-sm-block"></span>

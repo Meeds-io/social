@@ -56,12 +56,14 @@
       <div class="d-flex justify-end">
         <v-btn
           class="btn me-2"
+          :aria-label="$t('Confirmation.label.Cancel')"
           @click="close">
           {{ $t('Confirmation.label.Cancel') }}
         </v-btn>
         <v-btn
           :loading="sharing"
           :disabled="buttonDisabled"
+          :aria-label="$t('UIActivity.share')"
           class="btn btn-primary me-2"
           @click="shareActivity">
           {{ $t('UIActivity.share') }}
@@ -80,6 +82,7 @@ export default {
     validInput: true,
     description: '',
     activityId: null,
+    currentApp: '',
     spaces: [],
   }),
   computed: {
@@ -109,8 +112,9 @@ export default {
       this.description = '';
       this.sharing = false;
     },
-    open(activityId) {
+    open(activityId, currentApp) {
       this.activityId = activityId;
+      this.currentApp = currentApp;
       if (this.activityId) {
         this.$refs.activityShareDrawer.open();
       }
@@ -127,7 +131,7 @@ export default {
             prettyName: space.remoteId,
             displayName: space && space.profile && space.profile.fullName,
             avatarUrl: space && space.profile && space.profile.avatarUrl,
-          })));
+          })), this.currentApp);
           this.close();
           this.clear();
         })

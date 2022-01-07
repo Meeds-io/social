@@ -1,13 +1,25 @@
 package org.exoplatform.social.rest.impl.identity;
 
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MultivaluedMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IdentityRestResourcesTest extends AbstractResourceTest {
   private IdentityManager identityManager;
@@ -69,5 +81,88 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
+  }
+
+  public void testGetIdentityById() throws Exception {
+    startSessionAs("root");
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(),
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
+
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // a relationship has added, the cache identity should be cleared
+    relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, rootIdentity);
+    headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    // a relationship has removed, the cache identity should be cleared
+    Relationship relationship = relationshipManager.get(rootIdentity, johnIdentity);
+    relationshipManager.delete(relationship);
+    headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  public void testCacheWhenUserJoinsSpace() throws Exception {
+    startSessionAs("root");
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(),
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
+
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // a user has been added to a space, the cache identity should be cleared
+    SpaceService spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+
+    Space newSpace = new Space();
+    newSpace.setDisplayName("space");
+    newSpace.setPrettyName("space");
+    newSpace.setManagers(new String[] { "root" });
+    newSpace.setRegistration(Space.OPEN);
+    newSpace.setVisibility(Space.PRIVATE);
+    spaceService.createSpace(newSpace, "root");
+
+    spaceService.addMember(newSpace, johnIdentity.getRemoteId());
+
+    response =
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
   }
 }

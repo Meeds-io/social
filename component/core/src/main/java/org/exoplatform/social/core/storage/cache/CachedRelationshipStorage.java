@@ -27,6 +27,7 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipStorageImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
@@ -194,6 +195,17 @@ public class CachedRelationshipStorage implements RelationshipStorage {
 
   }
 
+  /**
+   * Remove identity cache.
+   *
+   * @param remoteId
+   */
+  private void removeIdentityCache(String remoteId) {
+    if (identityStorage instanceof CachedIdentityStorage) {
+      ((CachedIdentityStorage) identityStorage).clearIdentityCache(OrganizationIdentityProvider.NAME, remoteId, false);
+    }
+  }
+
   public CachedRelationshipStorage(final RDBMSRelationshipStorageImpl storage,
                                    final IdentityStorage identityStorage,
                                    final SocialStorageCacheService cacheService) {
@@ -237,6 +249,10 @@ public class CachedRelationshipStorage implements RelationshipStorage {
     exoRelationshipCache.put(key, new RelationshipData(r));
     exoRelationshipByIdentityCache.put(identityKey1, key);
     exoRelationshipByIdentityCache.put(identityKey2, key);
+
+    removeIdentityCache(r.getSender().getRemoteId());
+    removeIdentityCache(r.getReceiver().getRemoteId());
+
     clearCacheFor(relationship);
 
     return r;
@@ -261,6 +277,9 @@ public class CachedRelationshipStorage implements RelationshipStorage {
 
       identityKey = new RelationshipIdentityKey(relationship.getReceiver().getId(), relationship.getSender().getId());
       relationshipCacheIdentity.remove(identityKey);
+
+      removeIdentityCache(relationship.getSender().getRemoteId());
+      removeIdentityCache(relationship.getReceiver().getRemoteId());
     }
 
     //

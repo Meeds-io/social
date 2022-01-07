@@ -253,7 +253,45 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("{spaceId}/checkExternals")
+  @RolesAllowed("users")
+  @ApiOperation(value = "Checks if a specific a space contains an external members",
+          httpMethod = "GET",
+          response = Response.class,
+          notes = "This returns the space if it contains external members")
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(code = 404, message = "Resource not found"),
+          @ApiResponse(code = 400, message = "Invalid query input")})
+  public Response isSpaceContainsExternals(@Context UriInfo uriInfo,
+                                           @Context Request request,
+                                           @ApiParam(value = "Space Id", required = true) @PathParam("spaceId") String spaceId) {
+    if (spaceId == null) {
+      return Response.status(Status.BAD_REQUEST).entity("space Id is mandatory").build();
+    }
+
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null) {
+      return Response.status(Status.NOT_FOUND).entity("space not found").build();
+    }
+    boolean hasExternals;
+    try {
+      hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(spaceId));
+    } catch (Exception e) {
+      LOG.error("Error while checking external members on space {}", space.getGroupId(), e);
+      return Response.status(Status.INTERNAL_SERVER_ERROR).entity("server internal error occurred").build();
+    }
+
+    return Response.ok(String.valueOf(hasExternals)).type(MediaType.TEXT_PLAIN).build();
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -1152,8 +1190,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     if (StringUtils.equalsIgnoreCase(Space.OPEN, model.getSubscription())) {
       space.setRegistration(Space.OPEN);
-    } else if (StringUtils.equalsIgnoreCase(Space.CLOSE, model.getSubscription())) {
-      space.setRegistration(Space.CLOSE);
+    } else if (StringUtils.equalsIgnoreCase(Space.CLOSED, model.getSubscription())) {
+      space.setRegistration(Space.CLOSED);
     } else if (StringUtils.equalsIgnoreCase(Space.VALIDATION, model.getSubscription())) {
       space.setRegistration(Space.VALIDATION);
     } else if (StringUtils.isBlank(model.getSubscription()) && space.getId() == null) {

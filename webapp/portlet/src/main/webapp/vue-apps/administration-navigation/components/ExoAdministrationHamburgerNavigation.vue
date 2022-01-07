@@ -52,6 +52,7 @@ export default {
         'rewardAdministration/kudosAdministration': 'reward',
         'rewardAdministration/walletAdministration': 'reward',
         'rewardAdministration/rewardAdministration': 'reward',
+        'rewardAdministration/perkStoreAdministration': 'reward',
         // portal
         'portalnavigation': 'portal',
         'groupnavigation': 'portal',

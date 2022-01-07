@@ -84,8 +84,8 @@ const defaultActivityOptions = {
     return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
       && templateParams.default_title
       && templateParams.default_title
-      || activity.title
-      || activity.body
+      || activity.title.replaceAll('%', '%25')
+      || activity.body.replaceAll('%', '%25')
       || ''));
   },
   canShare: () => true,
@@ -210,6 +210,12 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
   id: 'comment',
   vueComponent: Vue.options.components['activity-comment-action'],
   rank: 20,
+});
+
+extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', {
+  id: 'favorite',
+  vueComponent: Vue.options.components['activity-favorite-action'],
+  rank: 30,
 });
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
