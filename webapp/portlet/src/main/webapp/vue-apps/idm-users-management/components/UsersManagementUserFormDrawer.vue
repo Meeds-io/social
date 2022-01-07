@@ -255,12 +255,12 @@ export default {
         if (this.fieldError && this.fieldError.indexOf('USERNAME:') === 0) {
           if (this.fieldError === 'USERNAME:ALREADY_EXISTS') {
             this.$refs.userNameInput.setCustomValidity(this.$t('UsersManagement.message.userWithSameNameAlreadyExists'));
+          } else if (this.fieldError === 'USERNAME:ALREADY_EXISTS_AS_DELETED') {
+            this.$refs.userNameInput.setCustomValidity(this.$t('UsersManagement.message.LoginForDeletedUser'));
           } else {
             const usernameError = this.fieldError.replace('USERNAME:', '');
             this.$refs.userNameInput.setCustomValidity(usernameError);
           }
-        } else if (this.fieldError === 'USER:ALREADY_EXISTS_DELETED') {
-          this.$refs.userNameInput.setCustomValidity(this.$t('UsersManagement.message.LoginForDeletedUser'));
         } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
           const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
           this.$refs.firstNameInput.setCustomValidity(firstNameError);
