@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -58,7 +59,7 @@ public class SocialUserEventListenerImpl extends UserEventListener {
       Identity identity = ids.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
   
       if (isNew && identity != null && identity.isDeleted()) {
-        throw new RuntimeException("Unable to create a previously deleted user : " + user.getUserName());
+          throw new ObjectAlreadyExistsException(identity, "Unable to create a previously deleted user : " + user.getUserName());
       }
 
     }

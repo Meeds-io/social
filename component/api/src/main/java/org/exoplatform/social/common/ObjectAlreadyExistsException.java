@@ -1,26 +1,18 @@
 package org.exoplatform.social.common;
 
-import lombok.Getter;
 
-public class ObjectAlreadyExistsException extends Exception {
+@Deprecated
+public class ObjectAlreadyExistsException extends org.exoplatform.commons.ObjectAlreadyExistsException {
 
-  private static final long serialVersionUID = -9018382456987071070L;
+    public ObjectAlreadyExistsException(Object existingObject) {
+        super(existingObject);
+    }
 
-  @Getter
-  private final Object      existingObject;                          // NOSONAR
+    public ObjectAlreadyExistsException(Object existingObject, String message) {
+        super(existingObject, message);
+    }
 
-  public ObjectAlreadyExistsException(Object existingObject) {
-    this.existingObject = existingObject;
-  }
-
-  public ObjectAlreadyExistsException(Object existingObject, String message) {
-    super(message);
-    this.existingObject = existingObject;
-  }
-
-  public ObjectAlreadyExistsException(Object existingObject, String message, Throwable e) {
-    super(message, e);
-    this.existingObject = existingObject;
-  }
-
+    public ObjectAlreadyExistsException(Object existingObject, String message, Throwable e) {
+        super(existingObject, message, e);
+    }
 }
