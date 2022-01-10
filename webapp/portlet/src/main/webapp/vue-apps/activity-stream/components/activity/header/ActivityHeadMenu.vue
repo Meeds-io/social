@@ -25,8 +25,8 @@
           :key="action.id"
           dense
           @click="clickOnAction(action)">
-          <v-icon size="13" class="text-color">{{ $t(action.icon) }}</v-icon>
-          <v-list-item-title class="pl-3">{{ $t(action.labelKey) }}</v-list-item-title>
+          <v-icon size="13" class="dark-grey-color">{{ $t(action.icon) }}</v-icon>
+          <v-list-item-title class= "pl-3">{{ $t(action.labelKey) }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
