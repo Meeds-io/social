@@ -16,7 +16,11 @@
  */
 package org.exoplatform.social.common;
 
-
+/**
+ * @since 6.3.x
+ * @deprecated Deprecated from 6.3.x. Replaced by a new Exception org.exoplatform.commons.ObjectAlreadyExistsException
+ *             will be removed at 6.3.x
+ */
 @Deprecated
 public class ObjectAlreadyExistsException extends org.exoplatform.commons.ObjectAlreadyExistsException {
 
