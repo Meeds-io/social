@@ -60,9 +60,10 @@ export default {
     },
     open() {
       if (this.open) {
+        this.query = '';
         window.setTimeout(() => {
           if (this.$refs.tagSearchInput) {
-            this.$refs.tagSearchInput.$el.focus();
+            this.$refs.tagSearchInput.$el.querySelector('input').focus();
           }
         }, 200);
         this.search();
