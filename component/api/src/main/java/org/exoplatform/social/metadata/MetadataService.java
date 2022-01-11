@@ -163,6 +163,18 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object);
 
   /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type and {@link MetadataItem} object type
+   *
+   * @param metadataName {@link Metadata} name
+   * @param metadataTypeName {@link Metadata} type name
+   * @param objectType objectType {@link MetadataItem} objectType
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName, String metadataTypeName, String objectType, long offset, long limit);
+
+  /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
    * an object identified by its name and identifier
    * 
