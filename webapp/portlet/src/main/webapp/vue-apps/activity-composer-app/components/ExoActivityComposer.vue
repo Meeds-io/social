@@ -61,19 +61,24 @@
                   :class="uploading ? 'uploading' : ''"
                   :indeterminate="false"
                   :value="attachmentsProgress">
-                  <i class="uiIconAttach"></i>
+                  <v-icon size="18">
+                    fa-paperclip
+                  </v-icon>
                 </v-progress-circular>
                 <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
               </div>
             </v-app>
           </div>
 
-          <div v-show="activityId ? false : showMessageComposer" class="composerActions">
+          <div class="composerActions">
             <div
               v-for="action in activityComposerActions"
               :key="action.key"
               :class="`${action.appClass}Action`">
-              <div class="actionItem" @click="executeAction(action, attachments)">
+              <div
+                v-if="action.key === 'file' || !activityId"
+                class="actionItem"
+                @click="executeAction(action, attachments)">
                 <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
                 <div class="actionItemDescription">
                   <div class="actionLabel">{{ getLabel(action.labelKey) }}</div>
@@ -167,6 +172,8 @@ export default {
       templateParams: {},
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
+      filesToDetach: [],
+      filesToAttach: []
     };
   },
   computed: {
@@ -177,7 +184,7 @@ export default {
       return (!this.attachments.length && !this.messageLength) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
     activityType() {
-      return this.attachments.length ? 'files:spaces' : '';
+      return this.attachments && this.attachments.length ? 'files:spaces' : '';
     },
     attachmentsProgress() {
       return this.attachments.length !== 0 ? this.uploadingProgress / this.attachments.length : 0;
@@ -212,6 +219,32 @@ export default {
   created() {
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
+    this.$root.$on('entity-attachments-updated', (attachments) => {
+      this.attachments = attachments;
+      this.activityBodyEdited = true;
+    });
+    this.$root.$on('remove-composer-attachment-item', attachment => {
+      this.filesToDetach.push(attachment);
+      this.activityBodyEdited = true;
+    });
+    this.$root.$on('add-composer-attachment-item', attachment => {
+      if (this.activityId) {
+        this.filesToAttach.push(attachment);
+      }
+    });
+    this.$root.$on('add-new-created-document', (attachment) =>{
+      if (this.activityId) {
+        this.filesToAttach.push(attachment);
+        this.activityBodyEdited = true;
+      }
+    });
+    this.$root.$on('attachments-changed-from-drives', (attachments) => {
+      if (this.activityId) {
+        for (const attachment of attachments) {
+          this.filesToAttach.push(attachment);
+        }
+      }
+    });
 
     this.templateParams = this.activityParams || {};
 
@@ -263,23 +296,31 @@ export default {
         this.composerAction = params.composerAction;
         this.templateParams = params.activityParams || {};
         this.resetEdited();
+        this.initEntityAttachmentsList();
+        this.$activityService.getActivityById(this.activityId)
+          .then(activity => {
+            if (activity.files) {
+              activity.files.forEach(file => {
+                if (!this.attachments.some(attachment => attachment.id === file.id)) {
+                  this.$attachmentService.linkUploadedAttachmentToEntity(this.activityId, 'activity', file.id);
+                }
+              });
+            }
+          });
       }
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
     },
     openMessageComposer: function() {
-      // If previously, the activity composer
-      // was used to edit an activity, then purge its content
-      if (this.activityId) {
-        this.activityId = null;
-        this.resetComposer();
-      }
-
+      this.activityId = null;
+      this.resetComposer();
       this.composerAction = 'post';
       this.message = '';
       this.resetEdited();
       this.templateParams = {};
+      this.filesToDetach = [];
+      this.filesToAttach = [];
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
@@ -296,6 +337,18 @@ export default {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
           activityType = 'LINK_ACTIVITY';
+        }
+        if (this.filesToDetach) {
+          for (const index in this.filesToDetach) {
+            this.$root.$emit('remove-attachment-item', this.filesToDetach[index]);
+          }
+          this.filesToDetach = [];
+        }
+        if (this.filesToAttach) {
+          for (const index in this.filesToAttach) {
+            this.$root.$emit('attach-composer-item', this.filesToAttach[index]);
+          }
+          this.filesToAttach = [];
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, msg, activityType, this.attachments, this.templateParams)
@@ -344,6 +397,8 @@ export default {
         if (action.component) {
           action.component.model.value = action.component.model.default.slice();
           this.actionsData[action.key].value = action.component.model.value;
+          action.component.props.attachmentAppConfiguration = {};
+          action.component.props.attachments = [];
         }
       });
       this.attachments = [];
@@ -359,9 +414,38 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
+      this.attachments = [];
+      this.activityId = null;
+      this.$root.$emit('message-composer-closed');
       this.$refs[this.ckEditorId].unload();
     },
     executeAction(action, attachments) {
+      if (action.key === 'file') {
+        if (eXo.env.portal.spaceId) {
+          action.component.props.attachmentAppConfiguration = {
+            'defaultDrive': {
+              isSelected: true,
+              name: `.spaces.${eXo.env.portal.spaceGroup}`,
+              title: eXo.env.portal.spaceDisplayName,
+            },
+            'defaultFolder': 'Activity Stream Documents',
+          };
+        } else {
+          action.component.props.attachmentAppConfiguration = {
+            'defaultDrive': {
+              isSelected: true,
+              name: eXo.env.portal.userName,
+              title: eXo.env.portal.spaceDisplayName,
+            },
+            'defaultFolder': 'Activity Stream Documents',
+          };
+        }
+        if (this.activityId) {
+          action.component.props.attachmentAppConfiguration.entityId = parseInt(this.activityId);
+          action.component.props.attachmentAppConfiguration.entityType = 'activity';
+          action.component.props.attachments = this.attachments;
+        }
+      }
       executeExtensionAction(action, this.$refs[action.key], attachments);
     },
     updateAttachments(attachments) {
@@ -377,6 +461,16 @@ export default {
       const text = document.createElement('textarea');
       text.innerHTML = html;
       return text.value.replace(/>\s+</g, '><').trim();
+    },
+    initEntityAttachmentsList() {
+      if (this.activityId) {
+        return this.$attachmentService.getEntityAttachments('activity', this.activityId).then(attachments => {
+          attachments.forEach(attachments => {
+            attachments.name = attachments.title;
+          });
+          this.attachments = attachments;
+        });
+      }
     },
   }
 };
