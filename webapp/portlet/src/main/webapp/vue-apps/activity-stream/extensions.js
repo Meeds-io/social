@@ -100,6 +100,7 @@ extensionRegistry.registerExtension('activity', 'type', {
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'edit',
   labelKey: 'UIActivity.label.Edit',
+  icon: 'fa-edit',
   isEnabled: (activity, activityTypeExtension) => {
     return activity.canEdit === 'true' && (!activityTypeExtension.canEdit || activityTypeExtension.canEdit(activity));
   },
@@ -118,6 +119,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'delete',
   labelKey: 'UIActivity.label.Delete',
+  icon: 'fa-trash-alt',
   confirmDialog: true,
   confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Activity',
   confirmTitleKey: 'UIActivity.label.Confirmation',
@@ -142,6 +144,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'copyLink',
   labelKey: 'UIActivity.label.CopyLink',
+  icon: 'fa-copy',
   isEnabled: activity => activity && activity.id,
   click: (activity) => {
     const activityLink = `${window.location.origin}${activityBaseLink}?id=${activity.id}`;
@@ -160,6 +163,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'delete',
   rank: 20,
   labelKey: 'UIActivity.label.Delete',
+  icon: 'fa-trash-alt',
   confirmDialog: true,
   confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Delete_This_Comment',
   confirmTitleKey: 'UIActivity.label.Confirmation',
@@ -179,6 +183,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
 extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'edit',
   labelKey: 'UIActivity.label.Edit',
+  icon: 'fa-edit',
   rank: 10,
   isEnabled: (activity, comment, activityTypeExtension) => {
     if (activityTypeExtension.canEdit) {
