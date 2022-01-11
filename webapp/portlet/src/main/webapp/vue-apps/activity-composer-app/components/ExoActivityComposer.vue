@@ -212,6 +212,9 @@ export default {
   created() {
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
+    this.$root.$on('entity-attachments-updated', (attachments) => {
+      this.attachments = attachments;
+    });
 
     this.templateParams = this.activityParams || {};
 
@@ -359,6 +362,7 @@ export default {
     },
     closeMessageComposer: function() {
       this.showMessageComposer = false;
+      this.attachments = [];
       this.$refs[this.ckEditorId].unload();
     },
     executeAction(action, attachments) {
