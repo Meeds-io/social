@@ -2,8 +2,8 @@
   <a
     :id="id"
     :href="url"
-    :class="!this.space.isMember && 'not-clickable-link'"
-    class="text-none primary--text space-avatar activity-head-space-link">
+    :class="!this.space.isMember && 'not-clickable-link hidden-space'"
+    class="text-none space-avatar activity-head-space-link">
     <v-avatar
       size="20"
       rounded
