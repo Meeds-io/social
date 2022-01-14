@@ -9,6 +9,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivityFile;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -429,7 +430,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     templateParams.put("WORKSPACE", "collaboration");
     templateParams.put("MESSAGE", "old message");
     templateParams.put("description", "description of the activity");
-    templateParams.put("DOCPATH", "path to a document");
     templateParams.put("FAKE_PARAM", "fake param");
     rootActivity.setTemplateParams(templateParams);
     activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
@@ -449,10 +449,9 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals( "updated title", result.getTitle());
     assertEquals( "updated message", result.getTemplateParams().get("MESSAGE"));
     assertEquals( "collaboration", result.getTemplateParams().get("WORKSPACE"));
-    assertEquals( "path to a document", result.getTemplateParams().get("DOCPATH"));
     assertTrue(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
     assertFalse(result.getTemplateParams().containsKey("FAKE_PARAM"));
-    assertEquals(5, result.getTemplateParams().size());
+    assertEquals(4, result.getTemplateParams().size());
   }
 
   public void testHideActivityById() throws Exception {
