@@ -33,6 +33,7 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.*;
@@ -41,6 +42,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
@@ -1137,6 +1139,25 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   public void updateActivity(ExoSocialActivity existingActivity) {
     if (existingActivity == null) {
       throw new IllegalArgumentException("Activity to update cannot be null");
+    }
+    if (existingActivity.getTemplateParams() != null) {
+      existingActivity.getTemplateParams().remove("id");
+      existingActivity.getTemplateParams().remove("DOCPATH");
+      existingActivity.getTemplateParams().remove("docTitle");
+      existingActivity.getTemplateParams().remove("mimeType");
+    }
+    if (CollectionUtils.isNotEmpty(existingActivity.getFiles())) {
+      try {
+        ConversationState conversationstate = ConversationState.getCurrent();
+        String currentUsername = conversationstate.getIdentity().getUserId();
+        IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+        Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUsername);
+        storeFile(identity, existingActivity);
+      } catch (Exception e) {
+        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY,
+                                           "Failed to attach files into activity " + existingActivity.getId(),
+                                           e);
+      }
     }
     ActivityEntity parentActivity = null;
     ActivityEntity updatedActivity = null;
