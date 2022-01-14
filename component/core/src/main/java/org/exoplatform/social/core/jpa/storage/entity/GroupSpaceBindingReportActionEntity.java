@@ -51,7 +51,7 @@ import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 )
 public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
+  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   @Column(name = "GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   private long                                    id;

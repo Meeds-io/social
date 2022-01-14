@@ -811,4 +811,20 @@
     </createIndex>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-83" dbms="hsqldb">
+    <createSequence sequenceName="SEQ_SOC_ACTIVITIES_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_MENTIONS_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_STREAM_ITEMS_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_IDENTITY_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_CONNECTIONS_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_SPACES_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_SPACE_MEMBER_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_EXPERIENCE_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID" startValue="1"/>  
+  </changeSet>
+
 </databaseChangeLog>

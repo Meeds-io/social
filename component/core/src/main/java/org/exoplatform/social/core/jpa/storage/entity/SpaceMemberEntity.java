@@ -69,7 +69,7 @@ public class SpaceMemberEntity implements Serializable {
   private static final long serialVersionUID = 1015703779692801839L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_SPACE_MEMBER_ID", sequenceName = "SEQ_SOC_SPACE_MEMBER_ID")
+  @SequenceGenerator(name = "SEQ_SOC_SPACE_MEMBER_ID", sequenceName = "SEQ_SOC_SPACE_MEMBER_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACE_MEMBER_ID")
   @Column(name = "SPACE_MEMBER_ID")
   private Long              id;
