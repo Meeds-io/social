@@ -15,7 +15,7 @@
           v-model="stepper"
           vertical
           flat
-          class="ma-0 py-0 me-4">
+          class="ma-0 py-0 me-4" :class="`${isMobile ? 'pr-3' : ''}`">
           <v-stepper-step
             :complete="stepper > 1"
             step="1"
@@ -265,6 +265,9 @@ export default {
       return this.$t && this.$t('spaceList.checkExternals.warning', {
         0: `<strong>[${this.selectedSpacesWithExternals.join(',')}]</strong>`,
       });
+    },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
     }
   },
   watch: {
