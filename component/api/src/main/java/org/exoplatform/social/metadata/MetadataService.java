@@ -19,6 +19,7 @@
 package org.exoplatform.social.metadata;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -77,6 +78,26 @@ public interface MetadataService {
    */
   MetadataItem createMetadataItem(MetadataObject metadataObject,
                                   MetadataKey metadataKey,
+                                  long userIdentityId) throws ObjectAlreadyExistsException;
+
+  /**
+   * Creates a new Metadata Item. When the metadata with the designated key
+   * doesn't exists, it will create a new one
+   *
+   * @param metadataObject object to store
+   * @param metadataKey {@link MetadataKey} that contains {@link MetadataType}
+   *          name {@link Metadata} name and {@link Metadata} audience
+   * @param properties {@link Map} properties of {@link MetadataItem}
+   * @param userIdentityId {@link Identity} technical identifier designating the
+   *          user making the operation
+   * @return Created {@link MetadataItem}
+   * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
+   *           doesn't allow multiple objects per {@link Metadata} and an object
+   *           is already associated to the designated {@link Metadata}
+   */
+  MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                  MetadataKey metadataKey,
+                                  Map<String, String> properties,
                                   long userIdentityId) throws ObjectAlreadyExistsException;
 
   /**
@@ -168,11 +189,19 @@ public interface MetadataService {
    * @param metadataName {@link Metadata} name
    * @param metadataTypeName {@link Metadata} type name
    * @param objectType objectType {@link MetadataItem} objectType
+   * @param propertyKey {@link MetadataItem} property key
+   * @param propertyValue {@link MetadataItem} property value
    * @param offset offset of ids to retrieve
    * @param limit limit of ids to retrieve
    * @return {@link List} of linked {@link MetadataItem}
    */
-  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName, String metadataTypeName, String objectType, long offset, long limit);
+  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                    String metadataTypeName,
+                                                                    String objectType,
+                                                                    String propertyKey,
+                                                                    String propertyValue,
+                                                                    long offset,
+                                                                    long limit);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
