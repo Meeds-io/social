@@ -48,7 +48,6 @@ let config = {
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     dlpQuarantine : './src/main/webapp/vue-apps/dlp-quarantine/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
-    userSettingMobile: './src/main/webapp/vue-apps/user-setting-mobile/main.js',
     branding: './src/main/webapp/vue-apps/company-branding-app/main.js',
     spaceBannerLogoPopover:'./src/main/webapp/vue-apps/space-top-bannerlogo/main.js',
   },
