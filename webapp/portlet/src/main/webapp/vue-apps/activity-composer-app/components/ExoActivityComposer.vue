@@ -237,11 +237,14 @@ export default {
     this.$root.$on('add-new-created-document', (attachment) =>{
       if (this.activityId) {
         this.filesToAttach.push(attachment);
+        this.activityBodyEdited = true;
       }
     });
-    this.$root.$on('attachments-changed-from-drives', (attachment) => {
+    this.$root.$on('attachments-changed-from-drives', (attachments) => {
       if (this.activityId) {
-        this.filesToAttach.push(attachment);
+        for (const attachment of attachments) {
+          this.filesToAttach.push(attachment);
+        }
       }
     });
 
@@ -430,7 +433,7 @@ export default {
           };
         }
         if (this.activityId) {
-          action.component.props.attachmentAppConfiguration.entityId = this.activityId;
+          action.component.props.attachmentAppConfiguration.entityId = parseInt(this.activityId);
           action.component.props.attachmentAppConfiguration.entityType = 'activity';
           action.component.props.attachments = this.attachments;
         }
