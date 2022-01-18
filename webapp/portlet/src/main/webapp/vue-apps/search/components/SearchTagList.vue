@@ -99,7 +99,7 @@ export default {
       }
       else {
         this.selectedTags.push(tag);
-        document.dispatchEvent(new CustomEvent('search-tag',{detail: tag}));
+        document.dispatchEvent(new CustomEvent('search-tag'));
       }
     }
   },
