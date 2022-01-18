@@ -47,8 +47,8 @@ import org.exoplatform.webui.core.UIComponent;
 import org.exoplatform.webui.core.UIContainer;
 import org.exoplatform.webui.event.Event;
 import org.exoplatform.webui.event.EventListener;
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.exception.OAuthException;
 import org.gatein.security.oauth.exception.OAuthExceptionCode;
@@ -67,7 +67,8 @@ import javax.servlet.http.HttpServletRequest;
 @ComponentConfig(template = "system:/groovy/portal/webui/portal/UIRegisterOAuthForm.gtmpl")
 public class UIRegisterOAuth extends UIContainer {
 
-    private static Logger log = LoggerFactory.getLogger(org.exoplatform.portal.webui.register.UIRegisterOAuth.class);
+  private static Log                   log                     =
+                                           ExoLogger.getLogger(org.exoplatform.portal.webui.register.UIRegisterOAuth.class);
 
     private static final String[] ACTIONS = { "SubscribeOAuth", "Reset", "Cancel" };
 

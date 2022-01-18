@@ -44,8 +44,8 @@ import org.exoplatform.webui.form.validator.PersonalNameValidator;
 import org.exoplatform.webui.form.validator.StringLengthValidator;
 import org.exoplatform.webui.form.validator.UserConfigurableValidator;
 import org.exoplatform.webui.form.validator.Validator;
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.exception.OAuthException;
 import org.gatein.security.oauth.exception.OAuthExceptionCode;
@@ -73,7 +73,7 @@ import java.util.Set;
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public class OAuthLoginServletFilter extends OAuthAbstractFilter {
-    private static Logger log = LoggerFactory.getLogger(OAuthLoginServletFilter.class);
+  private final Log          log                               = ExoLogger.getLogger(OAuthLoginServletFilter.class);
 
     public static final String CONTROLLER_PARAM_NAME = "login_controller";
     public static final String CANCEL_OAUTH = "oauth_cancel";
