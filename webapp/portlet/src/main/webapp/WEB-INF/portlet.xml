@@ -359,22 +359,7 @@
     </portlet-info>
   </portlet>
 
-  <portlet>
-    <portlet-name>userSettingsMobile</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/userSettingMobile.jsp</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.social.MobileSettings</resource-bundle>
-    <portlet-info>
-      <title>User Setting for Mobile</title>
-    </portlet-info>
-  </portlet>
+
 
   <portlet>
     <portlet-name>SiteHamburgerMenu</portlet-name>
