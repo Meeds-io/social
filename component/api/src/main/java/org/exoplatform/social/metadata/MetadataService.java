@@ -19,6 +19,7 @@
 package org.exoplatform.social.metadata;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -42,7 +43,17 @@ public interface MetadataService {
    * @return created {@link Metadata}
    */
   Metadata createMetadata(Metadata metadata, long userIdentityId);
-  
+
+  /**
+   * Creates a new {@link Metadata} object
+   *
+   * @param metadata {@link Metadata}
+   * @param properties {@link Map} properties of {@link MetadataItem}
+   * @param userIdentityId {@link Identity} identifier of the creator
+   * @return created {@link Metadata}
+   */
+  Metadata createMetadata(Metadata metadata, Map<String, String> properties, long userIdentityId);
+
   /**
    * Deletes a {@link Metadata} by a given {@link Metadata} identifier
    * 
@@ -52,8 +63,8 @@ public interface MetadataService {
   Metadata deleteMetadataById(long metadataId);
 
   /**
-   * Retrieves a {@link Metadata} identified by a unique constraint for
-   * 'Metadata Type', 'Metadata Name' and 'Metadata Audience'.
+   * Retrieves a {@link Metadata} identified by a unique constraint for 'Metadata
+   * Type', 'Metadata Name' and 'Metadata Audience'.
    * 
    * @param metadataKey {@link MetadataKey} that contains {@link MetadataType}
    *          name {@link Metadata} name and {@link Metadata} audience
@@ -118,9 +129,9 @@ public interface MetadataService {
    * created object.
    * 
    * @param sourceObject {@link MetadataObject} that defines an objectType (an
-   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...)
-   *          and an objectId (the object technical identifier. In general we
-   *          use here the DB identifier of the object).
+   *          object type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and
+   *          an objectId (the object technical identifier. In general we use here
+   *          the DB identifier of the object).
    * @param targetObjectId target content that will receive the metadata items
    * @param audienceId targeted audience {@link Identity} identifier
    * @param creatorId {@link Identity} identifier of user sharing object
@@ -150,8 +161,8 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByObject(MetadataObject object);
 
   /**
-   * Retrieves the list of Metadata items attached to a given {@link Metadata} type and an object identified by its name
-   * and identifier
+   * Retrieves the list of Metadata items attached to a given {@link Metadata}
+   * type and an object identified by its name and identifier
    *
    * @param metadataType {@link Metadata} type
    * @param object {@link MetadataObject} that defines an objectType (an object
@@ -163,7 +174,8 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object);
 
   /**
-   * Retrieves the Metadata item attached to a given {@link Metadata} name, type and {@link MetadataItem} object type
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
+   * and {@link MetadataItem} object type
    *
    * @param metadataName {@link Metadata} name
    * @param metadataTypeName {@link Metadata} type name
@@ -172,11 +184,15 @@ public interface MetadataService {
    * @param limit limit of ids to retrieve
    * @return {@link List} of linked {@link MetadataItem}
    */
-  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName, String metadataTypeName, String objectType, long offset, long limit);
+  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                    String metadataTypeName,
+                                                                    String objectType,
+                                                                    long offset,
+                                                                    long limit);
 
   /**
-   * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
-   * an object identified by its name and identifier
+   * Retrieves the list of Metadata items attached to a {@link MetadataKey} and an
+   * object identified by its name and identifier
    * 
    * @param metadataKey {@link MetadataKey} that contains {@link MetadataType}
    *          name {@link Metadata} name and {@link Metadata} audience
@@ -213,8 +229,8 @@ public interface MetadataService {
   /**
    * Save a new {@link Metadata}
    *
-   * @param metadataInitPlugin a {@link ComponentPlugin} defining
-   *          {@link Metadata} to save
+   * @param metadataInitPlugin a {@link ComponentPlugin} defining {@link Metadata}
+   *          to save
    */
   void addMetadataPlugin(MetadataInitPlugin metadataInitPlugin);
 
@@ -257,8 +273,8 @@ public interface MetadataService {
   /**
    * Deletes Metadata items for a given {@link MetadataItem} parentObjectId and
    * objectType. This is generally called when the associated parent object has
-   * been removed (activity removed bu example, its comments metadata items has
-   * to be deleted as well)
+   * been removed (activity removed bu example, its comments metadata items has to
+   * be deleted as well)
    * 
    * @param object {@link MetadataObject} that defines an objectType (an object
    *          type identifier like, ACTIVITY, COMMENT, NOTE, FILE ...) and a
