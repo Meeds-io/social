@@ -81,7 +81,7 @@ public class MetadataEntity implements Serializable {
   private static final long   serialVersionUID = -743950558885709009L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_METADATA_ID", sequenceName = "SEQ_SOC_METADATA_ID")
+  @SequenceGenerator(name = "SEQ_SOC_METADATA_ID", sequenceName = "SEQ_SOC_METADATA_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_METADATA_ID")
   @Column(name = "METADATA_ID")
   private Long                id;

@@ -21,7 +21,7 @@ public class ActivityShareActionEntity implements Serializable {
   private static final long serialVersionUID  = 4119504597873573962L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID", sequenceName = "SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID")
+  @SequenceGenerator(name = "SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID", sequenceName = "SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID")
   @Column(name = "ACTIVITY_SHARE_ACTION_ID")
   private Long              id;

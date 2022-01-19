@@ -62,7 +62,7 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
 public class ConnectionEntity {
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_CONNECTIONS_ID", sequenceName="SEQ_SOC_CONNECTIONS_ID")
+  @SequenceGenerator(name="SEQ_SOC_CONNECTIONS_ID", sequenceName="SEQ_SOC_CONNECTIONS_ID", allocationSize = 1)
   @GeneratedValue(strategy=GenerationType.AUTO, generator="SEQ_SOC_CONNECTIONS_ID")
   @Column(name = "CONNECTION_ID")
   private Long id;

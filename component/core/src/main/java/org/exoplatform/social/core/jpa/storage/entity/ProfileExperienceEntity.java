@@ -44,7 +44,7 @@ public class ProfileExperienceEntity implements Serializable {
   private static final long serialVersionUID = -6756289453682486794L;
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_EXPERIENCE_ID", sequenceName="SEQ_SOC_EXPERIENCE_ID")
+  @SequenceGenerator(name="SEQ_SOC_EXPERIENCE_ID", sequenceName="SEQ_SOC_EXPERIENCE_ID", allocationSize = 1)
   @GeneratedValue(strategy= GenerationType.AUTO, generator="SEQ_SOC_EXPERIENCE_ID")
   @Column(name="EXPERIENCE_ID")
   private long id;

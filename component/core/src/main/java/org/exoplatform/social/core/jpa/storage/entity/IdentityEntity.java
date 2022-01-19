@@ -66,7 +66,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 public class IdentityEntity {
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_IDENTITY_ID", sequenceName="SEQ_SOC_IDENTITY_ID")
+  @SequenceGenerator(name="SEQ_SOC_IDENTITY_ID", sequenceName="SEQ_SOC_IDENTITY_ID", allocationSize = 1)
   @GeneratedValue(strategy= GenerationType.AUTO, generator="SEQ_SOC_IDENTITY_ID")
   @Column(name="IDENTITY_ID")
   private long id;

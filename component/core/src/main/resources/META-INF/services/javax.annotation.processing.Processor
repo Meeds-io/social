@@ -1,2 +1,0 @@
-# Define processors that should be used for Annotation Processing
-org.exoplatform.commons.api.persistence.ExoEntityProcessor

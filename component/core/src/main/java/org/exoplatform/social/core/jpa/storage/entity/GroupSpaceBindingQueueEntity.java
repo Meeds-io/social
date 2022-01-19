@@ -36,7 +36,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 public class GroupSpaceBindingQueueEntity implements Serializable {
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID")
+  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID")
   @Column(name = "GROUP_SPACE_BINDING_QUEUE_ID")
   private long                    id;

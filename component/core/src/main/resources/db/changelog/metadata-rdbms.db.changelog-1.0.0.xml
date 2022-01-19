@@ -142,4 +142,9 @@
     </createIndex>
   </changeSet>
 
+  <changeSet author="metadata" id="1.0.0-8" dbms="hsqldb">
+    <createSequence sequenceName="SEQ_SOC_METADATA_ID" startValue="1" />
+    <createSequence sequenceName="SEQ_SOC_METADATA_ITEM_ID" startValue="1" />
+  </changeSet>
+
 </databaseChangeLog>

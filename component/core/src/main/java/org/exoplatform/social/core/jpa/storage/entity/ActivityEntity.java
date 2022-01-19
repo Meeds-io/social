@@ -252,7 +252,7 @@ public class ActivityEntity implements Serializable {
   private static final long serialVersionUID = -1489894321243127979L;
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_ACTIVITIES_ID", sequenceName="SEQ_SOC_ACTIVITIES_ID")
+  @SequenceGenerator(name="SEQ_SOC_ACTIVITIES_ID", sequenceName="SEQ_SOC_ACTIVITIES_ID", allocationSize = 1)
   @GeneratedValue(strategy=GenerationType.AUTO, generator="SEQ_SOC_ACTIVITIES_ID")
   @Column(name="ACTIVITY_ID")
   private Long id;
