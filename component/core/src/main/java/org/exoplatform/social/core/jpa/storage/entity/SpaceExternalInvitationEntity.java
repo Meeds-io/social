@@ -36,7 +36,7 @@ public class SpaceExternalInvitationEntity implements Serializable {
     private static final long serialVersionUID = -8893364434133832686L;
 
     @Id
-    @SequenceGenerator(name = "SEQ_INVITATION_ID", sequenceName = "SEQ_INVITATION_ID")
+    @SequenceGenerator(name = "SEQ_INVITATION_ID", sequenceName = "SEQ_INVITATION_ID", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_INVITATION_ID")
     @Column(name = "INVITATION_ID")
     private Long            invitationId;

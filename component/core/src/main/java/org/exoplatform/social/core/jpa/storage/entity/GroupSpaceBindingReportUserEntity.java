@@ -40,7 +40,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " AND userReport.stillInSpace = false") })
 public class GroupSpaceBindingReportUserEntity implements Serializable {
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID")
+  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID")
   @Column(name = "GROUP_SPACE_BINDING_REPORT_USER_ID")
   private long    id;

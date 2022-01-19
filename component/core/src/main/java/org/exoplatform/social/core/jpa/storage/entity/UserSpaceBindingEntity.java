@@ -60,7 +60,7 @@ public class UserSpaceBindingEntity implements Serializable {
   private static final long       serialVersionUID = -3088537806368295223L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_USER_SPACE_BINDING_ID", sequenceName = "SEQ_SOC_USER_SPACE_BINDING_ID")
+  @SequenceGenerator(name = "SEQ_SOC_USER_SPACE_BINDING_ID", sequenceName = "SEQ_SOC_USER_SPACE_BINDING_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_USER_SPACE_BINDING_ID")
   @Column(name = "USER_SPACE_BINDING_ID")
   private long                    id;

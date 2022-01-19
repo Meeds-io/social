@@ -40,7 +40,7 @@ public class GroupSpaceBindingEntity implements Serializable {
   private static final long                  serialVersionUID         = -1901782610164740670L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_ID")
+  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_ID")
   @Column(name = "GROUP_SPACE_BINDING_ID")
   private long                               id;
