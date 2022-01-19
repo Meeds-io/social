@@ -54,6 +54,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public Metadata createMetadata(Metadata metadata, long userIdentityId) {
+    return this.createMetadata(metadata, null, userIdentityId);
+  }
+
+  @Override
+  public Metadata createMetadata(Metadata metadata, Map<String, String> properties, long userIdentityId) {
     if (metadata == null) {
       throw new IllegalArgumentException("Metadata is mandatory");
     }
@@ -71,6 +76,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
     metadata.setType(metadata.getType());
     metadata.setCreatorId(userIdentityId);
+    metadata.setProperties(properties);
     metadata = metadataStorage.createMetadata(metadata);
     try {
       this.listenerService.broadcast("social.metadata.created", userIdentityId, metadata);
