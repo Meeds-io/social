@@ -51,8 +51,8 @@ import org.exoplatform.webui.form.UIForm;
 import org.exoplatform.webui.form.UIFormStringInput;
 import org.exoplatform.webui.form.validator.MandatoryValidator;
 import org.exoplatform.webui.form.validator.PasswordStringLengthValidator;
-import org.gatein.common.logging.Logger;
-import org.gatein.common.logging.LoggerFactory;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.spi.OAuthPrincipal;
 import org.gatein.security.oauth.spi.OAuthProviderType;
@@ -68,7 +68,7 @@ import javax.servlet.http.HttpServletRequest;
         initParams = { @ParamConfig(name= "skipCaptcha", value="false") })
 })
 public class UIOAuthInvitationForm extends UIForm {
-    private static final Logger log = LoggerFactory.getLogger(UIOAuthInvitationForm.class);
+  private static final Log      log      = ExoLogger.getLogger(UIOAuthInvitationForm.class);
 
     private static final String[] ACTIONS = {"Confirm", "NewAccount", "Cancel"};
 
