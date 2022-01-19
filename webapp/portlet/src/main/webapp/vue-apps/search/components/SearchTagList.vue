@@ -12,7 +12,7 @@
         class="border-color mx-1"
         v-bind="attrs"
         v-on="on">
-        #{{ $t('Tag.search.button') }}
+        <span class="subtitle-1"><span class="text-sub-title">#</span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
     <v-card>
@@ -29,7 +29,8 @@
           <v-chip
             v-for="tag in tags"
             :key="tag"
-            :value="tag">
+            :value="tag"
+            @click="handleTag(tag)">
             {{ tag }}
           </v-chip>
         </v-chip-group>
@@ -48,6 +49,7 @@ export default {
   data: () => ({
     initialized: false,
     tags: [],
+    selectedTags: [],
     query: '',
     open: false,
   }),
@@ -55,14 +57,15 @@ export default {
     query() {
       this.search();
     },
-    value() {
-      this.$emit('input', this.value);
+    selectedTags() {
+      this.$emit('input', this.selectedTags);
     },
     open() {
       if (this.open) {
+        this.query = '';
         window.setTimeout(() => {
           if (this.$refs.tagSearchInput) {
-            this.$refs.tagSearchInput.$el.focus();
+            this.$refs.tagSearchInput.$el.querySelector('input').focus();
           }
         }, 200);
         this.search();
@@ -80,6 +83,7 @@ export default {
         }
       }
     };
+    this.selectedTags = this.value;
   },
   methods: {
     search() {
@@ -88,6 +92,15 @@ export default {
           this.tags = tagNames.map(tagName => tagName.name) || [];
         });
     },
+    handleTag(tag) {
+      if (this.selectedTags.includes(tag)) {
+        const tagIndex = this.selectedTags.indexOf(tag);
+        this.selectedTags.splice(tagIndex , 1);
+      }
+      else {
+        this.selectedTags.push(tag);
+      }
+    }
   },
 };
 </script>

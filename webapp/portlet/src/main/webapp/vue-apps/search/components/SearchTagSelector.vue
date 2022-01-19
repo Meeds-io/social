@@ -5,10 +5,15 @@
       v-for="(selectedTag, index) in selectedTags"
       :key="selectedTag"
       color="primary"
-      class="border-color mx-1"
-      close
-      @click:close="deleteTag(index)">
+      class="border-color mx-1">
       <span class="subtitle-1">#{{ selectedTag }}</span>
+      <v-icon
+        size="10"
+        class="ms-2"
+        right
+        @click="deleteTag(index)">
+        fas fa-times
+      </v-icon>
     </v-chip>
   </span>
 </template>
