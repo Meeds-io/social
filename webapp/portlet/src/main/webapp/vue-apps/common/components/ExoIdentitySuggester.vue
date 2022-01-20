@@ -237,7 +237,7 @@ export default {
       if (value && value.length) {
         window.setTimeout(() => {
           this.focus();
-          if (!this.previousSearchTerm || this.previousSearchTerm === this.searchTerm) {
+          if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
 
