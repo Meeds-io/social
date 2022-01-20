@@ -160,6 +160,8 @@ export default {
       postTarget: '',
       showMessageComposer: false,
       message: '',
+      originalActivityBody: '',
+      tags: null,
       loading: false,
       showErrorMessage: false,
       activityBodyEdited: false,
@@ -294,6 +296,7 @@ export default {
         this.resetComposer();
 
         this.message = params.activityBody;
+        this.originalActivityBody = this.message;
         this.activityId = params.activityId;
         this.composerAction = params.composerAction;
         this.templateParams = params.activityParams || {};
@@ -380,6 +383,7 @@ export default {
           })
           .finally(() => this.loading = false);
       }
+      this.sendTagStatistics();
     },
     resetEdited() {
       this.$nextTick().then(() => this.activityBodyEdited = false);
@@ -464,6 +468,13 @@ export default {
         });
       }
     },
+    sendTagStatistics () {
+      const tagExp = new RegExp('<a [^>]*class=["\']metadata-tag["\'][^>]*>#([^\\s]+)<[^>]*/a>','g');
+      const existingTags = Array.from(this.originalActivityBody.matchAll(tagExp),m => m[m.length-1]);
+      let newTags =  Array.from(this.message.matchAll(tagExp),m => m[m.length-1]);
+      newTags = newTags.filter(tag => newTags.indexOf(tag) !== existingTags.indexOf(tag));
+      document.dispatchEvent(new CustomEvent('add-Tag', {detail: newTags.length}));
+    }
   }
 };
 </script>
