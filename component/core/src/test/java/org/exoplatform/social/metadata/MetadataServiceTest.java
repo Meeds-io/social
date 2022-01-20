@@ -193,6 +193,69 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(name, storedMetadata.getName());
     assertEquals(userMetadataType, storedMetadata.getType());
   }
+
+  public void testCreateMetadataWithProperties() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String name = "testMetadata1User1";
+    Metadata metadata = new Metadata();
+    metadata.setName(name);
+    metadata.setAudienceId(audienceId);
+    metadata.setCreatorId(creatorId);
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("referenced", "true");
+    metadata.setProperties(properties);
+    metadata.setType(userMetadataType);
+    try {
+      metadataService.createMetadata(null, properties, creatorId);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    try {
+      metadataService.createMetadata(newMetadataInstance(audienceId,
+              creatorId,
+              name,
+              null),
+              properties,
+              creatorId);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    try {
+      metadataService.createMetadata(newMetadataInstance(audienceId,
+              creatorId,
+              name,
+              userMetadataType),
+              properties,
+              0);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    try {
+      metadataService.createMetadata(newMetadataInstance(audienceId,
+              creatorId,
+              name,
+              new MetadataType(3, "test")),
+              properties,
+              creatorId);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Expected
+    }
+    Metadata storedMetadata = metadataService.createMetadata(metadata,properties,creatorId);
+
+    assertNotNull(storedMetadata);
+    assertTrue(storedMetadata.getId() > 0);
+    assertTrue(storedMetadata.getCreatedDate() > 0);
+    assertEquals(creatorId, storedMetadata.getCreatorId());
+    assertEquals(audienceId, storedMetadata.getAudienceId());
+    assertEquals(name, storedMetadata.getName());
+    assertEquals(userMetadataType, storedMetadata.getType());
+    assertEquals(properties, storedMetadata.getProperties());
+  }
   
   public void testDeleteMetadata() {
     long creatorId = Long.parseLong(johnIdentity.getId());
