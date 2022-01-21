@@ -73,6 +73,7 @@ export default {
     initialized: false,
     commenting: false,
     message: null,
+    originalMessage: '',
     avatarSize: '33px',
   }),
   computed: {
@@ -132,6 +133,7 @@ export default {
           && ((!this.commentId && !this.commentId === !this.options.commentId)
           || this.options.commentId === this.commentId)) {
         this.message = this.options.message || null;
+        this.originalMessage = this.message;
       } else {
         this.message = null;
       }
@@ -178,6 +180,11 @@ export default {
             this.commenting = false;
           });
       }
+      const tagExp = new RegExp('<a [^>]*class=["\']metadata-tag["\'][^>]*>#([^\\s]+)<[^>]*/a>','g');
+      const existingTags = Array.from(this.originalMessage.matchAll(tagExp),m => m[m.length-1]);
+      let newTags =  Array.from(this.message.matchAll(tagExp),m => m[m.length-1]);
+      newTags = newTags.filter(tag => newTags.indexOf(tag) !== existingTags.indexOf(tag));
+      document.dispatchEvent(new CustomEvent('add-Tag', {detail: {tagsCount: newTags.length, type: 'Activity'} }));
     },
   },
 };
