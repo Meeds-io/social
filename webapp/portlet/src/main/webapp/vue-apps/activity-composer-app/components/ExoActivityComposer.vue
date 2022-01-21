@@ -296,11 +296,21 @@ export default {
         this.composerAction = params.composerAction;
         this.templateParams = params.activityParams || {};
         this.resetEdited();
+        this.initEntityAttachmentsList();
+        this.$activityService.getActivityById(this.activityId)
+          .then(activity => {
+            if (activity.files) {
+              activity.files.forEach(file => {
+                if (!this.attachments.some(attachment => attachment.id === file.id)) {
+                  this.$attachmentService.linkUploadedAttachmentToEntity(this.activityId, 'activity', file.id);
+                }
+              });
+            }
+          });
       }
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
-      this.initEntityAttachmentsList();
     },
     openMessageComposer: function() {
       this.activityId = null;
