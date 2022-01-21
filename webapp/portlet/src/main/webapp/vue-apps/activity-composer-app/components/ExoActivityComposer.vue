@@ -56,12 +56,12 @@
           </transition>
           <div class="VuetifyApp">
             <v-app>
-              <div v-if="attachments.length" class="attachmentsList primary--text font-weight-bold">
+              <div v-if="attachments.length" class="attachmentsList">
                 <v-progress-circular
                   :class="uploading ? 'uploading' : ''"
                   :indeterminate="false"
                   :value="attachmentsProgress">
-                  <v-icon size="18" color="primary">
+                  <v-icon size="18">
                     fa-paperclip
                   </v-icon>
                 </v-progress-circular>
@@ -184,7 +184,7 @@ export default {
       return (!this.attachments.length && !this.messageLength) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.uploading || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
     activityType() {
-      return this.attachments.length ? 'files:spaces' : '';
+      return this.attachments && this.attachments.length ? 'files:spaces' : '';
     },
     attachmentsProgress() {
       return this.attachments.length !== 0 ? this.uploadingProgress / this.attachments.length : 0;
@@ -224,10 +224,8 @@ export default {
       this.activityBodyEdited = true;
     });
     this.$root.$on('remove-composer-attachment-item', attachment => {
-      const fileIndex = this.attachments.findIndex(attachedFile => attachedFile.uploadId === attachment.uploadId);
-      this.attachments.splice(fileIndex, fileIndex >= 0 ? 1 : 0);
-      this.activityBodyEdited = true;
       this.filesToDetach.push(attachment);
+      this.activityBodyEdited = true;
     });
     this.$root.$on('add-composer-attachment-item', attachment => {
       if (this.activityId) {
