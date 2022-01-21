@@ -83,21 +83,22 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                                  long metadataType,
                                                                                  String objectType,
+                                                                                 String propertyKey,
+                                                                                 String propertyValue,
                                                                                  long offset,
                                                                                  long limit) {
-    TypedQuery<MetadataItemEntity> query =
-                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObject",
-                                                                             MetadataItemEntity.class);
-    query.setParameter(METADATA_NAME, metadataName);
-    query.setParameter(METADATA_TYPE, metadataType);
-    query.setParameter(OBJECT_TYPE, objectType);
-    if (offset > 0) {
-      query.setFirstResult((int) offset);
+    try {
+      Query query = getMetadataItemsByMetadataTypeAndObjectQuery(metadataName, metadataType, objectType, propertyKey, propertyValue);
+      if (offset > 0) {
+        query.setFirstResult((int) offset);
+      }
+      if (limit > 0) {
+        query.setMaxResults((int) limit);
+      }
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return Collections.emptyList();
     }
-    if (limit > 0) {
-      query.setMaxResults((int) limit);
-    }
-    return query.getResultList();
   }
 
   public List<String> getMetadataObjectIds(long metadataType,
@@ -148,6 +149,23 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemById");
     query.setParameter("id", id);
     return query.executeUpdate();
+  }
+
+  private Query getMetadataItemsByMetadataTypeAndObjectQuery(String metadataName, long metadataType, String objectType, String propertyKey, String propertyValue) {
+    StringBuilder queryStringBuilder = null;
+    queryStringBuilder = new StringBuilder("SELECT DISTINCT sm.* ");
+    queryStringBuilder.append(" FROM SOC_METADATA_ITEMS sm \n");
+    queryStringBuilder.append(" INNER JOIN SOC_METADATAS sm_ \n");
+    queryStringBuilder.append(" ON sm.metadata_id = sm_.metadata_id \n");
+    queryStringBuilder.append(" AND sm_.type = ").append(metadataType).append(" \n");
+    queryStringBuilder.append(" AND sm_.name = '").append(metadataName).append("' \n");
+    queryStringBuilder.append(" INNER JOIN SOC_METADATA_ITEMS_PROPERTIES sm_prop \n");
+    queryStringBuilder.append(" ON sm.metadata_item_id = sm_prop.metadata_item_id ").append(" \n");
+    queryStringBuilder.append(" AND sm_prop.name = '").append(propertyKey).append("' \n");
+    queryStringBuilder.append(" AND sm_prop.value = '").append(propertyValue).append("' \n");
+    queryStringBuilder.append(" WHERE sm.object_type = '").append(objectType).append("' \n");
+    queryStringBuilder.append(" ORDER BY sm.created_date DESC, sm.metadata_id DESC");
+    return getEntityManager().createNativeQuery(queryStringBuilder.toString(), MetadataItemEntity.class);
   }
 
 }

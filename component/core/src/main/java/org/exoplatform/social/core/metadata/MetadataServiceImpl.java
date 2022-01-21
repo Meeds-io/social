@@ -106,6 +106,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
                                          long userIdentityId) throws ObjectAlreadyExistsException {
+    return this.createMetadataItem(metadataObject, metadataKey, null, userIdentityId);
+  }
+
+  @Override
+  public MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                         MetadataKey metadataKey,
+                                         Map<String, String> properties,
+                                         long userIdentityId) throws ObjectAlreadyExistsException {
     if (metadataObject == null) {
       throw new IllegalArgumentException("Metadata Item Object is mandatory");
     }
@@ -146,7 +154,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                  metadataObject,
                                                  userIdentityId,
                                                  System.currentTimeMillis(),
-                                                 null);
+                                                 properties);
     if (!isAllowMultipleItemsPerObject(metadataTypeName)) {
       List<MetadataItem> storedMetadataItems = metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(),
                                                                                                    metadataItem.getObject());
@@ -240,9 +248,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                            String metadataTypeName,
                                                                            String objectType,
+                                                                           String propertyKey,
+                                                                           String propertyValue,
                                                                            long offset,
                                                                            long limit) {
-    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, offset, limit);
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, propertyKey, propertyValue, offset, limit);
   }
 
   @Override
