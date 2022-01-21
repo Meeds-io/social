@@ -184,7 +184,7 @@ export default {
       const existingTags = Array.from(this.originalMessage.matchAll(tagExp),m => m[m.length-1]);
       let newTags =  Array.from(this.message.matchAll(tagExp),m => m[m.length-1]);
       newTags = newTags.filter(tag => newTags.indexOf(tag) !== existingTags.indexOf(tag));
-      document.dispatchEvent(new CustomEvent('add-Tag', {detail: {tagsCount: newTags.length, type: 'Activity'} }));
+      document.dispatchEvent(new CustomEvent('add-Tag', {detail: {tagsCount: newTags.length, type: 'Comment'} }));
     },
   },
 };
