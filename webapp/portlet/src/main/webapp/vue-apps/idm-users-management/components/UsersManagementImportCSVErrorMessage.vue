@@ -28,7 +28,7 @@
       {{ $t('UsersManagement.error.importCSV.missingUserName') }}
     </template>
     <template v-else-if="errorMessage === 'BAD_LINE_FORMAT'">
-      {{ $t('UsersManagement.error.importCSV.badLineFormat') }}
+      {{ $t('UsersManagement.error.importCSV.badLineFormat', {0: userName}) }}
     </template>
     <template v-else-if="validationErrorMessage">
       {{ validationErrorMessage }}
