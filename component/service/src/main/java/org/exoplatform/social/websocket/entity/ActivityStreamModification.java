@@ -37,9 +37,12 @@ public class ActivityStreamModification {
 
   private String eventName;
 
-  public ActivityStreamModification(String activityId, String eventName) {
+  private String spaceId;
+
+  public ActivityStreamModification(String activityId, String eventName, String spaceId) {
     this.activityId = activityId;
     this.eventName = eventName;
+    this.spaceId = spaceId;
   }
 
   @Override
