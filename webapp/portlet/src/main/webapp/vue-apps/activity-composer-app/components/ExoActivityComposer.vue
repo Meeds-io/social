@@ -173,7 +173,8 @@ export default {
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
       filesToDetach: [],
-      filesToAttach: []
+      filesToAttach: [],
+      attachmentsAppDrawerOpened: false,
     };
   },
   computed: {
@@ -226,6 +227,15 @@ export default {
     this.$root.$on('remove-composer-attachment-item', attachment => {
       this.filesToDetach.push(attachment);
       this.activityBodyEdited = true;
+    });
+    this.$root.$on('attachments-app-drawer-opened', () => {
+      this.attachmentsAppDrawerOpened = true;
+    });
+    this.$root.$on('attachments-app-drawer-closed', () => {
+      this.attachmentsAppDrawerOpened = false;
+    });
+    this.$root.$on('abort-attachments-new-upload', (attachments) => {
+      this.attachments = attachments;
     });
     this.$root.$on('add-composer-attachment-item', attachment => {
       if (this.activityId) {
@@ -412,12 +422,15 @@ export default {
         refreshButton.click();
       }
     },
-    closeMessageComposer: function() {
-      this.showMessageComposer = false;
-      this.attachments = [];
-      this.activityId = null;
-      this.$root.$emit('message-composer-closed');
-      this.$refs[this.ckEditorId].unload();
+    closeMessageComposer: function () {
+      if (!this.attachmentsAppDrawerOpened) {
+        this.showMessageComposer = false;
+        this.attachments = [];
+        this.activityId = null;
+        this.$refs[this.ckEditorId].unload();
+      } else {
+        this.$root.$emit('message-composer-closed');
+      }
     },
     executeAction(action, attachments) {
       if (action.key === 'file') {
