@@ -73,6 +73,14 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " mi.objectId = :objectId"
       ),
       @NamedQuery(
+          name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObject",
+          query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+              + " mi.metadata.type = :metadataType AND"
+              + " mi.metadata.name = :metadataName AND"
+              + " mi.objectType = :objectType"
+              + " ORDER BY mi.createdDate DESC, mi.id DESC"
+      ),
+      @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByParentObject",
           query = "DELETE FROM SocMetadataItemEntity mi WHERE "
               + " mi.objectType = :objectType AND"
