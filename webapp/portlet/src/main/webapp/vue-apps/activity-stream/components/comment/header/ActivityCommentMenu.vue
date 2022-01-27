@@ -1,5 +1,5 @@
 <template>
-  <v-list-item-icon v-show="enabledActions && enabledActions.length" class="ma-0">
+  <v-list-item-icon v-show="enabledActions && enabledActions.length" class="mx-0 mb-0 mt-n1">
     <v-menu
       v-model="menu"
       content-class="white"
