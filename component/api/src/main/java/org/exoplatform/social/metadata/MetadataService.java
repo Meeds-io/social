@@ -189,8 +189,6 @@ public interface MetadataService {
    * @param metadataName {@link Metadata} name
    * @param metadataTypeName {@link Metadata} type name
    * @param objectType objectType {@link MetadataItem} objectType
-   * @param propertyKey {@link MetadataItem} property key
-   * @param propertyValue {@link MetadataItem} property value
    * @param offset offset of ids to retrieve
    * @param limit limit of ids to retrieve
    * @return {@link List} of linked {@link MetadataItem}
@@ -198,10 +196,28 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                     String metadataTypeName,
                                                                     String objectType,
-                                                                    String propertyKey,
-                                                                    String propertyValue,
                                                                     long offset,
                                                                     long limit);
+
+  /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type, {@link MetadataItem} object type and {@link MetadataItem} property
+   *
+   * @param metadataName {@link Metadata} name
+   * @param metadataTypeName {@link Metadata} type name
+   * @param objectType objectType {@link MetadataItem} objectType
+   * @param propertyKey {@link MetadataItem} property key
+   * @param propertyValue {@link MetadataItem} property value
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
+                                                                                           String metadataTypeName,
+                                                                                           String objectType,
+                                                                                           String propertyKey,
+                                                                                           String propertyValue,
+                                                                                           long offset,
+                                                                                           long limit);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
