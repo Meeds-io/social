@@ -24,8 +24,13 @@
           class="mt-0 mb-auto me-2 flex-grow-0" />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
           <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
-            <v-list-item-title class="pt-1 font-weight-bold subtitle-2">
+            <v-list-item-title class="pt-1 font-weight-bold subtitle-2 d-flex justify-space-between">
               <activity-head-user :identity="posterIdentity" />
+              <activity-comment-menu
+                :activity="activity"
+                :comment="comment"
+                :actions="commentActions"
+                :comment-type-extension="commentTypeExtension" />
             </v-list-item-title>
             <activity-comment-body-text
               :activity="activity"
@@ -56,13 +61,6 @@
             </v-btn>
           </div>
         </div>
-        <v-list-item-action class="mb-auto ms-0 me-1 mt-0 pt-0">
-          <activity-comment-menu
-            :activity="activity"
-            :comment="comment"
-            :actions="commentActions"
-            :comment-type-extension="commentTypeExtension" />
-        </v-list-item-action>
       </v-list-item>
     </template>
 
