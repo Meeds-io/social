@@ -248,11 +248,20 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                            String metadataTypeName,
                                                                            String objectType,
-                                                                           String propertyKey,
-                                                                           String propertyValue,
                                                                            long offset,
                                                                            long limit) {
-    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, propertyKey, propertyValue, offset, limit);
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, offset, limit);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
+                                                                                                  String metadataTypeName,
+                                                                                                  String objectType,
+                                                                                                  String propertyKey,
+                                                                                                  String propertyValue,
+                                                                                                  long offset,
+                                                                                                  long limit) {
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName, metadataTypeName, objectType, propertyKey, propertyValue, offset, limit);
   }
 
   @Override

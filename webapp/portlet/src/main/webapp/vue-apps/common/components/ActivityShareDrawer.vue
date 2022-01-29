@@ -29,7 +29,6 @@
               include-spaces
               multiple
               only-redactor
-              only-manager
               autofocus />
           </div>
           <div class="d-flex flex-row">

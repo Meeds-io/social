@@ -48,11 +48,13 @@ export default {
     },
     handleActivityStreamUpdates(updateParams) {
       // handle activity stream updates
-      this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId, updateParams.commentId, updateParams.parentCommentId);
+      this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId, updateParams.spaceId, updateParams.commentId, updateParams.parentCommentId);
     },
-    increaseActivitiesLimitToRetrieve(activityId) {
-      this.updatedActivities.add(activityId);
-      this.newerActivitiesCount = this.updatedActivities.size;
+    increaseActivitiesLimitToRetrieve(activityId, spaceId) {
+      if (!eXo.env.portal.spaceId || eXo.env.portal.spaceId === spaceId) {
+        this.updatedActivities.add(activityId);
+        this.newerActivitiesCount = this.updatedActivities.size;
+      }
     },
     displayNewActivities() {
       if (this.$activityStreamWebSocket.isDisconnected()) {
