@@ -64,7 +64,7 @@
     v-bind="attrs"
     :id="id"
     :href="url"
-    :class="statusStyle"
+    :class="!space.isMember && 'not-clickable-link hidden-space'"
     class="text-none space-avatar activity-head-space-link">
     <v-avatar
       size="20"
@@ -101,23 +101,8 @@ export default {
     spaceId() {
       return this.space && this.space.id;
     },
-    statusStyle() {
-      if (this.notClickableLink) {
-        return 'not-clickable-link hidden-space';
-      } else {
-        return 'primary--text';
-      }
-    },
-    notClickableLink(){
-      return this.space.visibility === 'hidden' && !this.space.isMember;
-    },
     displayName() {
-      if (this.notClickableLink){
-        return this.$t('spacesList.label.hiddenSpace');
-      }
-      else {
-        return this.space.displayName;
-      }
+      return this.space && this.space.isMember ? this.space.displayName : this.$t('spacesList.label.hiddenSpace');
     },
     groupId() {
       return this.space && this.space.groupId;
@@ -135,7 +120,7 @@ export default {
       return this.space && this.space.description;
     },
     url() {
-      if (this.notClickableLink || !this.groupId) {
+      if (!this.groupId) {
         return '#';
       }
       const uri = this.groupId.replace(/\//g, ':');
