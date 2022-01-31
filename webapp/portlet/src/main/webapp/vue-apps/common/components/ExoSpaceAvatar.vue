@@ -14,7 +14,7 @@
         loading="lazy"
         role="presentation">
     </v-avatar>
-    <div v-if="displayName || $slots.subTitle" class="pull-left text-truncate ms-2 d-flex">
+    <div v-if="displayName || $slots.subTitle" :class="!subtitleNewLine && 'd-flex'" class="pull-left text-truncate ms-2">
       <p
         v-if="displayName"
         :class="fullnameStyle"
@@ -43,6 +43,10 @@ export default {
       default: () => false,
     },
     linkStyle: {
+      type: Boolean,
+      default: () => false,
+    },
+    subtitleNewLine: {
       type: Boolean,
       default: () => false,
     },
