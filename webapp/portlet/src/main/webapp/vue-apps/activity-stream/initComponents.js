@@ -36,6 +36,7 @@ import ActivityCommentTime from './components/comment/footer/ActivityCommentTime
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
+import SpacePopupActions from './components/activity/header/popupActions/SpacePopupActions.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -76,6 +77,7 @@ const components = {
   'activity-comment-reply-action': ActivityCommentReplyAction,
   'activity-comment-like-action': ActivityCommentLikeAction,
   'activity-comment-menu': ActivityCommentMenu,
+  'space-popup-actions': SpacePopupActions
 };
 
 for (const key in components) {
