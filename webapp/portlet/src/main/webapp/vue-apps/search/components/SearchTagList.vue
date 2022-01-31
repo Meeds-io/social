@@ -21,10 +21,12 @@
         v-model="query"
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
-      <div class="pa-4">
+      <div class="pa-3">
+        <span v-if="!searching" class="text-header-title pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
           active-class="primary--text"
+          class="pt-2"
           multiple>
           <v-chip
             v-for="tag in tags"
@@ -51,10 +53,12 @@ export default {
     tags: [],
     selectedTags: [],
     query: '',
+    searching: false,
     open: false,
   }),
   watch: {
     query() {
+      this.searching = this.query.length > 0 ? true : false;
       this.search();
     },
     selectedTags() {
@@ -87,7 +91,8 @@ export default {
   },
   methods: {
     search() {
-      return this.$tagService.searchTags(this.query)
+      const limit = this.searching ? 10 : 5;
+      return this.$tagService.searchTags(this.query , limit)
         .then(tagNames => {
           this.tags = tagNames.map(tagName => tagName.name) || [];
         });
