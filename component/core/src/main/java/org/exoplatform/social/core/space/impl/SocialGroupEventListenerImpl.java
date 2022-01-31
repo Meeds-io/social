@@ -72,7 +72,7 @@ public class SocialGroupEventListenerImpl extends GroupEventListener {
     String groupId = group.getId();
     Space space = spaceSrv.getSpaceByGroupId(groupId);
     if (space != null) {
-      spaceSrv.deleteSpace(space);
+      spaceSrv.deleteSpace(space, false);
     }
   }
 
