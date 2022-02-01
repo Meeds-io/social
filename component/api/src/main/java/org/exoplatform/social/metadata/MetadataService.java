@@ -336,4 +336,17 @@ public interface MetadataService {
    */
   List<String> findMetadataNamesByCreator(String term, String metadataTypeName, long creatorId, long limit);
 
+  /**
+   * Retrieves a {@link Set} of {@link Metadata} name matching the given
+   * {@link MetadataType} and {@link Set} of audience {@link Identity} ids and
+   *
+   * @param term Search query matching {@link Metadata} name
+   * @param metadataTypeName {@link MetadataType} name
+   * @param audienceIds {@link Set} of {@link Identity} identifiers
+   * @param creatorId {@link Identity} identifier of creator
+   * @param limit limit of results to retrieve
+   * @return {@link List} of {@link Metadata} names
+   */
+   List<String> findMetadataNamesByUser(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit);
+
 }

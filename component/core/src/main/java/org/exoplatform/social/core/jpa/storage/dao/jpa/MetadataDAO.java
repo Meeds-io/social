@@ -80,6 +80,26 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     }
   }
 
+  public List<String> getMetadataNamesByUser(long metadataTypeId,
+                                                long creatorIdentityId,
+                                                Set<Long> audienceIds,
+                                                long limit) {
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.getMetadataNamesByUser",
+            String.class);
+    query.setParameter(METADATA_TYPE, metadataTypeId);
+    query.setParameter(AUDIENCE_IDS, audienceIds);
+    query.setParameter(CREATOR_ID, creatorIdentityId);
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    List<String> result = query.getResultList();
+    if (CollectionUtils.isEmpty(result)) {
+      return Collections.emptyList();
+    } else {
+      return result.stream().distinct().collect(Collectors.toList());
+    }
+  }
+
   public List<String> findMetadataNameByAudiencesAndQuery(String term,
                                                           long metadataTypeId,
                                                           Set<Long> audienceIds,
@@ -107,6 +127,23 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByCreatorAndQuery",
                                                                    String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
+    query.setParameter(CREATOR_ID, creatorIdentityId);
+    query.setParameter(METADATA_NAME_PART, "%" + StringUtils.lowerCase(term) + "%");
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    List<String> result = query.getResultList();
+    if (CollectionUtils.isEmpty(result)) {
+      return Collections.emptyList();
+    } else {
+      return result.stream().distinct().collect(Collectors.toList());
+    }
+  }
+  public List<String> findMetadataNamesByUser(String term, long metadataTypeId, long creatorIdentityId, Set<Long> audienceIds, long limit) {
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByUser",
+                                                                   String.class);
+    query.setParameter(METADATA_TYPE, metadataTypeId);
+    query.setParameter(AUDIENCE_IDS, audienceIds);
     query.setParameter(CREATOR_ID, creatorIdentityId);
     query.setParameter(METADATA_NAME_PART, "%" + StringUtils.lowerCase(term) + "%");
     if (limit > 0) {
