@@ -22,7 +22,7 @@
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
       <div class="pa-3">
-        <span v-if="!searching" class="text-header-title pl-1">{{ $t('Tag.last.added') }}</span>
+        <span v-if="!searching" class="text-sm-body-2 font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
           active-class="primary--text"
