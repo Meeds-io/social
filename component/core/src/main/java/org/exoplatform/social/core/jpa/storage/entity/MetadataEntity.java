@@ -76,7 +76,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " ORDER BY sm.name ASC"
       ),
           @NamedQuery(
-                  name = "SocMetadataEntity.findMetadataNameByUser",
+                  name = "SocMetadataEntity.findMetadataNameByUserAndQuery",
                   query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
                           + " sm.type = :type AND"
                           + " (sm.creatorId = :creatorId OR sm.audienceId IN ( :audienceIds )) AND"

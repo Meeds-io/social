@@ -139,8 +139,8 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
       return result.stream().distinct().collect(Collectors.toList());
     }
   }
-  public List<String> findMetadataNamesByUser(String term, long metadataTypeId, long creatorIdentityId, Set<Long> audienceIds, long limit) {
-    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByUser",
+  public List<String> findMetadataNamesByUserAndQuery(String term, long metadataTypeId, long creatorIdentityId, Set<Long> audienceIds, long limit) {
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByUserAndQuery",
                                                                    String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
     query.setParameter(AUDIENCE_IDS, audienceIds);

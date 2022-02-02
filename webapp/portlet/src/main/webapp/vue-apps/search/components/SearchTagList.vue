@@ -58,7 +58,7 @@ export default {
   }),
   watch: {
     query() {
-      this.searching = this.query.length > 0 ? true : false;
+      this.searching = this.query.length > 0;
       this.search();
     },
     selectedTags() {

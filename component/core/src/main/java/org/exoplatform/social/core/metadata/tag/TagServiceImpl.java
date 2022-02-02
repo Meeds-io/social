@@ -141,7 +141,7 @@ public class TagServiceImpl implements TagService {
     long limit = tagFilter.getLimit();
 
     List<String> metadataNames = new ArrayList<>();
-    metadataNames = metadataService.findMetadataNamesByUser(tagFilter.getTerm(),
+    metadataNames = metadataService.findMetadataNamesByUserAndQuery(tagFilter.getTerm(),
                                                             TagService.METADATA_TYPE.getName(),
                                                              audienceIds,
                                                              userIdentityId,

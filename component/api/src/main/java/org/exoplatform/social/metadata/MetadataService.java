@@ -338,7 +338,7 @@ public interface MetadataService {
 
   /**
    * Retrieves a {@link Set} of {@link Metadata} name matching the given
-   * {@link MetadataType} and {@link Set} of audience {@link Identity} ids and
+   * {@link MetadataType} and {@link Set} of audience {@link Identity} ids
    *
    * @param term Search query matching {@link Metadata} name
    * @param metadataTypeName {@link MetadataType} name
@@ -347,6 +347,6 @@ public interface MetadataService {
    * @param limit limit of results to retrieve
    * @return {@link List} of {@link Metadata} names
    */
-   List<String> findMetadataNamesByUser(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit);
+   List<String> findMetadataNamesByUserAndQuery(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit);
 
 }
