@@ -172,6 +172,9 @@ public class MetadataStorage {
   public List<String> getMetadataNamesByCreator(long metadataTypeId, Long creatorId, long limit) {
     return metadataDAO.getMetadataNamesByCreator(metadataTypeId, creatorId, limit);
   }
+  public List<String> getMetadataNamesByUser(long metadataTypeId, Long creatorId, Set<Long> audienceIds, long limit) {
+    return metadataDAO.getMetadataNamesByUser(metadataTypeId, creatorId, audienceIds, limit);
+  }
 
   public List<String> findMetadataNameByAudiencesAndQuery(String term, long metadataTypeId, Set<Long> audienceIds, long limit) {
     return metadataDAO.findMetadataNameByAudiencesAndQuery(term, metadataTypeId, audienceIds, limit);
@@ -179,6 +182,10 @@ public class MetadataStorage {
 
   public List<String> findMetadataNameByCreatorAndQuery(String term, long metadataTypeId, long creatorId, long limit) {
     return metadataDAO.findMetadataNameByCreatorAndQuery(term, metadataTypeId, creatorId, limit);
+  }
+
+  public List<String> findMetadataNamesByUserAndQuery(String term, long metadataTypeId, long creatorId, Set<Long> audienceIds, long limit) {
+    return metadataDAO.findMetadataNamesByUserAndQuery(term, metadataTypeId, creatorId, audienceIds, limit);
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, MetadataObject object) {

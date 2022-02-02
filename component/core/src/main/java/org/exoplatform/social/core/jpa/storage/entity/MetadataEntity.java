@@ -52,6 +52,13 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " sm.creatorId = :creatorId"
               + " ORDER BY sm.name ASC"
       ),
+          @NamedQuery(
+                  name = "SocMetadataEntity.getMetadataNamesByUser",
+                  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+                          + " sm.type = :type AND"
+                          + " sm.creatorId = :creatorId or sm.audienceId IN ( :audienceIds )"
+                          + " ORDER BY sm.createdDate DESC, sm.name DESC"
+          ),
       @NamedQuery(
           name = "SocMetadataEntity.findMetadataNameByAudiencesAndQuery",
           query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
@@ -68,6 +75,14 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " LOWER(sm.name) LIKE :term"
               + " ORDER BY sm.name ASC"
       ),
+          @NamedQuery(
+                  name = "SocMetadataEntity.findMetadataNameByUserAndQuery",
+                  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+                          + " sm.type = :type AND"
+                          + " (sm.creatorId = :creatorId OR sm.audienceId IN ( :audienceIds )) AND"
+                          + " LOWER(sm.name) LIKE :term"
+                          + " ORDER BY sm.createdDate DESC, sm.name DESC"
+          ),
       @NamedQuery(
           name = "SocMetadataEntity.getMetadatas",
           query = "SELECT sm FROM SocMetadataEntity sm WHERE"
