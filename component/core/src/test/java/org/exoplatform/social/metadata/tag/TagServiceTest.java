@@ -263,52 +263,47 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(savedTags, tagNames);
 
     List<TagName> marySavedTags = tagService.findTags(null, Long.parseLong(maryIdentity.getId()));
-    Collections.reverse(marySavedTags);
     assertNotNull(marySavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(maryIdentity.getId()));
-    Collections.reverse(marySavedTags);
     assertNotNull(marySavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 3), Long.parseLong(maryIdentity.getId()));
-    Collections.reverse(marySavedTags);
     assertNotNull(marySavedTags);
-    assertEquals(Arrays.asList("tagJohnMary2",
-                               "tagMary1",
+    assertEquals(Arrays.asList("tagJohnMary1",
+                               "tagJohnMary2",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     List<TagName> johnSavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(johnIdentity.getId()));
-    Collections.reverse(johnSavedTags);
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
-    johnSavedTags = tagService.findTags(new TagFilter("mar", 1), Long.parseLong(johnIdentity.getId()));
-    Collections.reverse(johnSavedTags);
+    johnSavedTags = tagService.findTags(new TagFilter("mar", 2), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
-    assertEquals(Arrays.asList("tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+    assertEquals(Arrays.asList("tagJohnMary1",
+                              "tagJohnMary2"),
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     johnSavedTags = tagService.findTags(new TagFilter("joh", 10), Long.parseLong(johnIdentity.getId()));
-    Collections.reverse(johnSavedTags);
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohn1",
                                "tagJohn2",
                                "tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
   }
 
   @SuppressWarnings("deprecation")
