@@ -1,7 +1,7 @@
 <template>
   <div id="activityComposer" class="activityComposer pa-0">
     <div v-if="!standalone" class="openLink mb-4 text-truncate">
-      <a @click="openMessageComposer()">
+      <a @click="openMessageComposer()" class="primary--text">
         <i class="uiIconEdit"></i>
         {{ link.replace('{0}', postTarget) }}
       </a>
