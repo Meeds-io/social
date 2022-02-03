@@ -3,7 +3,8 @@
     v-model="drawer"
     :right="rightDrawer"
     :left="leftDrawer"
-    :class="!drawer && 'd-none d-sm-flex'"
+    :bottom="bottomDrawer"
+    :class="[!drawer && 'd-none d-sm-flex', bottom && 'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5 px-4']"
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
@@ -49,7 +50,7 @@
             color="primary" />
           <v-divider v-else class="my-0" />
         </template>
-        <v-flex class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
+        <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
         </v-flex>
         <template v-if="$slots.footer">
@@ -84,6 +85,10 @@ export default {
       default: () => false,
     },
     left: {
+      type: Boolean,
+      default: () => false,
+    },
+    bottom: {
       type: Boolean,
       default: () => false,
     },
@@ -137,7 +142,10 @@ export default {
       return (this.right && eXo.env.portal.orientation === 'ltr') || (this.left && eXo.env.portal.orientation === 'rtl');
     },
     leftDrawer() {
-      return !this.rightDrawer;
+      return !this.rightDrawer && !this.bottomDrawer;
+    },
+    bottomDrawer() {
+      return this.bottom && this.isMobile;
     },
     width() {
       return this.expand && '100%' || this.drawerWidth;

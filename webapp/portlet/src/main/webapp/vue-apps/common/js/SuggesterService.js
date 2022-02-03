@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, noRedactorInSpace, onlyManager, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, noRedactorInSpace, onlyManager)
+    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager)
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -12,7 +12,12 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
       .finally(() => searchEndCallback && searchEndCallback('organization'));
   }
 }
-function searchSpaces(filter, items, onlyRedactor, noRedactorInSpace, onlyManager) {
+/*
+* onlyRedactor : search spaces where the user is a redactor
+* excludeRedactionalSpace : space spaces that have no member promoted as redactor
+* onlyManager : search spaces where the user is a manager
+*/
+function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager) {
   const formData = new FormData();
   formData.append('filterType', 'member');
   formData.append('limit', '20');
@@ -23,7 +28,7 @@ function searchSpaces(filter, items, onlyRedactor, noRedactorInSpace, onlyManage
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-        if ((noRedactorInSpace && item.redactorsCount === 0 ) || (onlyRedactor && item.isRedactor && item.redactorsCount > 0) || (onlyManager && item.canEdit) || (!onlyRedactor && !onlyManager && !noRedactorInSpace) ){
+        if ((excludeRedactionalSpace && !item.redactorsCount ) || ((!onlyRedactor || item.isRedactor || item.canEdit || !item.redactorsCount) && (!onlyManager || item.canEdit))) {
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,

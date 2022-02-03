@@ -338,7 +338,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
   }
 
-  public void testGetMetadataItemsByMetadataNameAndTypeAndObject() {
+  public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty() {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
     String objectId = "objectIdTestSam";
@@ -365,16 +365,39 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name, type, objectType,"staged", String.valueOf(false), 0, 10);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType,"staged", String.valueOf(false), 0, 10);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals(objectType, metadataItems.get(0).getObjectType());
     assertEquals(type, metadataItems.get(0).getMetadataTypeName());
 
     //Staged property is true
-    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name, type, objectType, "staged", String.valueOf(true), 0, 10);
+    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType, "staged", String.valueOf(true), 0, 10);
     assertNotNull(metadataItems);
     assertEquals(0, metadataItems.size());
+  }
+
+  public void testGetMetadataItemsByMetadataNameAndTypeAndObject() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectIdTestJohn";
+    String parentObjectId = "parentObjectIdTestJohn";
+    String objectType = "objectTypeTestJohn";
+    String name = "testMetadataJohn";
+    String type = userMetadataType.getName();
+    MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+
+    try {
+      metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    } catch (ObjectAlreadyExistsException e) {
+      // Expected
+    }
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name, type, objectType, 0, 10);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    assertEquals(objectType, metadataItems.get(0).getObjectType());
+    assertEquals(type, metadataItems.get(0).getMetadataTypeName());
   }
 
   public void testGetMetadatas() {
