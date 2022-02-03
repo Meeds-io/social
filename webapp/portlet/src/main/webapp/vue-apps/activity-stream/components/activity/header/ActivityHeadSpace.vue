@@ -3,7 +3,7 @@
     :id="id"
     :href="url"
     :class="!this.space.isMember && 'not-clickable-link hidden-space'"
-    class="text-none space-avatar activity-head-space-link">
+    class="text-none space-avatar primary--text activity-head-space-link">
     <v-avatar
       size="20"
       rounded
