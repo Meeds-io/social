@@ -3,6 +3,7 @@
     v-model="open"
     :close-on-content-click="false"
     :nudge-width="200"
+    :nudge-bottom="30"
     content-class="tag-search-content"
     offset-x>
     <template v-slot:activator="{ on, attrs }">
@@ -32,7 +33,8 @@
             v-for="tag in tags"
             :key="tag"
             :value="tag"
-            @click="handleTag(tag)">
+            @click="handleTag(tag)"
+            @keyup.enter="handleTag(tag)">
             {{ tag }}
           </v-chip>
         </v-chip-group>
@@ -54,6 +56,7 @@ export default {
     selectedTags: [],
     query: '',
     searching: false,
+    searchLimit: 5,
     open: false,
   }),
   watch: {
@@ -91,8 +94,7 @@ export default {
   },
   methods: {
     search() {
-      const limit = this.searching ? 10 : 5;
-      return this.$tagService.searchTags(this.query , limit)
+      return this.$tagService.searchTags(this.query , this.searchLimit)
         .then(tagNames => {
           this.tags = tagNames.map(tagName => tagName.name) || [];
         });
