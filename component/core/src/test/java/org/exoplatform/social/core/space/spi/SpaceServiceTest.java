@@ -1735,9 +1735,31 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("savedSpace.getDisplayName() must return: " + spaceDisplayName, spaceDisplayName, savedSpace.getDisplayName());
     assertEquals("savedSpace.getDescription() must return: " + spaceDescription, spaceDescription, savedSpace.getDescription());
     assertEquals("savedSpace.getGroupId() must return: " + groupId, groupId, savedSpace.getGroupId());
+    assertNotNull("the group " +groupId + " must exist", organizationService.getGroupHandler().findGroupById(groupId));
     spaceService.deleteSpace(space);
     savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
     assertNull("savedSpace must be null", savedSpace);
+    assertNull("the group " +groupId + " must be deleted after space deletion ", organizationService.getGroupHandler().findGroupById(groupId));
+  }
+
+
+  public void testDeleteSpaceWithoutDelitingGroup() throws Exception {
+    Space space = this.getSpaceInstance(0);
+    String spaceDisplayName = space.getDisplayName();
+    String spaceDescription = space.getDescription();
+    String groupId = space.getGroupId();
+    Space savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    assertNotNull("savedSpace must not be null", savedSpace);
+    assertEquals("savedSpace.getDisplayName() must return: " + spaceDisplayName, spaceDisplayName, savedSpace.getDisplayName());
+    assertEquals("savedSpace.getDescription() must return: " + spaceDescription, spaceDescription, savedSpace.getDescription());
+    assertEquals("savedSpace.getGroupId() must return: " + groupId, groupId, savedSpace.getGroupId());
+    assertNotNull("the group " +groupId + " must exist", organizationService.getGroupHandler().findGroupById(groupId));
+    spaceService.deleteSpace(space, false);
+    savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    assertNull("savedSpace must be null", savedSpace);
+    assertNotNull("the group " +groupId + " must exist after space deletion", organizationService.getGroupHandler().findGroupById(groupId));
+    Group group = organizationService.getGroupHandler().findGroupById(groupId);
+    organizationService.getGroupHandler().removeGroup(group, true);
   }
 
   public void testUpdateSpacePermissions() throws Exception {
