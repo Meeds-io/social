@@ -14,26 +14,26 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-        <v-flex v-if="hasNotificationSettings" class="d-flex flex-wrap" >
-          <template v-if="enabledDigestLabel">
-            <v-chip class="ma-2" color="primary">
-              <span class="text-truncate">
-                {{ enabledDigestLabel }}
-              </span>
-            </v-chip>
-          </template>
-          <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
-            <v-chip
-              v-for="enabledNotificationLabel in enabledNotificationLabels"
-              :key="enabledNotificationLabel"
-              class="ma-2"
-              color="primary">
-              <span class="text-truncate">
-                {{ enabledNotificationLabel }}
-              </span>
-            </v-chip>
-          </template>
-        </v-flex>
+    <v-flex v-if="hasNotificationSettings" class="d-flex flex-wrap">
+      <template v-if="enabledDigestLabel">
+        <v-chip class="ma-2" color="primary">
+          <span class="text-truncate">
+            {{ enabledDigestLabel }}
+          </span>
+        </v-chip>
+      </template>
+      <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
+        <v-chip
+          v-for="enabledNotificationLabel in enabledNotificationLabels"
+          :key="enabledNotificationLabel"
+          class="ma-2"
+          color="primary">
+          <span class="text-truncate">
+            {{ enabledNotificationLabel }}
+          </span>
+        </v-chip>
+      </template>
+    </v-flex>
     <v-list-item v-else dense>
       <v-list-item-content class="pa-0">
         <v-list-item-subtitle class="text-sub-title font-italic">

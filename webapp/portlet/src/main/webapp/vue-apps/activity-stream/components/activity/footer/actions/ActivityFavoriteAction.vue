@@ -8,6 +8,7 @@
     :top="top"
     :right="right"
     :template-params="templateParams"
+    :type-label="extensionName"
     type="activity"
     @removed="removed"
     @remove-error="removeError"
@@ -20,6 +21,10 @@ export default {
   props: {
     activity: {
       type: Object,
+      default: null,
+    },
+    activityTypeExtension: {
+      type: String,
       default: null,
     },
     isActivityShared: {
@@ -51,6 +56,9 @@ export default {
     },
     templateParams() {
       return this.activity && this.activity.templateParams;
+    },
+    extensionName() {
+      return this.activityTypeExtension && this.activityTypeExtension.name;
     },
   },
   created() {

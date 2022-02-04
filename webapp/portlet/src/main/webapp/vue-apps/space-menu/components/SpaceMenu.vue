@@ -1,28 +1,28 @@
 <template>
   <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
-  <v-footer 
+    <v-footer 
       v-if="isMobile" 
       class="spaceButtomNavigation white">
-    <v-slide-group>
-      <v-bottom-navigation
-        :value="selectedNavigationUri"
-        grow
-        color="tertiary"
-        background-color="transparent"
-        class="spaceButtomNavigationParent"
-        flat>
-        <v-btn
-          v-for="nav in navigations"
-          :key="nav.id"
-          :value="nav.uri"
-          :href="nav.uri"
-          class="subtitle-2 spaceButtomNavigationItem">
-          <span>{{ nav.label }}</span>
-          <i :class="nav.icon"></i>
-        </v-btn>
-      </v-bottom-navigation>
-    </v-slide-group>
-  </v-footer>    
+      <v-slide-group>
+        <v-bottom-navigation
+          :value="selectedNavigationUri"
+          grow
+          color="tertiary"
+          background-color="transparent"
+          class="spaceButtomNavigationParent"
+          flat>
+          <v-btn
+            v-for="nav in navigations"
+            :key="nav.id"
+            :value="nav.uri"
+            :href="nav.uri"
+            class="subtitle-2 spaceButtomNavigationItem">
+            <span>{{ nav.label }}</span>
+            <i :class="nav.icon"></i>
+          </v-btn>
+        </v-bottom-navigation>
+      </v-slide-group>
+    </v-footer>    
     <v-tabs
       v-else
       :value="selectedNavigationUri"

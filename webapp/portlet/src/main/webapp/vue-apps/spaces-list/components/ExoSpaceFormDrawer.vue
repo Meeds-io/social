@@ -15,7 +15,8 @@
           v-model="stepper"
           vertical
           flat
-          class="ma-0 py-0 me-4" :class="`${isMobile ? 'pr-3' : ''}`">
+          class="ma-0 py-0 me-4"
+          :class="`${isMobile ? 'pr-3' : ''}`">
           <v-stepper-step
             :complete="stepper > 1"
             step="1"
@@ -198,7 +199,7 @@
             class="elevation-0 mb-14 me-2 pe-4"
             icon="mdi-alert-circle"
             type="warning">
-            <p v-sanitized-html="invitedSpacesWithExternals" />
+            <p v-sanitized-html="invitedSpacesWithExternals"></p>
           </v-alert>
         </div>
       </div>
