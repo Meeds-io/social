@@ -91,7 +91,7 @@
           <description>Search connector for spaces</description>
           <object type="org.exoplatform.social.core.search.SearchConnector">
             <field name="name">
-              <string>space</string>
+              <string>spaces</string>
             </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&expand=managers]]></string>
@@ -126,7 +126,7 @@
           <description>Search connector for activities</description>
           <object type="org.exoplatform.social.core.search.SearchConnector">
             <field name="name">
-              <string>activity</string>
+              <string>activities</string>
             </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/activities/search?q={keyword}&limit={limit}]]></string>
