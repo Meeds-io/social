@@ -1,5 +1,8 @@
 <template>
-  <v-app class="transparent" flat v-if="displayed">
+  <v-app
+    class="transparent"
+    flat
+    v-if="displayed">
     <space-setting-general :space-id="spaceId" class="mb-6" />
     <space-setting-applications :space-id="spaceId" class="mb-6" />
     <template>
