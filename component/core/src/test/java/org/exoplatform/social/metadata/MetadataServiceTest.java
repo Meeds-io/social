@@ -153,6 +153,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
       metadataService.createMetadata(newMetadataInstance(audienceId,
                                                          creatorId,
                                                          name,
+                                                         null,
                                                          null),
                                      creatorId);
       fail();
@@ -163,6 +164,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
       metadataService.createMetadata(newMetadataInstance(audienceId,
                                                          creatorId,
                                                          name,
+                                                         null,
                                                          userMetadataType),
                                      0);
       fail();
@@ -173,16 +175,19 @@ public class MetadataServiceTest extends AbstractCoreTest {
       metadataService.createMetadata(newMetadataInstance(audienceId,
                                                          creatorId,
                                                          name,
+                                                         null,
                                                          new MetadataType(3, "test")),
                                      creatorId);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
     }
-
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("description", "description1");
     Metadata storedMetadata = metadataService.createMetadata(newMetadataInstance(audienceId,
                                                                                  creatorId,
                                                                                  name,
+                                                                                 properties,
                                                                                  userMetadataType),
                                                              creatorId);
     assertNotNull(storedMetadata);
@@ -201,12 +206,14 @@ public class MetadataServiceTest extends AbstractCoreTest {
     Metadata metadata1 = metadataService.createMetadata(newMetadataInstance(audienceId,
                                                                                  creatorId,
                                                                                  metadata1Name,
+                                                                                 null,
                                                                                  userMetadataType),
                                                              creatorId);
     String metadata2Name = "testMetadata2";
     Metadata metadata2 = metadataService.createMetadata(newMetadataInstance(audienceId,
                                                                                  creatorId,
                                                                                  metadata2Name,
+                                                                                 null,
                                                                                  userMetadataType),
                                                              creatorId);
     List<Metadata> metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
@@ -409,6 +416,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
       metadataService.createMetadata(newMetadataInstance(audienceId,
               creatorId,
               name,
+              null,
               spaceMetadataType),
               creatorId);
     } catch (IllegalArgumentException e) {
@@ -1394,12 +1402,14 @@ public class MetadataServiceTest extends AbstractCoreTest {
   private Metadata newMetadataInstance(long audienceId,
                                        long creatorId,
                                        String name,
+                                       Map<String, String> properties,
                                        MetadataType metadataType) {
     Metadata metadata = new Metadata();
     metadata.setAudienceId(audienceId);
     metadata.setCreatorId(creatorId);
     metadata.setName(name);
     metadata.setType(metadataType);
+    metadata.setProperties(properties);
     return metadata;
   }
 
