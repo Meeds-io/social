@@ -1,14 +1,13 @@
 <template>
   <div class="d-flex flex-nowrap">
-    <exo-user-avatar
+    <exo-user
       v-for="user in usersToDisplay"
       :key="user"
-      :username="user.username"
-      :title="user.fullname"
+      :identity="user"
       :size="iconSize"
-      :labels="labels"
-      :retrieve-extra-information="false"
-      class="mx-auto" />
+      class="mx-auto"
+      popover
+      avatar />
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
