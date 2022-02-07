@@ -71,6 +71,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
     metadata.setType(metadata.getType());
     metadata.setCreatorId(userIdentityId);
+    metadata.setProperties(metadata.getProperties());
     metadata = metadataStorage.createMetadata(metadata);
     try {
       this.listenerService.broadcast("social.metadata.created", userIdentityId, metadata);

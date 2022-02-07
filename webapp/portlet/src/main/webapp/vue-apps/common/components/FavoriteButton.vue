@@ -38,6 +38,10 @@ export default {
       type: String,
       default: null,
     },
+    typeLabel: {
+      type: String,
+      default: null,
+    },
     id: {
       type: String,
       default: null,
@@ -69,10 +73,6 @@ export default {
     small: {
       type: Boolean,
       default: true,
-    },
-    templateParams: {
-      type: Object,
-      default: null,
     },
   },
   data: () => ({
@@ -134,6 +134,14 @@ export default {
       if (this.isFavorite) {
         this.$favoriteService.removeFavorite(this.type, this.id)
           .then(() => {
+            document.dispatchEvent(new CustomEvent('favorite-removed', {
+              detail: {
+                type: this.type,
+                typeLabel: this.typeLabel,
+                id: this.id,
+                spaceId: this.spaceId,
+              }
+            }));
             this.isFavorite = false;
             this.$emit('removed');
             this.updateFavorite();
@@ -145,10 +153,10 @@ export default {
           .then(() => {
             document.dispatchEvent(new CustomEvent('favorite-added', {
               detail: {
-                'type': this.type,
-                'id': this.id,
-                'spaceId': this.spaceId,
-                'templateParams': this.templateParams,
+                type: this.type,
+                typeLabel: this.typeLabel,
+                id: this.id,
+                spaceId: this.spaceId,
               }
             }));
             this.isFavorite = true;

@@ -4,7 +4,7 @@
     :size="size"
     class="spaceAvatar"
     tile>
-    <v-img :src="avatarData || avatarUrl || ''" role="presentation"/>
+    <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
     <v-file-input
       v-if="!sendingImage"
       v-show="hover"

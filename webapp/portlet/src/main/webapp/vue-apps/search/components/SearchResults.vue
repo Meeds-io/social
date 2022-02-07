@@ -14,8 +14,8 @@
         <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
       <search-tag-selector
-          v-if="tagsEnabled"
-          @tags-changed="selectTags" />
+        v-if="tagsEnabled"
+        @tags-changed="selectTags" />
       <v-menu
         v-model="connectorsListOpened"
         :close-on-content-click="false"
