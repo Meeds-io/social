@@ -268,7 +268,7 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(maryIdentity.getId()));
     assertNotNull(marySavedTags);
@@ -276,25 +276,26 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 3), Long.parseLong(maryIdentity.getId()));
     assertNotNull(marySavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2",
-                               "tagMary1"),
-                 marySavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                               "tagMary2"),
+                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     List<TagName> johnSavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
-    johnSavedTags = tagService.findTags(new TagFilter("mar", 1), Long.parseLong(johnIdentity.getId()));
+    johnSavedTags = tagService.findTags(new TagFilter("mar", 2), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
-    assertEquals(Arrays.asList("tagJohnMary1"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+    assertEquals(Arrays.asList("tagJohnMary1",
+                              "tagJohnMary2"),
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     johnSavedTags = tagService.findTags(new TagFilter("joh", 10), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
@@ -302,7 +303,7 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohn2",
                                "tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
   }
 
   @SuppressWarnings("deprecation")

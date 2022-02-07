@@ -3,6 +3,7 @@
     v-model="open"
     :close-on-content-click="false"
     :nudge-width="200"
+    :nudge-bottom="30"
     content-class="tag-search-content"
     offset-x>
     <template v-slot:activator="{ on, attrs }">
@@ -21,16 +22,19 @@
         v-model="query"
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
-      <div class="pa-4">
+      <div class="pa-3">
+        <span v-if="!searching" class="text-sm-body-2 font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
           active-class="primary--text"
+          class="pt-2"
           multiple>
           <v-chip
             v-for="tag in tags"
             :key="tag"
             :value="tag"
-            @click="handleTag(tag)">
+            @click="handleTag(tag)"
+            @keyup.enter="handleTag(tag)">
             {{ tag }}
           </v-chip>
         </v-chip-group>
@@ -51,10 +55,13 @@ export default {
     tags: [],
     selectedTags: [],
     query: '',
+    searching: false,
+    searchLimit: 5,
     open: false,
   }),
   watch: {
     query() {
+      this.searching = this.query.length > 0;
       this.search();
     },
     selectedTags() {
@@ -87,7 +94,7 @@ export default {
   },
   methods: {
     search() {
-      return this.$tagService.searchTags(this.query)
+      return this.$tagService.searchTags(this.query , this.searchLimit)
         .then(tagNames => {
           this.tags = tagNames.map(tagName => tagName.name) || [];
         });

@@ -285,6 +285,18 @@ public class MetadataServiceImpl implements MetadataService, Startable {
       return this.metadataStorage.findMetadataNameByCreatorAndQuery(term, metadataType.getId(), creatorId, limit);
     }
   }
+  @Override
+  public List<String> findMetadataNamesByUserAndQuery(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit) {
+    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
+    }
+    if (StringUtils.isBlank(term)) {
+      return this.metadataStorage.getMetadataNamesByUser(metadataType.getId(), creatorId, audienceIds, limit);
+    } else {
+      return this.metadataStorage.findMetadataNamesByUserAndQuery(term, metadataType.getId(), creatorId, audienceIds, limit);
+    }
+  }
 
   @Override
   public List<String> findMetadataNamesByAudiences(String term,

@@ -141,18 +141,11 @@ public class TagServiceImpl implements TagService {
     long limit = tagFilter.getLimit();
 
     List<String> metadataNames = new ArrayList<>();
-    List<String> metadataNamesByCreator = metadataService.findMetadataNamesByCreator(tagFilter.getTerm(),
-                                                                                     TagService.METADATA_TYPE.getName(),
-                                                                                     userIdentityId,
-                                                                                     limit);
-    metadataNames.addAll(metadataNamesByCreator);
-    if (metadataNames.size() < limit) {
-      List<String> metadataNamesBySpaces = metadataService.findMetadataNamesByAudiences(tagFilter.getTerm(),
-                                                                                        TagService.METADATA_TYPE.getName(),
-                                                                                        audienceIds,
-                                                                                        limit);
-      metadataNames.addAll(metadataNamesBySpaces);
-    }
+    metadataNames = metadataService.findMetadataNamesByUserAndQuery(tagFilter.getTerm(),
+                                                            TagService.METADATA_TYPE.getName(),
+                                                             audienceIds,
+                                                             userIdentityId,
+                                                             limit);
     return metadataNames.stream().map(TagName::new).distinct().limit(limit).collect(Collectors.toList());
 
   }
