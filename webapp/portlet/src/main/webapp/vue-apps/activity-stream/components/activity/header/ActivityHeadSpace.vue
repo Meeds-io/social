@@ -2,8 +2,8 @@
   <a
     :id="id"
     :href="url"
-    :class="!this.space.isMember && 'not-clickable-link hidden-space'"
-    class="text-none space-avatar primary--text activity-head-space-link">
+    :class="notClickableLink && 'not-clickable-link hidden-space'"
+    class="text-none space-avatar activity-head-space-link">
     <v-avatar
       size="20"
       rounded
@@ -39,8 +39,16 @@ export default {
     spaceId() {
       return this.space && this.space.id;
     },
+    notClickableLink(){
+      return this.space.visibility === 'hidden' && !this.space.isMember;
+    },
     displayName() {
-      return this.space && this.space.isMember ? this.space.displayName : this.$t('spacesList.label.hiddenSpace');
+      if (this.notClickableLink){
+        return this.$t('spacesList.label.hiddenSpace');
+      }
+      else {
+        return this.space.displayName;
+      }
     },
     groupId() {
       return this.space && this.space.groupId;
@@ -52,7 +60,7 @@ export default {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
     },
     url() {
-      if (!this.groupId) {
+      if (this.notClickableLink || !this.groupId) {
         return '#';
       }
       const uri = this.groupId.replace(/\//g, ':');
