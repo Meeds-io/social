@@ -23,6 +23,9 @@ import java.util.Set;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -38,13 +41,21 @@ import org.exoplatform.social.metadata.tag.model.TagObject;
  */
 public class ActivityTagMetadataListener extends ActivityListenerPlugin {
 
+  public static final String                 TAG_ADDED_EVENT                = "exo.tag.added";
+
+  private static final Log LOG = ExoLogger.getLogger(ActivityTagMetadataListener.class);
+
+
   private ActivityManager activityManager;
 
   private TagService      tagService;
 
-  public ActivityTagMetadataListener(ActivityManager activityManager, TagService tagService) {
+  private ListenerService listenerService;
+
+  public ActivityTagMetadataListener(ActivityManager activityManager, TagService tagService, ListenerService listenerService) {
     this.activityManager = activityManager;
     this.tagService = tagService;
+    this.listenerService = listenerService;
   }
 
   @Override
@@ -83,6 +94,11 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
                         tagNames,
                         audienceId,
                         creatorId);
+    try {
+      listenerService.broadcast(TAG_ADDED_EVENT,activity,tagNames);
+    } catch (Exception e) {
+      LOG.error("could not broadcast event",e);
+    }
   }
 
   private long getPosterId(ExoSocialActivity activity) {
