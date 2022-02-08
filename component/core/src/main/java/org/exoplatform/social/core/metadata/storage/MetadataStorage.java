@@ -65,6 +65,12 @@ public class MetadataStorage {
     return fromEntity(metadataEntity);
   }
 
+  public Metadata updateMetadata(Metadata metadata) {
+    MetadataEntity metadataEntity = toEntity(metadata);
+    metadataEntity = this.metadataDAO.update(metadataEntity);
+    return fromEntity(metadataEntity);
+  }
+
   public Metadata deleteMetadataById(long id) {
     MetadataEntity metadataEntity = this.metadataDAO.find(id);
     if (metadataEntity != null) {

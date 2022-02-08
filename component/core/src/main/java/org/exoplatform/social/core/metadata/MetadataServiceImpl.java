@@ -80,6 +80,24 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     return metadata;
   }
+
+  @Override
+  public Metadata updateMetadata(Metadata metadata, long userIdentityId) {
+    if (metadata == null) {
+      throw new IllegalArgumentException("Metadata is mandatory");
+    }
+    if (userIdentityId <= 0) {
+      throw new IllegalArgumentException("userIdentityId is mandatory");
+    }
+    metadata = metadataStorage.updateMetadata(metadata);
+    try {
+      this.listenerService.broadcast("social.metadata.updated", userIdentityId, metadata);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata update", e);
+    }
+    return metadata;
+
+  }
   
   @Override
   public Metadata deleteMetadataById(long metadataId) {
