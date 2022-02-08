@@ -27,7 +27,7 @@ export default {
   created() {
     if (this.spaceId) {
       this.$spaceService.getSpaceApplications(this.spaceId)
-        .then(applications => 
+        .then(applications =>
           applications.map(app =>  {
             this.spaceApplications.push(app.id);
           })
@@ -39,7 +39,7 @@ export default {
               }
             }
           });
-          document.addEventListener('hideSettingsApps', () => this.displayed = true);
+          document.addEventListener('hideSettingsApps', () => this.displayed = false);
           document.addEventListener('showSettingsApps', () => this.displayed = true);
           const externalComponents = extensionRegistry.loadComponents('external-apps-space-settings').map(component => component.componentOptions.componentImpl);
           this.spaceExternalSettings.push(...externalComponents);
