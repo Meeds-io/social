@@ -241,3 +241,16 @@ extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-f
   vueComponent: Vue.options.components['activity-comment-reply-action'],
   rank: 20,
 });
+
+extensionRegistry.registerExtension('ActivityComposer', 'activity-composer-action', {
+  key: 'poll',
+  rank: 40,
+  resourceBundle: 'locale.portlet.Portlets',
+  labelKey: 'activity.composer.poll.create',
+  description: 'activity.composer.poll.create.description',
+  iconClass: 'createPollComposerIcon',
+  enabled: true,
+  onExecute: () => {
+    return null;
+  }
+});

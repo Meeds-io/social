@@ -69,14 +69,13 @@
               </div>
             </v-app>
           </div>
-
           <div class="composerActions">
             <div
               v-for="action in activityComposerActions"
               :key="action.key"
               :class="`${action.appClass}Action`">
               <div
-                v-if="action.key === 'file' || !activityId"
+                v-if="action.key === 'file' || (!activityId && (action.key !== 'poll' || allowPollActivity))"
                 class="actionItem"
                 @click="executeAction(action, attachments)">
                 <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
@@ -175,6 +174,7 @@ export default {
       filesToDetach: [],
       filesToAttach: [],
       attachmentsAppDrawerOpened: false,
+      allowPollActivity: false
     };
   },
   computed: {
@@ -218,6 +218,9 @@ export default {
     },
   },
   created() {
+    this.$featureService.isFeatureEnabled('poll').then(enabled => {
+      this.allowPollActivity = enabled;
+    });
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
     this.$root.$on('entity-attachments-updated', (attachments) => {
