@@ -330,6 +330,13 @@ public interface SpaceService {
    * @LevelAPI Platform
    */
   void deleteSpace(Space space);
+  /**
+   * Deletes a space without deleting the user's group. When a space is deleted, all of its page navigations and its group will be deleted.
+   *
+   * @param space The space to be deleted.
+   * @LevelAPI Platform
+   */
+  default void deleteSpace(Space space, boolean deleteGroup) {}
 
   /**
    * Adds a user to the list of pending requests for joining a space.

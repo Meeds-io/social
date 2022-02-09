@@ -544,6 +544,14 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public void deleteSpace(Space space) {
+    deleteSpace(space, true);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void deleteSpace(Space space, boolean deleteGroup) {
     try {
       // remove memberships of users with deleted space.
       SpaceUtils.removeMembershipFromGroup(space);
@@ -557,22 +565,23 @@ public class SpaceServiceImpl implements SpaceService {
         identityManager.hardDeleteIdentity(spaceIdentity);
       }
 
-      OrganizationService orgService = getOrgService();
-      UserACL acl = getUserACL();
-      GroupHandler groupHandler = orgService.getGroupHandler();
-      Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
-      List<String> mandatories = acl.getMandatoryGroups();
-      if (deletedGroup != null) {
-        if (!isMandatory(groupHandler, deletedGroup, mandatories)) {
-          SpaceUtils.removeGroup(space);
+      if(deleteGroup) {
+        OrganizationService orgService = getOrgService();
+        UserACL acl = getUserACL();
+        GroupHandler groupHandler = orgService.getGroupHandler();
+        Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
+        List<String> mandatories = acl.getMandatoryGroups();
+        if (deletedGroup != null) {
+          if (!isMandatory(groupHandler, deletedGroup, mandatories)) {
+            SpaceUtils.removeGroup(space);
+          }
+        } else {
+          LOG.warn("deletedGroup is null");
         }
-      } else {
-        LOG.warn("deletedGroup is null");
+
+        //remove pages and group navigation of space
+        SpaceUtils.removePagesAndGroupNavigation(space);
       }
-
-      //remove pages and group navigation of space
-      SpaceUtils.removePagesAndGroupNavigation(space);
-
     } catch (Exception e) {
       LOG.error("Unable delete space: {}. Cause: {}", space.getPrettyName(), e.getMessage());
     }
