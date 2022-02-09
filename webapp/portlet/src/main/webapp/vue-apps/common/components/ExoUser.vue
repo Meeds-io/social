@@ -108,7 +108,7 @@
             icon
             color="primary"
             @click="extension.click(identity)">
-            <v-icon :size="18" :class="extension.additionalClass ? extension.additionalClass : ''">{{ extension.icon2 }} </v-icon>
+            <v-icon :size="18" :class="extension.additionalClass ? extension.additionalClass : ''">{{ extension.class }} </v-icon>
           </v-btn>
           <div
             v-for="extension in enabledWebConferencingComponents"
