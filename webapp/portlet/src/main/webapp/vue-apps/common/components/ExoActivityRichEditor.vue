@@ -141,7 +141,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget';
+      let extraPlugins = 'simpleLink,suggester,widget,attachFile';
       let removePlugins = 'image,maximize,resize';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
@@ -169,7 +169,7 @@ export default {
         allowedContent: true,
         enterMode: 3, // div
         toolbar: [
-          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote', 'attachFile'],
         ],
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
