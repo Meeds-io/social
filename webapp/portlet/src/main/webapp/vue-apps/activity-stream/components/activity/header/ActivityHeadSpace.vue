@@ -2,7 +2,7 @@
   <a
     :id="id"
     :href="url"
-    :class="notClickableLink && 'not-clickable-link hidden-space'"
+    :class="statusStyle"
     class="text-none space-avatar activity-head-space-link">
     <v-avatar
       size="20"
@@ -38,6 +38,13 @@ export default {
   computed: {
     spaceId() {
       return this.space && this.space.id;
+    },
+    statusStyle() {
+      if (this.notClickableLink) {
+        return 'not-clickable-link hidden-space';
+      } else {
+        return 'primary--text';
+      }
     },
     notClickableLink(){
       return this.space.visibility === 'hidden' && !this.space.isMember;
