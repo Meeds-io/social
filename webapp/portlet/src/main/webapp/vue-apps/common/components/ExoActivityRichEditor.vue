@@ -128,7 +128,7 @@ export default {
   methods: {
     initCKEditor: function (reset) {
       this.inputVal = this.replaceWithSuggesterClass(this.value);
-      
+
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -186,7 +186,7 @@ export default {
                   $(this).closest('[data-atwho-at-query]').remove();
                 });
               });
-        
+
             self.setEditorReady();
 
             if (self.autofocus) {
@@ -311,7 +311,7 @@ export default {
         this.templateParams.title = '-';
         this.templateParams.registeredKeysForProcessor = '-';
       }
-    }
-    }
+    },
+  }
 };
 </script>
