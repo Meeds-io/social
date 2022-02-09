@@ -141,8 +141,8 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,resize';
-      let removePlugins = 'image,maximize';
+      let extraPlugins = 'simpleLink,suggester,widget';
+      let removePlugins = 'image,maximize,resize';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
@@ -175,7 +175,7 @@ export default {
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
         autoGrow_onStartup: false,
-        autoGrow_maxHeight: 300,
+        autoGrow_maxHeight: 1000,
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -274,7 +274,6 @@ export default {
         const url = window.decodeURIComponent(this.templateParams.link);
         this.templateParams.comment = window.decodeURIComponent(message)
           .replace(`<oembed>${url}</oembed>`, '');
-        this.endfocus();
       }
     },
     installOembed: function(embedResponse) {
@@ -312,31 +311,7 @@ export default {
         this.templateParams.title = '-';
         this.templateParams.registeredKeysForProcessor = '-';
       }
-    },
-    endfocus: function(){
-      
-      this.editor.focus();
-
-      const s = this.editor.getSelection(); // getting selection
-      let selected_ranges = s.getRanges(); // getting ranges
-      let node = selected_ranges[0].startContainer; // selecting the starting node
-      const parents = node.getParents(true);
-
-      node = parents[parents.length - 2].getFirst();
-
-      /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
-      while (true) {
-        const x = node.getNext();
-        if (x == null) {
-          break;
-        }
-        node = x;
-      }
-      s.selectElement(node);
-      selected_ranges = s.getRanges();
-      selected_ranges[0].collapse(false);  //  false collapses the range to the end of the selected node, true before the node.
-      s.selectRanges(selected_ranges);  
     }
-  }
+    }
 };
 </script>
