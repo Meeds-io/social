@@ -44,6 +44,7 @@ export default {
         'gamification/rules': 'gamification',
         'gamification/badges': 'gamification',
         'gamification/domains': 'gamification',
+        'gamification/realizations': 'gamification',
         // security
         'dlp-quarantine': 'security',
         'transferRules': 'security',
