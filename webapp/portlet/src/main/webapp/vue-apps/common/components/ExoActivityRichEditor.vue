@@ -175,7 +175,7 @@ export default {
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
         autoGrow_onStartup: false,
-        autoGrow_maxHeight: 300,
+        autoGrow_maxHeight: 1000,
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
