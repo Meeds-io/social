@@ -41,9 +41,6 @@
         <module>jquery</module>
         <as>$</as>
       </depends>
-      <depends>
-        <module>userPopupPlugin</module>
-      </depends>
     </module>
   </portlet>
 
@@ -220,9 +217,6 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
-      <depends>
-        <module>userPopupPlugin</module>
-      </depends>
     </module>
   </portlet>
 
@@ -257,9 +251,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>userPopupPlugin</module>
       </depends>
     </module>
   </portlet>
@@ -466,9 +457,6 @@
         <as>$</as>
       </depends>
       <depends>
-        <module>userPopupPlugin</module>
-      </depends>
-      <depends>
         <module>bts_tooltip</module>
       </depends>
     </module>
@@ -523,9 +511,6 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
-      <depends>
-        <module>userPopupPlugin</module>
-      </depends>
     </module>
   </portlet>
 
@@ -560,9 +545,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>userPopupPlugin</module>
       </depends>
     </module>
   </portlet>
@@ -723,9 +705,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>userPopupPlugin</module>
       </depends>
     </module>
   </portlet>
@@ -889,9 +868,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>userPopupPlugin</module>
       </depends>
     </module>
   </portlet>
@@ -1311,9 +1287,6 @@
       <module>extensionRegistry</module>
     </depends>
     <depends>
-      <module>userPopupPlugin</module>
-    </depends>
-    <depends>
       <module>spacePopupPlugin</module>
     </depends>
     <depends>
@@ -1356,9 +1329,6 @@
     <depends>
       <module>extensionRegistry</module>
     </depends>
-    <depends>
-      <module>userPopupPlugin</module>
-    </depends>
   </module>
 
   <module>
@@ -1388,9 +1358,6 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
-    </depends>
-    <depends>
-      <module>userPopupPlugin</module>
     </depends>
   </module>
 
@@ -1671,9 +1638,6 @@
       <as>$</as>
     </depends>
     <depends>
-      <module>userPopupPlugin</module>
-    </depends>
-    <depends>
       <module>spacePopupPlugin</module>
     </depends>
   </module>
@@ -1724,19 +1688,6 @@
     <script>
       <path>/js/eXo/underscore.js</path>
     </script>
-  </module>
-  <module>
-    <name>userPopupPlugin</name>
-    <script>
-      <path>/js/eXo/UIUserProfilePopup.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
   </module>
   <module>
     <name>spacePopupPlugin</name>
