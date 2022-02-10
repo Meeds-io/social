@@ -14,7 +14,10 @@
         loading="lazy"
         role="presentation">
     </v-avatar>
-    <div v-if="displayName || $slots.subTitle" :class="!subtitleNewLine && 'd-flex'" class="pull-left text-truncate ms-2">
+    <div
+      v-if="displayName || $slots.subTitle"
+      :class="!subtitleNewLine && 'd-flex'"
+      class="pull-left text-truncate ms-2">
       <p
         v-if="displayName"
         :class="fullnameStyle"

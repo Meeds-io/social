@@ -5,17 +5,12 @@
     </template>
     <template v-if="space && space.managers" slot="content">
       <v-layout column class="ma-3">
-        <v-flex
+        <exo-user
           v-for="manager in space.managers"
           :key="manager.id"
-          class="flex-grow-1 text-truncate mb-1">
-          <exo-user-avatar
-            :username="manager.username"
-            :fullname="manager.fullname"
-            :title="manager.fullname"
-            :external="manager.isExternal || manager.external"
-            :retrieve-extra-information="false" />
-        </v-flex>
+          :identity="manager"
+          :extra-class="'my-2'"
+          popover />
       </v-layout>
     </template>
   </exo-drawer>
