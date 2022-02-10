@@ -5,22 +5,17 @@
         <v-card-title class="title center">
           {{ $t('header.label') }}
         </v-card-title>
-        <ul id="onlineList" class="gallery uiContentBox">
-          <li
+        <div id="onlineList" class="d-flex align-center justify-center flex-wrap  py-3">
+          <exo-user
             v-for="user in users"
             :key="user.id"
-            :id="user.id">
-            <a :href="user.href" class="avatarXSmall">
-              <v-avatar size="37" class="mx-1">
-                <img
-                  :src="user.avatar"
-                  class="ma-auto object-fit-cover"
-                  loading="lazy"
-                  role="presentation">
-              </v-avatar>
-            </a>
-          </li>
-        </ul>
+            :identity="user"
+            :size="36"
+            :popover-left-position="true"
+            popover
+            avatar 
+            class="mx-1" />
+        </div>
       </div>
     </div>
   </v-app>
@@ -50,9 +45,6 @@ export default {
     document.onreadystatechange = () => {
       if (document.readyState === 'complete' && !this.loaded) {
         this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
-        this.$nextTick().then(() => {
-          this.initPopup();
-        });
         setInterval(function () {
           this.retrieveOnlineUsers();
         }.bind(this), this.delay);
@@ -65,9 +57,6 @@ export default {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
         .then(data => {
           this.initOnlineUsers(data && data.users || []);
-          this.$nextTick().then(() => {
-            this.initPopup();
-          });
         });
     },
     initOnlineUsers(users) {
@@ -80,24 +69,6 @@ export default {
         this.users = [];
       }
     },
-    initPopup() {
-      const restUrl = `//${this.$spacesConstants.HOST_NAME}${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_REST}/social/people/getPeopleInfo/{0}.json`;
-      if (!this.labels) {
-        this.labels = {
-          youHaveSentAnInvitation: this.$t('message.label'),
-        };
-      }
-      $('#onlineList').find('a').each(function (idx, el) {
-        $(el).userPopup({
-          restURL: restUrl,
-          labels: this.labels,
-          content: false,
-          defaultPosition: 'left',
-          keepAlive: true,
-          maxWidth: '240px'
-        });
-      });
-    }
   }
 };
 </script>

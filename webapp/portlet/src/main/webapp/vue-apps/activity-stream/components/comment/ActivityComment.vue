@@ -17,15 +17,21 @@
     </div>
     <template v-else>
       <v-list-item :class="highlightClass" class="pa-0 mb-4 width-fit-content">
-        <activity-head-user
+        <exo-user
           :identity="posterIdentity"
           :size="33"
-          avatar
+          popover
+          avatar 
           class="mt-0 mb-auto me-2 flex-grow-0" />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
           <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
             <v-list-item-title class="pt-1 font-weight-bold subtitle-2 d-flex justify-space-between">
-              <activity-head-user :identity="posterIdentity" />
+              <exo-user
+                :identity="posterIdentity"
+                fullname
+                popover
+                bold-title
+                link-style />
               <activity-comment-menu
                 :activity="activity"
                 :comment="comment"
@@ -159,7 +165,7 @@ export default {
       return this.highlightReplies && 'light-grey-background' || '';
     },
     posterIdentity() {
-      return this.comment && this.comment.identity;
+      return this.comment && this.comment.identity && this.comment.identity.profile && this.comment.identity.profile.dataEntity;
     },
     isEditingComment() {
       return this.commentEditing && this.commentEditing.id === this.comment.id;
