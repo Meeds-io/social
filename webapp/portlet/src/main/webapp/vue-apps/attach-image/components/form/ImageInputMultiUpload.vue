@@ -51,10 +51,12 @@ export default {
     if (!this.disablePaste) {
       document.addEventListener('paste', this.handlePasteFiles);
     }
+    document.addEventListener('drop-files', this.handleDropFiles);
   },
   beforeDestroy() {
     document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
     document.removeEventListener('paste', this.handlePasteFiles);
+    document.removeEventListener('drop-files', this.handleDropFiles);
   },
   methods: {
     reset() {
@@ -174,11 +176,26 @@ export default {
         }
         Promise.all(promises).then(() => {
           if (imageItems.length) {
+            const imageItems = [];
             this.uploadFiles(imageItems);
           }
         });
       }
     },
+    handleDropFiles(event) {
+      console.warn('event',event.detail);
+      const files = event?.detail;
+      if (files?.length) {
+        const imageItems = [];
+        for (const file of files) {
+          console.warn('file', file);
+          if (file?.type?.includes('image/')) {
+            imageItems.push(file);
+          }
+        }
+        this.uploadFiles(imageItems);
+      }
+    }
   }
 };
 </script>

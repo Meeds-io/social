@@ -391,3 +391,49 @@ extensionRegistry.registerComponent('CommentContent', 'comment-content-extension
   vueComponent: Vue.options.components['activity-image-attachments'],
   rank: 15,
 });
+
+extensionRegistry.registerComponent('ActivityComposerDropZone', 'activity-composer-drop-zone', {
+  id: 'fileDropZone',
+  dropFiles: (el) => {
+    let counter = 0;
+    ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
+      el.addEventListener(event, (e) => {
+        if (e?.dataTransfer) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+    });
+    ['dragenter', 'dragstart'].forEach((event) => {
+      el.addEventListener(event, (e) => {
+        if (e?.dataTransfer) {
+          counter++;
+          document.dispatchEvent(new CustomEvent('show-drop-zone'));
+        }
+      });
+    });
+    ['dragleave', 'dragend'].forEach((event) => {
+      el.addEventListener(event, (e) => {
+        if (e?.dataTransfer) {
+          counter--;
+          if (counter === 0) {
+            document.dispatchEvent(new CustomEvent('hide-drop-zone'));
+          }
+        }
+      });
+    });
+    ['drop'].forEach((event) => {
+      el.addEventListener(event, (e) => {
+        if (e?.dataTransfer) {
+          counter--;
+          if (counter === 0) {
+            document.dispatchEvent(new CustomEvent('drop-files',{detail: e?.dataTransfer.files || []}));
+            document.dispatchEvent(new CustomEvent('hide-drop-zone'));
+          }
+        }
+      });
+    });
+  },
+  vueComponent: Vue.options.components['file-drop-zone-overlay'],
+  rank: 20,
+});

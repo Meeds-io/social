@@ -64,6 +64,10 @@
           </extension-registry-components>
         </v-card-text>
       </v-card>
+      <extension-registry-components
+        :params="dropFilesParams"
+        name="ActivityComposerDropZone"
+        type="activity-composer-drop-zone" />
     </template>
     <template slot="footer">
       <div class="d-flex">
@@ -102,6 +106,7 @@ export default {
       activityType: null,
       loading: false,
       attachments: null,
+      component: null
     };
   },
   computed: {
@@ -146,6 +151,14 @@ export default {
     },
     metadataObjectType() {
       return this.templateParams?.metadataObjectType || 'activity';
+    },
+    attachmentEnabled() {
+      return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
+    },
+    dropFilesParams() {
+      return {
+        dropEnabled: this.attachmentEnabled
+      };
     },
   },
   watch: {
@@ -203,6 +216,10 @@ export default {
         this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
         document.dispatchEvent(new CustomEvent('message-composer-opened'));
+        if (this.attachmentEnabled) {
+          const dropZone = document.getElementById('activityComposerDrawer');
+          this.dropFiles(dropZone);
+        }
       });
     },
     close() {
@@ -304,6 +321,24 @@ export default {
       } else {
         return Promise.resolve(activity);
       }
+    },
+    dropFiles(el) {
+      const componentIsLoaded = extensionRegistry.loadComponents('ActivityComposerDropZone') || [];
+      if (componentIsLoaded?.length) {
+        const component = componentIsLoaded[0];
+        if (component?.componentOptions?.dropFiles) {
+          component.componentOptions.dropFiles(el);
+        }
+      }
+      /*console.warn('componentIsLoaded', componentIsLoaded);
+      const dropFilesOperations = extensionRegistry.loadExtensions('activity', 'dropFiles');
+      if (dropFilesOperations?.length) {
+        dropFilesOperations.forEach(extension => {
+          if (extension.dropFiles) {
+            extension.dropFiles(el);
+          }
+        });
+      }*/
     },
     cleareActivityMessage() {
       if (localStorage.getItem('activity-message-activityComposer')) {
