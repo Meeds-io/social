@@ -51,6 +51,9 @@ for (const key in components) {
 }
 
 document.addEventListener('readystatechange', function (event){
+  if (!eXo.env.portal.onLoad) {
+    return;
+  }
   if (event.target.readyState === 'interactive') {
     if (eXo.developing) {
       // eslint-disable-next-line no-console

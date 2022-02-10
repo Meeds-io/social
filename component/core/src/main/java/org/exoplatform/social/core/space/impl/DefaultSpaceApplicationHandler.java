@@ -168,8 +168,14 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       List<SpaceApplication> spaceApplications = spaceTemplate.getSpaceApplicationList();
       if (spaceApplications != null) {
         for (SpaceApplication spaceApplication : spaceApplications) {
-          createPageNodeFromApplication(navContext, homeNodeCtx, space, spaceApplication, null, false);
-          spaceService.installApplication(space, spaceApplication.getPortletName());
+          try {
+            createPageNodeFromApplication(navContext, homeNodeCtx, space, spaceApplication, null, false);
+            spaceService.installApplication(space, spaceApplication.getPortletName());
+          } catch (Exception e) {
+            LOG.warn("Can't install application {} for space {}, ignore adding dedicated page",
+                     spaceApplication.getPortletName(),
+                     space.getDisplayName());
+          }
         }
       }
       navService.saveNode(parentNodeCtx, null);
