@@ -131,7 +131,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
 
         Integer createNewAccount = (Integer)req.getSession().getAttribute(SESSION_ATTR_REGISTER_NEW_ACCOUNT);
         if(detectedUser != null && createNewAccount == null) {
-            RequestDispatcher invitation = context.getRequestDispatcher("/login/jsp/oauth_invitation.jsp");
+            RequestDispatcher invitation = context.getRequestDispatcher("/WEB-INF/jsp/login/oauth_invitation.jsp");
             if(invitation != null) {
                 invitation.forward(req, res);
                 return;
@@ -289,7 +289,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
         }
         req.setAttribute("register_errors", errors);
         req.setAttribute("register_error_fields", errorFields);
-        getContext().getRequestDispatcher("/login/jsp/oauth_register.jsp").forward(req, res);
+        getContext().getRequestDispatcher("/WEB-INF/jsp/login/oauth_register.jsp").forward(req, res);
     }
 
     private void validateUser(User user, String password2, OrganizationService orgService,
