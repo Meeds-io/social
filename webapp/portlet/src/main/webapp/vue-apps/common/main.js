@@ -71,18 +71,20 @@ window.Object.defineProperty(Vue.prototype, '$spacesConstants', {
   value: spacesConstants,
 });
 
-window.Object.defineProperty(Vue.prototype, '$currentUserIdentity', {
-  value: {
-    id: eXo.env.portal.userIdentityId,
-    username: eXo.env.portal.userName,
-  },
-});
-identityService.getIdentityById(eXo.env.portal.userIdentityId)
-  .then(identity => {
-    if (identity) {
-      Object.assign(Vue.prototype.$currentUserIdentity, identity);
-    }
+if (eXo.env.portal.userIdentityId) {
+  window.Object.defineProperty(Vue.prototype, '$currentUserIdentity', {
+    value: {
+      id: eXo.env.portal.userIdentityId,
+      username: eXo.env.portal.userName,
+    },
   });
+  identityService.getIdentityById(eXo.env.portal.userIdentityId)
+    .then(identity => {
+      if (identity) {
+        Object.assign(Vue.prototype.$currentUserIdentity, identity);
+      }
+    });
+}
 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -95,7 +97,7 @@ const urls = [
 ];
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-  const parentElement = document.querySelector('#MiddleToolBarChildren');
+  const parentElement = document.querySelector('#MiddleToolBarChildren') || document.body;
   let drawersOverlayElement = parentElement.querySelector('#drawers-overlay');
   if (!drawersOverlayElement) {
     drawersOverlayElement = document.createElement('div');
