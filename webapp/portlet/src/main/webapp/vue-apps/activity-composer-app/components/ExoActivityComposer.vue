@@ -10,7 +10,8 @@
       ref="activityComposerApp"
       class="activityComposerApp"
       drawer-width="33%"
-      right>
+      right
+      @closed="closeMessageComposer">
       <template
         slot="title">
         <div class="header">
@@ -204,7 +205,6 @@ export default {
     },
   },
   created() {
-    document.addEventListener('attach-file-custom-plugins', this.openAttachmentDrawer);
     document.addEventListener('activity-composer-edit-activity', this.editActivity);
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
     this.$root.$on('entity-attachments-updated', (attachments) => {
@@ -408,6 +408,7 @@ export default {
       this.showErrorMessage = false;
       this.message = '';
       this.resetEdited();
+      document.addEventListener('attach-file-custom-plugins', this.openAttachmentDrawer);
     },
     refreshActivityStream() {
       const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
@@ -421,6 +422,7 @@ export default {
       this.attachments = [];
       this.activityId = null;
       this.$refs[this.ckEditorId].unload();
+      document.removeEventListener('attach-file-custom-plugins', this.openAttachmentDrawer);
     },
     executeAction(action, attachments) {
       executeExtensionAction(action, this.$refs[action.key], attachments);
