@@ -16,114 +16,98 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 --%>
-<%@page import="org.exoplatform.web.ControllerContext"%>
-<%@page import="org.exoplatform.portal.resource.SkinConfig"%>
-<%@page import="org.exoplatform.portal.resource.SkinService"%>
-<%@ page import="org.exoplatform.portal.branding.BrandingService"%>
-<%@ page import="java.net.URLEncoder"%>
-<%@ page import="javax.servlet.http.Cookie"%>
-<%@ page import="org.exoplatform.web.login.LoginError"%>
+<%@ page language="java"%>
+<%@ page import="java.util.Set"%>
+<%@ page import="java.util.List"%>
+<%@ page import="org.gatein.portal.controller.resource.ResourceRequestHandler"%>
 <%@ page import="org.exoplatform.container.PortalContainer"%>
-<%@ page
-  import="org.exoplatform.services.resources.ResourceBundleService"%>
 <%@ page import="org.gatein.security.oauth.spi.OAuthProviderType"%>
-<%@ page
-  import="org.gatein.security.oauth.spi.OAuthProviderTypeRegistry"%>
-<%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.exoplatform.services.resources.LocaleConfigService"%>
+<%@ page import="org.gatein.security.oauth.spi.OAuthProviderTypeRegistry"%>
 <%@ page import="org.exoplatform.services.resources.LocaleConfig"%>
 <%@ page import="org.exoplatform.services.resources.Orientation"%>
-<%@ page import="org.gatein.common.text.EntityEncoder"%>
-<%@ page language="java"%>
 <%
-  String contextPath = request.getContextPath() ;
-  ControllerContext controllerContext = (ControllerContext) request.getAttribute("controllerContext");
-
-  String username = request.getParameter("username");
-  if(username == null) {
-    username = "";
-  } else {
-    EntityEncoder encoder = EntityEncoder.FULL;
-    username = encoder.encode(username);
-  }
-
-  PortalContainer portalContainer = PortalContainer.getInstance();
-  BrandingService brandingService = portalContainer.getComponentInstanceOfType(BrandingService.class);
-  String brandingPrimaryColor = brandingService.getThemeColors().get("primaryColor");
-  String brandingThemeUrl = "/" + PortalContainer.getCurrentPortalContainerName() + "/" + PortalContainer.getCurrentRestContextName() + "/v1/platform/branding/css?v=" + brandingService.getLastUpdatedTime();
-  String logo = "";
-  if (brandingService.getLogo() != null) {
-    byte[] logoData = brandingService.getLogo().getData();
-    byte[] encodedLogoData = Base64.getEncoder().encode(logoData);
-    logo = "data:image/png;base64," + new String(encodedLogoData, "UTF-8");
-  }
-
-  SkinService skinService = portalContainer.getComponentInstanceOfType(SkinService.class);
-  String skinName = skinService.getDefaultSkin();
-  SkinConfig skin = skinService.getSkin("portal/login", skinName);
-  String loginCssPath = "";
-  if(skin != null) {
-    loginCssPath = skin.getCSSPath()+"?v="+ResourceRequestHandler.VERSION;
-  } else {
-    loginCssPath = skinService.getSkin("portal/login", "Enterprise").getCSSPath()+"?v="+ResourceRequestHandler.VERSION;
-  }
-
-  Collection<SkinConfig> portalSkins = new ArrayList<>(skinService.getPortalSkins(skinName));
-  Collection<SkinConfig> customSkins = new ArrayList<>(skinService.getCustomPortalSkins(skinName));
-
-  ResourceBundleService service = portalContainer.getComponentInstanceOfType(ResourceBundleService.class);
-  ResourceBundle res = service.getResourceBundle(service.getSharedResourceBundleNames(), request.getLocale()) ;
-
-  PasswordRecoveryService passRecoveryServ = portalContainer.getComponentInstanceOfType(PasswordRecoveryService.class);
-  String forgotPasswordPath = passRecoveryServ.getPasswordRecoverURL(null, null);
-
-  //
-  String email = request.getParameter("email") != null ? request.getParameter("email") : "";
-  String uri = (String)request.getAttribute("org.gatein.portal.login.initial_uri");
-  boolean error = request.getAttribute("org.gatein.portal.login.error") != null;
-  boolean manyUsersWithSameEmailError = request.getAttribute("org.gatein.portal.manyUsersWithSameEmail.error") != null;
-  String errorParam = (String)request.getParameter(org.exoplatform.web.login.LoginError.ERROR_PARAM);
-  LoginError errorData = null;
-  if (errorParam != null) {
-      errorData = LoginError.parse(errorParam);
-  }
-  
-  response.setCharacterEncoding("UTF-8"); 
+  response.setCharacterEncoding("UTF-8");
   response.setContentType("text/html; charset=UTF-8");
 
-  String browserLanguage = request.getLocale() == null ? "en" : request.getLocale().getLanguage();
-  LocaleConfigService localeConfigService = portalContainer.getComponentInstanceOfType(LocaleConfigService.class);
-  LocaleConfig localeConfig = localeConfigService.getLocaleConfig(browserLanguage);
-  Orientation orientation = localeConfig == null ? Orientation.LT : localeConfig.getOrientation();
+  String contextPath = request.getContextPath();
+
+  // Styles
+  List<String> skinUrls = (List<String>) request.getAttribute("skinUrls");
+
+  // Scripts
+  List<String> headerScripts = (List<String>) request.getAttribute("headerScripts");
+  Set<String> pageScripts = (Set<String>) request.getAttribute("pageScripts");
+  String jsConfig = (String) request.getAttribute("jsConfig");
+  String inlineScripts = (String) request.getAttribute("inlineScripts");
+
+  // Branding
+  String brandingPrimaryColor = (String) request.getAttribute("brandingPrimaryColor");
+  String brandingThemeUrl = (String) request.getAttribute("brandingThemeUrl");
+
+  // Locale
+  LocaleConfig localeConfig = (LocaleConfig) request.getAttribute("localeConfig");
+  String browserLanguage = localeConfig.getLocale().getLanguage();
+  Orientation orientation = localeConfig.getOrientation();
   String direction = orientation.isLT() ? "ltr" : "rtl";
 %>
-<!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-  xml:lang="<%=browserLanguage%>" lang="<%=browserLanguage%>"
+  xml:lang="<%=browserLanguage%>"
+  lang="<%=browserLanguage%>"
   dir="<%=direction%>">
 <head>
-<title><%=res.getString("UILoginForm.label.Signin")%></title>
+  <%-- Embedded Title that will change once page loaded --%>
+  <title>Login</title>
   <!-- Metadatas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="theme-color" content="<%=brandingPrimaryColor%>" />
-  <link rel="shortcut icon" type="image/x-icon" href="<%=contextPath%>/favicon.ico" />
-
+  <!-- Preload Styles & Fonts & Scripts for HTTP/2 optimizations -->
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/materialdesignicons-webfont.woff2?v=5.9.55" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/Ionic/ionicons.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/PLF-FONT-ICONS.ttf?-m9uidt" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" as="style" type="text/css" href="<%=brandingThemeUrl%>" />
+  <% for(String skinUrl : skinUrls) { %>
+  <link rel="preload" href= "<%=skinUrl%>" as="style" type="text/css" />
+  <% } %>
+  <% for (String url : pageScripts) { %>
+  <link rel="preload" href= "<%=url%>" as="script" type="text/javascript" />
+  <% } %>
   <!-- Styles -->
-  <link id="brandingSkin" rel="stylesheet" type="text/css" href="<%=brandingThemeUrl%>">
-  <% for(SkinConfig skinConfig : portalSkins) {
-       def url = skinConfig.createURL(controllerContext);
-       url.setOrientation(orientation); %>
-  <link id="${skinConfig.id}" rel="stylesheet" type="text/css" href="$url" skin-type="portal-skin" />
+  <link rel="shortcut icon" type="image/x-icon" href="<%=contextPath%>/favicon.ico" />
+  <link id="brandingSkin" rel="stylesheet" type="text/css" href="<%=brandingThemeUrl%>" />
+  <% for(String skinUrl : skinUrls) { %>
+  <link rel="stylesheet" type="text/css" href="<%=skinUrl%>" />
   <% } %>
-  <link href="<%=loginCssPath%>" rel="stylesheet" type="text/css"/>
-  <% for(SkinConfig customSkin : customSkins) {
-       def url = customSkin.createURL(controllerContext);
-       url.setOrientation(orientation); %>
-  <link id="${customSkin.id}" rel="stylesheet" type="text/css" href="$url" skin-type="custom-skin" />
+  <!-- Scripts -->
+  <script type="text/javascript">
+   var require = <%= jsConfig %>;
+  </script>
+  <% for (String url : headerScripts) { %>
+  <script type="text/javascript" src="<%= url %>"></script>
   <% } %>
+  <script type="text/javascript">
+   require(['SHARED/bootstrap'], function() {
+     eXo.env.portal.context = "<%=contextPath%>";
+     eXo.env.portal.containerName = "<%=PortalContainer.getInstance().getName()%>";
+     eXo.env.portal.language='<%= browserLanguage %>';
+     eXo.env.portal.orientation='<%= direction %>';
+     eXo.env.portal.rest = '<%= PortalContainer.getCurrentRestContextName() %>';
+     eXo.env.server.context = "<%=contextPath%>";
+     eXo.env.client.assetsVersion = "<%=ResourceRequestHandler.VERSION%>";
+     eXo.env.portal.vuetifyPreset = {
+       dark: true,
+       silent: true,
+       iconfont: 'mdi',
+       rtl: eXo.env.portal.orientation === 'rtl',
+       theme: { disable: true },
+     };
+     <%=inlineScripts%>;
+   });
+  </script>
 </head>
 <body>
   <div class="VuetifyApp">
