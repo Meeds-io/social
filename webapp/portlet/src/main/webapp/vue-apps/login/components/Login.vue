@@ -19,7 +19,7 @@
                   v-if="errorCode"
                   class="signinFail"
                   role="alert">
-                  <i class="uiIconError"></i> {{ errorMessage }}
+                  <i class="errorIcon uiIconError"></i>{{ errorMessage }}
                 </div>
                 <div class="centerLoginContent">
                   <form
@@ -79,12 +79,29 @@
                     </div>
                   </form>
                 </div>
+                <div v-if="oAuthEnabled">
+                  <div id="social-pane">
+                    <div class="signInDelimiter">
+                      {{ $t('UILoginForm.label.Delimiter') }}
+                    </div>
+                    <div id="social-login">
+                      <portal-oauth-login
+                        v-for="oAuthProvider in oAuthProviders"
+                        :key="oAuthProvider.key"
+                        :provider="oAuthProvider"
+                        :rememberme="rememberme" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div class="brandingImageContent">
-          <img :src="brandingLogo" class="brandingImage" role="presentation">
+          <img
+            :src="brandingLogo"
+            class="brandingImage"
+            role="presentation">
         </div>
       </v-container>
     </v-main>
@@ -114,11 +131,23 @@ export default {
     brandingLogo() {
       return this.params && this.params.brandingLogo;
     },
+    oAuthEnabled() {
+      return this.params && this.params.oAuthEnabled;
+    },
+    oAuthProviderTypes() {
+      return this.params && this.params.oAuthProviderTypes || [];
+    },
+    oAuthProviders() {
+      return this.params && this.params.oAuthProviderTypes && this.params.oAuthProviderTypes.map(key => ({
+        key,
+        url: this.params[`oAuthInitURL-${key}`],
+      })) || [];
+    },
     errorCode() {
       return this.params && this.params.errorCode;
     },
     errorMessage() {
-      return this.errorCode && this.$t(`portal.login.${this.errorCode}`);
+      return this.errorCode && this.$t(`UILoginForm.label.${this.errorCode}`);
     },
   },
 };
