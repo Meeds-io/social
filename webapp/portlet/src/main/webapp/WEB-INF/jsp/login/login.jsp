@@ -21,8 +21,6 @@
 <%@ page import="java.util.List"%>
 <%@ page import="org.gatein.portal.controller.resource.ResourceRequestHandler"%>
 <%@ page import="org.exoplatform.container.PortalContainer"%>
-<%@ page import="org.gatein.security.oauth.spi.OAuthProviderType"%>
-<%@ page import="org.gatein.security.oauth.spi.OAuthProviderTypeRegistry"%>
 <%@ page import="org.exoplatform.services.resources.LocaleConfig"%>
 <%@ page import="org.exoplatform.services.resources.Orientation"%>
 <%
@@ -105,6 +103,7 @@
        rtl: eXo.env.portal.orientation === 'rtl',
        theme: { disable: true },
      };
+     eXo.developing = <%=org.exoplatform.commons.utils.PropertyManager.isDevelopping()%>;
      <%=inlineScripts%>;
    });
   </script>
