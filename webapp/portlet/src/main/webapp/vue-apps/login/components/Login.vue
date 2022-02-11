@@ -1,3 +1,23 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-app>
     <v-main>
@@ -21,6 +41,12 @@
                   role="alert">
                   <i class="errorIcon uiIconError"></i>{{ errorMessage }}
                 </div>
+                <extension-registry-components
+                  :params="extensionParams"
+                  name="LoginHeader"
+                  type="login-header"
+                  parent-element="div"
+                  element="div" />
                 <div class="centerLoginContent">
                   <form
                     name="loginForm"
@@ -79,20 +105,12 @@
                     </div>
                   </form>
                 </div>
-                <div v-if="oAuthEnabled">
-                  <div id="social-pane">
-                    <div class="signInDelimiter">
-                      {{ $t('UILoginForm.label.Delimiter') }}
-                    </div>
-                    <div id="social-login">
-                      <portal-oauth-login
-                        v-for="oAuthProvider in oAuthProviders"
-                        :key="oAuthProvider.key"
-                        :provider="oAuthProvider"
-                        :rememberme="rememberme" />
-                    </div>
-                  </div>
-                </div>
+                <extension-registry-components
+                  :params="extensionParams"
+                  name="LoginFooter"
+                  type="login-footer"
+                  parent-element="div"
+                  element="div" />
               </div>
             </div>
           </div>
@@ -131,24 +149,24 @@ export default {
     brandingLogo() {
       return this.params && this.params.brandingLogo;
     },
-    oAuthEnabled() {
-      return this.params && this.params.oAuthEnabled;
-    },
-    oAuthProviderTypes() {
-      return this.params && this.params.oAuthProviderTypes || [];
-    },
-    oAuthProviders() {
-      return this.params && this.params.oAuthProviderTypes && this.params.oAuthProviderTypes.map(key => ({
-        key,
-        url: this.params[`oAuthInitURL-${key}`],
-      })) || [];
-    },
     errorCode() {
       return this.params && this.params.errorCode;
     },
     errorMessage() {
       return this.errorCode && this.$t(`UILoginForm.label.${this.errorCode}`);
     },
+    extensionParams() {
+      return {
+        params: this.params,
+        rememberme: this.rememberme,
+      };
+    },
+  },
+  created() {
+    document.title = this.$t('UILoginForm.label.login');
+  },
+  mounted() {
+    this.$root.$applicationLoaded();
   },
 };
 </script>
