@@ -43,6 +43,15 @@ public interface MetadataService {
    * @return created {@link Metadata}
    */
   Metadata createMetadata(Metadata metadata, long userIdentityId);
+
+  /**
+   * Updates a {@link Metadata} object
+   *
+   * @param metadata {@link Metadata}
+   * @param userIdentityId {@link Identity} identifier of the creator
+   * @return updated {@link Metadata}
+   */
+  Metadata updateMetadata(Metadata metadata, long userIdentityId);
   
   /**
    * Deletes a {@link Metadata} by a given {@link Metadata} identifier
