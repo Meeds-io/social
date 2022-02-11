@@ -16,10 +16,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Login from './components/Login.vue';
+import LoginOAuthProviders from './components/LoginOAuthProviders.vue';
+import LoginOAuthProviderLink from './components/LoginOAuthProviderLink.vue';
 
 const components = {
-  'portal-login': Login,
+  'portal-login-oauth-providers': LoginOAuthProviders,
+  'portal-login-oauth-provider-link': LoginOAuthProviderLink,
 };
 
 for (const key in components) {
