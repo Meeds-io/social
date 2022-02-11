@@ -74,13 +74,16 @@ export default {
       if (this.empty) {
         return this.$t('profileWorkExperiences.date');
       } else if (this.experience.isCurrent && this.experience.startDate) {
-        const startDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
+        const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+        const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
         return this.$t('profileWorkExperiences.since', {
           0: startDate,
         });
       } else {
-        const startDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.startDate), this.dateFormat);
-        const endDate = this.$dateUtil.formatDateObjectToDisplay(new Date(this.experience.endDate), this.dateFormat);
+        const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+        const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
+        const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
+        const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
         return this.$t('profileWorkExperiences.fromTo', {
           0: startDate,
           1: endDate,
