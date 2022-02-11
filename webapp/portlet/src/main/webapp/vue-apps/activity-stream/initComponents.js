@@ -10,8 +10,6 @@ import ActivityStreamList from './components/activity/list/ActivityStreamList.vu
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
-import ActivityHeadSpace from './components/activity/header/ActivityHeadSpace.vue';
-import ActivityHeadUser from './components/activity/header/ActivityHeadUser.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
 import ActivityBody from './components/activity/content/ActivityBody.vue';
@@ -36,7 +34,6 @@ import ActivityCommentTime from './components/comment/footer/ActivityCommentTime
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
-import SpacePopupActions from './components/activity/header/popupActions/SpacePopupActions.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -51,8 +48,6 @@ const components = {
   'activity-stream-activity': ActivityStreamActivity,
   'activity-stream-loader': ActivityStreamLoader,
   'activity-head': ActivityHead,
-  'activity-head-space': ActivityHeadSpace,
-  'activity-head-user': ActivityHeadUser,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
   'activity-body': ActivityBody,
@@ -77,7 +72,6 @@ const components = {
   'activity-comment-reply-action': ActivityCommentReplyAction,
   'activity-comment-like-action': ActivityCommentLikeAction,
   'activity-comment-menu': ActivityCommentMenu,
-  'space-popup-actions': SpacePopupActions
 };
 
 for (const key in components) {

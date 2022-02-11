@@ -118,23 +118,7 @@ export default {
       return this.user && this.user.profile || `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}/`;
     },
   },
-  mounted() {
-    if (this.user && this.user.username) {
-      // TODO disable tiptip because of high CPU usage using its code
-      this.initTiptip();
-    }
-  },
   methods: {
-    initTiptip() {
-      this.$nextTick(() => {
-        $(`.${this.userItemClass}`).userPopup({
-          restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
-          userId: this.user.username,
-          keepAlive: true,
-          maxWidth: '420px',
-        });
-      });
-    },
     acceptToConnect() {
       this.sendingAction = true;
       this.$userService.confirm(this.user.username)
