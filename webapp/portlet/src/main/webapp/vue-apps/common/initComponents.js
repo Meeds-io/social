@@ -45,7 +45,7 @@ const components = {
   'extension-registry-components': ExtensionRegistryComponents,
   'dynamic-html-element': DynamicHTMLElement,
   'exo-group-suggester': ExoGroupSuggester,
-  'favorite-button': FavoriteButton,
+  'favorite-button': FavoriteButton
 };
 
 for (const key in components) {

@@ -197,7 +197,6 @@ export default {
     },
     loading() {
       if (!this.loading) {
-        this.refreshTipTip();
         this.setWindowTitle();
       }
     },
@@ -289,11 +288,6 @@ export default {
       if (activityId === this.activityId) {
         this.noExtension = true;
       }
-    },
-    refreshTipTip() {
-      window.setTimeout(() => {
-        this.$utils.initTipTip(this.$el, {});
-      }, 200);
     },
     scrollTo(element) {
       window.setTimeout(() => {

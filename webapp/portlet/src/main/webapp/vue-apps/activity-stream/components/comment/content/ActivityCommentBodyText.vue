@@ -84,7 +84,6 @@ export default {
     },
     loading() {
       if (!this.loading) {
-        this.refreshTipTip();
         this.$root.$emit('activity-comment-refreshed');
       }
     },
@@ -92,9 +91,6 @@ export default {
       if (this.initialized && !this.initializedEmited) {
         this.$emit('comment-initialized');
         this.initializedEmited = true;
-      }
-      if (this.initialized) {
-        this.refreshTipTip();
       }
     },
   },
@@ -136,11 +132,6 @@ export default {
         this.loading = false;
         this.initialized = true;
       });
-    },
-    refreshTipTip() {
-      window.setTimeout(() => {
-        this.$utils.initTipTip(this.$el, {});
-      }, 200);
     },
   },
 };
