@@ -9,7 +9,7 @@
       popover
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
-      <v-list-item-title class="font-weight-bold body-2 mb-0">
+      <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
         <exo-user
           :identity="posterIdentity"
           fullname
@@ -30,7 +30,12 @@
             class="mx-1 ps-1">
             fa-chevron-right
           </v-icon>
-          <activity-head-space :space="space" />
+          <exo-space-avatar 
+            :space="space" 
+            :size="20"
+            bold-title
+            link-style
+            popover />
         </template>
       </v-list-item-title>
       <activity-head-time
