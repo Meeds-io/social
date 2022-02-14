@@ -25,7 +25,6 @@
       :id="id"
       :href="profileUrl"
       class="pull-left d-flex flex-column align-start text-truncate"
-      :class="usernameClass && 'mt-n-small' || ''"
       @mouseover="showUserPopover"
       @mouseleave="hideUserPopover">
       <span
@@ -101,15 +100,14 @@
           </v-list-item-content>
         </v-list-item>
         <div v-if="isCurrentUser" class="d-flex justify-end">
-          <v-btn
-            v-for="(extension, i) in enabledProfileActionExtensions"
-            :key="i"
-            :ripple="false"
-            icon
-            color="primary"
-            @click="extension.click(identity)">
-            <v-icon :size="18" :class="extension.additionalClass ? extension.additionalClass : ''">{{ extension.class }} </v-icon>
-          </v-btn>
+          <extension-registry-components
+            :params="params"
+            class="d-flex"
+            name="UserPopover"
+            type="user-popover-action"
+            parent-element="div"
+            element="div"
+            element-class="mx-auto ma-lg-0" />
           <div
             v-for="extension in enabledWebConferencingComponents"
             :key="extension.key"
@@ -166,8 +164,8 @@ export default {
       default: () => '',
     },
     usernameClass: {
-      type: Boolean,
-      default: () => false,
+      type: String,
+      default: () => '',
     },
     avatarClass: {
       type: String,
@@ -181,17 +179,10 @@ export default {
         .toString()}`,
       isExternal: false,
       displayUserPopover: false,
-      profileActionExtensions: [],
       webConferencingExtensions: [],
     };
   },
   computed: {
-    enabledProfileActionExtensions() {
-      if (!this.profileActionExtensions || !this.identity) {
-        return [];
-      }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.identity));
-    },
     enabledWebConferencingComponents() {
       return this.webConferencingExtensions.filter(extension => extension.enabled);
     },
@@ -224,7 +215,12 @@ export default {
     },
     isCurrentUser() {
       return eXo.env.portal.userName !== this.username;
-    }
+    },
+    params() {
+      return {
+        identity: this.identity
+      };
+    },
   },
   watch: {
     external() {
@@ -233,12 +229,6 @@ export default {
   },
   created() {
     if ( this.popover && !this.isMobile) {
-      document.addEventListener('profile-extension-updated', this.refreshExtensions);
-
-      // To broadcast event about current page supporting profile extensions
-      document.dispatchEvent(new CustomEvent('profile-extension-init'));
-      this.profileActionExtensions = [];
-      this.refreshExtensions();
       this.refreshWebCOnferencingExtensions();
     }
   },
@@ -266,10 +256,6 @@ export default {
       if ( this.popover && !this.isMobile) {
         this.displayUserPopover = false;
       }
-    },
-    refreshExtensions() {
-      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-      this.profileActionExtensions.sort((a, b) =>  b.order - a.order);
     },
     refreshWebCOnferencingExtensions () {
       this.webConferencingExtensions = extensionRegistry.loadExtensions('user-profile-popover', 'action') || [];
