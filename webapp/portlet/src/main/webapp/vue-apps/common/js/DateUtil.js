@@ -4,7 +4,8 @@ const DIGIT_PATTERN = /^[1-9][0-9]*$/g;
  * Return Date object from string value.
  * The string value can of type:
  * - Date with format: dd/MM/yyyy
- * - Date with ISO 8601 format : yyyy-MM-dd
+ * - Date with ISO 8601 short format : yyyy-MM-dd
+ * - Date with ISO 8601 long format : YYYY-MM-DDTHH:mm:ss.sssZ
  * - Date timestamp
  * 
  * @param {String} value String or Integer value of date
@@ -17,33 +18,44 @@ export function getDateObjectFromString(value, isISOString) {
     return new Date(parseInt(value));
   }
   if (isISOString) {
-    return new Date(value);
+    if (value.length > 10) {
+      //long ISO format
+      return new Date(value);
+    } else {
+      //short ISO format
+      //we need to set year, month, date, manually so that it use the current user time.
+
+      //if we do new Date(value), if will generate a date with Time = 00:00 UTC, then when it is translated
+      //in user timezone, the day can change
+      const [year, month, date] = value.trim().split('-');
+      const dateObj = new Date();
+      dateObj.setYear(year);
+      dateObj.setMonth(parseInt(month)-1);
+      dateObj.setDate(date);
+      return dateObj;
+    }
   } else {
     const [date, month, year] = value.trim().split('/');
-    return new Date(year, parseInt(month) -1, date);
+    const dateObj = new Date();
+    dateObj.setYear(year);
+    dateObj.setMonth(parseInt(month)-1);
+    dateObj.setDate(date);
+    return dateObj;
   }
 }
 
 /**
- * Return the ISO Date String value with format
- * yyy-MM-dd, for example 2020-04-21.
- * 
- * This method will consider timezone offset and will avoid to
- * return next or previous date due to Date.toISOString that considers
- * timezone offset when converting to string
- * 
+ * Return the ISO-8601 Date String value with format
+ * YYYY-MM-DD, for example 2011-10-05
+ *
  * @param {Date} dateObj Date object
- * @returns {String} ISO 8601 date string with format yyyy-MM-dd
+ * @returns {String} ISO 8601 date string with format YYYY-MM-DD
  */
 export function getISODate(dateObj) {
   if (!dateObj) {
     return null;
   }
-  // toISOString will modify time using timezone index
-  // This operation will compensate the diff to avoid switching
-  // into next or previous date
-  dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
-  return dateObj.toISOString().substring(0, 10);
+  return dateObj.toISOString().substr(0,10);
 }
 
 /**
