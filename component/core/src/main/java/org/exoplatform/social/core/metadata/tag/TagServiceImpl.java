@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
@@ -46,6 +47,8 @@ public class TagServiceImpl implements TagService {
 
   private static final Pattern TAG_PATTERN   = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s]+)<[^>]*/a>");
 
+  public static final String                 TAG_ADDED_EVENT                = "exo.tag.added";
+
   private static final int     DEFAULT_LIMIT = 10000;
 
   private IdentityManager      identityManager;
@@ -54,12 +57,17 @@ public class TagServiceImpl implements TagService {
 
   private MetadataService      metadataService;
 
+  private ListenerService listenerService;
+
+
   public TagServiceImpl(MetadataService metadataService,
                         SpaceService spaceService,
-                        IdentityManager identityManager) {
+                        IdentityManager identityManager,
+                        ListenerService listenerService) {
     this.metadataService = metadataService;
     this.identityManager = identityManager;
     this.spaceService = spaceService;
+    this.listenerService = listenerService;
   }
 
   @Override
@@ -115,7 +123,13 @@ public class TagServiceImpl implements TagService {
     Set<TagName> tagsToDelete = new HashSet<>(storedTagNames);
     tagsToDelete.removeAll(tagNames);
     deleteTags(metadataItems, tagsToDelete);
-
+    Set<TagName> newTags = tagsToCreate.stream().filter(tagName -> !(storedTagNames.contains(tagName)))
+                                                       .collect(Collectors.toSet());
+    try {
+      listenerService.broadcast(TAG_ADDED_EVENT, object.getId(), newTags);
+    } catch (Exception e) {
+      LOG.error("could not broadcast event", e);
+    }
     return getTagNames(object);
   }
 
