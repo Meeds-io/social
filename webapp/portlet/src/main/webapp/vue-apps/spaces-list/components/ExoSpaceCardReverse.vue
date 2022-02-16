@@ -41,6 +41,7 @@
         <exo-user-avatars-list
           :users="space.managers"
           max="5"
+          avatar-overlay-position
           @open-detail="$root.$emit('displaySpaceManagers', space)" />
       </v-card-text>
     </template>

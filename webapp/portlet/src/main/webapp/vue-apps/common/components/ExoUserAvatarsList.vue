@@ -5,16 +5,18 @@
       :key="user"
       :identity="user"
       :size="iconSize"
-      class="mx-auto"
+      :class="avatarOverlayPosition && 'mx-1' || ''"
       popover
       avatar />
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
       :tiptip="false"
-      class="notDisplayedIdentitiesOverlay"
+      :class="avatarOverlayPosition && 'position-relative' || 'position-absolute'"
+      :style="overlayStyle"
+      class="notDisplayedIdentitiesOverlay clickable"
       @click="$emit('open-detail')">
-      <div class="notDisplayedIdentities">
+      <div class="notDisplayedIdentities d-flex align-center justify-center">
         +{{ notDisplayedItems }}
       </div>
     </v-avatar>
@@ -36,6 +38,10 @@ export default {
       type: Number,
       default: () => 37,
     },
+    avatarOverlayPosition: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   computed: {
     usersToDisplay() {
@@ -43,6 +49,12 @@ export default {
     },
     notDisplayedItems() {
       return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
+    },
+    overlayStyle(){
+      if (this.avatarOverlayPosition) {
+        return `right: ${this.iconSize + 4}px !important`;
+      } 
+      return '';
     },
   }
 };
