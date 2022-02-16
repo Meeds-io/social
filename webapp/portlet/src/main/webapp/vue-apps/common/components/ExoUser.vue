@@ -42,7 +42,8 @@
       v-else
       :id="id"
       :href="profileUrl"
-      class="d-flex flex-nowrap flex-grow-1 align-center text-truncate container--fluid"
+      class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
+      :class="itemsAlignStyle"
       @mouseover="showUserPopover"
       @mouseleave="hideUserPopover">
       <v-avatar
@@ -66,6 +67,9 @@
           <slot name="subTitle"></slot>
         </span>
       </p>
+      <template v-if="$slots.actions">
+        <slot name="actions"></slot>
+      </template>
     </a>
     <v-menu
       v-if="popover && !isMobile"
@@ -77,8 +81,8 @@
       :nudge-right="y"
       :left="popoverLeftPosition"
       content-class="white"
-      max-width="270"
-      min-width="270"
+      max-width="250"
+      min-width="250"
       offset-y
       offset-x>
       <v-card elevation="0" class="pa-2">
@@ -130,6 +134,10 @@ export default {
       type: Object,
       default: () => null,
     },
+    profileId: {
+      type: String,
+      default: () => null,
+    },
     avatar: {
       type: Boolean,
       default: () => false,
@@ -146,6 +154,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    alignTop: {
+      type: Boolean,
+      default: () => false,
+    },
     popover: {
       type: Boolean,
       default: () => false,
@@ -153,6 +165,10 @@ export default {
     popoverLeftPosition: {
       type: Boolean,
       default: () => false,
+    },
+    url: {
+      type: Boolean,
+      default: () => true,
     },
     size: {
       type: Number,
@@ -177,7 +193,6 @@ export default {
       id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
-      isExternal: false,
       displayUserPopover: false,
       webConferencingExtensions: [],
     };
@@ -199,16 +214,23 @@ export default {
       return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
     },
     profileUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
+      if ( this.url ) {
+        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
+      } else {
+        return null;
+      }
     },
-    external() {
-      return this.identity && this.identity.external;
+    isExternal() {
+      return this.identity && !this.identity.isInternal;
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
     },
     fullnameStyle() {
       return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color' || ''}`;
+    },
+    itemsAlignStyle() {
+      return `${this.alignTop && 'align-start' || 'align-center'}`;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
@@ -222,12 +244,13 @@ export default {
       };
     },
   },
-  watch: {
-    external() {
-      this.isExternal = this.external && Boolean(this.external) || false;
-    }
-  },
   created() {
+    if (this.profileId) {
+      this.$userService.getUser(this.profileId)
+        .then(user => {
+          this.identity = user;
+        });
+    }
     if ( this.popover && !this.isMobile) {
       this.refreshWebCOnferencingExtensions();
     }
@@ -239,7 +262,7 @@ export default {
         if ( this.avatar && this.popoverLeftPosition) {
           this.y = currentUser[0].offsetLeft + currentUser[0].offsetWidth;
         } else {
-          this.y = currentUser[0].offsetLeft;
+          this.y = currentUser[0].offsetLeft + this.size;
         }
         this.x = currentUser[0].offsetTop + currentUser[0].offsetHeight;
         this.webConferencingExtensions.map((extension) => {
