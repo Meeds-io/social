@@ -9,7 +9,7 @@
     <exo-drawer
       ref="activityComposerApp"
       class="activityComposerApp"
-      drawer-width="33%"
+      :drawer-width="drawerWidth"
       right
       @closed="closeMessageComposer">
       <template
@@ -92,6 +92,9 @@
         </div>
       </template>
     </exo-drawer>
+    <exo-changes-reminder
+      v-if="!isMobile"
+      :reminder="reminder" />
   </div>
 </template>
 
@@ -162,6 +165,12 @@ export default {
       link: `${this.$t('activity.composer.link')}`,
       filesToDetach: [],
       filesToAttach: [],
+      reminder: {
+        name: 'activityComposerAttachFile' ,
+        title: `${this.$t('activity.attach.file.reminder.title')}`,
+        description: `${this.$t('activity.attach.file.reminder.description')}`,
+        img: '/social-portlet/images/HowToAttachFile.gif',
+      },
     };
   },
   computed: {
@@ -187,6 +196,12 @@ export default {
       return this.attachments.map(attachment => {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
       }).reduce((a, b) => a + b, 0);
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    },
+    drawerWidth() {
+      return this.isMobile ? '420' : '33%';
     },
   },
   watch: {
@@ -327,6 +342,7 @@ export default {
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
+      document.dispatchEvent(new CustomEvent('exo-changes-reminder-open'));
     },
     getLabel: function(labelKey) {
       const label = this.$t(labelKey);
