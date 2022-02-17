@@ -8,13 +8,20 @@
       <v-card>
         <v-card-title class="text-header-title pb-6">
           {{ $t('changes.reminder.WhatNew') }}
+          <v-spacer />
+          <v-btn
+            icon
+            :title="$t('label.close')"
+            @click="dialog = false">
+            <v-icon size="18">mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
-        <v-card-text outlined><img :src="reminder.img"></v-card-text>
+        <v-card-text><img :src="reminder.img"></v-card-text>
         <v-card-text class="font-weight-bold">{{ reminder.title }}</v-card-text>
         <v-card-text>
           {{ reminder.description }}
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pe-6">
           <v-spacer />
           <v-btn
             text
