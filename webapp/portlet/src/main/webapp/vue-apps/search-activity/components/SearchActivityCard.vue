@@ -4,13 +4,9 @@
     flat
     min-height="227">
     <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
-      <exo-user-avatar
-        :username="posterUsername"
-        :fullname="posterFullname"
-        :title="posterFullname"
-        :external="posterIsExternal"
-        :retrieve-extra-information="false"
-        avatar-class="border-color">
+      <exo-user
+        :identity="poster"
+        popover>
         <template slot="subTitle">
           <date-format :value="postedTime" />
         </template>
@@ -23,7 +19,7 @@
             right="0"
             @removed="$emit('refresh-favorite')" />
         </template>
-      </exo-user-avatar>
+      </exo-user>
     </v-card-text>
     <div class="mx-auto flex-grow-1 px-3 py-0">
       <div

@@ -1,15 +1,11 @@
 <template>
   <div class="activity-share-information d-flex flex-column align-start">
-    <div class="activity-share-stream d-flex flex-row flex text-truncate">
-      <exo-user-avatar
-        :username="sharedPoster.username"
-        :title="sharedPoster.fullname"
-        :fullname="sharedPoster.fullname"
-        :avatar-url="sharedPoster.avatar"
+    <div class="activity-share-stream d-flex align-center flex-row flex text-truncate">
+      <exo-user
+        :identity="sharedPoster"
         :size="25"
-        :external="sharedPoster.external || sharedPoster.isExternal"
-        :retrieve-extra-information="false"
         class="activity-share-user"
+        popover
         bold-title
         link-style />
       <div class="createIn me-2 my-auto">
@@ -17,9 +13,10 @@
       </div>
       <exo-space-avatar
         :space="space"
-        :size="30"
+        :size="24"
         avatar-class="border-color"
         class="activity-share-space d-inline-block my-auto"
+        popover
         bold-title
         link-style />
     </div>

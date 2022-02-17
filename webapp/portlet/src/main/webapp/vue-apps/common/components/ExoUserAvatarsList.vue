@@ -6,7 +6,7 @@
       :identity="user"
       :size="iconSize"
       :class="avatarOverlayPosition && 'mx-1' || ''"
-      popover
+      :popover="popover"
       avatar />
     <v-avatar
       v-if="notDisplayedItems"
@@ -42,10 +42,27 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    popover: {
+      type: Boolean,
+      default: () => true
+    },
+    retrieveExtraInformation: {
+      type: Boolean,
+      default: () => false
+    }
+  },
+  data() {
+    return {
+      spaceManagers: [],
+    };
   },
   computed: {
     usersToDisplay() {
-      return this.users && this.users.slice(0, this.max);
+      if (this.retrieveExtraInformation) {
+        return this.spaceManagers && this.spaceManagers.slice(0, this.max);
+      } else {
+        return this.users && this.users.slice(0, this.max);
+      }
     },
     notDisplayedItems() {
       return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
@@ -56,6 +73,16 @@ export default {
       } 
       return '';
     },
+  },
+  created() {
+    if (this.retrieveExtraInformation) {
+      this.users.forEach(user => {
+        this.$userService.getUser(user.userName)
+          .then(item => {
+            this.spaceManagers.push(item);
+          });
+      });
+    }
   }
 };
 </script>
