@@ -34,6 +34,15 @@
             </div>
             <div class="loginContent">
               <p class="brandingComanyClass mt-5 mb-0">{{ companyName }}</p>
+              <div v-if="registerEnabled" class="center white--text my-3">
+                {{ $t('UILoginForm.label.registerNewAccount') }}
+                <a
+                  :title="$t('UILoginForm.button.registerNewAccount')"
+                  href="/portal/register"
+                  class="text-decoration-underline white--text">
+                  {{ $t('UILoginForm.button.registerNewAccount') }}
+                </a>
+              </div>
               <div class="titleLogin">
                 <div
                   v-if="errorCode"
@@ -100,7 +109,8 @@
                     <div class="forgotPasswordClass">
                       <a
                         :href="forgotPasswordPath"
-                        :title="$t('gatein.forgotPassword.loginLinkTitle')">
+                        :title="$t('gatein.forgotPassword.loginLinkTitle')"
+                        class="text-decoration-underline">
                         {{ $t('portal.login.forgotPassword') }} </a>
                     </div>
                   </form>
@@ -148,6 +158,9 @@ export default {
     },
     brandingLogo() {
       return this.params && this.params.brandingLogo;
+    },
+    registerEnabled() {
+      return this.params && this.params.registerEnabled;
     },
     errorCode() {
       return this.params && this.params.errorCode;

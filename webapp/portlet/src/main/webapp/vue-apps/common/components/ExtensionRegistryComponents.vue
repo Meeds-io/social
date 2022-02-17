@@ -1,48 +1,68 @@
 <template>
   <ul v-if="parentElement === 'ul' && isEnabled">
-    <extension-registry-component
-      v-for="component in components"
-      :key="component.componentOptions.id || component.componentOptions.componentName"
-      :component="component"
-      :element="element"
-      :element-class="elementClass"
-      :params="params" />
+    <template v-for="(component, index) in components">
+      <extension-registry-component
+        :key="component.componentOptions.id || component.componentOptions.componentName"
+        :component="component"
+        :element="element"
+        :element-class="elementClass"
+        :params="params" />
+      <template v-if="$slots.separator && (index + 1) < components.length">
+        <slot name="separator"></slot>
+      </template>
+    </template>
   </ul>
   <li v-else-if="parentElement === 'li' && isEnabled">
-    <extension-registry-component
-      v-for="component in components"
-      :key="component.componentOptions.id || component.componentOptions.componentName"
-      :component="component"
-      :element="element"
-      :element-class="elementClass"
-      :params="params" />
+    <template v-for="(component, index) in components">
+      <extension-registry-component
+        :key="component.componentOptions.id || component.componentOptions.componentName"
+        :component="component"
+        :element="element"
+        :element-class="elementClass"
+        :params="params" />
+      <template v-if="$slots.separator && (index + 1) < components.length">
+        <slot name="separator"></slot>
+      </template>
+    </template>
   </li>
   <span v-else-if="parentElement === 'span' && isEnabled">
-    <extension-registry-component
-      v-for="component in components"
-      :key="component.componentOptions.id || component.componentOptions.componentName"
-      :component="component"
-      :element="element"
-      :element-class="elementClass"
-      :params="params" />
+    <template v-for="(component, index) in components">
+      <extension-registry-component
+        :key="component.componentOptions.id || component.componentOptions.componentName"
+        :component="component"
+        :element="element"
+        :element-class="elementClass"
+        :params="params" />
+      <template v-if="$slots.separator && (index + 1) < components.length">
+        <slot name="separator"></slot>
+      </template>
+    </template>
   </span>
   <a v-else-if="parentElement === 'a' && isEnabled">
-    <extension-registry-component
-      v-for="component in components"
-      :key="component.componentOptions.id || component.componentOptions.componentName"
-      :component="component"
-      :element="element"
-      :element-class="elementClass"
-      :params="params" />
+    <template v-for="(component, index) in components">
+      <extension-registry-component
+        :key="component.componentOptions.id || component.componentOptions.componentName"
+        :component="component"
+        :element="element"
+        :element-class="elementClass"
+        :params="params" />
+      <template v-if="$slots.separator && (index + 1) < components.length">
+        <slot name="separator"></slot>
+      </template>
+    </template>
   </a>
   <div v-else-if="isEnabled">
-    <extension-registry-component
-      v-for="component in components"
-      :key="component.componentOptions.id || component.componentOptions.componentName"
-      :component="component"
-      :element="element"
-      :element-class="elementClass"
-      :params="params" />
+    <template v-for="(component, index) in components">
+      <extension-registry-component
+        :key="component.componentOptions.id || component.componentOptions.componentName"
+        :component="component"
+        :element="element"
+        :element-class="elementClass"
+        :params="params" />
+      <template v-if="$slots.separator && (index + 1) < components.length">
+        <slot name="separator"></slot>
+      </template>
+    </template>
   </div>
 </template>
 
