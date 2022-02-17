@@ -169,7 +169,7 @@ export default {
         name: 'activityComposerAttachFile' ,
         title: `${this.$t('activity.attach.file.reminder.title')}`,
         description: `${this.$t('activity.attach.file.reminder.description')}`,
-        img: '/social-portlet/images/HowToAttachFile.gif',
+        img: '/social-portlet/images/attachFileIcon.gif',
       },
     };
   },
