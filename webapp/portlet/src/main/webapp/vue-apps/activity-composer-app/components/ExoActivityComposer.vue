@@ -173,8 +173,7 @@ export default {
       ckEditorId: 'activityContent',
       link: `${this.$t('activity.composer.link')}`,
       filesToDetach: [],
-      filesToAttach: [],
-      attachmentsAppDrawerOpened: false,
+      filesToAttach: []
     };
   },
   computed: {
@@ -227,12 +226,6 @@ export default {
     this.$root.$on('remove-composer-attachment-item', attachment => {
       this.filesToDetach.push(attachment);
       this.activityBodyEdited = true;
-    });
-    this.$root.$on('attachments-app-drawer-opened', () => {
-      this.attachmentsAppDrawerOpened = true;
-    });
-    this.$root.$on('attachments-app-drawer-closed', () => {
-      this.attachmentsAppDrawerOpened = false;
     });
     this.$root.$on('abort-attachments-new-upload', (attachments) => {
       this.attachments = attachments;
@@ -423,7 +416,7 @@ export default {
       }
     },
     closeMessageComposer: function () {
-      if (!this.attachmentsAppDrawerOpened) {
+      if (eXo.openedDrawers.length === 0) {
         this.showMessageComposer = false;
         this.attachments = [];
         this.activityId = null;
