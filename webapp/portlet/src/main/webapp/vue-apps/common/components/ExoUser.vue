@@ -154,6 +154,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    smallFontSize: {
+      type: Boolean,
+      default: () => false,
+    },
     alignTop: {
       type: Boolean,
       default: () => false,
@@ -227,7 +231,7 @@ export default {
       return `( ${this.$t('userAvatar.external.label')} )`;
     },
     fullnameStyle() {
-      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color' || ''}`;
+      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color ' || ''}${this.smallFontSize && 'caption '}`;
     },
     itemsAlignStyle() {
       return `${this.alignTop && 'align-start' || 'align-center'}`;
