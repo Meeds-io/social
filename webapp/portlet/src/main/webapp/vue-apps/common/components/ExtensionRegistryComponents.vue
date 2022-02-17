@@ -1,5 +1,8 @@
 <template>
   <ul v-if="parentElement === 'ul' && isEnabled">
+    <template v-if="$slots.header">
+      <slot name="header"></slot>
+    </template>
     <template v-for="(component, index) in components">
       <extension-registry-component
         :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -10,9 +13,15 @@
       <template v-if="$slots.separator && (index + 1) < components.length">
         <slot name="separator"></slot>
       </template>
+    </template>
+    <template v-if="$slots.footer">
+      <slot name="footer"></slot>
     </template>
   </ul>
   <li v-else-if="parentElement === 'li' && isEnabled">
+    <template v-if="$slots.header">
+      <slot name="header"></slot>
+    </template>
     <template v-for="(component, index) in components">
       <extension-registry-component
         :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -23,9 +32,15 @@
       <template v-if="$slots.separator && (index + 1) < components.length">
         <slot name="separator"></slot>
       </template>
+    </template>
+    <template v-if="$slots.footer">
+      <slot name="footer"></slot>
     </template>
   </li>
   <span v-else-if="parentElement === 'span' && isEnabled">
+    <template v-if="$slots.header">
+      <slot name="header"></slot>
+    </template>
     <template v-for="(component, index) in components">
       <extension-registry-component
         :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -36,9 +51,15 @@
       <template v-if="$slots.separator && (index + 1) < components.length">
         <slot name="separator"></slot>
       </template>
+    </template>
+    <template v-if="$slots.footer">
+      <slot name="footer"></slot>
     </template>
   </span>
   <a v-else-if="parentElement === 'a' && isEnabled">
+    <template v-if="$slots.header">
+      <slot name="header"></slot>
+    </template>
     <template v-for="(component, index) in components">
       <extension-registry-component
         :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -50,8 +71,14 @@
         <slot name="separator"></slot>
       </template>
     </template>
+    <template v-if="$slots.footer">
+      <slot name="footer"></slot>
+    </template>
   </a>
   <div v-else-if="isEnabled">
+    <template v-if="$slots.header">
+      <slot name="header"></slot>
+    </template>
     <template v-for="(component, index) in components">
       <extension-registry-component
         :key="component.componentOptions.id || component.componentOptions.componentName"
@@ -62,6 +89,9 @@
       <template v-if="$slots.separator && (index + 1) < components.length">
         <slot name="separator"></slot>
       </template>
+    </template>
+    <template v-if="$slots.footer">
+      <slot name="footer"></slot>
     </template>
   </div>
 </template>

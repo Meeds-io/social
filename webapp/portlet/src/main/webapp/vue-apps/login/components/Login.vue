@@ -55,7 +55,26 @@
                   name="LoginHeader"
                   type="login-header"
                   parent-element="div"
-                  element="div" />
+                  element="div">
+                  <template #separator>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                  <template #footer>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                </extension-registry-components>
                 <div class="centerLoginContent">
                   <form
                     name="loginForm"
@@ -120,7 +139,26 @@
                   name="LoginFooter"
                   type="login-footer"
                   parent-element="div"
-                  element="div" />
+                  element="div">
+                  <template #separator>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                  <template #header>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                </extension-registry-components>
               </div>
             </div>
           </div>

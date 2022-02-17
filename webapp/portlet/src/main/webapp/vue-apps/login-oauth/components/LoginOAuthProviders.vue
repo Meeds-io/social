@@ -20,9 +20,6 @@
 -->
 <template>
   <div v-if="oAuthEnabled" id="social-pane">
-    <div class="signInDelimiter">
-      {{ $t('UILoginForm.label.Delimiter') }}
-    </div>
     <div id="social-login">
       <portal-login-oauth-provider-link
         v-for="oAuthProvider in oAuthProviders"
