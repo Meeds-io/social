@@ -1,5 +1,5 @@
 <template>
-  <div class="exo-space-avatar-wrapper">
+  <div class="profile-popover space-avatar-wrapper">
     <a
       :id="id"
       :href="url"
@@ -42,7 +42,7 @@
       :nudge-bottom="x"
       :nudge-right="y"
       :left="popoverLeftPosition"
-      content-class="white"
+      content-class="popover-menu white"
       max-width="270"
       min-width="270"
       offset-y
@@ -83,7 +83,6 @@
           <div
             v-for="extension in enabledWebConferencingComponents"
             :key="extension.key"
-            class="py-2 ps-2 pe-0"
             :class="`${extension.appClass} ${extension.typeClass}`"
             :ref="extension.key">
           </div>
