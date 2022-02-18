@@ -1,6 +1,6 @@
 <template>
   <ul v-if="parentElement === 'ul' && isEnabled">
-    <template v-if="$slots.header">
+    <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
     <template v-for="(component, index) in components">
@@ -14,12 +14,12 @@
         <slot name="separator"></slot>
       </template>
     </template>
-    <template v-if="$slots.footer">
+    <template v-if="$slots.footer && components.length">
       <slot name="footer"></slot>
     </template>
   </ul>
   <li v-else-if="parentElement === 'li' && isEnabled">
-    <template v-if="$slots.header">
+    <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
     <template v-for="(component, index) in components">
@@ -33,12 +33,12 @@
         <slot name="separator"></slot>
       </template>
     </template>
-    <template v-if="$slots.footer">
+    <template v-if="$slots.footer && components.length">
       <slot name="footer"></slot>
     </template>
   </li>
   <span v-else-if="parentElement === 'span' && isEnabled">
-    <template v-if="$slots.header">
+    <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
     <template v-for="(component, index) in components">
@@ -52,12 +52,12 @@
         <slot name="separator"></slot>
       </template>
     </template>
-    <template v-if="$slots.footer">
+    <template v-if="$slots.footer && components.length">
       <slot name="footer"></slot>
     </template>
   </span>
   <a v-else-if="parentElement === 'a' && isEnabled">
-    <template v-if="$slots.header">
+    <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
     <template v-for="(component, index) in components">
@@ -71,12 +71,12 @@
         <slot name="separator"></slot>
       </template>
     </template>
-    <template v-if="$slots.footer">
+    <template v-if="$slots.footer && components.length">
       <slot name="footer"></slot>
     </template>
   </a>
   <div v-else-if="isEnabled">
-    <template v-if="$slots.header">
+    <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
     <template v-for="(component, index) in components">
@@ -90,7 +90,7 @@
         <slot name="separator"></slot>
       </template>
     </template>
-    <template v-if="$slots.footer">
+    <template v-if="$slots.footer && components.length">
       <slot name="footer"></slot>
     </template>
   </div>

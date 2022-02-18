@@ -19,5 +19,6 @@
 extensionRegistry.registerComponent('LoginFooter', 'login-footer', {
   id: 'oauth-providers',
   vueComponent: Vue.options.components['portal-login-oauth-providers'],
+  isEnabled: params => params && params.params && params.params.oAuthEnabled,
   rank: 10,
 });
