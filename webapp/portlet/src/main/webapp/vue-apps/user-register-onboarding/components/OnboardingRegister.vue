@@ -102,7 +102,7 @@ export default {
       } else if (this.errorCode === 'EMAIL_MANDATORY') {
         return this.$t('UILoginForm.label.emailMandatory');
       }
-      return this.errorCode && this.$t(`UILoginForm.label.${this.errorCode}`);
+      return this.errorCode;
     },
   },
 };
