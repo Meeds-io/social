@@ -141,7 +141,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,attachFile';
+      let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
@@ -153,6 +153,9 @@ export default {
         extraPlugins = `${extraPlugins},embedsemantic,tagSuggester`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
+      }
+      if (this.ckEditorType === 'activityContent') {
+        extraPlugins = `${extraPlugins},attachFile`;
       }
       if (eXo.env.portal.activityTagsEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
