@@ -7,7 +7,7 @@
     counter
     auto-grow
     :rows="rows"
-    :row-height="rowsHeight"
+    :row-height="rowHeight"
     class="extended-textarea" />
 </template>
 
@@ -30,7 +30,7 @@ export default {
       type: Number,
       default: () => 5
     },
-    rowsHeight: {
+    rowHeight: {
       type: Number,
       default: () => 24
     },
