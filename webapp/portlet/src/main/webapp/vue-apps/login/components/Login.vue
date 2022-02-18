@@ -66,7 +66,7 @@
                     </div>
                   </template>
                   <template #footer>
-                    <div class="d-flex my-5">
+                    <div class="d-flex mt-5">
                       <v-divider class="my-auto white" />
                       <span class="mx-3 white--text text-uppercase">
                         {{ $t('UILoginForm.label.or') }}
@@ -121,7 +121,8 @@
                     <div id="UIPortalLoginFormAction" class="loginButton">
                       <button
                         :aria-label="$t('portal.login.Signin')"
-                        tabindex="4">
+                        tabindex="4"
+                        class="col-auto">
                         {{ $t('portal.login.Signin') }}
                       </button>
                     </div>
