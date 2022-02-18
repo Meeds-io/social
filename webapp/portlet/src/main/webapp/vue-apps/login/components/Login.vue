@@ -34,6 +34,15 @@
             </div>
             <div class="loginContent">
               <p class="brandingComanyClass mt-5 mb-0">{{ companyName }}</p>
+              <div v-if="registerEnabled" class="center white--text my-3">
+                {{ $t('UILoginForm.label.registerNewAccount') }}
+                <a
+                  :title="$t('UILoginForm.button.registerNewAccount')"
+                  href="/portal/register"
+                  class="text-decoration-underline white--text">
+                  {{ $t('UILoginForm.button.registerNewAccount') }}
+                </a>
+              </div>
               <div class="titleLogin">
                 <div
                   v-if="errorCode"
@@ -46,7 +55,26 @@
                   name="LoginHeader"
                   type="login-header"
                   parent-element="div"
-                  element="div" />
+                  element="div">
+                  <template #separator>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                  <template #footer>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                </extension-registry-components>
                 <div class="centerLoginContent">
                   <form
                     name="loginForm"
@@ -100,7 +128,8 @@
                     <div class="forgotPasswordClass">
                       <a
                         :href="forgotPasswordPath"
-                        :title="$t('gatein.forgotPassword.loginLinkTitle')">
+                        :title="$t('gatein.forgotPassword.loginLinkTitle')"
+                        class="text-decoration-underline">
                         {{ $t('portal.login.forgotPassword') }} </a>
                     </div>
                   </form>
@@ -110,7 +139,26 @@
                   name="LoginFooter"
                   type="login-footer"
                   parent-element="div"
-                  element="div" />
+                  element="div">
+                  <template #separator>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                  <template #header>
+                    <div class="d-flex my-5">
+                      <v-divider class="my-auto white" />
+                      <span class="mx-3 white--text text-uppercase">
+                        {{ $t('UILoginForm.label.or') }}
+                      </span>
+                      <v-divider class="my-auto white" />
+                    </div>
+                  </template>
+                </extension-registry-components>
               </div>
             </div>
           </div>
@@ -148,6 +196,9 @@ export default {
     },
     brandingLogo() {
       return this.params && this.params.brandingLogo;
+    },
+    registerEnabled() {
+      return this.params && this.params.registerEnabled;
     },
     errorCode() {
       return this.params && this.params.errorCode;
