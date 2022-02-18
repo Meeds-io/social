@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="exo-user-wrapper"
+    class="profile-popover user-wrapper"
     :class="extraClass">
     <a 
       v-if="avatar"
@@ -80,13 +80,13 @@
       :nudge-bottom="x"
       :nudge-right="y"
       :left="popoverLeftPosition"
-      content-class="white"
+      content-class="popover-menu overflow-y-hidden white"
       max-width="250"
       min-width="250"
       offset-y
       offset-x>
-      <v-card elevation="0" class="pa-2">
-        <v-list-item class="px-2">
+      <v-card elevation="0" class="pa-2 pb-1">
+        <v-list-item class="px-0">
           <v-list-item-content class="py-0">
             <v-list-item-title>
               <exo-user
@@ -115,7 +115,6 @@
           <div
             v-for="extension in enabledWebConferencingComponents"
             :key="extension.key"
-            class="py-2 ps-2 pe-0"
             :class="`${extension.appClass} ${extension.typeClass}`"
             :ref="extension.key">
           </div>
@@ -258,6 +257,7 @@ export default {
     if ( this.popover && !this.isMobile) {
       this.refreshWebCOnferencingExtensions();
     }
+    document.dispatchEvent(new CustomEvent('profile-extension-init'));
   },
   methods: {
     showUserPopover() {
@@ -266,7 +266,7 @@ export default {
         if ( this.avatar && this.popoverLeftPosition) {
           this.y = currentUser[0].offsetLeft + currentUser[0].offsetWidth;
         } else {
-          this.y = currentUser[0].offsetLeft + this.size;
+          this.y = currentUser[0].offsetLeft;
         }
         this.x = currentUser[0].offsetTop + currentUser[0].offsetHeight;
         this.webConferencingExtensions.map((extension) => {
