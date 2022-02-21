@@ -154,6 +154,9 @@ export default {
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
+      if (this.ckEditorType === 'activityContent') {
+        extraPlugins = `${extraPlugins},attachFile`;
+      }
       if (eXo.env.portal.activityTagsEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
@@ -169,7 +172,7 @@ export default {
         allowedContent: true,
         enterMode: 3, // div
         toolbar: [
-          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote', 'attachFile'],
         ],
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
