@@ -6,6 +6,8 @@
     :placeholder="placeholder"
     counter
     auto-grow
+    :rows="rows"
+    :row-height="rowHeight"
     class="extended-textarea" />
 </template>
 
@@ -23,7 +25,15 @@ export default {
     maxLength: {
       type: Number,
       default: () => 0
-    }
+    },
+    rows: {
+      type: Number,
+      default: () => 5
+    },
+    rowHeight: {
+      type: Number,
+      default: () => 24
+    },
   },
   data: () => ({
     rules: [],
