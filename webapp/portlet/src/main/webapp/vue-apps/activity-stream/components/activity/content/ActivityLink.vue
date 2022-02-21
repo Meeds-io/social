@@ -93,11 +93,23 @@
       </v-avatar>
       <div class="my-4">
         <div
-          v-if="title"
+          v-if="title && !isKudosActivity"
           v-sanitized-html="title"
           :title="titleTooltip"
           :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
           class="font-weight-bold text-color mx-0 mt-0 mb-2 text-wrap text-break">
+        </div>
+        <div 
+          v-else
+          class="d-flex align-center text-color mx-0 mt-0 mb-2 text-wrap text-break">
+          <span class="font-weight-bold" v-sanitized-html="title"></span>
+          <exo-user
+            :profile-id="identityReceiver"
+            :extra-class="'ms-2'"
+            fullname 
+            popover 
+            bold-title
+            link-style />
         </div>
         <div
           v-if="summary"
@@ -130,6 +142,8 @@ export default {
   data: () => ({
     title: null,
     titleTooltip: null,
+    isKudosActivity: false,
+    identityReceiver: '',
     summary: null,
     summaryTooltip: null,
     thumbnail: null,
@@ -150,6 +164,9 @@ export default {
     },
     getSourceLink() {
       return this.activityTypeExtension && this.activityTypeExtension.getSourceLink;
+    },
+    getActivityType() {
+      return this.activityTypeExtension && this.activityTypeExtension.getActivityType;
     },
     supportsThumbnail() {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
@@ -234,7 +251,7 @@ export default {
     },
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
-    },
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -250,9 +267,15 @@ export default {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
+      this.isKudosActivity =  this.getActivityType && this.getActivityType(this.activity, this.isActivityDetail) === 'kudos';
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
-        this.title = this.$t(this.title.key, this.title.params || {});
+        if (this.isKudosActivity) {
+          this.identityReceiver = this.title.params[0];
+          this.title = this.$t(this.title.key, '' || {});
+        } else {
+          this.title = this.$t(this.title.key, this.title.params || {});
+        }
       } else {
         this.title = this.$utils.trim(this.title);
       }
