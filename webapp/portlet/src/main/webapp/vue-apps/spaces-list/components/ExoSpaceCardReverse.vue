@@ -40,6 +40,7 @@
       <v-card-text class="align-center flex-grow-0">
         <exo-user-avatars-list
           :users="space.managers"
+          :icon-size="28"
           max="5"
           avatar-overlay-position
           @open-detail="$root.$emit('displaySpaceManagers', space)" />

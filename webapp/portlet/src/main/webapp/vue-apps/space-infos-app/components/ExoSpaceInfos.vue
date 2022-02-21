@@ -13,6 +13,8 @@
             :size="30"
             :extra-class="'my-2'"
             :popover-left-position="true"
+            :offset-x="true"
+            :offset-y="false"
             popover />
         </div>
       </div>

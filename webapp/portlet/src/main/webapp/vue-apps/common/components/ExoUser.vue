@@ -1,5 +1,129 @@
 <template>
+  <v-menu
+    v-if="popover && !isMobile"
+    rounded="rounded"
+    v-model="menu"
+    open-on-hover
+    :close-on-content-click="false"
+    :left="popoverLeftPosition"
+    :offset-x="offsetX"
+    :offset-y="offsetY"
+    content-class="popover-menu overflow-y-hidden white"
+    max-width="250"
+    min-width="250">
+    <template v-slot:activator="{ on, attrs }">
+      <div 
+        class="profile-popover user-wrapper"
+        :class="extraClass">
+        <a 
+          v-if="avatar"
+          v-bind="attrs"
+          v-on="on"
+          :id="id"
+          :href="profileUrl"
+          class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
+          :class="avatarClass">
+          <v-avatar
+            :size="size"
+            class="ma-0 pull-left">
+            <img
+              :src="avatarUrl"
+              class="object-fit-cover ma-auto"
+              loading="lazy"
+              role="presentation">
+          </v-avatar>
+        </a>
+        <a 
+          v-else-if="fullname"
+          v-bind="attrs"
+          v-on="on"
+          :id="id"
+          :href="profileUrl"
+          class="pull-left d-flex flex-column align-start text-truncate">
+          <span
+            v-if="userFullname"
+            :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+            class="text-truncate subtitle-2 my-auto">
+            {{ userFullname }}
+            <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+          </span>
+          <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+            <slot name="subTitle"></slot>
+          </span>
+        </a>
+        <a
+          v-else
+          v-bind="attrs"
+          v-on="on"
+          :id="id"
+          :href="profileUrl"
+          class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
+          :class="itemsAlignStyle">
+          <v-avatar
+            :size="size"
+            class="ma-0">
+            <img
+              :src="avatarUrl"
+              class="object-fit-cover ma-auto"
+              loading="lazy"
+              role="presentation">
+          </v-avatar>
+          <p v-if="userFullname || $slots.subTitle" class="ms-2 d-flex align-start flex-column text-truncate mb-0">
+            <span
+              v-if="userFullname"
+              :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+              class="text-truncate subtitle-2 my-auto">
+              {{ userFullname }}
+              <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+            </span>
+            <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+              <slot name="subTitle"></slot>
+            </span>
+          </p>
+          <template v-if="$slots.actions">
+            <slot name="actions"></slot>
+          </template>
+        </a>
+      </div>
+    </template> 
+    <v-card elevation="0" class="pa-2">
+      <v-list-item class="px-0">
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            <exo-user
+              :identity="identity"
+              :size="46"
+              bold-title
+              link-style>
+              <template v-if="position" slot="subTitle">
+                <span class="caption text-bold">
+                  {{ position }}
+                </span>
+              </template>
+            </exo-user>
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <div v-if="isCurrentUser" class="d-flex justify-end">
+        <extension-registry-components
+          :params="params"
+          class="d-flex"
+          name="UserPopover"
+          type="user-popover-action"
+          parent-element="div"
+          element="div"
+          element-class="mx-auto ma-lg-0" />
+        <div
+          v-for="extension in enabledWebConferencingComponents"
+          :key="extension.key"
+          :class="`${extension.appClass} ${extension.typeClass}`"
+          :ref="extension.key">
+        </div>
+      </div>
+    </v-card>
+  </v-menu>
   <div 
+    v-else
     class="profile-popover user-wrapper"
     :class="extraClass">
     <a 
@@ -7,9 +131,7 @@
       :id="id"
       :href="profileUrl"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
-      :class="avatarClass"
-      @mouseover="showUserPopover"
-      @mouseleave="hideUserPopover">
+      :class="avatarClass">
       <v-avatar
         :size="size"
         class="ma-0 pull-left">
@@ -24,9 +146,7 @@
       v-else-if="fullname"
       :id="id"
       :href="profileUrl"
-      class="pull-left d-flex flex-column align-start text-truncate"
-      @mouseover="showUserPopover"
-      @mouseleave="hideUserPopover">
+      class="pull-left d-flex flex-column align-start text-truncate">
       <span
         v-if="userFullname"
         :class="fullnameStyle"
@@ -43,9 +163,7 @@
       :id="id"
       :href="profileUrl"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
-      :class="itemsAlignStyle"
-      @mouseover="showUserPopover"
-      @mouseleave="hideUserPopover">
+      :class="itemsAlignStyle">
       <v-avatar
         :size="size"
         class="ma-0">
@@ -71,56 +189,6 @@
         <slot name="actions"></slot>
       </template>
     </a>
-    <v-menu
-      v-if="popover && !isMobile"
-      rounded="rounded"
-      v-model="displayUserPopover"
-      :attach="`#${id}`"
-      :close-on-content-click="false"
-      :nudge-bottom="x"
-      :nudge-right="y"
-      :left="popoverLeftPosition"
-      content-class="popover-menu overflow-y-hidden white"
-      max-width="250"
-      min-width="250"
-      offset-y
-      offset-x>
-      <v-card elevation="0" class="pa-2 pb-1">
-        <v-list-item class="px-0">
-          <v-list-item-content class="py-0">
-            <v-list-item-title>
-              <exo-user
-                :identity="identity"
-                :size="46"
-                bold-title
-                link-style>
-                <template v-if="position" slot="subTitle">
-                  <span class="caption text-bold">
-                    {{ position }}
-                  </span>
-                </template>
-              </exo-user>
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <div v-if="isCurrentUser" class="d-flex justify-end">
-          <extension-registry-components
-            :params="params"
-            class="d-flex"
-            name="UserPopover"
-            type="user-popover-action"
-            parent-element="div"
-            element="div"
-            element-class="mx-auto ma-lg-0" />
-          <div
-            v-for="extension in enabledWebConferencingComponents"
-            :key="extension.key"
-            :class="`${extension.appClass} ${extension.typeClass}`"
-            :ref="extension.key">
-          </div>
-        </div>
-      </v-card>
-    </v-menu>
   </div>
 </template>
 
@@ -189,7 +257,15 @@ export default {
     avatarClass: {
       type: String,
       default: () => '',
-    }
+    },
+    offsetX: {
+      type: Boolean,
+      default: () => false,
+    },
+    offsetY: {
+      type: Boolean,
+      default: () => true,
+    },
   },
   data() {
     return {
@@ -230,7 +306,7 @@ export default {
       return `( ${this.$t('userAvatar.external.label')} )`;
     },
     fullnameStyle() {
-      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color ' || ''}${this.smallFontSize && 'caption '}`;
+      return `${this.boldTitle && 'font-weight-bold ' || ''}${this.smallFontSize && 'caption ' || ''}`;
     },
     itemsAlignStyle() {
       return `${this.alignTop && 'align-start' || 'align-center'}`;
@@ -260,30 +336,6 @@ export default {
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
   },
   methods: {
-    showUserPopover() {
-      if ( this.popover && !this.isMobile) {
-        const currentUser= $(`#${this.id}`);
-        if ( this.avatar && this.popoverLeftPosition) {
-          this.y = currentUser[0].offsetLeft + currentUser[0].offsetWidth;
-        } else {
-          this.y = currentUser[0].offsetLeft;
-        }
-        this.x = currentUser[0].offsetTop + currentUser[0].offsetHeight;
-        this.webConferencingExtensions.map((extension) => {
-          if ( !this.$refs[extension.key] ) {
-            this.$nextTick().then(() => {
-              this.initWebConferencingActionComponent(extension);
-            });
-          }
-        });
-        this.displayUserPopover = true;
-      }
-    },
-    hideUserPopover() {
-      if ( this.popover && !this.isMobile) {
-        this.displayUserPopover = false;
-      }
-    },
     refreshWebCOnferencingExtensions () {
       this.webConferencingExtensions = extensionRegistry.loadExtensions('user-profile-popover', 'action') || [];
     },
