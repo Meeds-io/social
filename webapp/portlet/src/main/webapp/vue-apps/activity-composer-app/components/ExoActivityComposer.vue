@@ -6,77 +6,70 @@
         {{ link.replace('{0}', postTarget) }}
       </a>
     </div>
-
-    <v-app id="activityComposerApp" class="activityComposerApp VuetifyApp">
-      <div :class="[showMessageComposer ? 'open' : '', activityId ? `editActivity editActivityDrawer${activityId}` : '']" class="drawer">
+    <exo-drawer
+      ref="activityComposerApp"
+      class="activityComposerApp"
+      :drawer-width="drawerWidth"
+      right
+      @closed="closeMessageComposer">
+      <template
+        slot="title">
         <div class="header">
           <img src="/eXoSkin/skin/images/system/composer/composer.png" loading="lazy">
           <span> {{ $t('activity.composer.title') }}</span>
-          <a
-            class="closebtn"
-            href="javascript:void(0)"
-            @click="closeMessageComposer()">×</a>
         </div>
-        <div class="content">
-          <exo-activity-rich-editor
-            v-if="showMessageComposer"
-            :ref="ckEditorId"
-            v-model="message"
-            :ck-editor-type="ckEditorId"
-            :max-length="MESSAGE_MAX_LENGTH"
-            :template-params="templateParams"
-            :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"
-            autofocus />
-          <div class="composerButtons">
+      </template>
+      <template slot="content">
+        <div class="px-6">
+          <v-list-item-content>
+            <exo-activity-rich-editor
+              v-if="showMessageComposer"
+              :ref="ckEditorId"
+              v-model="message"
+              :ck-editor-type="ckEditorId"
+              :max-length="MESSAGE_MAX_LENGTH"
+              :template-params="templateParams"
+              :placeholder="$t('activity.composer.placeholder').replace('{0}', MESSAGE_MAX_LENGTH)"
+              autofocus />
+          </v-list-item-content>
+          <div class="composerButtons d-flex d-flex justify-space-between">
             <div v-if="displayHintMessage" class="action">
               <i class="fas fa-pencil-alt fa-sm colorIcon" @click="activityComposerHintAction.onExecute(attachments)"></i>
               <a
-                class="message"
+                class="primary--text font-weight-bold text-decoration-underline"
                 href="javascript:void(0)"
                 @click="activityComposerHintAction.onExecute(attachments)">{{ getLabel(activityComposerHintAction.labelKey) }} </a>
             </div>
+            <div v-if="attachments.length" class="action">
+              <a
+                class="viewAllAttachments primary--text font-weight-bold text-decoration-underline"
+                @click="openAttachmentDrawer()">
+                {{ $t('attachments.view.all') }} ({{ attachments && attachments.length }})
+              </a>
+            </div>
             <div v-else class="emptyMessage">
             </div>
-            <div>
-              <v-btn
-                :disabled="postDisabled"
-                :loading="loading"
-                :aria-label="$t(`activity.composer.${composerAction}`)"
-                type="button"
-                class="primary btn no-box-shadow"
-                @click="postMessage()">
-                {{ $t(`activity.composer.${composerAction}`) }}
-              </v-btn>
-            </div>
+            <v-btn
+              :disabled="postDisabled"
+              :loading="loading"
+              :aria-label="$t(`activity.composer.${composerAction}`)"
+              type="button"
+              class="primary btn no-box-shadow justify-end"
+              @click="postMessage()">
+              {{ $t(`activity.composer.${composerAction}`) }}
+            </v-btn>
           </div>
           <transition name="fade">
             <div v-show="showErrorMessage" class="alert alert-error">
               <i class="uiIconError"></i>{{ $t('activity.composer.post.error') }}
             </div>
           </transition>
-          <div class="VuetifyApp">
-            <v-app>
-              <div v-if="attachments.length" class="attachmentsList">
-                <v-progress-circular
-                  :class="uploading ? 'uploading' : ''"
-                  :indeterminate="false"
-                  :value="attachmentsProgress">
-                  <v-icon size="18">
-                    fa-paperclip
-                  </v-icon>
-                </v-progress-circular>
-                <div class="attachedFiles">{{ $t('attachments.drawer.title') }} ({{ attachments.length }})</div>
-              </div>
-            </v-app>
-          </div>
-
-          <div class="composerActions">
+          <div v-if="!activityId" class="composerActions">
             <div
               v-for="action in activityComposerActions"
               :key="action.key"
               :class="`${action.appClass}Action`">
               <div
-                v-if="action.key === 'file' || !activityId"
                 class="actionItem"
                 @click="executeAction(action, attachments)">
                 <div class="actionItemIcon"><div :class="action.iconClass"></div></div>
@@ -97,13 +90,11 @@
             </div>
           </div>
         </div>
-      </div>
-    </v-app>
-    <div
-      v-show="showMessageComposer"
-      :class="`drawer-backdrop-activity${activityId}`"
-      class="drawer-backdrop"
-      @click="closeMessageComposer()"></div>
+      </template>
+    </exo-drawer>
+    <exo-changes-reminder
+      v-if="!isMobile"
+      :reminder="reminder" />
   </div>
 </template>
 
@@ -174,7 +165,12 @@ export default {
       link: `${this.$t('activity.composer.link')}`,
       filesToDetach: [],
       filesToAttach: [],
-      attachmentsAppDrawerOpened: false,
+      reminder: {
+        name: 'activityComposerAttachFile' ,
+        title: `${this.$t('activity.attach.file.reminder.title')}`,
+        description: `${this.$t('activity.attach.file.reminder.description')}`,
+        img: '/social-portlet/images/attachFileIcon.gif',
+      },
     };
   },
   computed: {
@@ -201,6 +197,12 @@ export default {
         return typeof attachment.uploadProgress !== 'undefined' ? attachment.uploadProgress : this.percent;
       }).reduce((a, b) => a + b, 0);
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    },
+    drawerWidth() {
+      return this.isMobile ? '420' : '33%';
+    },
   },
   watch: {
     showErrorMessage: function(newVal) {
@@ -222,35 +224,39 @@ export default {
     document.addEventListener('activity-composer-extension-updated', this.refreshExtensions);
     this.$root.$on('entity-attachments-updated', (attachments) => {
       this.attachments = attachments;
-      this.activityBodyEdited = true;
     });
-    this.$root.$on('remove-composer-attachment-item', attachment => {
-      this.filesToDetach.push(attachment);
-      this.activityBodyEdited = true;
-    });
-    this.$root.$on('attachments-app-drawer-opened', () => {
-      this.attachmentsAppDrawerOpened = true;
-    });
-    this.$root.$on('attachments-app-drawer-closed', () => {
-      this.attachmentsAppDrawerOpened = false;
-    });
-    this.$root.$on('abort-attachments-new-upload', (attachments) => {
-      this.attachments = attachments;
-    });
-    this.$root.$on('add-composer-attachment-item', attachment => {
-      if (this.activityId) {
-        this.filesToAttach.push(attachment);
-      }
-    });
-    this.$root.$on('add-new-created-document', (attachment) =>{
-      if (this.activityId) {
-        this.filesToAttach.push(attachment);
+    document.addEventListener('entity-attachments-updated', (event) => {
+      if (event && event.detail) {
+        this.attachments = event.detail.attachments;
         this.activityBodyEdited = true;
       }
     });
-    this.$root.$on('attachments-changed-from-drives', (attachments) => {
-      if (this.activityId) {
-        for (const attachment of attachments) {
+    document.addEventListener('remove-composer-attachment-item', (event) => {
+      if (event && event.detail) {
+        this.filesToDetach.push(event.detail.attachment);
+        this.activityBodyEdited = true;
+      }
+    });
+    document.addEventListener('abort-attachments-new-upload', (event) => {
+      if (event && event.detail) {
+        this.attachments = event.detail.attachments;
+      }
+    });
+    document.addEventListener('add-composer-attachment-item', (event) => {
+      if (event && event.detail && this.activityId) {
+        this.filesToAttach.push(event.detail.attachment);
+        this.activityBodyEdited = true;
+      }
+    });
+    document.addEventListener('add-new-created-document', (event) =>{
+      if (event && event.detail && this.activityId) {
+        this.filesToAttach.push(event.detail.attachment);
+        this.activityBodyEdited = true;
+      }
+    });
+    document.addEventListener('attachments-changed-from-drives', (event) => {
+      if (event && event.detail && this.activityId) {
+        for (const attachment of event.detail.attachments) {
           this.filesToAttach.push(attachment);
         }
       }
@@ -318,6 +324,7 @@ export default {
             }
           });
       }
+      this.$refs.activityComposerApp.open();
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
@@ -331,9 +338,11 @@ export default {
       this.templateParams = {};
       this.filesToDetach = [];
       this.filesToAttach = [];
+      this.$refs.activityComposerApp.open();
 
       this.showMessageComposer = true;
       this.$nextTick(() => this.$refs[this.ckEditorId].setFocus());
+      document.dispatchEvent(new CustomEvent('exo-changes-reminder-open'));
     },
     getLabel: function(labelKey) {
       const label = this.$t(labelKey);
@@ -350,7 +359,7 @@ export default {
         }
         if (this.filesToDetach) {
           for (const index in this.filesToDetach) {
-            this.$root.$emit('remove-attachment-item', this.filesToDetach[index]);
+            document.dispatchEvent(new CustomEvent('remove-attachment-item', {'detail': {'attachment': this.filesToDetach[index]}}));
           }
           this.filesToDetach = [];
         }
@@ -415,6 +424,7 @@ export default {
       this.showErrorMessage = false;
       this.message = '';
       this.resetEdited();
+      document.addEventListener('attach-file-custom-plugins', this.openAttachmentDrawer);
     },
     refreshActivityStream() {
       const refreshButton = document.querySelector('.activityStreamStatus #RefreshButton');
@@ -423,46 +433,15 @@ export default {
       }
     },
     closeMessageComposer: function () {
-      if (!this.attachmentsAppDrawerOpened) {
-        this.showMessageComposer = false;
-        this.attachments = [];
-        this.activityId = null;
-        this.$refs[this.ckEditorId].unload();
-      } else {
-        this.$root.$emit('message-composer-closed');
-      }
+      this.showMessageComposer = false;
+      this.$refs.activityComposerApp.close();
+      this.attachments = [];
+      this.activityId = null;
+      this.$refs[this.ckEditorId].unload();
+      document.removeEventListener('attach-file-custom-plugins', this.openAttachmentDrawer);
     },
     executeAction(action, attachments) {
-      if (action.key === 'file') {
-        if (eXo.env.portal.spaceId) {
-          action.component.props.attachmentAppConfiguration = {
-            'defaultDrive': {
-              isSelected: true,
-              name: `.spaces.${eXo.env.portal.spaceGroup}`,
-              title: eXo.env.portal.spaceDisplayName,
-            },
-            'defaultFolder': 'Activity Stream Documents',
-          };
-        } else {
-          action.component.props.attachmentAppConfiguration = {
-            'defaultDrive': {
-              isSelected: true,
-              name: eXo.env.portal.userName,
-              title: eXo.env.portal.spaceDisplayName,
-            },
-            'defaultFolder': 'Activity Stream Documents',
-          };
-        }
-        if (this.activityId) {
-          action.component.props.attachmentAppConfiguration.entityId = parseInt(this.activityId);
-          action.component.props.attachmentAppConfiguration.entityType = 'activity';
-          action.component.props.attachments = this.attachments;
-        }
-      }
       executeExtensionAction(action, this.$refs[action.key], attachments);
-    },
-    updateAttachments(attachments) {
-      this.attachments = attachments;
     },
     refreshCurrentActivity() {
       const refreshButton = document.querySelector(`#activityContainer${this.activityId} #RefreshActivity${this.activityId}`);
@@ -485,6 +464,36 @@ export default {
         });
       }
     },
+    openAttachmentDrawer() {
+      let attachmentAppConfiguration;
+      if (eXo.env.portal.spaceId) {
+        attachmentAppConfiguration = {
+          'defaultDrive': {
+            isSelected: true,
+            name: `.spaces.${eXo.env.portal.spaceGroup}`,
+            title: eXo.env.portal.spaceDisplayName,
+          },
+          'defaultFolder': 'Activity Stream Documents',
+        };
+      } else {
+        attachmentAppConfiguration = {
+          'defaultDrive': {
+            isSelected: true,
+            name: eXo.env.portal.userName,
+            title: eXo.env.portal.spaceDisplayName,
+          },
+          'defaultFolder': 'Activity Stream Documents',
+        };
+      }
+      attachmentAppConfiguration.isComposerAttachment = true;
+      attachmentAppConfiguration.entityType = 'activity';
+      attachmentAppConfiguration.attachments = this.attachments;
+
+      if (this.activityId) {
+        attachmentAppConfiguration.entityId = parseInt(this.activityId);
+      }
+      document.dispatchEvent(new CustomEvent('open-attachments-app-drawer', {detail: attachmentAppConfiguration}));
+    }
   }
 };
 </script>
