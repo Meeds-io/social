@@ -5,7 +5,7 @@
       :key="user"
       :identity="user"
       :size="iconSize"
-      :class="avatarOverlayPosition && 'mx-1' || ''"
+      :extra-class="'mx-1'"
       :popover="popover"
       avatar />
     <v-avatar

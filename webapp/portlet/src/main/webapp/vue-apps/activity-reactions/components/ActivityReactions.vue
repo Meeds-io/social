@@ -9,7 +9,7 @@
           :size="30"
           popover
           avatar 
-          class="me-1" />
+          extra-class="me-1" />
       </div>
     </div>
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
