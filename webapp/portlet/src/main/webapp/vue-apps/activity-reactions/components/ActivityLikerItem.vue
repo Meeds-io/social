@@ -4,7 +4,7 @@
       :identity="liker"
       avatar-class="me-2"
       size="42"
-      class="pl-3 pt-2 pb-1"
+      extra-class="pl-3 pt-2 pb-1"
       popover
       bold-title>
       <template slot="subTitle">
