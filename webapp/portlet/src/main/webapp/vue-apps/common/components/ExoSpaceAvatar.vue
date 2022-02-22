@@ -11,7 +11,9 @@
     min-width="270"
     offset-y>
     <template v-slot:activator="{ on, attrs }">
-      <div class="profile-popover space-avatar-wrapper">
+      <div 
+        class="profile-popover space-avatar-wrapper"
+        :class="extraClass">
         <a
           v-bind="attrs"
           v-on="on"
@@ -91,7 +93,8 @@
   </v-menu>
   <div 
     v-else
-    class="profile-popover space-avatar-wrapper">
+    class="profile-popover space-avatar-wrapper"
+    :class="extraClass">
     <a
       v-bind="attrs"
       v-on="on"
@@ -161,6 +164,10 @@ export default {
     popoverLeftPosition: {
       type: Boolean,
       default: () => false,
+    },
+    extraClass: {
+      type: String,
+      default: () => '',
     },
   },
   data() {
