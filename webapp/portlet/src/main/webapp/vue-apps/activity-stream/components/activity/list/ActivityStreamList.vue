@@ -2,7 +2,7 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
-    <exo-activity-composer
+    <activity-composer
       :standalone="!canPost"
       id="activityComposer" />
     <activity-stream-confirm-dialog />

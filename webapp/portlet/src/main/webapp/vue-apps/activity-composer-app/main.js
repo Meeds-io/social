@@ -1,4 +1,4 @@
-import './components/initComponents.js';
+import './initComponents.js';
 
 // get overridden components if exists
 if (extensionRegistry) {
