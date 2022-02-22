@@ -143,6 +143,10 @@ export default {
 
       let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
+      const toolbar = [
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+      ];
+
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
@@ -154,14 +158,27 @@ export default {
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
-      if (this.ckEditorType === 'activityContent') {
-        extraPlugins = `${extraPlugins},attachFile`;
-      }
       if (eXo.env.portal.activityTagsEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
       }
+
+      const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
+      if (ckEditorExtensions && ckEditorExtensions.length && this.ckEditorType === 'activityContent') {
+        ckEditorExtensions.forEach(ckEditorExtension => {
+          if (ckEditorExtension.extraPlugin) {
+            extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
+          }
+          if (ckEditorExtension.removePlugin) {
+            removePlugins = `${extraPlugins},${ckEditorExtension.removePlugin}`;
+          }
+          if (ckEditorExtension.extraToolbarItem) {
+            toolbar[0].push(ckEditorExtension.extraToolbarItem);
+          }
+        });
+      }
+
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
       const self = this;
@@ -169,11 +186,9 @@ export default {
         customConfig: '/commons-extension/ckeditorCustom/config.js',
         extraPlugins,
         removePlugins,
+        toolbar,
         allowedContent: true,
         enterMode: 3, // div
-        toolbar: [
-          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote', 'attachFile'],
-        ],
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
