@@ -105,7 +105,7 @@
           <span class="font-weight-bold" v-sanitized-html="title"></span>
           <exo-user
             :profile-id="identityReceiver"
-            :extra-class="'ms-2'"
+            extra-class="ms-2"
             fullname 
             popover 
             bold-title
