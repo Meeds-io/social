@@ -8,7 +8,7 @@
     :left="popoverLeftPosition"
     :offset-x="offsetX"
     :offset-y="offsetY"
-    content-class="popover-menu overflow-y-hidden white"
+    content-class="profile-popover-menu overflow-y-hidden white"
     max-width="250"
     min-width="250">
     <template v-slot:activator="{ on, attrs }">
@@ -272,9 +272,22 @@ export default {
       id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
-      displayUserPopover: false,
       webConferencingExtensions: [],
+      menu: false,
     };
+  },
+  watch: {
+    menu () {
+      if ( this.menu ) {
+        this.webConferencingExtensions.map((extension) => {
+          if ( !this.$refs[extension.key] ) {
+            this.$nextTick().then(() => {
+              this.initWebConferencingActionComponent(extension);
+            });
+          }
+        });
+      }
+    }
   },
   computed: {
     enabledWebConferencingComponents() {
@@ -332,8 +345,8 @@ export default {
     }
     if ( this.popover && !this.isMobile) {
       this.refreshWebCOnferencingExtensions();
+      document.dispatchEvent(new CustomEvent('profile-extension-init'));
     }
-    document.dispatchEvent(new CustomEvent('profile-extension-init'));
   },
   methods: {
     refreshWebCOnferencingExtensions () {
