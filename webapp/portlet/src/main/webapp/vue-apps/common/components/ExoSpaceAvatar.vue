@@ -1,11 +1,12 @@
 <template>
   <v-menu
     v-if="popover && !isMobile"
+    v-model="menu"
     rounded="rounded"
     open-on-hover
     :close-on-content-click="false"
     :left="popoverLeftPosition"
-    content-class="popover-menu white"
+    content-class="profile-popover-menu white"
     max-width="270"
     min-width="270"
     offset-y>
@@ -167,9 +168,22 @@ export default {
       id: `spaceAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
-      displaySpacePopover: false,
-      spacePopupExtensions: []
+      spacePopupExtensions: [],
+      menu: false,
     };
+  },
+  watch: {
+    menu () {
+      if ( this.menu ) {
+        this.spacePopupExtensions.map((extension) => {
+          if ( !this.$refs[extension.key] ) {
+            this.$nextTick().then(() => {
+              this.initWebConferencingActionComponent(extension);
+            });
+          }
+        });
+      }
+    }
   },
   computed: {
     spaceId() {
@@ -216,7 +230,10 @@ export default {
     },
   },
   created() {
-    this.refreshExtensions();
+    if ( this.popover && !this.isMobile) {
+      this.refreshExtensions();
+    }
+
   },
   methods: {
     refreshExtensions() {
