@@ -95,7 +95,10 @@ export default {
     },
     removeConfirm() {
       this.$spaceService.removeApplication(this.spaceId, this.selectedApplication.id)
-        .then(() => this.$emit('refresh'));
+        .then(() => {
+          this.$emit('refresh');
+          document.dispatchEvent(new CustomEvent('reloadSpaceApplications'));
+        });
     },
     openDrawer() {
       this.$refs.spaceSettingAddApplicationDrawer.open();

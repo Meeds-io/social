@@ -76,6 +76,7 @@ export default {
       this.$spaceService.addApplication(this.spaceId, application.contentId.split('/')[1])
         .then(() => {
           this.$emit('refresh');
+          document.dispatchEvent(new CustomEvent('reloadSpaceApplications'));
 
           window.setTimeout(() => {
             this.$refs.spaceApplicationInstallerDrawer.close();
