@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-nowrap">
+  <div class="d-flex flex-nowrap position-relative">
     <exo-user
       v-for="user in usersToDisplay"
       :key="user"
@@ -11,7 +11,6 @@
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
-      :tiptip="false"
       :class="avatarOverlayPosition && 'position-relative' || 'position-absolute'"
       :style="overlayStyle"
       class="notDisplayedIdentitiesOverlay clickable"
@@ -71,7 +70,7 @@ export default {
       if (this.avatarOverlayPosition) {
         return `right: ${this.iconSize + 4}px !important`;
       } 
-      return '';
+      return 'right: 4px !important';
     },
   },
   created() {

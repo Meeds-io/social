@@ -15,6 +15,49 @@
         class="profile-popover space-avatar-wrapper"
         :class="extraClass">
         <a
+          v-if="avatar"
+          v-bind="attrs"
+          v-on="on"
+          :id="id"
+          :href="url"
+          class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+          <v-avatar
+            :size="size"
+            tile
+            class="pull-left my-auto">
+            <img
+              :src="avatarUrl"
+              :class="avatarClass"
+              class="object-fit-cover ma-auto"
+              loading="lazy"
+              role="presentation">
+          </v-avatar>
+        </a>
+        <a
+          v-else-if="fullname"
+          v-bind="attrs"
+          v-on="on"
+          :id="id"
+          :href="url"
+          class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+          <div
+            v-if="displayName || $slots.subTitle"
+            :class="!subtitleNewLine && 'd-flex'"
+            class="pull-left text-truncate ms-2">
+            <p
+              v-if="displayName"
+              :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+              class="text-truncate subtitle-2 my-auto">
+              {{ displayName }}
+            </p>
+            <p v-if="$slots.subTitle" class="text-sub-title my-auto">
+              <slot name="subTitle">
+              </slot>
+            </p>
+          </div>
+        </a>
+        <a
+          v-else
           v-bind="attrs"
           v-on="on"
           :id="id"
@@ -91,11 +134,54 @@
       </div>
     </v-card>
   </v-menu>
-  <div 
+  <div
     v-else
     class="profile-popover space-avatar-wrapper"
     :class="extraClass">
     <a
+      v-if="avatar"
+      v-bind="attrs"
+      v-on="on"
+      :id="id"
+      :href="url"
+      class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+      <v-avatar
+        :size="size"
+        tile
+        class="pull-left my-auto">
+        <img
+          :src="avatarUrl"
+          :class="avatarClass"
+          class="object-fit-cover ma-auto"
+          loading="lazy"
+          role="presentation">
+      </v-avatar>
+    </a>
+    <a
+      v-else-if="fullname"
+      v-bind="attrs"
+      v-on="on"
+      :id="id"
+      :href="url"
+      class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+      <div
+        v-if="displayName || $slots.subTitle"
+        :class="!subtitleNewLine && 'd-flex'"
+        class="pull-left text-truncate ms-2">
+        <p
+          v-if="displayName"
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+          class="text-truncate subtitle-2 my-auto">
+          {{ displayName }}
+        </p>
+        <p v-if="$slots.subTitle" class="text-sub-title my-auto">
+          <slot name="subTitle">
+          </slot>
+        </p>
+      </div>
+    </a>
+    <a
+      v-else
       v-bind="attrs"
       v-on="on"
       :id="id"
@@ -118,7 +204,7 @@
         class="pull-left text-truncate ms-2">
         <p
           v-if="displayName"
-          :class="fullnameStyle"
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
           class="text-truncate subtitle-2 my-auto">
           {{ displayName }}
         </p>
@@ -139,6 +225,18 @@ export default {
     space: {
       type: Object,
       default: () => null,
+    },
+    spacePrettyName: {
+      type: String,
+      default: () => null,
+    },
+    avatar: {
+      type: Boolean,
+      default: () => false,
+    },
+    fullname: {
+      type: Boolean,
+      default: () => false,
     },
     boldTitle: {
       type: Boolean,
@@ -193,9 +291,6 @@ export default {
     }
   },
   computed: {
-    spaceId() {
-      return this.space && this.space.id;
-    },
     displayName() {
       return this.space && this.space.displayName;
     },
@@ -237,6 +332,12 @@ export default {
     },
   },
   created() {
+    if (this.spacePrettyName) {
+      this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
+        .then(space => {
+          this.space = space;
+        });
+    }
     if ( this.popover && !this.isMobile) {
       this.refreshExtensions();
     }
