@@ -36,6 +36,8 @@ public class MetadataActivityProcessor extends BaseActivityProcessorPlugin {
 
   public static final String ACTIVITY_METADATA_OBJECT_TYPE = "activity";
 
+  public static final String NEWS_METADATA_OBJECT_TYPE = "news";
+
   private MetadataService    metadataService;
 
   public MetadataActivityProcessor(MetadataService metadataService, InitParams params) {

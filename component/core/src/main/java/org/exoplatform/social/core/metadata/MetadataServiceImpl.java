@@ -29,6 +29,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
+import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.metadata.MetadataInitPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
@@ -183,7 +184,9 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
     try {
-      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
+      if(!metadataItem.getObjectType().equals(MetadataActivityProcessor.NEWS_METADATA_OBJECT_TYPE)) {
+        this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
+      }
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event for metadata item creation", e);
     }
