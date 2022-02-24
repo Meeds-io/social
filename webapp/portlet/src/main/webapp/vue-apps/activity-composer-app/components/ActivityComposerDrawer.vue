@@ -39,6 +39,7 @@
         </v-card-actions>
         <v-card-text class="composerActions">
           <extension-registry-components
+            v-if="activityId === null"
             :params="extensionParams"
             name="ActivityComposerFooterAction"
             type="activity-composer-footer-action">
@@ -65,6 +66,8 @@ export default {
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
+      originalBody: '',
+      messageEdited: false,
     };
   },
   computed: {
@@ -100,7 +103,7 @@ export default {
       return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
     },
     postDisabled() {
-      return !this.messageLength || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited);
+      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
   },
   watch: {
@@ -110,18 +113,23 @@ export default {
       // An activity
       if (this.activityId && !this.activityBodyEdited) {
         this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
+        this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
     },
   },
   created() {
     document.addEventListener('activity-composer-edit-activity', this.open);
-    document.addEventListener('activity-composer-edited', () => this.activityBodyEdited = true);
+    document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
   },
   methods: {
+    isActivityBodyEdited(event) {
+      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+    },
     open(params) {
       params = params && params.detail;
       if (params) {
         this.message = params.activityBody;
+        this.originalBody = params.activityBody;
         this.activityId = params.activityId;
         this.templateParams = params.activityParams || {};
         this.files = params.files || [];
@@ -133,6 +141,7 @@ export default {
       }
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
+        this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
       });
     },
