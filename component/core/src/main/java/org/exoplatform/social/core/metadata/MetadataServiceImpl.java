@@ -184,9 +184,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
     try {
-      if(!metadataItem.getObjectType().equals(MetadataActivityProcessor.NEWS_METADATA_OBJECT_TYPE)) {
         this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
-      }
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event for metadata item creation", e);
     }
