@@ -39,6 +39,7 @@
         </v-card-actions>
         <v-card-text class="composerActions">
           <extension-registry-components
+            v-if="activityId === null"
             :params="extensionParams"
             name="ActivityComposerFooterAction"
             type="activity-composer-footer-action">
@@ -100,7 +101,7 @@ export default {
       return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
     },
     postDisabled() {
-      return !this.messageLength || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited);
+      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited);
     },
   },
   watch: {
