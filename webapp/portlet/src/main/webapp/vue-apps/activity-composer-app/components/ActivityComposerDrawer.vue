@@ -66,6 +66,8 @@ export default {
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
+      originalBody: '',
+      messageEdited: false,
     };
   },
   computed: {
@@ -111,18 +113,23 @@ export default {
       // An activity
       if (this.activityId && !this.activityBodyEdited) {
         this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
+        this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
     },
   },
   created() {
     document.addEventListener('activity-composer-edit-activity', this.open);
-    document.addEventListener('activity-composer-edited', () => this.activityBodyEdited = true);
+    document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
   },
   methods: {
+    isActivityBodyEdited(event) {
+      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+    },
     open(params) {
       params = params && params.detail;
       if (params) {
         this.message = params.activityBody;
+        this.originalBody = params.activityBody;
         this.activityId = params.activityId;
         this.templateParams = params.activityParams || {};
         this.files = params.files || [];
@@ -134,6 +141,7 @@ export default {
       }
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
+        this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
       });
     },
