@@ -13,7 +13,7 @@
     min-width="250">
     <template v-slot:activator="{ on, attrs }">
       <div 
-        class="profile-popover user-wrapper"
+        class="profile-popover user-wrapper overflow-hidden"
         :class="extraClass">
         <a 
           v-if="avatar"
@@ -38,18 +38,17 @@
           v-bind="attrs"
           v-on="on"
           :id="id"
-          :href="profileUrl"
-          class="pull-left d-flex flex-column align-start text-truncate">
-          <span
+          :href="profileUrl">
+          <p
             v-if="userFullname"
             :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-            class="text-truncate subtitle-2 my-auto">
+            class="text-truncate subtitle-2 text-left mb-0">
             {{ userFullname }}
             <span v-if="isExternal" class="muted">{{ externalTag }} </span>
-          </span>
-          <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+          </p>
+          <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
             <slot name="subTitle"></slot>
-          </span>
+          </p>
         </a>
         <a
           v-else
@@ -68,18 +67,18 @@
               loading="lazy"
               role="presentation">
           </v-avatar>
-          <p v-if="userFullname || $slots.subTitle" class="ms-2 d-flex align-start flex-column text-truncate mb-0">
-            <span
+          <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
+            <p
               v-if="userFullname"
               :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-              class="text-truncate subtitle-2 my-auto">
+              class="text-truncate subtitle-2 text-left mb-0">
               {{ userFullname }}
               <span v-if="isExternal" class="muted">{{ externalTag }} </span>
-            </span>
-            <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+            </p>
+            <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
               <slot name="subTitle"></slot>
-            </span>
-          </p>
+            </p>
+          </div>
           <template v-if="$slots.actions">
             <slot name="actions"></slot>
           </template>
@@ -124,7 +123,7 @@
   </v-menu>
   <div 
     v-else
-    class="profile-popover user-wrapper"
+    class="profile-popover user-wrapper overflow-hidden"
     :class="extraClass">
     <a 
       v-if="avatar"
@@ -146,7 +145,7 @@
       v-else-if="fullname"
       :id="id"
       :href="profileUrl"
-      class="pull-left d-flex flex-column align-start text-truncate">
+      class="pull-left d-flex align-start text-truncate">
       <span
         v-if="userFullname"
         :class="fullnameStyle"
@@ -173,18 +172,18 @@
           loading="lazy"
           role="presentation">
       </v-avatar>
-      <p v-if="userFullname || $slots.subTitle" class="ms-2 d-flex align-start flex-column text-truncate mb-0">
-        <span
+      <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
+        <p
           v-if="userFullname"
           :class="fullnameStyle"
-          class="text-truncate subtitle-2 my-auto">
+          class="text-truncate subtitle-2 text-left mb-0">
           {{ userFullname }}
           <span v-if="isExternal" class="muted">{{ externalTag }} </span>
-        </span>
-        <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+        </p>
+        <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
           <slot name="subTitle"></slot>
-        </span>
-      </p>
+        </p>
+      </div>
       <template v-if="$slots.actions">
         <slot name="actions"></slot>
       </template>
