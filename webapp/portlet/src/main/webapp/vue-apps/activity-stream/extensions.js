@@ -111,7 +111,8 @@ extensionRegistry.registerExtension('activity', 'action', {
       composerAction: 'update',
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
-      templateParams: activity.templateParams,
+      files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
+      templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
     }}));
   },
 });
