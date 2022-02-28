@@ -5,7 +5,7 @@
     </template>
     <template v-if="space && space.managers" slot="content">
       <v-layout column class="ma-3">
-        <exo-user
+        <exo-user-avatar
           v-for="manager in space.managers"
           :key="manager.id"
           :identity="manager"

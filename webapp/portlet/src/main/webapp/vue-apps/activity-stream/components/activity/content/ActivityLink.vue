@@ -103,7 +103,7 @@
           v-else
           class="d-flex align-center text-color mx-0 mt-0 mb-2 text-wrap text-break">
           <span class="font-weight-bold" v-sanitized-html="title"></span>
-          <exo-user
+          <exo-user-avatar
             :profile-id="identityReceiver"
             extra-class="ms-2"
             fullname 

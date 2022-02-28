@@ -2,7 +2,7 @@
   <v-list-item
     class="activity-head"
     dense>
-    <exo-user
+    <exo-user-avatar
       :identity="posterIdentity"
       :size="45"
       :extra-class="'me-2'"
@@ -10,7 +10,7 @@
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
       <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
-        <exo-user
+        <exo-user-avatar
           :identity="posterIdentity"
           fullname
           popover

@@ -17,7 +17,7 @@
     </div>
     <template v-else>
       <v-list-item :class="highlightClass" class="pa-0 mb-4 width-fit-content">
-        <exo-user
+        <exo-user-avatar
           :identity="posterIdentity"
           :size="33"
           :extra-class="'mt-0 mb-auto me-2 flex-grow-0'" 
@@ -26,7 +26,7 @@
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
           <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
             <v-list-item-title class="pt-1 font-weight-bold subtitle-2 d-flex justify-space-between">
-              <exo-user
+              <exo-user-avatar
                 :identity="posterIdentity"
                 fullname
                 popover

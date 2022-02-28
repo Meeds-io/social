@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-nowrap position-relative">
-    <exo-user
+    <exo-user-avatar
       v-for="user in usersToDisplay"
       :key="user"
       :identity="user"

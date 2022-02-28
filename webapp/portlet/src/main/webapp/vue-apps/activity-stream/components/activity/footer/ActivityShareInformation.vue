@@ -1,7 +1,7 @@
 <template>
   <div class="activity-share-information d-flex flex-column align-start">
     <div class="activity-share-stream d-flex align-center flex-row flex text-truncate">
-      <exo-user
+      <exo-user-avatar
         :identity="sharedPoster"
         :size="25"
         class="activity-share-user"

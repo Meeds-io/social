@@ -4,7 +4,7 @@
     flat
     min-height="227">
     <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
-      <exo-user
+      <exo-user-avatar
         :identity="poster"
         popover>
         <template slot="subTitle">
@@ -19,7 +19,7 @@
             right="0"
             @removed="$emit('refresh-favorite')" />
         </template>
-      </exo-user>
+      </exo-user-avatar>
     </v-card-text>
     <div class="mx-auto flex-grow-1 px-3 py-0">
       <div

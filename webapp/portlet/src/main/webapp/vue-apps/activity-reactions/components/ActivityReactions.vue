@@ -2,7 +2,7 @@
   <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
     <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
-        <exo-user
+        <exo-user-avatar
           v-for="liker in likersToDisplay"
           :key="liker.id"
           :identity="liker"

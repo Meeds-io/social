@@ -1,6 +1,6 @@
 <template>
   <div v-if="liker" class="activityLikerItem">
-    <exo-user
+    <exo-user-avatar
       :identity="liker"
       avatar-class="me-2"
       size="42"
@@ -12,7 +12,7 @@
           {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
         </span>
       </template>
-    </exo-user>
+    </exo-user-avatar>
   </div>
 </template>
 <script>

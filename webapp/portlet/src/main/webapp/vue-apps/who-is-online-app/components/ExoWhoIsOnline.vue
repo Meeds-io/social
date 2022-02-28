@@ -6,7 +6,7 @@
           {{ $t('header.label') }}
         </v-card-title>
         <div id="onlineList" class="d-flex align-center justify-center flex-wrap  py-3">
-          <exo-user
+          <exo-user-avatar
             v-for="user in users"
             :key="user.id"
             :identity="user"

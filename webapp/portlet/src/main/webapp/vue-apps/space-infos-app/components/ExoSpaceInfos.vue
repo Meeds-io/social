@@ -6,7 +6,7 @@
       <div id="spaceManagersList">
         <h5>{{ $t("social.space.description.managers") }}</h5>
         <div id="spaceManagers">
-          <exo-user
+          <exo-user-avatar
             v-for="manager in managers"
             :key="manager"
             :identity="manager"
@@ -21,7 +21,7 @@
       <div v-if="redactors && redactors.length" id="spaceRedactorsList">
         <h5>{{ $t("social.space.description.redactors") }}</h5>
         <div id="spaceRedactors">
-          <exo-user
+          <exo-user-avatar
             v-for="redactor in redactors"
             :key="redactor"
             :ref="redactor.id"
