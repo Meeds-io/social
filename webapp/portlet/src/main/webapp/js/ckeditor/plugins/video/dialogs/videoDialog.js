@@ -73,13 +73,13 @@ CKEDITOR.dialog.add( 'videoDialog', function( editor ) {
             var url = '';
 
             if(video.provider == 'youtube'){
-                var url = 'https://www.youtube.com/embed/' + video.id_video + '?autohide=1&controls=1&showinfo=0';
+                url = 'https://www.youtube.com/embed/' + video.id_video + '?autohide=1&controls=1&showinfo=0';
             }
             else if(video.provider == 'vimeo'){
-                var url = 'https://player.vimeo.com/video/' + video.id_video + '?portrait=0';
+                url = 'https://player.vimeo.com/video/' + video.id_video + '?portrait=0';
             }
             else if(video.provider == 'dailymotion'){
-                var url = 'https://www.dailymotion.com/embed/video/' + video.id_video;
+                url = 'https://www.dailymotion.com/embed/video/' + video.id_video;
             }
 
             var p = new CKEDITOR.dom.element('div');
@@ -105,7 +105,7 @@ function detect(dialog){
     var url = dialog.getValueOf( 'main', 'url_video' );
     var id = '';
     var provider = '';
-    var url_comprobar = '';
+    var fin= '';
 
     if(url.indexOf('youtu.be') >= 0){
         provider = 'youtube';
@@ -114,27 +114,23 @@ function detect(dialog){
     if(url.indexOf('youtube') >= 0){
         provider = 'youtube';
         if(url.indexOf('</iframe>') >= 0){
-            var fin = url.substring(url.indexOf('embed/')+6, url.length)
-            id      = fin.substring(fin.indexOf('"'), 0);
+            fin = url.substring(url.indexOf('embed/')+6, url.length)
+            id = fin.substring(fin.indexOf('"'), 0);
         }else{
             if(url.indexOf('&') >= 0)
                 id = url.substring(url.indexOf('?v=')+3, url.indexOf('&'));
             else
                 id = url.substring(url.indexOf('?v=')+3, url.length);
         }
-        url_comprobar = 'https://gdata.youtube.com/feeds/api/videos/' + id + '?v=2&alt=json';
-        //'https://gdata.youtube.com/feeds/api/videos/' + id + '?v=2&alt=json'
     }
     if(url.indexOf('vimeo') >= 0){
         provider = 'vimeo'
         if(url.indexOf('</iframe>') >= 0){
-            var fin = url.substring(url.lastIndexOf('vimeo.com/"')+6, url.indexOf('>'))
+            fin = url.substring(url.lastIndexOf('vimeo.com/"')+6, url.indexOf('>'))
             id      = fin.substring(fin.lastIndexOf('/')+1, fin.indexOf('"',fin.lastIndexOf('/')+1))
         }else{
             id = url.substring(url.lastIndexOf('/')+1, url.length)
         }
-        url_comprobar = 'http://vimeo.com/api/v2/video/' + id + '.json';
-        //'http://vimeo.com/api/v2/video/' + video_id + '.json';
     }
     if(url.indexOf('dai.ly') >= 0){
         provider = 'dailymotion';
@@ -143,7 +139,7 @@ function detect(dialog){
     if(url.indexOf('dailymotion') >= 0){
         provider = 'dailymotion';
         if(url.indexOf('</iframe>') >= 0){
-            var fin = url.substring(url.indexOf('dailymotion.com/')+16, url.indexOf('></iframe>'))
+            fin = url.substring(url.indexOf('dailymotion.com/')+16, url.indexOf('></iframe>'))
             id      = fin.substring(fin.lastIndexOf('/')+1, fin.lastIndexOf('"'))
         } else {
             if(url.indexOf('_') >= 0)
@@ -151,8 +147,6 @@ function detect(dialog){
             else
                 id = url.substring(url.lastIndexOf('/')+1, url.length);
         }
-        url_comprobar = 'https://api.dailymotion.com/video/' + id;
-        // https://api.dailymotion.com/video/x26ezrb
     }
     return {'provider': provider, 'id_video': id};
 }
@@ -166,7 +160,7 @@ function setValidationStatus(status, editor) {
   const urlInputElement = document.querySelector('.videoURL');
   var validationStatusElement = urlInputElement.parentNode.querySelector('span');
   if(!validationStatusElement) {
-    var validationStatusElement = document.createElement('span');
+    validationStatusElement = document.createElement('span');
     urlInputElement.parentNode.insertBefore(validationStatusElement, urlInputElement);
   }
 
