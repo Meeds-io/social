@@ -3395,6 +3395,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     spaceService.saveSpace(space2, true);
     tearDownSpaceList.add(space2);
+
+    // sleep 1ms to be sure that 2 spaces created in a row
+    // have not the same createdDate
+    Thread.sleep(1);
     return space2;
   }
 
