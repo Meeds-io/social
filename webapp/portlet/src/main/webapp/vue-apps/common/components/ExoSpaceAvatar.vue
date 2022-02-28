@@ -43,7 +43,7 @@
           <div
             v-if="displayName || $slots.subTitle"
             :class="!subtitleNewLine && 'd-flex'"
-            class="pull-left text-truncate ms-2">
+            class="pull-left text-truncate">
             <p
               v-if="displayName"
               :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -230,6 +230,10 @@ export default {
       type: String,
       default: () => null,
     },
+    spaceId: {
+      type: String,
+      default: () => null,
+    },
     avatar: {
       type: Boolean,
       default: () => false,
@@ -243,6 +247,10 @@ export default {
       default: () => false,
     },
     linkStyle: {
+      type: Boolean,
+      default: () => false,
+    },
+    smallFontSize: {
       type: Boolean,
       default: () => false,
     },
@@ -317,7 +325,7 @@ export default {
       return this.space && this.space.description;
     },
     fullnameStyle() {
-      return `${this.boldTitle && 'font-weight-bold ' || ''}${!this.linkStyle && 'text-color' || ''}`;
+      return `${this.boldTitle && 'font-weight-bold ' || ''}${this.smallFontSize && 'caption ' || ''}`;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
@@ -332,11 +340,20 @@ export default {
     },
   },
   created() {
-    if (this.spacePrettyName) {
-      this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
-        .then(space => {
-          this.space = space;
-        });
+    if (!this.space) {
+      if (this.spacePrettyName && !this.spaceId){
+        this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
+          .then(space => {
+            this.space = space;
+          });
+      } else {
+        if (this.spaceId) {
+          this.$spaceService.getSpaceById(this.spaceId)
+            .then(space => {
+              this.space = space;
+            });
+        }
+      }
     }
     if ( this.popover && !this.isMobile) {
       this.refreshExtensions();
