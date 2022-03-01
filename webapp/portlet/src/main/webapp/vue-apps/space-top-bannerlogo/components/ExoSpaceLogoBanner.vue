@@ -83,32 +83,13 @@
                     cols="6"
                     justify="center"
                     class="d-flex flex-nowrap pa-0">
-                    <exo-user-avatar
-                      v-for="manager in mangersToDisplay"
-                      :key="manager.id"
-                      :username="manager.userName"
-                      :title="manager.fullName"
-                      :avatar-url="manager.avatar"
-                      :size="30"
-                      :retrieve-extra-information="false"
-                      class="me-1 pa-0 mt-0 mb-0" />
-                    <v-avatar
-                      v-if="!KeepDisplayManagers"
-                      :size="30"
-                      class="ma-0">
-                      <img
-                        :src="lastManagerToDisplay.avatar"
-                        :title="lastManagerToDisplay.fullName"
-                        class="object-fit-cover"
-                        loading="lazy"
-                        role="presentation"
-                        :alt="lastManagerToDisplay.fullName">
-                      <span
-                        id="showMoreManagers"
-                        class="font-weight-bold white--text">
-                        <p class="mt-2">+{{ showMoreManagers }}</p>
-                      </span>
-                    </v-avatar>
+                    <exo-user-avatars-list
+                      :users="mangersToDisplay"
+                      :icon-size="30"
+                      :popover="false"
+                      max="4"
+                      retrieve-extra-information
+                      avatar-overlay-position />
                   </v-col>
                 </v-row>
               </v-container>
@@ -206,26 +187,14 @@ export default {
         return null;
       },
     },
-    sizeToDisplay: {
-      type: Number,
-      default: function () {
-        return 3;
-      },
-    },
   },
   computed: {
     KeepDisplayManagers() {
       return this.managers && this.managers.length <= this.sizeToDisplay;
     },
     mangersToDisplay() {
-      return this.managers && this.managers.slice(0, this.sizeToDisplay);
+      return this.managers;
     },
-    lastManagerToDisplay() {
-      return this.managers && this.managers.length > this.sizeToDisplay && this.managers[this.sizeToDisplay];
-    },
-    showMoreManagers() {
-      return this.managers && this.managers.length - this.sizeToDisplay;
-    }
   },
   methods: {
     openChatDrawer() {

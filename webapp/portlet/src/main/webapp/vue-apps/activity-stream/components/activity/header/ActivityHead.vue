@@ -2,27 +2,40 @@
   <v-list-item
     class="activity-head"
     dense>
-    <activity-head-user
+    <exo-user-avatar
       :identity="posterIdentity"
-      class="me-3 py-2"
+      :size="45"
+      :extra-class="'me-2'"
+      popover
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel">
-      <v-list-item-title class="font-weight-bold body-2 mb-0">
-        <activity-head-user :identity="posterIdentity" />
+      <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+        <exo-user-avatar
+          :identity="posterIdentity"
+          fullname
+          popover
+          bold-title
+          link-style
+          username-class />
         <template v-if="space">
           <v-icon
             v-if="$vuetify.rtl"
             size="8"
-            class="mx-1">
+            class="mx-1 ps-1">
             fa-chevron-left
           </v-icon>
           <v-icon
             v-else
             size="8"
-            class="mx-1">
+            class="mx-1 ps-1">
             fa-chevron-right
           </v-icon>
-          <activity-head-space :space="space" />
+          <exo-space-avatar 
+            :space="space" 
+            :size="20"
+            bold-title
+            link-style
+            popover />
         </template>
       </v-list-item-title>
       <activity-head-time
@@ -81,7 +94,7 @@ export default {
       };
     },
     posterIdentity() {
-      return this.activity && this.activity.identity;
+      return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.dataEntity;
     },
   },
 };

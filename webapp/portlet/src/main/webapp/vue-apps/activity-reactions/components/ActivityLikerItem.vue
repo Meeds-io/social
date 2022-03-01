@@ -1,13 +1,11 @@
 <template>
   <div v-if="liker" class="activityLikerItem">
     <exo-user-avatar
-      :username="userName"
-      :fullname="fullName"
-      :avatar-url="avatarUrl"
-      :url="profileUrl"
+      :identity="liker"
       avatar-class="me-2"
       size="42"
-      class="pl-3 pt-2 pb-1"
+      extra-class="pl-3 pt-2 pb-1"
+      popover
       bold-title>
       <template slot="subTitle">
         <span v-if="!sameUser" class="caption text-bold">
@@ -40,18 +38,6 @@ export default {
     },
     notConnected() {
       return this.userInformations && !this.userInformations.relationshipStatus && !this.sameUser;
-    },
-    userName() {
-      return this.liker && this.liker.username;
-    },
-    fullName() {
-      return this.liker && this.liker.fullname;
-    },
-    avatarUrl() {
-      return this.liker && this.liker.avatar;
-    },
-    profileUrl() {
-      return this.liker && this.userName && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.userName}`;
     },
   },
   created() {

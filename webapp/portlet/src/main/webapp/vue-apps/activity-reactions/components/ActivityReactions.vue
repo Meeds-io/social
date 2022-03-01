@@ -1,16 +1,15 @@
 <template>
   <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
-    <div class="reactionsUsersAvatar d-none d-lg-inline">
+    <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar
           v-for="liker in likersToDisplay"
           :key="liker.id"
-          :username="liker.username"
-          :title="liker.fullname"
-          :avatar-url="liker.avatar"
+          :identity="liker"
           :size="30"
-          :retrieve-extra-information="false"
-          class="me-1" />
+          popover
+          avatar 
+          extra-class="me-1" />
       </div>
     </div>
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
