@@ -5,7 +5,6 @@
     id="activityCommentsDrawer"
     allow-expand
     right
-    fixed
     disable-pull-to-refresh
     @closed="reset">
     <template slot="title">
