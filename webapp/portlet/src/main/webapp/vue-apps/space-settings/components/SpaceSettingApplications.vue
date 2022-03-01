@@ -76,8 +76,8 @@ export default {
         });
     },
     closeDetail() {
-      document.dispatchEvent(new CustomEvent('showSettingsApps'));
       this.displayDetails = false;
+      document.dispatchEvent(new CustomEvent('showSettingsApps'));
     },
   },
 };
