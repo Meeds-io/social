@@ -74,7 +74,6 @@ export default {
   },
   created() {
     this.retrieveUserInformations();
-    this.initTiptip();
   },
   methods: {
     retrieveUserInformations() {
@@ -93,18 +92,6 @@ export default {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
         });
-    },
-    initTiptip() {
-      this.$nextTick(() => {
-        $(`#${this.cmpId}`).userPopup({
-          restURL: '/portal/rest/social/people/getPeopleInfo/{0}.json',
-          userId: this.id,
-          content: false,
-          keepAlive: true,
-          defaultPosition: 'top_left',
-          maxWidth: '240px',
-        });
-      });
     },
   },
 };

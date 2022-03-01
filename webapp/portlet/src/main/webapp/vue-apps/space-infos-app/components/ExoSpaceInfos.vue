@@ -1,50 +1,39 @@
 <template>
-  <div id="spaceInfosApp">
-    <h5 class="center">{{ $t("social.space.description.title") }}</h5>
-    <p id="spaceDescription">{{ description }}</p>
-    <div id="spaceManagersList">
-      <h5>{{ $t("social.space.description.managers") }}</h5>
-      <ul id="spaceManagers">
-        <li
-          v-for="manager in managers"
-          :key="manager"
-          class="entry">
-          <a :href="`${profileUrl}${manager.username}`">
-            <v-avatar :size="30">
-              <img
-                :src="manager.avatar"
-                alt="avatar"
-                class="object-fit-cover ma-auto"
-                loading="lazy"
-                role="presentation">
-            </v-avatar>
-            {{ manager.fullname }}
-          </a>
-        </li>
-      </ul>
+  <v-app>
+    <div id="spaceInfosApp">
+      <h5 class="center">{{ $t("social.space.description.title") }}</h5>
+      <p id="spaceDescription">{{ description }}</p>
+      <div id="spaceManagersList">
+        <h5>{{ $t("social.space.description.managers") }}</h5>
+        <div id="spaceManagers">
+          <exo-user-avatar
+            v-for="manager in managers"
+            :key="manager"
+            :identity="manager"
+            :size="30"
+            :extra-class="'my-2'"
+            :popover-left-position="true"
+            :offset-x="true"
+            :offset-y="false"
+            popover />
+        </div>
+      </div>
+      <div v-if="redactors && redactors.length" id="spaceRedactorsList">
+        <h5>{{ $t("social.space.description.redactors") }}</h5>
+        <div id="spaceRedactors">
+          <exo-user-avatar
+            v-for="redactor in redactors"
+            :key="redactor"
+            :ref="redactor.id"
+            :identity="redactor"
+            :size="30"
+            :extra-class="'my-2'"
+            :popover-left-position="true"
+            popover />
+        </div>
+      </div>
     </div>
-    <div v-if="redactors && redactors.length" id="spaceRedactorsList">
-      <h5>{{ $t("social.space.description.redactors") }}</h5>
-      <ul id="spaceRedactors">
-        <li
-          v-for="redactor in redactors"
-          :key="redactor"
-          class="entry">
-          <a :href="`${profileUrl}${redactor.username}`">
-            <v-avatar :size="30">
-              <img
-                :src="redactor.avatar"
-                alt="avatar"
-                class="object-fit-cover ma-auto"
-                loading="lazy"
-                role="presentation">
-            </v-avatar>
-            {{ redactor.fullname }}
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -75,26 +64,9 @@ export default {
           })
           .then(() => {
             this.$root.$emit('application-loaded');
-            this.initPopup();
           });
       }
     },
-    initPopup() {
-      const restUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/social/people/getPeopleInfo/{0}.json`;
-      const labels = {
-        youHaveSentAnInvitation: this.$t('message.label'),
-      };
-      $('#spaceManagers, #spaceRedactors').find('a').each(function (idx, el) {
-        $(el).userPopup({
-          restURL: restUrl,
-          labels: labels,
-          content: false,
-          defaultPosition: 'left',
-          keepAlive: true,
-          maxWidth: '240px'
-        });
-      });
-    }
   }
 };
 </script>

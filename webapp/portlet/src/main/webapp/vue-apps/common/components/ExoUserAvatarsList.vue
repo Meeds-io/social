@@ -1,21 +1,21 @@
 <template>
-  <div class="d-flex flex-nowrap">
+  <div class="d-flex flex-nowrap position-relative">
     <exo-user-avatar
       v-for="user in usersToDisplay"
       :key="user"
-      :username="user.username"
-      :title="user.fullname"
+      :identity="user"
       :size="iconSize"
-      :labels="labels"
-      :retrieve-extra-information="false"
-      class="mx-auto" />
+      :extra-class="'mx-1'"
+      :popover="popover"
+      avatar />
     <v-avatar
       v-if="notDisplayedItems"
       :size="iconSize"
-      :tiptip="false"
-      class="notDisplayedIdentitiesOverlay"
+      :class="avatarOverlayPosition && 'position-relative' || 'position-absolute'"
+      :style="overlayStyle"
+      class="notDisplayedIdentitiesOverlay clickable"
       @click="$emit('open-detail')">
-      <div class="notDisplayedIdentities">
+      <div class="notDisplayedIdentities d-flex align-center justify-center">
         +{{ notDisplayedItems }}
       </div>
     </v-avatar>
@@ -37,14 +37,51 @@ export default {
       type: Number,
       default: () => 37,
     },
+    avatarOverlayPosition: {
+      type: Boolean,
+      default: () => false,
+    },
+    popover: {
+      type: Boolean,
+      default: () => true
+    },
+    retrieveExtraInformation: {
+      type: Boolean,
+      default: () => false
+    }
+  },
+  data() {
+    return {
+      spaceManagers: [],
+    };
   },
   computed: {
     usersToDisplay() {
-      return this.users && this.users.slice(0, this.max);
+      if (this.retrieveExtraInformation) {
+        return this.spaceManagers && this.spaceManagers.slice(0, this.max);
+      } else {
+        return this.users && this.users.slice(0, this.max);
+      }
     },
     notDisplayedItems() {
       return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
     },
+    overlayStyle(){
+      if (this.avatarOverlayPosition) {
+        return `right: ${this.iconSize + 4}px !important`;
+      } 
+      return 'right: 4px !important';
+    },
+  },
+  created() {
+    if (this.retrieveExtraInformation) {
+      this.users.forEach(user => {
+        this.$userService.getUser(user.userName)
+          .then(item => {
+            this.spaceManagers.push(item);
+          });
+      });
+    }
   }
 };
 </script>

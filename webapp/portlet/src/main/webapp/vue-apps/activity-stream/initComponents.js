@@ -10,8 +10,6 @@ import ActivityStreamList from './components/activity/list/ActivityStreamList.vu
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
-import ActivityHeadSpace from './components/activity/header/ActivityHeadSpace.vue';
-import ActivityHeadUser from './components/activity/header/ActivityHeadUser.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
 import ActivityBody from './components/activity/content/ActivityBody.vue';
@@ -50,8 +48,6 @@ const components = {
   'activity-stream-activity': ActivityStreamActivity,
   'activity-stream-loader': ActivityStreamLoader,
   'activity-head': ActivityHead,
-  'activity-head-space': ActivityHeadSpace,
-  'activity-head-user': ActivityHeadUser,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
   'activity-body': ActivityBody,

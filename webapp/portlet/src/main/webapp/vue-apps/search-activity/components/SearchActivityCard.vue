@@ -5,12 +5,8 @@
     min-height="227">
     <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
       <exo-user-avatar
-        :username="posterUsername"
-        :fullname="posterFullname"
-        :title="posterFullname"
-        :external="posterIsExternal"
-        :retrieve-extra-information="false"
-        avatar-class="border-color">
+        :identity="poster"
+        popover>
         <template slot="subTitle">
           <date-format :value="postedTime" />
         </template>
