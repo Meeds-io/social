@@ -1,0 +1,10 @@
+.video {
+  width: 100%;
+  /* default value is calculated from the youtube default ratio (56.24%) with a 900px width (900*0.5624=506) */
+  height: 300px;
+}
+
+.video iframe {
+  width: 100%;
+  height: 100%;
+}

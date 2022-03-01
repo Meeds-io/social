@@ -111,14 +111,12 @@ export default {
       } catch (e) {
         // When CKEditor not initialized yet
       }
-      this.installOembedOriginalMessage(editorData);
       if (val !== editorData) {
         // Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
         // the suggester (which writes its settings in body attribute) doesn't
         // find its settings anymore when using '.setData' after initializing.
         // Thus, we destroy the ckEditor instance before setting new data.
         this.initCKEditorData(val || '');
-        this.installOembedOriginalMessage(val);
       }
     }
   },
@@ -128,7 +126,7 @@ export default {
   methods: {
     initCKEditor: function (reset) {
       this.inputVal = this.replaceWithSuggesterClass(this.value);
-
+      CKEDITOR.plugins.addExternal('video','/social-portlet/js/ckeditor/plugins/video/','plugin.js');
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -141,12 +139,8 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget';
-      let removePlugins = 'image,maximize,resize';
-      const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
-      ];
-
+      let extraPlugins = 'simpleLink,suggester,widget,video';
+      let removePlugins = 'image,maximize,resize,embedbase,embedsemantic';
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
@@ -154,7 +148,7 @@ export default {
         extraPlugins = 'simpleLink';
       }
       if (this.templateParams) {
-        extraPlugins = `${extraPlugins},embedsemantic,tagSuggester`;
+        extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
@@ -186,14 +180,16 @@ export default {
         customConfig: '/commons-extension/ckeditorCustom/config.js',
         extraPlugins,
         removePlugins,
-        toolbar,
         allowedContent: true,
         enterMode: 3, // div
+        toolbar: [
+          ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','Video'],
+        ],
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
         autoGrow_onStartup: false,
-        autoGrow_maxHeight: 1000,
+        autoGrow_maxHeight: 450,
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -210,12 +206,6 @@ export default {
             if (self.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
-          },
-          embedHandleResponse: function (embedResponse) {
-            self.installOembed(embedResponse);
-          },
-          requestCanceled: function () {
-            self.cleanupOembed();
           },
           change: function (evt) {
             const newData = evt.editor.getData();
@@ -279,56 +269,6 @@ export default {
     getMessage: function() {
       const newData = this.editor && this.editor.getData();
       return newData ? newData : '';
-    },
-    installOembedOriginalMessage: function(message, noClean) {
-      if (!noClean && (!message || !message.includes('<oembed'))) {
-        this.cleanupOembed();
-      } else if (message
-          && message.includes('<oembed')
-          && this.templateParams
-          && this.templateParams.link
-          && this.templateParams.default_title !== message) {
-        this.templateParams.default_title = message;
-        const url = window.decodeURIComponent(this.templateParams.link);
-        this.templateParams.comment = window.decodeURIComponent(message)
-          .replace(`<oembed>${url}</oembed>`, '');
-      }
-    },
-    installOembed: function(embedResponse) {
-      if (this.templateParams && embedResponse) {
-        const data = embedResponse.data && embedResponse.data.data;
-        const response = data && data.response;
-        if (response) {
-          this.templateParams.link = response.url || '-';
-          this.templateParams.image = response.type !== 'video' && response.thumbnail_url || '-';
-          this.templateParams.html = response.type === 'video' && response.html || '-';
-          this.templateParams.title = response.title || '-';
-          this.templateParams.description = response.description || '-';
-          this.templateParams.previewHeight = response.thumbnail_height || '-';
-          this.templateParams.previewWidth = response.thumbnail_width || '-';
-          window.setTimeout(() => {
-            this.installOembedOriginalMessage(this.message, !this.message || !this.message.includes('<oembed'));
-          }, 200);
-        } else {
-          this.cleanupOembed();
-        }
-      } else if (!embedResponse) {
-        this.cleanupOembed();
-      }
-    },
-    cleanupOembed: function() {
-      if (this.templateParams
-          && ((this.templateParams.image && this.templateParams.image !== '-')
-              || (this.templateParams.html && this.templateParams.html !== '-'))) {
-        this.templateParams.link = '-';
-        this.templateParams.html = '-';
-        this.templateParams.comment = '-';
-        this.templateParams.default_title = '-';
-        this.templateParams.image = '-';
-        this.templateParams.description = '-';
-        this.templateParams.title = '-';
-        this.templateParams.registeredKeysForProcessor = '-';
-      }
     },
   }
 };
