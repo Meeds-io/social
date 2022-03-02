@@ -724,7 +724,7 @@
             <name>ActivityTagsFeatureProperties</name>
             <description>New Activity Stream Feature enablement flag</description>
             <property name="exo.feature.ActivityTags.enabled" value="${exo.feature.ActivityTags.enabled:false}"/>
-            <property name="exo.feature.ActivityTags.permissions" value="*:/spaces/exo_employees,*:/spaces/confirmation_des_usages"/>
+            <property name="exo.feature.ActivityTags.permissions" value="*:/platform/users"/>
          </properties-param>
       </init-params>
     </component>
