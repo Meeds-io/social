@@ -55,6 +55,7 @@ public abstract class OAuthAbstractFilter implements Filter {
             cookie.setPath(req.getContextPath());
             cookie.setMaxAge(3600); // 1 hours = 60 * 60 seconds
             cookie.setHttpOnly(true);
+            cookie.setSecure(request.isSecure());
             res.addCookie(cookie);
 
             chain.doFilter(request, response);
