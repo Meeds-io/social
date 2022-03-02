@@ -1,7 +1,7 @@
 <template>
   <div
     :class="activityStreamTypeClass"
-    class="activityStream pa-0">
+    class="activityStream pa-0 pt-10">
     <activity-composer
       :standalone="!canPost"
       id="activityComposer" />
