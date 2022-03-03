@@ -101,6 +101,7 @@ export default {
   created() {
     document.addEventListener('activity-comments-display', this.displayActivityComments);
     document.addEventListener('activity-comment-edit', this.editActivityComments);
+    document.addEventListener('search-metadata-tag', this.closeDrawer);
 
     this.$root.$on('activity-comment-created', this.hideCommentRichEditor);
     this.$root.$on('activity-comment-updated', this.hideCommentRichEditor);
@@ -121,6 +122,10 @@ export default {
       this.limit = this.pageSize;
       this.hideCommentRichEditor();
       this.$root.selectedCommentId = null;
+    },
+    closeDrawer() {
+      this.reset();
+      this.$refs.activityCommentsDrawer.close();
     },
     addComment(comment) {
       this.$root.selectedCommentId = comment.id;
