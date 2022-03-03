@@ -10,11 +10,11 @@
             v-for="user in users"
             :key="user.id"
             :identity="user"
-            :size="36"
+            :size="34"
             :popover-left-position="true"
             popover
             avatar 
-            class="mx-1" />
+            extra-class="mx-1" />
         </div>
       </div>
     </div>

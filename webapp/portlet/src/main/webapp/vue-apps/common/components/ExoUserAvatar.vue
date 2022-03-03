@@ -123,7 +123,7 @@
   </v-menu>
   <div 
     v-else
-    class="profile-popover user-wrapper overflow-hidden"
+    class="profile-popover user-wrapper"
     :class="extraClass">
     <a 
       v-if="avatar"
