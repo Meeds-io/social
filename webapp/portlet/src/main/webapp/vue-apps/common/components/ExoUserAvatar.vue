@@ -344,7 +344,6 @@ export default {
     }
     if ( this.popover && !this.isMobile) {
       this.refreshWebCOnferencingExtensions();
-      document.dispatchEvent(new CustomEvent('profile-extension-init'));
     }
   },
   methods: {
