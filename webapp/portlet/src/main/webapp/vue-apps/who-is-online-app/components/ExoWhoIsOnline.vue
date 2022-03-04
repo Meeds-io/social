@@ -14,7 +14,7 @@
             :popover-left-position="true"
             popover
             avatar 
-            extra-class="mx-1" />
+            extra-class="mx-1 mb-1" />
         </div>
       </div>
     </div>

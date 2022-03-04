@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    defaultLength: {
+      type: Number,
+      default: () => 0,
+    },
     iconSize: {
       type: Number,
       default: () => 37,
@@ -64,7 +68,11 @@ export default {
       }
     },
     notDisplayedItems() {
-      return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
+      if (this.defaultLength) {
+        return this.defaultLength > this.max ? this.defaultLength - this.max : 0;
+      } else {
+        return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
+      }
     },
     overlayStyle(){
       if (this.avatarOverlayPosition) {
@@ -82,6 +90,21 @@ export default {
           });
       });
     }
+  },
+  methods: {
+    refresh(username) {
+      if (this.retrieveExtraInformation) {
+        this.$userService.getUser(username)
+          .then(item => {
+            this.spaceManagers.push(item);
+          }); 
+      } else {
+        this.$userService.getUser(username)
+          .then(item => {
+            this.users.push(item);
+          }); 
+      }
+    },
   }
 };
 </script>
