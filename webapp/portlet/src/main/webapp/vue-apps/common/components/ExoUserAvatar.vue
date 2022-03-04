@@ -302,11 +302,7 @@ export default {
       return this.identity && this.identity.position;
     },
     avatarUrl() {
-      if (this.identity) {
-        return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
-      } else {
-        return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.profileId}/avatar`;
-      }
+      return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
     },
     profileUrl() {
       if ( this.url ) {
