@@ -13,7 +13,7 @@
     min-width="250">
     <template v-slot:activator="{ on, attrs }">
       <div 
-        class="profile-popover user-wrapper overflow-hidden"
+        class="profile-popover user-wrapper"
         :class="extraClass">
         <a 
           v-if="avatar"
@@ -123,7 +123,7 @@
   </v-menu>
   <div 
     v-else
-    class="profile-popover user-wrapper overflow-hidden"
+    class="profile-popover user-wrapper"
     :class="extraClass">
     <a 
       v-if="avatar"
@@ -153,7 +153,7 @@
         {{ userFullname }}
         <span v-if="isExternal" class="muted">{{ externalTag }} </span>
       </span>
-      <span v-if="$slots.subTitle" class="text-sub-title my-auto text-left">
+      <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
     </a>
@@ -180,7 +180,7 @@
           {{ userFullname }}
           <span v-if="isExternal" class="muted">{{ externalTag }} </span>
         </p>
-        <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
+        <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
         </p>
       </div>
@@ -344,7 +344,6 @@ export default {
     }
     if ( this.popover && !this.isMobile) {
       this.refreshWebCOnferencingExtensions();
-      document.dispatchEvent(new CustomEvent('profile-extension-init'));
     }
   },
   methods: {

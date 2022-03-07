@@ -12,11 +12,10 @@ document.onclick = (event) => {
     if (tagName) {
       event.stopPropagation();
       event.preventDefault();
-      if (initialized) {
-        document.dispatchEvent(new CustomEvent('search-metadata-tag', {detail: tagName.replace('#', '')}));
-      } else {
+      if (!initialized) {
         init(tagName.replace('#', ''));
       }
+      document.dispatchEvent(new CustomEvent('search-metadata-tag', {detail: tagName.replace('#', '')}));
     }
   }
 };
