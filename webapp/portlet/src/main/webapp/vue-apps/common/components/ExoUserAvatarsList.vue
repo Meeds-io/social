@@ -75,11 +75,6 @@ export default {
       default: () => false
     }
   },
-  data() {
-    return {
-      spaceManagers: [],
-    };
-  },
   computed: {
     usersToDisplay() {
       return this.users && this.users.slice(0, this.max);
@@ -97,11 +92,6 @@ export default {
       } 
       return 'right: 4px !important';
     },
-  },
-  created() {
-    this.$root.$on('refresh-avatars-list', username => {
-      this.users.push({'userName': username});   
-    });
   },
 };
 </script>
