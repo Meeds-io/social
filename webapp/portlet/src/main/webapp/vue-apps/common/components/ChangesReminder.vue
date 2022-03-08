@@ -48,8 +48,6 @@
 
 <script>
 
-import {setSettingValue} from '../js/SettingService';
-
 export default {
   props: {
     reminder: {
