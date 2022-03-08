@@ -143,6 +143,7 @@ export default {
         this.activityBodyEdited = false;
         this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
+        document.dispatchEvent(new CustomEvent('message-composer-opened'));
       });
     },
     close() {
