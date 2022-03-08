@@ -2,7 +2,7 @@
   <v-app class="border-box-sizing transparent" flat>
     <v-dialog
       v-model="dialog"
-      content-class="rounded-popup"
+      content-class="rounded-lg"
       overlay-opacity="0.7"
       width="500"
       @click:outside="dialog = false">
