@@ -20,6 +20,10 @@
           suggestor-type-of-relation="mention_comment"
           autofocus
           @ready="handleEditorReady" />
+        <extension-registry-components
+          :params="extensionParams"
+          name="ActivityComposerAction"
+          type="activity-composer-action" />
       </v-list-item-content>
     </v-list-item>
     <v-btn
@@ -56,6 +60,10 @@ export default {
       type: String,
       default: null,
     },
+    spaceId: {
+      type: String,
+      default: null,
+    },
     templateParams: {
       type: Object,
       default: () => ({}),
@@ -74,7 +82,11 @@ export default {
     commenting: false,
     message: null,
     avatarSize: '33px',
+    files: [],
   }),
+  created() {
+    document.addEventListener('activity-composer-edited', (event) => this.files = event.detail);
+  },
   computed: {
     avatarUrl() {
       return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.avatar;
@@ -91,6 +103,20 @@ export default {
     },
     ckEditorId() {
       return `comment_${this.commentId || ''}_${this.parentCommentId || ''}_${this.activityId}`;
+    },
+    entityId() {
+      return this.commentId && this.commentId.replace('comment','');
+    },
+    extensionParams() {
+      return {
+        activityId: this.entityId,
+        spaceId: this.spaceId,
+        parentCommentId: this.parentCommentId,
+        files: this.files,
+        templateParams: this.templateParams,
+        message: this.message,
+        maxMessageLength: this.$activityConstants.COMMENT_MAX_LENGTH,
+      };
     },
   },
   mounted() {
@@ -132,6 +158,7 @@ export default {
           && ((!this.commentId && !this.commentId === !this.options.commentId)
           || this.options.commentId === this.commentId)) {
         this.message = this.options.message || null;
+        this.files = this.options.files || null;
       } else {
         this.message = null;
       }
@@ -164,14 +191,14 @@ export default {
       }
       this.commenting = true;
       if (this.commentUpdate) {
-        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.templateParams,this.$activityConstants.FULL_COMMENT_EXPAND)
+        this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
           .then(comment => this.$root.$emit('activity-comment-updated', comment))
           .finally(() => {
             this.message = null;
             this.commenting = false;
           });
       } else {
-        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
+        this.$activityService.createComment(this.activityId, this.parentCommentId, this.message,  this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
           .then(comment => this.$root.$emit('activity-comment-created', comment))
           .finally(() => {
             this.message = null;

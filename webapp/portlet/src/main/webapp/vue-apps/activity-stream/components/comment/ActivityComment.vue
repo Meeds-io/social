@@ -9,6 +9,7 @@
       <activity-comment-rich-text
         ref="commentEditRichEditor"
         :activity-id="activityId"
+        :space-id="spaceId"
         :parent-comment-id="comment.parentCommentId"
         :comment-id="comment.id"
         :template-params="templateParams"
@@ -44,6 +45,13 @@
               :comment-type-extension="commentTypeExtension"
               @comment-initialized="$emit('comment-initialized')" />
           </div>
+          <extension-registry-components
+            :params="extendedComponentParams"
+            name="CommentContent"
+            type="comment-content-extensions"
+            parent-element="div"
+            element="div"
+            class=" d-flex flex-column" />
           <div class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
             <activity-comment-actions
               :activity="activity"
@@ -90,6 +98,7 @@
         ref="commentRichEditor"
         class="col-auto pa-0 mt-0 mb-2 flex-shrink-1"
         :activity-id="activityId"
+        :space-id="spaceId"
         :parent-comment-id="parentCommentId"
         :label="$t('UIActivity.label.Comment')"
         :options="editorOptions" />
@@ -149,6 +158,9 @@ export default {
     id() {
       return `ActivityCommment_${this.comment.id}`;
     },
+    spaceId() {
+      return this.activity && this.activity.activityStream && this.activity.activityStream.space && this.activity.activityStream.space.id;
+    },
     ckEditorId() {
       return `reply_${this.comment.id}`;
     },
@@ -184,6 +196,7 @@ export default {
         parentCommentId: this.comment.parentCommentId || null,
         commentId: this.commentId,
         message: messageToEdit,
+        files: this.comment.files,
       };
     },
     subCommentsToDisplay() {
@@ -201,6 +214,12 @@ export default {
     },
     hasMoreRepliesToDisplay() {
       return this.subCommentsSize > this.displayedSubCommentsSize;
+    },
+    extendedComponentParams() {
+      return {
+        activity: this.comment,
+        activityTypeExtension: this.commentTypeExtension,
+      };
     },
   },
   watch: {
