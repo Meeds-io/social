@@ -83,7 +83,7 @@ export function shareActivity(activityId, message, templateParams, spaces) {
   });
 }
 
-export function updateActivity(activityId, message, activityType, attachments, templateParams) {
+export function updateActivity(activityId, message, activityType, files, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -94,7 +94,7 @@ export function updateActivity(activityId, message, activityType, attachments, t
       'title': message,
       'type': activityType,
       'templateParams': templateParams || {},
-      'files': attachments
+      'files': files
     })
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -157,7 +157,7 @@ export function unlikeActivity(id) {
   });
 }
 
-export function createComment(id, parentCommentId, message, templateParams, expand) {
+export function createComment(id, parentCommentId, message, files, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -165,10 +165,11 @@ export function createComment(id, parentCommentId, message, templateParams, expa
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify({
-      title: message,
-      body: message,
-      parentCommentId,
-      templateParams: templateParams,
+      'title': message,
+      'body': message,
+      'parentCommentId': parentCommentId,
+      'templateParams': templateParams || {},
+      'files': files,
     })
   }).then(resp => {
     if (resp && resp.ok) {
@@ -179,7 +180,7 @@ export function createComment(id, parentCommentId, message, templateParams, expa
   });
 }
 
-export function updateComment(id, parentCommentId, commentId, message, templateParams, expand) {
+export function updateComment(id, parentCommentId, commentId, message, files, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -187,17 +188,18 @@ export function updateComment(id, parentCommentId, commentId, message, templateP
     credentials: 'include',
     method: 'PUT',
     body: JSON.stringify({
-      id: commentId,
-      title: message,
-      body: message,
-      parentCommentId,
-      templateParams: templateParams,
+      'id': commentId,
+      'title': message,
+      'body': message,
+      'parentCommentId': parentCommentId,
+      'templateParams': templateParams || {},
+      'files': files,
     })
   }).then(resp => {
-    if (resp && resp.ok) {
-      return resp.json();
-    } else {
+    if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
     }
   });
 }

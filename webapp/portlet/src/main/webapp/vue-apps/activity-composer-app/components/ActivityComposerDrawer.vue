@@ -126,7 +126,7 @@ export default {
   },
   methods: {
     isActivityBodyEdited(event) {
-      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail.length !== 0 || (event.detail.length === 0 && this.messageLength);
     },
     open(params) {
       params = params && params.detail;

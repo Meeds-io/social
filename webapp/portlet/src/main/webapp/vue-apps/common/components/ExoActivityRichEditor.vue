@@ -165,7 +165,7 @@ export default {
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
-      if (ckEditorExtensions && ckEditorExtensions.length && this.ckEditorType === 'activityContent') {
+      if (ckEditorExtensions && ckEditorExtensions.length) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
             extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
