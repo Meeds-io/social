@@ -312,7 +312,7 @@ export default {
       }
     },
     isExternal() {
-      return this.identity && !this.identity.isInternal;
+      return this.identity && this.identity.external ;
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
