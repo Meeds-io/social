@@ -44,6 +44,13 @@
               :comment-type-extension="commentTypeExtension"
               @comment-initialized="$emit('comment-initialized')" />
           </div>
+          <extension-registry-components
+              :params="extendedComponentParams"
+              name="CommentContent"
+              type="comment-content-extensions"
+              parent-element="div"
+              element="div"
+              class=" d-flex flex-column" />
           <div class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
             <activity-comment-actions
               :activity="activity"
@@ -184,6 +191,7 @@ export default {
         parentCommentId: this.comment.parentCommentId || null,
         commentId: this.commentId,
         message: messageToEdit,
+        files: this.comment.files,
       };
     },
     subCommentsToDisplay() {
@@ -201,6 +209,12 @@ export default {
     },
     hasMoreRepliesToDisplay() {
       return this.subCommentsSize > this.displayedSubCommentsSize;
+    },
+    extendedComponentParams() {
+      return {
+        activity: this.comment,
+        activityTypeExtension: this.commentTypeExtension,
+      };
     },
   },
   watch: {
