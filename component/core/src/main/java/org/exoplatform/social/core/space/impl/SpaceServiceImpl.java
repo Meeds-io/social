@@ -1353,6 +1353,13 @@ public class SpaceServiceImpl implements SpaceService {
   public ListAccess<Space> getMemberSpaces(String userId) {
     return new SpaceListAccess(this.spaceStorage, userId, SpaceListAccess.Type.MEMBER);
   }
+  /**
+   * {@inheritDoc}
+   */
+  public List<String> getMemberSpacesIds(String remoteId) {
+    Identity userIdentity = identityManager.getOrCreateUserIdentity(remoteId);
+    return spaceStorage.getMemberSpaceIds(userIdentity.getId(),0, -1);
+  }
 
   /**
    * {@inheritDoc}

@@ -3460,4 +3460,23 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(space5,testSpace5);
 
   }
+
+  public void testGetMemberSpaceIds() throws Exception {
+
+    User user = organizationService.getUserHandler().createUserInstance("shahin");
+    organizationService.getUserHandler().createUser(user, false);
+    Identity shahin = new Identity(OrganizationIdentityProvider.NAME, "shahin");
+
+    identityStorage.saveIdentity(shahin);
+    tearDownUserList.add(shahin);
+
+    List<Space> spaces = new ArrayList<>();
+    for(int i = 0; i < 2; i++) {
+      spaces.add(getSpaceInstance(i));
+    }
+    spaceService.addMember(spaces.get(0), "shahin");
+    assertEquals(1, spaceService.getMemberSpacesIds("shahin").size());
+    spaceService.removeMember(spaces.get(0), "shahin");
+    assertEquals(0, spaceService.getMemberSpacesIds("shahin").size());
+  }
 }

@@ -144,7 +144,19 @@ public interface SpaceService {
    * @since  1.2.0-GA
    */
   ListAccess<Space> getMemberSpaces(String userId);
-  
+
+  /**
+   * Gets a list containing the IDs of all spaces that a user has the "member" role.
+   *
+   * @param userId The remote user Id.
+   * @return The list of Ids.
+   * @LevelAPI Platform
+   * @since  6.3.0
+   */
+  default List<String> getMemberSpacesIds(String userId) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Gets a list access containing all spaces that a user has the "member" role. This list access matches with the provided space
    * filter.
