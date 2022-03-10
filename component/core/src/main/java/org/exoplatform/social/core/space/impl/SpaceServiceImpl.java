@@ -1356,6 +1356,7 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<String> getMemberSpacesIds(String remoteId) {
     Identity userIdentity = identityManager.getOrCreateUserIdentity(remoteId);
     return spaceStorage.getMemberSpaceIds(userIdentity.getId(),0, -1);
