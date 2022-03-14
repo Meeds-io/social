@@ -338,7 +338,7 @@
         <show-info-bar>false</show-info-bar>
         <show-application-state>false</show-application-state>
       </portlet-application>
-      <container id="settings-bottom-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
+      <container id="settings-middle-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
         <name>settings-middle-container</name>
         <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
         <factory-id>addonContainer</factory-id>
