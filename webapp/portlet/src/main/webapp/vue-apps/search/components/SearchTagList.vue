@@ -32,7 +32,7 @@
           multiple>
           <v-chip
             v-for="tag in tags"
-            :color="`${isMobile ? '#BBDEFB' : ''}`"
+            :color="`${isMobile ? 'blue lighten-4' : ''}`"
             :key="tag"
             :value="tag"
             @click="handleTag(tag)"
