@@ -2,7 +2,8 @@
   <v-menu
     v-model="open"
     :close-on-content-click="false"
-    :nudge-width="200"
+    :nudge-width="Width"
+    :nudge-left="isMobile && 300"
     :nudge-bottom="30"
     content-class="tag-search-content"
     offset-x>
@@ -26,16 +27,16 @@
         <span v-if="!searching" class="text-sm-body-2 font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
-          active-class="primary--text"
           class="pt-2"
           multiple>
           <v-chip
             v-for="tag in tags"
+            :color="`${isMobile ? '#BBDEFB' : ''}`"
             :key="tag"
             :value="tag"
             @click="handleTag(tag)"
             @keyup.enter="handleTag(tag)">
-            {{ tag }}
+            <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ tag }}</span>
           </v-chip>
         </v-chip-group>
       </div>
@@ -59,6 +60,14 @@ export default {
     searchLimit: 5,
     open: false,
   }),
+  computed: {
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
+    Width() {
+      return this.isMobile && '400' || '200';
+    },
+  },
   watch: {
     query() {
       this.searching = this.query.length > 0;
