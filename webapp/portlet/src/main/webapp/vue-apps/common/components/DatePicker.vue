@@ -185,12 +185,10 @@ export default {
     },
     date() {
       this.emitDateValue();
-      if (this.date) {
-        this.dateShortIso=this.$dateUtil.getISODate(this.date);
-      }
+      this.dateShortIso = this.date ? this.$dateUtil.getISODate(this.date) : null;
     },
     dateShortIso(newVal) {
-      this.date = this.$dateUtil.getDateObjectFromString(newVal,true);
+      this.date = newVal ? this.$dateUtil.getDateObjectFromString(newVal,true) : null;
     },
   },
   mounted() {
@@ -239,6 +237,7 @@ export default {
           this.date = new Date();
         } else {
           this.date = null;
+          this.dateShortIso = null;
         }
       }
     },

@@ -55,6 +55,9 @@ export function getISODate(dateObj) {
   if (!dateObj) {
     return null;
   }
+  if (dateObj.getTimezoneOffset() < 0) {
+    dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+  }
   return dateObj.toISOString().substr(0,10);
 }
 
