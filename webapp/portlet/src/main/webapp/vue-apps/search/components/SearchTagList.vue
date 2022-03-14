@@ -27,6 +27,7 @@
         <span v-if="!searching" class="text-sm-body-2 font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
+          active-class="primary--text"
           class="pt-2"
           multiple>
           <v-chip
