@@ -19,6 +19,7 @@
       ref="commentRichEditor"
       class="mb-6"
       :activity-id="activityId"
+      :space-id="spaceId"
       :options="commentLastEditorOptions"
       :label="$t('UIActivity.label.Comment')" />
   </v-list>
@@ -71,6 +72,9 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+    spaceId() {
+      return this.activity && this.activity.activityStream && this.activity.activityStream.space && this.activity.activityStream.space.id;
     },
     replyLastEditorOptions() {
       return this.lastEditorOptions && this.lastEditorOptions.parentCommentId && this.lastEditorOptions;
