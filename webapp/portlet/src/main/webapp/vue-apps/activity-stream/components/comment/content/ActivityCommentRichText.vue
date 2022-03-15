@@ -21,9 +21,9 @@
           autofocus
           @ready="handleEditorReady" />
         <extension-registry-components
-            :params="extensionParams"
-            name="ActivityComposerAction"
-            type="activity-composer-action" />
+          :params="extensionParams"
+          name="ActivityComposerAction"
+          type="activity-composer-action" />
       </v-list-item-content>
     </v-list-item>
     <v-btn
@@ -57,6 +57,10 @@ export default {
       default: null,
     },
     commentId: {
+      type: String,
+      default: null,
+    },
+    spaceId: {
       type: String,
       default: null,
     },
@@ -106,6 +110,7 @@ export default {
     extensionParams() {
       return {
         activityId: this.entityId,
+        spaceId: this.spaceId,
         parentCommentId: this.parentCommentId,
         files: this.files,
         templateParams: this.templateParams,
