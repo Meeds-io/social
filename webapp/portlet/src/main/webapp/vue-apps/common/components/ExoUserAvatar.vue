@@ -44,7 +44,7 @@
             :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
             class="text-truncate subtitle-2 text-left mb-0">
             {{ userFullname }}
-            <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+            <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
           </p>
           <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
             <slot name="subTitle"></slot>
@@ -73,7 +73,7 @@
               :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
               class="text-truncate subtitle-2 text-left mb-0">
               {{ userFullname }}
-              <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+              <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
             </p>
             <p v-if="$slots.subTitle" class="text-sub-title text-left mb-0">
               <slot name="subTitle"></slot>
@@ -151,7 +151,7 @@
         :class="fullnameStyle"
         class="text-truncate subtitle-2 my-auto">
         {{ userFullname }}
-        <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+        <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
       </span>
       <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
@@ -178,7 +178,7 @@
           :class="fullnameStyle"
           class="text-truncate subtitle-2 text-left mb-0">
           {{ userFullname }}
-          <span v-if="isExternal" class="muted">{{ externalTag }} </span>
+          <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
@@ -302,7 +302,7 @@ export default {
       return this.identity && this.identity.position;
     },
     avatarUrl() {
-      return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username}/avatar`;
+      return this.identity && this.identity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
     },
     profileUrl() {
       if ( this.url ) {
@@ -312,7 +312,7 @@ export default {
       }
     },
     isExternal() {
-      return this.identity && !this.identity.isInternal;
+      return this.identity && this.identity.external ;
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;

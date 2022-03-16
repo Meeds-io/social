@@ -113,6 +113,7 @@ extensionRegistry.registerExtension('activity', 'action', {
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
+      activityType: activity.type
     }}));
   },
 });

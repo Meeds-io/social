@@ -11,7 +11,6 @@ import * as featureService from './js/FeatureService.js';
 import * as activityService from './js/ActivityService.js';
 import * as favoriteService from './js/FavoriteService.js';
 import * as tagService from './js/TagService.js';
-import * as changesReminderService from './js/ChangesReminderService.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 
@@ -55,9 +54,6 @@ window.Object.defineProperty(Vue.prototype, '$settingService', {
 });
 window.Object.defineProperty(Vue.prototype, '$featureService', {
   value: featureService,
-});
-window.Object.defineProperty(Vue.prototype, '$changesReminderService', {
-  value: changesReminderService,
 });
 window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,

@@ -68,6 +68,7 @@ export default {
       activityBodyEdited: false,
       originalBody: '',
       messageEdited: false,
+      activityType: null
     };
   },
   computed: {
@@ -94,6 +95,7 @@ export default {
         templateParams: this.templateParams,
         message: this.message,
         maxMessageLength: this.MESSAGE_MAX_LENGTH,
+        activityType: this.activityType
       };
     },
     messageLength(){
@@ -120,6 +122,7 @@ export default {
   created() {
     document.addEventListener('activity-composer-edit-activity', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
+    document.addEventListener('activity-composer-closed', this.close);
   },
   methods: {
     isActivityBodyEdited(event) {
@@ -133,16 +136,19 @@ export default {
         this.activityId = params.activityId;
         this.templateParams = params.activityParams || {};
         this.files = params.files || [];
+        this.activityType = params.activityType;
       } else {
         this.activityId = null;
         this.message = '';
         this.templateParams = {};
         this.files = [];
+        this.activityType = [];
       }
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
         this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
+        document.dispatchEvent(new CustomEvent('message-composer-opened'));
       });
     },
     close() {
@@ -180,18 +186,23 @@ export default {
         if (this.templateParams && this.templateParams.link && !this.activityType) {
           activityType = 'LINK_ACTIVITY';
         }
-        this.loading = true;
-        this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
-            this.close();
-          })
-          .catch(error => {
-            // eslint-disable-next-line no-console
-            console.error(`Error when posting message: ${error}`);
-            // TODO Display error Message
-          })
-          .finally(() => this.loading = false);
+        if (this.activityType && this.activityType.length !== 0) {
+          document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+        }
+        else {
+          this.loading = true;
+          this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
+            .then(() => {
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+              this.close();
+            })
+            .catch(error => {
+              // eslint-disable-next-line no-console
+              console.error(`Error when posting message: ${error}`);
+              // TODO Display error Message
+            })
+            .finally(() => this.loading = false);
+        }
       }
     },
   },
