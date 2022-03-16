@@ -601,6 +601,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
+    comment.setFiles(model.getFiles());
     EntityBuilder.buildActivityFromEntity(model, comment);
     activityManager.saveComment(activity, comment);
 
