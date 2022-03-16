@@ -61,6 +61,7 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       CK_EDITOR_ID: 'activityContent',
       activityId: null,
+      spaceId: null,
       message: '',
       files: null,
       templateParams: {},
@@ -91,6 +92,7 @@ export default {
     extensionParams() {
       return {
         activityId: this.activityId,
+        spaceId: this.spaceId,
         files: this.files,
         templateParams: this.templateParams,
         message: this.message,
@@ -126,7 +128,7 @@ export default {
   },
   methods: {
     isActivityBodyEdited(event) {
-      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail.length !== 0 || (event.detail.length === 0 && this.messageLength);
     },
     open(params) {
       params = params && params.detail;
@@ -134,11 +136,13 @@ export default {
         this.message = params.activityBody;
         this.originalBody = params.activityBody;
         this.activityId = params.activityId;
+        this.spaceId = params.spaceId;
         this.templateParams = params.activityParams || {};
         this.files = params.files || [];
         this.activityType = params.activityType;
       } else {
         this.activityId = null;
+        this.spaceId = null;
         this.message = '';
         this.templateParams = {};
         this.files = [];
