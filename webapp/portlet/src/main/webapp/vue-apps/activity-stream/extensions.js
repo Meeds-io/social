@@ -108,11 +108,13 @@ extensionRegistry.registerExtension('activity', 'action', {
     const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(activity) || activityTypeExtension.getBody(activity);
     document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail: {
       activityId: activity.id,
+      spaceId: activity && activity.activityStream && activity.activityStream.space && activity.activityStream.space.id || '',
       composerAction: 'update',
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
+      activityType: activity.type
     }}));
   },
 });
