@@ -161,6 +161,7 @@ export default {
         let dataLink = $(this).find('.contentSmall:first').data('link');
         if (typeof dataLink === 'undefined') {
           dataLink = $(this).find('.media').children('a').attr('href');
+          
         }
         if (dataLink.includes('/portal/g/') || dataLink.includes('/portal/rest/')){
           dataLink.replace(/\/portal\//,`${eXo.env.portal.context}/`);
@@ -196,6 +197,16 @@ export default {
             evt.stopPropagation();
             Vue.prototype.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP);
+          });
+                               
+        // ------------- Open details drawer
+              
+        $(this).find('.open-details-drawer').off('click')
+          .on('click', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const notificationDetails = $(this).data('notification-details');
+            document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
           });
 
         // ------------- Accept request
