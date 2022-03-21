@@ -190,17 +190,10 @@ export default {
     },
     params() {
       return {
-        identity: this.space
+        identityType: 'space',
+        identityId: eXo.env.portal.spaceId
       };
     },
-  },
-  mounted() {
-    if (eXo.env.portal.spaceId && eXo.env.portal.spaceId !== '') {
-      this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
-        .then(space => {
-          this.space = space;
-        });
-    }
   },
 };
 </script>
