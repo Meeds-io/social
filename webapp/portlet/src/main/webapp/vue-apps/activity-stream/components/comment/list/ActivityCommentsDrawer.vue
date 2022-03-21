@@ -186,6 +186,10 @@ export default {
           this.newCommentEditor = !this.commentToEdit && options.newComment;
           this.selectedCommentIdToReply = !this.commentToEdit && options.commentId;
           this.highlightCommentId = options.highlightCommentId;
+          if (options.selectedCommentId && options.selectedActivityId) {
+            this.$root.selectedCommentId = options.selectedCommentId;
+            this.$root.selectedActivityId = options.selectedActivityId;
+          }
           this.highlightRepliesCommentId = options.highlightRepliesCommentId;
           if (!this.drawerOpened) {
             this.drawerOpened = true;
