@@ -118,22 +118,15 @@
                 </v-btn>
               </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-action>
-              <div class="pa-0 ma-0">
-                <v-btn
-                  class="d-none"
-                  color="primary"
-                  icon>
-                  <v-icon dense>mdi-send</v-icon>
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  @click="openChatDrawer"
-                  icon>
-                  <v-icon dense>mdi-chat-processing</v-icon>
-                </v-btn>
-                <space-popover-action-component />
-              </div>
+            <v-list-item-action class="space-logo-popover flex-row">
+              <extension-registry-components
+                :params="params"
+                name="SpacePopover"
+                type="space-popover-action"
+                parent-element="div"
+                element="div"
+                element-class="mx-auto ma-lg-0" />
+              <space-popover-action-component />
             </v-list-item-action>
           </v-list-item>
         </v-list>
@@ -195,10 +188,11 @@ export default {
     mangersToDisplay() {
       return this.managers;
     },
-  },
-  methods: {
-    openChatDrawer() {
-      document.dispatchEvent(new CustomEvent('exo-chat-room-open-requested', {detail: {name: `${eXo.env.portal.spaceGroup}`, type: 'space-name'}}));
+    params() {
+      return {
+        identityType: 'space',
+        identityId: eXo.env.portal.spaceId
+      };
     },
   },
 };
