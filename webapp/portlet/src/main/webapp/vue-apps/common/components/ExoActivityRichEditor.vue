@@ -165,7 +165,7 @@ export default {
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
-      if (ckEditorExtensions && ckEditorExtensions.length) {
+      if (ckEditorExtensions && ckEditorExtensions.length && !['activityShare', 'kudosContent'].includes(this.ckEditorType)) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
             extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
