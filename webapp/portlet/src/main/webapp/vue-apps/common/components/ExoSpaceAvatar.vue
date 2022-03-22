@@ -335,7 +335,8 @@ export default {
     },
     params() {
       return {
-        identity: this.space
+        identityType: 'space',
+        identityId: this.spaceId  ? this.spaceId : this.space && this.space.id,
       };
     },
   },
