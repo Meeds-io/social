@@ -3,24 +3,24 @@
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
-          :href="activityLink"
           :height="20"
           class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
           text
           plain
+          @click="openCommentsDrawer"
           v-bind="attrs"
           v-on="on">
           <relative-date-format
             v-if="isActivityEdited"
-            :value="activity.updateDate"
+            :value="comment.updateDate"
             label="TimeConvert.label.Short.Edited"
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             short />
           <relative-date-format
             v-else
-            :value="activity.createDate"
+            :value="comment.createDate"
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             short />
         </v-btn>
@@ -33,6 +33,10 @@
 <script>
 export default {
   props: {
+    comment: {
+      type: Object,
+      default: null,
+    },
     activity: {
       type: Object,
       default: null,
@@ -53,17 +57,25 @@ export default {
   }),
   computed: {
     isActivityEdited() {
-      return this.activity && this.activity.updateDate !== this.activity.createDate;
+      return this.comment && this.comment.updateDate !== this.comment.createDate;
     },
-    activityId() {
-      return this.activity && this.activity.id;
-    },
-    activityLink() {
-      return `${this.$root.activityBaseLink}?id=${this.activityId}`;
+    commentId() {
+      return this.comment && this.comment.id;
     },
     activityPostedTime() {
-      return this.activity && (this.activity.updateDate || this.activity.createDate);
+      return this.comment && (this.comment.updateDate || this.comment.createDate);
     },
   },
+  methods: {
+    openCommentsDrawer() {
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activity: this.activity,
+        selectedCommentId: this.commentId,
+        selectedActivityId: this.activity.id,
+        offset: 0,
+        limit: 200, // To display all
+      }}));
+    },
+  }
 };
 </script>
