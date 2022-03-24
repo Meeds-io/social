@@ -45,7 +45,7 @@
         class="transparent v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
         onclick="Vue.startApp('PORTLET/social-portlet/Search', 'init')">
         <span class="v-btn__content">
-          <i class="uiIconPLF24x24Search position-static d-flex"></i>
+          <i class="v-icon fas fa-search position-static d-flex icon-medium-size icon-default-color"></i>
         </span>
       </button>
     </div>
