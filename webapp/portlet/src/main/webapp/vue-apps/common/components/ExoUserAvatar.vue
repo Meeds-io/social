@@ -148,7 +148,7 @@
       class="pull-left d-flex align-start text-truncate">
       <span
         v-if="userFullname"
-        :class="fullnameStyle"
+        :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
         class="text-truncate subtitle-2 my-auto">
         {{ userFullname }}
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
@@ -175,7 +175,7 @@
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
           v-if="userFullname"
-          :class="fullnameStyle"
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
           class="text-truncate subtitle-2 text-left mb-0">
           {{ userFullname }}
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
