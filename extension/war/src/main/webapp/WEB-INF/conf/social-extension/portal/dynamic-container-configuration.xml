@@ -343,7 +343,7 @@
         </value-param>
         <value-param>
           <name>containerName</name>
-          <value>NotificationTopBar</value>
+          <value>middle-topNavigation-container</value>
         </value-param>
         <object-param>
           <name>NotificationTopBar</name>
