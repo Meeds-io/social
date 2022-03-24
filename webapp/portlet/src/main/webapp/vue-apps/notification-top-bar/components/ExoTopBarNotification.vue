@@ -5,6 +5,7 @@
         <v-btn
           icon
           class="text-xs-center"
+          :title="notificationIconTooltip"
           @click="openDrawer()">
           <v-badge
             :value="badge > 0"
@@ -12,7 +13,7 @@
             flat
             color="var(--allPagesBadgePrimaryColor, #ff5335)"
             overlap>
-            <v-icon class="grey-color" size="21">mdi-bell</v-icon>
+            <v-icon class="icon-default-color" size="22">fa-bell</v-icon>
           </v-badge>
         </v-btn>
         <exo-drawer
@@ -94,6 +95,7 @@ export default {
       notificationsSize: 0,
       settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
       allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
+      notificationIconTooltip: this.$t('UIIntranetNotificationsPortlet.label.tooltip'),
     };
   },
   watch: {
