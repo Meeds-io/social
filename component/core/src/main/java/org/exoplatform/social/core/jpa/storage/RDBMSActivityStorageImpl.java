@@ -1286,7 +1286,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   public List<ExoSocialActivity> getActivitiesByPoster(Identity posterIdentity, int offset, int limit) {
     return getActivitiesByPoster(posterIdentity, offset, limit, new String[0]);
   }
-
+  @Override
+  public List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit) {
+    return activityDAO.getActivityIdsByPoster( posterIdentity, offset,  limit);
+  }
   @Override
   public List<ExoSocialActivity> getActivitiesByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes) {
     return convertActivityIdsToActivities(activityDAO.getActivitiesByPoster(posterIdentity, offset, limit, activityTypes));

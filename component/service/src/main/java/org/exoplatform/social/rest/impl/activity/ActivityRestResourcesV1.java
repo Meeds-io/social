@@ -76,6 +76,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   private ActivitySearchConnector activitySearchConnector;
 
+  private enum ActivityFilter {
+    ALL , MYPOSTEDACTIVITIES
+  }
+
   public ActivityRestResourcesV1(ActivityManager activityManager,
                                  IdentityManager identityManager,
                                  SpaceService spaceService,
@@ -138,6 +142,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                 @QueryParam("limit")
                                 int limit,
                                 @ApiParam(
+                                        value = "Filter",
+                                        required = false,
+                                        defaultValue= ""
+                                )
+                                @QueryParam("filter")
+                                        String filter,
+                                @ApiParam(
                                     value = "Returning the number of activities or not",
                                     defaultValue = "false"
                                 )
@@ -164,7 +175,12 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+      if (filter!= null && filter.equals(ActivityFilter.MYPOSTEDACTIVITIES.name())) {
+        listAccess = activityManager.getActivitiesByPoster(currentUserIdentity);
+      }
+      else {
+        listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+      }
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
     } else {
       Space space = spaceService.getSpaceById(spaceId);
