@@ -15,7 +15,29 @@
         class="profile-popover space-avatar-wrapper"
         :class="extraClass">
         <a
-          v-if="avatar"
+          v-if="notAccessibleSpace"
+          class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
+          <v-avatar
+            :size="size"
+            tile
+            class="pull-left my-auto">
+            <img
+              :src="defaultAvatarUrl"
+              class="object-fit-cover ma-auto"
+              loading="lazy"
+              role="presentation">
+          </v-avatar>
+          <div
+            :class="!subtitleNewLine && 'd-flex'"
+            class="pull-left text-truncate ms-2">
+            <p
+              class="text-truncate subtitle-2 my-auto hidden-space">
+              {{ $t('spacesList.label.hiddenSpace') }}
+            </p>
+          </div>
+        </a>
+        <a
+          v-else-if="avatar"
           v-bind="attrs"
           v-on="on"
           :id="id"
@@ -332,6 +354,12 @@ export default {
     },
     enabledWebConferencingComponents() {
       return this.spacePopupExtensions.filter(extension => extension.enabled);
+    },
+    notAccessibleSpace() {
+      return this.space && this.space.visibility === 'hidden' && !this.space.isMember;
+    },
+    defaultAvatarUrl() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
     },
     params() {
       return {
