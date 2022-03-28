@@ -1,5 +1,7 @@
 package org.exoplatform.social.rest.impl.favorite;
 
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,10 +17,14 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.annotations.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Path(VersionResources.VERSION_ONE + "/social/favorites")
 @Api(
@@ -102,6 +108,45 @@ public class FavoriteRest implements ResourceContainer {
       }
     } catch (Exception e) {
       LOG.warn("Error creating a favorite", e);
+      return Response.serverError().build();
+    }
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @ApiOperation(
+      value = "Retrieves all favorites object of the current user",
+      httpMethod = "GET",
+      response = Response.class,
+      produces = "application/json",
+      notes = "Return list of favorites"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(code = 200, message = "Request fulfilled"),
+          @ApiResponse(code = 500, message = "Internal server error")
+      }
+  )
+  public Response getFavoritesList(
+                                      @ApiParam(
+                                          value = "Query Offset",
+                                          required = true
+                                      )
+                                      @QueryParam("offset")
+                                      int offset,
+                                      @ApiParam(
+                                          value = "Query results limit",
+                                          required = true
+                                      )
+                                      @QueryParam("limit")
+                                      int limit ) {
+    long userIdentityId = RestUtils.getCurrentUserIdentityId();
+    try {
+      List<MetadataItem> myFavorites = favoriteService.getFavoriteItemsByCreator(userIdentityId, offset, limit);
+      return Response.ok(myFavorites).build();
+    } catch (Exception e) {
+      LOG.error("Unknown error occurred while getting favorites list", e);
       return Response.serverError().build();
     }
   }

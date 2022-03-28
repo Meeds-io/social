@@ -51,6 +51,14 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
+  public List<MetadataItem> getFavoriteItemsByCreator(long creatorId,
+                                                        long offset,
+                                                        long limit) {
+    List<MetadataItem> favorites = metadataService.getMetadataItemsByMetadataTypeAndCreator("favorites", creatorId, offset, limit);
+    return favorites;
+  }
+
+  @Override
   public boolean isFavorite(Favorite favorite) {
     long userIdentityId = favorite.getUserIdentityId();
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), String.valueOf(userIdentityId), userIdentityId);

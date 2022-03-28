@@ -43,6 +43,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   private static final String OBJECT_TYPE      = "objectType";
 
+  private static final String CREATOR_ID      = "creatorId";
+
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
                                                                                MetadataItemEntity.class);
@@ -119,6 +121,24 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       query.setMaxResults((int) limit);
     }
     return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndCreator(long metadataType,
+                                                                             long creatorId,
+                                                                             long offset,
+                                                                             long limit) {
+      TypedQuery<MetadataItemEntity> query =
+          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndCreator",
+              MetadataItemEntity.class);
+      query.setParameter(METADATA_TYPE, metadataType);
+      query.setParameter(CREATOR_ID, creatorId);
+      if (offset > 0) {
+        query.setFirstResult((int) offset);
+      }
+      if (limit > 0) {
+        query.setMaxResults((int) limit);
+      }
+      return query.getResultList();
   }
 
   public List<String> getMetadataObjectIds(long metadataType,

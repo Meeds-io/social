@@ -22,7 +22,10 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataType;
+import java.util.List;
 
 public interface FavoriteService {
 
@@ -39,6 +42,16 @@ public interface FavoriteService {
    * @throws ObjectAlreadyExistsException when the favorite already exists
    */
   public void createFavorite(Favorite favorite) throws ObjectAlreadyExistsException;
+
+  /**
+   * Retrieves the favorite items attached to a given {@link MetadataItem} creatorId
+   *
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getFavoriteItemsByCreator (long creatorId, long offset, long limit);
 
   /**
    * Check if an object identified by its type/id for a user has favorite metadata
