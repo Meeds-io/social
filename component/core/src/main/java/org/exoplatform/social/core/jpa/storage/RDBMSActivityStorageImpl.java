@@ -1200,8 +1200,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         updatedActivity.setLikerIds(new HashSet<>(Arrays.asList(existingActivity.getLikeIdentityIds())));
       if (existingActivity.getPermaLink() != null)
         updatedActivity.setPermaLink(existingActivity.getPermaLink());
-      if (existingActivity.getTemplateParams() != null)
-        updatedActivity.setTemplateParams(existingActivity.getTemplateParams());
+      if (existingActivity.getTemplateParams() != null) {
+        Map<String, String> updatedActivityTemplateParams = updatedActivity.getTemplateParams();
+        updatedActivityTemplateParams.putAll(existingActivity.getTemplateParams());
+        updatedActivity.setTemplateParams(updatedActivityTemplateParams);
+      }
       if (existingActivity.getUpdated() != null)
         updatedActivity.setUpdatedDate(existingActivity.getUpdated());
       updatedActivity.setHidden(existingActivity.isHidden());
