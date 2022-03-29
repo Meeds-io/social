@@ -3,7 +3,7 @@
     <div class="openLink d-flex flex-row mb-3 text-truncate">
       <span
         v-if="standalone"
-        class="flex d-flex text-sub-title pt-3">{{ $t('activity.stream.title') }}</span>
+        class="flex d-flex text-sub-title text-uppercase pt-3">{{ $t('activity.stream.title') }}</span>
       <a
         v-else
         @click="openComposerDrawer(true)"
@@ -18,7 +18,7 @@
         name="status"
         class=" flex d-flex justify-end flex-nowrap activityFilter ignore-vuetify-classes">
         <option value="all">{{ $t('activity.stream.filter.all') }}</option>
-        <option value="my posted activities"> {{ $t('activity.stream.filter.myposted') }} </option>
+        <option value="myPosted"> {{ $t('activity.stream.filter.myposted') }} </option>
       </select>
     </div>
     <activity-composer-drawer ref="activityComposerDrawer" />

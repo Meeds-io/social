@@ -77,7 +77,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   private ActivitySearchConnector activitySearchConnector;
 
   private enum ActivityFilter {
-    ALL , MYPOSTEDACTIVITIES
+    ALL , MYPOSTED
   }
 
   public ActivityRestResourcesV1(ActivityManager activityManager,
@@ -173,12 +173,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     boolean canPost;
-    RealtimeListAccess<ExoSocialActivity> listAccess;
+    RealtimeListAccess<ExoSocialActivity> listAccess = null;
     if (StringUtils.isBlank(spaceId)) {
-      if (filter!= null && filter.equals(ActivityFilter.MYPOSTEDACTIVITIES.name())) {
-        listAccess = activityManager.getActivitiesByPoster(currentUserIdentity);
-      }
-      else {
+      if (StringUtils.isNotEmpty(filter) && filter != null) {
+        ActivityFilter filterType = ActivityFilter.valueOf(filter.toUpperCase());
+        if (filterType.equals(ActivityFilter.MYPOSTED)) {
+          listAccess = activityManager.getActivitiesByPoster(currentUserIdentity);
+        }
+      } else {
         listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
       }
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);

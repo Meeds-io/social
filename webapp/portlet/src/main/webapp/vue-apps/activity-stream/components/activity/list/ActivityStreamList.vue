@@ -145,8 +145,7 @@ export default {
     if (filterQueryParam) {
       // set filter value, which will trigger activities fetching
       this.selectedFilter = filterQueryParam;
-    }
-    else {
+    } else {
       this.selectedFilter = 'all';
     }
     this.getActivities();

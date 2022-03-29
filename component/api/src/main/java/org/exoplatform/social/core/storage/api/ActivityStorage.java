@@ -770,14 +770,12 @@ public interface ActivityStorage {
    */
   public List<ExoSocialActivity> getActivitiesByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes);
   /**
-   * Gets activities by poster and activity's types
+   * Gets the activity ids list by poster
    *
    * @param posterIdentity The identity of given poster.
    * @param offset The start point to load.
    * @param limit The range to load.
-   * @param activityTypes: type of activities
    * @return The activity Ids that match the given poster.
-   * @since 4.0.2-GA
    */
   public List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit);
   /**
