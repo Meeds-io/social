@@ -173,16 +173,10 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     boolean canPost;
-    RealtimeListAccess<ExoSocialActivity> listAccess = null;
+    RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      if (StringUtils.isNotEmpty(filter) && filter != null) {
-        ActivityFilter filterType = ActivityFilter.valueOf(filter.toUpperCase());
-        if (filterType.equals(ActivityFilter.MYPOSTED)) {
+      if (StringUtils.isNotEmpty(filter) && ActivityFilter.valueOf(filter.toUpperCase()).equals(ActivityFilter.MYPOSTED)) {
           listAccess = activityManager.getActivitiesByPoster(currentUserIdentity);
-        }
-        else if (filterType.equals(ActivityFilter.ALL)) {
-          listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
-        }
       } else {
         listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
       }
