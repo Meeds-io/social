@@ -331,8 +331,8 @@ export default {
     },
     params() {
       return {
-        identityType: 'user',
-        identityId: this.profileId ? this.profileId : this.identity && this.identity.username,
+        identityType: 'USER_PROFILE',
+        identityId: this.identity && this.identity.username,
       };
     },
   },
