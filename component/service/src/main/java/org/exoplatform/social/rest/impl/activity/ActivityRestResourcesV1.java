@@ -180,6 +180,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
         if (filterType.equals(ActivityFilter.MYPOSTED)) {
           listAccess = activityManager.getActivitiesByPoster(currentUserIdentity);
         }
+        else if (filterType.equals(ActivityFilter.ALL)) {
+          listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+        }
       } else {
         listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
       }
