@@ -263,6 +263,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     List<String> got = activityStorage.getActivityIdsFeed(demoIdentity, 0, 10);
     assertEquals(3, got.size());
   }
+  public void testGetActivityIdsByPoster() {
+    createActivities(3, demoIdentity);
+    createActivities(3, rootIdentity);
+    List<String> got = activityStorage.getActivityIdsFeed(demoIdentity, 0, 10);
+    assertEquals(3, got.size());
+  }
   
   @MaxQueryNumber(650)
   public void testGetSpaceActivityIds() throws Exception {

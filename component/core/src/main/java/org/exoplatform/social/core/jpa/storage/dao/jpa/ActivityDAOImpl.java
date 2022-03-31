@@ -700,6 +700,30 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
   }
+  @Override
+  public List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes) {
+    String queryName = "SocActivity.getActivitiesByPoster";
+    List<String> types = new ArrayList<>();
+    if (activityTypes != null && activityTypes.length > 0) {
+      types.addAll(Arrays.asList(activityTypes));
+    } else {
+      queryName += "NoTypes";
+    }
+
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery(queryName, Tuple.class);
+    if (!types.isEmpty()) {
+      query.setParameter("types", types);
+    }
+    query.setParameter("owner", posterIdentity.getId());
+
+    if (limit > 0) {
+      query.setFirstResult(0);
+      query.setMaxResults(limit);
+    }
+
+    List<Tuple> resultList = query.getResultList();
+    return convertActivityEntitiesToIdsString(resultList);
+  }
 
   @Override
   public int getNumberOfActivitiesByPoster(Identity posterIdentity, String... activityTypes) {
