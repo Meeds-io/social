@@ -23,6 +23,9 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.annotations.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Path(VersionResources.VERSION_ONE + "/social/favorites")
 @Api(
     tags = VersionResources.VERSION_ONE + "/social/favorites",
@@ -77,6 +80,13 @@ public class FavoriteRest implements ResourceContainer {
                                      required = false
                                  )
                                  @QueryParam("parentObjectId")
+                                     String objectTitle,
+                                 @ApiParam(
+                                     value = "Object parent identifier: technical id to identify "
+                                         + "the parent of an object like the activity Id for a comment entity",
+                                     required = false
+                                 )
+                                 @QueryParam("parentObjectId")
                                  String parentObjectId,
                                  @ApiParam(
                                      value = "Whether ignore favorite when already exists or return a HTTP 409 code",
@@ -95,7 +105,9 @@ public class FavoriteRest implements ResourceContainer {
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
       Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
-      favoriteService.createFavorite(favorite);
+      Map<String, String> favoriteProperties = new HashMap<>();
+      favoriteProperties.put("title", objectTitle);
+      favoriteService.createFavorite(favorite, favoriteProperties);
       return Response.noContent().build();
     } catch (ObjectAlreadyExistsException e) {
       if (ignoreWhenExisting) {

@@ -43,6 +43,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   private static final String OBJECT_TYPE      = "objectType";
 
+  private static final String CREATOR_ID      = "creatorId";
+
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
                                                                                MetadataItemEntity.class);
@@ -125,8 +127,11 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                              long creatorId,
                                                                              long offset,
                                                                              long limit) {
-    try {
-      Query query = getMetadataItemsByMetadataTypeAndCreatorIdQuery(metadataType, creatorId);
+      TypedQuery<MetadataItemEntity> query =
+          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndCreator",
+              MetadataItemEntity.class);
+      query.setParameter(METADATA_TYPE, metadataType);
+      query.setParameter(CREATOR_ID, creatorId);
       if (offset > 0) {
         query.setFirstResult((int) offset);
       }
@@ -134,9 +139,6 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
         query.setMaxResults((int) limit);
       }
       return query.getResultList();
-    } catch (NoResultException e) {
-      return Collections.emptyList();
-    }
   }
 
   public List<String> getMetadataObjectIds(long metadataType,
@@ -203,18 +205,6 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     queryStringBuilder.append(" AND sm_prop.value = '").append(propertyValue).append("' \n");
     queryStringBuilder.append(" WHERE sm.object_type = '").append(objectType).append("' \n");
     queryStringBuilder.append(" ORDER BY sm.created_date DESC, sm.metadata_id DESC");
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString(), MetadataItemEntity.class);
-  }
-
-  private Query getMetadataItemsByMetadataTypeAndCreatorIdQuery(long metadataType, long creatorId) {
-    StringBuilder queryStringBuilder = null;
-    queryStringBuilder = new StringBuilder("SELECT DISTINCT mi.* ");
-    queryStringBuilder.append(" FROM SOC_METADATA_ITEMS mi \n");
-    queryStringBuilder.append(" INNER JOIN SOC_METADATAS sm \n");
-    queryStringBuilder.append(" ON mi.metadata_id = sm.metadata_id \n");
-    queryStringBuilder.append(" WHERE sm.type = ").append(metadataType).append(" \n");
-    queryStringBuilder.append(" AND mi.creator_id = ").append(creatorId).append(" \n");
-    queryStringBuilder.append(" ORDER BY mi.created_date DESC, mi.metadata_id DESC");
     return getEntityManager().createNativeQuery(queryStringBuilder.toString(), MetadataItemEntity.class);
   }
 

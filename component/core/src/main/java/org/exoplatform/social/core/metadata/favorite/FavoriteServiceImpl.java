@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.metadata.favorite;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -39,7 +40,7 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
-  public void createFavorite(Favorite favorite) throws ObjectAlreadyExistsException {
+  public void createFavorite(Favorite favorite, Map<String, String> favoriteProperties) throws ObjectAlreadyExistsException {
     long userIdentityId = favorite.getUserIdentityId();
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(),
                                               String.valueOf(userIdentityId),
@@ -47,6 +48,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     FavoriteObject object = favorite.getObject();
     metadataService.createMetadataItem(object,
                                        metadataKey,
+                                       favoriteProperties,
                                        userIdentityId);
   }
 
