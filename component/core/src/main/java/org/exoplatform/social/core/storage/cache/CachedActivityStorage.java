@@ -1322,7 +1322,29 @@ public class CachedActivityStorage implements ActivityStorage {
     //
     return buildActivities(keys);
   }
+  @Override
+  public List<String> getActivityIdsByPoster(final Identity posterIdentity,
+                                                final int offset,
+                                                final int limit) {
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(posterIdentity), ActivityType.POSTER);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
 
+    //
+    ListActivitiesData keys = activitiesCache.get(
+            new ServiceContext<ListActivitiesData>() {
+              public ListActivitiesData execute() {
+                List<String> got = storage.getActivityIdsByPoster(posterIdentity,
+                        offset,
+                        limit);
+                return buildActivityIds(got);
+              }
+            },
+            listKey);
+
+    //
+    return buildActivityIds(keys);
+  }
   @Override
   public List<ExoSocialActivity> getActivitiesByPoster(final Identity posterIdentity,
                                                        final int offset,
