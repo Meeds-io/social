@@ -7,7 +7,7 @@
       <a
         v-else
         @click="openComposerDrawer(true)"
-        class="primary--text">
+        class="primary--text flex d-flex">
         <i class="uiIconEdit"></i>
         {{ composerButtonLabel }}
       </a>
