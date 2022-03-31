@@ -4,6 +4,7 @@
     class="activityStream pa-0">
     <activity-composer
       :standalone="!canPost"
+      :space-id="spaceId"
       :selected-filter="selectedFilter"
       id="activityComposer" />
     <activity-stream-confirm-dialog />

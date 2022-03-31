@@ -12,7 +12,7 @@
         {{ composerButtonLabel }}
       </a>
       <select
-        v-if="standalone"
+        v-if="!spaceId"
         id="filterStream"
         v-model="selectedFilter"
         name="status"
@@ -48,6 +48,10 @@ export default {
       type: Boolean,
       default: false
     },
+    spaceId: {
+      type: String,
+      default: ''
+    }
   },
   computed: {
     composerButtonLabel() {
