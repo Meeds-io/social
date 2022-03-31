@@ -1,5 +1,5 @@
-export function getActivities(spaceId, limit, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?spaceId=${spaceId || ''}&limit=${limit}&expand=${expand || ''}`, {
+export function getActivities(spaceId, limit, filter, expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?spaceId=${spaceId || ''}&limit=${limit}&filter=${filter || ''}&expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

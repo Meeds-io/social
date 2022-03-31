@@ -1184,7 +1184,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                       @ApiParam(value = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("after") String after,
                                       @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                                       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand) throws Exception {
-    return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, returnSize, expand);
+    return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, "", returnSize, expand);
   }
 
   @POST
