@@ -12,7 +12,7 @@
         {{ composerButtonLabel }}
       </a>
       <select
-        v-if="canDisplayFilter"
+        v-if="displayStreamFilter"
         id="filterStream"
         v-model="selectedFilter"
         name="status"
@@ -57,7 +57,7 @@ export default {
         return this.$t('activity.composer.post');
       }
     },
-    canDisplayFilter() {
+    displayStreamFilter() {
       return !eXo.env.portal.spaceId;
     }
   },
