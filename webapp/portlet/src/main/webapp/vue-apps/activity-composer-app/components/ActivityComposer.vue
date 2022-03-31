@@ -12,7 +12,7 @@
         {{ composerButtonLabel }}
       </a>
       <select
-        v-if="standalone"
+        v-if="displayStreamFilter"
         id="filterStream"
         v-model="selectedFilter"
         name="status"
@@ -57,6 +57,9 @@ export default {
         return this.$t('activity.composer.post');
       }
     },
+    displayStreamFilter() {
+      return !eXo.env.portal.spaceId;
+    }
   },
   watch: {
     selectedFilter(newValue, oldValue) {
