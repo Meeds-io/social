@@ -177,29 +177,26 @@ export default {
           } else {
             $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
           }
-        } else if (dataId === 'details-drawer') {
-
-          // ------------- Open details drawer
-
-          $(this).find('.open-details-drawer').off('click')
-            .on('click', function(evt) {
-              evt.preventDefault();
-              evt.stopPropagation();
-              const notificationDetails = $(this).data('notification-details');
-              document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
-            });
-        } else {
+        } else if (dataId !== 'notification-details-drawer') {
           $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
         }
+
+        // ------------- Open details drawer
+
+        $(this).find('.open-details-drawer').off('click')
+          .on('click', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const notificationDetails = $(this).data('notification-details');
+            document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
+          });
 
         // ----------------- Mark as read
         $(this).on('click', function() {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
-          if (dataId !== 'mailIntegration') {
-            Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
-          }
+          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
         });
 
         // ------------- hide notif
