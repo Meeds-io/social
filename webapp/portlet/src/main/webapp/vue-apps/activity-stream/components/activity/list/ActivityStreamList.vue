@@ -11,7 +11,6 @@
     <activity-stream-updater
       ref="activityUpdater"
       v-if="!activityId"
-      :space-id="spaceId"
       :activities="activities"
       @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">

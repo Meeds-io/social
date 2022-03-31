@@ -12,7 +12,7 @@
         {{ composerButtonLabel }}
       </a>
       <select
-        v-if="!spaceId"
+        v-if="canDisplayFilter"
         id="filterStream"
         v-model="selectedFilter"
         name="status"
@@ -48,10 +48,6 @@ export default {
       type: Boolean,
       default: false
     },
-    spaceId: {
-      type: String,
-      default: ''
-    }
   },
   computed: {
     composerButtonLabel() {
@@ -61,6 +57,9 @@ export default {
         return this.$t('activity.composer.post');
       }
     },
+    canDisplayFilter() {
+      return !eXo.env.portal.spaceId;
+    }
   },
   watch: {
     selectedFilter(newValue, oldValue) {
