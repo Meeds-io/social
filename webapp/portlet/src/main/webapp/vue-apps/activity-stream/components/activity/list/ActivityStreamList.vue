@@ -4,6 +4,7 @@
     class="activityStream pa-0">
     <activity-composer
       :standalone="!canPost"
+      :selected-filter="selectedFilter"
       id="activityComposer" />
     <activity-stream-confirm-dialog />
     <activity-stream-updater
@@ -84,6 +85,7 @@ export default {
     limit: 10,
     retrievedSize: 0,
     loadedActivities: new Set(),
+    selectedFilter: '',
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
     canPost: false,
@@ -133,17 +135,20 @@ export default {
         this.updateActivityDisplayById(activityId);
       }
     });
-
-    this.limit = this.pageSize;
-    this.retrievedSize = this.limit;
-    this.hasMore = false;
-    Promise.resolve(this.init())
-      .finally(() => {
-        if (this.$refs && this.$refs.activityUpdater) {
-          this.$refs.activityUpdater.init();
-        }
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      });
+    this.$root.$on('filter-activities',(filter) => {
+      if (filter) {
+        this.selectedFilter = filter;
+        this.getActivities();
+      }
+    });
+    const filterQueryParam = localStorage.getItem('ActivityFilter');
+    if (filterQueryParam) {
+      // set filter value, which will trigger activities fetching
+      this.selectedFilter = filterQueryParam;
+    } else {
+      this.selectedFilter = 'all';
+    }
+    this.getActivities();
   },
   methods: {
     init() {
@@ -162,7 +167,8 @@ export default {
     },
     loadActivityIds() {
       this.loading = true;
-      return this.$activityService.getActivities(this.spaceId, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+      const filterToSearch = this.selectedFilter.replace(/\s/g, '').toUpperCase();
+      return this.$activityService.getActivities(this.spaceId, this.limit * 2, filterToSearch, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
         .then(data => {
           this.canPost = data.canPost;
           const activityIds = data && (data.activityIds || data.activities) || [];
@@ -224,6 +230,21 @@ export default {
     loadActivities(newActivitiesCount) {
       this.limit += newActivitiesCount;
       this.loadActivityIds().catch(() => window.location.reload());
+    },
+    getActivities() {
+      if (this.activities.length > 0) {
+        this.activities = [];
+      }
+      this.limit = this.pageSize;
+      this.retrievedSize = this.limit;
+      this.hasMore = false;
+      Promise.resolve(this.init())
+        .finally(() => {
+          if (this.$refs && this.$refs.activityUpdater) {
+            this.$refs.activityUpdater.init();
+          }
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        });
     },
   },
 };

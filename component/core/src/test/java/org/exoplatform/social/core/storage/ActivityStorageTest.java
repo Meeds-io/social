@@ -817,6 +817,37 @@ public class ActivityStorageTest extends AbstractCoreTest {
     tearDownActivityList.add(demoActivity);
     relationshipManager.delete(rootDemoRelationship);
   }
+  public void testGetActivityIdsByPoster () throws Exception {
+    RelationshipManager relationshipManager = this.getRelationshipManager();
+
+    Relationship rootDemoRelationship = relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
+    relationshipManager.confirm(demoIdentity, rootIdentity);
+
+    //
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("Activity of root.");
+    activityStorage.saveActivity(rootIdentity, rootActivity);
+
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("Activity of demo.");
+    activityStorage.saveActivity(demoIdentity, demoActivity);
+
+    List<String> demoActivityIds = activityStorage.getActivityIdsByPoster(demoIdentity, 0, 10);
+    assertNotNull(demoActivityIds);
+    assertEquals("demoActivityIds.size() must be 1", 1, demoActivityIds.size());
+    assertEquals(demoActivityIds.get(0) , demoActivity.getId());
+
+    List<String> rootActivityIds = activityStorage.getActivityIdsByPoster(rootIdentity, 0, 10);
+    assertNotNull(rootActivityIds);
+    assertEquals("demoActivityIds.size() must be 1", 1, rootActivityIds.size());
+    assertEquals(rootActivityIds.get(0) , rootActivity.getId());
+
+
+    //
+    tearDownActivityList.add(rootActivity);
+    tearDownActivityList.add(demoActivity);
+    relationshipManager.delete(rootDemoRelationship);
+  }
   
   /**
    * Test {@link ActivityStorage#testGetActivitiesRelationshipByFeed(Identity, int, int)}

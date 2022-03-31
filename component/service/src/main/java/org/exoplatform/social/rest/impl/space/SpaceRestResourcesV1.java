@@ -1120,7 +1120,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       @ApiParam(value = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("after") String after,
       @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand) throws Exception {
-    return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, returnSize, expand);
+    return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, "", returnSize, expand);
   }
   
   /**
