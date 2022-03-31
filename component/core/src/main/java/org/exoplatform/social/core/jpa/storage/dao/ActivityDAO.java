@@ -368,7 +368,14 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return list of activities
    */
   List<Long> getActivitiesByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes);
-
+  /**
+   * @param posterIdentity the Identity
+   * @param offset the start index
+   * @param limit max number items to load
+   * @param activityTypes the activity Type
+   * @return list of activities Ids
+   */
+  List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes);
   /**
    * @param posterIdentity the Identity
    * @param activityTypes the activity Type
