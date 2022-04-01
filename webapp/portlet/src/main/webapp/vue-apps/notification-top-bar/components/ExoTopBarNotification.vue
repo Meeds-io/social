@@ -177,16 +177,25 @@ export default {
           } else {
             $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
           }
-        } else {
+        } else if (dataId !== 'notification-details-drawer') {
           $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
         }
+
+        // ------------- Open details drawer
+
+        $(this).find('.open-details-drawer').off('click')
+          .on('click', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const notificationDetails = $(this).data('notification-details');
+            document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
+          });
 
         // ----------------- Mark as read
         $(this).on('click', function() {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
-
           Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
         });
 
@@ -197,16 +206,6 @@ export default {
             evt.stopPropagation();
             Vue.prototype.$notificationService.updateNotification(dataId,'hide');
             $(this).parents('li:first').slideUp(SLIDE_UP);
-          });
-                               
-        // ------------- Open details drawer
-              
-        $(this).find('.open-details-drawer').off('click')
-          .on('click', function(evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-            const notificationDetails = $(this).data('notification-details');
-            document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
           });
 
         // ------------- Accept request
