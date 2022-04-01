@@ -48,7 +48,7 @@ export default {
     },
     standalone: {
       type: Boolean,
-      default: true
+      default: false
     },
   },
   computed: {
@@ -61,9 +61,6 @@ export default {
     },
     displayStreamFilter() {
       return !eXo.env.portal.spaceId;
-    },
-    displayStreamTitle() {
-      return this.displayStreamFilter && this.standalone;
     },
   },
   watch: {
