@@ -1,27 +1,16 @@
 <template>
-  <div id="activityComposer" class="activityComposer activityComposerApp pa-0">
-    <div class="openLink d-flex flex-row mb-3 text-truncate">
-      <span
-        v-if="standalone"
-        class="flex d-flex text-sub-title text-uppercase pt-3">{{ $t('activity.stream.title') }}</span>
-      <div v-else class="flex d-flex">
-        <a
-          @click="openComposerDrawer(true)"
-          :class="displayStreamFilter && 'pt-3'"
-          class="primary--text">
-          <i class="uiIconEdit"></i>
-          {{ composerButtonLabel }}
-        </a>
-      </div>
-      <select
-        v-if="displayStreamFilter"
-        id="filterStream"
-        v-model="selectedFilter"
-        name="status"
-        class=" flex d-flex justify-end flex-nowrap activityFilter ignore-vuetify-classes">
-        <option value="all">{{ $t('activity.stream.filter.all') }}</option>
-        <option value="myPosted"> {{ $t('activity.stream.filter.myposted') }} </option>
-      </select>
+  <div id="activityComposer">
+    <span
+      v-if="standalone"
+      class=" text-sub-title text-uppercase pt-3">{{ $t('activity.stream.title') }}</span>
+    <div v-else>
+      <a
+        @click="openComposerDrawer(true)"
+        :class="displayStreamFilter && 'pt-3'"
+        class="primary--text">
+        <i class="uiIconEdit"></i>
+        {{ composerButtonLabel }}
+      </a>
     </div>
     <activity-composer-drawer ref="activityComposerDrawer" />
   </div>
@@ -61,14 +50,6 @@ export default {
     },
     displayStreamFilter() {
       return !eXo.env.portal.spaceId;
-    }
-  },
-  watch: {
-    selectedFilter(newValue, oldValue) {
-      if (oldValue !== '') {
-        localStorage.setItem('ActivityFilter',newValue);
-        this.$root.$emit('filter-activities',newValue);
-      }
     }
   },
   methods: {

@@ -2,11 +2,17 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
-    <activity-composer
+    <div
       v-show="showComposer"
-      :standalone="!canPost"
-      :selected-filter="selectedFilter"
-      id="activityComposer" />
+      class="activityComposer activityComposerApp pa-0">
+      <div class="openLink d-flex flex-row mb-3 text-truncate">
+        <activity-composer
+          :standalone="!canPost"
+          id="activityComposer"
+          class="flex d-flex pt-3" />
+        <activity-stream-filter class="flex d-flex justify-end flex-nowrap" :selected-filter="selectedFilter" />
+      </div>
+    </div>
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
