@@ -3,6 +3,7 @@
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
     <activity-composer
+      v-show="showComposer"
       :standalone="!canPost"
       :selected-filter="selectedFilter"
       id="activityComposer" />
@@ -99,6 +100,9 @@ export default {
     },
     activityStreamTypeClass() {
       return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
+    },
+    showComposer() {
+      return this.activitiesToDisplay && this.activitiesToDisplay.length || this.canPost;
     },
   },
   watch: {

@@ -4,13 +4,15 @@
       <span
         v-if="standalone"
         class="flex d-flex text-sub-title text-uppercase pt-3">{{ $t('activity.stream.title') }}</span>
-      <a
-        v-else
-        @click="openComposerDrawer(true)"
-        class="primary--text flex d-flex">
-        <i class="uiIconEdit"></i>
-        {{ composerButtonLabel }}
-      </a>
+      <div v-else class="flex d-flex">
+        <a
+          @click="openComposerDrawer(true)"
+          :class="displayStreamFilter && 'pt-3'"
+          class="primary--text">
+          <i class="uiIconEdit"></i>
+          {{ composerButtonLabel }}
+        </a>
+      </div>
       <select
         v-if="displayStreamFilter"
         id="filterStream"
@@ -46,7 +48,7 @@ export default {
     },
     standalone: {
       type: Boolean,
-      default: false
+      default: true
     },
   },
   computed: {
@@ -59,7 +61,10 @@ export default {
     },
     displayStreamFilter() {
       return !eXo.env.portal.spaceId;
-    }
+    },
+    displayStreamTitle() {
+      return this.displayStreamFilter && this.standalone;
+    },
   },
   watch: {
     selectedFilter(newValue, oldValue) {
