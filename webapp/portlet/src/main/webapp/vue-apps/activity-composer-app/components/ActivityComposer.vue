@@ -61,7 +61,7 @@ export default {
     },
     displayStreamFilter() {
       return !eXo.env.portal.spaceId;
-    },
+    }
   },
   watch: {
     selectedFilter(newValue, oldValue) {

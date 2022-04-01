@@ -103,7 +103,7 @@ export default {
     },
     showComposer() {
       return this.activitiesToDisplay && this.activitiesToDisplay.length || this.canPost;
-    },
+    }
   },
   watch: {
     loading() {
