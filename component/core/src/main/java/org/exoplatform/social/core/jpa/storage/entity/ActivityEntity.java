@@ -94,6 +94,15 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
                 query = "SELECT distinct a.id, a.updatedDate FROM SocActivity a WHERE "
                     + " a.posterId = :owner "
                     + " ORDER BY a.updatedDate DESC"),
+        @NamedQuery(name = "SocActivity.getActivityIdsByPoster",
+                query = "SELECT distinct item.activity.id as activityId, item.updatedDate as updatedDate FROM SocStreamItem item WHERE "
+                        + " item.activity.posterId = :owner "
+                        + " AND item.activity.type in (:types) "
+                        + " ORDER BY item.updatedDate DESC"),
+        @NamedQuery(name = "SocActivity.getActivityIdsByPosterNoTypes",
+                query = "SELECT distinct item.activity.id as activityId, item.updatedDate as updatedDate FROM SocStreamItem item WHERE "
+                        + " item.activity.posterId = :owner "
+                        + " ORDER BY item.updatedDate DESC"),
         @NamedQuery(name = "SocActivity.getActivityIdsOfConnections",
                 query = "SELECT distinct item.activity.id, item.updatedDate FROM SocStreamItem item WHERE "
                     + " item.activity.hidden = false AND "
