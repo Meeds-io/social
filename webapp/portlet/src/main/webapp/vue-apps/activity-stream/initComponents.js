@@ -7,6 +7,7 @@ import ActivityNotificationAlerts from './components/common/ActivityNotification
 import ActivityStreamUpdater from './components/common/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue';
 import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
+import ActivityStreamFilter from './components/activity/list/ActivityStreamFilter.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
@@ -38,6 +39,7 @@ import ActivityCommentLikeAction from './components/comment/footer/actions/Activ
 const components = {
   'activity-stream': ActivityStream,
   'activity-stream-list': ActivityStreamList,
+  'activity-stream-filter': ActivityStreamFilter,
   'activity-notification-alerts': ActivityNotificationAlerts,
   'activity-auto-link': ActivityAutoLink,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,

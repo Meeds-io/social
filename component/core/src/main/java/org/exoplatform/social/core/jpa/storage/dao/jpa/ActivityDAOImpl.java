@@ -702,7 +702,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
   @Override
   public List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit, String... activityTypes) {
-    String queryName = "SocActivity.getActivitiesByPoster";
+    String queryName = "SocActivity.getActivityIdsByPoster";
     List<String> types = new ArrayList<>();
     if (activityTypes != null && activityTypes.length > 0) {
       types.addAll(Arrays.asList(activityTypes));
