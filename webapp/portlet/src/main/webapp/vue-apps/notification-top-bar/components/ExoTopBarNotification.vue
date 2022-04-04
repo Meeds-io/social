@@ -170,6 +170,10 @@ export default {
         }
         const linkId = dataLink.split(`${eXo.env.portal.context}/`);
         const dataId = $(this).data('id').toString();
+        let dataDetails = null;
+        if ($(this).data('details') && $(this).data('details').toString()) {
+          dataDetails = $(this).data('details').toString();
+        }
         if (linkId != null && linkId.length >1 ) {
           if (linkId[0].includes('/view_full_activity/')) {
             const id = linkId[0].split('/view_full_activity/')[1];
@@ -177,7 +181,7 @@ export default {
           } else {
             $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
           }
-        } else if (dataId !== 'notification-details-drawer') {
+        } else if (dataDetails !== 'data-notification') {
           $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
         }
 
@@ -189,6 +193,11 @@ export default {
             evt.stopPropagation();
             const notificationDetails = $(this).data('notification-details');
             document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
+            const parentDiv = document.querySelector('div#mediaDiv');
+            if (parentDiv && parentDiv.parentElement.className === 'unread clearfix') {
+              parentDiv.parentElement.className = 'read clearfix';
+            }
+            Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
           });
 
         // ----------------- Mark as read
