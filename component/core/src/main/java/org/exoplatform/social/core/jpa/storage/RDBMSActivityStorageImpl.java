@@ -1141,10 +1141,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       throw new IllegalArgumentException("Activity to update cannot be null");
     }
     if (existingActivity.getTemplateParams() != null) {
-      existingActivity.getTemplateParams().remove("id");
-      existingActivity.getTemplateParams().remove("DOCPATH");
-      existingActivity.getTemplateParams().remove("docTitle");
-      existingActivity.getTemplateParams().remove("mimeType");
+      existingActivity.getTemplateParams().put("id", "");
+      existingActivity.getTemplateParams().put("DOCPATH", "");
+      existingActivity.getTemplateParams().put("docTitle", "");
+      existingActivity.getTemplateParams().put("mimeType", "");
     }
     if (CollectionUtils.isNotEmpty(existingActivity.getFiles())) {
       try {
