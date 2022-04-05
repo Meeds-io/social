@@ -777,7 +777,9 @@ public interface ActivityStorage {
    * @param limit The range to load.
    * @return The activity Ids that match the given poster.
    */
-  public List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit);
+  default List<String> getActivityIdsByPoster(Identity posterIdentity, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
   /**
    * Gets the number of activities of poster.
    * 
