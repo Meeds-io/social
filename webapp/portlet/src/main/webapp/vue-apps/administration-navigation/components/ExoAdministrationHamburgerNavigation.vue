@@ -26,45 +26,21 @@ export default {
       navigationVisibilities: ['displayed'],
       loading: false,
       navigations: [],
-      embeddedTree: {
-        // users and spaces
-        'usersManagement': 'usersAndSpaces',
-        'groupsManagement': 'usersAndSpaces',
-        'membershipsManagement': 'usersAndSpaces',
-        'spacesAdministration': 'usersAndSpaces',
-        // Documents
-        'editors': 'documents',
-        'cloudStorage': 'documents',
-        // content
-        'siteExplorer': 'content',
-        'wcmAdmin': 'content',
-        'newsTargets': 'content',
-        // gamification
-        'hook_management': 'gamification',
-        'gamification/rules': 'gamification',
-        'gamification/badges': 'gamification',
-        'gamification/domains': 'gamification',
-        'gamification/realizations': 'gamification',
-        // security
-        'dlp-quarantine': 'security',
-        'transferRules': 'security',
-        'multifactor-authentication': 'security',
-        // rewards
-        'rewardAdministration/kudosAdministration': 'reward',
-        'rewardAdministration/walletAdministration': 'reward',
-        'rewardAdministration/rewardAdministration': 'reward',
-        'rewardAdministration/perkStoreAdministration': 'reward',
-        // portal
-        'portalnavigation': 'portal',
-        'groupnavigation': 'portal',
-        'administration/pageManagement': 'portal',
-        'administration/registry': 'portal',
-      },
+      embeddedTree: {},
     };
   },
   computed: {
     visibilityQueryParams() {
       return this.navigationVisibilities.map(visibilityName => `visibility=${visibilityName}`).join('&');
+    },
+    sortedEmbeddedNavigationTree() {
+      return this.embeddedTree && this.embeddedTree.navs && Object.keys(this.embeddedTree.navs)
+        .sort((nav1, nav2) => {
+          const cat1 = this.embeddedTree.navs[nav1];
+          const cat2 = this.embeddedTree.navs[nav2];
+          return cat1 === cat2 ? this.embeddedTree.urisOrder[nav1] - this.embeddedTree.urisOrder[nav2]
+            : this.embeddedTree.categoriesOrder[cat1] - this.embeddedTree.categoriesOrder[cat2];
+        }) || [];
     },
     navigationTree() {
       const navigationTree = [];
@@ -74,23 +50,23 @@ export default {
       navigationsList = this.filterDisplayedNavigations(navigationsList);
       this.computeLink(navigationsList);
 
-      Object.keys(this.embeddedTree).forEach(embeddedTreeUri => {
+      this.sortedEmbeddedNavigationTree.forEach(embeddedTreeUri => {
         let nav = this.findNodeByUri(embeddedTreeUri, navigationsList);
         if (nav) {
           nav.displayed = true;
-          const key = this.embeddedTree[embeddedTreeUri];
+          const catName = this.embeddedTree.navs[embeddedTreeUri];
           nav = Object.assign({}, nav);
           nav.children = nav.children && nav.children.slice();
 
-          if (navigationParentObjects[key]) {
-            navigationParentObjects[key].children.push(nav);
+          if (navigationParentObjects[catName]) {
+            navigationParentObjects[catName].children.push(nav);
           } else {
-            navigationParentObjects[key] = {
-              key: key,
-              label: this.$t(`menu.administration.navigation.${key}`),
+            navigationParentObjects[catName] = {
+              key: catName,
+              label: this.$t(`menu.administration.navigation.${catName}`),
               children: [nav],
             };
-            navigationTree.push(navigationParentObjects[key]);
+            navigationTree.push(navigationParentObjects[catName]);
           }
         }
       });
@@ -142,6 +118,12 @@ export default {
           }
           this.navigations = navigations;
         })
+        .then(() => fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/categories`, {
+          method: 'GET',
+          credentials: 'include',
+        }))
+        .then(resp => resp && resp.ok && resp.json())
+        .then(data => this.embeddedTree = data || {})
         .finally(() => {
           this.loading = false;
         });
@@ -170,13 +152,14 @@ export default {
       this.$emit('open-second-level');
     },
     filterDisplayedNavigations(navigations, excludeHidden) {
-      return navigations.filter(nav => {
-        if (nav.children) {
-          nav.children = this.filterDisplayedNavigations(nav.children);
-        }
-        // eslint-disable-next-line no-extra-parens
-        return !nav.displayed && (!excludeHidden || nav.visibility !== 'HIDDEN') && (nav.pageKey || (nav.children && nav.children.length));
-      });
+      return navigations
+        .filter(nav => {
+          if (nav.children) {
+            nav.children = this.filterDisplayedNavigations(nav.children);
+          }
+          // eslint-disable-next-line no-extra-parens
+          return !nav.displayed && (!excludeHidden || nav.visibility !== 'HIDDEN') && (nav.pageKey || (nav.children && nav.children.length));
+        });
     },
     computeLink(navigations) {
       navigations.forEach(nav => {
