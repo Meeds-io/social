@@ -5,7 +5,7 @@
       icon
       class="transparent"
       @click="dialog = !dialog">
-      <i class="uiIconPLF24x24Search position-static d-flex"></i>
+      <i class="v-icon fas fa-search icon-medium-size icon-default-color position-static d-flex"></i>
     </v-btn>
     <v-fade-transition>
       <v-flex
