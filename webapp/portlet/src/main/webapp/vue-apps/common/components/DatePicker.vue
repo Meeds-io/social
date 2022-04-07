@@ -193,18 +193,24 @@ export default {
         this.menu = false;
       }
     });
-
     // Force to close DatePickers when clicking outside
     $(document).on('click', (e) => {
       if (e.target && !$(e.target).parents(`.${this.menuId}`).length) {
         this.menu = false;
       }
     });
-
     this.computeDate();
   },
   methods: {
     emitDateValue() {
+      // get the timezone
+      const te =  new Date().getTimezoneOffset();
+      const dateArray = this.date.split('-');
+      if (te>0){
+        this.date = `${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`;
+      } else {
+        this.date = `${dateArray[0]}-${dateArray[1]}-${dateArray[2]}`;
+      }
       const dateObj = this.date && new Date(this.date) || null;
       if (this.disabled) {
         this.dateValue = null;
