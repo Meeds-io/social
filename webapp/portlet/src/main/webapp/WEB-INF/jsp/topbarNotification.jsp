@@ -7,14 +7,13 @@
 <%
   WebNotificationService webNotificationService = ExoContainerContext.getService(WebNotificationService.class);
   int badge = webNotificationService.getNumberOnBadge(request.getRemoteUser());
-  String tooltip;
+  ResourceBundle bundle;
   try {
-    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
-    tooltip = bundle.getString("UIIntranetNotificationsPortlet.label.tooltip");
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
   } catch (Exception e) {
-    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
-    tooltip = bundle.getString("UIIntranetNotificationsPortlet.label.tooltip");
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
+  tooltip = bundle.getString("UIIntranetNotificationsPortlet.label.tooltip");
 %>
 <div class="VuetifyApp">
   <div data-app="true"

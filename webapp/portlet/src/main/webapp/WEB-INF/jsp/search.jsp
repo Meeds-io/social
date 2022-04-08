@@ -36,14 +36,14 @@
     } 
   }
   String skinUrlsString = "[\"" + StringUtils.join(skinURLs, "\",\"") + "\"]";
-  String tooltip;
+  ResourceBundle bundle;
   try {
-    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
     tooltip = bundle.getString("Search.button.tooltip");
   } catch (Exception e) {
-    ResourceBundle bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
-    tooltip = bundle.getString("Search.button.tooltip");
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
+  String tooltip = bundle.getString("Search.button.tooltip");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
