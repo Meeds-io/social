@@ -24,9 +24,6 @@
     <template v-else-if="errorMessage === 'BAD_LINE_FORMAT:MISSING_USERNAME'">
       {{ $t('UsersManagement.error.importCSV.missingUserName') }}
     </template>
-    <template v-else-if="errorMessage === 'BAD_LINE_FORMAT:MISSING_USERNAME'">
-      {{ $t('UsersManagement.error.importCSV.missingUserName') }}
-    </template>
     <template v-else-if="errorMessage === 'BAD_LINE_FORMAT'">
       {{ $t('UsersManagement.error.importCSV.badLineFormat', {0: userName}) }}
     </template>
@@ -50,9 +47,6 @@
     </template>
     <template v-else-if="createUserProfileErrorMessage">
       {{ createUserProfileErrorMessage }}
-    </template>
-    <template v-else-if="membershipImportErrorMessage">
-      {{ membershipImportErrorMessage }}
     </template>
     <template v-else>
       {{ error }}

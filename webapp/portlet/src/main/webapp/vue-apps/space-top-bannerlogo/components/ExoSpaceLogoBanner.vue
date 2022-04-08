@@ -10,7 +10,7 @@
       max-width="350"
       min-width="300"
       offset-y>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <div
           v-on="on"
           v-bind="attrs"
@@ -47,7 +47,7 @@
             <v-list-item-content class="pb-0">
               <v-list-item-title>
                 <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
+                  <template #activator="{ on, attrs }">
                     <span
                       v-on="on"
                       v-bind="attrs"

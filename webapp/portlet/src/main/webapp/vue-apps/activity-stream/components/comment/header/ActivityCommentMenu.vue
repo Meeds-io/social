@@ -10,7 +10,7 @@
       bottom
       offset-y
       attach>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           icon
           small

@@ -7,7 +7,7 @@
     :nudge-bottom="30"
     content-class="tag-search-content"
     offset-x>
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"

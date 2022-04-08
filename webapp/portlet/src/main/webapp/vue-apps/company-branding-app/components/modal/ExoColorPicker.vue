@@ -4,7 +4,7 @@
     v-model="modal"
     color="white"
     width="290px">
-    <template v-slot:activator="{ on }">
+    <template #activator="{ on }">
       <div class="themeColor">
         <div
           :style="{ backgroundColor: value}"
