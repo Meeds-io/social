@@ -39,7 +39,6 @@
   ResourceBundle bundle;
   try {
     bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
-    tooltip = bundle.getString("Search.button.tooltip");
   } catch (Exception e) {
     bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
