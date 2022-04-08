@@ -170,6 +170,7 @@ export default {
         }
         const linkId = dataLink.split(`${eXo.env.portal.context}/`);
         const dataId = $(this).data('id').toString();
+        const dataDetails = $(this).data('details') && $(this).data('details').toString() ? $(this).data('details').toString() : null;
         if (linkId != null && linkId.length >1 ) {
           if (linkId[0].includes('/view_full_activity/')) {
             const id = linkId[0].split('/view_full_activity/')[1];
@@ -177,19 +178,22 @@ export default {
           } else {
             $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
           }
-        } else if (dataId !== 'notification-details-drawer') {
+        } else if (dataDetails !== 'notification-details-drawer') {
           $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
         }
 
         // ------------- Open details drawer
 
-        $(this).find('.open-details-drawer').off('click')
-          .on('click', function(evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-            const notificationDetails = $(this).data('notification-details');
-            document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
-          });
+        $(this).find('.open-details-drawer').off('click').on('click', function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const notificationDetails = $(this).data('notification-details');
+          document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
+          if ($(this).closest('[data-details]').hasClass('unread')) {
+            $(this).closest('[data-details]').removeClass('unread').addClass('read');
+          }
+          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
+        });
 
         // ----------------- Mark as read
         $(this).on('click', function() {
