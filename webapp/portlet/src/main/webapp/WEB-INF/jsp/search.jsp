@@ -12,6 +12,9 @@
 <%@page import="java.util.Set"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.social.core.search.SearchService"%>
+<%@page import="java.util.Locale"%>
+<%@page import="org.exoplatform.services.resources.ResourceBundleService"%>
+<%@page import="java.util.ResourceBundle"%>
 <%
   SearchService searchService = ExoContainerContext.getService(SearchService.class);
   SkinService skinService = ExoContainerContext.getService(SkinService.class);
@@ -33,6 +36,14 @@
     } 
   }
   String skinUrlsString = "[\"" + StringUtils.join(skinURLs, "\",\"") + "\"]";
+  ResourceBundle bundle;
+  try {
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", request.getLocale());
+    tooltip = bundle.getString("Search.button.tooltip");
+  } catch (Exception e) {
+    bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
+  }
+  String tooltip = bundle.getString("Search.button.tooltip");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -42,6 +53,7 @@
     <div class="v-application--wrap">
       <button
         type="button"
+        title="<%=tooltip%>"
         class="transparent v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
         onclick="Vue.startApp('PORTLET/social-portlet/Search', 'init')">
         <span class="v-btn__content">
