@@ -189,9 +189,8 @@ export default {
           evt.stopPropagation();
           const notificationDetails = $(this).data('notification-details');
           document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
-          const parentDiv = document.querySelector('div#mediaDiv');
-          if (parentDiv && parentDiv.parentElement.className === 'unread clearfix') {
-            parentDiv.parentElement.className = 'read clearfix';
+          if ($(this).closest('[data-details]').hasClass('unread')) {
+            $(this).closest('[data-details]').removeClass('unread').addClass('read');
           }
           Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
         });
