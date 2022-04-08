@@ -8,13 +8,13 @@
     </template>
     <template slot="content">
       <v-layout column class="ma-3">
-        <template v-if="spaces && spaces.length" class="ma-0 border-box-sizing">
-          <spaces-overview-spaces-list
-            :spaces="spaces"
-            :filter="filter"
-            @refresh="refresh"
-            @edit="editSpace" />
-        </template>
+        <spaces-overview-spaces-list
+          v-if="spaces && spaces.length"
+          :spaces="spaces"
+          :filter="filter"
+          class="ma-0 border-box-sizing"
+          @refresh="refresh"
+          @edit="editSpace" />
         <template v-else-if="!loadingSpaces">
           <span class="ma-auto">{{ $t('spacesOverview.label.noResults') }}</span>
         </template>

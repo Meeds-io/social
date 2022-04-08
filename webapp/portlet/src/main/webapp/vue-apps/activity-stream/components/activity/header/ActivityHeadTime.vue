@@ -7,7 +7,7 @@
       far fa-clock
     </v-icon>
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           :href="activityLink"
           :height="20"

@@ -1,9 +1,22 @@
 const path = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
 
 let config = {
   context: path.resolve(__dirname, '.'),
   // set the entry point of the application
   // can use multiple entry
+  plugins: [
+    new ESLintPlugin({
+      files: [
+        './src/main/webapp/vue-apps/*.js',
+        './src/main/webapp/vue-apps/*.vue',
+        './src/main/webapp/vue-apps/**/*.js',
+        './src/main/webapp/vue-apps/**/*.vue',
+      ],
+    }),
+    new VueLoaderPlugin()
+  ],
   entry: {
     commonVueComponents: './src/main/webapp/vue-apps/common/main.js',
     login: './src/main/webapp/vue-apps/login/main.js',
@@ -62,14 +75,12 @@ let config = {
         exclude: /node_modules/,
         use: [
           'babel-loader',
-          'eslint-loader',
         ]
       },
       {
         test: /\.vue$/,
         use: [
           'vue-loader',
-          'eslint-loader',
         ]
       }
     ]

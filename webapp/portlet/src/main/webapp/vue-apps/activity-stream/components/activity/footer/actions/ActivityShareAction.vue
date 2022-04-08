@@ -2,7 +2,7 @@
   <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
