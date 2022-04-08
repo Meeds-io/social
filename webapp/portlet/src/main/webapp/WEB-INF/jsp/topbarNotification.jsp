@@ -1,7 +1,6 @@
 <%@page import="org.exoplatform.commons.api.notification.service.WebNotificationService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="java.util.Locale"%>
-<%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.services.resources.ResourceBundleService"%>
 <%@page import="java.util.ResourceBundle"%>
 <%
@@ -13,7 +12,7 @@
   } catch (Exception e) {
     bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
-  tooltip = bundle.getString("UIIntranetNotificationsPortlet.label.tooltip");
+  String tooltip = bundle.getString("UIIntranetNotificationsPortlet.label.tooltip");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
