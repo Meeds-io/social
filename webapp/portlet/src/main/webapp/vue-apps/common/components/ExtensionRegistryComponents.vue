@@ -116,7 +116,7 @@ export default {
       default: () => null,
     },
     elementClass: {
-      type: Object,
+      type: String,
       default: () => '',
     },
     params: {

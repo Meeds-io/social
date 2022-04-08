@@ -2,6 +2,11 @@
   "extends": [
     "eslint-config-meedsio"
   ],
+  "rules": {
+    "vue/multi-word-component-names": "off",
+    "no-prototype-builtins": ["warn"],
+    "vue/no-mutating-props": ["warn"]
+  },
   "globals": {
     "activityComposer": true,
     "socialUIProfile": true,

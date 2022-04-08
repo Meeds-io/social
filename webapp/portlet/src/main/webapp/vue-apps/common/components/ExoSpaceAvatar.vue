@@ -10,7 +10,7 @@
     max-width="270"
     min-width="270"
     offset-y>
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <div 
         class="profile-popover space-avatar-wrapper"
         :class="extraClass">

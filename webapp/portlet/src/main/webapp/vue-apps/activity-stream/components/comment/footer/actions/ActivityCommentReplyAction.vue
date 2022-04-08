@@ -1,7 +1,7 @@
 <template>
   <div class="d-inline-flex pe-1">
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
@@ -22,7 +22,7 @@
       </span>
     </v-tooltip>
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           v-show="subCommentsSize"
           :id="`RepliesListLink${commentId}`"
