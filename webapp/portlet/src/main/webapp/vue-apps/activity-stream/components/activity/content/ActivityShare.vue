@@ -34,8 +34,5 @@ export default {
       }, this.activity.originalActivity);
     },
   },
-  data: () => ({
-    activityTypes: null,
-  }),
 };
 </script>

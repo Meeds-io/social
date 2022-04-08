@@ -23,7 +23,7 @@
         bottom
         right
         offset-y>
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-chip
             :outlined="!allEnabled"
             :color="allEnabled ? 'primary' : ''"
@@ -133,7 +133,6 @@ export default {
   },
   data: () => ({
     index: 0,
-    term: null,
     totalSize: 0,
     results: null,
     pageSize: 10,

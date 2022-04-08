@@ -1,7 +1,7 @@
 <template>
   <div class="caption text-light-color text-truncate">
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           :height="20"
           class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"

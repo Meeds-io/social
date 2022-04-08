@@ -8,12 +8,12 @@
     </template>
     <template slot="content">
       <v-layout column class="ma-3">
-        <template v-if="users && users.length" class="ma-0 border-box-sizing">
-          <people-overview-people-list
-            :users="users"
-            :filter="filter"
-            @refresh="refresh()" />
-        </template>
+        <people-overview-people-list
+          v-if="users && users.length"
+          :users="users"
+          :filter="filter"
+          class="ma-0 border-box-sizing"
+          @refresh="refresh()" />
         <template v-else-if="!loadingUsers">
           <span class="ma-auto">{{ $t('peopleOverview.label.noResults') }}</span>
         </template>

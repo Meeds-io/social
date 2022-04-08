@@ -6,7 +6,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => 0,
+      default: null,
     },
     label: {
       type: String,

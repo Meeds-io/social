@@ -11,7 +11,7 @@
     content-class="profile-popover-menu overflow-y-hidden white"
     max-width="250"
     min-width="250">
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <div 
         class="profile-popover user-wrapper"
         :class="extraClass">
