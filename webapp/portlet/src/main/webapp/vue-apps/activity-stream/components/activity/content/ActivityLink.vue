@@ -104,7 +104,7 @@
           class="d-flex align-center text-color mx-0 mt-0 mb-2 text-wrap text-break">
           <span class="font-weight-bold" v-sanitized-html="title"></span>
           <exo-user-avatar
-            :profile-id="identityReceiver"
+            :identity="identityReceiver"
             extra-class="ms-2"
             fullname 
             popover 
@@ -143,7 +143,7 @@ export default {
     title: null,
     titleTooltip: null,
     isKudosActivity: false,
-    identityReceiver: '',
+    identityReceiver: {},
     summary: null,
     summaryTooltip: null,
     thumbnail: null,
