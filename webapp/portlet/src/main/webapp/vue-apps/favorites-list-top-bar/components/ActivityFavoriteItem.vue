@@ -9,9 +9,14 @@
     </v-list-item-content>
 
     <v-list-item-action>
-      <v-btn icon>
-        <v-icon class="yellow--text text--darken-2" size="18">fa-star</v-icon>
-      </v-btn>
+      <favorite-button
+        :id="id"
+        :favorite="isFavorite"
+        :top="top"
+        :right="right"
+        type="activity"
+        @removed="removed"
+        @remove-error="removeError" />
     </v-list-item-action>
   </v-list-item>
 </template>
@@ -25,12 +30,13 @@ export default {
   },
   data: () => ({
     activityTitle: '',
-    activityUrl: '#'
+    activityUrl: '#',
+    isFavorite: true
   }),
   created() {
+    this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.id}`;
     this.$activityService.getActivityById(this.id)
       .then(fullActivity => {
-        this.activityUrl = fullActivity.href;
         if (fullActivity && fullActivity.title ) {
           this.activityTitle = this.favoriteTitle(fullActivity.title);
         } else {
@@ -43,7 +49,23 @@ export default {
       const regex = /(<([^>]+)>)/ig;
       const activityTitle = title.replace(regex, '').split(' ').slice(0, 5).join(' ');
       return activityTitle;
-    }
+    },
+    removed() {
+      this.isFavorite = !this.isFavorite;
+      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
+      this.$emit('removed');
+      this.$root.$emit('refresh-favorite-list');
+    },
+    removeError() {
+      this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')}), 'error');
+    },
+    displayAlert(message, type) {
+      this.$root.$emit('activity-notification-alert', {
+        activityId: this.id,
+        message,
+        type: type || 'success',
+      });
+    },
   }
 };
 </script>

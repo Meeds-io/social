@@ -45,16 +45,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </template>
             </v-list>
           </template>
-          <template slot="footer">
-            <v-btn
-              :loading="loading"
-              :disabled="loading"
-              block
-              class="btn pa-0"
-              @click="loadMore">
-              {{ $t('Search.button.loadMore') }}
-            </v-btn>
-          </template>
         </exo-drawer>
       </v-layout>
     </v-flex>
@@ -72,6 +62,10 @@ export default {
     this.$root.$on('close-favorite-drawer', () => {
       this.$refs.favoritesDrawer.close();
     });
+    this.$root.$on('refresh-favorite-list', () => {
+      this.retrieveFavoritesList();
+    });
+
   },
   methods: {
     openDrawer() {
@@ -81,12 +75,7 @@ export default {
       return this.$favoriteService.getFavorites(this.offset, this.limit)
         .then(data => {
           this.favoritesList = data || [];
-        }).finally(() => {
-          this.isLoaded = true;
         });
-    },
-    loadMore() {
-      this.limit += 10;
     },
   }
 };

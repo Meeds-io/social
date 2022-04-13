@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -124,8 +125,8 @@ public class FavoriteRest implements ResourceContainer {
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error")
+          @ApiResponse(code = HTTPStatus.OK, message = "Request fulfilled"),
+          @ApiResponse(code = HTTPStatus.INTERNAL_ERROR, message = "Internal server error")
       }
   )
   public Response getFavoritesList(
