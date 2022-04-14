@@ -260,7 +260,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
 
       String uExternal=foundUserProfile.getAttribute(UserProfile.OTHER_KEYS[2]);//external
       if (!StringUtils.equals(external, uExternal)) {
-        foundUserProfile.setAttribute(UserProfile.OTHER_KEYS[2], external);// "user.gender"
+        foundUserProfile.setAttribute(UserProfile.OTHER_KEYS[2], external);// "external"
         hasUpdated=true;
       }
 
