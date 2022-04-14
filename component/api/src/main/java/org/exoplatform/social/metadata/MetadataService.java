@@ -229,6 +229,18 @@ public interface MetadataService {
                                                                                            long limit);
 
   /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} type,
+   * {@link MetadataItem} creatorId
+   *
+   * @param metadataTypeName {@link Metadata} type
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataTypeAndCreator (String metadataTypeName, long creatorId, long offset, long limit);
+
+  /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
    * an object identified by its name and identifier
    * 
