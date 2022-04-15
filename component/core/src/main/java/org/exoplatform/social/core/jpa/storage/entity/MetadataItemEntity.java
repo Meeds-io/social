@@ -88,6 +88,12 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
               + " ORDER BY mi.createdDate DESC, mi.id DESC"
       ),
       @NamedQuery(
+          name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",
+          query = "SELECT count(mi.id) FROM SocMetadataItemEntity mi WHERE "
+              + " mi.metadata.type = :metadataType AND"
+              + " mi.creatorId = :creatorId"
+      ),
+      @NamedQuery(
           name = "SocMetadataItemEntity.deleteMetadataItemsByParentObject",
           query = "DELETE FROM SocMetadataItemEntity mi WHERE "
               + " mi.objectType = :objectType AND"

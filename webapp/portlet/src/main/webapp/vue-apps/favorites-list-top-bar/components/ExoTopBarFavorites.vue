@@ -75,7 +75,6 @@ export default {
     loading: false,
     favoritesSize: 0,
     offset: 0,
-    favoritesSize: 0,
     limit: 10,
     totalSize: 0,
     pageSize: 10,

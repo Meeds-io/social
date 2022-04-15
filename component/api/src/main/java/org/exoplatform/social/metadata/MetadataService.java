@@ -248,7 +248,7 @@ public interface MetadataService {
    * @param creatorId {@link MetadataItem} creatorId
    * @return integer
    */
-  int getMetadataItemsByMetadataTypeAndCreatorSize (String metadataTypeName, long creatorId);
+  int countMetadataItemsByMetadataTypeAndCreator (String metadataTypeName, long creatorId);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
