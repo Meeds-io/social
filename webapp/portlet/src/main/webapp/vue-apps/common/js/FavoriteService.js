@@ -1,5 +1,5 @@
-export function getFavorites(offset, limit) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites?offset=${offset || 0}&limit=${limit|| 10}`, {
+export function getFavorites(offset, limit,returnSize) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites?offset=${offset || 0}&limit=${limit|| 10}&returnSize=${returnSize}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
