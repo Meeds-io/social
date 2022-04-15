@@ -674,6 +674,55 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataItems.size());
   }
 
+  public void testGetMetadataItemsByMetadataTypeAndCreator() throws Exception { // NOSONAR
+
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String type = userMetadataType.getName();
+    createNewMetadataItem(type,
+        "testMetadata1",
+        "objectType1",
+        "objectId1",
+        "parentObjectId1",
+        creatorId,
+        audienceId);
+    createNewMetadataItem(type,
+        "testMetadata2",
+        "objectType1",
+        "objectId2",
+        "parentObjectId1",
+        creatorId,
+        audienceId);
+    createNewMetadataItem(type,
+        "testMetadata3",
+        "objectType2",
+        "objectId1",
+        "parentObjectId1",
+        creatorId,
+        audienceId);
+    createNewMetadataItem(type,
+        "testMetadata4",
+        "objectType2",
+        "objectId1",
+        "parentObjectId1",
+        creatorId,
+        audienceId);
+
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndCreator("space", creatorId, 0, 2);
+
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndCreator("space", 100, 0, 5);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndCreator(type, creatorId, 0, 5);
+    assertNotNull(metadataItems);
+    assertEquals(4, metadataItems.size());
+  }
+
+
   public void testGetMetadataObjectIds() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
