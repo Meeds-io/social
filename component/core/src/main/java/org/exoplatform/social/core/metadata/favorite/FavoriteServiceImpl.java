@@ -56,6 +56,9 @@ public class FavoriteServiceImpl implements FavoriteService {
     return favorites;
   }
 
+  public int getFavoriteItemsSize(long creatorId) {
+    return metadataService.getMetadataItemsByMetadataTypeAndCreatorSize(METADATA_TYPE.getName(), creatorId);
+  }
   @Override
   public boolean isFavorite(Favorite favorite) {
     long userIdentityId = favorite.getUserIdentityId();

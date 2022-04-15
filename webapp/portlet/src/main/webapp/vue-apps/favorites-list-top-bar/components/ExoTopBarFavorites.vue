@@ -53,6 +53,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </div>
             </div>
           </template>
+          <template slot="footer" v-if="hasMore">
+            <v-btn
+              :loading="loading"
+              :disabled="loading"
+              block
+              class="btn pa-0"
+              @click="loadMore">
+              {{ $t('Search.button.loadMore') }}
+            </v-btn>
+          </template>
         </exo-drawer>
       </v-layout>
     </v-flex>
@@ -62,11 +72,24 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 export default {
   data: () => ({
     favoritesList: [],
-    offset: 0,
-    limit: 30,
+    loading: false,
     favoritesSize: 0,
+    offset: 0,
+    favoritesSize: 0,
+    limit: 10,
+    totalSize: 0,
+    pageSize: 10,
   }),
-  
+  computed: {
+    hasMore() {
+      return this.limit < this.totalSize;
+    },
+  },
+  watch: {
+    limit() {
+      this.retrieveFavoritesList();
+    }
+  },
   created() {
     this.$root.$on('close-favorite-drawer', () => {
       this.$refs.favoritesDrawer.close();
@@ -85,16 +108,24 @@ export default {
       if (this.$refs.favoritesDrawer) {
         this.$refs.favoritesDrawer.startLoading();
       }
-      return this.$favoriteService.getFavorites(this.offset, this.limit)
+      this.loading = true;
+      return this.$favoriteService.getFavorites(this.offset, this.limit, true)
         .then(data => {
-          this.favoritesList = data || [];
+          this.totalSize = data && data.size || this.totalSize;
+          this.favoritesList = data && data.favoritesItem || [];
           this.favoritesSize = this.favoritesList.length;
-        }) 
+        })
         .finally(() => {
           if (this.$refs.favoritesDrawer) {
             this.$refs.favoritesDrawer.endLoading();
           }
+          this.loading = false;
         });
+    },
+    loadMore() {
+      if (this.hasMore) {
+        this.limit += this.pageSize;
+      }
     },
   }
 };
