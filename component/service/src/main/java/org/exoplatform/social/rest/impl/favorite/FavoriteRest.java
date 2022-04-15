@@ -141,11 +141,23 @@ public class FavoriteRest implements ResourceContainer {
                                           required = true
                                       )
                                       @QueryParam("limit")
-                                      int limit ) {
+                                      int limit,
+                                      @ApiParam(
+                                          value = "Fovorites total size",
+                                          defaultValue = "false")
+                                      @QueryParam("returnSize")
+                                      boolean returnSize) {
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
+      FavoriteEntity favoriteEntity = new FavoriteEntity();
       List<MetadataItem> myFavorites = favoriteService.getFavoriteItemsByCreator(userIdentityId, offset, limit);
-      return Response.ok(myFavorites).build();
+      favoriteEntity.setFavoritesItem(myFavorites);
+      favoriteEntity.setLimit(limit);
+      favoriteEntity.setOffset(offset);
+      if (returnSize) {
+        favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(userIdentityId));
+      }
+      return Response.ok(favoriteEntity).build();
     } catch (Exception e) {
       LOG.error("Unknown error occurred while getting favorites list", e);
       return Response.serverError().build();

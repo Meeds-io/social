@@ -111,6 +111,11 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
+  public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
+    int metadataItemSize = metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
+    return metadataItemSize;
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                            String metadataTypeName,
                                                                            String objectType,

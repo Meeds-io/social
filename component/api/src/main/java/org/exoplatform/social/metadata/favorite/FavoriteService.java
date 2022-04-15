@@ -53,6 +53,14 @@ public interface FavoriteService {
   List<MetadataItem> getFavoriteItemsByCreator(long creatorId, long offset, long limit);
 
   /**
+   * Count the favorite items attached to a given {@link MetadataItem} creatorId
+   *
+   * @param creatorId {@link MetadataItem} creatorId
+   * @return integer
+   */
+  int getFavoriteItemsSize(long creatorId);
+
+  /**
    * Check if an object identified by its type/id for a user has favorite metadata
    * or not
    * 
