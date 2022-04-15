@@ -33,7 +33,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <template slot="title">
             {{ $t('UITopBarFavoritesPortlet.title.recentFavorites') }}
           </template>
-          <template slot="content">
+          <template v-if="favoritesSize" slot="content">
             <v-list class="mx-3">
               <template v-for="(favoriteItem, index) in favoritesList">
                 <exo-favorite-item 
@@ -44,6 +44,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   v-if="index < limit-1" />
               </template>
             </v-list>
+          </template>
+          <template v-else slot="content">
+            <div class="d-flex full-height disabled-background align-center justify-center">
+              <div class="noFavoritesContent">
+                <v-icon class="mx-auto disabled--text mb-3" size="100">fas fa-star </v-icon>
+                <p class="text-sub-title font-weight-bold">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
+              </div>
+            </div>
           </template>
         </exo-drawer>
       </v-layout>
@@ -56,9 +64,10 @@ export default {
     favoritesList: [],
     offset: 0,
     limit: 30,
+    favoritesSize: 0,
   }),
+  
   created() {
-    this.retrieveFavoritesList();
     this.$root.$on('close-favorite-drawer', () => {
       this.$refs.favoritesDrawer.close();
     });
@@ -70,11 +79,21 @@ export default {
   methods: {
     openDrawer() {
       this.$refs.favoritesDrawer.open();
+      this.retrieveFavoritesList();
     },
     retrieveFavoritesList() {
+      if (this.$refs.favoritesDrawer) {
+        this.$refs.favoritesDrawer.startLoading();
+      }
       return this.$favoriteService.getFavorites(this.offset, this.limit)
         .then(data => {
           this.favoritesList = data || [];
+          this.favoritesSize = this.favoritesList.length;
+        }) 
+        .finally(() => {
+          if (this.$refs.favoritesDrawer) {
+            this.$refs.favoritesDrawer.endLoading();
+          }
         });
     },
   }
