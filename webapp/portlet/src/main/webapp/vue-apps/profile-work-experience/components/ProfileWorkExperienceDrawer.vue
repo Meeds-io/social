@@ -183,6 +183,10 @@ export default {
         }
       }
 
+      if (this.error) {
+        return;
+      }
+
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
         || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
         this.handleError(this.$t('profileWorkExperiences.formValidationError'));
