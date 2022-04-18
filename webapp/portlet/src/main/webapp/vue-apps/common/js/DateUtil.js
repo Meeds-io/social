@@ -1,4 +1,4 @@
-const DIGIT_PATTERN = /^[1-9][0-9]*$/g;
+const DIGIT_PATTERN = /^[1-9]\d*$/g;
 
 /**
  * Return Date object from string value.
@@ -16,46 +16,47 @@ export function getDateObjectFromString(value, isISOString) {
   value = String(value).trim();
   if (new RegExp(DIGIT_PATTERN).test(value)) {
     return new Date(parseInt(value));
-  }
-  if (isISOString) {
+  } else if (isISOString) {
     if (value.length > 10) {
-      //long ISO format
+      // long ISO format
       return new Date(value);
     } else {
-      //short ISO format
-      //we need to set year, month, date, manually so that it use the current user time.
+      // short ISO format
+      // we need to set year, month, date, manually so that it use the current user time.
 
-      //if we do new Date(value), if will generate a date with Time = 00:00 UTC, then when it is translated
-      //in user timezone, the day can change
-      const [year, month, date] = value.trim().split('-');
-      const dateObj = new Date();
-      dateObj.setYear(year);
-      dateObj.setMonth(parseInt(month)-1);
-      dateObj.setDate(date);
-      return dateObj;
+      // if we do new Date(value), if will generate a date with Time = 00:00 UTC, then when it is translated
+      // in user timezone, the day can change
+      return new Date(`${value} 00:00:00`);
     }
-  } else {
+  } else if (String(value).indexOf('/') >= 0) {
     const [date, month, year] = value.trim().split('/');
-    const dateObj = new Date();
-    dateObj.setYear(year);
-    dateObj.setMonth(parseInt(month)-1);
-    dateObj.setDate(date);
-    return dateObj;
+    return new Date(year, parseInt(month) -1, date);
+  } else {
+    return new Date(value);
   }
 }
 
 /**
- * Return the ISO-8601 Date String value with format
- * YYYY-MM-DD, for example 2011-10-05
+ * Return the ISO Date String value with format
+ * yyyy-MM-dd, for example 2020-04-21.
+ * 
+ * This method will consider timezone offset and will avoid to
+ * return next or previous date due to Date.toISOString that considers
+ * timezone offset when converting to string
+ * 
  *
  * @param {Date} dateObj Date object
- * @returns {String} ISO 8601 date string with format YYYY-MM-DD
+ * @returns {String} ISO 8601 date string with format yyyy-MM-dd
  */
 export function getISODate(dateObj) {
   if (!dateObj) {
     return null;
   }
-  return dateObj.toISOString().substr(0,10);
+  // toISOString will modify time using timezone index
+  // This operation will compensate the diff to avoid switching
+  // into next or previous date
+  dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+  return dateObj.toISOString().substring(0, 10);
 }
 
 /**
