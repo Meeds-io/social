@@ -722,11 +722,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(id, q, role, expand, cacheTime, offset, limit, returnSize));
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
       if (StringUtils.isBlank(role)) {
         role = SpaceMemberFilterListAccess.Type.MEMBER.name();
       }
@@ -755,6 +750,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       if (returnSize) {
         collectionUser.setSize(spaceIdentitiesListAccess.getSize());
       }
+      EntityTag eTag  = new EntityTag(String.valueOf(collectionUser.hashCode()), true);
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
       builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
       builder.tag(eTag);
       builder.lastModified(new Date(cacheTime));
