@@ -65,9 +65,13 @@
               data-placement="bottom">
               {{ props.item.group.name }}
             </td>
-            <td class="text-md-center">{{ props.item.startDate }}</td>
             <td class="text-md-center">
-              <div v-if="props.item.endDate !== 'null'"> {{ props.item.endDate }} </div>
+              <date-format :value="props.item.startDate" :format="dateFormat" />
+            </td>
+            <td class="text-md-center">
+              <div v-if="props.item.endDate !== 'null'">
+                <date-format :value="props.item.endDate" :format="dateFormat" />
+              </div>
               <div v-else class="inProgress">
                 <v-progress-circular
                   indeterminate
@@ -113,6 +117,14 @@ export default {
         `${this.$t('social.spaces.administration.binding.reports.filter.synchronize')}`
       ],
       operations: [],
+      dateFormat: {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      }
     };
   },
   computed: {
