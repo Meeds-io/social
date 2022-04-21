@@ -177,11 +177,11 @@ public class EntityBuilder {
     identityEntity.setGlobalId(identity.getGlobalId());
     identityEntity.setRemoteId(identity.getRemoteId());
     identityEntity.setDeleted(identity.isDeleted());
-    if (OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
-      identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, expand));
-    } else if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
+    if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
       Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
       identityEntity.setSpace(buildEntityFromSpace(space, "", restPath, expand));
+    } else {
+      identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, expand));
     }
 
     updateCachedEtagValue(getEtagValue(identity.getId()));
