@@ -28,7 +28,7 @@
         type="text"
         v-on="on">
       <v-date-picker
-        v-model="dateShortIso"
+        v-model="date"
         :first-day-of-week="1"
         :type="periodType"
         :locale="lang"
@@ -148,7 +148,6 @@ export default {
     dateFormatted: null,
     dateValue: null,
     menu: false,
-    dateShortIso: null,
   }),
   computed: {
     minDate() {
@@ -179,16 +178,10 @@ export default {
     },
     date() {
       this.emitDateValue();
-      if (this.date) {
-        this.dateShortIso=this.$dateUtil.getISODate(this.date);
-      }
-    },
-    dateShortIso(newVal) {
-      this.date = this.$dateUtil.getDateObjectFromString(newVal,true);
     },
   },
   mounted() {
-    // Force to close other DatePicker menus when opening a new one
+    // Force to close other DatePicker menus when opening a new one 
     $('.datePickerComponent input').on('click', (e) => {
       if (e.target && !$(e.target).parents(`#${this.id}`).length) {
         this.menu = false;
@@ -206,12 +199,12 @@ export default {
   },
   methods: {
     emitDateValue() {
-      const dateObj = this.date && new Date(this.date) || null;
+      const dateObj = this.date && this.$dateUtil.getDateObjectFromString(this.date, true) || null;
       if (this.disabled) {
         this.dateValue = null;
       } else {
         if (this.returnIso) {
-          this.dateValue = this.$dateUtil.getISODate(this.date);
+          this.dateValue = this.date;
         } else {
           this.dateValue = dateObj && dateObj.getTime() || null;
         }
@@ -225,12 +218,11 @@ export default {
     },
     computeDate() {
       if (this.value && String(this.value).trim()) {
-        if (!this.date) {
-          this.date = this.$dateUtil.getDateObjectFromString(this.value,true);
-        }
+        const dateObj = this.$dateUtil.getDateObjectFromString(String(this.value).trim(), true);
+        this.date = this.$dateUtil.getISODate(dateObj);
       } else {
         if ( this.defaultValue ) {
-          this.date = new Date();
+          this.date = this.$dateUtil.getISODate(new Date());
         } else {
           this.date = null;
         }
