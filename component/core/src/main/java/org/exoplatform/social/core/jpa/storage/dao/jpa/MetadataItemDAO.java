@@ -85,12 +85,11 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
                                                                                                         long metadataType,
                                                                                                         String objectType,
-                                                                                                        String propertyKey,
-                                                                                                        String propertyValue,
+                                                                                                        Map<String, String> properties,
                                                                                                         long offset,
                                                                                                         long limit) {
     try {
-      Query query = getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(metadataName, metadataType, objectType, propertyKey, propertyValue);
+      Query query = getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(metadataName, metadataType, objectType, properties);
       if (offset > 0) {
         query.setFirstResult((int) offset);
       }
@@ -196,7 +195,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.executeUpdate();
   }
 
-  private Query getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(String metadataName, long metadataType, String objectType, String propertyKey, String propertyValue) {
+  private Query getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(String metadataName, long metadataType, String objectType, Map<String, String> properties) {
     StringBuilder queryStringBuilder = null;
     queryStringBuilder = new StringBuilder("SELECT DISTINCT sm.* ");
     queryStringBuilder.append(" FROM SOC_METADATA_ITEMS sm \n");
@@ -206,8 +205,16 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     queryStringBuilder.append(" AND sm_.name = '").append(metadataName).append("' \n");
     queryStringBuilder.append(" INNER JOIN SOC_METADATA_ITEMS_PROPERTIES sm_prop \n");
     queryStringBuilder.append(" ON sm.metadata_item_id = sm_prop.metadata_item_id ").append(" \n");
-    queryStringBuilder.append(" AND sm_prop.name = '").append(propertyKey).append("' \n");
-    queryStringBuilder.append(" AND sm_prop.value = '").append(propertyValue).append("' \n");
+    queryStringBuilder.append("AND sm.metadata_item_id IN ").append("\n");
+    queryStringBuilder.append("( SELECT DISTINCT sm_prop.METADATA_ITEM_ID ");
+    queryStringBuilder.append("FROM SOC_METADATA_ITEMS_PROPERTIES sm_prop");
+    queryStringBuilder.append(" WHERE sm_prop.name = '" + properties.keySet().toArray()[0] + "' AND sm_prop.value = '"
+        + properties.values().toArray()[0]).append("' \n");
+    queryStringBuilder.append("AND sm_prop.METADATA_ITEM_ID IN").append("\n");
+    queryStringBuilder.append("(select sm_prop.METADATA_ITEM_ID").append("\n");
+    queryStringBuilder.append("from SOC_METADATA_ITEMS_PROPERTIES sm_prop").append("\n");
+    queryStringBuilder.append("WHERE sm_prop.name = '" + properties.keySet().toArray()[1] + "' AND sm_prop.value = '"
+        + properties.values().toArray()[1]).append("' )) \n");
     queryStringBuilder.append(" WHERE sm.object_type = '").append(objectType).append("' \n");
     queryStringBuilder.append(" ORDER BY sm.created_date DESC, sm.metadata_id DESC");
     return getEntityManager().createNativeQuery(queryStringBuilder.toString(), MetadataItemEntity.class);

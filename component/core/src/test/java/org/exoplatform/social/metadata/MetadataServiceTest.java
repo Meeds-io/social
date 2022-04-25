@@ -357,8 +357,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
     MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
     Map<String, String> properties = new LinkedHashMap<>();
     properties.put("staged", String.valueOf(false));
+    properties.put("archived", String.valueOf(false));
+
     Map<String, String> properties1 = new LinkedHashMap<>();
-    properties1.put("staged", String.valueOf(true));
+    properties1.put("staged", String.valueOf(false));
+    properties1.put("archived", String.valueOf(false));
 
     try {
       MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, properties, creatorId);
@@ -372,14 +375,33 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType,"staged", String.valueOf(false), 0, 10);
+
+    Map<String, String> properties2 = new LinkedHashMap<>();
+    properties2.put("staged", String.valueOf(false));
+    properties2.put("archived", String.valueOf(false));
+    
+    List<MetadataItem> metadataItems =
+                                     metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+                                                                                                                           type,
+                                                                                                                           objectType,
+                                                                                                                           properties2,
+                                                                                                                           0,
+                                                                                                                           10);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals(objectType, metadataItems.get(0).getObjectType());
     assertEquals(type, metadataItems.get(0).getMetadataTypeName());
 
+    Map<String, String> properties3 = new LinkedHashMap<>();
+    properties3.put("staged", String.valueOf(true));
+    properties3.put("archived", String.valueOf(false));
     //Staged property is true
-    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType, "staged", String.valueOf(true), 0, 10);
+    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+                                                                                                          type,
+                                                                                                          objectType,
+                                                                                                          properties3,
+                                                                                                          0,
+                                                                                                          10);
     assertNotNull(metadataItems);
     assertEquals(0, metadataItems.size());
   }

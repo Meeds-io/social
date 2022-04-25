@@ -88,15 +88,14 @@ public class MetadataStorage {
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
                                                                                                   String metadataTypeName,
                                                                                                   String objectType,
-                                                                                                  String propertyKey,
-                                                                                                  String propertyValue,
+                                                                                                  Map<String, String> properties,
                                                                                                   long offset,
                                                                                                   long limit) {
     MetadataType metadataType = getMetadataType(metadataTypeName);
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
     }
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName, metadataType.getId(), objectType, propertyKey, propertyValue, offset, limit);
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName, metadataType.getId(), objectType, properties, offset, limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }

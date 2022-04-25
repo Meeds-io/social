@@ -214,8 +214,7 @@ public interface MetadataService {
    * @param metadataName {@link Metadata} name
    * @param metadataTypeName {@link Metadata} type name
    * @param objectType objectType {@link MetadataItem} objectType
-   * @param propertyKey {@link MetadataItem} property key
-   * @param propertyValue {@link MetadataItem} property value
+   * @param properties {@link MetadataItem} property key and property value
    * @param offset offset of ids to retrieve
    * @param limit limit of ids to retrieve
    * @return {@link List} of linked {@link MetadataItem}
@@ -223,8 +222,7 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
                                                                                            String metadataTypeName,
                                                                                            String objectType,
-                                                                                           String propertyKey,
-                                                                                           String propertyValue,
+                                                                                           Map<String, String> properties,
                                                                                            long offset,
                                                                                            long limit);
 
