@@ -45,6 +45,9 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
 ];
 
+//used only in mobile statistics
+eXo.env.portal.mainApplicationName = 'Social';
+
 export function init(initialData, initialLimit) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
