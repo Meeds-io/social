@@ -83,7 +83,7 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
     try {
       content = HTMLSanitizer.sanitize(content);
     } catch (Exception e) {
-      LOG.error("Error while sanitizing activity content", e);
+      LOG.warn("Error while sanitizing activity content {}", content, e);
     }
 
     Set<TagName> tagNames = tagService.detectTagNames(content);
