@@ -22,4 +22,14 @@ public class HTMLUploadImageProcessorImpl implements HTMLUploadImageProcessor {
     public String processImagesForExport(String content) {
         return content;
     }
+
+    @Override
+    public void uploadSpaceFile(String filePath, String userId, String fileName, String imagesSubLocationPath) {
+
+    }
+
+    @Override
+    public void uploadUserFile(String filePath, String userId, String fileName, String imagesSubLocationPath) {
+
+    }
 }
