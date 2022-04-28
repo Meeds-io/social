@@ -31,7 +31,7 @@ public interface HTMLUploadImageProcessor {
    *                            path do not exist, they are automatically created, only if there are images to store.
    * @return The updated HTML content with the permanent images URLs
    */
-  public String processImages(String content, String locationId, String imagesSubLocationPath);
+  String processImages(String content, String locationId, String imagesSubLocationPath);
   /**
    * Process the given HTML content, extract temporary uploaded files
    * and replace URLs in the HTML content with the permanent URLs
@@ -41,7 +41,7 @@ public interface HTMLUploadImageProcessor {
    *                            path do not exist, they are automatically created, only if there are images to store.
    * @return The updated HTML content with the permanent images URLs
    */
-  public String processSpaceImages(String content, String spaceGroupId, String imagesSubLocationPath);
+  String processSpaceImages(String content, String spaceGroupId, String imagesSubLocationPath);
   /**
    * Process the given HTML content, extract temporary uploaded files
    * and replace URLs in the HTML content with the permanent URLs
@@ -51,7 +51,7 @@ public interface HTMLUploadImageProcessor {
    *                            path do not exist, they are automatically created, only if there are images to store.
    * @return The updated HTML content with the permanent images URLs
    */
-  public String processUserImages(String content, String userId, String imagesSubLocationPath);
+  String processUserImages(String content, String userId, String imagesSubLocationPath);
 
   /**
    * Process the given HTML content, export Files
@@ -59,7 +59,11 @@ public interface HTMLUploadImageProcessor {
    * @param content The HTML content
  * @return The updated HTML content with the images name
    */
-  public String processImagesForExport(String content);
+  String processImagesForExport(String content);
+
+  void uploadSpaceFile(String filePath, String userId, String fileName, String imagesSubLocationPath) ;
+
+  void uploadUserFile(String filePath, String userId, String fileName, String imagesSubLocationPath) ;
 
 
 
