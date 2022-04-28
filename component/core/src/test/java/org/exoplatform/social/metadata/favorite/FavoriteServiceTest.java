@@ -88,7 +88,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
-    favoriteService.createFavorite(favorite);
+    favoriteService.createFavorite(favorite, null);
 
     metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertEquals(1, metadataItemsByObject.size());
@@ -99,7 +99,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     assertEquals(parentObjectId, metadataItem.getParentObjectId());
 
     try {
-      favoriteService.createFavorite(favorite);
+      favoriteService.createFavorite(favorite, null);
       fail();
     } catch (ObjectAlreadyExistsException e) {
       // Expected
@@ -140,7 +140,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
 
-    favoriteService.createFavorite(favorite);
+    favoriteService.createFavorite(favorite,null);
 
     metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertEquals(1, metadataItemsByObject.size());

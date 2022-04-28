@@ -35,7 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </template>
           <template v-if="favoritesSize" slot="content">
             <v-list class="mx-3">
-              <template v-for="(favoriteItem, index) in favoritesList">
+              <template v-for="(favoriteItem, index) in favoritesListItems">
                 <exo-favorite-item 
                   :favorite="favoriteItem" 
                   :key="favoriteItem.id" />
@@ -83,6 +83,9 @@ export default {
     hasMore() {
       return this.limit < this.totalSize;
     },
+    favoritesListItems() {
+      return this.favoritesList.filter(favorite => favorite.properties === null || favorite.properties.hidden === 'false');
+    }
   },
   watch: {
     limit() {

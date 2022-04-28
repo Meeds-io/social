@@ -25,6 +25,7 @@ import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataType;
 import java.util.List;
+import java.util.Map;
 
 public interface FavoriteService {
 
@@ -38,9 +39,10 @@ public interface FavoriteService {
    *    - objectType object type, can be of any type: activity, comment, notes...
    *    - objectId object technical unique identifier
    *    - userIdentityId {@link Identity} technical identifier of the user
+   * @param favoriteProperties {@link Map} properties of {@link MetadataItem}
    * @throws ObjectAlreadyExistsException when the favorite already exists
    */
-  public void createFavorite(Favorite favorite) throws ObjectAlreadyExistsException;
+  public void createFavorite(Favorite favorite, Map<String, String> favoriteProperties) throws ObjectAlreadyExistsException;
 
   /**
    * Retrieves the favorite items attached to a given {@link MetadataItem} creatorId

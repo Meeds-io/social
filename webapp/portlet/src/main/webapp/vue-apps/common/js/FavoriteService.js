@@ -11,8 +11,8 @@ export function getFavorites(offset, limit,returnSize) {
   });
 }
 
-export function addFavorite(objectType, objectId, parentObjectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&ignoreWhenExisting=true`, {
+export function addFavorite(objectType, objectId, parentObjectId, hidden) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&ignoreWhenExisting=true&hideFavorite=${hidden || false}`, {
     method: 'POST',
     credentials: 'include',
   }).then(resp => {

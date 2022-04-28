@@ -88,7 +88,13 @@ public class FavoriteRest implements ResourceContainer {
                                      defaultValue = "false"
                                  )
                                  @QueryParam("ignoreWhenExisting")
-                                 boolean ignoreWhenExisting) {
+                                 boolean ignoreWhenExisting,
+                                 @ApiParam(
+                                  value = "Whether ignore displaying activity favorite when already exists with another type",
+                                  required = false
+                                  )
+                                 @QueryParam("hideFavorite")
+                                 boolean hideFavorite) {
     if (StringUtils.isBlank(objectType)) {
       return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectTypeRequired").build();
     }
@@ -99,7 +105,9 @@ public class FavoriteRest implements ResourceContainer {
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
       Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
-      favoriteService.createFavorite(favorite);
+      Map<String, String> favoriteProperties = new HashMap<>();
+      favoriteProperties.put("hidden", String.valueOf(hideFavorite));
+      favoriteService.createFavorite(favorite, favoriteProperties);
       return Response.noContent().build();
     } catch (ObjectAlreadyExistsException e) {
       if (ignoreWhenExisting) {

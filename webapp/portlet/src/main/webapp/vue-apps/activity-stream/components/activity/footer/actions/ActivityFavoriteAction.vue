@@ -4,6 +4,7 @@
     :id="activityId"
     :space-id="spaceId"
     :favorite="isFavorite"
+    :hidden="hiddenFavorite"
     :absolute="absolute"
     :top="top"
     :right="right"
@@ -60,6 +61,9 @@ export default {
     extensionName() {
       return this.activityTypeExtension && this.activityTypeExtension.name;
     },
+    hiddenFavorite() {
+      return this.activity && this.activity.type && this.activity.type === 'news' ? true : false;
+    }
   },
   created() {
     this.isFavorite = this.activity && this.activity.metadatas && this.activity.metadatas.favorites && this.activity.metadatas.favorites.length;

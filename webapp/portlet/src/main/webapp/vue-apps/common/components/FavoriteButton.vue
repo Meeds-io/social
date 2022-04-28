@@ -58,6 +58,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hidden: {
+      type: Boolean,
+      default: false,
+    },
     absolute: {
       type: Boolean,
       default: false,
@@ -149,7 +153,7 @@ export default {
           .catch(() => this.$emit('remove-error'))
           .finally(() => this.loading = false);
       } else {
-        this.$favoriteService.addFavorite(this.type, this.id, this.parentId)
+        this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.hidden)
           .then(() => {
             document.dispatchEvent(new CustomEvent('favorite-added', {
               detail: {
