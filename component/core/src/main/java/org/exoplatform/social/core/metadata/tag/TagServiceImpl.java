@@ -45,7 +45,7 @@ public class TagServiceImpl implements TagService {
 
   private static final Log     LOG           = ExoLogger.getLogger(TagServiceImpl.class);
 
-  private static final Pattern TAG_PATTERN   = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s]+)<[^>]*/a>");
+  private static final Pattern TAG_PATTERN   = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s\u00A0]+)<[^>]*/a>");
 
   public static final String                 TAG_ADDED_EVENT                = "exo.tag.added";
 
