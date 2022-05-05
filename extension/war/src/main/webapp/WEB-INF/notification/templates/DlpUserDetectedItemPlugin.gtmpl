@@ -27,7 +27,7 @@
 
                 <!-- begin footer-->
                 <tr>
-                    <td height="38" valign="middle" align="center" bgcolor="#578dc9" style="color:#fff;font-family: 'Helvetica', 'Arial', sans-serif;border-radius: 4px;">
+                    <td height="38" valign="middle" align="center" bgcolor="#476A9C" style="color:#fff;font-family: 'Helvetica', 'Arial', sans-serif;border-radius: 4px;">
                         <h2 style="color: #fff;margin: 0;padding: 0; font-size: 16px;"><%=_ctx.appRes("Notification.mail.DlpDetectedItemPlugin.footer")%></h2>
                     </td>
                 </tr>
