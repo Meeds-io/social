@@ -23,7 +23,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           class="icon-default-color" 
           @click="openDrawer()"
           :title="$t('UITopBarFavoritesPortlet.label.iconTooltip')">
-          <v-icon size="21" class="pt-7 mb-10 mt-2" >fa-star</v-icon>
+          <v-icon size="22" class="pb-1" >fa-star</v-icon>
         </v-btn>
         <exo-drawer
           ref="favoritesDrawer"
