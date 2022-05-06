@@ -34,7 +34,7 @@
 	jsManager.require("SHARED/socialUtil", "socialUtil");
 %>
   <% if ("social.space.access.join-space".equals(status)) {
-    memberRestrict = memberRestrict.replace("{0}", "<b>" + spaceDisplayName + "</b>");
+    memberRestrict = memberRestrict.replace("{0}", "<p title="+ spaceDisplayName +" class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="spaceAccessBlock lockIcon">
       <h3>$pageTitle</h3>
@@ -45,14 +45,14 @@
     </div>
   <% } else if ("social.space.access.closed-space".equals(status)) { 
     def closedSpace = _ctx.appRes("UISpaceAccess.closedSpace");
-    closedSpace = closedSpace.replace("{0}", "<b>" + spaceDisplayName + "</b>");
+    closedSpace = closedSpace.replace("{0}", "<p title="+ spaceDisplayName + " class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="spaceAccessBlock denyIcon">
       <h3><%=_ctx.appRes("UISpaceAccess.accessDenied"); %></h3>
       <div class="spaceAccessInfo">$closedSpace</div>
     </div>
   <%}  else if ("social.space.access.request-join-space".equals(status)) {
-    memberRestrict = memberRestrict.replace("{0}", "<b>" + spaceDisplayName + "</b>");
+    memberRestrict = memberRestrict.replace("{0}", "<p title="+ spaceDisplayName + " class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="spaceAccessBlock lockIcon">
       <h3>$pageTitle</h3>
@@ -63,12 +63,12 @@
     </div>
   <% } else if ("social.space.access.requested-join-space".equals(status) || "social.space.access.requested.success".equals(status)) {
     def requestedJoinSpace = _ctx.appRes("UISpaceAcess.requested-join-space");
-    requestedJoinSpace = requestedJoinSpace.replace("{0}", "<b>" + spaceDisplayName + "</b>");
+    requestedJoinSpace = requestedJoinSpace.replace("{0}", "<p title="+ spaceDisplayName + " class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="alert alert-success"><i class="uiIconSuccess"></i>$requestedJoinSpace</div>
   <% } else if ("social.space.access.invited-space".equals(status)) {
     def invitedToSpace = _ctx.appRes("UISpaceAccess.invited-space");
-    invitedToSpace = invitedToSpace.replace("{0}", "<b>" + spaceDisplayName + "</b>"); 
+    invitedToSpace = invitedToSpace.replace("{0}", "<p title="+ spaceDisplayName + " class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="spaceAccessBlock">
       <div class="spaceAccessInfo">$invitedToSpace</div>
