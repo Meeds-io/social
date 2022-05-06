@@ -5,7 +5,11 @@
     </v-list-item-icon>
 
     <v-list-item-content>
-      <v-list-item-title class="text-color body-2">{{ activityTitle }}</v-list-item-title>
+      <v-list-item-title class="text-color body-2">
+        <p
+          class="ma-auto"
+          v-sanitized-html="activityTitle"></p>
+      </v-list-item-title>
     </v-list-item-content>
 
     <v-list-item-action>
