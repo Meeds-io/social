@@ -46,7 +46,7 @@ const urls = [
 ];
 
 //used only in mobile statistics
-eXo.env.portal.mainApplicationName = 'Social';
+eXo.env.portal.mainApplicationName = 'social';
 
 export function init(initialData, initialLimit) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
