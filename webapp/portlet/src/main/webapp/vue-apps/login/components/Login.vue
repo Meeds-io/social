@@ -218,7 +218,16 @@ export default {
     document.title = this.$t('UILoginForm.label.login');
   },
   mounted() {
+    this.setupUserName();
     this.$root.$applicationLoaded();
   },
+  methods: {
+    setupUserName(){
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('username')) {
+        document.getElementById('username').value = urlParams.get('username');
+      }
+    }
+  }
 };
 </script>
