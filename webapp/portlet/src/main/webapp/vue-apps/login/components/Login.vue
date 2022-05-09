@@ -93,6 +93,7 @@
                         id="username"
                         :placeholder="$t('portal.login.Username')"
                         name="username"
+                        v-model="username"
                         tabindex="1"
                         type="text"
                         aria-required="true">
@@ -184,6 +185,7 @@ export default {
   },
   data: () => ({
     rememberme: true,
+    username: '',
   }),
   computed: {
     companyName() {
@@ -218,7 +220,16 @@ export default {
     document.title = this.$t('UILoginForm.label.login');
   },
   mounted() {
+    this.setupUserName();
     this.$root.$applicationLoaded();
   },
+  methods: {
+    setupUserName(){
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('username')) {
+        this.username = urlParams.get('username');
+      }
+    }
+  }
 };
 </script>
