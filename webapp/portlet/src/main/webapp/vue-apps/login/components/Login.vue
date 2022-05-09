@@ -93,6 +93,7 @@
                         id="username"
                         :placeholder="$t('portal.login.Username')"
                         name="username"
+                        v-model="username"
                         tabindex="1"
                         type="text"
                         aria-required="true">
@@ -184,6 +185,7 @@ export default {
   },
   data: () => ({
     rememberme: true,
+    username: '',
   }),
   computed: {
     companyName() {
@@ -225,7 +227,7 @@ export default {
     setupUserName(){
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('username')) {
-        document.getElementById('username').value = urlParams.get('username');
+        this.username = urlParams.get('username');
       }
     }
   }
