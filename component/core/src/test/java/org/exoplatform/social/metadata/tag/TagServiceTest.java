@@ -108,6 +108,7 @@ public class TagServiceTest extends AbstractCoreTest {
     String tagName1 = "tag1";
     String tagName2 = "tag2";
     tagNames1.add(new TagName(tagName1));
+    tagNames1.add(new TagName(tagName1.toLowerCase()));
     tagNames1.add(new TagName(tagName2));
 
     try {
@@ -149,7 +150,8 @@ public class TagServiceTest extends AbstractCoreTest {
                                                      userIdentityId);
     assertNotNull(savedTagNames);
     assertEquals(2, savedTagNames.size());
-    assertEquals(tagNames1, savedTagNames);
+    assertTrue(savedTagNames.contains(new TagName(tagName1)));
+    assertTrue(savedTagNames.contains(new TagName(tagName2)));
 
     Metadata metadata = metadataService.getMetadataByKey(new MetadataKey(TagService.METADATA_TYPE.getName(),
                                                                          tagName1,
@@ -162,12 +164,13 @@ public class TagServiceTest extends AbstractCoreTest {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(taggedObject1);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
-    assertEquals(tagNames1,
-                 metadataItems.stream()
-                              .map(MetadataItem::getMetadata)
-                              .map(Metadata::getName)
-                              .map(TagName::new)
-                              .collect(Collectors.toSet()));
+    Set<TagName> storedTagNames = metadataItems.stream()
+                  .map(MetadataItem::getMetadata)
+                  .map(Metadata::getName)
+                  .map(TagName::new)
+                  .collect(Collectors.toSet());
+    assertTrue(storedTagNames.contains(new TagName(tagName1)));
+    assertTrue(storedTagNames.contains(new TagName(tagName2)));
 
     Set<TagName> updatedTagNames = Collections.singleton(new TagName(tagName1));
     savedTagNames = tagService.saveTags(taggedObject1,
@@ -181,12 +184,7 @@ public class TagServiceTest extends AbstractCoreTest {
     metadataItems = metadataService.getMetadataItemsByObject(taggedObject1);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
-    assertEquals(updatedTagNames,
-                 metadataItems.stream()
-                              .map(MetadataItem::getMetadata)
-                              .map(Metadata::getName)
-                              .map(TagName::new)
-                              .collect(Collectors.toSet()));
+    assertTrue(storedTagNames.contains(new TagName(tagName1)));
 
     TagObject taggedObject2 = new TagObject(objectType, objectId2, parentObjectId);
     metadataItems = metadataService.getMetadataItemsByObject(taggedObject2);
@@ -194,7 +192,7 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(0, metadataItems.size());
 
     Set<TagName> tagNames2 = new HashSet<>();
-    tagNames2.add(new TagName(tagName1));
+    tagNames2.add(new TagName(tagName1.toUpperCase()));
     tagNames2.add(new TagName("tag3"));
 
     savedTagNames = tagService.saveTags(taggedObject2, tagNames2, audienceId, userIdentityId);
@@ -204,12 +202,13 @@ public class TagServiceTest extends AbstractCoreTest {
     metadataItems = metadataService.getMetadataItemsByObject(taggedObject2);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
-    assertEquals(tagNames2,
-                 metadataItems.stream()
-                              .map(MetadataItem::getMetadata)
-                              .map(Metadata::getName)
-                              .map(TagName::new)
-                              .collect(Collectors.toSet()));
+
+    storedTagNames = metadataItems.stream()
+                                  .map(MetadataItem::getMetadata)
+                                  .map(Metadata::getName)
+                                  .map(TagName::new)
+                                  .collect(Collectors.toSet());
+    assertEquals(tagNames2, storedTagNames);
   }
 
   public void testFindTags() throws Exception {
@@ -252,14 +251,20 @@ public class TagServiceTest extends AbstractCoreTest {
     tagNames.add(new TagName("tagJohn1"));
     tagNames.add(new TagName("tagJohn2"));
 
-    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"), tagNames, spaceIdentityIds.get(1), spaceCreators.get(1));
+    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"),
+                                    tagNames,
+                                    spaceIdentityIds.get(1),
+                                    spaceCreators.get(1));
     assertEquals(savedTags, tagNames);
 
     tagNames = new HashSet<>();
     tagNames.add(new TagName("tagJohnMary1"));
     tagNames.add(new TagName("tagJohnMary2"));
 
-    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"), tagNames, spaceIdentityIds.get(2), spaceCreators.get(2));
+    savedTags = tagService.saveTags(new TagObject("objectType", "objectId1"),
+                                    tagNames,
+                                    spaceIdentityIds.get(2),
+                                    spaceCreators.get(2));
     assertEquals(savedTags, tagNames);
 
     List<TagName> marySavedTags = tagService.findTags(null, Long.parseLong(maryIdentity.getId()));
@@ -280,10 +285,7 @@ public class TagServiceTest extends AbstractCoreTest {
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 3), Long.parseLong(maryIdentity.getId()));
     assertNotNull(marySavedTags);
-    assertEquals(Arrays.asList("tagJohnMary1",
-                               "tagJohnMary2",
-                               "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+    assertEquals(3, marySavedTags.size());
 
     List<TagName> johnSavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
@@ -294,7 +296,7 @@ public class TagServiceTest extends AbstractCoreTest {
     johnSavedTags = tagService.findTags(new TagFilter("mar", 2), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
-                              "tagJohnMary2"),
+                               "tagJohnMary2"),
                  johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
 
     johnSavedTags = tagService.findTags(new TagFilter("joh", 10), Long.parseLong(johnIdentity.getId()));
@@ -304,6 +306,41 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohnMary1",
                                "tagJohnMary2"),
                  johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+  }
+
+  public void testFindTagsCaseInsensitive() throws Exception {
+    Set<TagName> tagNames = new HashSet<>();
+    tagNames.add(new TagName("tagMary1"));
+    tagNames.add(new TagName("tagMary2"));
+
+    long maryIdentityId = Long.parseLong(maryIdentity.getId());
+
+    TagObject tagObject = new TagObject("objectType", "objectId3");
+
+    Set<TagName> savedTags = tagService.saveTags(tagObject,
+                                                 tagNames,
+                                                 maryIdentityId,
+                                                 maryIdentityId);
+    assertEquals(savedTags, tagNames);
+
+    Set<TagName> tagNamesUpperCase = new HashSet<>();
+    tagNamesUpperCase.add(new TagName("tagMary1".toUpperCase()));
+    tagNamesUpperCase.add(new TagName("tagMary2".toUpperCase()));
+
+    savedTags = tagService.saveTags(tagObject,
+                                    tagNamesUpperCase,
+                                    maryIdentityId,
+                                    maryIdentityId);
+    assertEquals(tagNamesUpperCase, savedTags);
+
+    List<TagName> marySavedTags = tagService.findTags(null, maryIdentityId);
+    assertNotNull(marySavedTags);
+    assertEquals(2, marySavedTags.size());
+    assertTrue(marySavedTags.contains(new TagName("tagMary1".toUpperCase())));
+    assertTrue(marySavedTags.contains(new TagName("tagMary2".toUpperCase())));
+
+    Set<TagName> savedTagNames = tagService.getTagNames(tagObject);
+    assertEquals(tagNames, savedTagNames);
   }
 
   @SuppressWarnings("deprecation")

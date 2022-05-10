@@ -18,14 +18,16 @@
  */
 package org.exoplatform.social.core.metadata.tag;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.listener.ListenerService;
@@ -37,9 +39,13 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.tag.TagService;
-import org.exoplatform.social.metadata.tag.model.*;
+import org.exoplatform.social.metadata.tag.model.TagFilter;
+import org.exoplatform.social.metadata.tag.model.TagName;
+import org.exoplatform.social.metadata.tag.model.TagObject;
 
 public class TagServiceImpl implements TagService {
 
@@ -154,14 +160,12 @@ public class TagServiceImpl implements TagService {
 
     long limit = tagFilter.getLimit();
 
-    List<String> metadataNames = new ArrayList<>();
-    metadataNames = metadataService.findMetadataNamesByUserAndQuery(tagFilter.getTerm(),
-                                                            TagService.METADATA_TYPE.getName(),
-                                                             audienceIds,
-                                                             userIdentityId,
-                                                             limit);
+    List<String> metadataNames = metadataService.findMetadataNamesByUserAndQuery(tagFilter.getTerm(),
+                                                                                 TagService.METADATA_TYPE.getName(),
+                                                                                 audienceIds,
+                                                                                 userIdentityId,
+                                                                                 limit * 3);
     return metadataNames.stream().map(TagName::new).distinct().limit(limit).collect(Collectors.toList());
-
   }
 
   private void deleteTags(List<MetadataItem> tagMetadataItems, Set<TagName> tagsToDelete) {
