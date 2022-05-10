@@ -42,6 +42,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId,  "createActivity",getSpaceId(event));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
@@ -49,6 +52,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void updateActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "updateActivity", getSpaceId(event));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
@@ -56,6 +62,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void saveComment(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
@@ -65,6 +74,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void updateComment(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
@@ -74,6 +86,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void likeActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "likeActivity", getSpaceId(event));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
@@ -81,6 +96,9 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   @Override
   public void likeComment(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
