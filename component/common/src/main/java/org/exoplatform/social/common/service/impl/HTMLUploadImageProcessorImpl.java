@@ -24,7 +24,7 @@ public class HTMLUploadImageProcessorImpl implements HTMLUploadImageProcessor {
     }
 
     @Override
-    public void uploadSpaceFile(String filePath, String userId, String fileName, String imagesSubLocationPath) {
+    public void uploadSpaceFile(String filePath, String spaceGroupId, String fileName, String imagesSubLocationPath) {
 
     }
 

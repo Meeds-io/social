@@ -61,7 +61,7 @@ public interface HTMLUploadImageProcessor {
    */
   String processImagesForExport(String content);
 
-  void uploadSpaceFile(String filePath, String userId, String fileName, String imagesSubLocationPath) ;
+  void uploadSpaceFile(String filePath, String spaceGroupId, String fileName, String imagesSubLocationPath) ;
 
   void uploadUserFile(String filePath, String userId, String fileName, String imagesSubLocationPath) ;
 
