@@ -32,7 +32,7 @@
             class="pull-left text-truncate ms-2">
             <p
               class="text-truncate subtitle-2 my-auto hidden-space">
-              {{ $t('spacesList.label.hiddenSpace') }}
+              {{ displayName }}
             </p>
           </div>
         </a>
