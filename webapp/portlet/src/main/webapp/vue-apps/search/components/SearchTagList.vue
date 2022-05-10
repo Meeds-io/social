@@ -107,14 +107,27 @@ export default {
       return this.$tagService.searchTags(this.query , this.searchLimit)
         .then(tagNames => {
           this.tags = tagNames.map(tagName => tagName.name) || [];
+          if (this.selectedTags && this.selectedTags.length) {
+            this.selectedTags = this.selectedTags.map(tag => {
+              const tagsLowerCase = this.tags.map(t => t.toLowerCase());
+              const tagLowerCase = tag.toLowerCase();
+              const tagIndex = tagsLowerCase.indexOf(tagLowerCase);
+              if (tagIndex >= 0) {
+                return this.tags[tagIndex];
+              } else {
+                return tag;
+              }
+            });
+          }
         });
     },
     handleTag(tag) {
-      if (this.selectedTags.includes(tag)) {
-        const tagIndex = this.selectedTags.indexOf(tag);
+      const selectedTagsLowerCase = this.selectedTags.map(t => t.toLowerCase());
+      const tagLowerCase = tag.toLowerCase();
+      if (selectedTagsLowerCase.includes(tagLowerCase)) {
+        const tagIndex = selectedTagsLowerCase.indexOf(tagLowerCase);
         this.selectedTags.splice(tagIndex , 1);
-      }
-      else {
+      } else {
         this.selectedTags.push(tag);
         document.dispatchEvent(new CustomEvent('search-tag'));
       }
