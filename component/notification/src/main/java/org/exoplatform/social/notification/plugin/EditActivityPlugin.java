@@ -39,7 +39,7 @@ public class EditActivityPlugin extends BaseNotificationPlugin {
         }
         // Send notification to all others users who have comment on this activity
         Utils.sendToCommeters(receivers, activity.getCommentedIds(), activity.getPosterId());
-        Utils.sendToActivityPoster(receivers, activity.getPosterId(), activity.getPosterId());
+        Utils.sendToActivityPoster(receivers, activity.getPosterId(), activity.getPosterId(),activity.getActivityStream());
         Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId());
 
         //

@@ -34,13 +34,13 @@ public class EditCommentPlugin  extends BaseNotificationPlugin {
             String parentCommentUserPosterId = Utils.getUserId(parentComment.getPosterId());
             if (isSubComment) {
                 // Send notification to parent comment poster
-                Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId());
+                Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId(), activity.getActivityStream());
             } else {
                 // Send notification to all others users who have commented on this activity
                 // except parent comment poster
                 Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
                 Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-                Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
+                Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), activity.getActivityStream());
                 Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
                 receivers.remove(parentCommentUserPosterId);
             }
@@ -48,7 +48,7 @@ public class EditCommentPlugin  extends BaseNotificationPlugin {
             // Send notification to all others users who have comment on this activity
             Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
             Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-            Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
+            Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), activity.getActivityStream());
             Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
         }
         //

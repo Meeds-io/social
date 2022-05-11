@@ -3,8 +3,11 @@ package org.exoplatform.social.notification.plugin;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.Utils;
 
 import java.util.ArrayList;
@@ -38,12 +41,17 @@ public class LikeCommentPlugin extends BaseNotificationPlugin {
     if (Utils.isSpaceActivity(activity) == false && liker.equals(activity.getStreamOwner()) == false) {
       toUsers.add(activity.getStreamOwner());
     }
-
-    return NotificationInfo.instance()
-            .to(Utils.getUserId(activity.getPosterId()))
-            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-            .with(SocialNotificationUtils.LIKER.getKey(), liker)
-            .key(getId()).end();
+    ActivityManager activityManager = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ActivityManager.class);
+    ExoSocialActivity parentActivity = activityManager.getParentActivity(activity);
+    if(Utils.canAddPosterToReceivers(parentActivity.getActivityStream(), Utils.getUserId(activity.getPosterId()))) {
+      return NotificationInfo.instance()
+              .to(Utils.getUserId(activity.getPosterId()))
+              .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+              .with(SocialNotificationUtils.LIKER.getKey(), liker)
+              .key(getId()).end();
+    }
+    else
+      return null;
   }
 
   @Override
