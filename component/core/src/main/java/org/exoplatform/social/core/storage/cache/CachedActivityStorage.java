@@ -302,7 +302,7 @@ public class CachedActivityStorage implements ActivityStorage {
     exoActivityCache.put(new ActivityKey(comment.getId()), new ActivityData(getActivity(comment.getId())));
     ActivityKey activityKey = new ActivityKey(activity.getId());
     exoActivityCache.remove(activityKey);
-    exoActivityCache.put(activityKey, new ActivityData(getActivity(activity.getId())));
+    clearCache();
   }
 
   /**
@@ -315,10 +315,11 @@ public class CachedActivityStorage implements ActivityStorage {
 
     //
     ActivityKey key = new ActivityKey(a.getId());
-    exoActivityCache.put(key, new ActivityData(getActivity(a.getId())));
+    exoActivityCache.remove(key);
+    clearCache();
 
     //
-    return a;
+    return getActivity(a.getId());
 
   }
 

@@ -28,6 +28,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
 import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
 import org.exoplatform.social.core.listeners.*;
 import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
 import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessorTest;
 import org.exoplatform.social.core.processor.TemplateParamsProcessorTest;
 import org.exoplatform.social.core.search.SortingTest;
