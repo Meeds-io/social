@@ -178,8 +178,10 @@ public class EntityBuilder {
     identityEntity.setRemoteId(identity.getRemoteId());
     identityEntity.setDeleted(identity.isDeleted());
     if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
+      ConversationState conversationState = ConversationState.getCurrent();
+      String currentUserId = conversationState.getIdentity().getUserId();
       Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
-      identityEntity.setSpace(buildEntityFromSpace(space, "", restPath, expand));
+      identityEntity.setSpace(buildEntityFromSpace(space, currentUserId, restPath, expand));
     } else {
       identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, expand));
     }
