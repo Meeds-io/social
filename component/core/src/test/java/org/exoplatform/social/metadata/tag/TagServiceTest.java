@@ -89,11 +89,11 @@ public class TagServiceTest extends AbstractCoreTest {
 
     String content =
                    "<div>Test tag #NoTagHere test test"
-                       + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>&nbsp;.</div>";
+                       + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANew'TagHere</a>&nbsp;.</div>";
     tagNames = tagService.detectTagNames(content);
     assertNotNull(tagNames);
     assertEquals(1, tagNames.size());
-    assertEquals(Collections.singleton(new TagName("ANewTagHere")), tagNames);
+    assertEquals(Collections.singleton(new TagName("ANew'TagHere")), tagNames);
   }
 
   public void testSaveTags() { // NOSONAR

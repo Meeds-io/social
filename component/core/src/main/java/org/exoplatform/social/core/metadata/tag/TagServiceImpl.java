@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
@@ -81,6 +82,7 @@ public class TagServiceImpl implements TagService {
     if (StringUtils.isBlank(content)) {
       return Collections.emptySet();
     }
+    content = StringEscapeUtils.unescapeHtml(content);
     Set<TagName> tags = new HashSet<>();
     Matcher matcher = TAG_PATTERN.matcher(content);
     while (matcher.find()) {
