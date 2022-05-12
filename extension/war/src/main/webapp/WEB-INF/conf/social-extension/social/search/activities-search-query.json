@@ -5,13 +5,14 @@
     "bool":{
       @term_query@
       "filter":[
-        @metadatas_query@
+        @favorite_query@
         {
           "terms":{
             "permissions": [@permissions@]
           }
         }
       ]
+      @tags_query@
     }
   },
   "highlight" : {
