@@ -54,7 +54,9 @@ public class TagServiceImpl implements TagService {
 
   private static final Pattern TAG_PATTERN   = Pattern.compile("<a [^>]*class=[\"']metadata-tag[\"'][^>]*>#([^\\s\u00A0]+)<[^>]*/a>");
 
-  public static final String                 TAG_ADDED_EVENT                = "exo.tag.added";
+  public static final String   TAG_ADDED_EVENT    = "exo.tag.added";
+
+  private static final String  TAGS_METADATA_TYPE = "tags";
 
   private static final int     DEFAULT_LIMIT = 10000;
 
@@ -115,7 +117,7 @@ public class TagServiceImpl implements TagService {
     if (StringUtils.isBlank(object.getType())) {
       throw new IllegalArgumentException("objectType is mandatory");
     }
-    List<MetadataItem> metadataItems = this.metadataService.getMetadataItemsByObject(object);
+    List<MetadataItem> metadataItems = this.metadataService.getMetadataItemsByMetadataTypeAndObject(TAGS_METADATA_TYPE, object);
     Set<TagName> storedTagNames = metadataItems.stream()
                                                .map(MetadataItem::getMetadata)
                                                .map(Metadata::getName)
