@@ -161,7 +161,7 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(TagService.METADATA_TYPE.getName(), metadata.getTypeName());
     assertEquals(audienceId, metadata.getAudienceId());
 
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(taggedObject1);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("tags", taggedObject1);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
     Set<TagName> storedTagNames = metadataItems.stream()
@@ -181,13 +181,13 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(1, savedTagNames.size());
     assertEquals(updatedTagNames, savedTagNames);
 
-    metadataItems = metadataService.getMetadataItemsByObject(taggedObject1);
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("tags", taggedObject1);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertTrue(storedTagNames.contains(new TagName(tagName1)));
 
     TagObject taggedObject2 = new TagObject(objectType, objectId2, parentObjectId);
-    metadataItems = metadataService.getMetadataItemsByObject(taggedObject2);
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("tags", taggedObject2);
     assertNotNull(metadataItems);
     assertEquals(0, metadataItems.size());
 
@@ -199,7 +199,7 @@ public class TagServiceTest extends AbstractCoreTest {
     assertNotNull(savedTagNames);
     assertEquals(2, savedTagNames.size());
 
-    metadataItems = metadataService.getMetadataItemsByObject(taggedObject2);
+    metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("tags", taggedObject2);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
 
