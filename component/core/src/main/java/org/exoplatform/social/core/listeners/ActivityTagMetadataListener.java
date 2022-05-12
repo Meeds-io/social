@@ -21,11 +21,9 @@ package org.exoplatform.social.core.listeners;
 import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.utils.HTMLSanitizer;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -40,8 +38,6 @@ import org.exoplatform.social.metadata.tag.model.TagObject;
  * A listener to handle Tag update for Activity and Comment lifecycle
  */
 public class ActivityTagMetadataListener extends ActivityListenerPlugin {
-
-  private static final Log LOG = ExoLogger.getLogger(ActivityTagMetadataListener.class);
 
   private ActivityManager  activityManager;
 
@@ -80,11 +76,6 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
     Identity audienceIdentity = activityManager.getActivityStreamOwnerIdentity(activity.getId());
     long audienceId = Long.parseLong(audienceIdentity.getId());
     String content = getActivityBody(activity);
-    try {
-      content = HTMLSanitizer.sanitize(content);
-    } catch (Exception e) {
-      LOG.warn("Error while sanitizing activity content {}", content, e);
-    }
 
     Set<TagName> tagNames = tagService.detectTagNames(content);
     tagService.saveTags(new TagObject(objectType,
