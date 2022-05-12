@@ -2,17 +2,17 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.io.InputStream;
 import java.text.Normalizer;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.IOUtil;
@@ -23,12 +23,18 @@ import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivitySearchResult;
+import org.exoplatform.social.core.activity.model.ActivityStream;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.tag.TagService;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class ActivitySearchConnector {
 
@@ -37,18 +43,11 @@ public class ActivitySearchConnector {
 
   public static final String            SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
 
-  public static final String            SEARCH_QUERY_TERM            = "\"should\": {" +
-      "  \"match_phrase\": {" +
-      "    \"body\": {" +
-      "      \"query\": \"@term@\"," +
-      "      \"boost\": 5" +
-      "    }" +
-      "  }" +
-      "}," +
-      "\"must\":{" +
+  public static final String            SEARCH_QUERY_TERM            = "\"must\":{" +
       "  \"query_string\":{" +
       "    \"fields\": [\"body\", \"posterName\"]," +
-      "    \"query\": \"@term_query@\"" +
+      "    \"default_operator\": \"AND\"," +
+      "    \"query\": \"@term@\"" +
       "  }" +
       "},";
 
@@ -133,10 +132,12 @@ public class ActivitySearchConnector {
                                      ActivitySearchFilter filter,
                                      long offset,
                                      long limit) {
-    String metadataQuery = buildMetadatasQueryStatement(metadataFilters);
     String termQuery = buildTermQueryStatement(filter.getTerm());
+    String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
+    String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     return retrieveSearchQuery().replace("@term_query@", termQuery)
-                                .replace("@metadatas_query@", metadataQuery)
+                                .replace("@favorite_query@", favoriteQuery)
+                                .replace("@tags_query@", tagsQuery)
                                 .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
                                 .replace("@offset@", String.valueOf(offset))
                                 .replace("@limit@", String.valueOf(limit));
@@ -314,35 +315,45 @@ public class ActivitySearchConnector {
     return metadataFilters;
   }
 
-  private String buildMetadatasQueryStatement(Map<String, List<String>> metadataFilters) {
-    StringBuilder metadataQuerySB = new StringBuilder();
-    Set<Entry<String, List<String>>> metadataFilterEntries = metadataFilters.entrySet();
-    for (Entry<String, List<String>> metadataFilterEntry : metadataFilterEntries) {
-      metadataQuerySB.append("{\"terms\":{\"metadatas.")
-                     .append(metadataFilterEntry.getKey())
-                     .append(".metadataName.keyword")
-                     .append("\": [\"")
-                     .append(StringUtils.join(metadataFilterEntry.getValue(), "\",\""))
-                     .append("\"]}},");
+  private String buildFavoriteQueryStatement(List<String> values) {
+    if (CollectionUtils.isEmpty(values)) {
+      return "";
     }
-    return metadataQuerySB.toString();
+    return new StringBuilder().append("{\"terms\":{")
+                              .append("\"metadatas.favorites.metadataName.keyword\": [\"")
+                              .append(StringUtils.join(values, "\",\""))
+                              .append("\"]}},")
+                              .toString();
+  }
+
+  private String buildTagsQueryStatement(List<String> values) {
+    if (CollectionUtils.isEmpty(values)) {
+      return "";
+    }
+    List<String> tagsQueryParts = values.stream()
+                                        .map(value -> new StringBuilder().append("{\"term\": {\n")
+                                                                         .append("            \"metadatas.tags.metadataName.keyword\": {\n")
+                                                                         .append("              \"value\": \"")
+                                                                         .append(value)
+                                                                         .append("\",\n")
+                                                                         .append("              \"case_insensitive\":true\n")
+                                                                         .append("            }\n")
+                                                                         .append("          }}")
+                                                                         .toString())
+                                        .collect(Collectors.toList());
+    return new StringBuilder().append(",\"should\": [\n")
+                              .append(StringUtils.join(tagsQueryParts, "\",\""))
+                              .append("      ],\n")
+                              .append("      \"minimum_should_match\": 1")
+                              .toString();
   }
 
   private String buildTermQueryStatement(String term) {
     if (StringUtils.isBlank(term)) {
-      return term;
+      return "";
     }
     term = removeSpecialCharacters(term);
-    List<String> termsQuery = Arrays.stream(term.split(" ")).filter(StringUtils::isNotBlank).map(word -> {
-      word = word.trim();
-      if (word.length() > 5) {
-        word = word + "~1";
-      }
-      return word;
-    }).collect(Collectors.toList());
-    String termQuery = StringUtils.join(termsQuery, " AND ");
-    return SEARCH_QUERY_TERM.replace("@term@", term)
-                            .replace("@term_query@", termQuery);
+    return SEARCH_QUERY_TERM.replace("@term@", term);
   }
 
   private Long parseLong(JSONObject hitSource, String key) {
