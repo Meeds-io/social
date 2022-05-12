@@ -127,7 +127,7 @@ public class NotificationsRestService implements ResourceContainer {
     if (Relationship.Type.PENDING.equals(getRelationshipManager().getStatus(sender, receiver))) {
       getRelationshipManager().confirm(sender, receiver);
     }
-    String targetURL = Util.getBaseUrl() + LinkProvider.getUserActivityUri(sender.getRemoteId());
+    String targetURL = Util.getBaseUrl() + LinkProvider.getUserProfileUri(sender.getRemoteId());
     
     // redirect to target page
    return Response.seeOther(URI.create(targetURL)).build();
