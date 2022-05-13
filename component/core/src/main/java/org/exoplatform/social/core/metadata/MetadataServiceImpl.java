@@ -191,6 +191,26 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public MetadataItem deleteMetadataItem(long itemId, boolean broadcast) throws ObjectNotFoundException {
+    if (itemId <= 0) {
+      throw new IllegalArgumentException("Metadata Item Technical Identifier is mandatory");
+    }
+    MetadataItem metadataItem = this.metadataStorage.getMetadataItemById(itemId);
+    if (metadataItem == null) {
+      throw new ObjectNotFoundException("Metadata Item with identifier " + itemId + " wasn't found");
+    }
+    metadataItem = this.metadataStorage.deleteMetadataItemById(itemId);
+    if (broadcast) {
+      try {
+        this.listenerService.broadcast("social.metadataItem.deleted", 0l, metadataItem);
+      } catch (Exception e) {
+        LOG.warn("Error while broadcasting event for metadata item deleted", e);
+      }
+    }
+    return metadataItem;
+  }
+
+  @Override
   public MetadataItem deleteMetadataItem(long itemId, long userIdentityId) throws ObjectNotFoundException {
     if (itemId <= 0) {
       throw new IllegalArgumentException("Metadata Item Technical Identifier is mandatory");

@@ -1,7 +1,8 @@
 <template>
   <favorite-button
     v-if="!isActivityShared"
-    :id="activityId"
+    :id="metadataObjectId"
+    :type="metadataObjectType"
     :space-id="spaceId"
     :favorite="isFavorite"
     :absolute="absolute"
@@ -9,7 +10,6 @@
     :right="right"
     :template-params="templateParams"
     :type-label="extensionName"
-    type="activity"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -59,6 +59,12 @@ export default {
     },
     extensionName() {
       return this.activityTypeExtension && this.activityTypeExtension.name;
+    },
+    metadataObjectId() {
+      return this.activity?.templateParams?.metadataObjectId || this.activityId;
+    },
+    metadataObjectType() {
+      return this.activity?.templateParams?.metadataObjectType || 'activity';
     },
   },
   created() {

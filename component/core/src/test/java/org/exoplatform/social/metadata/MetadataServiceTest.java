@@ -19,13 +19,15 @@
 package org.exoplatform.social.metadata;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -53,6 +55,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private MetadataService metadataService;
 
+  private ListenerService listenerService;
+
   private MetadataDAO     metadataDAO;
 
   private MetadataType    userMetadataType;
@@ -67,6 +71,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    listenerService = getContainer().getComponentInstanceOfType(ListenerService.class);
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
     tearDownSpaceList = new ArrayList<>();
@@ -565,7 +570,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
   }
 
-  public void testDeleteMetadataItem() throws Exception {
+  public void testDeleteMetadataItemByUserIdentity() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
     String objectId = "objectId10";
@@ -581,20 +586,50 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                                          audienceId),
                                                                          creatorId);
 
-    try {
-      metadataService.deleteMetadataItem(0, creatorId);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      metadataService.deleteMetadataItem(storedMetadataItem.getId(), 0);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataItem(0, creatorId));
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataItem(storedMetadataItem.getId(), 0));
+    assertThrows(ObjectNotFoundException.class, () -> metadataService.deleteMetadataItem(5000l, creatorId));
+
     MetadataItem deletedMetadataItem = metadataService.deleteMetadataItem(storedMetadataItem.getId(),
                                                                           creatorId);
+
+    assertNotNull(deletedMetadataItem);
+    assertTrue(deletedMetadataItem.getId() > 0);
+    assertTrue(deletedMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, deletedMetadataItem.getCreatorId());
+    assertNotNull(deletedMetadataItem.getMetadata());
+    assertEquals(audienceId, deletedMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, deletedMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, deletedMetadataItem.getMetadata().getType());
+    assertEquals(parentObjectId, deletedMetadataItem.getParentObjectId());
+    assertEquals(objectId, deletedMetadataItem.getObjectId());
+    assertEquals(objectType, deletedMetadataItem.getObjectType());
+
+    List<MetadataItem> metadataItems = getMetadataItemsByObject(objectType, objectId);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+  }
+
+  public void testDeleteMetadataItem() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId = "objectId100";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType11";
+    String type = userMetadataType.getName();
+    String name = "testMetadata8";
+
+    MetadataObject metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataItem storedMetadataItem = metadataService.createMetadataItem(metadataItemObject,
+                                                                         new MetadataKey(type,
+                                                                                         name,
+                                                                                         audienceId),
+                                                                         creatorId);
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataItem(0, true));
+    assertThrows(ObjectNotFoundException.class, () -> metadataService.deleteMetadataItem(5000l, true));
+
+    MetadataItem deletedMetadataItem = metadataService.deleteMetadataItem(storedMetadataItem.getId(),
+                                                                          true);
 
     assertNotNull(deletedMetadataItem);
     assertTrue(deletedMetadataItem.getId() > 0);

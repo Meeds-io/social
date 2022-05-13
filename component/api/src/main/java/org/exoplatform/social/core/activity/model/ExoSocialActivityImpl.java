@@ -21,6 +21,7 @@ import java.util.*;
 import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 /**
  * Implementation of {@link org.exoplatform.social.core.activity.model.ExoSocialActivity}.
@@ -29,6 +30,14 @@ import org.exoplatform.social.metadata.model.MetadataItem;
  * @since 1.2.0-GA
  */
 public class ExoSocialActivityImpl implements ExoSocialActivity {
+
+  public static final String              ACTIVITY_METADATA_OBJECT_TYPE_PARAM      = "metadataObjectType";
+
+  public static final String              ACTIVITY_METADATA_OBJECT_ID_PARAM        = "metadataObjectId";
+
+  public static final String              ACTIVITY_METADATA_OBJECT_PARENT_ID_PARAM = "metadataObjectParentId";
+
+  public static final String              DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE    = "activity";
 
   private String id;
 
@@ -707,6 +716,69 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
     this.linkedProcessedEntities = linkedProcessedEntities;
   }
 
+  @Override
+  public String getMetadataObjectType() {
+    if (hasSpecificMetadataObject()) {
+      return templateParams.get(ACTIVITY_METADATA_OBJECT_TYPE_PARAM);
+    } else {
+      return DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
+    }
+  }
+
+  @Override
+  public String getMetadataObjectId() {
+    if (hasSpecificMetadataObject()) {
+      return templateParams.get(ACTIVITY_METADATA_OBJECT_ID_PARAM);
+    } else {
+      return getId();
+    }
+  }
+
+  @Override
+  public String getMetadataObjectParentId() {
+    if (hasSpecificMetadataObject()) {
+      return templateParams.get(ACTIVITY_METADATA_OBJECT_PARENT_ID_PARAM);
+    } else {
+      return getParentId();
+    }
+  }
+
+  @Override
+  public void setMetadataObjectType(String objectType) {
+    if (templateParams == null) {
+      setTemplateParams(new HashMap<>());
+    }
+    templateParams.put(ACTIVITY_METADATA_OBJECT_TYPE_PARAM, objectType);
+  }
+
+  @Override
+  public void setMetadataObjectId(String objectId) {
+    if (templateParams == null) {
+      setTemplateParams(new HashMap<>());
+    }
+    templateParams.put(ACTIVITY_METADATA_OBJECT_ID_PARAM, objectId);
+  }
+
+  @Override
+  public void setMetadataObjectParentId(String objectParentId) {
+    if (templateParams == null) {
+      setTemplateParams(new HashMap<>());
+    }
+    templateParams.put(ACTIVITY_METADATA_OBJECT_PARENT_ID_PARAM, objectParentId);
+  }
+
+  @Override
+  public MetadataObject getMetadataObject() {
+    return new MetadataObject(getMetadataObjectType(), getMetadataObjectId(), getMetadataObjectParentId());
+  }
+
+  @Override
+  public boolean hasSpecificMetadataObject() {
+    return templateParams != null
+        && templateParams.containsKey(ACTIVITY_METADATA_OBJECT_TYPE_PARAM)
+        && !DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE.equals(templateParams.get(ACTIVITY_METADATA_OBJECT_TYPE_PARAM));
+  }
+
   public String toString() {
     return "ExoSocialActivity[id = " + getId() + ",title=" + getTitle() + ",lastModified= " + getUpdated().getTime() + " ]";
   }
@@ -726,4 +798,5 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   public int hashCode() {
     return Objects.hash(id);
   }
+
 }
