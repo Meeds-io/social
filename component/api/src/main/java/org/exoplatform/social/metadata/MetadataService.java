@@ -119,6 +119,14 @@ public interface MetadataService {
   MetadataItem deleteMetadataItem(long itemId, long userIdentityId) throws ObjectNotFoundException;
 
   /**
+   * @param itemId {@link MetadataItem} technical identifier
+   * @param broadcast whether broadcast event after deleting or not
+   * @return Deleted {@link MetadataItem}
+   * @throws ObjectNotFoundException when the {@link MetadataItem} isn't found
+   */
+  MetadataItem deleteMetadataItem(long itemId, boolean broadcast) throws ObjectNotFoundException;
+
+  /**
    * Deletes Metadata items for a given {@link MetadataItem} objectId and
    * objectType. This is generally called when the associated object has been
    * removed (activity removed, comment removed ...)

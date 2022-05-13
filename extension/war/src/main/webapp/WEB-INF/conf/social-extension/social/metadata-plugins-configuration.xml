@@ -110,12 +110,12 @@
     <component-plugin>
       <name>social.metadataItem.created</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemAdded</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.deleted</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.social.core.listeners.MetadataItemModified</type>
+      <type>org.exoplatform.social.core.listeners.MetadataItemDeleted</type>
     </component-plugin>
     <component-plugin>
       <name>social.metadataItem.updated</name>
