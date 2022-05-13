@@ -100,11 +100,6 @@
   </component>
   <!-- END: Supported REST service -->
 
-  <!-- -->
-  <component>
-    <type>org.exoplatform.social.processor.EmbedProcessor</type>
-  </component>
-
 <!-- Getting Started Services -->
   <component>
     <type>org.exoplatform.social.core.service.GettingStartedService</type>

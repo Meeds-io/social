@@ -21,9 +21,9 @@ import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
-public class MetadataItemModified extends AbstractMetadataItemListener<Long, MetadataItem> {
+public class MetadataItemAdded extends AbstractMetadataItemListener<Long, MetadataItem> {
 
-  public MetadataItemModified(MetadataService metadataService, ActivityStorage activityStorage, IndexingService indexingService) {
+  public MetadataItemAdded(MetadataService metadataService, ActivityStorage activityStorage, IndexingService indexingService) {
     super(metadataService, activityStorage, indexingService);
   }
 

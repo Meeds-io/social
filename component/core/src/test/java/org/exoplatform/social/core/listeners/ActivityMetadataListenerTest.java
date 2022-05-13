@@ -1,29 +1,27 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.listeners;
 
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.log.ExoLogger;
@@ -36,12 +34,14 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 
 public class ActivityMetadataListenerTest extends AbstractCoreTest {
 
@@ -141,8 +141,8 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
                                               "testMetadata2",
                                               audienceId);
-    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                             activity.getId());
+    MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                       activity.getId());
     MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
     assertNotNull(metadataItem);
     assertTrue(metadataItem.getId() > 0);
@@ -172,8 +172,8 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     originalActivity.setUserId(johnIdentity.getId());
     activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
 
-    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                             originalActivity.getId());
+    MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                       originalActivity.getId());
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
                                               "testMetadata2",
                                               Long.parseLong(spaceIdentity.getId()));
@@ -213,8 +213,8 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     restartTransaction();
 
     MetadataObject sharedActivityMetadataObject =
-                                                   new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                         sharedActivity.getId());
+                                                new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                                   sharedActivity.getId());
     metadataItems = metadataService.getMetadataItemsByObject(sharedActivityMetadataObject);
     assertNotNull(metadataItem);
     assertEquals(1, metadataItems.size());
