@@ -342,7 +342,7 @@ public class ActivitySearchConnector {
                                                                          .toString())
                                         .collect(Collectors.toList());
     return new StringBuilder().append(",\"should\": [\n")
-                              .append(StringUtils.join(tagsQueryParts, "\",\""))
+                              .append(StringUtils.join(tagsQueryParts, ","))
                               .append("      ],\n")
                               .append("      \"minimum_should_match\": 1")
                               .toString();
