@@ -537,6 +537,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       comment.setTitle("comment " + i);
       comment.setUserId(rootIdentity.getId());
       activityManager.saveComment(rootActivity, comment);
+      Thread.sleep(10); // NOSONAR Make sure that comment update time is different
     }
 
     ContainerResponse response = service("GET",

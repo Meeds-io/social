@@ -1482,7 +1482,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       try {
         processor.processActivity(existingActivity);
       } catch (Exception e) {
-        LOG.debug("activity processing failed ");
+        LOG.warn("Activity processing failed", e);
       }
     }
   }
