@@ -20,6 +20,7 @@ import java.util.*;
 
 import org.exoplatform.social.core.CacheEntry;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 /**
  * ExoSocialActivity interface
@@ -395,4 +396,50 @@ public interface ExoSocialActivity extends CacheEntry {
   Map<String, Object> getLinkedProcessedEntities();
 
   void setLinkedProcessedEntities(Map<String, Object> linkedProcessedEntities);
+
+  /**
+   * @return {@link MetadataObject} type associated to current activity
+   */
+  String getMetadataObjectType();
+
+  /**
+   * @return {@link MetadataObject} id associated to current activity
+   */
+  String getMetadataObjectId();
+
+  /**
+   * @return {@link MetadataObject} parentId associated to current activity
+   */
+  String getMetadataObjectParentId();
+
+  /**
+   * Set {@link MetadataObject} type for current activity
+   * 
+   * @param objectType
+   */
+  void setMetadataObjectType(String objectType);
+
+  /**
+   * Set {@link MetadataObject} id for current activity
+   * 
+   * @param objectId
+   */
+  void setMetadataObjectId(String objectId);
+
+  /**
+   * Set {@link MetadataObject} parentId for current activity
+   * 
+   * @param objectParentId
+   */
+  void setMetadataObjectParentId(String objectParentId);
+
+  /**
+   * @return {@link MetadataObject} with specific type and id for current activity
+   */
+  MetadataObject getMetadataObject();
+
+  /**
+   * @return true if Activity has a specific {@link MetadataObject} type
+   */
+  boolean hasSpecificMetadataObject();
 }

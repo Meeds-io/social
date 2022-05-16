@@ -33,7 +33,6 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
-import org.exoplatform.social.core.processor.MetadataActivityProcessor;
 import org.exoplatform.social.core.search.DocumentWithMetadata;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -182,13 +181,13 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
       document.addField("body", body);
     }
 
-    addDocumentMetadata(document, activityId);
+    if (!activity.hasSpecificMetadataObject()) {
+      addDocumentMetadata(document, activity.getMetadataObject());
+    }
     return document;
   }
 
-  private void addDocumentMetadata(DocumentWithMetadata document, String documentId) {
-    MetadataObject metadataObject = new MetadataObject(MetadataActivityProcessor.ACTIVITY_METADATA_OBJECT_TYPE,
-                                                               documentId);
+  private void addDocumentMetadata(DocumentWithMetadata document, MetadataObject metadataObject) {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     document.setMetadataItems(metadataItems);
   }

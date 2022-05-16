@@ -21,15 +21,19 @@ import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
-public class MetadataItemModified extends AbstractMetadataItemListener<Long, MetadataItem> {
+public class MetadataItemDeleted extends AbstractMetadataItemListener<Long, MetadataItem> {
 
-  public MetadataItemModified(MetadataService metadataService, ActivityStorage activityStorage, IndexingService indexingService) {
+  public MetadataItemDeleted(MetadataService metadataService, ActivityStorage activityStorage, IndexingService indexingService) {
     super(metadataService, activityStorage, indexingService);
   }
 
   @Override
   public void onEvent(Event<Long, MetadataItem> event) throws Exception {
     // If the modified metadata concerns an 'activity'
-    handleMetadataModification(event.getData());
+    MetadataItem metadataItem = event.getData();
+    String objectType = event.getData().getObjectType();
+    String objectId = metadataItem.getObjectId();
+    handleMetadataModification(objectType, objectId);
   }
+
 }
