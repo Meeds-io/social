@@ -114,8 +114,8 @@ export default {
         event.stopPropagation();
       }
 
+      this.$emit('ok');
       this.close(event);
-      this.$nextTick(() => this.$emit('ok'));
     },
     close(event) {
       if (event) {
@@ -124,7 +124,7 @@ export default {
       }
 
       this.$emit('closed');
-      this.dialog = false;
+      this.$nextTick(() => this.dialog = false);
     },
     open() {
       this.dialog = true;
