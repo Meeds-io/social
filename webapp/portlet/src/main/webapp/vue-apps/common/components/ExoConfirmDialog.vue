@@ -95,15 +95,16 @@ export default {
   },
   data: () => ({
     dialog: false,
+    closed: false,
   }),
   watch: {
     dialog() {
       if (this.dialog) {
+        this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
-        this.$emit('dialog-closed');
-        document.dispatchEvent(new CustomEvent('modalClosed'));
+        this.emitClosedEvent();
       }
     },
   },
@@ -124,12 +125,22 @@ export default {
       }
 
       this.$emit('closed');
-      this.$nextTick(() => this.dialog = false);
+      this.$nextTick(() => {
+        this.dialog = false;
+        this.emitClosedEvent();
+      });
     },
     open() {
       this.dialog = true;
       this.$emit('opened');
       this.$nextTick(() => this.dialog = true);
+    },
+    emitClosedEvent() {
+      if (!this.closed && !this.dialog) {
+        this.closed = true;
+        this.$emit('dialog-closed');
+        document.dispatchEvent(new CustomEvent('modalClosed'));
+      }
     },
   },
 };
