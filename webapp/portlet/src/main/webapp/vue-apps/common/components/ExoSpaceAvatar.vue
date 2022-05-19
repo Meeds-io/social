@@ -6,7 +6,7 @@
     open-on-hover
     :close-on-content-click="false"
     :left="popoverLeftPosition"
-    content-class="profile-popover-menu white"
+    content-class="space-logo-popover white"
     max-width="270"
     min-width="270"
     offset-y>
