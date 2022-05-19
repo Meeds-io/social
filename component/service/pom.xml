@@ -367,6 +367,53 @@
 	            </execution>
 	        </executions>
 	    </plugin>
+      <plugin>
+        <groupId>io.openapitools.swagger</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <version>2.1.6</version>
+        <configuration>
+          <resourcePackages>
+            <locations>org.exoplatform.social.rest.impl.activity</locations>
+            <locations>org.exoplatform.social.rest.impl.binding</locations>
+            <locations>org.exoplatform.social.rest.impl.comment</locations>
+          </resourcePackages>
+          <outputDirectory>${basedir}/target/</outputDirectory>
+          <outputFilename>swagger</outputFilename>
+          <outputFormats>JSON,YAML</outputFormats>
+          <prettyPrint>true</prettyPrint>
+          <attachSwaggerArtifact>true</attachSwaggerArtifact>
+          <swaggerConfig>
+<!--            <servers>-->
+<!--              <server>-->
+<!--                <url>https://services.exmple.it/base/path</url>-->
+<!--                <description>Endpoint URL</description>-->
+<!--              </server>-->
+<!--            </servers>-->
+            <info>
+              <title>Meeds Social API</title>
+              <version>1.0.0</version>
+              <termsOfService>Terms</termsOfService>
+              <contact>
+                <email>ahamdi@exoplatform.com</email>
+                <name>Ali Hamdi</name>
+                <url>https://exoplatform.com</url>
+              </contact>
+              <license>
+                <url>https://license</url>
+                <name>LGPL</name>
+              </license>
+            </info>
+<!--            <descriptionFile>src/test/resources/descriptions.md</descriptionFile>-->
+          </swaggerConfig>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
