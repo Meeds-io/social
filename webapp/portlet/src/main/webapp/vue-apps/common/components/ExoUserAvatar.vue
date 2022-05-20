@@ -8,9 +8,12 @@
     :left="popoverLeftPosition"
     :offset-x="offsetX"
     :offset-y="offsetY"
-    content-class="profile-popover-menu overflow-y-hidden white"
-    max-width="250"
-    min-width="250">
+    content-class="profile-popover-menu transparent"
+    color="transparent"
+    elevation="0"
+    max-width="356"
+    min-width="356"
+    max-height="160" >
     <template #activator="{ on, attrs }">
       <div 
         class="profile-popover user-wrapper"
@@ -85,7 +88,11 @@
         </a>
       </div>
     </template> 
-    <v-card elevation="0" class="pa-2">
+    <v-card 
+    elevation="1" 
+    class="pa-2"
+    max-width="250"
+    min-width="250" >
       <v-list-item class="px-0">
         <v-list-item-content class="py-0">
           <v-list-item-title>
