@@ -10,7 +10,6 @@ const urls = [
 
 Vue.directive('identity-popover', (el, binding) => {
   el.addEventListener('mouseover', event => {
-    console.warn('popover-user-display', event);
     const data = Object.assign({
       offsetX: event.clientX,
       offsetY: event.clientY,
