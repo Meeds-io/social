@@ -530,13 +530,21 @@ public class PeopleRestService implements ResourceContainer{
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addUsernameToInfosList(String userId, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId, boolean filterByName, Locale locale) {
-    Identity userIdentity = getIdentityManager().getIdentity(userId, false);
-    if (userIdentity == null) {
+  private LinkedHashSet<UserInfo> addUsernameToInfosList(String userId,
+                                                         ProfileFilter identityFilter,
+                                                         LinkedHashSet<UserInfo> userInfos,
+                                                         String currentUserId,
+                                                         boolean filterByName,
+                                                         Locale locale) {
+    Identity userIdentity;
+    boolean identityId = StringUtils.isNumeric(userId);
+    if (identityId) {
+      userIdentity = getIdentityManager().getIdentity(userId, false);
+    } else {
       userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, false);
     }
     if (userIdentity == null) {
-      LOG.warn("Cannot find user identity with username = " + userId);
+      LOG.warn("Cannot find user identity with {} = {}", identityId ? "id" : "remoteId", userId);
       return userInfos;
     }
     return addUserToInfosList(userIdentity, identityFilter, userInfos, currentUserId, filterByName, locale);
