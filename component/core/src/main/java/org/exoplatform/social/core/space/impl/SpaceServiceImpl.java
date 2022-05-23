@@ -660,6 +660,9 @@ public class SpaceServiceImpl implements SpaceService {
       space.setMembers(members);
       this.updateSpace(space);
       SpaceUtils.removeUserFromGroupWithMemberMembership(userId, space.getGroupId());
+      setManager(space, userId, false);
+      removeRedactor(space, userId);
+      SpaceUtils.removeUserFromGroupWithAnyMembership(userId, space.getGroupId());
       spaceLifeCycle.memberLeft(space, userId);
     }
   }
