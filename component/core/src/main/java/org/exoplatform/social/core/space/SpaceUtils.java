@@ -1064,6 +1064,16 @@ public class SpaceUtils {
   }
 
   /**
+   * Removes the user from group with any(*) membership.
+   *
+   * @param remoteId target user remote id
+   * @param groupId group id
+   */
+  public static void removeUserFromGroupWithAnyMembership(String remoteId, String groupId) {
+    removeUserFromGroupWithMembership(remoteId, groupId, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+  }
+  
+  /**
    * Creates group navigation if not existed or return existing group navigation
    * based on groupId
    *
