@@ -28,10 +28,7 @@ import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -2273,12 +2270,32 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(savedSpace, "root");
     spaceService.addMember(savedSpace, "mary");
     spaceService.addMember(savedSpace, "john");
+    spaceService.setManager(savedSpace, "john", true);
+    spaceService.addRedactor(savedSpace, "john");
+    
+    GroupHandler groupHandler = organizationService.getGroupHandler();
+    UserHandler userHandler = organizationService.getUserHandler();
+    MembershipType mbShipTypeMember = organizationService.getMembershipTypeHandler()
+                                                         .findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+    User user = userHandler.findUserByName("john");
+    organizationService.getMembershipHandler()
+                       .linkMembership(user, groupHandler.findGroupById(space.getGroupId()), mbShipTypeMember, true);
+    
     savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
 
     spaceService.removeMember(savedSpace, "root");
     spaceService.removeMember(savedSpace, "mary");
     spaceService.removeMember(savedSpace, "john");
+    Membership any = organizationService.getMembershipHandler()
+                                        .findMembershipByUserGroupAndType("john",
+                                                                          space.getGroupId(),
+                                                                          MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+    assertNull(any);
+    assertFalse(spaceService.isManager(savedSpace, "john"));
+    assertFalse(spaceService.isRedactor(savedSpace, "john"));
+    assertFalse(spaceService.isMember(savedSpace, "john"));
+
     assertEquals("savedSpace.getMembers().length must return 1", 1, savedSpace.getMembers().length);
     IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
