@@ -239,7 +239,6 @@ export default {
           if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
-            this.searchOptions.filterType='all';
             this.$suggesterService.searchSpacesOrUsers(value,
               this.items,
               this.typeOfRelations,
