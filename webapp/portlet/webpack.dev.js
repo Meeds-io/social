@@ -15,7 +15,7 @@ let config = merge(webpackCommonConfig, {
     libraryTarget: 'amd'
   },
   mode: 'development',
-  devtool: 'inline-source-map'
+  devtool: 'eval-source-map'
 });
 
 module.exports = config;

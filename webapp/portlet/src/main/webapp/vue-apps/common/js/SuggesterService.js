@@ -3,7 +3,7 @@ import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentitySer
 export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager)
+    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager , searchOptions.filterType )
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -17,9 +17,9 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
 * excludeRedactionalSpace : space spaces that have no member promoted as redactor
 * onlyManager : search spaces where the user is a manager
 */
-function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager) {
+function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager,filterType) {
   const formData = new FormData();
-  formData.append('filterType', 'member');
+  formData.append('filterType', filterType );
   formData.append('limit', '20');
   formData.append('q', filter);
   const params = new URLSearchParams(formData).toString();
