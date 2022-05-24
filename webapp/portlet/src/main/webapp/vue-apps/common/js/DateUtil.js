@@ -26,7 +26,7 @@ export function getDateObjectFromString(value, isISOString) {
 
       // if we do new Date(value), if will generate a date with Time = 00:00 UTC, then when it is translated
       // in user timezone, the day can change
-      return new Date(`${value} 00:00:00`);
+      return new Date(`${value}T00:00:00`);
     }
   } else if (String(value).indexOf('/') >= 0) {
     const [date, month, year] = value.trim().split('/');
