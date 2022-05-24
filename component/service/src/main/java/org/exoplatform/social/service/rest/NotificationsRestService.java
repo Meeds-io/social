@@ -282,7 +282,7 @@ public class NotificationsRestService implements ResourceContainer {
     getSpaceService().addMember(space, userId);
 
     //redirect to space's members page and display a feedback message
-    String targetURL = Util.getBaseUrl() + LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")) + "/settings/members" + sb.toString();
+    String targetURL = Util.getBaseUrl() + LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")) + "/members" + sb.toString();
 
     // redirect to target page
     return Response.seeOther(URI.create(targetURL)).build();
