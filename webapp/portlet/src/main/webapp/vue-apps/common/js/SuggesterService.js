@@ -19,7 +19,7 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
 */
 function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager,filterType) {
   const formData = new FormData();
-  formData.append('filterType', filterType );
+  formData.append('filterType', filterType || 'member');
   formData.append('limit', '20');
   formData.append('q', filter);
   const params = new URLSearchParams(formData).toString();
