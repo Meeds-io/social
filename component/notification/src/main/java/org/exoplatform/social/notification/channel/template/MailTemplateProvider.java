@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import liquibase.repackaged.org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -614,7 +615,8 @@ public class MailTemplateProvider extends TemplateProvider {
       templateContext.put("USER", Utils.addExternalFlag(identity));
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
-      templateContext.put("SUBJECT", title);
+      String cleanedTitle = StringEscapeUtils.unescapeHtml4(title);
+      templateContext.put("SUBJECT", cleanedTitle);
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
@@ -845,6 +847,7 @@ public class MailTemplateProvider extends TemplateProvider {
       SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
 
       String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      String originalTitle = notification.getValueOwnerParameter(SocialNotificationUtils.ORIGINAL_TITLE.getKey());
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
@@ -860,9 +863,7 @@ public class MailTemplateProvider extends TemplateProvider {
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("SPACE", space.getDisplayName());
 
-      String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
-      String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
-      templateContext.put("SUBJECT", title);
+      templateContext.put("SUBJECT", originalTitle);
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));

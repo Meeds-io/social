@@ -45,6 +45,7 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
     try {
       
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
+      String originalTitle = ctx.value(SocialNotificationUtils.ORIGINAL_TITLE);
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
       String poster = Utils.getUserId(activity.getPosterId());
       
@@ -52,6 +53,7 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
                                 .key(getId())
                                 .with(SocialNotificationUtils.POSTER.getKey(), poster)
                                 .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                                .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
                                 .to(Utils.getDestinataires(activity, space)).end();
     } catch (Exception e) {
       ctx.setException(e);
