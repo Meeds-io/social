@@ -845,6 +845,7 @@ public class MailTemplateProvider extends TemplateProvider {
       SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
 
       String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      String originalTitle = notification.getValueOwnerParameter(SocialNotificationUtils.ORIGINAL_TITLE.getKey());
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
@@ -862,7 +863,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
-      templateContext.put("SUBJECT", title);
+      templateContext.put("SUBJECT", originalTitle);
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
