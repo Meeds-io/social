@@ -537,14 +537,13 @@ public class PeopleRestService implements ResourceContainer{
                                                          boolean filterByName,
                                                          Locale locale) {
     Identity userIdentity;
-    boolean identityId = StringUtils.isNumeric(userId);
-    if (identityId) {
+    if (StringUtils.isNumeric(userId)) {
       userIdentity = getIdentityManager().getIdentity(userId, false);
     } else {
-      userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, false);
+      userIdentity = getIdentityManager().getOrCreateUserIdentity(userId);
     }
     if (userIdentity == null) {
-      LOG.warn("Cannot find user identity with {} = {}", identityId ? "id" : "remoteId", userId);
+      LOG.debug("Cannot find user identity by id nor remoteId {}", userId);
       return userInfos;
     }
     return addUserToInfosList(userIdentity, identityFilter, userInfos, currentUserId, filterByName, locale);
