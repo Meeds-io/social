@@ -11,6 +11,7 @@
       @filter-changed="filter = $event"
       @invite-users="$refs.spaceInvitationDrawer.open()"
       @refresh="refreshInvited" />
+    <alert-space-members v-if="space" :space-display-name="space.displayName" />
 
     <people-card-list
       ref="spaceMembers"
@@ -54,7 +55,7 @@ export default {
     keyword: null,
     peopleCount: 0,
     loadingPeople: false,
-    space: {}
+    space: null,
   }),
   created() {
     this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
