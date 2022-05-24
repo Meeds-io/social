@@ -3,7 +3,7 @@ import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentitySer
 export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager , searchOptions.filterType )
+    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager , searchOptions?.filterType )
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
