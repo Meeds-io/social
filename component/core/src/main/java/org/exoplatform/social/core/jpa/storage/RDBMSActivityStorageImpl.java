@@ -43,6 +43,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
@@ -141,6 +142,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       stream.setPrettyId(owner.getRemoteId());
       stream.setId(owner.getId());
       activity.setStreamOwner(owner.getRemoteId());
+      if (stream.isSpace()) {
+        Space space = spaceStorage.getSpaceByPrettyName(owner.getRemoteId());
+        if (space != null) {
+          activity.setSpaceId(space.getId());
+        }
+      }
     } else {
       LOG.warn("Cannot find stream of activity " + activityEntity.getId() + " since identity " + ownerIdentityId
           + " does not exist");
