@@ -83,13 +83,15 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   }
   
   private List<String> buildSpaceIdentityIds(ListSpacesData data) {
-
-    List<String> identityIds = new ArrayList<String>();
-    for (SpaceKey k : data.getIds()) {
-      identityIds.add(k.getId());
+    if (data == null || data.getIds() == null) {
+      return Collections.emptyList();
+    } else {
+      List<String> identityIds = new ArrayList<>();
+      for (SpaceKey k : data.getIds()) {
+        identityIds.add(k.getId());
+      }
+      return identityIds;
     }
-    return identityIds;
-
   }
   
   /**

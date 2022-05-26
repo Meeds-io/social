@@ -33,21 +33,27 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    *
    * @param event the space lifecycle event
    */
-  void spaceCreated(SpaceLifeCycleEvent event);
+  default void spaceCreated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a space is removed.
    *
    * @param event the space lifecyle event
    */
-  void spaceRemoved(SpaceLifeCycleEvent event);
+  default void spaceRemoved(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when an application is added to a space.
    *
    * @param event the space lifecycle event
    */
-  void applicationAdded(SpaceLifeCycleEvent event);
+  default void applicationAdded(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
 
   /**
@@ -55,7 +61,9 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    *
    * @param event the space lifecycle event.
    */
-  void applicationRemoved(SpaceLifeCycleEvent event);
+  default void applicationRemoved(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
 
   /**
@@ -63,7 +71,9 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    *
    * @param event the space lifecyle event
    */
-  void applicationActivated(SpaceLifeCycleEvent event);
+  default void applicationActivated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
 
   /**
@@ -71,84 +81,106 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    *
    * @param event the space lifecycle event
    */
-  void applicationDeactivated(SpaceLifeCycleEvent event);
+  default void applicationDeactivated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a user joins a space.
    *
    * @param event the space lifecycle event
    */
-  void joined(SpaceLifeCycleEvent event);
+  default void joined(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a user leaves a space.
    *
    * @param event the space lifecycle event
    */
-  void left(SpaceLifeCycleEvent event);
+  default void left(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a user is granted lead role of a space.
    *
    * @param event the space lifecycle event
    */
-  void grantedLead(SpaceLifeCycleEvent event);
+  default void grantedLead(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a user is revoked lead role of a space.
    *
    * @param event the space lifecycle event
    */
-  void revokedLead(SpaceLifeCycleEvent event);
+  default void revokedLead(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user rename a space.
    *
    * @param event the space lifecycle event
    */
-  void spaceRenamed(SpaceLifeCycleEvent event);
+  default void spaceRenamed(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user change the description of a space.
    *
    * @param event the space lifecycle event
    */
-  void spaceDescriptionEdited(SpaceLifeCycleEvent event);
+  default void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user change the avatar of a space.
    *
    * @param event the space lifecycle event
    */
-  void spaceAvatarEdited(SpaceLifeCycleEvent event);
+  default void spaceAvatarEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user update the space access.
    *
    * @param event the space lifecycle event
    */
-  void spaceAccessEdited(SpaceLifeCycleEvent event);
+  default void spaceAccessEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user is invited to join a space.
    *
    * @param event the space lifecycle event
    */
-  void addInvitedUser(SpaceLifeCycleEvent event);
+  default void addInvitedUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user request to join a space.
    *
    * @param event the space lifecycle event
    */
-  void addPendingUser(SpaceLifeCycleEvent event);
+  default void addPendingUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * Invokes this method when a user update the space registration
    * @param event
    */
   default void spaceRegistrationEdited(SpaceLifeCycleEvent event) {
-
+    // No default implementation
   }
 
   /**
@@ -156,5 +188,7 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    *
    * @param event the space lifecycle event
    */
-  void spaceBannerEdited(SpaceLifeCycleEvent event);
+  default void spaceBannerEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 }

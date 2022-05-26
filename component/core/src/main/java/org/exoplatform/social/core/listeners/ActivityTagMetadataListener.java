@@ -24,6 +24,8 @@ import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.tag.TagService;
 import org.exoplatform.social.metadata.tag.model.TagName;
 import org.exoplatform.social.metadata.tag.model.TagObject;
@@ -33,12 +35,17 @@ import org.exoplatform.social.metadata.tag.model.TagObject;
  */
 public class ActivityTagMetadataListener extends ActivityListenerPlugin {
 
-  private ActivityManager  activityManager;
+  private ActivityManager activityManager;
 
-  private TagService       tagService;
+  private SpaceService    spaceService;
 
-  public ActivityTagMetadataListener(ActivityManager activityManager, TagService tagService) {
+  private TagService      tagService;
+
+  public ActivityTagMetadataListener(ActivityManager activityManager,
+                                     SpaceService spaceService,
+                                     TagService tagService) {
     this.activityManager = activityManager;
+    this.spaceService = spaceService;
     this.tagService = tagService;
   }
 
@@ -72,7 +79,8 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
     Set<TagName> tagNames = tagService.detectTagNames(content);
     tagService.saveTags(new TagObject(activity.getMetadataObjectType(),
                                       activity.getMetadataObjectId(),
-                                      activity.getMetadataObjectParentId()),
+                                      activity.getMetadataObjectParentId(),
+                                      getSpaceId(activity)),
                         tagNames,
                         audienceId,
                         creatorId);
@@ -84,6 +92,14 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
       userId = activity.getPosterId();
     }
     return StringUtils.isBlank(userId) ? 0 : Long.parseLong(userId);
+  }
+
+  private long getSpaceId(ExoSocialActivity activity) {
+    if (activity.getActivityStream() == null || !activity.getActivityStream().isSpace()) {
+      return 0;
+    }
+    Space space = spaceService.getSpaceByPrettyName(activity.getActivityStream().getPrettyId());
+    return Long.parseLong(space.getId());
   }
 
   private String getActivityBody(ExoSocialActivity activity) {

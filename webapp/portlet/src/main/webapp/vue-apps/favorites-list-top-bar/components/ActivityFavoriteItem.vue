@@ -16,6 +16,7 @@
       <favorite-button
         :id="id"
         :favorite="isFavorite"
+        :space-id="spaceId"
         :top="top"
         :right="right"
         type="activity"
@@ -33,14 +34,21 @@ export default {
     },
   },
   data: () => ({
+    activity: null,
     activityTitle: '',
     activityUrl: '#',
     isFavorite: true
   }),
+  computed: {
+    spaceId() {
+      return this.activity?.activityStream?.space?.id;
+    },
+  },
   created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.id}`;
     this.$activityService.getActivityById(this.id)
       .then(fullActivity => {
+        this.activity = fullActivity;
         if (fullActivity && fullActivity.title ) {
           this.activityTitle = this.favoriteTitle(fullActivity.title);
         } else {

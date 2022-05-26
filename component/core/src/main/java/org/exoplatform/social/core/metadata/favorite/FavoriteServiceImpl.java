@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -52,8 +53,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
   @Override
   public List<MetadataItem> getFavoriteItemsByCreator(long creatorId, long offset, long limit) {
-    List<MetadataItem> favorites = metadataService.getMetadataItemsByMetadataTypeAndCreator(METADATA_TYPE.getName(), creatorId, offset, limit);
-    return favorites;
+    return metadataService.getMetadataItemsByMetadataTypeAndCreator(METADATA_TYPE.getName(), creatorId, offset, limit);
   }
 
   public int getFavoriteItemsSize(long creatorId) {
