@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import liquibase.repackaged.org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -614,7 +615,8 @@ public class MailTemplateProvider extends TemplateProvider {
       templateContext.put("USER", Utils.addExternalFlag(identity));
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
-      templateContext.put("SUBJECT", title);
+      String cleanedTitle = StringEscapeUtils.unescapeHtml4(title);
+      templateContext.put("SUBJECT", cleanedTitle);
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
