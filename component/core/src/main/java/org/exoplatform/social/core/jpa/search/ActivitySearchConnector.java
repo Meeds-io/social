@@ -47,8 +47,10 @@ public class ActivitySearchConnector {
       "  \"query_string\":{" +
       "    \"fields\": [\"body\", \"posterName\"]," +
       "    \"default_operator\": \"AND\"," +
-      "    \"query\": \"@term@\"" +
-      "  }" +
+      "    \"query\": \"@term@~\"," +
+      "    \"fuzziness\": 1," +
+      "    \"phrase_slop\": 1" +
+          "  }" +
       "},";
 
   private final ConfigurationManager    configurationManager;                                  // NOSONAR
