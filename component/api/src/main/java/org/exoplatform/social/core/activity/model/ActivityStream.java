@@ -161,4 +161,14 @@ public interface ActivityStream {
    * @param permaLink the permanent link for this activity stream
    */
   void setPermaLink(String permaLink);
+
+  /**
+   * @return true if Stream is of Space type
+   */
+  boolean isSpace();
+
+  /**
+   * @return true if Stream is of User type
+   */
+  boolean isUser();
 }

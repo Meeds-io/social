@@ -35,7 +35,7 @@ public class MetadataItem implements Cloneable {
   private Metadata            metadata;
 
   @Getter
-  private MetadataObject  object;
+  private MetadataObject      object;
 
   @Getter
   @Setter
@@ -91,6 +91,14 @@ public class MetadataItem implements Cloneable {
 
   public void setObjectId(final String objectId) {
     this.object.setId(objectId);
+  }
+
+  public void setSpaceId(final long spaceId) {
+    this.object.setSpaceId(spaceId);
+  }
+
+  public long getSpaceId() {
+    return this.object.getSpaceId();
   }
 
   public void setParentObjectId(final String parentObjectId) {

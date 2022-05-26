@@ -26,6 +26,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.metadata.model.*;
 
 /**
@@ -60,6 +61,24 @@ public interface MetadataService {
    * @return Deleted {@link Metadata}
    */
   Metadata deleteMetadataById(long metadataId);
+
+  /**
+   * Deletes all {@link MetadataItem} by a given {@link Space} identifier
+   * 
+   * @param spaceId {@link Space} technical identifier
+   * @return deleted items count
+   */
+  int deleteMetadataBySpaceId(long spaceId);
+
+  /**
+   * Deletes all {@link MetadataItem} by a given {@link Space} identifier and
+   * audience {@link Identity} identifier
+   * 
+   * @param spaceId
+   * @param audienceId
+   * @return deleted items count
+   */
+  int deleteMetadataBySpaceIdAndAudienceId(long spaceId, long audienceId);
 
   /**
    * Retrieves a {@link Metadata} identified by a unique constraint for

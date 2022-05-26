@@ -25,8 +25,8 @@ public class FavoriteObject extends MetadataObject {
   public FavoriteObject() {
   }
 
-  public FavoriteObject(String objectType, String objectId, String parentObjectId) {
-    super(objectType, objectId, parentObjectId);
+  public FavoriteObject(String objectType, String objectId, String parentObjectId, long spaceId) {
+    super(objectType, objectId, parentObjectId, spaceId);
   }
 
 }

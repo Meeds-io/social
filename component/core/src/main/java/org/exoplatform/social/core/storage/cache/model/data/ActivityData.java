@@ -45,6 +45,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final Long cacheTime;
   private final String[] replyIds;
   private final String userId;
+  private final String spaceId;
   private final String appId;
   private final String titleId;
   private final String bodyId;
@@ -82,6 +83,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.cacheTime = System.currentTimeMillis();
     this.replyIds = activity.getReplyToId();
     this.userId = activity.getUserId();
+    this.spaceId = activity.getSpaceId();
     this.appId = activity.getAppId();
     this.titleId = activity.getTitleId();
     this.bodyId = activity.getBodyId();
@@ -138,6 +140,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setUpdated(lastUpdated);
     activity.setCacheTime(cacheTime);
     activity.setUserId(userId);
+    activity.setSpaceId(spaceId);
     activity.setAppId(appId);
     activity.setTitleId(titleId);
     activity.setBodyId(bodyId);
@@ -179,6 +182,10 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return userId;
   }
 
+  public String getSpaceId() {
+    return spaceId;
+  }
+
   public String getStreamOwner() {
     return streamOwner;
   }
@@ -207,6 +214,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
             Objects.equals(lastUpdated, that.lastUpdated) &&
             Arrays.equals(replyIds, that.replyIds) &&
             Objects.equals(userId, that.userId) &&
+            Objects.equals(spaceId, that.spaceId) &&
             Objects.equals(appId, that.appId) &&
             Objects.equals(titleId, that.titleId) &&
             Objects.equals(bodyId, that.bodyId) &&
@@ -231,7 +239,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   @Override
   public int hashCode() {
     return Objects.hash(id, title, body, likes, isComment, isHidden, isLocked, postedTime, lastUpdated, replyIds,
-            userId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
+            userId, spaceId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
             streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId,
             shareActions, files);
   }

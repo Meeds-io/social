@@ -1,27 +1,30 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.metadata;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -35,9 +38,12 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 import org.picocontainer.Startable;
-
 
 public class MetadataServiceTest extends AbstractCoreTest {
 
@@ -203,37 +209,37 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(name, storedMetadata.getName());
     assertEquals(userMetadataType, storedMetadata.getType());
   }
-  
+
   public void testDeleteMetadata() {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
     String metadata1Name = "testMetadata1";
     Metadata metadata1 = metadataService.createMetadata(newMetadataInstance(audienceId,
-                                                                                 creatorId,
-                                                                                 metadata1Name,
-                                                                                 null,
-                                                                                 userMetadataType),
-                                                             creatorId);
+                                                                            creatorId,
+                                                                            metadata1Name,
+                                                                            null,
+                                                                            userMetadataType),
+                                                        creatorId);
     String metadata2Name = "testMetadata2";
     Metadata metadata2 = metadataService.createMetadata(newMetadataInstance(audienceId,
-                                                                                 creatorId,
-                                                                                 metadata2Name,
-                                                                                 null,
-                                                                                 userMetadataType),
-                                                             creatorId);
+                                                                            creatorId,
+                                                                            metadata2Name,
+                                                                            null,
+                                                                            userMetadataType),
+                                                        creatorId);
     List<Metadata> metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
     assertEquals(2, metadatas.size());
     assertEquals(metadata1Name, metadatas.get(0).getName());
-    
+
     metadataService.deleteMetadataById(metadata1.getId());
     metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
-    
+
     assertEquals(1, metadatas.size());
     assertEquals(metadata2Name, metadatas.get(0).getName());
-    
+
     metadataService.deleteMetadataById(metadata2.getId());
     metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
-    
+
     assertEquals(0, metadatas.size());
   }
 
@@ -377,14 +383,27 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType,"staged", String.valueOf(false), 0, 10);
+    List<MetadataItem> metadataItems =
+                                     metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+                                                                                                                           type,
+                                                                                                                           objectType,
+                                                                                                                           "staged",
+                                                                                                                           String.valueOf(false),
+                                                                                                                           0,
+                                                                                                                           10);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals(objectType, metadataItems.get(0).getObjectType());
     assertEquals(type, metadataItems.get(0).getMetadataTypeName());
 
-    //Staged property is true
-    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name, type, objectType, "staged", String.valueOf(true), 0, 10);
+    // Staged property is true
+    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+                                                                                                          type,
+                                                                                                          objectType,
+                                                                                                          "staged",
+                                                                                                          String.valueOf(true),
+                                                                                                          0,
+                                                                                                          10);
     assertNotNull(metadataItems);
     assertEquals(0, metadataItems.size());
   }
@@ -405,7 +424,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name, type, objectType, 0, 10);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(name,
+                                                                                                      type,
+                                                                                                      objectType,
+                                                                                                      0,
+                                                                                                      10);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals(objectType, metadataItems.get(0).getObjectType());
@@ -419,11 +442,11 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     try {
       metadataService.createMetadata(newMetadataInstance(audienceId,
-              creatorId,
-              name,
-              null,
-              spaceMetadataType),
-              creatorId);
+                                                         creatorId,
+                                                         name,
+                                                         null,
+                                                         spaceMetadataType),
+                                     creatorId);
     } catch (IllegalArgumentException e) {
       // Expected
     }
@@ -483,7 +506,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(),
+                                                                                               metadataObject);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
   }
@@ -503,11 +527,12 @@ public class MetadataServiceTest extends AbstractCoreTest {
       name = "testMetadataJohn2";
       MetadataKey metadataKey2 = new MetadataKey(type, name, audienceId);
       metadataService.createMetadataItem(metadataObject, metadataKey2, creatorId);
-      
+
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(),
+                                                                                               metadataObject);
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
     metadataService.deleteMetadataItemsByMetadataTypeAndObject(userMetadataType.getName(), metadataObject);
@@ -648,6 +673,127 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(0, metadataItems.size());
   }
 
+  public void testDeleteMetadataItemsBySpaceId() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    long spaceId = 200l;
+    String objectId = "objectId100";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType11";
+    String type = userMetadataType.getName();
+    String name = "testMetadata8";
+
+    MetadataObject metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    metadataItemObject.setSpaceId(spaceId);
+    MetadataKey metadataKey = new MetadataKey(type,
+                                              name,
+                                              audienceId);
+    MetadataItem storedMetadataItem = metadataService.createMetadataItem(metadataItemObject,
+                                                                         metadataKey,
+                                                                         creatorId);
+
+    assertNotNull(storedMetadataItem);
+    assertTrue(storedMetadataItem.getId() > 0);
+    assertTrue(storedMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, storedMetadataItem.getCreatorId());
+    assertNotNull(storedMetadataItem.getMetadata());
+    assertEquals(audienceId, storedMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, storedMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, storedMetadataItem.getMetadata().getType());
+    assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
+    assertEquals(objectId, storedMetadataItem.getObjectId());
+    assertEquals(objectType, storedMetadataItem.getObjectType());
+    assertEquals(spaceId, storedMetadataItem.getSpaceId());
+
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, metadataItemObject);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+
+    storedMetadataItem = metadataItems.get(0);
+    assertNotNull(storedMetadataItem);
+    assertTrue(storedMetadataItem.getId() > 0);
+    assertTrue(storedMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, storedMetadataItem.getCreatorId());
+    assertNotNull(storedMetadataItem.getMetadata());
+    assertEquals(audienceId, storedMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, storedMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, storedMetadataItem.getMetadata().getType());
+    assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
+    assertEquals(objectId, storedMetadataItem.getObjectId());
+    assertEquals(objectType, storedMetadataItem.getObjectType());
+    assertEquals(spaceId, storedMetadataItem.getSpaceId());
+
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataBySpaceId(0));
+
+    assertEquals(0, metadataService.deleteMetadataBySpaceId(spaceId + 1));
+    assertEquals(1, metadataService.deleteMetadataBySpaceId(spaceId));
+
+    metadataItems = getMetadataItemsByObject(objectType, objectId);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+  }
+
+  public void testDeleteMetadataItemsBySpaceIdAndAudienceId() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    long spaceId = 200l;
+    String objectId = "objectId100";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType11";
+    String type = userMetadataType.getName();
+    String name = "testMetadata8";
+
+    MetadataObject metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    metadataItemObject.setSpaceId(spaceId);
+    MetadataKey metadataKey = new MetadataKey(type,
+                                              name,
+                                              audienceId);
+    MetadataItem storedMetadataItem = metadataService.createMetadataItem(metadataItemObject,
+                                                                         metadataKey,
+                                                                         creatorId);
+
+    assertNotNull(storedMetadataItem);
+    assertTrue(storedMetadataItem.getId() > 0);
+    assertTrue(storedMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, storedMetadataItem.getCreatorId());
+    assertNotNull(storedMetadataItem.getMetadata());
+    assertEquals(audienceId, storedMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, storedMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, storedMetadataItem.getMetadata().getType());
+    assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
+    assertEquals(objectId, storedMetadataItem.getObjectId());
+    assertEquals(objectType, storedMetadataItem.getObjectType());
+    assertEquals(spaceId, storedMetadataItem.getSpaceId());
+
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, metadataItemObject);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+
+    storedMetadataItem = metadataItems.get(0);
+    assertNotNull(storedMetadataItem);
+    assertTrue(storedMetadataItem.getId() > 0);
+    assertTrue(storedMetadataItem.getCreatedDate() > 0);
+    assertEquals(creatorId, storedMetadataItem.getCreatorId());
+    assertNotNull(storedMetadataItem.getMetadata());
+    assertEquals(audienceId, storedMetadataItem.getMetadata().getAudienceId());
+    assertEquals(name, storedMetadataItem.getMetadata().getName());
+    assertEquals(userMetadataType, storedMetadataItem.getMetadata().getType());
+    assertEquals(parentObjectId, storedMetadataItem.getParentObjectId());
+    assertEquals(objectId, storedMetadataItem.getObjectId());
+    assertEquals(objectType, storedMetadataItem.getObjectType());
+    assertEquals(spaceId, storedMetadataItem.getSpaceId());
+
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataBySpaceIdAndAudienceId(0, audienceId));
+    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataBySpaceIdAndAudienceId(spaceId, 0));
+
+    assertEquals(0, metadataService.deleteMetadataBySpaceIdAndAudienceId(spaceId + 1, audienceId));
+    assertEquals(1, metadataService.deleteMetadataBySpaceIdAndAudienceId(spaceId, audienceId));
+
+    metadataItems = getMetadataItemsByObject(objectType, objectId);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+  }
+
   public void testGetMetadataItemsByObject() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
@@ -715,33 +861,33 @@ public class MetadataServiceTest extends AbstractCoreTest {
     long audienceId = creatorId;
     String type = userMetadataType.getName();
     createNewMetadataItem(type,
-        "testMetadata1",
-        "objectType1",
-        "objectId1",
-        "parentObjectId1",
-        creatorId,
-        audienceId);
+                          "testMetadata1",
+                          "objectType1",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId);
     createNewMetadataItem(type,
-        "testMetadata2",
-        "objectType1",
-        "objectId2",
-        "parentObjectId1",
-        creatorId,
-        audienceId);
+                          "testMetadata2",
+                          "objectType1",
+                          "objectId2",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId);
     createNewMetadataItem(type,
-        "testMetadata3",
-        "objectType2",
-        "objectId1",
-        "parentObjectId1",
-        creatorId,
-        audienceId);
+                          "testMetadata3",
+                          "objectType2",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId);
     createNewMetadataItem(type,
-        "testMetadata4",
-        "objectType2",
-        "objectId1",
-        "parentObjectId1",
-        creatorId,
-        audienceId);
+                          "testMetadata4",
+                          "objectType2",
+                          "objectId1",
+                          "parentObjectId1",
+                          creatorId,
+                          audienceId);
 
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndCreator("space", creatorId, 0, 2);
 
@@ -756,7 +902,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(4, metadataItems.size());
   }
-
 
   public void testGetMetadataObjectIds() throws Exception {
     long creatorId = Long.parseLong(johnIdentity.getId());
@@ -1431,7 +1576,9 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     ((Startable) metadataService).start();
 
-    Metadata storedMetadata = metadataService.getMetadataByKey(new MetadataKey(metadata.getTypeName(), metadata.getName(), metadata.getAudienceId()));
+    Metadata storedMetadata = metadataService.getMetadataByKey(new MetadataKey(metadata.getTypeName(),
+                                                                               metadata.getName(),
+                                                                               metadata.getAudienceId()));
     assertNotNull(storedMetadata);
     assertEquals(metadata.getName(), storedMetadata.getName());
     assertEquals(metadata.getTypeName(), storedMetadata.getTypeName());

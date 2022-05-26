@@ -1,36 +1,41 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.metadata.storage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 
 public class MetadataStorage {
 
@@ -79,6 +84,14 @@ public class MetadataStorage {
     return fromEntity(metadataEntity);
   }
 
+  public int deleteMetadataItemsBySpaceId(long spaceId) {
+    return this.metadataItemDAO.deleteMetadataItemsBySpaceId(spaceId);
+  }
+
+  public int deleteMetadataItemsBySpaceIdAndAudienceId(long spaceId, long audienceId) {
+    return this.metadataItemDAO.deleteMetadataItemsBySpaceIdAndAudienceId(spaceId, audienceId);
+  }
+
   public MetadataItem createMetadataItem(MetadataItem metadataItem) {
     MetadataItemEntity metadataItemEntity = toEntity(metadataItem);
     metadataItemEntity = this.metadataItemDAO.create(metadataItemEntity);
@@ -96,7 +109,14 @@ public class MetadataStorage {
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
     }
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName, metadataType.getId(), objectType, propertyKey, propertyValue, offset, limit);
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName,
+                                                                                                                                        metadataType.getId(),
+                                                                                                                                        objectType,
+                                                                                                                                        propertyKey,
+                                                                                                                                        propertyValue,
+                                                                                                                                        offset,
+                                                                                                                                        limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -104,7 +124,10 @@ public class MetadataStorage {
   }
 
   public List<MetadataItem> getMetadataItemsByMetaDataTypeAndCreator(long metadataType, long creatorId, long offset, long limit) {
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId, offset, limit);
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndCreator(metadataType,
+                                                                                                             creatorId,
+                                                                                                             offset,
+                                                                                                             limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -112,8 +135,7 @@ public class MetadataStorage {
   }
 
   public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
-    int metadataItemSize = metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
-    return metadataItemSize;
+    return metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
@@ -125,7 +147,12 @@ public class MetadataStorage {
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
     }
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataType.getId(), objectType, offset, limit);
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
+                                                                                                                 metadataType.getId(),
+                                                                                                                 objectType,
+                                                                                                                 offset,
+                                                                                                                 limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -155,7 +182,7 @@ public class MetadataStorage {
 
   public void deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
     List<MetadataItem> metadataItems = getMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
-    for(MetadataItem metadataItem : metadataItems) {
+    for (MetadataItem metadataItem : metadataItems) {
       deleteMetadataItemById(metadataItem.getId());
     }
   }
@@ -173,7 +200,9 @@ public class MetadataStorage {
     if (metadataType == null) {
       throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
     }
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(), object.getType(), object.getId());
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(),
+                                                                                                            object.getType(),
+                                                                                                            object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -191,6 +220,7 @@ public class MetadataStorage {
   public List<String> getMetadataNamesByCreator(long metadataTypeId, Long creatorId, long limit) {
     return metadataDAO.getMetadataNamesByCreator(metadataTypeId, creatorId, limit);
   }
+
   public List<String> getMetadataNamesByUser(long metadataTypeId, Long creatorId, Set<Long> audienceIds, long limit) {
     return metadataDAO.getMetadataNamesByUser(metadataTypeId, creatorId, audienceIds, limit);
   }
@@ -203,7 +233,11 @@ public class MetadataStorage {
     return metadataDAO.findMetadataNameByCreatorAndQuery(term, metadataTypeId, creatorId, limit);
   }
 
-  public List<String> findMetadataNamesByUserAndQuery(String term, long metadataTypeId, long creatorId, Set<Long> audienceIds, long limit) {
+  public List<String> findMetadataNamesByUserAndQuery(String term,
+                                                      long metadataTypeId,
+                                                      long creatorId,
+                                                      Set<Long> audienceIds,
+                                                      long limit) {
     return metadataDAO.findMetadataNamesByUserAndQuery(term, metadataTypeId, creatorId, audienceIds, limit);
   }
 
@@ -329,6 +363,7 @@ public class MetadataStorage {
     metadataItem.setObjectId(metadataItemEntity.getObjectId());
     metadataItem.setObjectType(metadataItemEntity.getObjectType());
     metadataItem.setParentObjectId(metadataItemEntity.getParentObjectId());
+    metadataItem.setSpaceId(metadataItemEntity.getSpaceId());
     metadataItem.setCreatorId(metadataItemEntity.getCreatorId());
     metadataItem.setCreatedDate(metadataItemEntity.getCreatedDate().getTime());
     MetadataEntity metadataEntity = metadataItemEntity.getMetadata();
@@ -347,6 +382,7 @@ public class MetadataStorage {
       metadataItemEntity.setId(null);
       metadataItemEntity.setCreatedDate(new Date());
       metadataItemEntity.setCreatorId(metadataItem.getCreatorId());
+      metadataItemEntity.setSpaceId(metadataItem.getSpaceId());
 
       MetadataEntity metadataEntity = this.metadataDAO.find(metadataItem.getMetadata().getId());
       metadataItemEntity.setMetadata(metadataEntity);
