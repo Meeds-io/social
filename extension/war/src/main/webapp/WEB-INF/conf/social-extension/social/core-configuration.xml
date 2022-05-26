@@ -752,6 +752,11 @@
     <external-component-plugins>
         <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
         <component-plugin>
+            <name>SpaceMetadataListenerImpl</name>
+            <set-method>addSpaceListener</set-method>
+            <type>org.exoplatform.social.core.listeners.SpaceMetadataListenerImpl</type>
+        </component-plugin>
+        <component-plugin>
             <name>SpaceActivityPublisher</name>
             <set-method>addSpaceListener</set-method>
             <type>org.exoplatform.social.core.application.SpaceActivityPublisher</type>
