@@ -19,7 +19,7 @@ package org.exoplatform.social.core.activity.model;
 import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
@@ -143,6 +143,8 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   private Map<String, List<MetadataItem>> metadatas;
 
   private String userId;
+
+  private String spaceId;
 
   private Float priority;
 
@@ -700,6 +702,16 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
     this.userId = userId;
   }
 
+  @Override
+  public String getSpaceId() {
+    return spaceId;
+  }
+
+  @Override
+  public void setSpaceId(String spaceId) {
+    this.spaceId = spaceId;
+  }
+
   public Float getPriority() {
     return priority;
   }
@@ -769,7 +781,10 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   @Override
   public MetadataObject getMetadataObject() {
-    return new MetadataObject(getMetadataObjectType(), getMetadataObjectId(), getMetadataObjectParentId());
+    return new MetadataObject(getMetadataObjectType(),
+                              getMetadataObjectId(),
+                              getMetadataObjectParentId(),
+                              StringUtils.isBlank(spaceId) ? 0 : Long.parseLong(spaceId));
   }
 
   @Override

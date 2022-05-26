@@ -1,10 +1,14 @@
-import ExoTopBarFavorites from './components/ExoTopBarFavorites.vue';
-import ExoFavoriteItem from './components/ExoFavoriteItem.vue';
+import TopBarFavorites from './components/TopBarFavorites.vue';
+import FavoriteItem from './components/FavoriteItem.vue';
+import TopBarFavoritesDrawer from './components/TopBarFavoritesDrawer.vue';
+import TopBarFavoritesButton from './components/TopBarFavoritesButton.vue';
 import ActivityFavoriteItem from './components/ActivityFavoriteItem.vue';
 
 const components = {
-  'exo-top-bar-favorites': ExoTopBarFavorites,
-  'exo-favorite-item': ExoFavoriteItem,
+  'top-bar-favorites': TopBarFavorites,
+  'top-bar-favorites-button': TopBarFavoritesButton,
+  'top-bar-favorites-drawer': TopBarFavoritesDrawer,
+  'favorite-item': FavoriteItem,
   'activity-favorite-item': ActivityFavoriteItem,
 };
 

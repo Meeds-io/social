@@ -147,4 +147,10 @@
     <createSequence sequenceName="SEQ_SOC_METADATA_ITEM_ID" startValue="1" />
   </changeSet>
 
+  <changeSet author="metadata" id="1.0.0-9">
+    <addColumn tableName="SOC_METADATA_ITEMS">
+      <column name="SPACE_ID" type="BIGINT" defaultValueNumeric="0" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
