@@ -157,4 +157,20 @@ public class ActivityStreamImpl implements ActivityStream {
   public final void setPermaLink(final String sPermaLink) {
     permaLink = sPermaLink;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isSpace() {
+    return type == Type.SPACE;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isUser() {
+    return type == Type.USER;
+  }
 }
