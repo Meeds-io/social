@@ -59,6 +59,7 @@ public class LinkProvider {
 
   public static final String PROFILE_DEFAULT_AVATAR_URL = "/eXoSkin/skin/images/avatar/DefaultUserAvatar.png";
   public static final String SPACE_DEFAULT_AVATAR_URL = "/eXoSkin/skin/images/system/SpaceAvtDefault.png";
+  public static final String ROOM_DEFAULT_AVATAR_URL = "/chat/img/room-default.jpg";
   public static final String HAS_CONNECTION_ICON =
           RESOURCE_URL + "/eXoSkin/skin/images/themes/default/social/skin/UIManageUsers/StatusIcon.png";
   public static final String WAITING_CONFIRMATION_ICON =
