@@ -50,8 +50,22 @@ public class ActivitySearchConnector {
       "    \"query\": \"@term@~\"," +
       "    \"fuzziness\": 1," +
       "    \"phrase_slop\": 1" +
-          "  }" +
+      "  }" +
       "},";
+
+  public static final String            SEARCH_QUERY_WITH_PHRASE     = "\"must\":{" +
+      "  \"query_string\":{" +
+      "    \"fields\": [\"body\", \"posterName\"]," +
+      "    \"default_operator\": \"AND\"," +
+      "    \"query\": \"(@term@) OR (\\\"@phrase@\\\"~)^5\"," +
+      "    \"fuzziness\": 1," +
+      "    \"phrase_slop\": 1" +
+      "  }" +
+      "},";
+
+  private static final String           TERM_REPLACEMENT             = "@term@";
+
+  private static final String           PHRASE_REPLACEMENT           = "@phrase@";
 
   private final ConfigurationManager    configurationManager;                                  // NOSONAR
 
@@ -350,12 +364,26 @@ public class ActivitySearchConnector {
                               .toString();
   }
 
-  private String buildTermQueryStatement(String term) {
-    if (StringUtils.isBlank(term)) {
+  private String buildTermQueryStatement(String phrase) {
+    if (StringUtils.isBlank(phrase)) {
       return "";
     }
-    term = removeSpecialCharacters(term);
-    return SEARCH_QUERY_TERM.replace("@term@", term);
+    phrase = removeSpecialCharacters(phrase);
+
+    if (StringUtils.contains(phrase, " ")) {// If multiple words
+      String terms = Arrays.stream(StringUtils.split(phrase, " ")).map(keyword -> {
+        String keywordTrim = keyword.trim();
+        if (keywordTrim.length() > 4) {// Only words with 5 letters or greater
+          return keywordTrim + "~";
+        } else {
+          return keywordTrim;
+        }
+      }).reduce("", (key1, key2) -> key1 + " " + key2);
+      return SEARCH_QUERY_WITH_PHRASE.replace(TERM_REPLACEMENT, terms)
+                                     .replace(PHRASE_REPLACEMENT, phrase);
+    } else {
+      return SEARCH_QUERY_TERM.replace(TERM_REPLACEMENT, phrase);
+    }
   }
 
   private Long parseLong(JSONObject hitSource, String key) {
