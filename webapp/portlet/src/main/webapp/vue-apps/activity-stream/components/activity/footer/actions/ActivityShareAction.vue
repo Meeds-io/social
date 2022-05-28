@@ -1,7 +1,9 @@
 <template>
   <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
-    <v-tooltip bottom>
+    <v-tooltip 
+      v-model="show"
+      bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           v-if="isShareable"
@@ -48,6 +50,7 @@ export default {
   },
   data: () => ({
     hasShared: false,
+    show: false,
   }),
   computed: {
     isShareable() {
@@ -90,6 +93,7 @@ export default {
       }
     },
     openShareDrawer() {
+      this.show = false;
       this.$root.$emit('activity-share-drawer-open', this.activityId, 'activityStream');
     },
   },

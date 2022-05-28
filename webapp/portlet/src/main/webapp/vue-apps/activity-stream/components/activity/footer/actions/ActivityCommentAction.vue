@@ -1,7 +1,9 @@
 <template>
   <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
-    <v-tooltip bottom>
+    <v-tooltip 
+    v-model="show"
+    bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
@@ -43,6 +45,7 @@ export default {
   },
   data: () => ({
     hasCommented: false,
+    show: false,
   }),
   computed: {
     activityId() {
@@ -84,6 +87,7 @@ export default {
       this.hasCommented = this.activity && this.activity.hasCommented === 'true';
     },
     openCommentsDrawer() {
+      this.show = false;
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activity: this.activity,
         newComment: true,
