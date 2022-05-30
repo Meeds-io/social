@@ -21,11 +21,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
@@ -177,13 +180,24 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
     String currentDomain = CommonsUtils.getCurrentDomain();
     //update
-    String processedTitle ="test <a href=\""+ currentDomain +"/portal/classic/profile/root\" rel=\"nofollow\" target=\"_self\">Root Root</a> " +
-        "<a href=\""+ currentDomain +"/portal/classic/profile/john\" rel=\"nofollow\" target=\"_self\">John Anthony</a>";
+    Object johnExternal = johnIdentity.getProfile().getProperty(Profile.EXTERNAL);
+    Object rootExternal = rootIdentity.getProfile().getProperty(Profile.EXTERNAL);
+    String processedTitle = "test <a class=\"user-suggester\" href=\"" + currentDomain
+        + "/portal/classic/profile/root\" "
+        + "v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId() + "',fullName: '"
+        + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
+        + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal)
+        + "',}\" rel=\"nofollow\" target=\"_self\">Root Root</a> " +
+        "<a class=\"user-suggester\" href=\"" + currentDomain + "/portal/classic/profile/john\" "
+        + "v-identity-popover=\"{id: '" + johnIdentity.getId() + "',username: '" + johnIdentity.getRemoteId() + "',fullName: '"
+        + johnIdentity.getProfile().getFullName() + "',avatar: '" + johnIdentity.getProfile().getAvatarUrl() + "',position: '"
+        + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal)
+        + "',}\" rel=\"nofollow\" target=\"_self\">John Anthony</a>";
     activity.setTitle("test @root @john");
     activityStorage.updateActivity(activity);
     //
     activity = activityStorage.getActivity(activity.getId());
-    assertEquals(processedTitle, activity.getTitle());
+    assertEquals(processedTitle, StringEscapeUtils.unescapeHtml4(activity.getTitle())); // NOSONAR
     assertEquals(2, activity.getMentionedIds().length);
     List<ExoSocialActivity> list = activityStorage.getActivities(rootIdentity,rootIdentity, 0, 10);
     assertEquals(1, list.size());

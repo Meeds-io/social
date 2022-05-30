@@ -68,6 +68,7 @@ let config = {
     branding: './src/main/webapp/vue-apps/company-branding-app/main.js',
     spaceBannerLogoPopover: './src/main/webapp/vue-apps/space-top-bannerlogo/main.js',
     topBarFavorites: './src/main/webapp/vue-apps/favorites-list-top-bar/main.js',
+    popover: './src/main/webapp/vue-apps/popover/main.js',
   },
   module: {
     rules: [

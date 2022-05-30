@@ -57,25 +57,4 @@
     </component-plugin>
   </external-component-plugins>
 
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.search.index.IndexingOperationProcessor</target-component>
-    <component-plugin>
-      <name>ActivityIndexingServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector</type>
-      <description>Activity ElasticSearch Indexing Connector</description>
-      <init-params>
-        <value-param>
-          <name>mapping.file.path</name>
-          <value>${exo.social.activities.es.mapping.path:jar:/activities-es-mapping.json}</value>
-        </value-param>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="index_alias" value="activity_alias" />
-          <property name="index_current" value="activity_v1" />
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
 </configuration>
