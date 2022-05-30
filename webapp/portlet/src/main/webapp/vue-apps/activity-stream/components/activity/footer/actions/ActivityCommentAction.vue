@@ -1,9 +1,7 @@
 <template>
   <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
-    <v-tooltip 
-    v-model="show"
-    bottom>
+    <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
@@ -56,6 +54,9 @@ export default {
     },
     commentTextColorClass() {
       return this.hasCommented && 'primary--text' || '';
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   watch: {
