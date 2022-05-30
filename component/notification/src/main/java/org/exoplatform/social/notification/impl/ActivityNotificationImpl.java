@@ -33,9 +33,10 @@ public class ActivityNotificationImpl extends ActivityListenerPlugin {
 
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
-    ExoSocialActivity activity = event.getSource();
-    activity = CommonsUtils.getService(ActivityManager.class).getActivity(activity.getId());
+    ExoSocialActivity originalActivity = event.getSource();
+    ExoSocialActivity activity = CommonsUtils.getService(ActivityManager.class).getActivity(originalActivity.getId());
     NotificationContext ctx = NotificationContextImpl.cloneInstance().append(SocialNotificationUtils.ACTIVITY, activity);
+    ctx.append(SocialNotificationUtils.ORIGINAL_TITLE, originalActivity.getTitle());
 
     ctx.getNotificationExecutor().with(ctx.makeCommand(PluginKey.key(PostActivityPlugin.ID)))
                                  .with(ctx.makeCommand(PluginKey.key(PostActivitySpaceStreamPlugin.ID)))
