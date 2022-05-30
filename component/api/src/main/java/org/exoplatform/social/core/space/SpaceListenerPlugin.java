@@ -31,76 +31,106 @@ public abstract class SpaceListenerPlugin implements
   /**
    * {@inheritDoc}
    */
-  public abstract void spaceCreated(SpaceLifeCycleEvent event);
+  public void spaceCreated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void spaceRemoved(SpaceLifeCycleEvent event);
+  public void spaceRemoved(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void applicationActivated(SpaceLifeCycleEvent event);
+  public void applicationActivated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void applicationAdded(SpaceLifeCycleEvent event);
+  public void applicationAdded(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void applicationDeactivated(SpaceLifeCycleEvent event);
+  public void applicationDeactivated(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void applicationRemoved(SpaceLifeCycleEvent event);
+  public void applicationRemoved(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void grantedLead(SpaceLifeCycleEvent event);
+  public void grantedLead(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void joined(SpaceLifeCycleEvent event);
+  public void joined(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void left(SpaceLifeCycleEvent event);
+  public void left(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
   /**
    * {@inheritDoc}
    */
-  public abstract void revokedLead(SpaceLifeCycleEvent event);
+  public void revokedLead(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * {@inheritDoc}
    */
-  public abstract void spaceRenamed(SpaceLifeCycleEvent event);
+  public void spaceRenamed(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * {@inheritDoc}
    */
-  public abstract void spaceDescriptionEdited(SpaceLifeCycleEvent event);
+  public void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * {@inheritDoc}
    */
-  public abstract void spaceAvatarEdited(SpaceLifeCycleEvent event);
+  public void spaceAvatarEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * {@inheritDoc}
    */
-  public abstract void addInvitedUser(SpaceLifeCycleEvent event);
+  public void addInvitedUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * {@inheritDoc}
    */
-  public abstract void addPendingUser(SpaceLifeCycleEvent event);
+  public void addPendingUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
 
 }

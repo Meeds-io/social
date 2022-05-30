@@ -60,6 +60,9 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     LOG.debug("get space document for space id={}", id);
 
     Space space = spaceService.getSpaceById(id);
+    if (space == null) {
+      return null;
+    }
 
     Map<String, String> fields = new HashMap<>();
     fields.put("prettyName", space.getPrettyName());

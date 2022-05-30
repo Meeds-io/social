@@ -1,49 +1,61 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.*;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
-  private static final String METADATA_ID      = "metadataId";
+  private static final String PROPERTY_VALUE_PARAM = "propertyValue";
 
-  private static final String METADATA_NAME    = "metadataName";
+  private static final String PROPERTY_KEY_PARAM   = "propertyKey";
 
-  private static final String METADATA_TYPE    = "metadataType";
+  private static final String OBJECT_TYPE_PARAM    = "objectType";
 
-  private static final String PARENT_OBJECT_ID = "parentObjectId";
+  private static final String METADATA_NAME_PARAM  = "metadataName";
 
-  private static final String OBJECT_ID        = "objectId";
+  private static final String METADATA_TYPE_PARAM  = "metadataType";
 
-  private static final String OBJECT_TYPE      = "objectType";
+  private static final String METADATA_ID          = "metadataId";
 
-  private static final String CREATOR_ID       = "creatorId";
+  private static final String METADATA_NAME        = METADATA_NAME_PARAM;
+
+  private static final String METADATA_TYPE        = METADATA_TYPE_PARAM;
+
+  private static final String PARENT_OBJECT_ID     = "parentObjectId";
+
+  private static final String OBJECT_ID            = "objectId";
+
+  private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
+
+  private static final String CREATOR_ID           = "creatorId";
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -90,7 +102,14 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                                                         long offset,
                                                                                                         long limit) {
     try {
-      Query query = getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(metadataName, metadataType, objectType, propertyKey, propertyValue);
+      TypedQuery<MetadataItemEntity> query =
+                                           getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty",
+                                                                               MetadataItemEntity.class);
+      query.setParameter(METADATA_TYPE_PARAM, metadataType);
+      query.setParameter(METADATA_NAME_PARAM, metadataName);
+      query.setParameter(OBJECT_TYPE_PARAM, objectType);
+      query.setParameter(PROPERTY_KEY_PARAM, propertyKey);
+      query.setParameter(PROPERTY_VALUE_PARAM, propertyValue);
       if (offset > 0) {
         query.setFirstResult((int) offset);
       }
@@ -109,8 +128,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                                  long offset,
                                                                                  long limit) {
     TypedQuery<MetadataItemEntity> query =
-            getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObject",
-                    MetadataItemEntity.class);
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObject",
+                                                                             MetadataItemEntity.class);
     query.setParameter(METADATA_NAME, metadataName);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
@@ -123,10 +142,13 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
-  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId, long offset, long limit) {
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndCreator(long metadataType,
+                                                                           long creatorId,
+                                                                           long offset,
+                                                                           long limit) {
     TypedQuery<MetadataItemEntity> query =
-            getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndCreator",
-                  MetadataItemEntity.class);
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndCreator",
+                                                                             MetadataItemEntity.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(CREATOR_ID, creatorId);
     if (offset > 0) {
@@ -140,7 +162,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
     TypedQuery<Long> query =
-        getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",Long.class);
+                           getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",
+                                                               Long.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(CREATOR_ID, creatorId);
     return query.getSingleResult().intValue();
@@ -196,21 +219,25 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.executeUpdate();
   }
 
-  private Query getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemPropertyQuery(String metadataName, long metadataType, String objectType, String propertyKey, String propertyValue) {
-    StringBuilder queryStringBuilder = null;
-    queryStringBuilder = new StringBuilder("SELECT DISTINCT sm.* ");
-    queryStringBuilder.append(" FROM SOC_METADATA_ITEMS sm \n");
-    queryStringBuilder.append(" INNER JOIN SOC_METADATAS sm_ \n");
-    queryStringBuilder.append(" ON sm.metadata_id = sm_.metadata_id \n");
-    queryStringBuilder.append(" AND sm_.type = ").append(metadataType).append(" \n");
-    queryStringBuilder.append(" AND sm_.name = '").append(metadataName).append("' \n");
-    queryStringBuilder.append(" INNER JOIN SOC_METADATA_ITEMS_PROPERTIES sm_prop \n");
-    queryStringBuilder.append(" ON sm.metadata_item_id = sm_prop.metadata_item_id ").append(" \n");
-    queryStringBuilder.append(" AND sm_prop.name = '").append(propertyKey).append("' \n");
-    queryStringBuilder.append(" AND sm_prop.value = '").append(propertyValue).append("' \n");
-    queryStringBuilder.append(" WHERE sm.object_type = '").append(objectType).append("' \n");
-    queryStringBuilder.append(" ORDER BY sm.created_date DESC, sm.metadata_id DESC");
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString(), MetadataItemEntity.class);
+  @ExoTransactional
+  public int deleteMetadataItemsBySpaceId(long spaceId) {
+    Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsBySpaceId");
+    query.setParameter("spaceId", spaceId);
+    return query.executeUpdate();
+  }
+
+  @ExoTransactional
+  public int deleteMetadataItemsBySpaceIdAndAudienceId(long spaceId, long audienceId) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataBySpaceIdAndAudienceId",
+                                                                             MetadataItemEntity.class);
+    query.setParameter("spaceId", spaceId);
+    query.setParameter("audienceId", audienceId);
+    List<MetadataItemEntity> items = query.getResultList();
+    if (CollectionUtils.isNotEmpty(items)) {
+      deleteAll(items);
+    }
+    return items.size();
   }
 
 }

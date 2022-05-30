@@ -1,27 +1,28 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.metadata;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
@@ -32,7 +33,11 @@ import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.metadata.MetadataInitPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 import org.picocontainer.Startable;
 
 public class MetadataServiceImpl implements MetadataService, Startable {
@@ -98,13 +103,32 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return metadata;
 
   }
-  
+
   @Override
   public Metadata deleteMetadataById(long metadataId) {
     if (metadataId <= 0) {
       throw new IllegalArgumentException("Metadata Technical Identifier is mandatory");
     }
     return this.metadataStorage.deleteMetadataById(metadataId);
+  }
+
+  @Override
+  public int deleteMetadataBySpaceId(long spaceId) {
+    if (spaceId <= 0) {
+      throw new IllegalArgumentException("Space Technical Identifier is mandatory");
+    }
+    return this.metadataStorage.deleteMetadataItemsBySpaceId(spaceId);
+  }
+
+  @Override
+  public int deleteMetadataBySpaceIdAndAudienceId(long spaceId, long audienceId) {
+    if (spaceId <= 0) {
+      throw new IllegalArgumentException("Space Technical Identifier is mandatory");
+    }
+    if (audienceId <= 0) {
+      throw new IllegalArgumentException("Audience Identity Technical Identifier is mandatory");
+    }
+    return this.metadataStorage.deleteMetadataItemsBySpaceIdAndAudienceId(spaceId, audienceId);
   }
 
   @Override
@@ -289,7 +313,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                            String objectType,
                                                                            long offset,
                                                                            long limit) {
-    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName, metadataTypeName, objectType, offset, limit);
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
+                                                                               metadataTypeName,
+                                                                               objectType,
+                                                                               offset,
+                                                                               limit);
   }
 
   @Override
@@ -300,14 +328,20 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                                                   String propertyValue,
                                                                                                   long offset,
                                                                                                   long limit) {
-    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName, metadataTypeName, objectType, propertyKey, propertyValue, offset, limit);
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName,
+                                                                                                      metadataTypeName,
+                                                                                                      objectType,
+                                                                                                      propertyKey,
+                                                                                                      propertyValue,
+                                                                                                      offset,
+                                                                                                      limit);
   }
 
   @Override
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndCreator(String metadataTypeName,
-                                                                       long creatorId,
-                                                                       long offset,
-                                                                       long limit) {
+                                                                     long creatorId,
+                                                                     long offset,
+                                                                     long limit) {
     MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
     if (metadataType == null) {
       throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
@@ -318,7 +352,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return this.metadataStorage.getMetadataItemsByMetaDataTypeAndCreator(metadataType.getId(), creatorId, offset, limit);
   }
 
-  public int countMetadataItemsByMetadataTypeAndCreator (String metadataTypeName, long creatorId) {
+  public int countMetadataItemsByMetadataTypeAndCreator(String metadataTypeName, long creatorId) {
     MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
     if (metadataType == null) {
       throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
@@ -349,8 +383,13 @@ public class MetadataServiceImpl implements MetadataService, Startable {
       return this.metadataStorage.findMetadataNameByCreatorAndQuery(term, metadataType.getId(), creatorId, limit);
     }
   }
+
   @Override
-  public List<String> findMetadataNamesByUserAndQuery(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit) {
+  public List<String> findMetadataNamesByUserAndQuery(String term,
+                                                      String metadataTypeName,
+                                                      Set<Long> audienceIds,
+                                                      long creatorId,
+                                                      long limit) {
     MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
     if (metadataType == null) {
       throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");

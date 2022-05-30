@@ -315,11 +315,9 @@ public class SpaceRestServices implements ResourceContainer {
         if (space == null) {
           return Response.status(HTTPStatus.NOT_FOUND).build();
         }
-  
         if (spaceService.isMember(space, userId)) {
           spaceService.removeMember(space, userId);
         }
-  
         return Response.ok().build();
       } catch (Exception e) {
         LOG.error("Error in space deny rest service: " + e.getMessage(), e);

@@ -83,7 +83,8 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     String objectId = "1";
     String parentObjectId = "2";
     long userIdentityId = Long.parseLong(johnIdentity.getId());
-    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
+    long spaceId = 500l;
+    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId, spaceId);
 
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));
@@ -135,7 +136,8 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     String objectId = "1";
     String parentObjectId = "2";
     long userIdentityId = Long.parseLong(johnIdentity.getId());
-    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
+    long spaceId = 500l;
+    Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId, spaceId);
 
     List<MetadataItem> metadataItemsByObject = metadataService.getMetadataItemsByObject(favorite.getObject());
     assertTrue(CollectionUtils.isEmpty(metadataItemsByObject));

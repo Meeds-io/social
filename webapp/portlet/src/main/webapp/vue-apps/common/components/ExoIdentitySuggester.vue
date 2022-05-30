@@ -31,7 +31,8 @@
       cache-items
       dense
       flat
-      @update:search-input="searchTerm = $event">
+      @update:search-input="searchTerm = $event"
+      attach>
       <template slot="no-data">
         <v-list-item class="pa-0">
           <v-list-item-title
@@ -238,7 +239,6 @@ export default {
           if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
-
             this.$suggesterService.searchSpacesOrUsers(value,
               this.items,
               this.typeOfRelations,

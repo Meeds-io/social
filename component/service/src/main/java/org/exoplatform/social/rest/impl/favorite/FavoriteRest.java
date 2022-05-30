@@ -83,6 +83,12 @@ public class FavoriteRest implements ResourceContainer {
                                  @QueryParam("parentObjectId")
                                  String parentObjectId,
                                  @ApiParam(
+                                     value = "Space technical identitifier of the bookmarked object",
+                                     required = false
+                                 )
+                                 @QueryParam("spaceId")
+                                 long spaceId,
+                                 @ApiParam(
                                      value = "Whether ignore favorite when already exists or return a HTTP 409 code",
                                      required = false,
                                      defaultValue = "false"
@@ -98,7 +104,7 @@ public class FavoriteRest implements ResourceContainer {
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
-      Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId);
+      Favorite favorite = new Favorite(objectType, objectId, parentObjectId, userIdentityId, spaceId);
       favoriteService.createFavorite(favorite);
       return Response.noContent().build();
     } catch (ObjectAlreadyExistsException e) {
@@ -215,7 +221,7 @@ public class FavoriteRest implements ResourceContainer {
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
-      Favorite favorite = new Favorite(objectType, objectId, null, userIdentityId);
+      Favorite favorite = new Favorite(objectType, objectId, null, userIdentityId, 0);
       favoriteService.deleteFavorite(favorite);
       return Response.noContent().build();
     } catch (ObjectNotFoundException e) {

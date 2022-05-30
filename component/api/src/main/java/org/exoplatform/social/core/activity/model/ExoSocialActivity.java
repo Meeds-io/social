@@ -389,6 +389,10 @@ public interface ExoSocialActivity extends CacheEntry {
 
   void setUserId(String userId);
 
+  String getSpaceId();
+
+  void setSpaceId(String spaceId);
+
   Float getPriority();
 
   void setPriority(Float priority);
