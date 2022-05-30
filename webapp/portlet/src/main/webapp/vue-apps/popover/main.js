@@ -9,12 +9,13 @@ const urls = [
 ];
 
 Vue.directive('identity-popover', (el, binding) => {
-  el.addEventListener('mouseover', event => {
-    const data = Object.assign({
-      offsetX: event.clientX,
-      offsetY: event.clientY,
-    }, binding?.value || {});
-    window.dispatchEvent(new CustomEvent('popover-user-display', {detail: data}));
+  el.addEventListener('mouseover', () => {
+    const rect = el.getBoundingClientRect();
+    window.dispatchEvent(new CustomEvent('popover-user-display', {detail: Object.assign({
+      offsetX: rect.left + window.scrollX,
+      offsetY: rect.top + window.scrollY,
+      element: el,
+    }, binding?.value || {})}));
   });
 });
 

@@ -310,6 +310,7 @@ export default {
   watch: {
     menu () {
       if ( this.menu ) {
+        document.dispatchEvent(new CustomEvent('SpacePopoverOpened'));
         this.spacePopupExtensions.map((extension) => {
           if ( !this.$refs[extension.key] ) {
             this.$nextTick().then(() => {

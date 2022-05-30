@@ -218,21 +218,25 @@ export default {
       id: `userAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
+      retrievedIdentity: null,
     };
   },
 
   computed: {
+    identityId() {
+      return this.identity?.id || this.retrievedIdentity?.id;
+    },
     username() {
-      return this.identity?.username;
+      return this.identity?.username || this.retrievedIdentity?.username || this.profileId;
     },
     userFullname() {
-      return this.identity?.fullname;
+      return this.identity?.fullname || this.retrievedIdentity?.fullname;
     },
     position() {
-      return this.identity?.position;
+      return this.identity?.position || this.retrievedIdentity?.position;
     },
     avatarUrl() {
-      return this.identity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
+      return this.identity?.avatar || this.retrievedIdentity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
     },
     profileUrl() {
       if ( this.url ) {
@@ -242,7 +246,7 @@ export default {
       }
     },
     isExternal() {
-      return this.identity?.external === 'true';
+      return this.identity?.external === 'true' || this.retrievedIdentity?.external === 'true';
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
@@ -262,26 +266,24 @@ export default {
     params() {
       return {
         identityType: 'USER_PROFILE',
-        identityId: this.identity && this.identity.username,
+        identityId: this.username,
       };
     },
     userIdentity() {
       return {
-        id: this.identity?.id,
-        username: this.identity?.username,
-        fullName: this.identity?.fullname,
-        position: this.identity?.position,
+        id: this.identityId,
+        username: this.username,
+        fullName: this.userFullname,
+        position: this.position,
         avatar: this.avatarUrl,
-        external: this.identity?.external === 'true',
+        external: this.isExternal,
       };
     },
   },
   created() {
     if (this.profileId) {
       this.$userService.getUser(this.profileId)
-        .then(user => {
-          this.identity = user;
-        });
+        .then(user => this.retrievedIdentity = user);
     }
   },
 
