@@ -2,8 +2,8 @@
   <div class="d-inline-flex ms-lg-4">
     <!-- Added for mobile -->
     <v-tooltip 
-    v-model="show"
-    bottom>
+      v-model="show"
+      bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"

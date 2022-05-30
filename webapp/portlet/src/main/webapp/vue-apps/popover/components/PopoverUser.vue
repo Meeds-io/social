@@ -3,7 +3,6 @@
     v-model="menu"
     rounded="rounded"
     :close-on-content-click="false"
-    :left="popoverLeftPosition"
     :position-x="offsetX"
     :position-y="offsetY"
     transition="slide-x-transition"

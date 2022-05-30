@@ -49,8 +49,6 @@ import org.exoplatform.web.security.security.TokenServiceInitializationException
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
-import com.google.api.client.util.Objects;
-
 /**
  * Builds and provides default links and links of users, spaces and activities.
  * Links are built basing on provided information as name or Id of the target user or space.
