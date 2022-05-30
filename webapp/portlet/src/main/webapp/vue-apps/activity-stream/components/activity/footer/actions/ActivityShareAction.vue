@@ -48,7 +48,6 @@ export default {
   },
   data: () => ({
     hasShared: false,
-    show: false,
   }),
   computed: {
     isShareable() {
@@ -94,7 +93,6 @@ export default {
       }
     },
     openShareDrawer() {
-      this.show = false;
       this.$root.$emit('activity-share-drawer-open', this.activityId, 'activityStream');
     },
   },

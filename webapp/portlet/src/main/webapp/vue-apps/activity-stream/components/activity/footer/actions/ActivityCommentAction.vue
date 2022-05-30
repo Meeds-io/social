@@ -43,7 +43,6 @@ export default {
   },
   data: () => ({
     hasCommented: false,
-    show: false,
   }),
   computed: {
     activityId() {
@@ -88,7 +87,6 @@ export default {
       this.hasCommented = this.activity && this.activity.hasCommented === 'true';
     },
     openCommentsDrawer() {
-      this.show = false;
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activity: this.activity,
         newComment: true,
