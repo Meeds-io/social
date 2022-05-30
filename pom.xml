@@ -182,6 +182,7 @@
               <java.util.logging.config.class>org.exoplatform.component.test.logging.LogConfigurator</java.util.logging.config.class>
               <exo.profiles>hsqldb</exo.profiles>
               <exo.files.storage.dir>${project.build.directory}/exo-files</exo.files.storage.dir>
+              <gatein.email.domain.url>http://localhost:8080</gatein.email.domain.url>
               <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}/com.arjuna.ats.arjuna.objectstore.objectStoreDir</com.arjuna.ats.arjuna.objectstore.objectStoreDir>
               <argLine>@{argLine} -Xmx1024m -XX:MaxPermSize=512m</argLine>
             </systemPropertyVariables>

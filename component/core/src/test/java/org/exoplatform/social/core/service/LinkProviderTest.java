@@ -16,7 +16,9 @@
  */
 package org.exoplatform.social.core.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -51,8 +53,13 @@ public class LinkProviderTest extends AbstractCoreTest {
     assertNotNull("rootFullName must not be null.", rootFullName);
     // but when we have the identity we generate a link
     String actualLink = LinkProvider.getProfileLink(rootIdentity.getRemoteId(), portalOwner);
-    String expected =  "<a href=\"/portal/" + portalOwner + "/profile/" +
-                        rootIdentity.getRemoteId()+"\" target=\"_parent\">"+rootFullName+"</a>";
+    Object external = rootIdentity.getProfile().getProperty(Profile.EXTERNAL);
+    String expected = "<a class=\"user-suggester\" href=\"/portal/" + portalOwner + "/profile/" +
+        rootIdentity.getRemoteId() + "\" "
+        + "target=\"_parent\" v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId() + "',fullName: '"
+        + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
+        + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (external == null ? "false" : external)
+        + "',}\">" + rootFullName + "</a>";
     assertEquals(expected, actualLink);
 
     identityManager.deleteIdentity(rootIdentity);

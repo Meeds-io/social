@@ -35,6 +35,7 @@ import org.exoplatform.services.resources.LocaleContextInfo;
 import org.exoplatform.services.resources.LocalePolicy;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -166,9 +167,35 @@ public class LinkProvider {
       configured_domain_url = null;
     }
 
-    StringBuilder profileLink =  new StringBuilder("<a href=\"").append((configured_domain_url != null) ? configured_domain_url : "")
-                .append(buildProfileUri(identity.getRemoteId(), null, portalOwner)).append("\" target=\"_parent\">")
-                .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName()));
+    StringBuilder profileLink = new StringBuilder("<a class=\"user-suggester\" href=\"");
+    profileLink.append((configured_domain_url != null) ? configured_domain_url
+                                                       : "")
+               .append(buildProfileUri(identity.getRemoteId(),
+                                       null,
+                                       portalOwner))
+               .append("\" target=\"_parent\"")
+               .append(" v-identity-popover=\"{")
+               .append("id: '")
+               .append(identity.getId())
+               .append("',")
+               .append("username: '")
+               .append(identity.getRemoteId())
+               .append("',")
+               .append("fullName: '")
+               .append(identity.getProfile().getFullName())
+               .append("',")
+               .append("avatar: '")
+               .append(identity.getProfile().getAvatarUrl())
+               .append("',")
+               .append("position: '")
+               .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition())
+               .append("',")
+               .append("external: '")
+               .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
+               .append("',")
+               .append("}\"")
+               .append(">")
+               .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
       profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
     }
