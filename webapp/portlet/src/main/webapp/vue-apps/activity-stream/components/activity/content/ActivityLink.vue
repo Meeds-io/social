@@ -111,13 +111,13 @@
             bold-title
             link-style />
         </div>
-        <div
+        <dynamic-html-element
           v-if="summary"
+          :child="summaryElement"
           :title="summaryTooltip"
           :class="useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'"
-          v-sanitized-html="summary"
-          class="caption text-wrap text-break rich-editor-content reset-style-box">
-        </div>
+          class="caption text-wrap text-break rich-editor-content reset-style-box"
+          dir="auto" />
       </div>
     </template>
   </dynamic-html-element>
@@ -251,7 +251,12 @@ export default {
     },
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
-    }
+    },
+    summaryElement() {
+      return {
+        template: `<div>${this.summary}</div>` || '',
+      };
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
