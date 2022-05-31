@@ -1,7 +1,7 @@
 <template>
   <dynamic-html-element
     v-if="isBodyNotEmpty"
-    v-sanitized-html="body"
+    :child="bodyElement"
     :element="element"
     :class="bodyClass"
     class="reset-style-box text-break overflow-hidden"
@@ -32,6 +32,11 @@ export default {
     body: null,
   }),
   computed: {
+    bodyElement() {
+      return {
+        template: `<div>${this.body}</div>` || '',
+      };
+    },
     getBody() {
       return this.activityTypeExtension && this.activityTypeExtension.getBody;
     },
