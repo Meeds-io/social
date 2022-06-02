@@ -34,7 +34,7 @@ export default {
   computed: {
     bodyElement() {
       return {
-        template: `<div>${this.body}</div>` || '',
+        template: ExtendedDomPurify.purify(`<div>${this.body}</div>`) || '',
       };
     },
     getBody() {
