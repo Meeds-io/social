@@ -10,6 +10,7 @@
   "globals": {
     "activityComposer": true,
     "socialUIProfile": true,
-    "QRCode": true
+    "QRCode": true,
+    "ExtendedDomPurify": true
   }
 }
