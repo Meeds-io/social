@@ -254,7 +254,7 @@ export default {
     },
     summaryElement() {
       return {
-        template: `<div>${this.summary}</div>` || '',
+        template: ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
       };
     },
   },
