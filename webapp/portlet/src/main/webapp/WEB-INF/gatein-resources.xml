@@ -1428,6 +1428,9 @@
       <module>purifyVue</module>
     </depends>
     <depends>
+      <module>ExtendedDomPurify</module>
+    </depends>
+    <depends>
       <module>vueEllipsis</module>
     </depends>
     <depends>
@@ -1717,6 +1720,9 @@
     </depends>
     <depends>
       <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>ExtendedDomPurify</module>
     </depends>
     <depends>
       <module>ActivityComposer</module>
