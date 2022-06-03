@@ -1,7 +1,7 @@
 <template>
   <v-app>
+    <div class="body-1 text-uppercase text-sub-title">{{ $t("social.space.description.title") }}</div>
     <div id="spaceInfosApp">
-      <div class="body-1 text-uppercase text-sub-title center">{{ $t("social.space.description.title") }}</div>
       <p id="spaceDescription">{{ description }}</p>
       <div id="spaceManagersList">
         <h5>{{ $t("social.space.description.managers") }}</h5>
