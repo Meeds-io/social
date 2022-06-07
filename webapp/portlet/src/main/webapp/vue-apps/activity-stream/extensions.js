@@ -139,19 +139,17 @@ extensionRegistry.registerExtension('activity', 'action', {
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
-        if ( isActivityDetail ) {
+        if (isActivityDetail) {
           setTimeout(() => {
             if (activity.activityStream.type === 'space') {
               window.location.href = `${eXo.env.portal.context}/g/${activity.activityStream.space.groupId.replace(/\//g, ':')}`;
             } else {
-              window.location.href = eXo.env.portal.homeLink;
+              window.location.href = eXo.env.portal.context;
             }
-          }, 2000);
+          }, 500);
         }
       })
-      .finally(() =>  {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      });
+      .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
 

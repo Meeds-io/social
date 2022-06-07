@@ -43,7 +43,8 @@
         class="mx-auto my-10" />
     </div>
     <template v-else>
-      <template v-if="!activityId">
+      <activity-not-found v-if="activityId && !isDeleted" />
+      <template v-else-if="!error">
         <activity-stream-empty-message-space v-if="spaceId" />
         <activity-stream-empty-message-user v-else />
       </template>
@@ -98,6 +99,7 @@ export default {
     hasMore: false,
     loading: false,
     error: false,
+    isDeleted: false,
   }),
   computed: {
     activitiesToDisplay() {
@@ -125,6 +127,7 @@ export default {
   created() {
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
+      this.isDeleted = true;
       if (activityId) {
         const index = this.activities.findIndex(activity => activityId === activity.id);
         if (index >= 0) {
@@ -217,7 +220,6 @@ export default {
         return;
       }
       this.activities = activity && [activity] || [];
-      console.warn(this.activities);
     },
     updateActivityDisplayById(activityId) {
       this.loading = true;
