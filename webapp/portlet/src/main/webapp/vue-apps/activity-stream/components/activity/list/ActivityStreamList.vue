@@ -43,8 +43,7 @@
         class="mx-auto my-10" />
     </div>
     <template v-else>
-      <activity-not-found v-if="activityId" />
-      <template v-else-if="!error">
+      <template v-if="!activityId">
         <activity-stream-empty-message-space v-if="spaceId" />
         <activity-stream-empty-message-user v-else />
       </template>
@@ -218,6 +217,7 @@ export default {
         return;
       }
       this.activities = activity && [activity] || [];
+      console.warn(this.activities);
     },
     updateActivityDisplayById(activityId) {
       this.loading = true;

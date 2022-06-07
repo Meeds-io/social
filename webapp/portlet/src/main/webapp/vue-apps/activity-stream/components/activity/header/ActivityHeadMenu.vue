@@ -48,6 +48,10 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     menu: false,
@@ -83,7 +87,7 @@ export default {
       }
     },
     confirmAction(action) {
-      const result = action.click(this.activity, this.activityTypeExtension);
+      const result = action.click(this.activity, this.activityTypeExtension, this.isActivityDetail);
       if (result && result.finally && result.then) {
         this.loading = true;
         result.finally(() => {
