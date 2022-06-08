@@ -18,7 +18,7 @@
             <v-icon
               class="mx-auto"
               :class="favoriteIconColor"
-              size="16">
+              size="18">
               fas fa-star
             </v-icon>
           </div>
