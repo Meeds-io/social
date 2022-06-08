@@ -21,9 +21,11 @@ import java.util.List;
 import javax.persistence.Tuple;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
+import org.exoplatform.social.core.space.model.Space;
 
 public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     void deleteBySpace(SpaceEntity entity);
@@ -42,6 +44,18 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @return
      */
     List<String> getSpaceMembers(Long spaceId, Status status, int offset, int limit);
+
+    /**
+     * Retrieves the list of {@link Space} technical identifiers
+     * 
+     * @param username user remote id
+     * @param offset The starting point
+     * @param limit The limitation of returned results
+     * @return {@link List} of {@link Space} technical identifiers of type {@link Long}
+     */
+    default List<Long> getSpaceIdByMemberId(String username, int offset, int limit) {
+      throw new UnsupportedOperationException();
+    }
 
   /**
    * Sort user identity remote ids

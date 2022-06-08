@@ -16,11 +16,13 @@
  */
 package org.exoplatform.social.core.space.spi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
-
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.model.ApplicationType;
@@ -28,13 +30,21 @@ import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -2314,6 +2324,54 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("spaceService.getMembers(savedSpace).size() must return: " + savedSpace.getMembers().length,
                  savedSpace.getMembers().length,
                  spaceService.getMembers(savedSpace).size());
+  }
+
+  /**
+   * Test {@link SpaceService#getMemberSpacesIds(String, int, int)}
+   *
+   * @throws Exception
+   * @since 6.4.0-GA
+   */
+  public void testGetMemberSpaces() throws Exception {
+    Space[] listSpace = new Space[10];
+    for (int i = 0; i < listSpace.length; i ++) {
+      listSpace[i] = this.getSpaceInstance(i);
+    }
+
+    restartTransaction();
+
+    String raulUsername = "raul";
+    String jameUsername = "jame";
+
+    List<String> spaceIds = spaceService.getMemberSpacesIds(raulUsername, 0, -1);
+    assertNotNull(spaceIds);
+    assertEquals(listSpace.length, spaceIds.size());
+
+    spaceIds = spaceService.getMemberSpacesIds(raulUsername, 0, listSpace.length);
+    assertNotNull(spaceIds);
+    assertEquals(listSpace.length, spaceIds.size());
+
+    spaceIds = spaceService.getMemberSpacesIds(raulUsername, 0, listSpace.length / 2);
+    assertNotNull(spaceIds);
+    assertEquals(listSpace.length / 2, spaceIds.size());
+
+    spaceIds = spaceService.getMemberSpacesIds(raulUsername, listSpace.length / 2, listSpace.length / 2);
+    assertNotNull(spaceIds);
+    assertEquals(listSpace.length / 2, spaceIds.size());
+
+    Space space0 = spaceService.getSpaceById(spaceIds.get(0));
+    assertNotNull(space0);
+
+    spaceService.removeMember(space0, raulUsername);
+    restartTransaction();
+
+    spaceIds = spaceService.getMemberSpacesIds(raulUsername, 0, -1);
+    assertNotNull(spaceIds);
+    assertEquals(listSpace.length - 1, spaceIds.size());
+
+    spaceIds = spaceService.getMemberSpacesIds(jameUsername, 0, -1);
+    assertNotNull(spaceIds);
+    assertEquals(0, spaceIds.size());
   }
 
   /**

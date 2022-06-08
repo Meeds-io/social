@@ -82,7 +82,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   }
   
-  private List<String> buildSpaceIdentityIds(ListSpacesData data) {
+  private List<String> buildIds(ListSpacesData data) {
     if (data == null || data.getIds() == null) {
       return Collections.emptyList();
     } else {
@@ -1039,9 +1039,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   }
 
   @Override
-  public List<String> getMemberSpaceIds(final String identityId, final int offset, final int limit) throws SpaceStorageException {
+  public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException {
     //
-    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDS);
+    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDENTITY_IDS);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
@@ -1051,14 +1051,39 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<String> got = CachedSpaceStorage.super.getMemberSpaceIds(identityId, offset, limit);
+            List<String> got = CachedSpaceStorage.super.getMemberRoleSpaceIdentityIds(identityId, offset, limit);
             return buildListIdentityIds(got);
           }
         },
         listKey);
 
     //
-    return buildSpaceIdentityIds(keys);
+    return buildIds(keys);
+  }
+
+  @Override
+  public List<String> getMemberRoleSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException {
+    //
+    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDS);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+
+    //
+    ListSpacesData keys = spacesCache.get(
+                                          new ServiceContext<ListSpacesData>() {
+                                            public ListSpacesData execute() {
+                                              if (limit == 0) {
+                                                return buildIds(Collections.emptyList());
+                                              }
+                                              List<String> got = CachedSpaceStorage.super.getMemberRoleSpaceIds(identityId,
+                                                                                                                offset,
+                                                                                                                limit);
+                                              return buildListIdentityIds(got);
+                                            }
+                                          },
+                                          listKey);
+
+    //
+    return buildIds(keys);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {
