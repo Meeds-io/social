@@ -34,7 +34,7 @@
         indeterminate
         class="mx-auto my-10" />
     </div>
-    <template v-else>
+    <template v-else-if="!activityId && !isDeleted">
       <activity-not-found v-if="activityId" />
       <template v-else-if="!error">
         <activity-stream-empty-message-space v-if="spaceId" />
@@ -90,6 +90,7 @@ export default {
     hasMore: false,
     loading: false,
     error: false,
+    isDeleted: false,
   }),
   computed: {
     activitiesToDisplay() {
@@ -114,6 +115,9 @@ export default {
   created() {
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
+      if (this.activityId) {
+        this.isDeleted = true;
+      }
       if (activityId) {
         const index = this.activities.findIndex(activity => activityId === activity.id);
         if (index >= 0) {

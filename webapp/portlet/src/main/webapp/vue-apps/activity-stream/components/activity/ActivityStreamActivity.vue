@@ -13,6 +13,7 @@
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
         :activity-actions="activityActions"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension"
         :hide-menu="hideMenu"
         :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
@@ -43,6 +44,7 @@
       <activity-head
         :activity="activity"
         :activity-actions="activityActions"
+        :is-activity-detail="isActivityDetail"
         :activity-type-extension="activityTypeExtension"
         :is-activity-shared="isActivityShared"
         :hide-menu="hideMenu"
