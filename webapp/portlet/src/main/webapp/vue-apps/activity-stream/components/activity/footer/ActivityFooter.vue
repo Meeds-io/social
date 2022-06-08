@@ -14,6 +14,7 @@
         :likers="likers"
         :likers-number="likersCount"
         :comment-number="commentsCount"
+        :kudos-number="kudosCount"
         class="flex-grow-1 ps-4" />
       <activity-actions
         :activity="activity"
@@ -77,8 +78,14 @@ export default {
         this.checkLikesSize();
       }
     });
+    document.addEventListener('exo-kudos-sent', event => {
+      if (event && event.detail && this.activityId === event.detail.entityId) {
+        this.kudosCount++;
+      }
+    });
     this.checkCommentsSize();
     this.checkLikesSize();
+    this.checkKudosSize();
   },
   beforeDestroy() {
     this.$root.$off('activity-comment-created', this.checkCommentsSize);
@@ -94,6 +101,9 @@ export default {
     },
     checkCommentsSize() {
       this.commentsCount = this.activity.commentsSize;
+    },
+    checkKudosSize() {
+      this.kudosCount = this.activity.kudosList.filter(kudos => kudos.entityId === this.activity.id).length;
     },
   },
 };
