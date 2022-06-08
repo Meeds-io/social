@@ -54,6 +54,7 @@
     <activity-head-menu
       :activity="activity"
       :activity-actions="activityActions"
+      :is-activity-detail="isActivityDetail"
       :activity-type-extension="activityTypeExtension" />
   </v-list-item>
 </template>
@@ -76,6 +77,10 @@ export default {
     activityActions: {
       type: Object,
       default: null,
+    },
+    isActivityDetail: {
+      type: Boolean,
+      default: false,
     },
     spaceStream: {
       type: Object,
