@@ -127,7 +127,9 @@ export default {
   created() {
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
-      this.isDeleted = true;
+      if (this.isActivityDetail) {
+        this.isDeleted = true;
+      }
       if (activityId) {
         const index = this.activities.findIndex(activity => activityId === activity.id);
         if (index >= 0) {
