@@ -18,8 +18,8 @@
             <v-icon
               class="mx-auto"
               :class="favoriteIconColor"
-              size="16">
-              fas fa-star
+              size="18">
+              {{ favoriteIcon }}
             </v-icon>
           </div>
         </v-btn>
@@ -94,7 +94,10 @@ export default {
       return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
     },
     favoriteIconColor() {
-      return this.isFavorite && 'yellow--text text--darken-2' || 'disabled--text';
+      return this.isFavorite && 'yellow--text text--darken-2' || 'icon-default-color';
+    },
+    favoriteIcon() {
+      return this.isFavorite && 'fas fa-star' || 'far fa-star';
     },
   },
   watch: {

@@ -16,7 +16,7 @@
           class="me-2"
           v-bind="attrs"
           v-on="on">
-          <v-icon size="18" class="primary--text">mdi-dots-vertical</v-icon>
+          <v-icon size="18" class="icon-default-color">fas fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
       <v-list dense class="pa-0">
