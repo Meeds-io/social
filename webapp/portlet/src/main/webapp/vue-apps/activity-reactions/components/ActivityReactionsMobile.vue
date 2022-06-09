@@ -16,11 +16,13 @@
       @click="openComments">
       {{ commentNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
-    <a
-      v-if="kudosNumber>0"
-      class="my-1 me-2 KudosNumber"
-      @click="openKudosList">
-      {{ kudosNumber }} Kudos</a>
+    <extension-registry-components
+        :params="extensionParams"
+        name="ActivityReactionsCount"
+        type="activity-reaction-count"
+        parent-element="div"
+        element="div"
+        class=" d-flex flex-column" />
   </div>
 </template>
 <script>
@@ -34,14 +36,17 @@ export default {
       type: Number,
       default: 0
     },
-    kudosNumber: {
-      type: Number,
-      default: 0
-    },
     commentNumber: {
       type: Number,
       default: 0
     }
+  },
+  computed: {
+    extensionParams() {
+      return {
+        activity: this.activity,
+      };
+    },
   },
   methods: {
     open() {
@@ -52,17 +57,6 @@ export default {
         activity: this.activity,
         offset: 0,
         limit: (this.commentNumber || 10) * 2, // To display all
-      }}));
-    },
-    openKudosList(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      document.dispatchEvent(new CustomEvent(`open-reaction-drawer-selected-tab-${this.activity.id}`, {detail: {
-        activityId: this.activity.id,
-        tab: 'kudos',
-        activityType: 'ACTIVITY'
       }}));
     },
   }

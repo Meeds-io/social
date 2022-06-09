@@ -50,7 +50,6 @@
       :max-items-to-show="maxLikersToShow" />
     <activity-reactions-mobile
       :activity="activity"
-      :kudos-number="kudosNumber"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
       class="d-flex d-lg-none align-center"
@@ -77,10 +76,6 @@ export default {
       default: 0
     },
     commentNumber: {
-      type: Number,
-      default: 0
-    },
-    kudosNumber: {
       type: Number,
       default: 0
     },
