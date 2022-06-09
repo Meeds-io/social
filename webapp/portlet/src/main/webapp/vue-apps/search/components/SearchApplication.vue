@@ -129,6 +129,7 @@ export default {
             connector.enabled = selectedTypes.includes(connector.name);
           });
         }
+        this.term = parameters['q'] || '';
       }
     } else {
       $(document).on('keydown', (event) => {
