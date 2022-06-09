@@ -16,11 +16,13 @@
       @click="openComments">
       {{ commentNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
-    <a
-      v-if="kudosNumber>0"
-      class="my-1 me-2 KudosNumber"
-      @click="open">
-      {{ kudosNumber }} Kudos</a>
+    <extension-registry-components
+        :params="extensionParams"
+        name="ActivityReactionsCount"
+        type="activity-reaction-count"
+        parent-element="div"
+        element="div"
+        class=" d-flex flex-column" />
   </div>
 </template>
 <script>
@@ -34,14 +36,17 @@ export default {
       type: Number,
       default: 0
     },
-    kudosNumber: {
-      type: Number,
-      default: 0
-    },
     commentNumber: {
       type: Number,
       default: 0
     }
+  },
+  computed: {
+    extensionParams() {
+      return {
+        activity: this.activity,
+      };
+    },
   },
   methods: {
     open() {

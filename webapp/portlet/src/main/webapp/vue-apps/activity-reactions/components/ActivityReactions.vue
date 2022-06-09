@@ -47,11 +47,9 @@
       :likers-number="likersNumber"
       :activity-id="activityId"
       :activity-poster-id="activityPosterId"
-      :max-items-to-show="maxLikersToShow"
-      @reactions="reactionsNumber" />
+      :max-items-to-show="maxLikersToShow" />
     <activity-reactions-mobile
       :activity="activity"
-      :kudos-number="kudosNumber"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
       class="d-flex d-lg-none align-center"
@@ -89,7 +87,6 @@ export default {
   },
   data: () => ({
     maxLikersToShow: 4,
-    kudosNumber: 0
   }),
   computed: {
     seeMoreLikerToDisplay () {
@@ -115,9 +112,6 @@ export default {
       };
       this.$root.$emit(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails);
     },
-    reactionsNumber(kudosCount) {
-      this.kudosNumber = kudosCount;
-    }
   },
 };
 </script>
