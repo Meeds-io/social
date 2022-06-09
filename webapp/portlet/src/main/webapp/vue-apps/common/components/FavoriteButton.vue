@@ -18,7 +18,7 @@
             <v-icon
               class="mx-auto"
               :class="favoriteIconColor"
-              size="18">
+              size="16">
               {{ favoriteIcon }}
             </v-icon>
           </div>
