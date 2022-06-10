@@ -32,7 +32,7 @@
       dense
       flat
       @update:search-input="searchTerm = $event"
-      attach>
+      >
       <template slot="no-data">
         <v-list-item class="pa-0">
           <v-list-item-title
@@ -203,7 +203,7 @@ export default {
         .toString()}`,
       previousSearchTerm: null,
       searchTerm: null,
-      searchStarted: null,
+      searchStarted: false,
       loadingSuggestions: 0,
     };
   },
@@ -220,7 +220,7 @@ export default {
       return this.labels.searchPlaceholder && (!this.searchStarted || !this.value);
     },
     hideNoData() {
-      return !this.labels.noDataLabel && !this.labels.searchPlaceholder;
+      return !this.searchStarted && this.items.length === 0;
     },
     menuItemStyle() {
       return this.width && `width:${this.width}px;max-width:${this.width}px;min-width:${this.width}px;` || '';
@@ -257,6 +257,7 @@ export default {
         }, 400);
       } else {
         this.items = [];
+        this.searchStarted = false;
       }
     },
     value() {
