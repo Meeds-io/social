@@ -46,7 +46,6 @@ export default {
   data: () => ({
     likersCount: 0,
     commentsCount: 0,
-    kudosCount: 0,
     likers: [],
   }),
   computed: {
