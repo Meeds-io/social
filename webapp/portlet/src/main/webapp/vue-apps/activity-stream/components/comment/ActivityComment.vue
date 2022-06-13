@@ -52,7 +52,7 @@
             parent-element="div"
             element="div"
             class=" d-flex flex-column" />
-          <div class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
+          <div class="py-0 my-1 align-center d-flex flex-row border-box-sizing">
             <activity-comment-actions
               :activity="activity"
               :comment="comment"
@@ -61,7 +61,7 @@
             <activity-comment-time
               :activity="activity"
               :comment="comment"
-              class="d-inline ps-2 activity-comment-head-time"
+              class="d-flex align-center ps-2 activity-comment-head-time"
               no-icon />
           </div>
           <div v-if="hasMoreRepliesToDisplay" class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
