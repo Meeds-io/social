@@ -41,4 +41,6 @@ public class RestProperties {
   public static final String CAN_EDIT      = "canEdit";
   public static final String CAN_DELETE    = "canDelete";
   public static final String MEMBERS_COUNT = "membersCount";
+
+  public static final String FAVORITE = "favorite";
 }

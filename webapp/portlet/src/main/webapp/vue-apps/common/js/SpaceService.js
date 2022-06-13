@@ -213,7 +213,7 @@ export function getSpaceNavigations(spaceId) {
 
 export function getSpaces(query, offset, limit, filter, expand) {
   if (!expand) {
-    expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
+    expand = filter === 'requests' ? 'pending' : limit && 'managers,favorite' || '';
   }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
     method: 'GET',

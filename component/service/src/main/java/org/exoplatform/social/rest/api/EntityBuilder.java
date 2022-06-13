@@ -62,6 +62,8 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
@@ -474,6 +476,13 @@ public class EntityBuilder {
           LinkEntity pending = new LinkEntity(buildEntityProfiles(space.getPendingUsers(), restPath, expand));
           spaceEntity.setPending(pending);
         }
+
+        if (expandFields.contains(RestProperties.FAVORITE)) {
+          FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+          Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
+          boolean isFavorite = favoriteService.isFavorite(new Favorite("space", space.getId(),null, Long.parseLong(userIdentity.getId())));
+          spaceEntity.setIsFavorite(String.valueOf(isFavorite));
+        }
       }
       boolean isManager = spaceService.isManager(space, userId);
       spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
@@ -499,6 +508,7 @@ public class EntityBuilder {
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : space.getMembers().length);
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
     spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
+
     return spaceEntity;
   }
 
