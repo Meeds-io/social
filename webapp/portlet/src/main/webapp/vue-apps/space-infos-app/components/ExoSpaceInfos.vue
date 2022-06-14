@@ -1,9 +1,9 @@
 <template>
   <v-app>
-    <div id="spaceInfosApp">
-      <h5 class="center">{{ $t("social.space.description.title") }}</h5>
+    <div>
+      <div class="body-1 text-uppercase text-sub-title">{{ $t("social.space.description.title") }}</div>
       <p id="spaceDescription">{{ description }}</p>
-      <div id="spaceManagersList">
+      <div id="spaceManagersList" class="px-1">
         <h5>{{ $t("social.space.description.managers") }}</h5>
         <div id="spaceManagers">
           <exo-user-avatar
@@ -18,7 +18,7 @@
             popover />
         </div>
       </div>
-      <div v-if="redactors && redactors.length" id="spaceRedactorsList">
+      <div v-if="redactors && redactors.length" id="spaceRedactorsList" class="px-1">
         <h5>{{ $t("social.space.description.redactors") }}</h5>
         <div id="spaceRedactors">
           <exo-user-avatar
