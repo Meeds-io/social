@@ -322,7 +322,7 @@ public class SpaceEntity extends BaseEntity {
   }
 
   public String getIsFavorite() {
-    return getString ( "isFavorite");
+    return getString("isFavorite");
   }
 
   public SpaceEntity setIsFavorite(String isFavorite) {

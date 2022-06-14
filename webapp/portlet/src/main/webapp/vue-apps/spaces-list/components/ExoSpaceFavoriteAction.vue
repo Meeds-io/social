@@ -1,12 +1,12 @@
 <template>
   <favorite-button
     :id="spaceId"
-    type="space"
     :space-id="spaceId"
     :favorite="isFavorite"
     :absolute="absolute"
     :top="top"
     :right="right"
+    type="space"
     type-label="space"
     @removed="removed"
     @remove-error="removeError"
@@ -44,8 +44,7 @@ export default {
     },
   },
   created() {
-    // eslint-disable-next-line eqeqeq
-    this.isFavorite = this.space?.isFavorite == 'true';
+    this.isFavorite = this.space?.isFavorite === 'true';
   },
   methods: {
     removed() {
@@ -64,7 +63,6 @@ export default {
     },
     displayAlert(message, type) {
       this.$root.$emit('space-notification-alert', {
-        activityId: this.activityId,
         message,
         type: type || 'success',
       });
