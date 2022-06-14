@@ -19,7 +19,6 @@ export default {
   }),
   watch: {
     alert() {
-      console.warn('space-notification-alert', this.alert);
       this.snackbar = !!this.alert;
     },
   },
