@@ -204,6 +204,22 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
   }
 
   @Override
+  public List<Long> getSpaceIdByMemberId(String username, int offset, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceIdByMemberId", Long.class);
+    query.setParameter("userId", username);
+    query.setParameter("status", SpaceMemberEntity.Status.MEMBER);
+    try {
+      if (limit > 0) {
+        query.setFirstResult(offset);
+        query.setMaxResults(limit);
+      }
+      return query.getResultList();
+    } catch (NoResultException ex) {
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
   public List<Tuple> getPendingSpaceRequestsToManage(String username, int offset, int limit) {
     if (offset < 0) {
       throw new IllegalArgumentException("offset must be positive");
