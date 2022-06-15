@@ -1,0 +1,5 @@
+              2022-06-15 eXo Support <support@exoplatform.org> 
+
+   # 6.2.5 Patches changelog: 
+
+

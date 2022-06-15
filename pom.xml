@@ -27,7 +27,7 @@
   </parent>
   <groupId>org.exoplatform.social</groupId>
   <artifactId>social</artifactId>
-  <version>6.2.5</version>
+  <version>6.2.5-patched</version>
   <packaging>pom</packaging>
   <name>eXo PLF:: Social</name>
   <description>eXo Social - Enterprise Social Networking</description>
