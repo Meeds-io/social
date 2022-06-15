@@ -18,7 +18,10 @@
             popover />
         </div>
       </div>
-      <div v-if="redactors && redactors.length" id="spaceRedactorsList" class="px-1">
+      <div
+        v-if="redactors && redactors.length"
+        id="spaceRedactorsList"
+        class="px-1">
         <h5>{{ $t("social.space.description.redactors") }}</h5>
         <div id="spaceRedactors">
           <exo-user-avatar
