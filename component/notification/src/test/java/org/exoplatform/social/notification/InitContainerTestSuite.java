@@ -41,9 +41,7 @@ import org.junit.runners.Suite.SuiteClasses;
   DlpAdminDetectedItemWebBuilderTest.class,
   DlpAdminDetectedItemMailBuilderTest.class,
   DlpUserRestoredItemWebBuilderTest.class,
-  DlpUserRestoredItemMailBuilderTest.class,
-  MalwareDetectionWebBuilderTest.class,
-  MalwareDetectionMailBuilderTest.class
+  DlpUserRestoredItemMailBuilderTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
