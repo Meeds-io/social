@@ -237,6 +237,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
       //
       String position = (String) updatedProfile.getProperty(Profile.POSITION);
       String gender = (String) updatedProfile.getProperty(Profile.GENDER);
+      String external = (String) updatedProfile.getProperty(Profile.EXTERNAL);
 
       UserProfile foundUserProfile = organizationService.getUserProfileHandler()
                                                         .findUserProfileByName(userName);
@@ -256,6 +257,13 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
         foundUserProfile.setAttribute(UserProfile.PERSONAL_INFO_KEYS[4], gender);// "user.gender"
         hasUpdated = true;
       }
+
+      String uExternal=foundUserProfile.getAttribute(UserProfile.OTHER_KEYS[2]);//external
+      if (!StringUtils.equals(external, uExternal)) {
+        foundUserProfile.setAttribute(UserProfile.OTHER_KEYS[2], external);// "external"
+        hasUpdated=true;
+      }
+
       if (hasUpdated) {
         organizationService.getUserProfileHandler().saveUserProfile(foundUserProfile, false);
       }
