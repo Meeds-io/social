@@ -17,12 +17,12 @@
       {{ commentNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
     <extension-registry-components
-        :params="extensionParams"
-        name="ActivityReactionsCount"
-        type="activity-reaction-count"
-        parent-element="div"
-        element="div"
-        class=" d-flex flex-column" />
+      :params="extensionParams"
+      name="ActivityReactionsCount"
+      type="activity-reaction-count"
+      parent-element="div"
+      element="div"
+      class=" d-flex flex-column" />
   </div>
 </template>
 <script>
