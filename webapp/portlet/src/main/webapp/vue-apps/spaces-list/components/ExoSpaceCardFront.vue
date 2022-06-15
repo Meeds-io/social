@@ -23,6 +23,9 @@
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-spacer />
+      <exo-space-favorite-action
+        v-if="space.isMember"
+        :space="space" />
       <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"

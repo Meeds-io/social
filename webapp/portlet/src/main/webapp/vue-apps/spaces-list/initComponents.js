@@ -6,6 +6,8 @@ import ExoSpaceCardFront from './components/ExoSpaceCardFront.vue';
 import ExoSpaceCardReverse from './components/ExoSpaceCardReverse.vue';
 import ExoSpaceManagersDrawer from './components/ExoSpaceManagersDrawer.vue';
 import ExoSpaceFormDrawer from './components/ExoSpaceFormDrawer.vue';
+import ExoSpaceFavoriteAction from './components/ExoSpaceFavoriteAction.vue';
+import SpaceNotificationAlerts from './components/SpaceNotificationAlerts.vue';
 
 const components = {
   'exo-spaces-list': ExoSpacesList,
@@ -16,6 +18,8 @@ const components = {
   'exo-space-card-reverse': ExoSpaceCardReverse,
   'exo-space-managers-drawer': ExoSpaceManagersDrawer,
   'exo-space-form-drawer': ExoSpaceFormDrawer,
+  'exo-space-favorite-action': ExoSpaceFavoriteAction,
+  'space-notification-alerts': SpaceNotificationAlerts,
 };
 
 for (const key in components) {
