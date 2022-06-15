@@ -12,6 +12,8 @@
     <span class="text-color">
       {{ alertMessage }}
     </span>
+    <slot name="actions">
+    </slot>
     <v-btn
       v-if="alert && alert.click"
       class="primary--text"
