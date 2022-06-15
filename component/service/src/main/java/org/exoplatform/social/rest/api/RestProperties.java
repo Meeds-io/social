@@ -43,4 +43,6 @@ public class RestProperties {
   public static final String MEMBERS_COUNT = "membersCount";
 
   public static final String FAVORITE = "favorite";
+
+  public static final String FAVORITE_TYPE = "space";
 }

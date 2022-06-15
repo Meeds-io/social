@@ -480,7 +480,7 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.FAVORITE)) {
           FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
-          boolean isFavorite = favoriteService.isFavorite(new Favorite("space", space.getId(),null, Long.parseLong(userIdentity.getId())));
+          boolean isFavorite = favoriteService.isFavorite(new Favorite(RestProperties.FAVORITE_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
           spaceEntity.setIsFavorite(String.valueOf(isFavorite));
         }
       }
