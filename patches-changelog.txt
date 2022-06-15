@@ -1,5 +1,18 @@
-              2022-06-15 eXo Support <support@exoplatform.org> 
+             2022-06-15 eXo Support <support@exoplatform.org> 
 
    # 6.2.5 Patches changelog: 
+   
+   * 2022-04-13: Patch-6.2.5:1, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
 
+  -  https://github.com/Meeds-io/gatein-portal/commit/265fe71091c1f3edfcb4ab0989a94b94f9fe22ff
+  
+     * 2022-04-26: Patch-6.2.5:2, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
+
+  -  https://github.com/exoplatform/agenda/pull/428
+  -  https://github.com/Meeds-io/social/pull/1428
+  -  https://github.com/exoplatform/news/pull/494
+  -  https://github.com/Meeds-io/social/pull/1414
+  -  https://github.com/exoplatform/data-upgrade/pull/96
+  -  https://github.com/Meeds-io/commons/pull/304
+  -  https://github.com/Meeds-io/core/pull/54
 
