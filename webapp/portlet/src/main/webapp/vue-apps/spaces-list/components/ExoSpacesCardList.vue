@@ -157,8 +157,8 @@ export default {
     },
     searchSpaces() {
       this.loadingSpaces = true;
-      this.loadingSpaces = true;
-      return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter)
+      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite';
+      return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.spacesSize = data && data.size || 0;
