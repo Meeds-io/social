@@ -17,6 +17,7 @@
 
     <exo-space-managers-drawer />
     <exo-space-form-drawer />
+    <space-notification-alerts />
   </v-app>    
 </template>
 
