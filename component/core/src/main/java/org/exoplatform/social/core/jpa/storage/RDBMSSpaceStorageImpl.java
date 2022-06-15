@@ -30,6 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
 import org.exoplatform.social.core.jpa.storage.dao.*;
@@ -46,40 +47,49 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.web.security.Token;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   /** Logger */
-  private static final Log     LOG = ExoLogger.getLogger(RDBMSSpaceStorageImpl.class);
+  private static final Log           LOG                        = ExoLogger.getLogger(RDBMSSpaceStorageImpl.class);
 
-  private static final int     BATCH_SIZE = 100;
+  private static final int           BATCH_SIZE                 = 100;
 
-  private SpaceDAO             spaceDAO;
+  private static final String        SPACE_METADATA_OBJECT_TYPE = "space";
 
-  private SpaceMemberDAO       spaceMemberDAO;
+  private SpaceDAO                   spaceDAO;
 
-  private IdentityDAO          identityDAO;
+  private SpaceMemberDAO             spaceMemberDAO;
 
-  private IdentityStorage     identityStorage;
+  private IdentityDAO                identityDAO;
 
-  private ActivityDAO         activityDAO;
+  private IdentityStorage            identityStorage;
+
+  private ActivityDAO                activityDAO;
 
   private SpaceExternalInvitationDAO spaceExternalInvitationDAO;
+
+  private FavoriteService            favoriteService;
 
   public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO,
                                SpaceMemberDAO spaceMemberDAO,
                                IdentityStorage identityStorage,
                                IdentityDAO identityDAO,
                                ActivityDAO activityDAO,
-                               SpaceExternalInvitationDAO spaceExternalInvitationDAO) {
+                               SpaceExternalInvitationDAO spaceExternalInvitationDAO,
+                               FavoriteService favoriteService) {
     this.spaceDAO = spaceDAO;
     this.identityStorage = identityStorage;
     this.spaceMemberDAO = spaceMemberDAO;
     this.identityDAO = identityDAO;
     this.activityDAO = activityDAO;
     this.spaceExternalInvitationDAO = spaceExternalInvitationDAO;
+    this.favoriteService = favoriteService;
   }
 
   @Override
@@ -663,6 +673,21 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     if (userId != null && status != null) {
       filter.setRemoteId(userId);
       filter.addStatus(status.toArray(new Status[status.size()]));
+    }
+
+    if (spaceFilter.isFavorite() && StringUtils.isNotBlank(userId)) {
+      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userId);
+      if (identity != null) {
+        long userIdentityId = Long.parseLong(identity.getId());
+        List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
+                                                                                            userIdentityId,
+                                                                                            0,
+                                                                                            -1);
+        Set<Long> favoriteSpaceIds = metadataItems.stream()
+                                                  .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
+                                                  .collect(Collectors.toSet());
+        filter.setIds(favoriteSpaceIds);
+      }
     }
 
     if (filter.isUnifiedSearch()) {
