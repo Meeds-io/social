@@ -93,7 +93,7 @@
       </v-avatar>
       <div class="my-4">
         <div
-          v-if="title && !isKudosActivity"
+          v-if="title && !displayUserPopover"
           v-sanitized-html="title"
           :title="titleTooltip"
           :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
@@ -104,7 +104,7 @@
           class="d-flex align-center text-color mx-0 mt-0 mb-2 text-wrap text-break">
           <span class="font-weight-bold" v-sanitized-html="title"></span>
           <exo-user-avatar
-            :identity="identityReceiver"
+            :identity="receiverIdentity"
             extra-class="ms-2"
             fullname 
             popover 
@@ -142,8 +142,7 @@ export default {
   data: () => ({
     title: null,
     titleTooltip: null,
-    isKudosActivity: false,
-    identityReceiver: {},
+    receiverIdentity: null,
     summary: null,
     summaryTooltip: null,
     thumbnail: null,
@@ -165,8 +164,11 @@ export default {
     getSourceLink() {
       return this.activityTypeExtension && this.activityTypeExtension.getSourceLink;
     },
-    getActivityType() {
-      return this.activityTypeExtension && this.activityTypeExtension.getActivityType;
+    getReceiver() {
+      return this.activityTypeExtension && this.activityTypeExtension.getReceiver;
+    },
+    displayUserPopover() {
+      return this.receiverIdentity !== null;
     },
     supportsThumbnail() {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
@@ -272,11 +274,10 @@ export default {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
-      this.isKudosActivity =  this.getActivityType && this.getActivityType(this.activity, this.isActivityDetail) === 'kudos';
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
+      this.receiverIdentity = this.getReceiver(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
-        if (this.isKudosActivity) {
-          this.identityReceiver = this.title.params[0];
+        if (this.displayUserPopover) {
           this.title = this.$t(this.title.key, '' || {});
         } else {
           this.title = this.$t(this.title.key, this.title.params || {});
