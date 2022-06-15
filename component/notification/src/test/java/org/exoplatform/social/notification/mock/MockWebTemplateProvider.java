@@ -22,8 +22,7 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "classpath:/notification/web/templates/SpaceInvitationPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpUserDetectedItemPlugin.ID, template = "classpath:/notification/web/templates/DlpUserDetectedItemPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpAdminDetectedItemPlugin.ID, template = "classpath:/notification/web/templates/DlpAdminDetectedItemPlugin.gtmpl"),    
-    @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "classpath:/notification/web/templates/DlpUserRestoredItemPlugin.gtmpl"),
-    @TemplateConfig(pluginId = MalwareDetectionPlugin.ID, template = "classpath:/notification/web/templates/MalwareDetectionPlugin.gtmpl")})
+    @TemplateConfig(pluginId = DlpUserRestoredItemPlugin.ID, template = "classpath:/notification/web/templates/DlpUserRestoredItemPlugin.gtmpl")})
 public class MockWebTemplateProvider extends WebTemplateProvider {
 
   public MockWebTemplateProvider(InitParams initParams) {
