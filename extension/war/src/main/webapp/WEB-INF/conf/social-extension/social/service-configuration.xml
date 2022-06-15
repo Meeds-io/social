@@ -95,9 +95,6 @@
   <component>
     <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
   </component>
-  <component>
-    <type>org.exoplatform.social.service.malwareDetection.rest.MalwareDetectionRestService</type>
-  </component>
   <!-- END: Supported REST service -->
 
 <!-- Getting Started Services -->
@@ -105,42 +102,4 @@
     <type>org.exoplatform.social.core.service.GettingStartedService</type>
   </component>
 <!-- Getting Started Services -->
-
-<!-- Malware Detection Services -->
-  <component>
-    <type>org.exoplatform.social.service.malwareDetection.MalwareDetectionService</type>
-  </component>
-<!-- Malware Detection Services -->
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.social.service.malwareDetection.MalwareDetectionService</target-component>
-	<!-- Malware Detection Files Connector -->
-    <component-plugin>
-      <name>MalwareDetectionFilesConnector</name>
-      <set-method>addMalwareDetectionItemConnector</set-method>
-      <type>org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionFilesConnector</type>
-      <description>Malware Detection Files Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="enable" value="true"/>
-          <property name="type" value="files"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <!-- TrendMicro Malware Detection Connector -->
-    <component-plugin>
-      <name>TrendMicroMalwareDetectionConnector</name>
-      <set-method>addMalwareDetectionConnector</set-method>
-      <type>org.exoplatform.social.service.malwareDetection.connector.TrendMicroMalwareDetectionConnector</type>
-      <description>TrendMicro Malware Detection Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="isDefault" value="${exo.malwareDetection.connector.trendMicro.isDefault:false}"/>
-          <property name="type" value="trendMicro"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
 </configuration>
