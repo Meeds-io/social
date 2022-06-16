@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.common.ListAccessValidator;
 import org.exoplatform.social.core.space.model.Space;
@@ -227,6 +228,10 @@ public class SpaceListAccess implements ListAccess<Space> {
    */
   public Space[] load(int offset, int limit) throws Exception, IllegalArgumentException {
     ListAccessValidator.validateIndex(offset, limit, this.getSize());
+    if (spaceFilter != null && spaceFilter.isFavorite() && StringUtils.isBlank(spaceFilter.getRemoteId())) {
+      spaceFilter.setRemoteId(userId);
+    }
+
     List<Space> listSpaces = null;
     switch (type) {
       case ALL: listSpaces = spaceStorage.getSpaces(offset, limit);

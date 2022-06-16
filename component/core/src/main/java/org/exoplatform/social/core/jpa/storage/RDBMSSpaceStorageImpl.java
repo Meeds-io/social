@@ -670,13 +670,15 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   private List<Space> getSpaces(String userId, List<Status> status, SpaceFilter spaceFilter, long offset, long limit) {
     XSpaceFilter filter = new XSpaceFilter();
     filter.setSpaceFilter(spaceFilter);
-    if (userId != null && status != null) {
+    if (userId != null) {
       filter.setRemoteId(userId);
-      filter.addStatus(status.toArray(new Status[status.size()]));
+      if (status != null) {
+        filter.addStatus(status.toArray(new Status[status.size()]));
+      }
     }
 
-    if (filter.isFavorite() && StringUtils.isNotBlank(userId)) {
-      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userId);
+    if (filter.isFavorite() && StringUtils.isNotBlank(filter.getRemoteId())) {
+      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, filter.getRemoteId());
       if (identity != null) {
         long userIdentityId = Long.parseLong(identity.getId());
         List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
@@ -710,9 +712,26 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   private int getSpacesCount(String userId, List<Status> status, SpaceFilter spaceFilter) {
     XSpaceFilter filter = new XSpaceFilter();
     filter.setSpaceFilter(spaceFilter);
-    if (userId != null && status != null) {
+    if (userId != null) {
       filter.setRemoteId(userId);
-      filter.addStatus(status.toArray(new Status[status.size()]));
+      if (status != null) {
+        filter.addStatus(status.toArray(new Status[status.size()]));
+      }
+    }
+
+    if (filter.isFavorite() && StringUtils.isNotBlank(filter.getRemoteId())) {
+      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, filter.getRemoteId());
+      if (identity != null) {
+        long userIdentityId = Long.parseLong(identity.getId());
+        List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
+                                                                                            userIdentityId,
+                                                                                            0,
+                                                                                            -1);
+        Set<Long> favoriteSpaceIds = metadataItems.stream()
+                                                  .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
+                                                  .collect(Collectors.toSet());
+        filter.setIds(favoriteSpaceIds);
+      }
     }
 
     if (filter.isUnifiedSearch()) {
