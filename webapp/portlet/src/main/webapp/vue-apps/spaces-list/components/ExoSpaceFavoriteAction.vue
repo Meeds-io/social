@@ -62,6 +62,12 @@ export default {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
     },
     displayAlert(message, type) {
+      document.dispatchEvent(new CustomEvent('search-notification-alert', {
+        detail: {
+          message,
+          type: type || 'success',
+        }
+      }));
       this.$root.$emit('space-notification-alert', {
         message,
         type: type || 'success',

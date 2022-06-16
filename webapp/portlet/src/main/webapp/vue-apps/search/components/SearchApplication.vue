@@ -32,6 +32,7 @@
         </v-card>
       </v-flex>
     </v-fade-transition>
+    <search-notification-alerts />
   </v-app>
 </template>
 

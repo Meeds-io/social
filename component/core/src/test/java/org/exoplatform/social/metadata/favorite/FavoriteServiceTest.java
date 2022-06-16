@@ -148,13 +148,15 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     createNewMetadataItem(favoriteType, "testMetadata4", otherObjectType,
         "objectId1", "parentObjectId1", userIdentityId, audienceId);
 
-    List<MetadataItem> favoritesList = favoriteService
-        .getFavoriteItemsByCreatorAndType(objectType, userIdentityId, 3, 0);
+    List<MetadataItem> favoritesList = metadataService
+        .getMetadataItemsByMetadataNameAndTypeAndObject(
+            String.valueOf(userIdentityId), favoriteType, objectType, 3, 0);
     assertEquals(2, favoritesList.size());
 
-    favoritesList = favoriteService.getFavoriteItemsByCreatorAndType("testType",
-        userIdentityId, 3, 0);
-    assertEquals(2, favoritesList.size());
+    favoritesList = metadataService
+        .getMetadataItemsByMetadataNameAndTypeAndObject(
+            String.valueOf(userIdentityId), favoriteType, "test", 3, 0);
+    assertEquals(0, favoritesList.size());
 
   }
 
