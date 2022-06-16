@@ -35,23 +35,26 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String TYPE = "space";
+  public static final String    TYPE                       = "space";
 
-  public static final String SPACE_METADATA_OBJECT_TYPE = "space";
+  public static final String    SPACE_METADATA_OBJECT_TYPE = "space";
 
-  private static final Log   LOG  = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
+  private static final Log      LOG                        = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
 
-  private SpaceService       spaceService;
+  private SpaceService          spaceService;
 
-  private SpaceStorage       spaceStorage;
+  private SpaceStorage          spaceStorage;
 
-  private final MetadataService metadataService;                                                   // NOSONAR
+  private MetadataService    metadataService;
 
-  public SpaceIndexingServiceConnector(InitParams initParams, SpaceService spaceService, SpaceStorage spaceStorage, MetadataService metadataService) {
+  public SpaceIndexingServiceConnector(InitParams initParams,
+                                       SpaceService spaceService,
+                                       SpaceStorage spaceStorage,
+                                       MetadataService metadataService) {
     super(initParams);
     this.spaceService = spaceService;
     this.spaceStorage = spaceStorage;
-    this.metadataService=metadataService;
+    this.metadataService = metadataService;
   }
 
   @Override
