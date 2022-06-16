@@ -9,9 +9,7 @@
     dismissible
     colored-border
     outlined>
-    <span class="text-color">
-      {{ alertMessage }}
-    </span>
+    <span v-sanitized-html="alertMessage" class="text-color"></span>
     <slot name="actions">
     </slot>
     <v-btn
@@ -20,15 +18,6 @@
       text
       @click="alert.click">
       {{ alert.clickMessage }}
-    </v-btn>
-    <v-btn
-      slot="close"
-      slot-scope="{toggle}"
-      icon
-      small
-      light
-      @click="toggle">
-      <v-icon>close</v-icon>
     </v-btn>
   </v-alert>
 </template>
