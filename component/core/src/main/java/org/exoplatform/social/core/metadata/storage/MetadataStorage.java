@@ -159,23 +159,6 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
-  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectTypeAndCreator(long metadataType,
-                                                                                  String objectType,
-                                                                                  long creatorId,
-                                                                                  long offset,
-                                                                                  long limit) {
-    List<MetadataItemEntity> metadataItemEntities =
-                                                  metadataItemDAO.getMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType,
-                                                                                                                        objectType,
-                                                                                                                        creatorId,
-                                                                                                                        offset,
-                                                                                                                        limit);
-    if (CollectionUtils.isEmpty(metadataItemEntities)) {
-      return Collections.emptyList();
-    }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
-  }
-
   public MetadataItem deleteMetadataItemById(long id) {
     MetadataItemEntity metadataItemEntity = this.metadataItemDAO.find(id);
     if (metadataItemEntity != null) {

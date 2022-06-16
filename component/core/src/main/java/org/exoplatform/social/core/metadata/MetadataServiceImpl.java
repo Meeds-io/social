@@ -352,22 +352,6 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return this.metadataStorage.getMetadataItemsByMetaDataTypeAndCreator(metadataType.getId(), creatorId, offset, limit);
   }
 
-  @Override
-  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectTypeAndCreator(String metadataTypeName,
-                                                                                  String objectType,
-                                                                                  long creatorId,
-                                                                                  long offset,
-                                                                                  long limit) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
-    }
-    if (creatorId <= 0) {
-      throw new IllegalArgumentException("creatorId is mandatory.");
-    }
-    return this.metadataStorage.getMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType.getId(), objectType, creatorId, offset, limit);
-  }
-
   public int countMetadataItemsByMetadataTypeAndCreator(String metadataTypeName, long creatorId) {
     MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
     if (metadataType == null) {

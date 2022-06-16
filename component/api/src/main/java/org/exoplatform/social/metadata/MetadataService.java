@@ -268,21 +268,6 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataTypeAndCreator (String metadataTypeName, long creatorId, long offset, long limit);
 
   /**
-   * 
-   * @param metadataTypeName {@link Metadata} type
-   * @param objectType {@link MetadataObject} type
-   * @param creatorId {@link MetadataItem} creatorId
-   * @param offset offset of ids to retrieve
-   * @param limit limit of ids to retrieve
-   * @return {@link List} of linked {@link MetadataItem}
-   */
-  List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectTypeAndCreator(String metadataTypeName,
-                                                                           String objectType,
-                                                                           long creatorId,
-                                                                           long offset,
-                                                                           long limit);
-
-  /**
    * Count the size of metadata items to a given {@link Metadata} type,
    * {@link MetadataItem} creatorId
    *
@@ -421,6 +406,5 @@ public interface MetadataService {
    * @return {@link List} of {@link Metadata} names
    */
    List<String> findMetadataNamesByUserAndQuery(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId, long limit);
-
 
 }
