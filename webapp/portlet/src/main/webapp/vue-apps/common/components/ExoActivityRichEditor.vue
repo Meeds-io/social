@@ -63,7 +63,7 @@ export default {
       type: Boolean,
       default: false
     },
-    addExtraPlugin: {
+    useExtraPlugins: {
       type: Boolean,
       default: false
     }
@@ -169,7 +169,7 @@ export default {
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
-      if (ckEditorExtensions && ckEditorExtensions.length && this.addExtraPlugin) {
+      if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
             extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
