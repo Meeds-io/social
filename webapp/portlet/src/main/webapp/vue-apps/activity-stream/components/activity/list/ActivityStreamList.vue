@@ -229,10 +229,10 @@ export default {
       this.limit += newActivitiesCount;
       this.loadActivityIds().catch(() => window.location.reload());
       this.$nextTick().then(() => {
-        const $streamPageContainer = $('#ActivityStream')[0];
+        const streamPageContainerElement = document.getElementById('ActivityStream');
         window.setTimeout(() => {
-          if ($streamPageContainer && $streamPageContainer.scrollIntoView) {
-            $streamPageContainer.scrollIntoView({
+          if (streamPageContainerElement && streamPageContainerElement.scrollIntoView) {
+            streamPageContainerElement.scrollIntoView({
               behavior: 'smooth',
               block: 'start',
             });
