@@ -62,6 +62,10 @@ export default {
     autofocus: {
       type: Boolean,
       default: false
+    },
+    useExtraPlugins: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -165,7 +169,7 @@ export default {
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
-      if (ckEditorExtensions && ckEditorExtensions.length && (this.ckEditorType === 'activityContent' || this.ckEditorType.startsWith('comment_'))) {
+      if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
             extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;

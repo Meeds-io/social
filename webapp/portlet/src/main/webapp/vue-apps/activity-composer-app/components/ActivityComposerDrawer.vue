@@ -19,6 +19,7 @@
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
             ck-editor-type="activityContent"
+            use-extra-plugins
             autofocus />
         </v-card-text>
         <v-card-actions class="d-flex px-4">
