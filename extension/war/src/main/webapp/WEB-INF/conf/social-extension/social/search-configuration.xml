@@ -99,6 +99,9 @@
             <field name="enabled">
               <boolean>${exo.search.space.enabled:true}</boolean>
             </field>
+			<field name="favoritesEnabled">
+				<boolean>true</boolean>
+			</field>
             <field name="jsModule">
               <string>SHARED/SpaceSearchResultCard</string>
             </field>

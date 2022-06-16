@@ -675,7 +675,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       filter.addStatus(status.toArray(new Status[status.size()]));
     }
 
-    if (spaceFilter.isFavorite() && StringUtils.isNotBlank(userId)) {
+    if (filter.isFavorite() && StringUtils.isNotBlank(userId)) {
       Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userId);
       if (identity != null) {
         long userIdentityId = Long.parseLong(identity.getId());

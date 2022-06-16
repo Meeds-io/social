@@ -38,6 +38,7 @@ import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
 import org.exoplatform.social.core.storage.cache.model.data.*;
 import org.exoplatform.social.core.storage.cache.model.key.*;
 import org.exoplatform.social.core.storage.cache.selector.*;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -190,8 +191,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
                             IdentityDAO identityDAO,
                             ActivityDAO activityDAO,
                             SpaceExternalInvitationDAO spaceExternalInvitationDAO,
-                            SocialStorageCacheService cacheService) {
-    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO);
+                            SocialStorageCacheService cacheService,
+                            FavoriteService favoriteService) {
+    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO,favoriteService);
     this.cacheService = cacheService;
 
     this.exoSpaceCache = cacheService.getSpaceCache();
