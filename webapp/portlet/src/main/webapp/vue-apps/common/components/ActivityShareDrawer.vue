@@ -39,6 +39,7 @@
               :max-length="MESSAGE_MAX_LENGTH"
               :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
               ck-editor-type="activityShare"
+              use-extra-plugins
               class="flex"
               @validity-updated="validInput = $event" />
           </div>
