@@ -228,6 +228,17 @@ export default {
     loadActivities(newActivitiesCount) {
       this.limit += newActivitiesCount;
       this.loadActivityIds().catch(() => window.location.reload());
+      this.$nextTick().then(() => {
+        const $streamPageContainer = $('#ActivityStream')[0];
+        window.setTimeout(() => {
+          if ($streamPageContainer && $streamPageContainer.scrollIntoView) {
+            $streamPageContainer.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+          }
+        }, 10);
+      });
     },
   },
 };
