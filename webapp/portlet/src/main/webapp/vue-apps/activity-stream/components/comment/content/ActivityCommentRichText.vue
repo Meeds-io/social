@@ -18,6 +18,7 @@
           :activity-id="activityId"
           :template-params="templateParams"
           suggestor-type-of-relation="mention_comment"
+          use-extra-plugins
           autofocus
           @ready="handleEditorReady" />
         <extension-registry-components
