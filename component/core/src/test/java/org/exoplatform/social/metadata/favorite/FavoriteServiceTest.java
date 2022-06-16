@@ -130,6 +130,33 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     assertEquals(0, favoritesList.size());
 
   }
+  
+  public void testGetFavoriteItemsByCreatorAndType() throws Exception {
+
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    String objectType = "space";
+    String otherObjectType = "activite";
+    long audienceId = userIdentityId;
+    String favoriteType = favoriteMetadataType.getName();
+
+    createNewMetadataItem(favoriteType, "testMetadata1", objectType,
+        "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata2", otherObjectType,
+        "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata3", objectType,
+        "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata4", otherObjectType,
+        "objectId1", "parentObjectId1", userIdentityId, audienceId);
+
+    List<MetadataItem> favoritesList = favoriteService
+        .getFavoriteItemsByCreatorAndType(objectType, userIdentityId, 3, 0);
+    assertEquals(2, favoritesList.size());
+
+    favoritesList = favoriteService.getFavoriteItemsByCreatorAndType("testType",
+        userIdentityId, 3, 0);
+    assertEquals(2, favoritesList.size());
+
+  }
 
   public void testDeleteFavorite() throws ObjectAlreadyExistsException, ObjectNotFoundException {
     String objectType = "type";
