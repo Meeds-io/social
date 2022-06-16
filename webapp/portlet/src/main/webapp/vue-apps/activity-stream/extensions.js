@@ -37,17 +37,6 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
-extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
-  id: 'embedded-html',
-  isEnabled: (params) => {
-    const activityTypeExtension = params && params.activityTypeExtension;
-    const activity = params && params.activity;
-    const isActivityDetail = params && params.isActivityDetail;
-    return activityTypeExtension.getEmbeddedHtml && activityTypeExtension.getEmbeddedHtml(activity, isActivityDetail);
-  },
-  vueComponent: Vue.options.components['activity-embedded-html'],
-  rank: 5,
-});
 
 const defaultActivityOptions = {
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
@@ -91,6 +80,17 @@ const defaultActivityOptions = {
   canShare: () => true,
 };
 
+extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+  id: 'embedded-html',
+  isEnabled: (params) => {
+    const activityTypeExtension = params && params.activityTypeExtension;
+    const activity = params && params.activity;
+    const isActivityDetail = params && params.isActivityDetail;
+    return (activityTypeExtension.getEmbeddedHtml || defaultActivityOptions.getEmbeddedHtml)(activity, isActivityDetail);
+  },
+  vueComponent: Vue.options.components['activity-embedded-html'],
+  rank: 5,
+});
 // Register predefined activity types
 extensionRegistry.registerExtension('activity', 'type', {
   type: 'default',

@@ -92,25 +92,12 @@
         </v-icon>
       </v-avatar>
       <div class="my-4">
-        <div
-          v-if="title && !isKudosActivity"
-          v-sanitized-html="title"
-          :title="titleTooltip"
+        <dynamic-html-element
+          v-if="title"
+          :child="titleElement"
           :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
-          class="font-weight-bold text-color mx-0 mt-0 mb-2 text-wrap text-break">
-        </div>
-        <div 
-          v-else
-          class="d-flex align-center text-color mx-0 mt-0 mb-2 text-wrap text-break">
-          <span class="font-weight-bold" v-sanitized-html="title"></span>
-          <exo-user-avatar
-            :identity="identityReceiver"
-            extra-class="ms-2"
-            fullname 
-            popover 
-            bold-title
-            link-style />
-        </div>
+          class="font-weight-bold text-color mx-0 mt-0 mb-2 text-wrap text-break"
+          dir="auto" />
         <dynamic-html-element
           v-if="summary"
           :child="summaryElement"
@@ -142,8 +129,6 @@ export default {
   data: () => ({
     title: null,
     titleTooltip: null,
-    isKudosActivity: false,
-    identityReceiver: {},
     summary: null,
     summaryTooltip: null,
     thumbnail: null,
@@ -164,9 +149,6 @@ export default {
     },
     getSourceLink() {
       return this.activityTypeExtension && this.activityTypeExtension.getSourceLink;
-    },
-    getActivityType() {
-      return this.activityTypeExtension && this.activityTypeExtension.getActivityType;
     },
     supportsThumbnail() {
       return this.activityTypeExtension && this.activityTypeExtension.supportsThumbnail;
@@ -257,6 +239,11 @@ export default {
         template: ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
       };
     },
+    titleElement() {
+      return {
+        template: ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
+      };
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -272,15 +259,9 @@ export default {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
-      this.isKudosActivity =  this.getActivityType && this.getActivityType(this.activity, this.isActivityDetail) === 'kudos';
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
-        if (this.isKudosActivity) {
-          this.identityReceiver = this.title.params[0];
-          this.title = this.$t(this.title.key, '' || {});
-        } else {
-          this.title = this.$t(this.title.key, this.title.params || {});
-        }
+        this.title = this.$t(this.title.key, this.title.params || {});
       } else {
         this.title = this.$utils.trim(this.title);
       }
