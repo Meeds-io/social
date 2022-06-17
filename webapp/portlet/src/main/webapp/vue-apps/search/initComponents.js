@@ -4,7 +4,6 @@ import SearchResults from './components/SearchResults.vue';
 import SearchResultCard from './components/SearchResultCard.vue';
 import SearchTagSelector from './components/SearchTagSelector.vue';
 import SearchTagList from './components/SearchTagList.vue';
-import SearchNotificationAlerts from './components/SearchNotificationAlerts.vue';
 
 const components = {
   'search-application': SearchApplication,
@@ -13,7 +12,6 @@ const components = {
   'search-result-card': SearchResultCard,
   'search-tag-selector': SearchTagSelector,
   'search-tag-list': SearchTagList,
-  'search-notification-alerts': SearchNotificationAlerts,
 };
 
 for (const key in components) {

@@ -1088,6 +1088,19 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     return key;
   }
 
+  public void clearSpaceCached(String spaceId) {
+    SpaceKey cacheKey = new SpaceKey(spaceId);
+    SpaceData cachedSpace = exoSpaceCache.get(cacheKey);
+    if (cachedSpace != null) {
+      Space space = cachedSpace.build();
+      exoSpaceSimpleCache.remove(cacheKey);
+      exoSpaceCache.remove(cacheKey);
+      cleanRef(space);
+    }
+    clearSpaceCache();
+    clearIdentityCache();
+  }
+
   public void clearCaches() {
     exoSpaceCache.clearCache();
     exoSpaceSimpleCache.clearCache();
@@ -1096,5 +1109,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     exoRefSpaceCache.clearCache();
     exoIdentitiesCache.clearCache();
   }
+
 }
 

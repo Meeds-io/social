@@ -29,7 +29,6 @@ export default {
         const spaceDisplayNames = spaces.map(space => space.displayName || '');
         const message = `${this.$t('UIActivity.share.message')} ${spaceDisplayNames.join(', ')}`;
         this.alert = {
-          activityId,
           message,
           type: 'success',
         };

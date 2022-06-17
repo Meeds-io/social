@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -689,6 +690,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
                                                   .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
                                                   .collect(Collectors.toSet());
         filter.setIds(favoriteSpaceIds);
+      }
+      if (CollectionUtils.isEmpty(filter.getIds())) {
+        return Collections.emptyList();
       }
     }
 
