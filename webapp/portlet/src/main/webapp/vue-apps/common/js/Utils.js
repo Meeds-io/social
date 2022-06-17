@@ -11,6 +11,6 @@ export function htmlToText(htmlContent) {
 }
 
 export function trim(text) {
-  return text && text.trim().replace(/(<p>(&nbsp;)*([ \\n\\r\\t])*<\/p>)*(<div>(&nbsp;)*( \\n\\r\\t)*<\/div>)*(\\r)*(\\n)*(\\t)*/g, '') || '';
+  return text && text.trim().replace(/(<p>(&nbsp;)*(\\n\\r\\t)*<\/p>)*(<div>(&nbsp;)*( \\n\\r\\t)*<\/div>)*(\\r)*(\\n)*(\\t)*/g, '') || '';
 }
 
