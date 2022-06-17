@@ -196,6 +196,10 @@ public class SpaceListAccess implements ListAccess<Space> {
    * {@inheritDoc}
    */
   public int getSize() throws Exception {
+    if (spaceFilter != null && spaceFilter.isFavorite() && StringUtils.isBlank(spaceFilter.getRemoteId())) {
+      spaceFilter.setRemoteId(userId);
+    }
+
     switch (type) {
       case ALL: return spaceStorage.getAllSpacesCount();
       case ALL_FILTER: return spaceStorage.getAllSpacesByFilterCount(this.spaceFilter);

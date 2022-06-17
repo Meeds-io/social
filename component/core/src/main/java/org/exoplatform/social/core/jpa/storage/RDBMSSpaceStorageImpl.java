@@ -736,6 +736,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
                                                   .collect(Collectors.toSet());
         filter.setIds(favoriteSpaceIds);
       }
+      if (CollectionUtils.isEmpty(filter.getIds())) {
+        return 0;
+      }
     }
 
     if (filter.isUnifiedSearch()) {

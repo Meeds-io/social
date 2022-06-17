@@ -21,7 +21,6 @@ package org.exoplatform.social.metadata.favorite;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
@@ -31,7 +30,6 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -65,6 +63,21 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     favoriteMetadataType = new MetadataType(1, "favorites");
     userMetadataType = new MetadataType(2, "user");
 
+    if (metadataService.getMetadataTypeByName(userMetadataType.getName()) == null) {
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user")) {
+        @Override
+        public boolean isAllowMultipleItemsPerObject() {
+          return false;
+        }
+
+        @Override
+        public boolean isShareable() {
+          return true;
+        }
+      };
+      metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
+    }
+
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
   }
 
@@ -78,7 +91,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     super.tearDown();
   }
 
-  public void testCreateFavorite() throws ObjectAlreadyExistsException {
+  public void testCreateFavorite() throws Exception {
     String objectType = "type";
     String objectId = "1";
     String parentObjectId = "2";
@@ -102,7 +115,8 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     try {
       favoriteService.createFavorite(favorite);
       fail();
-    } catch (ObjectAlreadyExistsException e) {
+    } catch (@SuppressWarnings("removal")
+    ObjectAlreadyExistsException e) {
       // Expected
     }
   }
@@ -132,35 +146,35 @@ public class FavoriteServiceTest extends AbstractCoreTest {
   }
   
   public void testGetFavoriteItemsByCreatorAndType() throws Exception {
-
     long userIdentityId = Long.parseLong(johnIdentity.getId());
     String objectType = "space";
     String otherObjectType = "activite";
-    long audienceId = userIdentityId;
-    String favoriteType = favoriteMetadataType.getName();
 
-    createNewMetadataItem(favoriteType, "testMetadata1", objectType,
-        "objectId1", "parentObjectId1", userIdentityId, audienceId);
-    createNewMetadataItem(favoriteType, "testMetadata2", otherObjectType,
-        "objectId1", "parentObjectId1", userIdentityId, audienceId);
-    createNewMetadataItem(favoriteType, "testMetadata3", objectType,
-        "objectId1", "parentObjectId1", userIdentityId, audienceId);
-    createNewMetadataItem(favoriteType, "testMetadata4", otherObjectType,
-        "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    favoriteService.createFavorite(new Favorite(objectType, "objectId1", null, userIdentityId));
+    favoriteService.createFavorite(new Favorite(objectType, "objectId2", null, userIdentityId));
+    favoriteService.createFavorite(new Favorite(otherObjectType, "objectId3", null, userIdentityId));
+    favoriteService.createFavorite(new Favorite(otherObjectType, "objectId4", null, userIdentityId + 1));
 
-    List<MetadataItem> favoritesList = metadataService
-        .getMetadataItemsByMetadataNameAndTypeAndObject(
-            String.valueOf(userIdentityId), favoriteType, objectType, 3, 0);
-    assertEquals(2, favoritesList.size());
-
-    favoritesList = metadataService
-        .getMetadataItemsByMetadataNameAndTypeAndObject(
-            String.valueOf(userIdentityId), favoriteType, "test", 3, 0);
+    List<MetadataItem> favoritesList = favoriteService.getFavoriteItemsByCreatorAndType(objectType,
+                                                                                        userIdentityId,
+                                                                                        2,
+                                                                                        2);
     assertEquals(0, favoritesList.size());
 
+    favoritesList = favoriteService.getFavoriteItemsByCreatorAndType(objectType,
+                                                                     userIdentityId,
+                                                                     0,
+                                                                     2);
+    assertEquals(2, favoritesList.size());
+
+    favoritesList = favoriteService.getFavoriteItemsByCreatorAndType("test",
+                                                                     userIdentityId,
+                                                                     0,
+                                                                     3);
+    assertEquals(0, favoritesList.size());
   }
 
-  public void testDeleteFavorite() throws ObjectAlreadyExistsException, ObjectNotFoundException {
+  public void testDeleteFavorite() throws Exception {
     String objectType = "type";
     String objectId = "1";
     String parentObjectId = "2";
@@ -195,7 +209,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
                                              String objectId,
                                              String parentObjectId,
                                              long creatorId,
-                                             long audienceId) throws ObjectAlreadyExistsException {
+                                             long audienceId) throws Exception {
     MetadataItem metadataItem = new MetadataItem();
     metadataItem.setObjectId(objectId);
     metadataItem.setObjectType(objectType);
