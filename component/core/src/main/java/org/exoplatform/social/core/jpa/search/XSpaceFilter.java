@@ -25,6 +25,8 @@ public class XSpaceFilter extends SpaceFilter {
 
   private Set<Status> status = new HashSet<>();
 
+  private Set<Long>   ids    = null;
+
   private boolean     includePrivate;
 
   private boolean     unifiedSearch;
@@ -44,6 +46,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setIncludeSpaces(spaceFilter.getIncludeSpaces());
       this.setRemoteId(spaceFilter.getRemoteId());
       this.setSorting(spaceFilter.getSorting());
+      this.setIsFavorite(spaceFilter.isFavorite());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }
@@ -124,6 +127,14 @@ public class XSpaceFilter extends SpaceFilter {
 
   public boolean isVisited() {
     return visited;
+  }
+
+  public Set<Long> getIds() {
+    return ids;
+  }
+
+  public void setIds(Set<Long> ids) {
+    this.ids = ids;
   }
 
   @Override

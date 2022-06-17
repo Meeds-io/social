@@ -51,6 +51,8 @@ public class SpaceFilter {
   private static char CHAR_DEFAULT_VALUE = '\u0000';
 
   private Sorting sorting;
+
+  private boolean favorite;
   /**
    * The constructor.
    */
@@ -227,6 +229,14 @@ public class SpaceFilter {
     this.exclusions = exclusions;
   }
 
+  public void setIsFavorite(boolean favorite) {
+    this.favorite = favorite;
+  }
+
+  public boolean isFavorite() {
+    return favorite;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(
@@ -237,6 +247,7 @@ public class SpaceFilter {
                         remoteId,
                         appId,
                         template,
+                        favorite,
                         sorting);
   }
 }

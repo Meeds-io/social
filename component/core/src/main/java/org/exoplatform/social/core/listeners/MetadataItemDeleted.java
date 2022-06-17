@@ -18,13 +18,17 @@ package org.exoplatform.social.core.listeners;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 public class MetadataItemDeleted extends AbstractMetadataItemListener<Long, MetadataItem> {
 
-  public MetadataItemDeleted(MetadataService metadataService, ActivityStorage activityStorage, IndexingService indexingService) {
-    super(metadataService, activityStorage, indexingService);
+  public MetadataItemDeleted(MetadataService metadataService,
+                             ActivityStorage activityStorage,
+                             SpaceStorage spaceStorage,
+                             IndexingService indexingService) {
+    super(metadataService, activityStorage, spaceStorage, indexingService);
   }
 
   @Override
