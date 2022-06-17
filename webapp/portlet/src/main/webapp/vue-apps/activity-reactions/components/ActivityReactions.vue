@@ -42,12 +42,6 @@
         </p>
       </div>
     </div>
-    <activity-reactions-drawer
-      ref="reactionsDrawer"
-      :likers-number="likersNumber"
-      :activity-id="activityId"
-      :activity-poster-id="activityPosterId"
-      :max-items-to-show="maxLikersToShow" />
     <activity-reactions-mobile
       :activity="activity"
       :likers-number="likersNumber"
@@ -110,7 +104,7 @@ export default {
         tab: 'like',
         activityType: 'ACTIVITY'
       };
-      this.$root.$emit(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails);
+      this.$root.$emit('open-reaction-drawer-selected-tab', reactionTabDetails);
     },
   },
 };
