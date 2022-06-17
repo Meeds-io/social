@@ -12,7 +12,7 @@ export function getFavorites(offset, limit,returnSize) {
 }
 
 export function addFavorite(objectType, objectId, parentObjectId, spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&spaceId=${spaceId}&ignoreWhenExisting=true`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&spaceId=${spaceId || 0}&ignoreWhenExisting=true`, {
     method: 'POST',
     credentials: 'include',
   }).then(resp => {
