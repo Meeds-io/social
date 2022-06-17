@@ -20,29 +20,49 @@ package org.exoplatform.social.rest.api;
 public class RestProperties {
 
   public static final String ATTACHMENTS   = "attachments";
+
   public static final String CREATE_DATE   = "createDate";
+
   public static final String DISPLAY_NAME  = "displayName";
+
   public static final String ETAG          = "ETag";
+
   public static final String ID            = "id";
+
   public static final String IDENTITY      = "identity";
+
   public static final String SHARED        = "shared";
+
   public static final String MANAGERS      = "managers";
-  public static final String REDACTORS      = "redactors";
+
+  public static final String REDACTORS     = "redactors";
+
   public static final String MEMBERS       = "members";
+
   public static final String PENDING       = "pending";
+
   public static final String RECEIVER      = "receiver";
+
   public static final String RELATIONSHIPS = "relationships";
+
   public static final String SENDER        = "sender";
+
   public static final String TYPE          = "type";
+
   public static final String SPACE         = "space";
+
   public static final String UPDATE_DATE   = "updateDate";
+
   public static final String LIKES         = "likes";
+
   public static final String SUB_COMMENTS  = "subComments";
+
   public static final String CAN_EDIT      = "canEdit";
+
   public static final String CAN_DELETE    = "canDelete";
+
   public static final String MEMBERS_COUNT = "membersCount";
 
-  public static final String FAVORITE = "favorite";
+  public static final String FAVORITE      = "favorite";
 
-  public static final String FAVORITE_TYPE = "space";
 }

@@ -1,6 +1,7 @@
 <template>
   <div>
     <popover-user v-if="!isMobile" />
+    <notification-alerts />
   </div>
 </template>
 <script>
