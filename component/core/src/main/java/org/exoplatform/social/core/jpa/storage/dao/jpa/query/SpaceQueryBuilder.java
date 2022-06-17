@@ -21,6 +21,7 @@ import java.util.*;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
 import org.exoplatform.social.core.jpa.storage.entity.AppEntity_;
@@ -100,7 +101,11 @@ public final class SpaceQueryBuilder {
   
   private Predicate buildPredicateFilter(Root<SpaceEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder cb, Root<SpaceEntity> connection) {
     List<Predicate> predicates = new LinkedList<>();
-    
+
+    if (CollectionUtils.isNotEmpty(spaceFilter.getIds())) {
+      predicates.add(root.get(SpaceEntity_.id).in(spaceFilter.getIds()));
+    }
+
     //status
     if (!spaceFilter.getStatus().isEmpty()) {
       Path<SpaceMemberEntity> join = (Path<SpaceMemberEntity>) getMembersJoin(root, JoinType.INNER);

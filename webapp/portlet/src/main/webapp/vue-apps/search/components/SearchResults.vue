@@ -193,7 +193,7 @@ export default {
 
       results = Object.values(results).flat();
       if (this.favorites) {
-        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite);
+        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite || result.isFavorite);
       }
       return results.sort((a, b) => a.index - b.index);
     },
