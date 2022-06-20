@@ -32,7 +32,6 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.ApplicationType;
@@ -114,8 +113,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   private SpaceTemplateService spaceTemplateService;
 
-  private ConfigurationManager configurationManager;
-
   private ApplicationRegistryService applicationRegistryService;
 
   private String spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
@@ -123,7 +120,6 @@ public class SpaceServiceImpl implements SpaceService {
   public SpaceServiceImpl(SpaceStorage spaceStorage,
                           IdentityManager identityManager,
                           UserACL userACL,
-                          ConfigurationManager configurationManager,
                           IdentityRegistry identityRegistry,
                           WebNotificationService webNotificationService,
                           SpacesAdministrationService spacesAdministrationService,
@@ -137,7 +133,6 @@ public class SpaceServiceImpl implements SpaceService {
     this.webNotificationService = webNotificationService;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
-    this.configurationManager = configurationManager;
     this.applicationRegistryService = applicationRegistryService;
     if (params != null && params.containsKey("spacesApplicationsCategory")) {
       this.spacesApplicationsCategory = params.getValueParam("spacesApplicationsCategory").getValue();

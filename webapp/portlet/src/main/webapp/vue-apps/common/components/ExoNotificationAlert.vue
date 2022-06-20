@@ -38,6 +38,10 @@ export default {
       type: Object,
       default: null
     },
+    noTimeout: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     displayAlert: true,
@@ -71,14 +75,18 @@ export default {
     },
   },
   created() {
-    const time = 5000;
-    window.setTimeout(() => this.displayAlert = false, time);
+    if (!this.noTimeout) {
+      const time = 5000;
+      window.setTimeout(() => this.displayAlert = false, time);
+    }
   },
   methods: {
     showAlert() {
-      const time = 5000;
-      this.displayAlert = true;
-      window.setTimeout(() => this.$emit('dismissed'), time);
+      if (!this.noTimeout) {
+        const time = 5000;
+        this.displayAlert = true;
+        window.setTimeout(() => this.$emit('dismissed'), time);
+      }
     },
   },
 };

@@ -23,6 +23,7 @@ import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
 import java.util.List;
 
@@ -51,6 +52,18 @@ public interface FavoriteService {
    * @return {@link List} of linked {@link MetadataItem}
    */
   List<MetadataItem> getFavoriteItemsByCreator(long creatorId, long offset, long limit);
+
+  /**
+   * Retrieves the favorite items attached to a given {@link MetadataItem}
+   * creatorId and {@link MetadataObject} type
+   * 
+   * @param objectType {@link MetadataObject} type
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getFavoriteItemsByCreatorAndType(String objectType, long creatorId, long offset, long limit);
 
   /**
    * Count the favorite items attached to a given {@link MetadataItem} creatorId

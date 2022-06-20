@@ -25,8 +25,12 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector;
+import org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
@@ -45,17 +49,23 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
 
   private CachedActivityStorage cachedActivityStorage;
 
+  private CachedSpaceStorage    cachedSpaceStorage;
+
   private MetadataService       metadataService;
 
   private IndexingService       indexingService;
 
   protected AbstractMetadataItemListener(MetadataService metadataService,
                                          ActivityStorage activityStorage,
+                                         SpaceStorage spaceStorage,
                                          IndexingService indexingService) {
     this.indexingService = indexingService;
     this.metadataService = metadataService;
     if (activityStorage instanceof CachedActivityStorage) {
       this.cachedActivityStorage = (CachedActivityStorage) activityStorage;
+    }
+    if (spaceStorage instanceof CachedSpaceStorage) {
+      this.cachedSpaceStorage = (CachedSpaceStorage) spaceStorage;
     }
   }
 
@@ -80,13 +90,20 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
     if (isActivityEvent(objectType)) {
       // Ensure to re-execute MetadataActivityProcessor to compute & cache
       // metadatas of the activity again
-      clearCache(objectId);
+      clearActivityCache(objectId);
       reindexActivity(objectId);
+    }  else if (isSpaceEvent(objectType)) {
+      clearSpaceCache(objectId);
+      reindexSpace(objectId);
     }
   }
 
   protected boolean isActivityEvent(String objectType) {
     return StringUtils.equals(objectType, ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE);
+  }
+
+  protected boolean isSpaceEvent(String objectType) {
+    return StringUtils.equals(objectType, Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE);
   }
 
   private void moveMetadataItemToTargetObject(MetadataItem metadataItem, MetadataObject targetMetadataObject) {
@@ -115,9 +132,19 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
     indexingService.reindex(ActivityIndexingServiceConnector.TYPE, activityId);
   }
 
-  private void clearCache(String activityId) {
+  private void clearActivityCache(String activityId) {
     if (cachedActivityStorage != null) {
       cachedActivityStorage.clearActivityCached(activityId);
+    }
+  }
+
+  private void reindexSpace(String spaceId) {
+    indexingService.reindex(SpaceIndexingServiceConnector.TYPE, spaceId);
+  }
+
+  private void clearSpaceCache(String spaceId) {
+    if (cachedSpaceStorage != null) {
+      cachedSpaceStorage.clearSpaceCached(spaceId);
     }
   }
 

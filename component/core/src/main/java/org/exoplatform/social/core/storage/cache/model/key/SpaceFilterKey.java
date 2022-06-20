@@ -38,6 +38,8 @@ public class SpaceFilterKey implements CacheKey {
 
   private String            spaceNameSearchCondition;
 
+  private boolean           favorite;
+
   private String            appId;
 
   private SpaceType         type;
@@ -53,12 +55,13 @@ public class SpaceFilterKey implements CacheKey {
       this.spaceNameSearchCondition = filter.getSpaceNameSearchCondition();
       this.sorting = filter.getSorting();
       this.appId = filter.getAppId();
+      this.favorite = filter.isFavorite();
       if (userId == null) {
         this.userId = filter.getRemoteId();
       }
     }
     this.type = type;
-    this.hash = Objects.hash(this.userId, filter, this.type);
+    this.hash = Objects.hash(this.userId, filter, this.type, this.favorite);
   }
 
   public String getUserId() {
@@ -83,6 +86,10 @@ public class SpaceFilterKey implements CacheKey {
 
   public Sorting getSorting() {
     return sorting;
+  }
+
+  public boolean isFavorite() {
+    return favorite;
   }
 
   @Override
