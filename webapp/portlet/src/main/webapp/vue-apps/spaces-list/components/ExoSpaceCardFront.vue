@@ -24,7 +24,7 @@
       </v-btn>
       <v-spacer />
       <exo-space-favorite-action
-        v-if="space.isMember"
+        v-if="space.isMember && favoritesSpaceEnabled"
         :space="space" />
       <template v-if="canUseActionsMenu">
         <v-btn
@@ -244,6 +244,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
+    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
   }),
   computed: {
     spaceAvatarUrl() {
