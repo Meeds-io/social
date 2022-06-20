@@ -724,39 +724,37 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(id, q, role, expand, cacheTime, offset, limit, returnSize));
+    if (StringUtils.isBlank(role)) {
+      role = SpaceMemberFilterListAccess.Type.MEMBER.name();
+    }
+    SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
 
-    EntityTag eTag = new EntityTag(eTagValue, true);
+    ProfileFilter profileFilter = new ProfileFilter();
+    profileFilter.setName(q);
+
+    ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
+                                                                                                     profileFilter,
+                                                                                                     type,
+                                                                                                     true);
+    Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
+
+    List<DataEntity> profileInfos = null;
+    if (spaceIdentities == null || spaceIdentities.length == 0) {
+      profileInfos = Collections.emptyList();
+    } else {
+      profileInfos = Arrays.stream(spaceIdentities)
+                           .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
+                                                         .getDataEntity())
+                           .collect(Collectors.toList());
+    }
+
+    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+    if (returnSize) {
+      collectionUser.setSize(spaceIdentitiesListAccess.getSize());
+    }
+    EntityTag eTag  = new EntityTag(String.valueOf(collectionUser.hashCode()), true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if (StringUtils.isBlank(role)) {
-        role = SpaceMemberFilterListAccess.Type.MEMBER.name();
-      }
-      SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
-
-      ProfileFilter profileFilter = new ProfileFilter();
-      profileFilter.setName(q);
-
-      ListAccess<Identity> spaceIdentitiesListAccess = identityManager.getSpaceIdentityByProfileFilter(space,
-                                                                                                       profileFilter,
-                                                                                                       type,
-                                                                                                       true);
-      Identity[] spaceIdentities = spaceIdentitiesListAccess.load(offset, limit);
-
-      List<DataEntity> profileInfos = null;
-      if (spaceIdentities == null || spaceIdentities.length == 0) {
-        profileInfos = Collections.emptyList();
-      } else {
-        profileInfos = Arrays.stream(spaceIdentities)
-                             .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
-                                                           .getDataEntity())
-                             .collect(Collectors.toList());
-      }
-
-      CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-      if (returnSize) {
-        collectionUser.setSize(spaceIdentitiesListAccess.getSize());
-      }
       builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
       builder.tag(eTag);
       builder.lastModified(new Date(cacheTime));
