@@ -1355,6 +1355,19 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public List<String> getMemberSpacesIds(String username, int offset, int limit) {
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
+    if (identity == null) {
+      return Collections.emptyList();
+    } else {
+      return this.spaceStorage.getMemberRoleSpaceIds(identity.getId(), offset, limit);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public ListAccess<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter) {
     return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.MANAGER_FILTER);
   }

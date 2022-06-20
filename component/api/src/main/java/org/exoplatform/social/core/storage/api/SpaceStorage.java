@@ -676,15 +676,46 @@ public interface SpaceStorage {
    * @since 4.0.x
    */
   List<Space> getLastSpaces(int limit);
-  
+
   /**
-   * @param identityId
-   * @param offset
-   * @param limit
-   * @return
+   * Retrieves the list of Space {@link Identity} technical identifiers
+   * 
+   * @param identityId user {@link Identity} technical identifier
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of space {@link Identity} technical identifiers
+   * @throws SpaceStorageException
+   * @since 6.4.0
+   * @deprecated use
+   *               {@link SpaceStorage#getMemberRoleSpaceIdentityIds(String, int, int)}
+   *               instead
+   */
+  @Deprecated(since = "6.4.0", forRemoval = true)
+  default List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException {
+    return getMemberRoleSpaceIdentityIds(identityId, offset, limit);
+  }
+
+  /**
+   * Retrieves the list of Space {@link Identity} technical identifiers
+   * 
+   * @param identityId user {@link Identity} technical identifier
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of space {@link Identity} technical identifiers
    * @throws SpaceStorageException
    */
-  public List<String> getMemberSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
+  public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException;
+
+  /**
+   * Retrieves the list of {@link Space} technical identifiers
+   * 
+   * @param identityId user {@link Identity} technical identifier
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of {@link Space} technical identifiers
+   * @throws SpaceStorageException
+   */
+  public List<String> getMemberRoleSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
 
   /**
    * @param spaceId
