@@ -54,7 +54,7 @@ export default {
         }));
     },
     updateLikers() {
-      document.dispatchEvent(new CustomEvent(`update-reaction-extension-${this.parentId}`, {
+      document.dispatchEvent(new CustomEvent('update-reaction-extension', {
         detail: {
           numberOfReactions: this.likers.length,
           type: 'like'

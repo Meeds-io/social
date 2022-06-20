@@ -51,26 +51,10 @@
 
 <script>
 export default {
-  props: {
-    extensionsReactions: {
-      type: Array,
-      default: null
-    },
-    activityId: {
-      type: String,
-      default: () => ''
-    },
-    activityPosterId: {
-      type: String,
-      default: () => ''
-    },
-    maxItemsToShow: {
-      type: Number,
-      default: 0
-    }
-  },
   data () {
     return {
+      activityId: null,
+      activityPosterId: null,
       parentId: '',
       activityType: '',
       limit: 10,
@@ -99,14 +83,13 @@ export default {
     },
   },
   created() {
-    this.parentId = this.activityId;
-    document.addEventListener(`update-reaction-extension-${this.activityId}` , this.updateReaction);
-    document.addEventListener(`open-reaction-drawer-selected-tab-${this.activityId}` , event => {
+    document.addEventListener('update-reaction-extension' , this.updateReaction);
+    document.addEventListener('open-reaction-drawer-selected-tab' , event => {
       if (event && event.detail) {
         this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType,event.detail.activityPosterId);
       }
     });
-    this.$root.$on(`open-reaction-drawer-selected-tab-${this.activityId}`, reactionTabDetails => {
+    this.$root.$on('open-reaction-drawer-selected-tab', reactionTabDetails => {
       this.openSelectedTab(reactionTabDetails.activityId, reactionTabDetails.tab, reactionTabDetails.activityType,reactionTabDetails.activityPosterId);
     });
   },
@@ -124,6 +107,7 @@ export default {
     openSelectedTab(activityId, tab, activityType, activityPosterId) {
       if (activityId && tab) {
         this.activityId = activityId;
+        this.parentId = activityId;
         this.activityPosterId = activityPosterId;
         this.activityType = activityType;
         this.selectedTab = tab;
