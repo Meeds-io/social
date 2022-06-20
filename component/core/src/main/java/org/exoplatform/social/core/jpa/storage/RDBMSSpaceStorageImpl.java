@@ -678,18 +678,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
 
     if (filter.isFavorite() && StringUtils.isNotBlank(filter.getRemoteId())) {
-      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, filter.getRemoteId());
-      if (identity != null) {
-        long userIdentityId = Long.parseLong(identity.getId());
-        List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
-                                                                                            userIdentityId,
-                                                                                            0,
-                                                                                            -1);
-        Set<Long> favoriteSpaceIds = metadataItems.stream()
-                                                  .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
-                                                  .collect(Collectors.toSet());
-        filter.setIds(favoriteSpaceIds);
-      }
+      addFavoriteSpaceIdsToFilter(filter);
       if (CollectionUtils.isEmpty(filter.getIds())) {
         return Collections.emptyList();
       }
@@ -723,18 +712,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
 
     if (filter.isFavorite() && StringUtils.isNotBlank(filter.getRemoteId())) {
-      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, filter.getRemoteId());
-      if (identity != null) {
-        long userIdentityId = Long.parseLong(identity.getId());
-        List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
-                                                                                            userIdentityId,
-                                                                                            0,
-                                                                                            -1);
-        Set<Long> favoriteSpaceIds = metadataItems.stream()
-                                                  .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
-                                                  .collect(Collectors.toSet());
-        filter.setIds(favoriteSpaceIds);
-      }
+      addFavoriteSpaceIdsToFilter(filter);
       if (CollectionUtils.isEmpty(filter.getIds())) {
         return 0;
       }
@@ -745,6 +723,21 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     } else {
       SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter);
       return query.buildCount().getSingleResult().intValue();
+    }
+  }
+
+  private void addFavoriteSpaceIdsToFilter(XSpaceFilter filter) {
+    Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, filter.getRemoteId());
+    if (identity != null) {
+      long userIdentityId = Long.parseLong(identity.getId());
+      List<MetadataItem> metadataItems = favoriteService.getFavoriteItemsByCreatorAndType(SPACE_METADATA_OBJECT_TYPE,
+                                                                                          userIdentityId,
+                                                                                          0,
+                                                                                          -1);
+      Set<Long> favoriteSpaceIds = metadataItems.stream()
+                                                .map(metadataItem -> Long.parseLong(metadataItem.getObjectId()))
+                                                .collect(Collectors.toSet());
+      filter.setIds(favoriteSpaceIds);
     }
   }
 
