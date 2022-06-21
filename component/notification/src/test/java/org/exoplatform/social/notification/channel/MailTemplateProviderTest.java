@@ -135,19 +135,6 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     actual = channel.getTemplateFilePath(PluginKey.key(SpaceInvitationPlugin.ID));
     expected = "war:/notification/templates/SpaceInvitationPlugin.gtmpl";
     assertEquals(expected, actual);
-
-    actual = channel.getTemplateFilePath(PluginKey.key(DlpUserDetectedItemPlugin.ID));
-    expected = "war:/notification/templates/DlpUserDetectedItemPlugin.gtmpl";
-    assertEquals(expected, actual);
-
-    actual = channel.getTemplateFilePath(PluginKey.key(DlpAdminDetectedItemPlugin.ID));
-    expected = "war:/notification/templates/DlpAdminDetectedItemPlugin.gtmpl";
-    assertEquals(expected, actual);
-    
-    actual = channel.getTemplateFilePath(PluginKey.key(DlpUserRestoredItemPlugin.ID));
-    expected = "war:/notification/templates/DlpUserRestoredItemPlugin.gtmpl";
-    assertEquals(expected, actual);
-
   }
   
   public void testMailTemplateBuilder() throws Exception {
@@ -165,9 +152,6 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(RelationshipReceivedRequestPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(RequestJoinSpacePlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(SpaceInvitationPlugin.ID)));
-    assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpUserDetectedItemPlugin.ID)));
-    assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpAdminDetectedItemPlugin.ID)));
-    assertTrue(channel.hasTemplateBuilder(PluginKey.key(DlpUserRestoredItemPlugin.ID)));
   }
     
 }

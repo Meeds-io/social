@@ -747,33 +747,6 @@
   </portlet>
 
   <portlet>
-      <description>Dlp Quarantine portlet</description>
-      <portlet-name>dlpQuarantine</portlet-name>
-    <display-name>Dlp Quarantine portlet</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/dlpQuarantine.html</value>
-    </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.dlpQuarantine.dlpQuarantine</resource-bundle>
-    <portlet-info>
-      <title>Dlp Quarantine portlet for eXo Platform</title>
-      <short-title>dlp-quarantine</short-title>
-      <keywords>dlp-quarantine</keywords>
-    </portlet-info>
-    <security-role-ref>
-      <role-name>admin</role-name>
-      <role-link>admin</role-link>
-    </security-role-ref>
-  </portlet>
-
-  <portlet>
     <portlet-name>AdministrationHamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
