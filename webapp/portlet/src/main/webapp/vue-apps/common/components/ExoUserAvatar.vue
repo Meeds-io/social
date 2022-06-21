@@ -229,6 +229,9 @@ export default {
     username() {
       return this.identity?.username || this.retrievedIdentity?.username || this.profileId;
     },
+    enabled() {
+      return this.identity?.enabled || this.retrievedIdentity?.enabled;
+    },     
     userFullname() {
       return this.identity?.fullname || this.retrievedIdentity?.fullname;
     },
@@ -267,12 +270,15 @@ export default {
       return {
         identityType: 'USER_PROFILE',
         identityId: this.username,
+        identityEnabled: this.enabled,     
+        
       };
     },
     userIdentity() {
       return {
         id: this.identityId,
         username: this.username,
+        enabled: this.enabled,        
         fullName: this.userFullname,
         position: this.position,
         avatar: this.avatarUrl,
