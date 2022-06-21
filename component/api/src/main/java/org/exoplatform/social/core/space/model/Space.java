@@ -31,6 +31,9 @@ import lombok.Setter;
  * @since Aug 29, 2008
  */
 public class Space implements CacheEntry {
+
+  public static final String DEFAULT_SPACE_METADATA_OBJECT_TYPE = "space";
+
   /** The id. */
   private String id;
 

@@ -50,6 +50,13 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
                         + "     spaceMember.userId = :userId AND "
                         + "     spaceMember.status = :status "
                         + "   ) "),
+        @NamedQuery(
+            name = "SpaceMember.getSpaceIdByMemberId",
+            query = "SELECT DISTINCT spaceMember.space.id FROM SocSpaceMember AS spaceMember"
+                + "  WHERE spaceMember.userId = :userId "
+                + "  AND spaceMember.status = :status "
+                + "  ORDER BY spaceMember.space.id DESC"
+        ),
         @NamedQuery(name = "SpaceMember.getSpaceMembersByStatus",
                 query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember "
                         + " WHERE spaceMember.status = :status "

@@ -321,4 +321,13 @@ public class SpaceEntity extends BaseEntity {
     return (List<String>) getProperty("externalInvitedUsers");
   }
 
+  public String getIsFavorite() {
+    return getString("isFavorite");
+  }
+
+  public SpaceEntity setIsFavorite(String isFavorite) {
+    setProperty("isFavorite", isFavorite);
+    return this;
+  }
+
 }

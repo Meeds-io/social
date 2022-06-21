@@ -371,7 +371,6 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     instantly.add(SpaceInvitationPlugin.ID);
     instantly.add(RelationshipReceivedRequestPlugin.ID);
     instantly.add(PostActivitySpaceStreamPlugin.ID);
-
     List<String> daily = new ArrayList<String>();
     daily.add(PostActivityPlugin.ID);
     daily.add(ActivityCommentPlugin.ID);

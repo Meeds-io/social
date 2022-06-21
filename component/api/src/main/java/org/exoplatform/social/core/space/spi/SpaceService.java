@@ -1635,5 +1635,17 @@ public interface SpaceService {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Gets a {@link List} of Space technical identifiers where the user has the
+   * "member" role.
+   *
+   * @param username The remote user Id.
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of Space technical identifiers
+   */
+  default List<String> getMemberSpacesIds(String username, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
 
 }

@@ -31,8 +31,7 @@
       cache-items
       dense
       flat
-      @update:search-input="searchTerm = $event"
-      >
+      @update:search-input="searchTerm = $event">
       <template slot="no-data">
         <v-list-item class="pa-0">
           <v-list-item-title

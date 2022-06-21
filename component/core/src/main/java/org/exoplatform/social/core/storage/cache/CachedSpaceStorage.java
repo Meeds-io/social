@@ -38,6 +38,7 @@ import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
 import org.exoplatform.social.core.storage.cache.model.data.*;
 import org.exoplatform.social.core.storage.cache.model.key.*;
 import org.exoplatform.social.core.storage.cache.selector.*;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -82,7 +83,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   }
   
-  private List<String> buildSpaceIdentityIds(ListSpacesData data) {
+  private List<String> buildIds(ListSpacesData data) {
     if (data == null || data.getIds() == null) {
       return Collections.emptyList();
     } else {
@@ -190,8 +191,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
                             IdentityDAO identityDAO,
                             ActivityDAO activityDAO,
                             SpaceExternalInvitationDAO spaceExternalInvitationDAO,
-                            SocialStorageCacheService cacheService) {
-    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO);
+                            SocialStorageCacheService cacheService,
+                            FavoriteService favoriteService) {
+    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO,favoriteService);
     this.cacheService = cacheService;
 
     this.exoSpaceCache = cacheService.getSpaceCache();
@@ -1039,9 +1041,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   }
 
   @Override
-  public List<String> getMemberSpaceIds(final String identityId, final int offset, final int limit) throws SpaceStorageException {
+  public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException {
     //
-    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDS);
+    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDENTITY_IDS);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
@@ -1051,14 +1053,39 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
             if (limit == 0) {
               return buildIds(Collections.emptyList());
             }
-            List<String> got = CachedSpaceStorage.super.getMemberSpaceIds(identityId, offset, limit);
+            List<String> got = CachedSpaceStorage.super.getMemberRoleSpaceIdentityIds(identityId, offset, limit);
             return buildListIdentityIds(got);
           }
         },
         listKey);
 
     //
-    return buildSpaceIdentityIds(keys);
+    return buildIds(keys);
+  }
+
+  @Override
+  public List<String> getMemberRoleSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException {
+    //
+    SpaceFilterKey key = new SpaceFilterKey(identityId, null, SpaceType.MEMBER_IDS);
+    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+
+    //
+    ListSpacesData keys = spacesCache.get(
+                                          new ServiceContext<ListSpacesData>() {
+                                            public ListSpacesData execute() {
+                                              if (limit == 0) {
+                                                return buildIds(Collections.emptyList());
+                                              }
+                                              List<String> got = CachedSpaceStorage.super.getMemberRoleSpaceIds(identityId,
+                                                                                                                offset,
+                                                                                                                limit);
+                                              return buildListIdentityIds(got);
+                                            }
+                                          },
+                                          listKey);
+
+    //
+    return buildIds(keys);
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {
@@ -1086,6 +1113,19 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     return key;
   }
 
+  public void clearSpaceCached(String spaceId) {
+    SpaceKey cacheKey = new SpaceKey(spaceId);
+    SpaceData cachedSpace = exoSpaceCache.get(cacheKey);
+    if (cachedSpace != null) {
+      Space space = cachedSpace.build();
+      exoSpaceSimpleCache.remove(cacheKey);
+      exoSpaceCache.remove(cacheKey);
+      cleanRef(space);
+    }
+    clearSpaceCache();
+    clearIdentityCache();
+  }
+
   public void clearCaches() {
     exoSpaceCache.clearCache();
     exoSpaceSimpleCache.clearCache();
@@ -1094,5 +1134,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     exoRefSpaceCache.clearCache();
     exoIdentitiesCache.clearCache();
   }
+
 }
 

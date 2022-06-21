@@ -23,6 +23,9 @@
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
       <v-spacer />
+      <exo-space-favorite-action
+        v-if="space.isMember && favoritesSpaceEnabled"
+        :space="space" />
       <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"
@@ -241,6 +244,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
+    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
   }),
   computed: {
     spaceAvatarUrl() {

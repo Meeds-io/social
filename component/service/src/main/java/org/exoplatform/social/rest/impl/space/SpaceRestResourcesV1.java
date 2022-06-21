@@ -135,6 +135,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                             @ApiParam(value = "Sort", required = false) @QueryParam("sort") String sort,
                             @ApiParam(value = "Order", required = false) @QueryParam("order") String order,
                             @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                            @ApiParam(value = "Returning the favorite spaces of current user not not", defaultValue = "false") @QueryParam("favorites") boolean favorites,
                             @ApiParam(value = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -159,6 +160,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         }
         spaceFilter.setSorting(new Sorting(sortBy, orderBy));
     }
+    spaceFilter.setIsFavorite(favorites);
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {

@@ -25,24 +25,36 @@ import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.search.DocumentWithMetadata;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String TYPE = "space";
+  public static final String    TYPE                       = "space";
 
-  private static final Log   LOG  = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
+  public static final String    SPACE_METADATA_OBJECT_TYPE = "space";
 
-  private SpaceService       spaceService;
+  private static final Log      LOG                        = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
 
-  private SpaceStorage       spaceStorage;
+  private SpaceService          spaceService;
 
-  public SpaceIndexingServiceConnector(InitParams initParams, SpaceService spaceService, SpaceStorage spaceStorage) {
+  private SpaceStorage          spaceStorage;
+
+  private MetadataService    metadataService;
+
+  public SpaceIndexingServiceConnector(InitParams initParams,
+                                       SpaceService spaceService,
+                                       SpaceStorage spaceStorage,
+                                       MetadataService metadataService) {
     super(initParams);
     this.spaceService = spaceService;
     this.spaceStorage = spaceStorage;
+    this.metadataService = metadataService;
   }
 
   @Override
@@ -73,7 +85,12 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
 
     Date createdDate = new Date(space.getCreatedTime());
 
-    Document document = new Document(id, null, createdDate, new HashSet<>(Arrays.asList(space.getMembers())), fields);
+    DocumentWithMetadata document = new DocumentWithMetadata();
+    document.setId(id);
+    document.setLastUpdatedDate(createdDate);
+    document.setPermissions(new HashSet<>(Arrays.asList(space.getMembers())));
+    document.setFields(fields);
+    addDocumentMetadata(document, id);
     LOG.info("space document generated for id={} name={} duration_ms={}",
              id,
              space.getPrettyName(),
@@ -128,6 +145,12 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("}");
 
     return mapping.toString();
+  }
+
+  private void addDocumentMetadata(DocumentWithMetadata document, String spaceId) {
+    MetadataObject metadataObject = new MetadataObject(SPACE_METADATA_OBJECT_TYPE, spaceId);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
+    document.setMetadataItems(metadataItems);
   }
 
 }

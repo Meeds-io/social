@@ -1114,6 +1114,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
+
   protected ExoSocialActivity getI18N(ExoSocialActivity activity,Locale locale) {
 
     I18NActivityProcessor i18NActivityProcessor =(I18NActivityProcessor) PortalContainer.getInstance().getComponentInstanceOfType(I18NActivityProcessor.class);
