@@ -10,6 +10,7 @@
           link
           text
           plain
+          @click="openCommentsDrawer"
           v-bind="attrs"
           v-on="on">
           <relative-date-format
@@ -72,5 +73,20 @@ export default {
       return `${this.$root.activityBaseLink}?id=${this.activityId}&commentId=${this.commentId}`;
     },
   },
+  methods: {
+    openCommentsDrawer(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        activity: this.activity,
+        selectedCommentId: this.commentId,
+        selectedActivityId: this.activity.id,
+        offset: 0,
+        limit: 200, // To display all
+      }}));
+    },
+  }
 };
 </script>
