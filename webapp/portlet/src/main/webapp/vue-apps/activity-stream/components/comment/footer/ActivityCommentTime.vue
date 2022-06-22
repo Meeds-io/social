@@ -4,12 +4,12 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :height="20"
+          :href="commentLink"
           class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
           text
           plain
-          @click="openCommentsDrawer"
           v-bind="attrs"
           v-on="on">
           <relative-date-format
@@ -62,20 +62,15 @@ export default {
     commentId() {
       return this.comment && this.comment.id;
     },
+    activityId() {
+      return this.activity && this.activity.id;
+    },
     activityPostedTime() {
       return this.comment && (this.comment.updateDate || this.comment.createDate);
     },
-  },
-  methods: {
-    openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        selectedCommentId: this.commentId,
-        selectedActivityId: this.activity.id,
-        offset: 0,
-        limit: 200, // To display all
-      }}));
+    commentLink() {
+      return `${this.$root.activityBaseLink}?id=${this.activityId}&commentId=${this.commentId}`;
     },
-  }
+  },
 };
 </script>

@@ -99,6 +99,20 @@ export default {
     },
   },
   created() {
+    const search = document.location.search.substring(1);
+    if (search) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      const activityId = parameters.id;
+      const commentId = parameters.commentId;
+      if (commentId && activityId) {
+        this.displaySelectedActivityComment(commentId, activityId);
+      }
+    }
     document.addEventListener('activity-comments-display', this.displayActivityComments);
     document.addEventListener('activity-comment-edit', this.editActivityComments);
     document.addEventListener('search-metadata-tag', this.closeDrawer);
@@ -144,7 +158,8 @@ export default {
       if (this.scrollOnOpen
           && (!this.newCommentEditor || !this.selectedCommentIdToReply)
           && !this.highlightCommentId
-          && !this.highlightRepliesCommentId) {
+          && !this.highlightRepliesCommentId
+          && !this.$root.selectedCommentId) {
         // Avoid scrolling again when loading
         this.scrollOnOpen = false;
         this.$root.commentsDrawerInitializing = false;
@@ -203,6 +218,24 @@ export default {
           }
         });
       }
+    },
+    displaySelectedActivityComment(commentId, activityId) {
+      this.$activityService.getActivityById(activityId)
+        .then(activity => {
+          this.hideCommentRichEditor();
+          this.activity = activity;
+          this.$root.selectedActivityId = activityId;
+          this.$root.selectedCommentId = commentId;
+          if (!this.drawerOpened) {
+            this.drawerOpened = true;
+            this.retrieveComments(true, true);
+            this.$nextTick().then(() => {
+              if (this.$refs.activityCommentsDrawer) {
+                this.$refs.activityCommentsDrawer.open();
+              }
+            });
+          }
+        });
     },
     displayCommentRichEditor(commentId) {
       this.hideCommentRichEditor();
