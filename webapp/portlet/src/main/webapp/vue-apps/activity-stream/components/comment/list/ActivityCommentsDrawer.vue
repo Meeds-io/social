@@ -137,6 +137,11 @@ export default {
       this.hideCommentRichEditor();
       this.$root.selectedCommentId = null;
     },
+    openDrawer() {
+      if (this.$refs.activityCommentsDrawer) {
+        this.$refs.activityCommentsDrawer.open();
+      }
+    },
     closeDrawer() {
       this.reset();
       this.$refs.activityCommentsDrawer.close();
@@ -210,11 +215,7 @@ export default {
             this.drawerOpened = true;
             this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
             this.retrieveComments(true, true);
-            this.$nextTick().then(() => {
-              if (this.$refs.activityCommentsDrawer) {
-                this.$refs.activityCommentsDrawer.open();
-              }
-            });
+            this.$nextTick().then(() => this.openDrawer());
           }
         });
       }
@@ -229,11 +230,7 @@ export default {
           if (!this.drawerOpened) {
             this.drawerOpened = true;
             this.retrieveComments(true, true);
-            this.$nextTick().then(() => {
-              if (this.$refs.activityCommentsDrawer) {
-                this.$refs.activityCommentsDrawer.open();
-              }
-            });
+            this.$nextTick().then(() => this.openDrawer());
           }
         });
     },
