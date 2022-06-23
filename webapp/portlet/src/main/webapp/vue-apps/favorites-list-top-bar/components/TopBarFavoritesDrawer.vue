@@ -27,7 +27,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <favorite-item
           v-for="favoriteItem in favoritesList"
           :key="favoriteItem.id"
-          :favorite="favoriteItem" />
+          :favorite="favoriteItem"
+          :activity-extensions="activityExtensions" />
       </v-list>
       <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
         <div class="noFavoritesContent">
@@ -57,6 +58,9 @@ export default {
     limit: 10,
     totalSize: 0,
     pageSize: 10,
+    activityExtensions: [],
+    extensionApp: 'ActivityFavoriteIcon',
+    activityIconExtension: 'activity-favorite-icon-extensions',
   }),
   computed: {
     hasMore() {
@@ -77,6 +81,8 @@ export default {
   },
   created() {
     this.$root.$on('open-favorite-drawer', () => {
+      document.addEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
+      this.refreshActivityIcon();
       this.openDrawer();
     });
     this.$root.$on('close-favorite-drawer', () => {
@@ -86,6 +92,9 @@ export default {
       this.retrieveFavoritesList();
     });
 
+  },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
   },
   methods: {
     openDrawer() {
@@ -105,6 +114,14 @@ export default {
       if (this.hasMore) {
         this.limit += this.pageSize;
       }
+    },
+    refreshActivityIcon() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityIconExtension);
+      extensions.forEach(extension => {
+        if (extension.id) {
+          this.activityExtensions.push(extension);
+        }
+      });
     },
   }
 };

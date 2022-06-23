@@ -10,33 +10,36 @@ export default {
   props: {
     favorite: {
       type: Object,
-      default: function() {
-        return null;
-      },
+      default: () => null,
     },
+    activityExtensions: {
+      type: Object,
+      default: () => null,
+    }
   },
   data: () => ({
-    component: {}
+    component: {},
   }),
   computed: {
-    favoriteType () {
+    favoriteType() {
       return this.favorite && this.favorite.objectType;
     },
-    favoriteId () {
+    favoriteId() {
       return this.favorite && this.favorite.objectId;
     },
-    params () {
+    params() {
       return {
         id: this.favoriteId,
+        activityExtensions: this.activityExtensions
       };
     },
-    componentsApp () {
+    componentsApp() {
       return `favorite-${this.favoriteType}`;
     }
   },
   created() {
     const registeredComponents = extensionRegistry.loadComponents(this.componentsApp);
-    if ( registeredComponents ) {
+    if (registeredComponents) {
       this.component = registeredComponents[0];
     }
   }
