@@ -23,7 +23,7 @@
     <v-list-item-content>
       <v-list-item-title class="text-color body-2">
         <p
-          class="ma-auto"
+          class="ma-auto text-truncate"
           v-sanitized-html="activityTitle"></p>
       </v-list-item-title>
     </v-list-item-content>
