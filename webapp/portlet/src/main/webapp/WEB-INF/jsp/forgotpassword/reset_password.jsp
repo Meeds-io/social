@@ -168,7 +168,7 @@
       $btnSubmit.attr('disabled', true).addClass('disabled');
     }
   });
-  $form.find('input[type="text"], input[type="password"]').on('keyup', function() {
+  $form.find('input[type="password"]').on('input', function() {
     $form.validate();
   });
 </script>
