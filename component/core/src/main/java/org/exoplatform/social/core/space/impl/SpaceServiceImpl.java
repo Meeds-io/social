@@ -1389,6 +1389,14 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public ListAccess<Space> getFavoriteSpacesByFilter(String userId, SpaceFilter spaceFilter) {
+    return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.FAVORITE_FILTER);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public ListAccess<Space> getPendingSpacesByFilter(String userId, SpaceFilter spaceFilter) {
     return new SpaceListAccess(this.spaceStorage, userId, spaceFilter, SpaceListAccess.Type.PENDING_FILTER);
   }

@@ -280,6 +280,20 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public List<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
     return getSpaces(userId, Arrays.asList(Status.MEMBER), spaceFilter, offset, limit);
   }
+  
+  @Override
+  public List<Space> getFavoriteSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
+    SpaceFilter favoriteSpaceFilter = spaceFilter.clone();
+    favoriteSpaceFilter.setIsFavorite(true);
+    return getSpaces(userId, null, favoriteSpaceFilter, offset, limit);
+  }
+  
+  @Override
+  public int getFavoriteSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
+    SpaceFilter favoriteSpaceFilter = spaceFilter.clone();
+    favoriteSpaceFilter.setIsFavorite(true);
+    return getSpacesCount(userId, null, spaceFilter);
+  }
 
   @Override
   public int getMemberSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
