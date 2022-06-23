@@ -1,7 +1,23 @@
 <template>
   <v-list-item class="clickable" :href="activityUrl">
     <v-list-item-icon class="me-3 my-auto">
-      <v-icon size="22" class="icon-default-color"> fas fa-file-alt </v-icon>
+      <v-img
+        v-if="activityTypeExtension && activityTypeExtension.img"
+        :src="activityTypeExtension.img"
+        max-height="28"
+        max-width="25" />
+      <v-icon 
+        v-else-if="activityTypeExtension && activityTypeExtension.icon"
+        size="24" 
+        :class="activityTypeExtension.class">
+        {{ activityTypeExtension.icon }} 
+      </v-icon> 
+      <v-icon
+        v-else
+        size="24" 
+        class="primary--text">
+        fas fa-feather-alt
+      </v-icon> 
     </v-list-item-icon>
 
     <v-list-item-content>
@@ -32,35 +48,43 @@ export default {
       type: String,
       default: () => null,
     },
+    activityExtensions: {
+      type: Object,
+      default: () => null,
+    }
   },
   data: () => ({
     activity: null,
-    activityTitle: '',
     activityUrl: '#',
-    isFavorite: true
+    isFavorite: true,
+    defaultIcon: 'fas fa-feather-alt',
+    defaultClass: 'primary--text',
   }),
   computed: {
     spaceId() {
       return this.activity?.activityStream?.space?.id;
     },
+    activityTypeExtension() {
+      if (this.activity?.type) {
+        return this.activityExtensions.find(extension => extension.type === this.activity.type);
+      }
+      return null;
+    },
+    activityTitle() {
+      return this.activityTypeExtension?.title && this.activityTypeExtension?.title(this.activity) || this.favoriteTitle(this.activity?.title) || this.$t('UITopBarFavoritesPortlet.label.activity');
+    }
   },
   created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.id}`;
     this.$activityService.getActivityById(this.id)
       .then(fullActivity => {
         this.activity = fullActivity;
-        if (fullActivity && fullActivity.title ) {
-          this.activityTitle = this.favoriteTitle(fullActivity.title);
-        } else {
-          this.activityTitle = this.$t('UITopBarFavoritesPortlet.label.activity');
-        }
       });
   },
   methods: {
     favoriteTitle(title) {
       const regex = /(<([^>]+)>)/ig;
-      const activityTitle = title.replace(regex, '').split(' ').slice(0, 5).join(' ');
-      return activityTitle;
+      return title && title.replace(regex, '').split(' ').slice(0, 5).join(' ') || '';
     },
     removed() {
       this.isFavorite = !this.isFavorite;
