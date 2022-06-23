@@ -87,12 +87,14 @@ export default {
     });
     this.$root.$on('close-favorite-drawer', () => {
       this.$refs.favoritesDrawer.close();
-      document.removeEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
     });
     this.$root.$on('refresh-favorite-list', () => {
       this.retrieveFavoritesList();
     });
 
+  },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
   },
   methods: {
     openDrawer() {
