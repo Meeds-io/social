@@ -47,6 +47,15 @@
        silent: !eXo.developing,
        iconfont: 'mdi',
        rtl: eXo.env.portal.orientation === 'rtl',
+       breakpoint: {
+         thresholds: {
+           xs: 380,
+           sm: 540,
+           md: 768,
+           lg: 1024,
+           xl: 1280,
+         },
+       },
      };
 
      eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
