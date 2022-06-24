@@ -110,7 +110,7 @@
                                             margin-left: 3px;
                                         " href="$VIEW_FULL_DISCUSSION_ACTION_URL" target="_blank"><%=_ctx.appRes("Notification.label.ViewFullDiscussion")%></a>
                                     </p>
-                                    <p style="margin: 10px 0; color: #999999">
+                                    <p style="margin: 10px 0; color: #767676">
                                         <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK)%>
                                     </p>
                                 </td>

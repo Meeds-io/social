@@ -25,7 +25,7 @@
                                     <%
                                       String footerLink = "<a href=\"" + FOOTER_LINK + "\">" + _ctx.appRes("Notification.label.ClickHere") + "</a>";
                                     %>
-                                    <p style="margin: 10px 0; color: #999999; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+                                    <p style="margin: 10px 0; color: #767676; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
                                         <%=_ctx.appRes("Notification.footer.DigestProvider", footerLink)%>
                                     </p>
                                 </td>

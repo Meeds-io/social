@@ -87,7 +87,7 @@
                                         </tr>
                                     </table>
                                     
-                                    <p style="margin:30px 0 10px 0; color: #999999;font-size:13px;font-family:HelveticaNeue,arial,tahoma,serif">
+                                    <p style="margin:30px 0 10px 0; color: #767676;font-size:13px;font-family:HelveticaNeue,arial,tahoma,serif">
                                         <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK)%>
                                     </p>
                                 </td>
