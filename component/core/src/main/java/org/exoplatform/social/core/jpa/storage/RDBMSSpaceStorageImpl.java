@@ -292,7 +292,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public int getFavoriteSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     SpaceFilter favoriteSpaceFilter = spaceFilter.clone();
     favoriteSpaceFilter.setIsFavorite(true);
-    return getSpacesCount(userId, null, spaceFilter);
+    return getSpacesCount(userId, null, favoriteSpaceFilter);
   }
 
   @Override

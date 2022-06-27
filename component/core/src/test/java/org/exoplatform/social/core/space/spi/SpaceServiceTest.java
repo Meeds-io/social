@@ -465,36 +465,31 @@ public class SpaceServiceTest extends AbstractCoreTest {
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
     Favorite space1Favorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space1.getId(), null, Long.parseLong(john.getId()));
     favoriteService.createFavorite(space1Favorite);
-    Favorite space2Favorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space3.getId(), null, Long.parseLong(john.getId()));
-    favoriteService.createFavorite(space2Favorite);
+    Favorite space3Favorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space3.getId(), null, Long.parseLong(john.getId()));
+    favoriteService.createFavorite(space3Favorite);
+    favoriteService.createFavorite(new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space3.getId(), null, Long.parseLong(root.getId())));
 
     SpaceFilter spaceFilter = new SpaceFilter();
     assertEquals(4, spaceService.getAccessibleSpacesByFilter(john.getRemoteId(), spaceFilter).getSize());
+    assertEquals(2, spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter).getSize());
+    assertEquals(1, spaceService.getFavoriteSpacesByFilter(root.getRemoteId(), spaceFilter).getSize());
+    assertEquals(0, spaceService.getFavoriteSpacesByFilter(mary.getRemoteId(), spaceFilter).getSize());
 
-    spaceFilter.setRemoteId(john.getRemoteId());
     ListAccess<Space> listAccess = spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter);
     Space[] spacesList = listAccess.load(0, 10);
-
-    spaceFilter.setIsFavorite(true);
-    listAccess = spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter);
-    assertEquals(2, listAccess.getSize());
-    spacesList = listAccess.load(0, 10);
     assertEquals(2, spacesList.length);
-    assertEquals(2, spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter).getSize());
 
     favoriteService.deleteFavorite(space1Favorite);
     listAccess = spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter);
     assertEquals(1, listAccess.getSize());
     spacesList = listAccess.load(0, 10);
     assertEquals(1, spacesList.length);
-    assertEquals(1, spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter).getSize());
 
-    favoriteService.deleteFavorite(space2Favorite);
+    spaceService.deleteSpace(space3);
     listAccess = spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter);
     assertEquals(0, listAccess.getSize());
     spacesList = listAccess.load(0, 10);
     assertEquals(0, spacesList.length);
-    assertEquals(0, spaceService.getFavoriteSpacesByFilter(john.getRemoteId(), spaceFilter).getSize());
   }
 
   /**
