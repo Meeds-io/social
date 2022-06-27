@@ -113,6 +113,9 @@ export default {
       },{
         text: this.$t('spacesList.filter.userSpaces'),
         value: 'member',
+      },{
+        text: this.$t('spacesList.filter.favoriteSpaces'),
+        value: 'favorite',
       }];
     },
   },
