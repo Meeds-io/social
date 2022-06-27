@@ -230,8 +230,11 @@ export default {
       return this.identity?.username || this.retrievedIdentity?.username || this.profileId;
     },
     enabled() {
-      return this.identity?.enabled || this.retrievedIdentity?.enabled;
-    },     
+      return this.identity?.enabled || this.retrievedIdentity?.enabled;  
+    },  
+    deleted() {
+      return this.identity?.deleted || this.retrievedIdentity?.deleted;
+    },    
     userFullname() {
       return this.identity?.fullname || this.retrievedIdentity?.fullname;
     },
@@ -269,16 +272,15 @@ export default {
     params() {
       return {
         identityType: 'USER_PROFILE',
-        identityId: this.username,
-        identityEnabled: this.enabled,     
-        
+        identityId: this.username,        
       };
     },
     userIdentity() {
       return {
         id: this.identityId,
         username: this.username,
-        enabled: this.enabled,        
+        enabled: this.enabled,
+        deleted: this.deleted,       
         fullName: this.userFullname,
         position: this.position,
         avatar: this.avatarUrl,
