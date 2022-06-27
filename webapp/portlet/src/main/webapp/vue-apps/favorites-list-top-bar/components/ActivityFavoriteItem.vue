@@ -23,7 +23,7 @@
     <v-list-item-content>
       <v-list-item-title class="text-color body-2">
         <p
-          class="ma-auto"
+          class="ma-auto text-truncate"
           v-sanitized-html="activityTitle"></p>
       </v-list-item-title>
     </v-list-item-content>
@@ -84,7 +84,7 @@ export default {
   methods: {
     favoriteTitle(title) {
       const regex = /(<([^>]+)>)/ig;
-      return title && title.replace(regex, '').split(' ').slice(0, 5).join(' ') || '';
+      return title && title.replace(regex, '') || '';
     },
     removed() {
       this.isFavorite = !this.isFavorite;
