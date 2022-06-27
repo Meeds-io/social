@@ -5,7 +5,7 @@
         <v-btn
           :height="20"
           :href="commentLink"
-          class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
+          class="d-flex hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
           text
