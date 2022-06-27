@@ -84,7 +84,7 @@ export default {
   methods: {
     favoriteTitle(title) {
       const regex = /(<([^>]+)>)/ig;
-      return title && title.replace(regex, '').split(' ').slice(0, 5).join(' ') || '';
+      return title && title.replace(regex, '') || '';
     },
     removed() {
       this.isFavorite = !this.isFavorite;
