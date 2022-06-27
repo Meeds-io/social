@@ -722,7 +722,7 @@
         <properties-param>
           <name>SpaceFavoritesFeatureProperties</name>
           <description>New Space Favorite Feature enablement flag</description>
-          <property name="exo.feature.SpaceFavorites.enabled" value="${exo.feature.SpaceFavorites.enabled:false}" />
+          <property name="exo.feature.SpaceFavorites.enabled" value="${exo.feature.SpaceFavorites.enabled:true}" />
         </properties-param>
       </init-params>
     </component>
