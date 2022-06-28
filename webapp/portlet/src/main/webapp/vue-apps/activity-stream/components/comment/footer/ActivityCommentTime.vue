@@ -70,7 +70,7 @@ export default {
       return this.comment && (this.comment.updateDate || this.comment.createDate);
     },
     commentLink() {
-      return `${this.$root.activityBaseLink}?id=${this.activityId}&commentId=${this.commentId}`;
+      return `${this.$root.activityBaseLink}?id=${this.commentId}`;
     },
   },
   methods: {

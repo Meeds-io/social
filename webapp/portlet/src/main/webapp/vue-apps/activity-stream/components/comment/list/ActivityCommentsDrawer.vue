@@ -99,20 +99,6 @@ export default {
     },
   },
   created() {
-    const search = document.location.search.substring(1);
-    if (search) {
-      const parameters = JSON.parse(
-        `{"${decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"')}"}`
-      );
-      const activityId = parameters.id;
-      const commentId = parameters.commentId;
-      if (commentId && activityId) {
-        this.displaySelectedActivityComment(commentId, activityId);
-      }
-    }
     document.addEventListener('activity-comments-display', this.displayActivityComments);
     document.addEventListener('activity-comment-edit', this.editActivityComments);
     document.addEventListener('search-metadata-tag', this.closeDrawer);
@@ -137,11 +123,6 @@ export default {
       this.hideCommentRichEditor();
       this.$root.selectedCommentId = null;
     },
-    openDrawer() {
-      if (this.$refs.activityCommentsDrawer) {
-        this.$refs.activityCommentsDrawer.open();
-      }
-    },
     closeDrawer() {
       this.reset();
       this.$refs.activityCommentsDrawer.close();
@@ -163,8 +144,7 @@ export default {
       if (this.scrollOnOpen
           && (!this.newCommentEditor || !this.selectedCommentIdToReply)
           && !this.highlightCommentId
-          && !this.highlightRepliesCommentId
-          && !this.$root.selectedCommentId) {
+          && !this.highlightRepliesCommentId) {
         // Avoid scrolling again when loading
         this.scrollOnOpen = false;
         this.$root.commentsDrawerInitializing = false;
@@ -215,24 +195,14 @@ export default {
             this.drawerOpened = true;
             this.scrollOnOpen = !options.editComment && !options.noAuitomaticScroll;
             this.retrieveComments(true, true);
-            this.$nextTick().then(() => this.openDrawer());
+            this.$nextTick().then(() => {
+              if (this.$refs.activityCommentsDrawer) {
+                this.$refs.activityCommentsDrawer.open();
+              }
+            });
           }
         });
       }
-    },
-    displaySelectedActivityComment(commentId, activityId) {
-      this.$activityService.getActivityById(activityId)
-        .then(activity => {
-          this.hideCommentRichEditor();
-          this.activity = activity;
-          this.$root.selectedActivityId = activityId;
-          this.$root.selectedCommentId = commentId;
-          if (!this.drawerOpened) {
-            this.drawerOpened = true;
-            this.retrieveComments(true, true);
-            this.$nextTick().then(() => this.openDrawer());
-          }
-        });
     },
     displayCommentRichEditor(commentId) {
       this.hideCommentRichEditor();
