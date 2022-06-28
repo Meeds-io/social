@@ -103,8 +103,6 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
     demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo");
     ghostIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "ghost");
-    addUserToDlpGroup("root");
-    addUserToDlpGroup("mary");
 
     notificationService.clearAll();
   }
@@ -153,26 +151,6 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
         //
         handler.setEnabled(userName, true, true);
       }
-    } catch (Exception e) {
-      ExoLogger.getExoLogger(getClass()).debug(e);
-    }
-  }
-
-  private void addUserToDlpGroup(String userName) throws Exception {
-    try {
-      Group child = organizationService.getGroupHandler().createGroupInstance();
-      child.setGroupName("dlp");
-      child.setLabel("dlp");
-      child.setDescription("platform dlp");
-      organizationService.getGroupHandler()
-                         .addChild(organizationService.getGroupHandler().findGroupById("/platform"), child, true);
-
-      User user = organizationService.getUserHandler().findUserByName(userName);
-      organizationService.getMembershipHandler()
-                         .linkMembership(user,
-                                         child,
-                                         organizationService.getMembershipTypeHandler().findMembershipType("member"),
-                                         true);
     } catch (Exception e) {
       ExoLogger.getExoLogger(getClass()).debug(e);
     }

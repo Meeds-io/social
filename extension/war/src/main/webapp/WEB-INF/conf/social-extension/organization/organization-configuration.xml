@@ -107,22 +107,6 @@
 								</value>
 								<value>
 									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
-										<field  name="name">
-											<string>dlp</string>
-										</field>
-										<field  name="parentId">
-											<string>/platform</string>
-										</field>
-										<field  name="description">
-											<string></string>
-										</field>
-										<field  name="label">
-											<string>Data Protection</string>
-										</field>
-									</object>
-								</value>
-								<value>
-									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
 										<field name="name">
 											<string>delegated</string>
 										</field>
