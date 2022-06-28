@@ -158,6 +158,19 @@ public interface SpaceService {
   ListAccess<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter);
 
   /**
+   * Gets a list of favorite spaces of a user. This list access matches with the provided space
+   * filter.
+   *
+   * @param userId The remote Id of user
+   * @param spaceFilter {@link SpaceFilter} used to filter on spaces
+   * @return {@link ListAccess} of {@link Space} marked as favorite of user
+   * @since Meeds 1.4.0
+   */
+  default ListAccess<Space> getFavoriteSpacesByFilter(String userId, SpaceFilter spaceFilter) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access containing all spaces that a user has the access permission.
    *
    * @param userId The remote user Id.
