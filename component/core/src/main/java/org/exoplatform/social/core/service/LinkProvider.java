@@ -20,10 +20,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import org.apache.commons.lang.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 
-import org.exoplatform.commons.dlp.connector.DlpServiceConnector;
-import org.exoplatform.commons.dlp.processor.DlpOperationProcessor;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -340,25 +340,6 @@ public class LinkProvider {
     return getBaseUri(null, null) + "/settings";
   }
 
-  /**
-   * Gets the link of quarantine page
-   *
-   * @return
-   */
-  public static String getQuarantinePageUri(String username) {
-    return "/" + getPortalName(null) + "/g/:platform:dlp/dlp-quarantine";
-  }
-
-  /**
-   * Gets the link of restored dlp file
-   * @return
-   */
-  public static String getDlpRestoredUri(String reference) {
-    DlpOperationProcessor dlpOperationProcessor = CommonsUtils.getService(DlpOperationProcessor.class);
-    DlpServiceConnector dlpServiceConnector = (DlpServiceConnector) dlpOperationProcessor.getConnectors().get(TYPE);
-    return dlpServiceConnector != null ?  "/" + dlpServiceConnector.getItemUrl(reference) : new String();
-  }
-  
   /**
    * Gets the link of all spaces page
    *
