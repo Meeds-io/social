@@ -63,9 +63,6 @@ export default {
     commentId() {
       return this.comment && this.comment.id;
     },
-    activityId() {
-      return this.activity && this.activity.id;
-    },
     activityPostedTime() {
       return this.comment && (this.comment.updateDate || this.comment.createDate);
     },
