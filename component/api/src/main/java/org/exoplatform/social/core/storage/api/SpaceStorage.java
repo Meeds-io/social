@@ -200,6 +200,28 @@ public interface SpaceStorage {
    * @since 1.2.0-GA
    */
   public List<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
+  
+  /**
+   * Gets the count of the favorite spaces of the user id.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @return
+   * @since 1.2.0-GA
+   */
+  public int getFavoriteSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
+  
+  /**
+   * Gets the favorite spaces of the user id by the filter with offset, limit.
+   *
+   * @param userId
+   * @param spaceFilter
+   * @param offset
+   * @param limit
+   * @return
+   * @since 1.2.0-GA
+   */
+  public List<Space> getFavoriteSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
 
   /**
    * Gets the count of the pending spaces of the userId.

@@ -23,11 +23,14 @@ import java.util.Objects;
 
 import org.exoplatform.social.core.space.model.Space;
 
+import lombok.AllArgsConstructor;
+
 /**
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since 1.2.0-GA
  */
-public class SpaceFilter {
+@AllArgsConstructor
+public class SpaceFilter implements Cloneable {
   /** The first character of the space name. */
   private char firstCharacterOfSpaceName;
   
@@ -239,15 +242,42 @@ public class SpaceFilter {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-                        firstCharacterOfSpaceName,
-                        spaceNameSearchCondition,
-                        includeSpaces,
+    return Objects.hash(appId,
                         exclusions,
-                        remoteId,
-                        appId,
-                        template,
                         favorite,
-                        sorting);
+                        firstCharacterOfSpaceName,
+                        includeSpaces,
+                        remoteId,
+                        sorting,
+                        spaceNameSearchCondition,
+                        template);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SpaceFilter other = (SpaceFilter) obj;
+    return Objects.equals(appId, other.appId) && Objects.equals(exclusions, other.exclusions) && favorite == other.favorite
+        && firstCharacterOfSpaceName == other.firstCharacterOfSpaceName && Objects.equals(includeSpaces, other.includeSpaces)
+        && Objects.equals(remoteId, other.remoteId) && Objects.equals(sorting, other.sorting)
+        && Objects.equals(spaceNameSearchCondition, other.spaceNameSearchCondition) && Objects.equals(template, other.template);
+  }
+
+  @Override
+  public SpaceFilter clone() { // NOSNAR
+    return new SpaceFilter(firstCharacterOfSpaceName,
+                           spaceNameSearchCondition,
+                           includeSpaces,
+                           exclusions,
+                           remoteId,
+                           appId,
+                           template,
+                           sorting,
+                           favorite);
   }
 }
