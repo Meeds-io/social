@@ -4,7 +4,8 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :height="20"
-          class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
+          :href="commentLink"
+          class="d-flex hover-underline width-auto text-capitalize-first-letter d-inline px-0"
           x-small
           link
           text
@@ -65,9 +66,16 @@ export default {
     activityPostedTime() {
       return this.comment && (this.comment.updateDate || this.comment.createDate);
     },
+    commentLink() {
+      return `${this.$root.activityBaseLink}?id=${this.commentId}`;
+    },
   },
   methods: {
-    openCommentsDrawer() {
+    openCommentsDrawer(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
         activity: this.activity,
         selectedCommentId: this.commentId,
