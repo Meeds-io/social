@@ -13,6 +13,16 @@
     <slot name="actions">
     </slot>
     <v-btn
+      v-if="alert && alert.link"
+      :href="alert.link"
+      :class="alert.linkClass"
+      target="_blank"
+      rel="nofollow noreferrer noopener"
+      class="primary--text"
+      text>
+      {{ alert.linkMessage }}
+    </v-btn>
+    <v-btn
       v-if="alert && alert.click"
       class="primary--text"
       text
