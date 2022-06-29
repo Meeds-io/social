@@ -114,11 +114,11 @@ public class ActivityStreamWebSocketService implements Startable {
           continuationService.sendMessage(userId, COMETD_CHANNEL, message);
 
           // Send to stream owner connected users
-          Identity identity = this.identityManager.getIdentity(userId);
+          Identity identity = this.identityManager.getOrCreateUserIdentity(userId);
           Set<String> connectedUserIds = new HashSet<>(continuationBayeux.getConnectedUserIds());
           connectedUserIds.remove(userId);
           connectedUserIds.forEach(connectedUserId -> {
-            Identity connectedIdentity = this.identityManager.getIdentity(connectedUserId);
+            Identity connectedIdentity = this.identityManager.getOrCreateUserIdentity(connectedUserId);
             if (relationshipManager.getStatus(identity, connectedIdentity) == Relationship.Type.CONFIRMED) {
               try {
                 continuationService.sendMessage(connectedUserId, COMETD_CHANNEL, message);
