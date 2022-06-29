@@ -55,7 +55,7 @@ export default {
     favoritesList: [],
     loading: false,
     offset: 0,
-    limit: 10,
+    limit: Math.round((window.innerHeight - 122) / 53),
     totalSize: 0,
     pageSize: 10,
     activityExtensions: [],
