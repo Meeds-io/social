@@ -8,6 +8,7 @@
     :right="right"
     type="space"
     type-label="space"
+    data-type="Spaces"
     @removed="removed"
     @remove-error="removeError"
     @added="added"

@@ -42,6 +42,10 @@ export default {
       type: String,
       default: null,
     },
+    dataType: {
+      type: String,
+      default: null,
+    },
     id: {
       type: String,
       default: null,
@@ -141,6 +145,7 @@ export default {
               detail: {
                 type: this.type,
                 typeLabel: this.typeLabel,
+                dataType: this.dataType,
                 id: this.id,
                 spaceId: this.spaceId,
               }
@@ -158,6 +163,7 @@ export default {
               detail: {
                 type: this.type,
                 typeLabel: this.typeLabel,
+                dataType: this.dataType,
                 id: this.id,
                 spaceId: this.spaceId,
               }

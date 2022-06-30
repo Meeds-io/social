@@ -36,6 +36,7 @@
         :top="top"
         :right="right"
         type="activity"
+        :data-type="dataType"
         @removed="removed"
         @remove-error="removeError" />
     </v-list-item-action>
@@ -72,7 +73,13 @@ export default {
     },
     activityTitle() {
       return this.activityTypeExtension?.title && this.activityTypeExtension?.title(this.activity) || this.favoriteTitle(this.activity?.title) || this.$t('UITopBarFavoritesPortlet.label.activity');
-    }
+    },
+    isComment() {
+      return this.activity?.activityId;
+    },
+    dataType() {
+      return this.isComment && 'Comments' || 'Activities';
+    },
   },
   created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.id}`;

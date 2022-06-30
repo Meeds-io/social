@@ -10,6 +10,7 @@
     :right="right"
     :template-params="templateParams"
     :type-label="extensionName"
+    :data-type="dataType"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -65,6 +66,12 @@ export default {
     },
     metadataObjectType() {
       return this.activity?.templateParams?.metadataObjectType || 'activity';
+    },
+    isComment() {
+      return this.activity?.activityId;
+    },
+    dataType() {
+      return this.isComment && 'Comments' || 'Activities';
     },
   },
   created() {
