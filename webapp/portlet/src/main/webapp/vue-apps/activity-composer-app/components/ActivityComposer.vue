@@ -1,12 +1,11 @@
 <template>
   <div id="activityComposer" class="activityComposer activityComposerApp pa-0">
-    <div v-if="!standalone" class="openLink mb-4 text-truncate">
+    <div v-if="!standalone" class="openLink text-truncate">
       <a @click="openComposerDrawer(true)" class="primary--text">
         <i class="uiIconEdit"></i>
         {{ composerButtonLabel }}
       </a>
     </div>
-    <activity-composer-drawer ref="activityComposerDrawer" />
   </div>
 </template>
 
@@ -41,13 +40,13 @@ export default {
   },
   methods: {
     openComposerDrawer() {
-      this.$refs.activityComposerDrawer.open({
+      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
         activityId: this.activityId,
         activityBody: this.activityBody,
         activityParams: this.activityParams,
         files: [],
         activityType: null
-      });
+      }}));
     },
   },
 };

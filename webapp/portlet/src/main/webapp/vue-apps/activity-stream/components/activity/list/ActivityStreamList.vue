@@ -2,9 +2,26 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
-    <activity-composer
-      :standalone="!canPost"
-      id="activityComposer" />
+    <v-toolbar
+      color="white mb-5"
+      flat
+      dense>
+      <v-row>
+        <v-col
+          justify="space-between"
+          class="align-start my-auto">
+          <activity-composer
+            :standalone="!canPost"
+            id="activityComposer" />
+        </v-col>
+        <v-col
+          v-if="!spaceId"
+          justify="space-between"
+          class="d-flex flex-row">
+          <activity-stream-filter :stream-filter="streamFilter" @filterChanged="applyFilter" />
+        </v-col>
+      </v-row>
+    </v-toolbar>
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
@@ -51,6 +68,7 @@
       {{ $t('Search.button.loadMore') }}
     </v-btn>
     <activity-auto-link />
+    <activity-composer-drawer ref="activityComposerDrawer" />
   </div>
 </template>
 
@@ -91,6 +109,7 @@ export default {
     loading: false,
     error: false,
     isDeleted: false,
+    streamFilter: 'all',
   }),
   computed: {
     activitiesToDisplay() {
@@ -239,6 +258,10 @@ export default {
           }
         }, 10);
       });
+    },
+    applyFilter(streamFilter) {
+      this.streamFilter = streamFilter;
+      this.loadActivities();
     },
   },
 };

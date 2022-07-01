@@ -9,6 +9,7 @@ import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue
 import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
+import ActivityStreamFilter from './components/common/ActivityStreamFilter.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
@@ -47,6 +48,7 @@ const components = {
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
   'activity-stream-activity': ActivityStreamActivity,
   'activity-stream-loader': ActivityStreamLoader,
+  'activity-stream-filter': ActivityStreamFilter,
   'activity-head': ActivityHead,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
