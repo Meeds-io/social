@@ -34,6 +34,7 @@ import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
@@ -131,7 +132,77 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
   }
-  
+
+  /**
+   *
+   * @param owner the identity
+   * @param offset the offset index
+   * @param limit the maximum number of ActivityEntity to load
+   * @return the activity entities
+   * @throws ActivityStorageException if has any error
+   */
+  public List<Long> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+
+    boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
+
+    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.id), item.updatedDate FROM SocActivity item");
+    jpql.append(" WHERE item.hidden = false");
+
+    if (activityFilter.isMyPosted()) {
+      jpql.append(" AND item.posterId = :posterId");
+    }
+    if (filterOwners) {
+      jpql.append(" AND item.streamType = SPACE");
+      jpql.append(" AND item.ownerId in (:ownerIds)");
+    }
+
+    jpql.append(" ORDER BY item.updatedDate DESC");
+    TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
+    if (activityFilter.isMyPosted()) {
+      query.setParameter("posterId", owner.getId());
+    }
+    if (filterOwners) {
+      query.setParameter("ownerIds", activityFilter.getSpaceIds());
+    }
+    if (limit > 0) {
+      query.setFirstResult(0);
+      query.setMaxResults((int) limit);
+    }
+    List<Tuple> resultList = query.getResultList();
+
+    return convertActivityEntitiesToIds(resultList);
+  }
+
+  public List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+
+    boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
+
+    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.id), item.updatedDate FROM SocActivity item");
+    jpql.append(" WHERE item.hidden = false");
+
+    if (activityFilter.isMyPosted()) {
+      jpql.append(" AND item.posterId = :posterId");
+    }
+    if (filterOwners) {
+      jpql.append(" AND item.streamType = SPACE");
+      jpql.append(" AND item.ownerId in (:ownerIds)");
+    }
+
+    jpql.append(" ORDER BY item.updatedDate DESC");
+    TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
+    if (activityFilter.isMyPosted()) {
+      query.setParameter("posterId", owner.getId());
+    }
+    if (filterOwners) {
+      query.setParameter("ownerIds", activityFilter.getSpaceIds());
+    }
+    if (limit > 0) {
+      query.setFirstResult(0);
+      query.setMaxResults((int) limit);
+    }
+    List<Tuple> resultList = query.getResultList();
+    return convertActivityEntitiesToIdsString(resultList);
+  }
   @Override
   public List<String> getActivityIdsFeed(Identity ownerIdentity,
                                            int offset,

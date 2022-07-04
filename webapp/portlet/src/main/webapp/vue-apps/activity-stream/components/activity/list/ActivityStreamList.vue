@@ -185,7 +185,7 @@ export default {
     },
     loadActivityIds() {
       this.loading = true;
-      return this.$activityService.getActivities(this.spaceId, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+      return this.spaceId ? this.$activityService.getActivities(this.spaceId, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND) : this.$activityService.getActivitiesByFilter(this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
         .then(data => {
           this.canPost = data.canPost;
           const activityIds = data && (data.activityIds || data.activities) || [];
@@ -261,7 +261,7 @@ export default {
     },
     applyFilter(streamFilter) {
       this.streamFilter = streamFilter;
-      this.loadActivities();
+      this.loadActivityIds();
     },
   },
 };

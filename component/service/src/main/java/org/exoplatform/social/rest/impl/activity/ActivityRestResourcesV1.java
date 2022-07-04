@@ -32,11 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
@@ -148,7 +150,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                     required = false
                                 )
                                 @QueryParam("expand")
-                                String expand) {
+                                String expand,
+                                @ApiParam(value = "stream filter to filter activities , possible values: all, my posted activities", defaultValue = "all", required = false) @QueryParam("filter") String filter) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -164,8 +167,51 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
-      canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
+      ActivityFilter activityFilter = new ActivityFilter();
+      ListAccess<Space> usersSpaces = null;
+      if (filter != null && !filter.equals("all")) {
+        switch (filter) {
+          case "myActivities":
+            activityFilter.setMyPosted(true);
+            break;
+          case "myFavorite":
+            activityFilter.setFavorite(true);
+            break;
+          case "manageSpaces":
+            usersSpaces = spaceService.getManagerSpaces(currentUserIdentity.getId());
+            break;
+          case "favoriteSpaces":
+            usersSpaces = spaceService.getFavoriteSpacesByFilter(currentUserIdentity.getId(), null);
+            break;
+          default:
+            throw new AssertionError();
+        }
+        if (usersSpaces != null) {
+          int spacesSize = 0;
+          List<Long> spacesIds = null;
+          try {
+            spacesSize = usersSpaces.getSize();
+            int offsetToFetch = 0;
+            int limitToFetch = Math.min(spacesSize, 20);
+            while (limitToFetch > 0) {
+              Space[] spaces = usersSpaces.load(offsetToFetch, limitToFetch);
+              Arrays.stream(spaces).forEach(space -> {
+                spacesIds.add(Long.parseLong(space.getId()));
+              });
+              offsetToFetch += limitToFetch;
+              limitToFetch = Math.min((spacesSize - offsetToFetch), 20);
+            }
+          } catch (Exception e) {
+            LOG.error("Error while getting spaces ids", e);
+          }
+          activityFilter.setSpaceIds(spacesIds);
+        }
+        listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
+        canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
+      } else {
+        listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+        canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
+      }
     } else {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null

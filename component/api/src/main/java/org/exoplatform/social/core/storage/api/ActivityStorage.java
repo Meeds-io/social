@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.api;
 import java.util.*;
 
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -90,6 +91,33 @@ public interface ActivityStorage {
    * @return the activity ids list
    */
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
+
+
+  /**
+   * Gets the activities by identity and activity filter.
+   *
+   * @param owner the identity
+   * @param activityFilter the activity filter
+   * @param offset
+   * @param limit
+   * @return the activities
+   */
+  default List<ExoSocialActivity> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Gets the activities ids by identity and activity filter.
+   *
+   * @param owner the identity
+   * @param activityFilter the activity filter
+   * @param offset
+   * @param limit
+   * @return the activity ids list
+   */
+  default List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets the activities by identity for upgrade Activity Stream feature Access

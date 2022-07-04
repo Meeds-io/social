@@ -66,6 +66,8 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
 
   private String[]        activityTypes;
 
+  private ActivityFilter  activityFilter;
+
   /**
    * Constructor.
    *
@@ -128,30 +130,48 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
     this.ownerIdentity = chosenOwnerIdentity;
     this.viewerIdentity = viewerIndentity;
   }
+  /**
+   * Constructor.
+   *
+   * @param existingActivityStorage
+   * @param chosenOwnerIdentity
+   * @param activityFilter
+   */
+  public ActivitiesRealtimeListAccess(final ActivityStorage existingActivityStorage,
+                                      final Identity chosenOwnerIdentity,
+                                      final ActivityFilter activityFilter) {
+    this.activityStorage = existingActivityStorage;
+    this.ownerIdentity = chosenOwnerIdentity;
+    this.activityFilter = activityFilter;
+  }
 
   @Override
   public List<String> loadIdsAsList(int index, int limit) {
-    switch (activityType) {
-    case ACTIVITY_FEED: {
-      return activityStorage.getActivityIdsFeed(ownerIdentity, index, limit);
-    }
-    case USER_ACTIVITIES: {
-      return activityStorage.getUserIdsActivities(ownerIdentity, index, limit);
-    }
-    case VIEW_USER_ACTIVITIES: {
-      return StorageUtils.getIds(activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit));
-    }
-    case CONNECTIONS_ACTIVITIES: {
-      return activityStorage.getActivityIdsOfConnections(ownerIdentity, index, limit);
-    }
-    case USER_SPACE_ACTIVITIES: {
-      return activityStorage.getUserSpacesActivityIds(ownerIdentity, index, limit);
-    }
-    case SPACE_ACTIVITIES: {
-      return activityStorage.getSpaceActivityIds(ownerIdentity, index, limit);
-    }
-    default:
-      return new LinkedList();
+    if (activityFilter == null) {
+      switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getActivityIdsFeed(ownerIdentity, index, limit);
+      }
+      case USER_ACTIVITIES: {
+        return activityStorage.getUserIdsActivities(ownerIdentity, index, limit);
+      }
+      case VIEW_USER_ACTIVITIES: {
+        return StorageUtils.getIds(activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit));
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        return activityStorage.getActivityIdsOfConnections(ownerIdentity, index, limit);
+      }
+      case USER_SPACE_ACTIVITIES: {
+        return activityStorage.getUserSpacesActivityIds(ownerIdentity, index, limit);
+      }
+      case SPACE_ACTIVITIES: {
+        return activityStorage.getSpaceActivityIds(ownerIdentity, index, limit);
+      }
+      default:
+        return new LinkedList();
+      }
+    } else {
+      return activityStorage.getActivitiesIdsByFilter(ownerIdentity, activityFilter, index, limit);
     }
   }
 

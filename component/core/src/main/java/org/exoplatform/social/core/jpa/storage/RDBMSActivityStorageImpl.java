@@ -36,6 +36,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -478,6 +479,17 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   @Override
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) {
     return activityDAO.getUserIdsActivities(owner, offset, limit);
+  }
+
+
+  @Override
+  public List<ExoSocialActivity> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+    return convertActivityIdsToActivities(activityDAO.getActivitiesByFilter(owner, activityFilter, offset, limit));
+  }
+
+  @Override
+  public List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+    return activityDAO.getActivitiesIdsByFilter(owner, activityFilter, offset, limit);
   }
 
   @Override

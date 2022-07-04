@@ -22,11 +22,14 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+
+import javax.enterprise.inject.Default;
 
 /**
  * Provides APIs to manage activities. All methods to manipulate with
@@ -248,6 +251,20 @@ public interface ActivityManager {
    * @since 4.0.x
    */
   RealtimeListAccess<ExoSocialActivity> getActivitiesWithListAccess(Identity ownerIdentity, Identity viewerIdentity);
+
+
+  /**
+   * Gets activities by filter. The type of
+   * returned result is <code>ListAccess</code> which can be lazy loaded.
+   *
+   * @param identity The provided activity stream owner.
+   * @return The activities.
+   * @LevelAPI Platform
+   * @since 1.2.0-GA
+   */
+  default RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity identity, ActivityFilter activityFilter){
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets activities posted by all connections with a given identity. The type
