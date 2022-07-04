@@ -15,7 +15,13 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'reactions-drawer',
   vueComponent: Vue.options.components['activity-reactions-drawer'],
-  rank: 20,
+  rank: 25,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'composer-drawer',
+  vueComponent: Vue.options.components['activity-composer-drawer'],
+  rank: 35,
 });
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {

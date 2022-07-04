@@ -2,26 +2,6 @@
   <div
     :class="activityStreamTypeClass"
     class="activityStream pa-0">
-    <v-toolbar
-      color="white mb-5"
-      flat
-      dense>
-      <v-row>
-        <v-col
-          justify="space-between"
-          class="align-start my-auto">
-          <activity-composer
-            :standalone="!canPost"
-            id="activityComposer" />
-        </v-col>
-        <v-col
-          v-if="!spaceId"
-          justify="space-between"
-          class="d-flex flex-row">
-          <activity-stream-filter :stream-filter="streamFilter" @filterChanged="applyFilter" />
-        </v-col>
-      </v-row>
-    </v-toolbar>
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
@@ -68,7 +48,6 @@
       {{ $t('Search.button.loadMore') }}
     </v-btn>
     <activity-auto-link />
-    <activity-composer-drawer ref="activityComposerDrawer" />
   </div>
 </template>
 
@@ -104,7 +83,6 @@ export default {
     loadedActivities: new Set(),
     spaceId: eXo.env.portal.spaceId,
     userName: eXo.env.portal.userName,
-    canPost: false,
     hasMore: false,
     loading: false,
     error: false,
@@ -187,7 +165,7 @@ export default {
       this.loading = true;
       return this.spaceId ? this.$activityService.getActivities(this.spaceId, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND) : this.$activityService.getActivitiesByFilter(this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
         .then(data => {
-          this.canPost = data.canPost;
+          this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];
           this.retrievedSize = activityIds.length;
           this.hasMore = this.retrievedSize > this.limit;
