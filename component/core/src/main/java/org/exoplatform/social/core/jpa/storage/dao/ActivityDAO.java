@@ -56,26 +56,32 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
   List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
 
   /**
-   *
    * @param owner the identity
+   * @param activityFilter the activity filter
    * @param offset the offset index
    * @param limit the maximum number of ActivityEntity to load
    * @return the activity entities
    * @throws ActivityStorageException if has any error
    */
-  List<Long> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) throws ActivityStorageException;
-
+  List<Long> getActivitiesByFilter(Identity owner,
+                                   ActivityFilter activityFilter,
+                                   long offset,
+                                   long limit) throws ActivityStorageException;
 
   /**
    * Gets Ids for User stream
    *
    * @param owner the Identity
+   * @param activityFilter the activity filter
    * @param offset the offset index
    * @param limit maximum number item to load
    * @return the list of activity id
    * @throws ActivityStorageException if has any error
    */
-  List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) throws ActivityStorageException;
+  List<String> getActivitiesIdsByFilter(Identity owner,
+                                        ActivityFilter activityFilter,
+                                        long offset,
+                                        long limit) throws ActivityStorageException;
   
   /**
    * 

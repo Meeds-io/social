@@ -66,6 +66,9 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
 
   private String[]        activityTypes;
 
+  /**
+   * The activity filter.
+   */
   private ActivityFilter  activityFilter;
 
   /**
@@ -130,6 +133,7 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
     this.ownerIdentity = chosenOwnerIdentity;
     this.viewerIdentity = viewerIndentity;
   }
+
   /**
    * Constructor.
    *
@@ -137,9 +141,9 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * @param chosenOwnerIdentity
    * @param activityFilter
    */
-  public ActivitiesRealtimeListAccess(final ActivityStorage existingActivityStorage,
-                                      final Identity chosenOwnerIdentity,
-                                      final ActivityFilter activityFilter) {
+  public ActivitiesRealtimeListAccess(ActivityStorage existingActivityStorage,
+                                      Identity chosenOwnerIdentity,
+                                      ActivityFilter activityFilter) {
     this.activityStorage = existingActivityStorage;
     this.ownerIdentity = chosenOwnerIdentity;
     this.activityFilter = activityFilter;
@@ -168,7 +172,7 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
         return activityStorage.getSpaceActivityIds(ownerIdentity, index, limit);
       }
       default:
-        return new LinkedList();
+        return Collections.emptyList();
       }
     } else {
       return activityStorage.getActivitiesIdsByFilter(ownerIdentity, activityFilter, index, limit);
@@ -179,34 +183,38 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * {@inheritDoc}
    */
   public List<ExoSocialActivity> loadAsList(int index, int limit) {
-    switch (activityType) {
-    case ACTIVITY_FEED: {
-      return activityStorage.getActivityFeed(ownerIdentity, index, limit);
-    }
-    case USER_ACTIVITIES: {
-      return activityStorage.getUserActivities(ownerIdentity, index, limit);
-    }
-    case VIEW_USER_ACTIVITIES: {
-      return activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit);
-    }
-    case CONNECTIONS_ACTIVITIES: {
-      return activityStorage.getActivitiesOfConnections(ownerIdentity, index, limit);
-    }
-    case USER_SPACE_ACTIVITIES: {
-      return activityStorage.getUserSpacesActivities(ownerIdentity, index, limit);
-    }
-    case SPACE_ACTIVITIES: {
-      return activityStorage.getSpaceActivities(ownerIdentity, index, limit);
-    }
-    case POSTER_ACTIVITIES: {
-      return activityStorage.getActivitiesByPoster(ownerIdentity, index, limit);
-    }
-    case POSTER_AND_TYPES_ACTIVITIES: {
-      return activityStorage.getActivitiesByPoster(ownerIdentity, index, limit, activityTypes);
-    }
-    case ALL: {
-      return activityStorage.getAllActivities(index, limit);
-    }
+    if (activityFilter == null) {
+      switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getActivityFeed(ownerIdentity, index, limit);
+      }
+      case USER_ACTIVITIES: {
+        return activityStorage.getUserActivities(ownerIdentity, index, limit);
+      }
+      case VIEW_USER_ACTIVITIES: {
+        return activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit);
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        return activityStorage.getActivitiesOfConnections(ownerIdentity, index, limit);
+      }
+      case USER_SPACE_ACTIVITIES: {
+        return activityStorage.getUserSpacesActivities(ownerIdentity, index, limit);
+      }
+      case SPACE_ACTIVITIES: {
+        return activityStorage.getSpaceActivities(ownerIdentity, index, limit);
+      }
+      case POSTER_ACTIVITIES: {
+        return activityStorage.getActivitiesByPoster(ownerIdentity, index, limit);
+      }
+      case POSTER_AND_TYPES_ACTIVITIES: {
+        return activityStorage.getActivitiesByPoster(ownerIdentity, index, limit, activityTypes);
+      }
+      case ALL: {
+        return activityStorage.getAllActivities(index, limit);
+      }
+      }
+    } else {
+      return activityStorage.getActivitiesByFilter(ownerIdentity, activityFilter, index, limit);
     }
     return Collections.emptyList();
   }

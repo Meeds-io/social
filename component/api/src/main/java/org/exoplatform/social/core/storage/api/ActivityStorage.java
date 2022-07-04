@@ -92,7 +92,6 @@ public interface ActivityStorage {
    */
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
 
-
   /**
    * Gets the activities by identity and activity filter.
    *

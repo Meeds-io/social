@@ -132,15 +132,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
   }
-
-  /**
-   *
-   * @param owner the identity
-   * @param offset the offset index
-   * @param limit the maximum number of ActivityEntity to load
-   * @return the activity entities
-   * @throws ActivityStorageException if has any error
-   */
+  
   public List<Long> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
 
     boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
@@ -203,6 +195,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIdsString(resultList);
   }
+
   @Override
   public List<String> getActivityIdsFeed(Identity ownerIdentity,
                                            int offset,

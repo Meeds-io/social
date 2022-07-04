@@ -29,8 +29,6 @@ import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 
-import javax.enterprise.inject.Default;
-
 /**
  * Provides APIs to manage activities. All methods to manipulate with
  * activities, comments and likes are provided. With these API types, you can:
@@ -254,15 +252,16 @@ public interface ActivityManager {
 
 
   /**
-   * Gets activities by filter. The type of
-   * returned result is <code>ListAccess</code> which can be lazy loaded.
+   * Gets activities by filter. The type of returned result is
+   * <code>ListAccess</code> which can be lazy loaded.
    *
    * @param identity The provided activity stream owner.
    * @return The activities.
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
-  default RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity identity, ActivityFilter activityFilter){
+  default RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity identity,
+                                                                                    ActivityFilter activityFilter) {
     throw new UnsupportedOperationException();
   }
 

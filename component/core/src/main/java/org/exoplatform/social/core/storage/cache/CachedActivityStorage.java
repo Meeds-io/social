@@ -1816,26 +1816,19 @@ public class CachedActivityStorage implements ActivityStorage {
     return buildActivities(keys);
   }
 
- @Override
+  @Override
   public List<ExoSocialActivity> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
-   ActivityCountKey key = new ActivityCountKey(new IdentityKey(owner), ActivityType.USER);
-   ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(owner), ActivityType.USER);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
 
-   //
-   ListActivitiesData keys = activitiesCache.get(
-           new ServiceContext<ListActivitiesData>() {
-             public ListActivitiesData execute() {
-               List<ExoSocialActivity> got = storage.getActivitiesByFilter(owner,
-                       activityFilter,
-                       offset,
-                       limit);
-               return buildIds(got);
-             }
-           },
-           listKey);
+    //
+    ListActivitiesData keys = activitiesCache.get(() -> {
+      List<ExoSocialActivity> got = storage.getActivitiesByFilter(owner, activityFilter, offset, limit);
+      return buildIds(got);
+    }, listKey);
 
-   //
-   return buildActivities(keys);
+    //
+    return buildActivities(keys);
   }
 
   @Override
