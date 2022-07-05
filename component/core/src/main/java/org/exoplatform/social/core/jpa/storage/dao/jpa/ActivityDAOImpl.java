@@ -32,6 +32,7 @@ import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.activity.ActivityFilter;
@@ -133,66 +134,70 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return convertActivityEntitiesToIds(resultList);
   }
   
-  public List<Long> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
-
-    boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
+  public List<Long> getActivitiesByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) {
 
     StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
     jpql.append(" WHERE item.activity.hidden = false");
 
-    if (activityFilter.isMyPosted()) {
+    if (activityFilter.getUserId() != null) {
       jpql.append(" AND item.activity.posterId = :posterId");
     }
-    if (filterOwners) {
+    if (!CollectionUtils.isEmpty(spaceIds)) {
       jpql.append(" AND item.streamType = :streamType");
       jpql.append(" AND item.ownerId in (:ownerIds)");
     }
 
     jpql.append(" ORDER BY item.updatedDate DESC");
     TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
-    if (activityFilter.isMyPosted()) {
-      query.setParameter("posterId", owner.getId());
+    if (activityFilter.getUserId() != null) {
+      query.setParameter("posterId", activityFilter.getUserId());
     }
-    if (filterOwners) {
+    if (!CollectionUtils.isEmpty(spaceIds)) {
+      List<Long> owners = new ArrayList<>();
+      for (String id : spaceIds) {
+        owners.add(Long.parseLong(id));
+      }
       query.setParameter("streamType", StreamType.SPACE);
-      query.setParameter("ownerIds", activityFilter.getSpaceIds());
+      query.setParameter("ownerIds", owners);
     }
     if (limit > 0) {
-      query.setFirstResult(0);
-      query.setMaxResults((int) limit);
+      query.setFirstResult(Math.max(offset, 0));
+      query.setMaxResults(limit);
     }
     List<Tuple> resultList = query.getResultList();
 
     return convertActivityEntitiesToIds(resultList);
   }
 
-  public List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
-
-    boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
+  public List<String> getActivitiesIdsByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) {
 
     StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
     jpql.append(" WHERE item.activity.hidden = false");
 
-    if (activityFilter.isMyPosted()) {
+    if (activityFilter.getUserId() != null) {
       jpql.append(" AND item.activity.posterId = :posterId");
     }
-    if (filterOwners) {
+    if (!CollectionUtils.isEmpty(spaceIds)) {
       jpql.append(" AND item.streamType = :streamType");
       jpql.append(" AND item.ownerId in (:ownerIds)");
     }
 
     jpql.append(" ORDER BY item.updatedDate DESC");
     TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
-    if (activityFilter.isMyPosted()) {
-      query.setParameter("posterId", owner.getId());
+    if (activityFilter.getUserId() != null) {
+      query.setParameter("posterId", activityFilter.getUserId());
     }
-    if (filterOwners) {
+    if (!CollectionUtils.isEmpty(spaceIds)) {
+      List<Long> owners = new ArrayList<>();
+      for (String id : spaceIds) {
+        owners.add(Long.parseLong(id));
+      }
       query.setParameter("streamType", StreamType.SPACE);
-      query.setParameter("ownerIds", activityFilter.getSpaceIds());
+      query.setParameter("ownerIds", owners);
     }
     if (limit > 0) {
-      query.setFirstResult(0);
-      query.setMaxResults((int) limit);
+      query.setFirstResult(Math.max(offset, 0));
+      query.setMaxResults(limit);
     }
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIdsString(resultList);

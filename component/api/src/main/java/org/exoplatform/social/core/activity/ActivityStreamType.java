@@ -15,19 +15,6 @@
  */
 package org.exoplatform.social.core.activity;
 
-import lombok.*;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ActivityFilter {
-
-  private ActivityStreamType streamType;
-
-  private String             term;
-
-  private String             userId;
-
-  private String             spaceId;
-
+public enum ActivityStreamType {
+  USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM
 }

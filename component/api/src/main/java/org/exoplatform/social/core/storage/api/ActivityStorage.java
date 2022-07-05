@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -95,26 +96,26 @@ public interface ActivityStorage {
   /**
    * Gets the activities by identity and activity filter.
    *
-   * @param owner the identity
+   * @param viewerIdentity the viewer identity
    * @param activityFilter the activity filter
    * @param offset
    * @param limit
    * @return the activities
    */
-  default List<ExoSocialActivity> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+  default List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Gets the activities ids by identity and activity filter.
    *
-   * @param owner the identity
+   * @param viewerIdentity the viewer identity
    * @param activityFilter the activity filter
    * @param offset
    * @param limit
    * @return the activity ids list
    */
-  default List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
+  default List<String> getActivitiesIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
     throw new UnsupportedOperationException();
   }
 

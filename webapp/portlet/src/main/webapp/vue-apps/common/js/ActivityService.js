@@ -1,4 +1,4 @@
-export function getActivities(filter, limit, expand) {
+export function getActivities(streamType, limit, expand) {
   let params = {};
 
   if (eXo.env.portal.spaceId) {
@@ -13,8 +13,8 @@ export function getActivities(filter, limit, expand) {
     params.expand = expand;
   }
 
-  if (filter) {
-    params.filter = filter;
+  if (streamType) {
+    params.streamType = streamType;
   }
 
   params = $.param(params, true);

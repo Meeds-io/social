@@ -7,16 +7,21 @@
     flat
     dense>
     <v-flex class="d-flex">
-      <div v-if="!standalone && canPost" class="openLink my-auto text-truncate">
+      <div v-if="UserCanPoste" class="openLink my-auto text-truncate">
         <a @click="openComposerDrawer(true)" class="primary--text">
           <i class="uiIconEdit"></i>
           {{ composerButtonLabel }}
         </a>
       </div>
+      <div v-else>
+          <v-card-text class="text-sub-title text-uppercase center px-0">
+            {{ $t('activity.toolbar.title') }}
+          </v-card-text>
+      </div>
       <div
-        v-if="canFilter"
+        v-if="canFilter && !isMobile"
         class="ms-auto my-auto">
-        <activity-stream-filter :stream-filter="streamFilter" @filterChanged="applyFilter" />
+        <activity-stream-filter/>
       </div>
     </v-flex>
   </v-toolbar>
@@ -58,6 +63,12 @@ export default {
         return this.$t('activity.composer.post');
       }
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    },
+    UserCanPoste() {
+      return !this.standalone && this.canPost;
+    }
   },
   methods: {
     openComposerDrawer() {

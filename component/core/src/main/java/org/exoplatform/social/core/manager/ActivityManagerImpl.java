@@ -562,8 +562,8 @@ public class ActivityManagerImpl implements ActivityManager {
   /**
    * {@inheritDoc}
    */
-  public RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity identity, ActivityFilter activityFilter){
-    return new ActivitiesRealtimeListAccess(activityStorage, identity, activityFilter);
+  public RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity viewerIdentity, ActivityFilter activityFilter){
+    return new ActivitiesRealtimeListAccess(activityStorage, viewerIdentity, activityFilter);
   }
 
   /**

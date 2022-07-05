@@ -237,7 +237,43 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     return getSpacesCount(userId, Arrays.asList(Status.MANAGER), spaceFilter);
   }
+  
+  @Override
+  public List<String> getSpaceIdentityIdsByUserRole(String identityId,
+                                                    String status,
+                                                    int offset,
+                                                    int limit) throws SpaceStorageException {
 
+    SpaceMemberEntity.Status spaceMemberStatus = SpaceMemberEntity.Status.valueOf(status.toUpperCase());
+    Identity identity = identityStorage.findIdentityById(identityId);
+    List<Long> spaceIds = spaceMemberDAO.getSpacesIdsByUserRole(identity.getRemoteId(), spaceMemberStatus, offset, limit);
+
+    List<String> ids = new LinkedList<>();
+    if (spaceIds != null && !spaceIds.isEmpty()) {
+      for (Long spaceId : spaceIds) {
+        ids.add(String.valueOf(spaceId));
+      }
+    }
+    return ids;
+  }
+
+  @Override
+  public List<String> getFavoriteSpaceIdentityIds(String identityId,
+                                                  SpaceFilter spaceFilter,
+                                                  int offset,
+                                                  int limit) throws SpaceStorageException {
+    List<Space> spaces = getFavoriteSpacesByFilter(identityId, spaceFilter, offset, limit);
+
+    List<String> ids = new LinkedList<>();
+    if (!CollectionUtils.isEmpty(spaces)) {
+      for (Space space : spaces) {
+        Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+        ids.add(String.valueOf(spaceIdentity.getId()));
+      }
+    }
+    return ids;
+  }
+  
   @Override
   public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException {
     Identity identity = identityStorage.findIdentityById(identityId);

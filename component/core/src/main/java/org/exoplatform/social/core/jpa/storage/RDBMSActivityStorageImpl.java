@@ -44,6 +44,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -483,13 +484,53 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
 
   @Override
-  public List<ExoSocialActivity> getActivitiesByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
-    return convertActivityIdsToActivities(activityDAO.getActivitiesByFilter(owner, activityFilter, offset, limit));
+  public List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    List<String> spaceIds = new ArrayList<>();
+    switch (activityFilter.getStreamType()) {
+      case USER_STREAM:
+        activityFilter.setUserId(viewerIdentity.getId());
+        break;
+      case FAVORITE_SPACES_STREAM:
+        spaceIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+        if (spaceIds.isEmpty()) {
+          return Collections.emptyList();
+        }
+        break;
+      case MANAGE_SPACES_STREAM:
+        spaceIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getId(), String.valueOf(SpaceMemberEntity.Status.MANAGER),0, -1);
+        if (spaceIds.isEmpty()) {
+          return Collections.emptyList();
+        }
+        break;
+      default:
+        throw new UnsupportedOperationException();
+    }
+    return convertActivityIdsToActivities(activityDAO.getActivitiesByFilter(activityFilter, spaceIds, (int)offset, (int)limit));
   }
 
   @Override
-  public List<String> getActivitiesIdsByFilter(Identity owner, ActivityFilter activityFilter, long offset, long limit) {
-    return activityDAO.getActivitiesIdsByFilter(owner, activityFilter, offset, limit);
+  public List<String> getActivitiesIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    List<String> spaceIds = new ArrayList<>();
+    switch (activityFilter.getStreamType()) {
+      case USER_STREAM:
+        activityFilter.setUserId(viewerIdentity.getId());
+        break;
+      case FAVORITE_SPACES_STREAM:
+        spaceIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+        if (spaceIds.isEmpty()) {
+          return Collections.emptyList();
+        }
+        break;
+      case MANAGE_SPACES_STREAM:
+        spaceIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getId(), String.valueOf(SpaceMemberEntity.Status.MANAGER),0, -1);
+        if (spaceIds.isEmpty()) {
+          return Collections.emptyList();
+        }
+        break;
+      default:
+        throw new UnsupportedOperationException();
+    }
+    return activityDAO.getActivitiesIdsByFilter(activityFilter, spaceIds, (int)offset, (int)limit);
   }
 
   @Override

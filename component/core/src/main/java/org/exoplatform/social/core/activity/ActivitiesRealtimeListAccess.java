@@ -18,6 +18,7 @@ package org.exoplatform.social.core.activity;
 
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -67,7 +68,7 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
   private String[]        activityTypes;
 
   /**
-   * The activity filter.
+   * The activity stream type.
    */
   private ActivityFilter  activityFilter;
 
@@ -138,21 +139,21 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * Constructor.
    *
    * @param existingActivityStorage
-   * @param chosenOwnerIdentity
+   * @param viewerIdentity
    * @param activityFilter
    */
   public ActivitiesRealtimeListAccess(ActivityStorage existingActivityStorage,
-                                      Identity chosenOwnerIdentity,
+                                      Identity viewerIdentity,
                                       ActivityFilter activityFilter) {
     this.activityStorage = existingActivityStorage;
-    this.ownerIdentity = chosenOwnerIdentity;
+    this.viewerIdentity = viewerIdentity;
     this.activityFilter = activityFilter;
   }
 
   @Override
   public List<String> loadIdsAsList(int index, int limit) {
-    if (activityFilter != null && !activityFilter.isEmpty()) {
-      return activityStorage.getActivitiesIdsByFilter(ownerIdentity, activityFilter, index, limit);
+    if (activityFilter != null) {
+      return activityStorage.getActivitiesIdsByFilter(viewerIdentity, activityFilter, index, limit);
     } else if (activityType != null) {
       switch (activityType) {
       case ACTIVITY_FEED: {
@@ -185,8 +186,8 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * {@inheritDoc}
    */
   public List<ExoSocialActivity> loadAsList(int index, int limit) {
-    if (activityFilter != null && !activityFilter.isEmpty()) {
-      return activityStorage.getActivitiesByFilter(ownerIdentity, activityFilter, index, limit);
+    if (activityFilter != null) {
+      return activityStorage.getActivitiesByFilter(viewerIdentity, activityFilter, index, limit);
     } else if (activityType != null) {
       switch (activityType) {
       case ACTIVITY_FEED: {
