@@ -59,4 +59,5 @@
      };
 
      eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
+     eXo.env.portal.engagementCenterEnabled = <%=featureService.isFeatureActiveForUser("engagementCenter", userName)%>;
 </script>
