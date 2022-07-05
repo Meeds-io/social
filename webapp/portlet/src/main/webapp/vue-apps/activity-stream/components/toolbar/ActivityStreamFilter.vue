@@ -4,8 +4,10 @@
       v-model="streamFilter"
       class="width-auto my-auto ignore-vuetify-classes"
       @change="applyFilter">
-      <option value="all">{{ $t('activity.filter.all') }}</option>
-      <option value="myActivities">{{ $t('activity.filter.myActivities') }}</option>
+      <option value="all">All</option>
+      <option value="myActivities">My posted activities</option>
+      <option value="manageSpaces">Spaces I manage</option>
+      <option value="favoriteSpaces">My favorites spaces</option>
     </select>
   </v-flex>
 </template>
@@ -19,7 +21,7 @@ export default {
   },
   methods: {
     applyFilter() {
-      this.$emit('filterChanged', this.streamFilter);
+      document.dispatchEvent(new CustomEvent('filter-applied', {detail: this.streamFilter}));
     },
   },
 };

@@ -48,6 +48,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
@@ -178,17 +179,17 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
             activityFilter.setFavorite(true);
             break;
           case "manageSpaces":
-            usersSpaces = spaceService.getManagerSpaces(currentUserIdentity.getId());
+            usersSpaces = spaceService.getManagerSpaces(currentUserIdentity.getRemoteId());
             break;
           case "favoriteSpaces":
-            usersSpaces = spaceService.getFavoriteSpacesByFilter(currentUserIdentity.getId(), null);
+            usersSpaces = spaceService.getFavoriteSpacesByFilter(currentUserIdentity.getRemoteId(), new SpaceFilter());
             break;
           default:
             throw new AssertionError();
         }
         if (usersSpaces != null) {
           int spacesSize = 0;
-          List<Long> spacesIds = null;
+          List<Long> spacesIds = new ArrayList<>();
           try {
             spacesSize = usersSpaces.getSize();
             int offsetToFetch = 0;
@@ -196,7 +197,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
             while (limitToFetch > 0) {
               Space[] spaces = usersSpaces.load(offsetToFetch, limitToFetch);
               Arrays.stream(spaces).forEach(space -> {
-                spacesIds.add(Long.parseLong(space.getId()));
+                Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+                spacesIds.add(Long.parseLong(spaceIdentity.getId()));
               });
               offsetToFetch += limitToFetch;
               limitToFetch = Math.min((spacesSize - offsetToFetch), 20);

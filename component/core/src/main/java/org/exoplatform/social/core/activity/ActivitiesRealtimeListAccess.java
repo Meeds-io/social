@@ -151,7 +151,9 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
 
   @Override
   public List<String> loadIdsAsList(int index, int limit) {
-    if (activityFilter == null) {
+    if (activityFilter != null && !activityFilter.isEmpty()) {
+      return activityStorage.getActivitiesIdsByFilter(ownerIdentity, activityFilter, index, limit);
+    } else if (activityType != null) {
       switch (activityType) {
       case ACTIVITY_FEED: {
         return activityStorage.getActivityIdsFeed(ownerIdentity, index, limit);
@@ -175,7 +177,7 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
         return Collections.emptyList();
       }
     } else {
-      return activityStorage.getActivitiesIdsByFilter(ownerIdentity, activityFilter, index, limit);
+      return Collections.emptyList();
     }
   }
 
@@ -183,7 +185,9 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * {@inheritDoc}
    */
   public List<ExoSocialActivity> loadAsList(int index, int limit) {
-    if (activityFilter == null) {
+    if (activityFilter != null && !activityFilter.isEmpty()) {
+      return activityStorage.getActivitiesByFilter(ownerIdentity, activityFilter, index, limit);
+    } else if (activityType != null) {
       switch (activityType) {
       case ACTIVITY_FEED: {
         return activityStorage.getActivityFeed(ownerIdentity, index, limit);
@@ -212,11 +216,12 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
       case ALL: {
         return activityStorage.getAllActivities(index, limit);
       }
+      default:
+        return Collections.emptyList();
       }
     } else {
-      return activityStorage.getActivitiesByFilter(ownerIdentity, activityFilter, index, limit);
+      return Collections.emptyList();
     }
-    return Collections.emptyList();
   }
 
   /**

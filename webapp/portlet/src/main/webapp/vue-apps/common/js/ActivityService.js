@@ -1,5 +1,25 @@
-export function getActivities(spaceId, limit, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?spaceId=${spaceId || ''}&limit=${limit}&expand=${expand || ''}`, {
+export function getActivities(filter, limit, expand) {
+  let params = {};
+
+  if (eXo.env.portal.spaceId) {
+    params.spaceId = eXo.env.portal.spaceId;
+  }
+
+  if (limit && limit > 0) {
+    params.limit = limit;
+  }
+
+  if (expand) {
+    params.expand = expand;
+  }
+
+  if (filter) {
+    params.filter = filter;
+  }
+
+  params = $.param(params, true);
+
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -10,6 +30,8 @@ export function getActivities(spaceId, limit, expand) {
     }
   });
 }
+
+
 export function getActivitiesByFilter(filter, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?filter=${filter || ''}&limit=${limit}&expand=${expand || ''}`, {
     method: 'GET',

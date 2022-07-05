@@ -2,7 +2,8 @@
   <v-app v-if="loaded" role="main">
     <activity-notification-alerts />
     <activity-stream-toolbar
-      :can-post="canPost" />
+      :can-post="canPost"
+      :can-filter="!spaceId" />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"

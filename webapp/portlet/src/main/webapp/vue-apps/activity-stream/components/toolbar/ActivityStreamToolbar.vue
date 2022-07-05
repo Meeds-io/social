@@ -14,7 +14,7 @@
         </a>
       </div>
       <div
-        v-if="!spaceId"
+        v-if="canFilter"
         class="ms-auto my-auto">
         <activity-stream-filter :stream-filter="streamFilter" @filterChanged="applyFilter" />
       </div>
@@ -42,6 +42,10 @@ export default {
       default: false
     },
     canPost: {
+      type: Boolean,
+      default: false
+    },
+    canFilter: {
       type: Boolean,
       default: false
     },

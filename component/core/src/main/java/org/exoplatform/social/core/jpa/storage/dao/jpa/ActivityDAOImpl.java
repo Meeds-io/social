@@ -137,14 +137,14 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
     boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
 
-    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.id), item.updatedDate FROM SocActivity item");
-    jpql.append(" WHERE item.hidden = false");
+    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
+    jpql.append(" WHERE item.activity.hidden = false");
 
     if (activityFilter.isMyPosted()) {
-      jpql.append(" AND item.posterId = :posterId");
+      jpql.append(" AND item.activity.posterId = :posterId");
     }
     if (filterOwners) {
-      jpql.append(" AND item.streamType = SPACE");
+      jpql.append(" AND item.streamType = :streamType");
       jpql.append(" AND item.ownerId in (:ownerIds)");
     }
 
@@ -154,6 +154,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       query.setParameter("posterId", owner.getId());
     }
     if (filterOwners) {
+      query.setParameter("streamType", StreamType.SPACE);
       query.setParameter("ownerIds", activityFilter.getSpaceIds());
     }
     if (limit > 0) {
@@ -169,14 +170,14 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
     boolean filterOwners = activityFilter.getSpaceIds() != null && !activityFilter.getSpaceIds().isEmpty();
 
-    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.id), item.updatedDate FROM SocActivity item");
-    jpql.append(" WHERE item.hidden = false");
+    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
+    jpql.append(" WHERE item.activity.hidden = false");
 
     if (activityFilter.isMyPosted()) {
-      jpql.append(" AND item.posterId = :posterId");
+      jpql.append(" AND item.activity.posterId = :posterId");
     }
     if (filterOwners) {
-      jpql.append(" AND item.streamType = SPACE");
+      jpql.append(" AND item.streamType = :streamType");
       jpql.append(" AND item.ownerId in (:ownerIds)");
     }
 
@@ -186,6 +187,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       query.setParameter("posterId", owner.getId());
     }
     if (filterOwners) {
+      query.setParameter("streamType", StreamType.SPACE);
       query.setParameter("ownerIds", activityFilter.getSpaceIds());
     }
     if (limit > 0) {
