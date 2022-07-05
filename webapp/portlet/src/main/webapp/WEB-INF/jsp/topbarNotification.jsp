@@ -31,7 +31,7 @@
                   <span aria-atomic="true"
                       aria-label="Badge" aria-live="polite" role="status"
                       class="v-badge__badge"
-                      style="inset: auto auto calc(100% - 12px) calc(100% - 12px); background-color: var(- -allPagesBadgePrimaryColor, #ff5335); border-color: var(- -allPagesBadgePrimaryColor, #ff5335);">
+                      style="inset: auto auto calc(100% - 12px) calc(100% - 12px); background-color: var(- -allPagesBadgePrimaryColor, #D32A2A); border-color: var(- -allPagesBadgePrimaryColor, #D32A2A);">
                       <%=badge%>
                   </span>
                 </span>
