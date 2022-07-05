@@ -18,7 +18,6 @@ package org.exoplatform.social.core.activity;
 
 import java.util.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;

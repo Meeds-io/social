@@ -63,7 +63,10 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return the activity entities
    * @throws ActivityStorageException if has any error
    */
-  List<Long> getActivitiesByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) throws ActivityStorageException;
+  List<Long> getActivitiesByFilter(ActivityFilter activityFilter,
+                                   List<String> spaceIds,
+                                   int offset,
+                                   int limit) throws ActivityStorageException;
 
   /**
    * Gets Ids for User stream
@@ -75,7 +78,10 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return the list of activity id
    * @throws ActivityStorageException if has any error
    */
-  List<String> getActivitiesIdsByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) throws ActivityStorageException;
+  List<String> getActivitiesIdsByFilter(ActivityFilter activityFilter,
+                                        List<String> spaceIds,
+                                        int offset,
+                                        int limit) throws ActivityStorageException;
   
   /**
    * 

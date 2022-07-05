@@ -273,7 +273,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
     return ids;
   }
-  
+
   @Override
   public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException {
     Identity identity = identityStorage.findIdentityById(identityId);

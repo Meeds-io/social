@@ -24,7 +24,6 @@ import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -722,16 +721,17 @@ public interface SpaceStorage {
    * Retrieves the list of Space {@link Identity} technical identifiers
    *
    * @param identityId user {@link Identity} technical identifier
-   * @param status {@link String} equals to MEMBER, MANAGER, REDACTOR, PENDING, INVITED, IGNORED
+   * @param status {@link String} equals to MEMBER, MANAGER, REDACTOR, PENDING,
+   *          INVITED, IGNORED
    * @param offset The starting point
    * @param limit The limitation of returned results
    * @return {@link List} of space {@link Identity} technical identifiers
    * @throws SpaceStorageException
    */
-  public List<String> getSpaceIdentityIdsByUserRole(String identityId,
-                                                    String status,
-                                                    int offset,
-                                                    int limit) throws SpaceStorageException;
+  List<String> getSpaceIdentityIdsByUserRole(String identityId,
+                                             String status,
+                                             int offset,
+                                             int limit) throws SpaceStorageException;
 
   /**
    * Retrieves the list of favorite Space {@link Identity} technical identifiers
@@ -743,10 +743,10 @@ public interface SpaceStorage {
    * @return {@link List} of space {@link Identity} technical identifiers
    * @throws SpaceStorageException
    */
-  public List<String> getFavoriteSpaceIdentityIds(String identityId,
-                                                  SpaceFilter spaceFilter,
-                                                  int offset,
-                                                  int limit) throws SpaceStorageException;
+  List<String> getFavoriteSpaceIdentityIds(String identityId,
+                                           SpaceFilter spaceFilter,
+                                           int offset,
+                                           int limit) throws SpaceStorageException;
 
   /**
    * Retrieves the list of Space {@link Identity} technical identifiers

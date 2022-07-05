@@ -18,7 +18,6 @@
 package org.exoplatform.social.core.storage.cache.model.key;
 
 import org.exoplatform.social.core.activity.ActivityFilter;
-import org.exoplatform.social.core.activity.ActivityStreamType;
 
 /**
  * Immutable activity count key.

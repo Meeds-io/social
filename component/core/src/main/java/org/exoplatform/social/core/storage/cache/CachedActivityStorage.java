@@ -27,7 +27,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.activity.ActivityFilter;
-import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -1818,7 +1817,10 @@ public class CachedActivityStorage implements ActivityStorage {
   }
 
   @Override
-  public List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+  public List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity,
+                                                       ActivityFilter activityFilter,
+                                                       long offset,
+                                                       long limit) {
     ActivityCountKey key = new ActivityCountKey(new IdentityKey(viewerIdentity), activityFilter);
     ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
 
