@@ -31,20 +31,6 @@ export function getActivities(streamType, limit, expand) {
   });
 }
 
-
-export function getActivitiesByFilter(filter, limit, expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?filter=${filter || ''}&limit=${limit}&expand=${expand || ''}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
-
 export function getActivityById(id, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?expand=${expand || ''}`, {
     method: 'GET',

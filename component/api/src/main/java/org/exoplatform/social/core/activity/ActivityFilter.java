@@ -15,12 +15,16 @@
  */
 package org.exoplatform.social.core.activity;
 
+import java.io.Serializable;
+
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityFilter {
+public class ActivityFilter implements Serializable {
+
+  private static final long  serialVersionUID = 5258841427055953446L;
 
   private ActivityStreamType streamType;
 

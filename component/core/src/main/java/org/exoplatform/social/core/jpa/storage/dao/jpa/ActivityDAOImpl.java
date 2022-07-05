@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +41,6 @@ import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamType;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
@@ -54,7 +52,9 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
  */
 public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> implements ActivityDAO {
 
-  private ConnectionDAO connectionDAO;
+  private final ConnectionDAO connectionDAO;
+
+  private static final String STREAM_TYPE = "streamType";
 
   public ActivityDAOImpl(ConnectionDAO connectionDAO) {
     this.connectionDAO = connectionDAO;
@@ -157,7 +157,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       for (String id : spaceIds) {
         owners.add(Long.parseLong(id));
       }
-      query.setParameter("streamType", StreamType.SPACE);
+      query.setParameter(STREAM_TYPE, StreamType.SPACE);
       query.setParameter("ownerIds", owners);
     }
     if (limit > 0) {
@@ -192,7 +192,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       for (String id : spaceIds) {
         owners.add(Long.parseLong(id));
       }
-      query.setParameter("streamType", StreamType.SPACE);
+      query.setParameter(STREAM_TYPE, StreamType.SPACE);
       query.setParameter("ownerIds", owners);
     }
     if (limit > 0) {
@@ -227,7 +227,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery(queryName, Tuple.class);
     if (!connections.isEmpty()) {
       query.setParameter("connections", connections);
-      query.setParameter("streamType", StreamType.POSTER);
+      query.setParameter(STREAM_TYPE, StreamType.POSTER);
     }
     query.setParameter("owners", owners);
     query.setParameter("streamTypes", Arrays.asList(StreamType.POSTER,StreamType.SPACE));
@@ -451,7 +451,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     long ownerId = Long.parseLong(spaceIdentity.getId());
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocActivity.getSpacesActivityIds", Tuple.class);
     query.setParameter("owners", Collections.singleton(ownerId));
-    query.setParameter("streamType", StreamType.SPACE);
+    query.setParameter(STREAM_TYPE, StreamType.SPACE);
     if (limit > 0) {
       query.setFirstResult(offset > 0 ? (int)offset : 0);
       query.setMaxResults((int)limit);
@@ -524,7 +524,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SocActivity.getSpacesActivityIds", Tuple.class);
 
       query.setParameter("owners", ids);
-      query.setParameter("streamType", StreamType.SPACE);
+      query.setParameter(STREAM_TYPE, StreamType.SPACE);
       if (limit > 0) {
         query.setFirstResult(offset > 0 ? (int)offset : 0);
         query.setMaxResults((int)limit);

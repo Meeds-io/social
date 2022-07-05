@@ -39,7 +39,7 @@ public class ActivityCountKey implements CacheKey {
 
   private ActivityType type;
 
-  private ActivityFilter activityFilter;
+  private transient ActivityFilter activityFilter;
 
   private Long time;
   

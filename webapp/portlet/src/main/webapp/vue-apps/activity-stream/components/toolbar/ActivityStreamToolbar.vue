@@ -6,8 +6,8 @@
     height="52"
     flat
     dense>
-    <v-flex class="d-flex">
-      <div v-if="UserCanPoste" class="openLink my-auto text-truncate">
+    <v-flex v-if="initialized" class="d-flex">
+      <div v-if="UserCanPoste" class="openLink my-auto ps-0 text-truncate">
         <a @click="openComposerDrawer(true)" class="primary--text">
           <i class="uiIconEdit"></i>
           {{ composerButtonLabel }}
@@ -53,6 +53,16 @@ export default {
     canFilter: {
       type: Boolean,
       default: false
+    },
+  },
+  data: () => ({
+    initialized: false,
+  }),
+  watch: {
+    canPost(newValue, oldValue) {
+      if (!oldValue && newValue && !this.initialized) {
+        this.initialized = true;
+      }
     },
   },
   computed: {
