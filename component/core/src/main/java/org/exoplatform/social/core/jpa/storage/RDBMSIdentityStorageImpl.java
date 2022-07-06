@@ -535,6 +535,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_UPDATE_PROFILE, "Profile does not exist on RDBMS");
     } else {
       mapToProfileEntity(profile, entity);
+      if("DEFAULT_BANNER".equals(profile.getBannerUrl())){
+        entity.setBannerFileId(null);
+      }
       identityDAO.update(entity);
     }    
   }
