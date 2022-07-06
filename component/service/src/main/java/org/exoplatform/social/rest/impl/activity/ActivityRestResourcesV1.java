@@ -37,6 +37,8 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
@@ -148,7 +150,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                     required = false
                                 )
                                 @QueryParam("expand")
-                                String expand) {
+                                String expand,
+                                @ApiParam(value = "Activity stream type. Possible values: ALL, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -164,7 +167,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+      if (streamType != null && !streamType.equals(ActivityStreamType.ALL)) {
+        ActivityFilter activityFilter = new ActivityFilter();
+        activityFilter.setStreamType(streamType);
+        listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
+      } else {
+        listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
+      }
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
     } else {
       Space space = spaceService.getSpaceById(spaceId);

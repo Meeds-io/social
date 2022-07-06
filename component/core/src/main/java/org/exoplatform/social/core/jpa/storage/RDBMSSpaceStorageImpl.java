@@ -237,6 +237,35 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     return getSpacesCount(userId, Arrays.asList(Status.MANAGER), spaceFilter);
   }
+  
+  @Override
+  public List<String> getSpaceIdentityIdsByUserRole(String remoteId, String status, int offset, int limit) {
+
+    SpaceMemberEntity.Status spaceMemberStatus = SpaceMemberEntity.Status.valueOf(status.toUpperCase());
+    List<Long> spaceIdentityIds = spaceMemberDAO.getSpaceIdentityIdsByUserRole(remoteId, spaceMemberStatus, offset, limit);
+
+    List<String> ids = new LinkedList<>();
+    if (spaceIdentityIds != null && !spaceIdentityIds.isEmpty()) {
+      for (Long spaceId : spaceIdentityIds) {
+        ids.add(String.valueOf(spaceId));
+      }
+    }
+    return ids;
+  }
+
+  @Override
+  public List<String> getFavoriteSpaceIdentityIds(String userIdentityId, SpaceFilter spaceFilter, int offset, int limit) {
+    List<Space> spaces = getFavoriteSpacesByFilter(userIdentityId, spaceFilter, offset, limit);
+
+    List<String> ids = new LinkedList<>();
+    if (!CollectionUtils.isEmpty(spaces)) {
+      for (Space space : spaces) {
+        Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+        ids.add(String.valueOf(spaceIdentity.getId()));
+      }
+    }
+    return ids;
+  }
 
   @Override
   public List<String> getMemberRoleSpaceIdentityIds(String identityId, int offset, int limit) throws SpaceStorageException {

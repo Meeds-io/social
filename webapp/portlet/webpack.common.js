@@ -50,7 +50,6 @@ let config = {
     userSettingTimezone: './src/main/webapp/vue-apps/user-setting-timezone/main.js',
     spaceInfos: './src/main/webapp/vue-apps/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/vue-apps/who-is-online-app/main.js',
-    activityComposer: './src/main/webapp/vue-apps/activity-composer-app/main.js',
     spaceMenu: './src/main/webapp/vue-apps/space-menu/main.js',
     spaceHeader: './src/main/webapp/vue-apps/space-header/main.js',
     spaceMembers: './src/main/webapp/vue-apps/space-members/main.js',

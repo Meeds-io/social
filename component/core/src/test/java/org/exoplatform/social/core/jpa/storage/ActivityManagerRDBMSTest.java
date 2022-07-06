@@ -19,6 +19,11 @@ package org.exoplatform.social.core.jpa.storage;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityStreamType;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.mockito.*;
 
 import org.exoplatform.commons.file.services.FileService;
@@ -1003,6 +1008,44 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
 
     relationshipManager.delete(demoMaryConnection);
     spaceService.deleteSpace(space);
+  }
+
+  public void testGetActivityByStreamTypeWithListAccess() throws Exception {
+    populateActivityMass(demoIdentity, 1);
+    populateActivityMass(maryIdentity, 2);
+    populateActivityMass(johnIdentity, 3);
+
+    Space space = getSpaceInstance(spaceService, 1);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    populateActivityMass(spaceIdentity, 4);
+
+    Space favoriteSpace = getSpaceInstance(spaceService, 2);
+    Identity favoriteSpaceIdentity = identityManager.getOrCreateSpaceIdentity(favoriteSpace.getPrettyName());
+    populateActivityMass(favoriteSpaceIdentity, 3);
+
+    FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+    Favorite space1Favorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
+                                           space.getId(),
+                                           null,
+                                           Long.parseLong(demoIdentity.getId()));
+    favoriteService.createFavorite(space1Favorite);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.USER_STREAM);
+    RealtimeListAccess<ExoSocialActivity> streamTypeActivities =
+                                                               activityManager.getActivitiesByFilterWithListAccess(demoIdentity,
+                                                                                                                   activityFilter);
+    assertEquals(1, streamTypeActivities.load(0, 10).length);
+
+    activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.MANAGE_SPACES_STREAM);
+    streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(7, streamTypeActivities.load(0, 10).length);
+
+    activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.FAVORITE_SPACES_STREAM);
+    streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(4, streamTypeActivities.load(0, 10).length);
   }
 
   public void testLoadMoreActivities() throws Exception {

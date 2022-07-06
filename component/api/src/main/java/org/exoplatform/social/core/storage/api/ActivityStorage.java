@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.api;
 import java.util.*;
 
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -90,6 +91,35 @@ public interface ActivityStorage {
    * @return the activity ids list
    */
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
+
+  /**
+   * Get the activities by identity and activity filter.
+   *
+   * @param viewerIdentity the viewer identity
+   * @param activityFilter the activity filter
+   * @param offset The starting point
+   * @param limit Limit of activities to retrieve
+   * @return {@link List} of {@link ExoSocialActivity} that contains list of activities matching the filter
+   */
+  default List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity,
+                                                        ActivityFilter activityFilter,
+                                                        long offset,
+                                                        long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the activity ids by identity and activity filter.
+   *
+   * @param viewerIdentity the viewer identity
+   * @param activityFilter the activity filter
+   * @param offset The starting point
+   * @param limit Limit of activity ids to retrieve
+   * @return {@link List} of {@link String} that contains list of activity ids matching the filter
+   */
+  default List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets the activities by identity for upgrade Activity Stream feature Access
@@ -173,6 +203,17 @@ public interface ActivityStorage {
    * @return the number of activities
    */
   public int getNumberOfUserActivities(Identity owner) throws ActivityStorageException;
+
+  /**
+   * Count the number of activities from an ownerIdentity by filter
+   *
+   * @param viewerIdentity the viewer identity
+   * @param activityFilter the activity filter
+   * @return the number of activities
+   */
+  default int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter){
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Count the number of activities from an ownerIdentity for upgrade Activity
