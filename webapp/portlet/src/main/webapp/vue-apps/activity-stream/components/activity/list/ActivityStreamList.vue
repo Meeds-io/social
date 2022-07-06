@@ -87,7 +87,7 @@ export default {
     loading: false,
     error: false,
     isDeleted: false,
-    streamFilter: 'all',
+    streamFilter: null,
   }),
   computed: {
     activitiesToDisplay() {

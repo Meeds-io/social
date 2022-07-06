@@ -152,7 +152,7 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
   @Override
   public List<String> loadIdsAsList(int index, int limit) {
     if (activityFilter != null) {
-      return activityStorage.getActivitiesIdsByFilter(viewerIdentity, activityFilter, index, limit);
+      return activityStorage.getActivityIdsByFilter(viewerIdentity, activityFilter, index, limit);
     } else if (activityType != null) {
       switch (activityType) {
       case ACTIVITY_FEED: {
@@ -235,31 +235,35 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * {@inheritDoc}
    */
   public int getSize() {
-    switch (activityType) {
-    case ACTIVITY_FEED: {
-      return activityStorage.getNumberOfActivitesOnActivityFeed(ownerIdentity);
-    }
-    case USER_ACTIVITIES: {
-      return activityStorage.getNumberOfUserActivities(ownerIdentity);
-    }
-    case CONNECTIONS_ACTIVITIES: {
-      return activityStorage.getNumberOfActivitiesOfConnections(ownerIdentity);
-    }
-    case USER_SPACE_ACTIVITIES: {
-      return activityStorage.getNumberOfUserSpacesActivities(ownerIdentity);
-    }
-    case SPACE_ACTIVITIES: {
-      return activityStorage.getNumberOfSpaceActivities(ownerIdentity);
-    }
-    case POSTER_ACTIVITIES: {
-      return activityStorage.getNumberOfActivitiesByPoster(ownerIdentity);
-    }
-    case POSTER_AND_TYPES_ACTIVITIES: {
-      return 0;
-    }
-    case VIEW_USER_ACTIVITIES: {
-      return activityStorage.getNumberOfActivitiesByPoster(ownerIdentity, viewerIdentity);
-    }
+    if (activityFilter != null) {
+      return activityStorage.getActivitiesCountByFilter(viewerIdentity, activityFilter);
+    } else if (activityType != null) {
+      switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getNumberOfActivitesOnActivityFeed(ownerIdentity);
+      }
+      case USER_ACTIVITIES: {
+        return activityStorage.getNumberOfUserActivities(ownerIdentity);
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        return activityStorage.getNumberOfActivitiesOfConnections(ownerIdentity);
+      }
+      case USER_SPACE_ACTIVITIES: {
+        return activityStorage.getNumberOfUserSpacesActivities(ownerIdentity);
+      }
+      case SPACE_ACTIVITIES: {
+        return activityStorage.getNumberOfSpaceActivities(ownerIdentity);
+      }
+      case POSTER_ACTIVITIES: {
+        return activityStorage.getNumberOfActivitiesByPoster(ownerIdentity);
+      }
+      case POSTER_AND_TYPES_ACTIVITIES: {
+        return 0;
+      }
+      case VIEW_USER_ACTIVITIES: {
+        return activityStorage.getNumberOfActivitiesByPoster(ownerIdentity, viewerIdentity);
+      }
+      }
     }
     return 0;
   }

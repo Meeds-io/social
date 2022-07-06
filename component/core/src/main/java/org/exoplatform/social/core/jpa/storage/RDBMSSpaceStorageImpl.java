@@ -239,14 +239,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
   
   @Override
-  public List<String> getSpaceIdentityIdsByUserRole(String identityId,
-                                                    String status,
-                                                    int offset,
-                                                    int limit) throws SpaceStorageException {
+  public List<String> getSpaceIdentityIdsByUserRole(String userIdentityId, String status, int offset, int limit) {
 
     SpaceMemberEntity.Status spaceMemberStatus = SpaceMemberEntity.Status.valueOf(status.toUpperCase());
-    Identity identity = identityStorage.findIdentityById(identityId);
-    List<Long> spaceIds = spaceMemberDAO.getSpacesIdsByUserRole(identity.getRemoteId(), spaceMemberStatus, offset, limit);
+    Identity identity = identityStorage.findIdentityById(userIdentityId);
+    List<Long> spaceIds = spaceMemberDAO.getSpaceIdentityIdsByUserRole(identity.getRemoteId(), spaceMemberStatus, offset, limit);
 
     List<String> ids = new LinkedList<>();
     if (spaceIds != null && !spaceIds.isEmpty()) {
@@ -258,11 +255,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
-  public List<String> getFavoriteSpaceIdentityIds(String identityId,
-                                                  SpaceFilter spaceFilter,
-                                                  int offset,
-                                                  int limit) throws SpaceStorageException {
-    List<Space> spaces = getFavoriteSpacesByFilter(identityId, spaceFilter, offset, limit);
+  public List<String> getFavoriteSpaceIdentityIds(String userIdentityId, SpaceFilter spaceFilter, int offset, int limit) {
+    List<Space> spaces = getFavoriteSpacesByFilter(userIdentityId, spaceFilter, offset, limit);
 
     List<String> ids = new LinkedList<>();
     if (!CollectionUtils.isEmpty(spaces)) {

@@ -57,31 +57,39 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
 
   /**
    * @param activityFilter the activity filter
-   * @param spaceIds the space ids
+   * @param spaceIdentityIds the space identity ids
    * @param offset the offset index
    * @param limit the maximum number of ActivityEntity to load
    * @return the activity entities
    * @throws ActivityStorageException if has any error
    */
-  List<Long> getActivitiesByFilter(ActivityFilter activityFilter,
-                                   List<String> spaceIds,
-                                   int offset,
-                                   int limit) throws ActivityStorageException;
+  List<Long> getActivityByFilter(ActivityFilter activityFilter,
+                                 List<String> spaceIdentityIds,
+                                 int offset,
+                                 int limit) throws ActivityStorageException;
 
   /**
    * Gets Ids for User stream
    *
    * @param activityFilter the activity filter
-   * @param spaceIds the space ids
+   * @param spaceIdentityIds the space identity ids
    * @param offset the offset index
    * @param limit maximum number item to load
    * @return the list of activity id
    * @throws ActivityStorageException if has any error
    */
-  List<String> getActivitiesIdsByFilter(ActivityFilter activityFilter,
-                                        List<String> spaceIds,
-                                        int offset,
-                                        int limit) throws ActivityStorageException;
+  List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
+                                      List<String> spaceIdentityIds,
+                                      int offset,
+                                      int limit) throws ActivityStorageException;
+
+  /**
+   * @param activityFilter the activity filter
+   * @param spaceIdentityIds the space identity ids
+   *
+   * @return the number of activities by filter
+   */
+  int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds);
   
   /**
    * 

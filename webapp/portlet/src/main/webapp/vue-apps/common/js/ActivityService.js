@@ -14,7 +14,7 @@ export function getActivities(streamType, limit, expand) {
   }
 
   if (streamType) {
-    params.streamType = streamType;
+    params.streamType = streamType.toUpperCase();
   }
 
   params = $.param(params, true);

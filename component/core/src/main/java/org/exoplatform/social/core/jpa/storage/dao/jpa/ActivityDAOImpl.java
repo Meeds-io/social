@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -32,6 +34,7 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.activity.ActivityFilter;
@@ -55,6 +58,12 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   private final ConnectionDAO connectionDAO;
 
   private static final String STREAM_TYPE = "streamType";
+
+  private static final String  QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
+
+  private static final String  QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
+
+  private Map<String, Boolean> filterNamedQueries        = new HashMap<>();
 
   public ActivityDAOImpl(ConnectionDAO connectionDAO) {
     this.connectionDAO = connectionDAO;
@@ -133,32 +142,14 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
   }
-  
-  public List<Long> getActivitiesByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) {
 
-    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
-    jpql.append(" WHERE item.activity.hidden = false");
+  @Override
+  public List<Long> getActivityByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, int offset, int limit) {
 
-    if (activityFilter.getUserId() != null) {
-      jpql.append(" AND item.activity.posterId = :posterId");
-    }
-    if (!CollectionUtils.isEmpty(spaceIds)) {
-      jpql.append(" AND item.streamType = :streamType");
-      jpql.append(" AND item.ownerId in (:ownerIds)");
-    }
-
-    jpql.append(" ORDER BY item.updatedDate DESC");
-    TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
-    if (activityFilter.getUserId() != null) {
-      query.setParameter("posterId", activityFilter.getUserId());
-    }
-    if (!CollectionUtils.isEmpty(spaceIds)) {
-      List<Long> owners = new ArrayList<>();
-      for (String id : spaceIds) {
-        owners.add(Long.parseLong(id));
-      }
-      query.setParameter(STREAM_TYPE, StreamType.SPACE);
-      query.setParameter("ownerIds", owners);
+    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Tuple.class, false);
+    if (limit > 0) {
+      query.setFirstResult(Math.max(offset, 0));
+      query.setMaxResults(limit);
     }
     if (limit > 0) {
       query.setFirstResult(Math.max(offset, 0));
@@ -169,38 +160,25 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return convertActivityEntitiesToIds(resultList);
   }
 
-  public List<String> getActivitiesIdsByFilter(ActivityFilter activityFilter, List<String> spaceIds, int offset, int limit) {
+  @Override
+  public List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
+                                             List<String> spaceIdentityIds,
+                                             int offset,
+                                             int limit) {
 
-    StringBuilder jpql = new StringBuilder("SELECT DISTINCT(item.activity.id), item.updatedDate FROM SocStreamItem item");
-    jpql.append(" WHERE item.activity.hidden = false");
-
-    if (activityFilter.getUserId() != null) {
-      jpql.append(" AND item.activity.posterId = :posterId");
-    }
-    if (!CollectionUtils.isEmpty(spaceIds)) {
-      jpql.append(" AND item.streamType = :streamType");
-      jpql.append(" AND item.ownerId in (:ownerIds)");
-    }
-
-    jpql.append(" ORDER BY item.updatedDate DESC");
-    TypedQuery<Tuple> query = getEntityManager().createQuery(jpql.toString(), Tuple.class);
-    if (activityFilter.getUserId() != null) {
-      query.setParameter("posterId", activityFilter.getUserId());
-    }
-    if (!CollectionUtils.isEmpty(spaceIds)) {
-      List<Long> owners = new ArrayList<>();
-      for (String id : spaceIds) {
-        owners.add(Long.parseLong(id));
-      }
-      query.setParameter(STREAM_TYPE, StreamType.SPACE);
-      query.setParameter("ownerIds", owners);
-    }
+    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Tuple.class, false);
     if (limit > 0) {
       query.setFirstResult(Math.max(offset, 0));
       query.setMaxResults(limit);
     }
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIdsString(resultList);
+  }
+
+  @Override
+  public int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds) {
+    TypedQuery<Long> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Long.class, true);
+    return query.getSingleResult().intValue();
   }
 
   @Override
@@ -939,5 +917,79 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery("SocActivity.findActivities", ActivityEntity.class);
     query.setParameter("ids", activityIds);
     return query.getResultList();
+  }
+
+  private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, Class<T> clazz, boolean count) {
+    List<String> suffixes = new ArrayList<>();
+    List<String> predicates = new ArrayList<>();
+    buildPredicates(activityFilter, spaceIdentityIds, suffixes, predicates);
+
+    TypedQuery<T> query;
+    String queryName = getQueryFilterName(suffixes, count);
+    if (filterNamedQueries.containsKey(queryName)) {
+      query = getEntityManager().createNamedQuery(queryName, clazz);
+    } else {
+      String queryContent = getQueryFilterContent(predicates, count);
+      query = getEntityManager().createQuery(queryContent, clazz);
+      getEntityManager().getEntityManagerFactory().addNamedQuery(queryName, query);
+      filterNamedQueries.put(queryName, true);
+    }
+
+    addQueryFilterParameters(activityFilter, spaceIdentityIds, query);
+    return query;
+  }
+
+  private <T> void addQueryFilterParameters(ActivityFilter activityFilter, List<String> spaceIdentityIds, TypedQuery<T> query) {
+    if (activityFilter.getUserId() != null) {
+      query.setParameter("posterId", activityFilter.getUserId());
+    }
+    if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
+      List<Long> owners = new ArrayList<>();
+      for (String id : spaceIdentityIds) {
+        owners.add(Long.parseLong(id));
+      }
+      query.setParameter(STREAM_TYPE, StreamType.SPACE);
+      query.setParameter("ownerIds", owners);
+    }
+  }
+
+  private void buildPredicates(ActivityFilter activityFilter, List<String> spaceIdentityIds, List<String> suffixes, List<String> predicates) {
+    if (activityFilter.getUserId() != null) {
+      suffixes.add("Poster");
+      predicates.add("item.activity.posterId = :posterId");
+    }
+    if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
+      suffixes.add("StreamType");
+      predicates.add("item.streamType = :streamType");
+      predicates.add("item.ownerId in (:ownerIds)");
+    }
+  }
+
+  private String getQueryFilterName(List<String> suffixes, boolean count) {
+    String queryName;
+    if (suffixes.isEmpty()) {
+      queryName = count ? QUERY_FILTER_COUNT_PREFIX : QUERY_FILTER_FIND_PREFIX;
+    } else {
+      queryName = (count ? QUERY_FILTER_COUNT_PREFIX : QUERY_FILTER_FIND_PREFIX) + "By" + StringUtils.join(suffixes, "By");
+    }
+    return queryName;
+  }
+
+  private String getQueryFilterContent(List<String> predicates, boolean count) {
+    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.updatedDate";
+    querySelect = querySelect + " FROM SocStreamItem item WHERE item.activity.hidden = false";
+
+    String orderBy = " ORDER BY item.updatedDate DESC";
+
+    String queryContent;
+    if (predicates.isEmpty()) {
+      queryContent = querySelect ;
+    } else {
+      queryContent = querySelect + " AND " + StringUtils.join(predicates, " AND ");
+    }
+    if (!count) {
+      queryContent = queryContent + orderBy;
+    }
+    return queryContent;
   }
 }

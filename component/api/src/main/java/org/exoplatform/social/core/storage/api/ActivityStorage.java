@@ -93,13 +93,13 @@ public interface ActivityStorage {
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
 
   /**
-   * Gets the activities by identity and activity filter.
+   * Get the activities by identity and activity filter.
    *
    * @param viewerIdentity the viewer identity
    * @param activityFilter the activity filter
-   * @param offset
-   * @param limit
-   * @return the activities
+   * @param offset The starting point
+   * @param limit Limit of activities to retrieve
+   * @return {@link List} of {@link ExoSocialActivity} that contains list of activities matching the filter
    */
   default List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity,
                                                         ActivityFilter activityFilter,
@@ -109,15 +109,15 @@ public interface ActivityStorage {
   }
 
   /**
-   * Gets the activities ids by identity and activity filter.
+   * Get the activity ids by identity and activity filter.
    *
    * @param viewerIdentity the viewer identity
    * @param activityFilter the activity filter
-   * @param offset
-   * @param limit
-   * @return the activity ids list
+   * @param offset The starting point
+   * @param limit Limit of activity ids to retrieve
+   * @return {@link List} of {@link String} that contains list of activity ids matching the filter
    */
-  default List<String> getActivitiesIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+  default List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
     throw new UnsupportedOperationException();
   }
 
@@ -203,6 +203,15 @@ public interface ActivityStorage {
    * @return the number of activities
    */
   public int getNumberOfUserActivities(Identity owner) throws ActivityStorageException;
+
+  /**
+   * Count the number of activities from an ownerIdentity by filter
+   *
+   * @param viewerIdentity the viewer identity
+   * @param activityFilter the activity filter
+   * @return the number of activities
+   */
+  int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter);
 
   /**
    * Count the number of activities from an ownerIdentity for upgrade Activity

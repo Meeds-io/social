@@ -389,6 +389,20 @@ public class CachedActivityStorage implements ActivityStorage {
   /**
    * {@inheritDoc}
    */
+  public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
+
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(viewerIdentity), activityFilter);
+
+    //
+    return activitiesCountCache.get(() -> new IntegerData(storage.getActivitiesCountByFilter(viewerIdentity, activityFilter)),
+                                    key)
+                               .build();
+
+  }
+  /**
+   * {@inheritDoc}
+   */
   public int getNumberOfNewerOnUserActivities(final Identity ownerIdentity, final ExoSocialActivity baseActivity) {
 
     //
@@ -1835,8 +1849,8 @@ public class CachedActivityStorage implements ActivityStorage {
   }
 
   @Override
-  public List<String> getActivitiesIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
-    return storage.getActivitiesIdsByFilter(viewerIdentity, activityFilter, offset, limit);
+  public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    return storage.getActivityIdsByFilter(viewerIdentity, activityFilter, offset, limit);
   }
 
   @Override

@@ -188,7 +188,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
   }
 
   @Override
-  public List<Long> getSpacesIdsByUserRole(String userId, SpaceMemberEntity.Status status, int offset, int limit) {
+  public List<Long> getSpaceIdentityIdsByUserRole(String userId, SpaceMemberEntity.Status status, int offset, int limit) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceIdentitiesIdByMemberId", Long.class);
     query.setParameter("userId", userId);
     query.setParameter("status", status);
@@ -205,7 +205,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
 
   @Override
   public List<Long> getSpacesIdsByUserName(String userId, int offset, int limit) {
-    return getSpacesIdsByUserRole(userId, SpaceMemberEntity.Status.MEMBER, offset, limit);
+    return getSpaceIdentityIdsByUserRole(userId, SpaceMemberEntity.Status.MEMBER, offset, limit);
   }
 
   @Override

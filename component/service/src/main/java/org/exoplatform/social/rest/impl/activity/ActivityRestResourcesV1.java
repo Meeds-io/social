@@ -151,7 +151,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                 )
                                 @QueryParam("expand")
                                 String expand,
-                                @ApiParam(value = "activityStreamType enum name", required = false) @QueryParam("streamType") String streamType) {
+                                @ApiParam(value = "activityStreamType enum name", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -167,10 +167,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      if (!StringUtils.isBlank(streamType) && !streamType.equals("all")) {
-        ActivityStreamType activityStreamType = ActivityStreamType.valueOf(streamType.toUpperCase());
+      if (streamType != null && !streamType.equals(ActivityStreamType.ALL)) {
         ActivityFilter activityFilter = new ActivityFilter();
-        activityFilter.setStreamType(activityStreamType);
+        activityFilter.setStreamType(streamType);
         listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
       } else {
         listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);

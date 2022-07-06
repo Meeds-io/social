@@ -6,8 +6,8 @@
       @change="applyFilter">
       <option value="all">{{ $t('activity.filter.all') }}</option>
       <option value="user_stream">{{ $t('activity.filter.myActivities')}}</option>
-      <option value="manage_spaces_stream">{{ $t('activity.filter.SpaceManage')}}</option>
-      <option value="favorite_spaces_stream">{{ $t('aactivity.filter.favoriteSpaces')}}</option>
+      <option value="manage_spaces_stream">{{ $t('activity.filter.manageSpaces')}}</option>
+      <option value="favorite_spaces_stream">{{ $t('activity.filter.favoriteSpaces')}}</option>
     </select>
   </v-flex>
 </template>
