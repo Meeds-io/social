@@ -719,6 +719,29 @@ public interface SpaceStorage {
 
   /**
    * Retrieves the list of Space {@link Identity} technical identifiers
+   *
+   * @param userIdentityId user {@link Identity} technical identifier
+   * @param status {@link String} equals to MEMBER, MANAGER, REDACTOR, PENDING,
+   *          INVITED, IGNORED
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of space {@link Identity} technical identifiers
+   */
+  List<String> getSpaceIdentityIdsByUserRole(String userIdentityId, String status, int offset, int limit);
+
+  /**
+   * Retrieves the list of favorite Space {@link Identity} technical identifiers
+   *
+   * @param userIdentityId user {@link Identity} technical identifier
+   * @param spaceFilter
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of space {@link Identity} technical identifiers
+   */
+  List<String> getFavoriteSpaceIdentityIds(String userIdentityId, SpaceFilter spaceFilter, int offset, int limit);
+
+  /**
+   * Retrieves the list of Space {@link Identity} technical identifiers
    * 
    * @param identityId user {@link Identity} technical identifier
    * @param offset The starting point

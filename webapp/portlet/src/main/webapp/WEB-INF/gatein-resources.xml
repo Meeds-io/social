@@ -411,10 +411,6 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
-        <module>ActivityComposer</module>
-        <as>activityComposer</as>
-      </depends>
-      <depends>
         <module>ActivityReactions</module>
         <as>activityReactions</as>
       </depends>
@@ -463,10 +459,6 @@
       </depends>
       <depends>
         <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>ActivityComposer</module>
-        <as>activityComposer</as>
       </depends>
       <depends>
         <module>ActivityReactions</module>
@@ -1540,36 +1532,6 @@
   </module>
 
   <module>
-    <name>ActivityComposer</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/activityComposer.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>bts_tooltip</module>
-    </depends>
-  </module>
-
-  <module>
     <name>PeopleSearchResultCard</name>
     <script>
       <minify>false</minify>
@@ -1698,10 +1660,6 @@
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>
-    </depends>
-    <depends>
-      <module>ActivityComposer</module>
-      <as>activityComposer</as>
     </depends>
     <depends>
       <module>ActivityReactions</module>
