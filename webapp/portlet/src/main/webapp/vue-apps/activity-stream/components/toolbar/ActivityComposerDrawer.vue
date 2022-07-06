@@ -123,7 +123,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-composer-edit-activity', this.open);
+    document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
   },

@@ -29,7 +29,9 @@ import org.exoplatform.social.core.space.model.Space;
 public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     void deleteBySpace(SpaceEntity entity);
 
-    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, SpaceMemberEntity.Status status);
+    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, Status status);
+
+    List<Long> getSpaceIdentityIdsByUserRole(String userId, Status status, int offset, int limit);
 
     List<Long> getSpacesIdsByUserName(String userId, int offset, int limit);
 
