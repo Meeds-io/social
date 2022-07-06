@@ -1,13 +1,17 @@
 <template>
   <v-app v-if="loaded" role="main">
     <activity-notification-alerts />
+    <activity-stream-toolbar
+      :can-post="canPost"
+      :can-filter="!spaceId" />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
-      @activity-select="displayActivityDetail" />
+      @activity-select="displayActivityDetail"
+      @can-post-loaded="canPost = $event" />
     <extension-registry-components
       :params="drawerParams"
       name="ActivityStream"
@@ -24,6 +28,7 @@ export default {
     loaded: false,
     spaceId: eXo.env.portal.spaceId,
     forceReload: false,
+    canPost: false,
     activityId: null,
     activityTypes: {},
     activityActions: {},
