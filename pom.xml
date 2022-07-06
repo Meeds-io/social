@@ -27,7 +27,7 @@
   </parent>
   <groupId>io.meeds.social</groupId>
   <artifactId>social</artifactId>
-  <version>7.0.x-SNAPSHOT</version>
+  <version>7.0.x-meed-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Meeds:: PLF:: Social</name>
   <description>Meeds Social - Enterprise Social Networking</description>
@@ -46,8 +46,8 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <io.meeds.commons.version>7.0.x-SNAPSHOT</io.meeds.commons.version>
-    <io.meeds.platform-ui.version>7.0.x-SNAPSHOT</io.meeds.platform-ui.version>
+    <io.meeds.commons.version>7.0.x-meed-SNAPSHOT</io.meeds.commons.version>
+    <io.meeds.platform-ui.version>7.0.x-meed-SNAPSHOT</io.meeds.platform-ui.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
