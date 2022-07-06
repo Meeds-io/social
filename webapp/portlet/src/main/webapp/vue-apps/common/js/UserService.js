@@ -263,8 +263,10 @@ export function deleteRelationship(userId) {
 
 export function updateProfileField(username, name, value) {
   const formData = new FormData();
+  const valueData = value || 'DEFAULT_BANNER'; 
   formData.append('name', name);
-  formData.append('value', value);
+  formData.append('value', valueData);
+
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}`, {
     method: 'PATCH',
