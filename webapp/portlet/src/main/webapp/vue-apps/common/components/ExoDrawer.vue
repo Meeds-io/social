@@ -4,7 +4,7 @@
     :right="rightDrawer"
     :left="leftDrawer"
     :bottom="bottomDrawer"
-    :class="[!drawer && 'd-none d-sm-flex', bottom && 'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5 px-4']"
+    :class="[!drawer && 'd-none d-sm-flex', bottom && 'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5']"
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
