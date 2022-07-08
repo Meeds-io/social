@@ -19,7 +19,7 @@ export function search(filter) {
   }
   if (filter.includeGroups) {
     filter.loadingCallback('group');
-    searchGroups(filter.term, filter.items, filter.errorCallback)
+    searchGroups(filter.term, filter.groupMember, filter.groupType, filter.items, filter.errorCallback)
       .finally(() => filter.successCallback && filter.successCallback('group'));
   }
 }
@@ -57,32 +57,32 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
     });
 }
 
-function searchGroups(filter, items, errorCallback) {
+function searchGroups(filter, groupMember, groupType, items, errorCallback) {
   const formData = new FormData();
   formData.append('q', filter);
+  formData.append('groupMember', groupMember);
+  formData.append('groupType', groupType);
   const params = new URLSearchParams(formData).toString();
 
-  return fetch(`/portal/rest/v1/groups?${params}`, { credentials: 'include' })
+  return fetch(`/portal/rest/v1/groups/treeMembers?${params}`, { credentials: 'include' })
     .then(resp => resp && resp.ok && resp.json())
     .catch((e) => {
       errorCallback(e);
     })
     .then(data => {
       data.entities.forEach((item) => {
-        if (!item.id.startsWith('/spaces')) {
-          items.push({
-            id: `group:${item.groupName}`,
-            remoteId: item.groupName,
-            spaceId: item.id,
-            providerId: 'group',
-            displayName: item.label,
-            profile: {
-              fullName: item.label,
-              originalName: item.groupName,
-              avatarUrl: null,
-            },
-          });
-        }
+        items.push({
+          id: `group:${item.groupName}`,
+          remoteId: item.groupName,
+          spaceId: item.id,
+          providerId: 'group',
+          displayName: item.label,
+          profile: {
+            fullName: item.label,
+            originalName: item.groupName,
+            avatarUrl: null,
+          },
+        });
       });
     });
 }

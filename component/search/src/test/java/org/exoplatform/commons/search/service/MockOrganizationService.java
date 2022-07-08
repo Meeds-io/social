@@ -16,6 +16,7 @@
  */
 package org.exoplatform.commons.search.service;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -115,6 +116,11 @@ public class MockOrganizationService implements OrganizationService {
         }
       }
       return groups;
+    }
+
+    @Override
+    public Collection<Group> findGroupsOfUserByKeyword(String s, String s1, String s2) throws IOException {
+      return null;
     }
 
     @Override
