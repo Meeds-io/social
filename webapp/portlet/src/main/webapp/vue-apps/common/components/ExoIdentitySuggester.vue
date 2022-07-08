@@ -180,6 +180,18 @@ export default {
         return null;
       },
     },
+    groupMember: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    groupType: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     typeOfRelations: {
       type: String,
       default: function() {
@@ -268,6 +280,8 @@ export default {
                 includeSpaces: this.includeSpaces,
                 includeGroups: this.includeGroups,
                 onlyRedactor: this.onlyRedactor,
+                groupMember: this.groupMember,
+                groupType: this.groupType,
                 noRedactorSpace: this.noRedactorSpace,
                 onlyManager: this.onlyManager,
                 loadingCallback: () => this.loadingSuggestions++,
