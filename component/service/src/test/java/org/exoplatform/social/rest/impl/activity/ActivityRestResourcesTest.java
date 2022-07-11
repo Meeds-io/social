@@ -18,6 +18,8 @@ import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -166,6 +168,72 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     activityManager.deleteActivity(maryActivity);
     activityManager.deleteActivity(demoActivity);
     activityManager.deleteActivity(rootActivity);
+  }
+
+  public void testGetActivitiesByStreamType() throws Exception {
+    startSessionAs("mary");
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("mary activity");
+    activityManager.saveActivityNoReturn(maryIdentity, activity);
+
+    restartTransaction();
+
+    ContainerResponse response = service("GET",
+                                         getURLResource("activities?streamType=USER_STREAM&limit=5&offset=0"),
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+    ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
+    assertEquals("mary activity", activityEntity.getTitle());
+
+    Space space = getSpaceInstance(1, "mary");
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+
+    ExoSocialActivity activity1 = new ExoSocialActivityImpl();
+    activity1.setTitle("mary activity1");
+    activityManager.saveActivityNoReturn(spaceIdentity, activity1);
+
+    restartTransaction();
+
+    response = service("GET", getURLResource("activities?streamType=MANAGE_SPACES_STREAM&limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    // must return one activity of root and one of demo
+    assertEquals(2, collections.getEntities().size());
+    activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
+    assertEquals("mary activity1", activityEntity.getTitle());
+
+    // Bookmark a space
+    FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+    Favorite spaceFavorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
+                                          space.getId(),
+                                          null,
+                                          Long.parseLong(maryIdentity.getId()));
+    favoriteService.createFavorite(spaceFavorite);
+
+    response = service("GET", getURLResource("activities?streamType=FAVORITE_SPACES_STREAM&limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
+    // without filter
+    response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+
   }
 
   public void testGetActivity() throws Exception {
