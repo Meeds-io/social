@@ -137,14 +137,14 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
   /**
    * Constructor.
    *
-   * @param existingActivityStorage
+   * @param activityStorage
    * @param viewerIdentity
    * @param activityFilter
    */
-  public ActivitiesRealtimeListAccess(ActivityStorage existingActivityStorage,
+  public ActivitiesRealtimeListAccess(ActivityStorage activityStorage,
                                       Identity viewerIdentity,
                                       ActivityFilter activityFilter) {
-    this.activityStorage = existingActivityStorage;
+    this.activityStorage = activityStorage;
     this.viewerIdentity = viewerIdentity;
     this.activityFilter = activityFilter;
   }

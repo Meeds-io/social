@@ -391,10 +391,8 @@ public class CachedActivityStorage implements ActivityStorage {
    */
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
 
-    //
     ActivityCountKey key = new ActivityCountKey(new IdentityKey(viewerIdentity), activityFilter);
 
-    //
     return activitiesCountCache.get(() -> new IntegerData(storage.getActivitiesCountByFilter(viewerIdentity, activityFilter)),
                                     key)
                                .build();
