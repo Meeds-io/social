@@ -1,8 +1,8 @@
-export function getActivities(streamType, limit, expand) {
+export function getActivities(spaceId, streamType, limit, expand) {
   let params = {};
 
-  if (eXo.env.portal.spaceId) {
-    params.spaceId = eXo.env.portal.spaceId;
+  if (spaceId) {
+    params.spaceId = spaceId;
   }
 
   if (limit && limit > 0) {
