@@ -127,7 +127,7 @@ export default {
       const activityId = event && event.detail;
       this.updateActivityDisplayById(activityId);
     });
-    document.addEventListener('filter-applied', event => {
+    document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
       this.activities = [];
       this.loadActivityIds();
@@ -168,7 +168,7 @@ export default {
     },
     loadActivityIds() {
       this.loading = true;
-      return this.$activityService.getActivities(this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+      return this.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
         .then(data => {
           this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];

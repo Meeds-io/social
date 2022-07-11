@@ -63,13 +63,11 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return the activity entities
    * @throws ActivityStorageException if has any error
    */
-  List<Long> getActivityByFilter(ActivityFilter activityFilter,
-                                 List<String> spaceIdentityIds,
-                                 int offset,
-                                 int limit) throws ActivityStorageException;
+  default List<Long> getActivityByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
-   * Gets Ids for User stream
    *
    * @param activityFilter the activity filter
    * @param spaceIdentityIds the space identity ids
@@ -78,18 +76,21 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return the list of activity id
    * @throws ActivityStorageException if has any error
    */
-  List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
-                                      List<String> spaceIdentityIds,
-                                      int offset,
-                                      int limit) throws ActivityStorageException;
+  default List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
+                                              List<String> spaceIdentityIds,
+                                              int offset,
+                                              int limit) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * @param activityFilter the activity filter
    * @param spaceIdentityIds the space identity ids
-   *
    * @return the number of activities by filter
    */
-  int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds);
+  default int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds) {
+    throw new UnsupportedOperationException();
+  }
   
   /**
    * 

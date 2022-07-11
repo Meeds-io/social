@@ -151,7 +151,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                 )
                                 @QueryParam("expand")
                                 String expand,
-                                @ApiParam(value = "activityStreamType enum name", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
+                                @ApiParam(value = "Activity stream type. Possible values: ALL, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
