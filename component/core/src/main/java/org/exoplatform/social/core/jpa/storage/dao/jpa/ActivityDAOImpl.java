@@ -54,16 +54,16 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
  * May 18, 2015  
  */
 public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> implements ActivityDAO {
+  
+  private static final String        STREAM_TYPE               = "streamType";
 
-  private final ConnectionDAO connectionDAO;
+  private static final String        QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
 
-  private static final String STREAM_TYPE = "streamType";
+  private static final String        QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
 
-  private static final String  QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
+  private final Map<String, Boolean> filterNamedQueries        = new HashMap<>();
 
-  private static final String  QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
-
-  private Map<String, Boolean> filterNamedQueries        = new HashMap<>();
+  private final ConnectionDAO        connectionDAO;
 
   public ActivityDAOImpl(ConnectionDAO connectionDAO) {
     this.connectionDAO = connectionDAO;

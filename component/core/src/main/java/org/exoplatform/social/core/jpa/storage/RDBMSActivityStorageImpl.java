@@ -500,7 +500,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getId(),
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),
                                                                     0,
                                                                     -1);
@@ -531,7 +531,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getId(),
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),
                                                                     0,
                                                                     -1);
@@ -560,7 +560,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getId(),
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),
                                                                     0,
                                                                     -1);
