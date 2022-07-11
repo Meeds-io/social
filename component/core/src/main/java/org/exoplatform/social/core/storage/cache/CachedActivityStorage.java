@@ -1836,13 +1836,11 @@ public class CachedActivityStorage implements ActivityStorage {
     ActivityCountKey key = new ActivityCountKey(new IdentityKey(viewerIdentity), activityFilter);
     ListActivitiesKey listKey = new ListActivitiesKey(key, offset, limit);
 
-    //
     ListActivitiesData keys = activitiesCache.get(() -> {
       List<ExoSocialActivity> got = storage.getActivitiesByFilter(viewerIdentity, activityFilter, offset, limit);
       return buildIds(got);
     }, listKey);
 
-    //
     return buildActivities(keys);
   }
 

@@ -3,7 +3,7 @@
     <activity-notification-alerts />
     <activity-stream-toolbar
       :can-post="canPost"
-      :can-filter="!spaceId" />
+      :can-filter="canFilter" />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
@@ -52,6 +52,9 @@ export default {
         commentActions: this.commentActions,
       };
     },
+    canFilter() {
+      return !this.$root.selectedActivityId && !this.spaceId;
+    }
   },
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);

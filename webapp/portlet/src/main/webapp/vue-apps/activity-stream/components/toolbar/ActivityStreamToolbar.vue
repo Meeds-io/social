@@ -16,7 +16,7 @@
 -->
 <template>
   <v-toolbar
-    v-if="initialized && displayToolbar"
+    v-if="displayToolbar"
     id="activityComposer"
     class="activityComposer activityComposerApp pa-0"
     color="white mb-5"
@@ -70,16 +70,6 @@ export default {
     canFilter: {
       type: Boolean,
       default: false
-    },
-  },
-  data: () => ({
-    initialized: false,
-  }),
-  watch: {
-    canPost(newValue, oldValue) {
-      if (!oldValue && newValue && !this.initialized) {
-        this.initialized = true;
-      }
     },
   },
   computed: {
