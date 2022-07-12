@@ -36,7 +36,7 @@
         </v-card-text>
       </div>
       <div
-        v-if="canFilter && !isMobile"
+        v-if="streamFilterEnabled"
         class="ms-auto my-auto">
         <activity-stream-filter />
       </div>
