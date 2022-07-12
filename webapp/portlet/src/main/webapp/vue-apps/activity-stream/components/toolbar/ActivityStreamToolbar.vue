@@ -86,9 +86,12 @@ export default {
     userCanPost() {
       return !this.standalone && this.canPost;
     },
+    streamFilterEnabled() {
+      return eXo.env.portal.StreamFilterEnabled && this.canFilter && !this.isMobile;
+    },
     displayToolbar() {
-      return this.userCanPost || this.canFilter;
-    }
+      return this.userCanPost || this.streamFilterEnabled;
+    },
   },
   methods: {
     openComposerDrawer() {
