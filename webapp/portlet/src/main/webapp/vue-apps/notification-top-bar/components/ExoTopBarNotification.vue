@@ -11,7 +11,6 @@
             :value="badge > 0"
             :content="badge"
             flat
-            class="notif-badge-color"
             overlap>
             <v-icon class="icon-default-color" size="22">fa-bell</v-icon>
           </v-badge>
