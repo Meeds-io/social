@@ -106,6 +106,8 @@ export default {
       return {
         identityType: 'USER_PROFILE',
         identityId: this.identity && this.identity.username,
+        identityEnabled: this.identity && this.identity.enabled,
+        identityDeleted: this.identity && this.identity.deleted,        
       };
     },
     enabledExtensionComponents() {
@@ -151,6 +153,8 @@ export default {
       const data = event?.detail;
       this.identity = {
         id: data?.id,
+        enabled: data?.enabled,
+        deleted: data?.deleted,        
         username: data?.username,
         fullname: data?.fullName,
         avatar: data?.avatar,
