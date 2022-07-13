@@ -1577,12 +1577,15 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     Relationship maryToGhostRelationship = relationshipManager.inviteToConnect(ghostIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, ghostIdentity);
     restartTransaction();
+    sleep(1);
     Relationship maryToDemoRelationship = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, demoIdentity);
     restartTransaction();
+    sleep(1);
     Relationship paulToMaryRelationship = relationshipManager.inviteToConnect(paulIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, paulIdentity);
-    
+    sleep(1);
+
     List<Identity> identities = relationshipManager.getLastConnections(maryIdentity, 10);
     assertEquals(3, identities.size());
     assertEquals(paulIdentity.getRemoteId(), identities.get(0).getRemoteId());
