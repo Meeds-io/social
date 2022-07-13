@@ -114,6 +114,12 @@ export default {
         return false;
       },
     },
+    includeGroups: {
+      type: Boolean,
+      default: function() {
+        return false;
+      },
+    },
     noRedactorSpace: {
       type: Boolean,
       default: function() {
@@ -169,6 +175,18 @@ export default {
       },
     },
     width: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    groupMember: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    groupType: {
       type: String,
       default: function() {
         return null;
@@ -238,19 +256,44 @@ export default {
           if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
             this.loadingSuggestions = 0;
             this.items = [];
-            this.$suggesterService.searchSpacesOrUsers(value,
-              this.items,
-              this.typeOfRelations,
-              this.searchOptions,
-              this.includeUsers,
-              this.includeSpaces,
-              this.onlyRedactor,
-              this.noRedactorSpace,
-              this.onlyManager,
-              () => this.loadingSuggestions++,
-              () => {
-                this.loadingSuggestions--;
+            if (!this.includeGroups) {
+              this.$suggesterService.searchSpacesOrUsers(value,
+                this.items,
+                this.typeOfRelations,
+                this.searchOptions,
+                this.includeUsers,
+                this.includeSpaces,
+                this.onlyRedactor,
+                this.noRedactorSpace,
+                this.onlyManager,
+                () => this.loadingSuggestions++,
+                () => {
+                  this.loadingSuggestions--;
+                });
+            } else {
+              this.$suggesterService.search({
+                term: value,
+                items: this.items,
+                typeOfRelations: this.typeOfRelations,
+                searchOptions: this.searchOptions,
+                includeUsers: this.includeUsers,
+                includeSpaces: this.includeSpaces,
+                includeGroups: this.includeGroups,
+                onlyRedactor: this.onlyRedactor,
+                groupMember: this.groupMember,
+                groupType: this.groupType,
+                noRedactorSpace: this.noRedactorSpace,
+                onlyManager: this.onlyManager,
+                loadingCallback: () => this.loadingSuggestions++,
+                successCallback: () => {
+                  this.loadingSuggestions--;
+                },
+                errorCallback: () => {
+                  throw new Error('Response code indicates a server error');
+                }
               });
+            }
+
           }
           this.previousSearchTerm = this.searchTerm;
         }, 400);

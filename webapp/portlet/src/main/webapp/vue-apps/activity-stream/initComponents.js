@@ -9,6 +9,7 @@ import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue
 import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
+import ActivityStreamFilter from './components/toolbar/ActivityStreamFilter.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
@@ -34,10 +35,14 @@ import ActivityCommentTime from './components/comment/footer/ActivityCommentTime
 import ActivityCommentActions from './components/comment/footer/ActivityCommentActions.vue';
 import ActivityCommentReplyAction from './components/comment/footer/actions/ActivityCommentReplyAction.vue';
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
+import ActivityStreamToolbar from './components/toolbar/ActivityStreamToolbar.vue';
+import ActivityComposerDrawer from './components/toolbar/ActivityComposerDrawer.vue';
 
 const components = {
   'activity-stream': ActivityStream,
   'activity-stream-list': ActivityStreamList,
+  'activity-stream-toolbar': ActivityStreamToolbar,
+  'activity-composer-drawer': ActivityComposerDrawer,
   'activity-notification-alerts': ActivityNotificationAlerts,
   'activity-auto-link': ActivityAutoLink,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
@@ -47,6 +52,7 @@ const components = {
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
   'activity-stream-activity': ActivityStreamActivity,
   'activity-stream-loader': ActivityStreamLoader,
+  'activity-stream-filter': ActivityStreamFilter,
   'activity-head': ActivityHead,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,

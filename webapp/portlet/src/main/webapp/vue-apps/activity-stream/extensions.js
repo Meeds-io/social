@@ -15,7 +15,13 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'reactions-drawer',
   vueComponent: Vue.options.components['activity-reactions-drawer'],
-  rank: 20,
+  rank: 25,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'composer-drawer',
+  vueComponent: Vue.options.components['activity-composer-drawer'],
+  rank: 35,
 });
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
@@ -112,7 +118,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: (activity, activityTypeExtension) => {
     const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(activity) || activityTypeExtension.getBody(activity);
-    document.dispatchEvent(new CustomEvent('activity-composer-edit-activity', {detail: {
+    document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
       activityId: activity.id,
       spaceId: activity && activity.activityStream && activity.activityStream.space && activity.activityStream.space.id || '',
       composerAction: 'update',

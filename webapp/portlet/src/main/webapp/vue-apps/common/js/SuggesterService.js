@@ -12,6 +12,17 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
       .finally(() => searchEndCallback && searchEndCallback('organization'));
   }
 }
+
+export function search(filter) {
+  if (filter.includeSpaces || filter.includeUsers) {
+    searchSpacesOrUsers(filter.term, filter.items, filter.typeOfRelations, filter.searchOptions, filter.includeUsers, filter.includeSpaces, filter.onlyRedactor, filter.noRedactorSpace, filter.onlyManager, filter.loadingCallback, filter.successCallback);
+  }
+  if (filter.includeGroups) {
+    filter.loadingCallback('group');
+    searchGroups(filter.term, filter.groupMember, filter.groupType, filter.items, filter.errorCallback)
+      .finally(() => filter.successCallback && filter.successCallback('group'));
+  }
+}
 /*
 * onlyRedactor : search spaces where the user is a redactor
 * excludeRedactionalSpace : space spaces that have no member promoted as redactor
@@ -42,6 +53,36 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
             },
           });
         }
+      });
+    });
+}
+
+function searchGroups(filter, groupMember, groupType, items, errorCallback) {
+  const formData = new FormData();
+  formData.append('q', filter);
+  formData.append('groupMember', groupMember);
+  formData.append('groupType', groupType);
+  const params = new URLSearchParams(formData).toString();
+
+  return fetch(`/portal/rest/v1/groups/treeMembers?${params}`, { credentials: 'include' })
+    .then(resp => resp && resp.ok && resp.json())
+    .catch((e) => {
+      errorCallback(e);
+    })
+    .then(data => {
+      data.entities.forEach((item) => {
+        items.push({
+          id: `group:${item.groupName}`,
+          remoteId: item.groupName,
+          spaceId: item.id,
+          providerId: 'group',
+          displayName: item.label,
+          profile: {
+            fullName: item.label,
+            originalName: item.groupName,
+            avatarUrl: null,
+          },
+        });
       });
     });
 }
