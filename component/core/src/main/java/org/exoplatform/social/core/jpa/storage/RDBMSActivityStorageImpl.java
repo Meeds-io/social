@@ -36,6 +36,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -43,6 +44,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.entity.*;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -478,6 +480,96 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   @Override
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) {
     return activityDAO.getUserIdsActivities(owner, offset, limit);
+  }
+
+  @Override
+  public List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity,
+                                                       ActivityFilter activityFilter,
+                                                       long offset,
+                                                       long limit) {
+    List<String> spaceIdentityIds = null;
+    switch (activityFilter.getStreamType()) {
+    case USER_STREAM:
+      activityFilter.setUserId(viewerIdentity.getId());
+      break;
+    case FAVORITE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return Collections.emptyList();
+      }
+      break;
+    case MANAGE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    0,
+                                                                    -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return Collections.emptyList();
+      }
+      break;
+    default:
+      throw new UnsupportedOperationException();
+    }
+    return convertActivityIdsToActivities(activityDAO.getActivityByFilter(activityFilter,
+                                                                          spaceIdentityIds,
+                                                                          (int) offset,
+                                                                          (int) limit));
+  }
+
+  @Override
+  public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    List<String> spaceIdentityIds = null;
+    switch (activityFilter.getStreamType()) {
+    case USER_STREAM:
+      activityFilter.setUserId(viewerIdentity.getId());
+      break;
+    case FAVORITE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return Collections.emptyList();
+      }
+      break;
+    case MANAGE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    0,
+                                                                    -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return Collections.emptyList();
+      }
+      break;
+    default:
+      throw new UnsupportedOperationException();
+    }
+    return activityDAO.getActivityIdsByFilter(activityFilter, spaceIdentityIds, (int) offset, (int) limit);
+  }
+
+  @Override
+  public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
+    List<String> spaceIdentityIds = null;
+    switch (activityFilter.getStreamType()) {
+    case USER_STREAM:
+      activityFilter.setUserId(viewerIdentity.getId());
+      break;
+    case FAVORITE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return 0;
+      }
+      break;
+    case MANAGE_SPACES_STREAM:
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    0,
+                                                                    -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return 0;
+      }
+      break;
+    default:
+      throw new UnsupportedOperationException();
+    }
+    return activityDAO.getActivitiesCountByFilter(activityFilter, spaceIdentityIds);
   }
 
   @Override

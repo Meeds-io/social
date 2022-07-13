@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -53,7 +54,43 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @throws ActivityStorageException if has any error
    */
   List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
-  
+
+  /**
+   * @param activityFilter the activity filter
+   * @param spaceIdentityIds the space identity ids
+   * @param offset the offset index
+   * @param limit the maximum number of ActivityEntity to load
+   * @return the activity entities
+   * @throws ActivityStorageException if has any error
+   */
+  default List<Long> getActivityByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   *
+   * @param activityFilter the activity filter
+   * @param spaceIdentityIds the space identity ids
+   * @param offset the offset index
+   * @param limit maximum number item to load
+   * @return the list of activity id
+   * @throws ActivityStorageException if has any error
+   */
+  default List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
+                                              List<String> spaceIdentityIds,
+                                              int offset,
+                                              int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param activityFilter the activity filter
+   * @param spaceIdentityIds the space identity ids
+   * @return the number of activities by filter
+   */
+  default int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds) {
+    throw new UnsupportedOperationException();
+  }
   
   /**
    * 

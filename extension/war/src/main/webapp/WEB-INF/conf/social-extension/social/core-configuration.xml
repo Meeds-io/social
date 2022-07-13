@@ -739,6 +739,18 @@
       </init-params>
     </component>
 
+    <component>
+        <key>StreamFilterFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>StreamFilterFeatureProperties</name>
+                <description>Stream Filter Feature enablement flag</description>
+                <property name="exo.feature.StreamFilter.enabled" value="${exo.feature.StreamFilter.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>

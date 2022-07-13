@@ -21,6 +21,7 @@ import java.util.List;
 import javax.persistence.Tuple;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
@@ -29,8 +30,22 @@ import org.exoplatform.social.core.space.model.Space;
 public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     void deleteBySpace(SpaceEntity entity);
 
-    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, SpaceMemberEntity.Status status);
+    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, Status status);
 
+    /**
+     * Get space identity ids switch user status
+     *
+     * @param remoteId user {@link Identity} remote Id
+     * @param status equals to MEMBER, MANAGER, PENDING, INVITED or IGNORED
+     * @param offset The starting point
+     * @param limit limit of results to retrieve
+     * @return {@link List} of {@link Space} technical identifiers of type
+     *         {@link Long}
+     */
+    default List<Long> getSpaceIdentityIdsByUserRole(String remoteId, Status status, int offset, int limit) {
+      throw new UnsupportedOperationException();
+    }
+    
     List<Long> getSpacesIdsByUserName(String userId, int offset, int limit);
 
     /**
