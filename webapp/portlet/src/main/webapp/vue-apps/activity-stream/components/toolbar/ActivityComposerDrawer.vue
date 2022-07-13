@@ -40,7 +40,7 @@
         </v-card-actions>
         <v-card-text class="composerActions">
           <extension-registry-components
-            v-if="activityId === null"
+            v-if="!activityId"
             :params="extensionParams"
             name="ActivityComposerFooterAction"
             type="activity-composer-footer-action">
