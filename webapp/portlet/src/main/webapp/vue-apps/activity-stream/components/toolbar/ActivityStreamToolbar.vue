@@ -100,7 +100,7 @@ export default {
         activityBody: this.activityBody,
         activityParams: this.activityParams,
         files: [],
-        activityType: null
+        activityType: []
       }}));
     },
   },
