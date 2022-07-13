@@ -60,4 +60,5 @@
 
      eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
      eXo.env.portal.engagementCenterEnabled = <%=featureService.isFeatureActiveForUser("engagementCenter", userName)%>;
+     eXo.env.portal.StreamFilterEnabled = <%=PropertyManager.getProperty("exo.feature.StreamFilter.enabled")%>;
 </script>

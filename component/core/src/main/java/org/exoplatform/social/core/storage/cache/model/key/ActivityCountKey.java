@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache.model.key;
 
+import org.exoplatform.social.core.activity.ActivityFilter;
+
 /**
  * Immutable activity count key.
  * This key is used to cache the activity count.
@@ -36,6 +38,8 @@ public class ActivityCountKey implements CacheKey {
   private String baseId;
 
   private ActivityType type;
+
+  private transient ActivityFilter activityFilter;
 
   private Long time;
   
@@ -81,6 +85,11 @@ public class ActivityCountKey implements CacheKey {
     this.type = type;
   }
 
+  public ActivityCountKey(IdentityKey key, ActivityFilter activityFilter) {
+    this.key = key;
+    this.activityFilter = activityFilter;
+  }
+
   public IdentityKey getKey() {
     return key;
   }
@@ -113,6 +122,10 @@ public class ActivityCountKey implements CacheKey {
     if (activityTypes != null ? !activityTypes.equals(that.activityTypes) : that.activityTypes != null) {
       return false;
     }
+
+    if (activityFilter != null ? !activityFilter.equals(that.activityFilter) : that.activityFilter != null) {
+      return false;
+    }
     
     if (type != that.type) {
       return false;
@@ -129,6 +142,7 @@ public class ActivityCountKey implements CacheKey {
     int result = (key != null ? key.hashCode() : 0);
     result = 31 * result + (activityKey != null ? activityKey.hashCode() : 0);
     result = 31 * result + (activityTypes != null ? activityTypes.hashCode() : 0);
+    result = 31 * result + (activityFilter != null ? activityFilter.hashCode() : 0);
     result = 31 * result + (viewerKey != null ? viewerKey.hashCode() : 0);
     result = 31 * result + (baseId != null ? baseId.hashCode() : 0);
     result = 31 * result + (type != null ? type.hashCode() : 0);
