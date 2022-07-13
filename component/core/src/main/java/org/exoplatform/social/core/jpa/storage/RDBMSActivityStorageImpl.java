@@ -482,7 +482,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return activityDAO.getUserIdsActivities(owner, offset, limit);
   }
 
-
   @Override
   public List<ExoSocialActivity> getActivitiesByFilter(Identity viewerIdentity,
                                                        ActivityFilter activityFilter,
@@ -544,7 +543,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
     return activityDAO.getActivityIdsByFilter(activityFilter, spaceIdentityIds, (int) offset, (int) limit);
   }
-
 
   @Override
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {

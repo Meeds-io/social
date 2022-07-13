@@ -389,6 +389,7 @@ public class CachedActivityStorage implements ActivityStorage {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
 
     ActivityCountKey key = new ActivityCountKey(new IdentityKey(viewerIdentity), activityFilter);
