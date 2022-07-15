@@ -20,7 +20,7 @@
       v-model="streamFilter"
       class="width-auto my-auto ignore-vuetify-classes"
       @change="applyFilter">
-      <option value="all">{{ $t('activity.filter.all') }}</option>
+      <option value="all_stream">{{ $t('activity.filter.all') }}</option>
       <option value="user_stream">{{ $t('activity.filter.myActivities') }}</option>
       <option value="user_favorite_stream">{{ $t('activity.filter.favoriteActivities') }}</option>
       <option value="manage_spaces_stream">{{ $t('activity.filter.manageSpaces') }}</option>
