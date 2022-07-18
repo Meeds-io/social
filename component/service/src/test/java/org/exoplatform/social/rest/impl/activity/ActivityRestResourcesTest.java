@@ -173,6 +173,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
   public void testGetActivitiesByStreamType() throws Exception {
     startSessionAs("mary");
 
+    // Get my posted activities
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("mary activity");
     activityManager.saveActivityNoReturn(maryIdentity, activity);
@@ -192,6 +193,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("mary activity", activityEntity.getTitle());
 
+    // Get manage spaces activities
     Space space = getSpaceInstance(1, "mary");
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
 
@@ -206,12 +208,11 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    // must return one activity of root and one of demo
     assertEquals(2, collections.getEntities().size());
     activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("mary activity1", activityEntity.getTitle());
 
-    // Bookmark a space
+    // Get favorite space activities
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
     Favorite spaceFavorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
                                           space.getId(),
@@ -220,6 +221,25 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     favoriteService.createFavorite(spaceFavorite);
 
     response = service("GET", getURLResource("activities?streamType=FAVORITE_SPACES_STREAM&limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
+    // Get favorite activities
+    Favorite favoriteActivity = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                             activity.getId(),
+                                             null,
+                                             Long.parseLong(maryIdentity.getId()));
+    Favorite favoriteActivity1 = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                              activity1.getId(),
+                                              null,
+                                              Long.parseLong(maryIdentity.getId()));
+    favoriteService.createFavorite(favoriteActivity);
+    favoriteService.createFavorite(favoriteActivity1);
+
+    response = service("GET", getURLResource("activities?streamType=USER_FAVORITE_STREAM&limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
