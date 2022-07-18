@@ -151,7 +151,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                                 )
                                 @QueryParam("expand")
                                 String expand,
-                                @ApiParam(value = "Activity stream type. Possible values: ALL, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
+                                @ApiParam(value = "Activity stream type. Possible values: ALL_STREAM, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -167,7 +167,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     if (StringUtils.isBlank(spaceId)) {
-      if (streamType != null && !streamType.equals(ActivityStreamType.ALL)) {
+      if (streamType != null && !streamType.equals(ActivityStreamType.ALL_STREAM)) {
         ActivityFilter activityFilter = new ActivityFilter();
         activityFilter.setStreamType(streamType);
         listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
