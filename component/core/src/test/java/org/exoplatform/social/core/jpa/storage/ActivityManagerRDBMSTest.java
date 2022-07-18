@@ -1019,17 +1019,23 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     populateActivityMass(spaceIdentity, 4);
 
-    Space favoriteSpace = getSpaceInstance(spaceService, 2);
-    Identity favoriteSpaceIdentity = identityManager.getOrCreateSpaceIdentity(favoriteSpace.getPrettyName());
-    populateActivityMass(favoriteSpaceIdentity, 3);
+    Space space1 = getSpaceInstance(spaceService, 2);
+    Identity space1Identity = identityManager.getOrCreateSpaceIdentity(space1.getPrettyName());
+    populateActivityMass(space1Identity, 3);
 
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
-    Favorite space1Favorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
-                                           space.getId(),
-                                           null,
-                                           Long.parseLong(demoIdentity.getId()));
-    favoriteService.createFavorite(space1Favorite);
+    Favorite favoriteSpace = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
+                                          space.getId(),
+                                          null,
+                                          Long.parseLong(demoIdentity.getId()));
+    favoriteService.createFavorite(favoriteSpace);
+    Favorite favoriteActivity = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                             "1",
+                                             null,
+                                             Long.parseLong(demoIdentity.getId()));
+    favoriteService.createFavorite(favoriteActivity);
 
+    // Get my posted activities
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setStreamType(ActivityStreamType.USER_STREAM);
     RealtimeListAccess<ExoSocialActivity> streamTypeActivities =
@@ -1037,11 +1043,18 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
                                                                                                                    activityFilter);
     assertEquals(1, streamTypeActivities.load(0, 10).length);
 
+    // Get favorite activities
+    activityFilter.setStreamType(ActivityStreamType.USER_FAVORITE_STREAM);
+    streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(1, streamTypeActivities.getSize());
+
+    // Get manage spaces activities
     activityFilter = new ActivityFilter();
     activityFilter.setStreamType(ActivityStreamType.MANAGE_SPACES_STREAM);
     streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
     assertEquals(7, streamTypeActivities.load(0, 10).length);
 
+    // Get favorite space activities
     activityFilter = new ActivityFilter();
     activityFilter.setStreamType(ActivityStreamType.FAVORITE_SPACES_STREAM);
     streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
