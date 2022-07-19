@@ -222,6 +222,10 @@ export default {
       searchTerm: null,
       searchStarted: false,
       loadingSuggestions: 0,
+      startSearchAfterInMilliseconds: 300,
+      endTypingKeywordTimeout: 50,
+      startTypingKeywordTimeout: 0,
+      typing: false,
     };
   },
   computed: {
@@ -249,57 +253,11 @@ export default {
         this.searchStarted = true;
       }
     },
-    searchTerm(value) {
-      if (value && value.length) {
-        window.setTimeout(() => {
-          this.focus();
-          if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
-            this.loadingSuggestions = 0;
-            this.items = [];
-            if (!this.includeGroups) {
-              this.$suggesterService.searchSpacesOrUsers(value,
-                this.items,
-                this.typeOfRelations,
-                this.searchOptions,
-                this.includeUsers,
-                this.includeSpaces,
-                this.onlyRedactor,
-                this.noRedactorSpace,
-                this.onlyManager,
-                () => this.loadingSuggestions++,
-                () => {
-                  this.loadingSuggestions--;
-                });
-            } else {
-              this.$suggesterService.search({
-                term: value,
-                items: this.items,
-                typeOfRelations: this.typeOfRelations,
-                searchOptions: this.searchOptions,
-                includeUsers: this.includeUsers,
-                includeSpaces: this.includeSpaces,
-                includeGroups: this.includeGroups,
-                onlyRedactor: this.onlyRedactor,
-                groupMember: this.groupMember,
-                groupType: this.groupType,
-                noRedactorSpace: this.noRedactorSpace,
-                onlyManager: this.onlyManager,
-                loadingCallback: () => this.loadingSuggestions++,
-                successCallback: () => {
-                  this.loadingSuggestions--;
-                },
-                errorCallback: () => {
-                  throw new Error('Response code indicates a server error');
-                }
-              });
-            }
-
-          }
-          this.previousSearchTerm = this.searchTerm;
-        }, 400);
-      } else {
-        this.items = [];
-        this.searchStarted = false;
+    searchTerm() {
+      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+      if (!this.typing) {
+        this.typing = true;
+        this.waitForEndTyping();
       }
     },
     value() {
@@ -369,6 +327,67 @@ export default {
       }
       this.$emit('removeValue',item);
     },
+    waitForEndTyping() {
+      window.setTimeout(() => {
+        if (Date.now() > this.startTypingKeywordTimeout) {
+          this.typing = false;
+          this.searchSpacesOrUsers();
+        } else {
+          this.waitForEndTyping();
+        }
+      }, this.endTypingKeywordTimeout);
+    },
+    searchSpacesOrUsers() {
+      if (this.searchTerm && this.searchTerm.length) {
+        this.focus();
+        if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
+          this.loadingSuggestions = 0;
+          this.items = [];
+          if (!this.includeGroups) {
+            this.$suggesterService.searchSpacesOrUsers(this.searchTerm,
+              this.items,
+              this.typeOfRelations,
+              this.searchOptions,
+              this.includeUsers,
+              this.includeSpaces,
+              this.onlyRedactor,
+              this.noRedactorSpace,
+              this.onlyManager,
+              () => this.loadingSuggestions++,
+              () => {
+                this.loadingSuggestions--;
+              });
+          } else {
+            this.$suggesterService.search({
+              term: this.searchTerm,
+              items: this.items,
+              typeOfRelations: this.typeOfRelations,
+              searchOptions: this.searchOptions,
+              includeUsers: this.includeUsers,
+              includeSpaces: this.includeSpaces,
+              includeGroups: this.includeGroups,
+              onlyRedactor: this.onlyRedactor,
+              groupMember: this.groupMember,
+              groupType: this.groupType,
+              noRedactorSpace: this.noRedactorSpace,
+              onlyManager: this.onlyManager,
+              loadingCallback: () => this.loadingSuggestions++,
+              successCallback: () => {
+                this.loadingSuggestions--;
+              },
+              errorCallback: () => {
+                throw new Error('Response code indicates a server error');
+              }
+            });
+          }
+
+        }
+        this.previousSearchTerm = this.searchTerm;
+      } else {
+        this.items = [];
+        this.searchStarted = false;
+      }
+    }
   },
 };
 </script>
