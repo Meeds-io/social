@@ -34,7 +34,8 @@
     <template v-else-if="!activityId && !isDeleted">
       <activity-not-found v-if="activityId" />
       <template v-else-if="!error">
-        <activity-stream-empty-message-space v-if="spaceId" />
+        <activity-stream-empty-message-filter v-if="streamFilter && streamFilter !== 'all_stream'" :stream-filter="streamFilter" />
+        <activity-stream-empty-message-space v-else-if="spaceId" />
         <activity-stream-empty-message-user v-else />
       </template>
     </template>

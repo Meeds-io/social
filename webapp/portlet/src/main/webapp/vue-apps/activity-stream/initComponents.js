@@ -1,6 +1,7 @@
 import ActivityStream from './components/ActivityStream.vue';
 import ActivityStreamEmptyMessageSpace from './components/empty-stream/ActivityStreamEmptyMessageSpace.vue';
 import ActivityStreamEmptyMessageUser from './components/empty-stream/ActivityStreamEmptyMessageUser.vue';
+import ActivityStreamEmptyMessageFilter from './components/empty-stream/ActivityStreamEmptyMessageFilter.vue';
 import ActivityNotFound from './components/empty-stream/ActivityNotFound.vue';
 import ActivityAutoLink from './components/common/ActivityAutoLink.vue';
 import ActivityNotificationAlerts from './components/common/ActivityNotificationAlerts.vue';
@@ -47,6 +48,7 @@ const components = {
   'activity-auto-link': ActivityAutoLink,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
   'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
+  'activity-stream-empty-message-filter': ActivityStreamEmptyMessageFilter,
   'activity-not-found': ActivityNotFound,
   'activity-stream-updater': ActivityStreamUpdater,
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
