@@ -30,6 +30,10 @@
   <description>eXo Social Service Component</description>
   <properties>
     <exo.test.coverage.ratio>0.45</exo.test.coverage.ratio>
+
+    <rest.api.doc.title>Social Rest Api</rest.api.doc.title>
+    <rest.api.doc.version>1.0</rest.api.doc.version>
+    <rest.api.doc.description>All used social rest endpoints</rest.api.doc.description>
   </properties>
   <dependencies>
     <dependency>
@@ -335,38 +339,26 @@
         </executions>
       </plugin>
       <plugin>
-	        <groupId>com.github.kongchen</groupId>
-	        <artifactId>swagger-maven-plugin</artifactId>
-	        <version>3.1.0</version> 
-	        <configuration>
-	            <apiSources>
-	                <apiSource>
-                      <springmvc>false</springmvc>
-                      <locations>org.exoplatform.social.rest.impl</locations>
-                      <schemes>http,https</schemes>
-                      <host>localhost:8080</host>
-                      <basePath>/rest</basePath>
-                      <info>
-                          <title>eXo Social REST API</title>
-                          <version>1</version>
-                          <description>The Social REST API provides methods for accessing social resources such as users, spaces or activities. Here are the descriptions of a full representation of each of the social resources available.</description>
-                          
-                      </info>
-                      <templatePath>${basedir}/src/main/resources/swagger-doc-template/strapdown.html.hbs</templatePath>
-                      <outputPath>${basedir}/target/generated/document.html</outputPath>
-                      <swaggerDirectory>${basedir}/target/generated-sources/annotations/generated</swaggerDirectory>
-                  </apiSource>
-	            </apiSources>
-	        </configuration>
-	        <executions>
-	            <execution>
-	                <phase>compile</phase>
-	                <goals>
-	                    <goal>generate</goal>
-	                </goals>
-	            </execution>
-	        </executions>
-	    </plugin>
+        <groupId>io.openapitools.swagger</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <configuration>
+          <useResourcePackagesChildren>true</useResourcePackagesChildren>
+          <resourcePackages>
+            <locations>org.exoplatform.social.rest.impl</locations>
+          </resourcePackages>
+          <swaggerConfig>
+            <info>
+              <title>${rest.api.doc.title}</title>
+              <version>${rest.api.doc.version}</version>
+              <description>${rest.api.doc.description}</description>
+              <license>
+                <url>https://www.gnu.org/licenses/lgpl-3.0.en.html</url>
+                <name>LGPL</name>
+              </license>
+            </info>
+          </swaggerConfig>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
