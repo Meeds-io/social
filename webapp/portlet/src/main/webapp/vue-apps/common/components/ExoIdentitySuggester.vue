@@ -238,7 +238,7 @@ export default {
       return `${requiredClass} ${sugesterStyleClass}`;
     },
     displaySearchPlaceHolder() {
-      return this.labels.searchPlaceholder && (!this.searchStarted || !this.value);
+      return this.labels.searchPlaceholder && !this.searchStarted;
     },
     hideNoData() {
       return !this.searchStarted && this.items.length === 0;
