@@ -23,7 +23,6 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-notification-alert', alert => this.alert = alert);
     this.$root.$on('activity-shared', (activityId, spaces) => {
       if (spaces && spaces.length > 0) {
         const spaceDisplayNames = spaces.map(space => space.displayName || '');
