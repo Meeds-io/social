@@ -73,8 +73,8 @@ function searchGroups(filter, groupMember, groupType, items, errorCallback) {
       data.entities.forEach((item) => {
         items.push({
           id: `group:${item.groupName}`,
-          remoteId: item.groupName,
-          spaceId: item.id,
+          remoteId: item.id,
+          spaceId: item.groupName,
           providerId: 'group',
           displayName: item.label,
           profile: {
