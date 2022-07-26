@@ -145,10 +145,10 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget';
+      let extraPlugins = 'simpleLink,suggester,widget,emoji';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','emoji'],
       ];
 
       const windowWidth = $(window).width();
