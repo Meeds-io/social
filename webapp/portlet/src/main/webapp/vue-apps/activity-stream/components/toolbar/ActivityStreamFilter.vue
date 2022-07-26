@@ -99,9 +99,15 @@ export default {
       }];
     },
   },
+  created() {
+    document.addEventListener('activity-stream-stored-filter-applied', event => {
+      this.filter = event?.detail;
+    });
+  },
   methods: {
     applyFilter() {
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
+      localStorage.setItem('activity-stream-stored-filter', this.filter);
     },
     openBottomMenuFilter() {
       this.filterToChange = this.filter;
