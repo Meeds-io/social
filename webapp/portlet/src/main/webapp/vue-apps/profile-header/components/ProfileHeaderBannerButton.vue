@@ -55,9 +55,6 @@ export default {
   data: () => ({
     sendingImage: false,
   }),
-  updated() {
-    this.isDefaultBanner=this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
-  },
   watch: {
     sendingImage() {
       if (this.sendingImage) {
