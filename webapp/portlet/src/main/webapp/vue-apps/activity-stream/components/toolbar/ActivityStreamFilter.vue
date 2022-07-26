@@ -99,9 +99,15 @@ export default {
       }];
     },
   },
+  created() {
+    this.$root.$on('activity-stream-stored-filter-applied', filter => {
+      this.filter = filter;
+    });
+  },
   methods: {
     applyFilter() {
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
+      localStorage.setItem('activity-stream-stored-filter', this.filter);
     },
     openBottomMenuFilter() {
       this.filterToChange = this.filter;
