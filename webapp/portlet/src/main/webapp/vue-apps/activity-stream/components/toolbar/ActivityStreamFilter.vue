@@ -100,8 +100,8 @@ export default {
     },
   },
   created() {
-    document.addEventListener('activity-stream-stored-filter-applied', event => {
-      this.filter = event?.detail;
+    this.$root.$on('activity-stream-stored-filter-applied', filter => {
+      this.filter = filter;
     });
   },
   methods: {

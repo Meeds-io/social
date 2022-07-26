@@ -113,7 +113,7 @@ export default {
   created() {
     this.streamFilter = localStorage.getItem('activity-stream-stored-filter');
     if (this.streamFilter) {
-      document.dispatchEvent(new CustomEvent('activity-stream-stored-filter-applied', {detail: this.streamFilter}));
+      this.$root.$emit('activity-stream-stored-filter-applied', this.streamFilter);
     }
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
