@@ -56,6 +56,9 @@ export default {
     sendingImage: false,
     isDefaultBanner: false,
   }),
+  updated() {
+    this.isDefaultBanner=this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
+  },
   watch: {
     sendingImage() {
       if (this.sendingImage) {
@@ -72,7 +75,6 @@ export default {
     removeBanner(){     
       return this.$userService.updateProfileField(eXo.env.portal.userName, 'banner', null)
         .then(() => {
-          this.isDefaultBanner = true;
           this.$emit('refresh');
         })
         .catch(error => this.$emit('error', error));
@@ -91,7 +93,6 @@ export default {
         return this.$uploadService.upload(file)
           .then(uploadId => this.$userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId))
           .then(() => {
-            this.isDefaultBanner = false;
             this.$emit('refresh');
           })
           .catch(error => this.$emit('error', error))
