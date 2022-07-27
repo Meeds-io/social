@@ -150,7 +150,7 @@ export default {
       let extraPlugins = 'simpleLink,suggester,widget,emoji';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','emoji'],
       ];
       if (this.newEditorToolbarEnabled) {
         if (this.tagSuggesterEnabled) {
