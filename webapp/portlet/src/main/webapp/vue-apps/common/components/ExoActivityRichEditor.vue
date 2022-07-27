@@ -149,7 +149,7 @@ export default {
       let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','emoji'],
       ];
       if (this.newEditorToolbarEnabled) {
         extraPlugins = `${extraPlugins},emoji,formatOption`;
