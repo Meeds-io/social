@@ -54,7 +54,6 @@ export default {
   },
   data: () => ({
     sendingImage: false,
-    isDefaultBanner: false,
   }),
   watch: {
     sendingImage() {
@@ -64,9 +63,11 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       }
     },
-    user(){
-      this.isDefaultBanner=this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
-    }
+  },
+  computed: {
+    isDefaultBanner() {
+      return this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
+    },
   },
   methods: {
     removeBanner(){     
