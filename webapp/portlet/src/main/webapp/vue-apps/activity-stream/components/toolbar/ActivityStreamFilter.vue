@@ -96,7 +96,8 @@ export default {
       },{
         text: this.$t('activity.filter.favoriteSpaces'),
         value: 'favorite_spaces_stream',
-      }];
+        enable: eXo.env.portal.spaceFavoritesEnabled,
+      }].filter(filter => filter.enable == null || filter.enable === true);
     },
   },
   created() {
