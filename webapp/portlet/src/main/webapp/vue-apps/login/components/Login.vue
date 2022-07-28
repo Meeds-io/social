@@ -190,7 +190,6 @@ export default {
     rememberme: true,
     username: '',
     showPassword: false
-    
   }),
   computed: {
     passwordType(){
