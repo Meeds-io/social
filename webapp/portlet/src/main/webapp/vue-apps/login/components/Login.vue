@@ -239,7 +239,7 @@ export default {
       }
     },
     toggleShow(){
-      this.showPassword=!this.showPassword;
+      this.showPassword = !this.showPassword;
     }
   }
 };
