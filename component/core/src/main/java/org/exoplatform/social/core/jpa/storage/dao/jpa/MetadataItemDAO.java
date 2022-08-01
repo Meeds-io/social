@@ -52,6 +52,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String PARENT_OBJECT_ID     = "parentObjectId";
 
   private static final String OBJECT_ID            = "objectId";
+  
+  private static final String SPACE_ID             = "spaceId";
 
   private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
 
@@ -133,6 +135,28 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     query.setParameter(METADATA_NAME, metadataName);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
+                                                                                           long metadataType,
+                                                                                           String objectType,
+                                                                                           long spaceId,
+                                                                                           long offset,
+                                                                                           long limit) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectAndSpaceId",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_NAME, metadataName);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(SPACE_ID, spaceId);
     if (offset > 0) {
       query.setFirstResult((int) offset);
     }

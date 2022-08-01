@@ -159,6 +159,29 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
+                                                                                     String metadataTypeName,
+                                                                                     String objectType,
+                                                                                     long spaceId,
+                                                                                     long offset,
+                                                                                     long limit) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
+    }
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(metadataName,
+                                                                                                                           metadataType.getId(),
+                                                                                                                           objectType,
+                                                                                                                           spaceId,
+                                                                                                                           offset,
+                                                                                                                           limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public MetadataItem deleteMetadataItemById(long id) {
     MetadataItemEntity metadataItemEntity = this.metadataItemDAO.find(id);
     if (metadataItemEntity != null) {
