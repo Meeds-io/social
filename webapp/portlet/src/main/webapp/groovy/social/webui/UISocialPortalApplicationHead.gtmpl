@@ -33,6 +33,7 @@
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
      eXo.env.portal.spaceFavoritesEnabled = <%=PropertyManager.getProperty("exo.feature.SpaceFavorites.enabled")%>;
+     eXo.env.portal.editorToolbarEnabled = <%=PropertyManager.getProperty("exo.feature.EditorToolbar.enabled")%>;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;

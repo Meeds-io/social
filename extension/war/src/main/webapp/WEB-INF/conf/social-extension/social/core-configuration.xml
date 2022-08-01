@@ -728,6 +728,18 @@
     </component>
 
     <component>
+        <key>EditorToolbarFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>EditorToolbarFeatureProperties</name>
+                <description>New editor toolbar Feature enablement flag</description>
+                <property name="exo.feature.EditorToolbar.enabled" value="${exo.feature.EditorToolbar.enabled:true}" />
+            </properties-param>
+        </init-params>
+    </component>
+
+    <component>
       <key>ActivityTagsFeatureProperties</key>
       <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
       <init-params>
