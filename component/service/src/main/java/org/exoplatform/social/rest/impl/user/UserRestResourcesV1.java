@@ -79,8 +79,7 @@ import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.swagger.annotations.*;
-import io.swagger.jaxrs.PATCH;
-
+import org.exoplatform.services.rest.http.PATCH;
 /**
  * 
  * Provides REST Services for manipulating jobs related to users.
