@@ -82,7 +82,7 @@ export default {
   computed: {
     streamFilters() {
       return [{
-        text: this.$t('activity.filter.all'),
+        text: eXo.env.portal.spaceId && this.$t('activity.filter.anyActivity') || this.$t('activity.filter.all'),
         value: 'all_stream',
       },{
         text: this.$t('activity.filter.myActivities'),
@@ -93,10 +93,11 @@ export default {
       },{
         text: this.$t('activity.filter.manageSpaces'),
         value: 'manage_spaces_stream',
+        enable: !eXo.env.portal.spaceId,
       },{
         text: this.$t('activity.filter.favoriteSpaces'),
         value: 'favorite_spaces_stream',
-        enable: eXo.env.portal.spaceFavoritesEnabled,
+        enable: eXo.env.portal.spaceFavoritesEnabled && !eXo.env.portal.spaceId,
       }].filter(filter => filter.enable == null || filter.enable === true);
     },
   },

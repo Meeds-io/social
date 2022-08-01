@@ -62,6 +62,11 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
+  public List<MetadataItem> getFavoriteItemsByCreatorAndTypeAndSpaceId(String objectType, long creatorId, long spaceId, long offset, long limit) {
+    return metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String.valueOf(creatorId), METADATA_TYPE.getName(), objectType, spaceId, offset, limit);
+  }
+
+  @Override
   public int getFavoriteItemsSize(long creatorId) {
     return metadataService.countMetadataItemsByMetadataTypeAndCreator(METADATA_TYPE.getName(), creatorId);
   }
