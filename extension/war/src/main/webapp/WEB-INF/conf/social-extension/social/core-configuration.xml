@@ -734,7 +734,7 @@
             <properties-param>
                 <name>EditorToolbarFeatureProperties</name>
                 <description>New editor toolbar Feature enablement flag</description>
-                <property name="exo.feature.EditorToolbar.enabled" value="${exo.feature.EditorToolbar.enabled:true}" />
+                <property name="exo.feature.NewEditorToolbar.enabled" value="${exo.feature.NewEditorToolbar.enabled:false}" />
             </properties-param>
         </init-params>
     </component>
