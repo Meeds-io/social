@@ -246,7 +246,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   @ExoTransactional
   public int deleteMetadataItemsBySpaceId(long spaceId) {
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsBySpaceId");
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     return query.executeUpdate();
   }
 
@@ -255,7 +255,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     TypedQuery<MetadataItemEntity> query =
                                          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataBySpaceIdAndAudienceId",
                                                                              MetadataItemEntity.class);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     query.setParameter("audienceId", audienceId);
     List<MetadataItemEntity> items = query.getResultList();
     if (CollectionUtils.isNotEmpty(items)) {
