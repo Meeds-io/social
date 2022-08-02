@@ -73,6 +73,8 @@ export default {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
       editor: null,
+      newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
+      tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
     };
   },
   computed: {
@@ -148,9 +150,14 @@ export default {
       let extraPlugins = 'simpleLink,suggester,widget,emoji';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','emoji'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
-
+      if (this.newEditorToolbarEnabled) {
+        if (this.tagSuggesterEnabled) {
+          toolbar[0].push('tagSuggester');
+        }
+        toolbar[0].push('emoji');
+      }
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
