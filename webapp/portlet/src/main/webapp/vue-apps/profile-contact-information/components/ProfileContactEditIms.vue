@@ -16,9 +16,13 @@ export default {
       default: () => null,
     },
   },
-  data: () => ({
-    items: ['skype', 'msn', 'facebook', 'github', 'other'],
-  }),
+  computed: {
+    items() {
+      const items = this.$root.imTypes.slice().filter(item => item !== 'other').sort();
+      items.push('other');
+      return items;
+    },
+  },
   created() {
     const extensions = extensionRegistry.loadExtensions('profile-contact', 'edit-ims');
     if (extensions && extensions.length) {
