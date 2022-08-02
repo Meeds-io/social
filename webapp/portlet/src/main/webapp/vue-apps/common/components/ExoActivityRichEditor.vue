@@ -73,6 +73,7 @@ export default {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
       editor: null,
+      newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
     };
   },
   computed: {
@@ -148,8 +149,11 @@ export default {
       let extraPlugins = 'simpleLink,suggester,widget,emoji';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote','tagSuggester','emoji'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
+      if (this.newEditorToolbarEnabled) {
+        toolbar[0].push('tagSuggester','emoji');
+      }
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
