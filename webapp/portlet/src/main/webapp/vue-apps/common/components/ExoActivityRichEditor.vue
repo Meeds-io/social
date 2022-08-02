@@ -74,6 +74,7 @@ export default {
       inputVal: null,
       editor: null,
       newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
+      tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
     };
   },
   computed: {
@@ -152,9 +153,11 @@ export default {
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
       if (this.newEditorToolbarEnabled) {
-        toolbar[0].push('tagSuggester','emoji');
+        if (this.tagSuggesterEnabled) {
+          toolbar[0].push('tagSuggester');
+        }
+        toolbar[0].push('emoji');
       }
-
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
