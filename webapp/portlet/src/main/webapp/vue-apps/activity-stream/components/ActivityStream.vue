@@ -53,7 +53,7 @@ export default {
       };
     },
     canFilter() {
-      return !this.$root.selectedActivityId && !this.spaceId;
+      return !this.$root.selectedActivityId;
     }
   },
   created() {

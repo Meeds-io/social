@@ -111,7 +111,7 @@ export default {
     },
   },
   created() {
-    this.streamFilter = eXo.env.portal.StreamFilterEnabled && localStorage.getItem('activity-stream-stored-filter');
+    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter');
     if (this.streamFilter) {
       this.$root.$emit('activity-stream-stored-filter-applied', this.streamFilter);
     }

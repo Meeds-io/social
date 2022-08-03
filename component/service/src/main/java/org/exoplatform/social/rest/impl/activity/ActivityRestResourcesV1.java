@@ -166,24 +166,28 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
-    if (StringUtils.isBlank(spaceId)) {
-      if (streamType != null && !streamType.equals(ActivityStreamType.ALL_STREAM)) {
-        ActivityFilter activityFilter = new ActivityFilter();
-        activityFilter.setStreamType(streamType);
-        listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
-      } else {
-        listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
-      }
-      canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
-    } else {
+    ActivityFilter activityFilter = new ActivityFilter();
+    if (!StringUtils.isBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null
           || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
-      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-      listAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
+      Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      activityFilter.setSpaceId(spaceIdentity.getId());
       canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
+    } else {
+      canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
+    }
+    if (streamType != null && !streamType.equals(ActivityStreamType.ALL_STREAM)) {
+      activityFilter.setStreamType(streamType);
+    } else if (!StringUtils.isBlank(spaceId)) {
+      activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    }
+    if (!StringUtils.isEmpty(activityFilter.getSpaceId()) || activityFilter.getStreamType() != null) {
+      listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
+    } else {
+      listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
     }
 
     String entitiesName = null;
