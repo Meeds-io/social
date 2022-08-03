@@ -943,6 +943,11 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (activityFilter.getUserId() != null) {
       query.setParameter("posterId", activityFilter.getUserId());
     }
+    if (activityFilter.getSpaceId() != null) {
+      long ownerId = Long.parseLong(activityFilter.getSpaceId());
+      query.setParameter(STREAM_TYPE, StreamType.SPACE);
+      query.setParameter("ownerIds", Collections.singleton(ownerId));
+    }
     if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
       List<Long> owners = new ArrayList<>();
       for (String id : spaceIdentityIds) {
@@ -958,7 +963,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       suffixes.add("Poster");
       predicates.add("item.activity.posterId = :posterId");
     }
-    if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
+    if (CollectionUtils.isNotEmpty(spaceIdentityIds) || activityFilter.getSpaceId() != null) {
       suffixes.add("StreamType");
       predicates.add("item.streamType = :streamType");
       predicates.add("item.ownerId in (:ownerIds)");

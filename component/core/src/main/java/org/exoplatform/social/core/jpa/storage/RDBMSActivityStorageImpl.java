@@ -497,7 +497,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setUserId(viewerIdentity.getId());
       break;
     case USER_FAVORITE_STREAM:
-      List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity);
+      List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId());
       return StorageUtils.subList(activities, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
@@ -513,6 +513,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {
         return Collections.emptyList();
       }
+      break;
+    case ANY_SPACE_ACTIVITY:
       break;
     default:
       throw new UnsupportedOperationException();
@@ -531,9 +533,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setUserId(viewerIdentity.getId());
       break;
     case USER_FAVORITE_STREAM:
-      List<String> activityIds = getFavoriteActivities(viewerIdentity).stream()
-                                                                       .map(ExoSocialActivity::getId)
-                                                                       .collect(Collectors.toList());
+      List<String> activityIds = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId()).stream()
+                                                                                                   .map(ExoSocialActivity::getId)
+                                                                                                   .collect(Collectors.toList());
       return StorageUtils.subList(activityIds, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
@@ -550,6 +552,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return Collections.emptyList();
       }
       break;
+    case ANY_SPACE_ACTIVITY:
+      break;
     default:
       throw new UnsupportedOperationException();
     }
@@ -564,7 +568,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setUserId(viewerIdentity.getId());
       break;
     case USER_FAVORITE_STREAM:
-      return getFavoriteActivities(viewerIdentity).size();
+      return getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId()).size();
     case FAVORITE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {
@@ -580,20 +584,38 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return 0;
       }
       break;
+    case ANY_SPACE_ACTIVITY:
+      break;
     default:
       throw new UnsupportedOperationException();
     }
     return activityDAO.getActivitiesCountByFilter(activityFilter, spaceIdentityIds);
   }
 
-  public List<ExoSocialActivity> getFavoriteActivities(Identity viewerIdentity) {
+  public List<ExoSocialActivity> getFavoriteActivities(Identity viewerIdentity, String spaceId) {
     long userIdentityId = Long.parseLong(viewerIdentity.getId());
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
-    List<MetadataItem> metadataItems =
-                                     favoriteService.getFavoriteItemsByCreatorAndType(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                                      userIdentityId,
-                                                                                      0,
-                                                                                      -1);
+    List<MetadataItem> metadataItems = new ArrayList<>();
+    if (StringUtils.isNotBlank(spaceId)) {
+      Identity spaceIdentity = identityStorage.findIdentityById(spaceId);
+      if (spaceIdentity != null) {
+        Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+        metadataItems =
+                      favoriteService.getFavoriteItemsByCreatorAndTypeAndSpaceId(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                                                 userIdentityId,
+                                                                                 Long.parseLong(space.getId()),
+                                                                                 0,
+                                                                                 -1);
+      }
+
+    } else {
+      metadataItems =
+                    favoriteService.getFavoriteItemsByCreatorAndType(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                                     userIdentityId,
+                                                                     0,
+                                                                     -1);
+    }
+
     return metadataItems.stream()
                         .map(metadataItem -> getActivityStorage().getActivity(String.valueOf(metadataItem.getObjectId())))
                         .sorted(Comparator.comparing(ExoSocialActivity::getUpdated).reversed())
