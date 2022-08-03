@@ -79,10 +79,13 @@ export default {
     },
   },
   watch: {
-    username(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.refreshExtensions();
-      }
+    username: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.refreshExtensions();
+        }
+      },
     },
   },
   methods: {

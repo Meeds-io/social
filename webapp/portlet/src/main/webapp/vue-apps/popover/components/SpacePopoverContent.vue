@@ -104,10 +104,13 @@ export default {
     },
   },
   watch: {
-    spaceId(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.refreshExtensions();
-      }
+    spaceId: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.refreshExtensions();
+        }
+      },
     },
   },
   methods: {
