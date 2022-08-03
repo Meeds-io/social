@@ -29,7 +29,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 
 public interface SpaceRestResources extends SocialRest {
@@ -87,8 +87,8 @@ public interface SpaceRestResources extends SocialRest {
   @GET
   @Path("{spaceId}")
   public abstract Response isSpaceContainsExternals(@Context UriInfo uriInfo,
-                                           @Context Request request,
-                                           @ApiParam(value = "Space Id", required = true) @PathParam("spaceId") String spaceId);
+                                                    @Context Request request,
+                                                    @Parameter(description = "Space Id", required = true) @PathParam("spaceId") String spaceId);
 
   /**
    * Process to return a space by id

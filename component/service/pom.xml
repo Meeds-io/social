@@ -190,7 +190,12 @@
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
     </dependency>
-
+    <!-- Swagger -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>

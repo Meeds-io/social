@@ -26,6 +26,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.security.MembershipEntry;
@@ -37,10 +43,8 @@ import org.exoplatform.social.rest.entity.MembershipEntityWrapper;
 import org.exoplatform.social.rest.entity.SpacesAdministrationMembershipsEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import io.swagger.annotations.*;
-
 @Path(VersionResources.VERSION_ONE + "/social/spacesAdministration")
-@Api(tags = VersionResources.VERSION_ONE + "/social/spacesAdministration", value = VersionResources.VERSION_ONE + "/social/spacesAdministration", description = "Managing Spaces Administration settings")
+@Tag(name = VersionResources.VERSION_ONE + "/social/spacesAdministration", description = "Managing Spaces Administration settings")
 public class SpacesAdministrationRestResourcesV1 implements SocialRest {
 
   private SpacesAdministrationService spacesAdministrationService;
@@ -56,16 +60,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @GET
   @Path("permissions")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Gets all spaces administrators permissions settings",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
+  @Operation(
+          summary = "Gets all spaces administrators permissions settings",
+          method = "GET",
+          description = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 401, message = "User unauthorized"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error"),
-          @ApiResponse (code = 400, message = "Invalid query input") })
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User unauthorized"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getAllSettings(@Context UriInfo uriInfo)  {
 
     if(!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
@@ -83,16 +87,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @GET
   @Path("permissions/spacesAdministrators")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Gets spaces administrators memberships",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
+  @Operation(
+          summary = "Gets spaces administrators memberships",
+          method = "GET",
+          description = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
   @ApiResponses(value = { 
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error"),
-          @ApiResponse (code = 400, message = "Invalid query input") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getSpacesAdministrators(@Context UriInfo uriInfo) {
 
     if(!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
@@ -107,16 +111,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @GET
   @Path("permissions/spacesCreators")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Gets spaces creators memberships",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
+  @Operation(
+          summary = "Gets spaces creators memberships",
+          method = "GET",
+          description = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error"),
-          @ApiResponse (code = 400, message = "Invalid query input") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getSpacesCreators(@Context UriInfo uriInfo) {
 
     if(!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
@@ -132,16 +136,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @GET
   @Path("permissions/canCreatespaces/{username}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Check if members can create spaces",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns if members can add spaces")
+  @Operation(
+          summary = "Check if members can create spaces",
+          method = "GET",
+          description = "This returns if members can add spaces")
   @ApiResponses(value = {
-      @ApiResponse (code = 200, message = "Request fulfilled"),
-      @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
-      @ApiResponse (code = 404, message = "Resource not found"),
-      @ApiResponse (code = 500, message = "Internal server error")})
-  public Response canCreatespaces(@Context UriInfo uriInfo, @ApiParam(value = "Username", required = true) @PathParam("username") String username) {
+      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+      @ApiResponse (responseCode = "404", description = "Resource not found"),
+      @ApiResponse (responseCode = "500", description = "Internal server error")})
+  public Response canCreatespaces(@Context UriInfo uriInfo, @Parameter(description = "Username", required = true) @PathParam("username") String username) {
 
     Boolean canCreateSpaces = spacesAdministrationService.canCreateSpace(username);
 
@@ -151,16 +155,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @PUT
   @Path("permissions/spacesAdministrators")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Updates spaces creators memberships",
-                httpMethod = "PUT",
-                response = Response.class,
-                notes = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user  but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(
+          summary = "Updates spaces creators memberships",
+          method = "PUT",
+          description = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user  but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
-    @ApiResponse (code = 500, message = "Internal server error") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+          @ApiResponse (responseCode = "500", description = "Internal server error") })
   public Response updateSpacesAdministrators(@Context UriInfo uriInfo,
-                                             @ApiParam(value = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
+                                             @RequestBody(description = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
 
     if(!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -178,16 +182,16 @@ public class SpacesAdministrationRestResourcesV1 implements SocialRest {
   @PUT
   @Path("permissions/spacesCreators")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Updates spaces creators memberships",
-          httpMethod = "PUT",
-          response = Response.class,
-          notes = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user  but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(
+          summary = "Updates spaces creators memberships",
+          method = "PUT",
+          description = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user  but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 401, message = "User not authorized to call this endpoint"),
-          @ApiResponse (code = 500, message = "Internal server error") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+          @ApiResponse (responseCode = "500", description = "Internal server error") })
   public Response updateSpacesCreators(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
+                                       @RequestBody(description = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
 
     if(!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
