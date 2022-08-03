@@ -133,7 +133,7 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
       }
       if (activityIdSender == null) {
         ExoSocialActivity newActivitySender = createNewActivity(sender, nbOfSenderConnections);
-        activityManager.saveActivityNoReturn(sender, newActivitySender);
+        activityManager.saveActivityNoReturn(sender, newActivitySender,true);
         getIdentityStorage().updateProfileActivityId(sender, newActivitySender.getId(), Profile.AttachedActivityType.RELATIONSHIP);
         SpaceUtils.restartRequest();
         activityManager.saveComment(newActivitySender, senderComment);
@@ -151,7 +151,7 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
       }
       if (activityIdReceiver == null) {
         ExoSocialActivity newActivityReceiver = createNewActivity(receiver, nbOfReceiverConnections);
-        activityManager.saveActivityNoReturn(receiver, newActivityReceiver);
+        activityManager.saveActivityNoReturn(receiver, newActivityReceiver,true);
         getIdentityStorage().updateProfileActivityId(receiver, newActivityReceiver.getId(), Profile.AttachedActivityType.RELATIONSHIP);
         SpaceUtils.restartRequest();
         activityManager.saveComment(newActivityReceiver, receiverComment);

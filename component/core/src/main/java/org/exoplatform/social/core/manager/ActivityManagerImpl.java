@@ -174,10 +174,14 @@ public class ActivityManagerImpl implements ActivityManager {
     this(activityStorage, identityManager, spaceService, null, userACL, params);
   }
 
+  public void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity newActivity) {
+    saveActivityNoReturn(streamOwner, newActivity, true);
+  }
+
   /**
    * {@inheritDoc}
    */
-  public void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity newActivity) {
+  public void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity newActivity, boolean broadcast) {
     if (!streamOwner.isEnable()) {
       LOG.warn("Activity could not be saved. Owner has been disabled.");
       return;
@@ -190,12 +194,12 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       return;
     }
-
     ExoSocialActivity savedActivity = activityStorage.saveActivity(streamOwner, newActivity);
     newActivity.setId(savedActivity.getId());
-    activityLifeCycle.saveActivity(newActivity);
+    if (broadcast) {
+      activityLifeCycle.saveActivity(newActivity);
+    }
   }
-
   /**
    * {@inheritDoc}
    */
@@ -875,8 +879,9 @@ public class ActivityManagerImpl implements ActivityManager {
       sharedActivity.setType(type);
       sharedActivity.setUserId(viewerIdentityId);
       sharedActivity.setTemplateParams(templateParams);
-      saveActivityNoReturn(spaceIdentity, sharedActivity);
+      saveActivityNoReturn(spaceIdentity, sharedActivity, false);
       sharedActivities.add(sharedActivity);
+      activityLifeCycle.shareActivity(sharedActivity);
     }
     return sharedActivities;
   }

@@ -382,7 +382,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
       }
       activity.getTemplateParams().put(Space.CREATOR, event.getTarget());
 
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity, activity,true);
       getStorage().updateProfileActivityId(spaceIdentity, activity.getId(), Profile.AttachedActivityType.SPACE);
       if (SPACE_CREATED_TITLE_ID.equals(titleId))
         titleId = USER_JOINED_TITLE_ID;

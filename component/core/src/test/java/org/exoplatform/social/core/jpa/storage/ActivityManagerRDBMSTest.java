@@ -331,7 +331,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     //
     activity.isHidden(false);
     activity.isLocked(true);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -403,7 +403,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
     //
     activity = activityManager.getActivity(String.valueOf(activity.getId()));
 
@@ -421,7 +421,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       activity.setTitle(activityTitle + " " + i);
       activity.setUserId(userId);
       //
-      activityManager.saveActivityNoReturn(rootIdentity, activity);
+      activityManager.saveActivityNoReturn(rootIdentity, activity,true);
     }
     activities = activityManager.getActivitiesWithListAccess(rootIdentity);
     //
@@ -445,7 +445,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -475,7 +475,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
 
@@ -492,7 +492,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     assertTrue(activityManager.isActivityExists(activity.getId()));
 
@@ -514,7 +514,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
 
@@ -538,7 +538,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     String commentTitle = "Comment title";
 
@@ -584,7 +584,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     int total = 10;
 
@@ -611,7 +611,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     int total = 10;
     int totalWithSubComments = total + total * total;
@@ -661,7 +661,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     int total = 10;
     int totalWithSubComments = total + total * total;
@@ -711,7 +711,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("&\"demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
@@ -741,7 +741,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     templateParams.put("link", "http://exoplatform.com?test=<script>");
     demoActivity.setTemplateParams(templateParams);
 
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
@@ -766,7 +766,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
@@ -810,7 +810,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     templateParams.put("link", "http://exoplatform.com?test=<script>");
     demoActivity.setTemplateParams(templateParams);
 
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
     activityManager.saveLike(demoActivity, johnIdentity);
@@ -838,7 +838,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
       demoActivity.setTitle("demo activity");
       demoActivity.setUserId(demoActivity.getId());
-      activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+      activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     }
 
     RealtimeListAccess<ExoSocialActivity> demoListAccess = activityManager.getActivitiesWithListAccess(demoIdentity);
@@ -916,7 +916,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity, activity,true);
     }
 
     space = spaceService.getSpaceByDisplayName(space.getDisplayName());
@@ -936,7 +936,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity2, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity2, activity,true);
     }
 
     space2 = spaceService.getSpaceByDisplayName(space2.getDisplayName());
@@ -1077,7 +1077,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   public void testGetComments() throws ActivityStorageException {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("blah blah");
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     List<ExoSocialActivity> comments = new ArrayList<ExoSocialActivity>();
     for (int i = 0; i < 3; i++) {
@@ -1184,7 +1184,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("hello");
     activity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     // demo comment on root's activity
     ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -1257,7 +1257,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     // john comments on demo's activity
     ExoSocialActivity comment1 = new ExoSocialActivityImpl();
@@ -1382,7 +1382,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("hello");
     activity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     ExoSocialActivity got = activityManager.getActivity(activity.getId());
     assertEquals(0, got.getMentionedIds().length);
@@ -1417,7 +1417,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("hello");
     activity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     // demo comment on root's activity
     ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -1452,7 +1452,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("hello");
     activity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     // demo comment on root's activity
     ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -1512,7 +1512,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       activity.setTitle("title " + i);
       activity.setUserId(user.getId());
       try {
-        activityManager.saveActivityNoReturn(user, activity);
+        activityManager.saveActivityNoReturn(user, activity,true);
       } catch (Exception e) {
         LOG.error("can not save activity.", e);
       }
@@ -1534,7 +1534,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       activity.setTitle("title " + i);
       activity.setUserId(posterIdentity.getId());
       try {
-        activityManager.saveActivityNoReturn(targetIdentity, activity);
+        activityManager.saveActivityNoReturn(targetIdentity, activity,true);
       } catch (Exception e) {
         LOG.error("can not save activity.", e);
       }

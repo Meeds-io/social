@@ -134,7 +134,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
@@ -170,7 +170,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     ExoSocialActivity originalActivity = new ExoSocialActivityImpl();
     originalActivity.setTitle("TestSourceActivitySpace");
     originalActivity.setUserId(johnIdentity.getId());
-    activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
+    activityManager.saveActivityNoReturn(spaceIdentity, originalActivity,true);
 
     MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
                                                        originalActivity.getId());

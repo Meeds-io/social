@@ -290,7 +290,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity, activity,true);
       tearDownActivityList.add(activity);
     }
     

@@ -117,7 +117,7 @@ public class MetadataActivityProcessorTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     long creatorId = Long.parseLong(johnIdentity.getId());
@@ -150,7 +150,7 @@ public class MetadataActivityProcessorTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     long creatorId = Long.parseLong(johnIdentity.getId());

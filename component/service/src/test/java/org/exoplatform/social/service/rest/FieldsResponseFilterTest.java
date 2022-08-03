@@ -58,15 +58,15 @@ public class FieldsResponseFilterTest extends AbstractResourceTest {
     
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
     //
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     //
     ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
     maryActivity.setTitle("mary activity");
-    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
+    activityManager.saveActivityNoReturn(maryIdentity, maryActivity,true);
     
     ContainerResponse response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
     assertNotNull(response);

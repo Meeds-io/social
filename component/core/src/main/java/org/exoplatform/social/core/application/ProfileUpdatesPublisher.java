@@ -187,7 +187,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     try {
       reloadIfNeeded(identity);
       if (activityId == null) {
-        activityManager.saveActivityNoReturn(identity, activity);
+        activityManager.saveActivityNoReturn(identity, activity,true);
         getStorage().updateProfileActivityId(identity, activity.getId(), Profile.AttachedActivityType.USER);
       }
       ExoSocialActivity comment = createComment(activity.getTitle(), titleId, identity, event.getProfile().getPosition());

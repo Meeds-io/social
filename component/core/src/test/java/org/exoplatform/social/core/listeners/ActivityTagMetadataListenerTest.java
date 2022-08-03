@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
@@ -101,7 +102,7 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     TagObject metadataObjectKey = new TagObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
@@ -129,7 +130,7 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     TagObject metadataObjectKey = new TagObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,

@@ -120,17 +120,17 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     restartTransaction();
 
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
     maryActivity.setTitle("mary activity");
-    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
+    activityManager.saveActivityNoReturn(maryIdentity, maryActivity,true);
 
     restartTransaction();
 
@@ -175,7 +175,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // Get my posted activities
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("mary activity");
-    activityManager.saveActivityNoReturn(maryIdentity, activity);
+    activityManager.saveActivityNoReturn(maryIdentity, activity,true);
 
     restartTransaction();
 
@@ -198,7 +198,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     activity1.setTitle("mary activity1");
-    activityManager.saveActivityNoReturn(spaceIdentity, activity1);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity1,true);
 
     restartTransaction();
 
@@ -256,8 +256,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     activity4.setTitle("activity 4");
     activity4.setUserId(maryIdentity.getId());
 
-    activityManager.saveActivityNoReturn(spaceIdentity, activity3);
-    activityManager.saveActivityNoReturn(spaceIdentity, activity4);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity3,true);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity4,true);
 
     response = service("GET",
                        getURLResource("activities?streamType=ALL_STREAM&spaceId=" + space.getId() + "&limit=5&offset=0"),
@@ -314,7 +314,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     rootActivity.setTitle("root activity");
     rootActivity.setPosterId(rootIdentity.getId());
     rootActivity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(spaceIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(spaceIdentity, rootActivity,true);
 
     restartTransaction();
 
@@ -370,7 +370,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("title " + i);
       activity.setUserId(rootIdentity.getId());
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity, activity,true);
     }
 
     startSessionAs("root");
@@ -401,7 +401,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     try {
       ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
       testSpaceActivity.setTitle("Test space activity");
-      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
       restartTransaction();
 
       assertNotNull(testSpaceIdentity.getId());
@@ -493,7 +493,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
       ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
       testSpaceActivity.setTitle("Test space activity title");
       testSpaceActivity.setBody("test space activity body");
-      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
 
       assertNotNull(testSpaceIdentity.getId());
       // Test get an activity(which is not a comment)
@@ -527,15 +527,15 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
     //
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     //
     ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
     maryActivity.setTitle("mary activity");
-    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
+    activityManager.saveActivityNoReturn(maryIdentity, maryActivity,true);
 
     ContainerResponse response = service("GET",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities?limit=5&offset=0",
@@ -568,7 +568,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     templateParams.put("description", "description of the activity");
     templateParams.put("FAKE_PARAM", "fake param");
     rootActivity.setTemplateParams(templateParams);
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
     ContainerResponse response = service("GET",
             "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), "", null, null);
     assertNotNull(response);
@@ -595,7 +595,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("test activity");
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
     assertEquals(1, activities.getSize());
@@ -623,7 +623,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     //
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     ContainerResponse response = service("GET",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + demoActivity.getId(),
@@ -666,7 +666,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity and some comments
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
     //
     for (int i = 0; i < nbComments; i++) {
       ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -736,7 +736,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity and some comments
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
     //
     for (int i = 0; i < nbComments; i++) {
       ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -819,7 +819,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     // post a comment by root on the prevous activity
     String input = "{\"body\":comment1, \"title\":comment1}";
@@ -844,7 +844,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     // post a comment by root on the prevous activity
     String input = "{\"body\":comment1, \"title\":comment1}";
@@ -883,7 +883,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     identityStorage.saveIdentity(testSpaceIdentity);
     ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
     testSpaceActivity.setTitle("Test space activity");
-    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
       
     getSpaceInstance("share", "root");
     Identity shareTargetSpaceIdentity = new Identity(SpaceIdentityProvider.NAME, "share");
@@ -989,7 +989,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     // post a comment by root on the previous activity
     String input = "{\"body\":\"comment1 body\", \"title\":comment1}";
@@ -1033,7 +1033,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity and some comments
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     List<String> likerIds = new ArrayList<String>();
     likerIds.add(demoIdentity.getId());
@@ -1061,7 +1061,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     List<String> likerIds = new ArrayList<String>();
     likerIds.add(demoIdentity.getId());
@@ -1106,7 +1106,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     List<String> likerIds = new ArrayList<String>();
     likerIds.add(demoIdentity.getId());
@@ -1135,7 +1135,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
 
     ContainerResponse response = service("POST",
                                          "/" + VersionResources.VERSION_ONE + "/social/activities/" + demoActivity.getId()
@@ -1159,7 +1159,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     // root posts one activity
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("root activity");
-    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity,true);
 
     startSessionAs("demo");
 

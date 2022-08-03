@@ -46,16 +46,20 @@ public interface ActivityManager {
   public static final String SHARED_ACTIVITY_ID_PARAM = "originalActivityId";
 
   /**
-   * Saves a newly created activity to a stream. The stream owner will be
-   * <code>Activity.userId</code> in case that information has not already been
-   * set.
-   *
-   * @param streamOwner The activity stream owner.
-   * @param activity The activity to be saved.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
+   * +   * Saves a newly created activity to a stream. The stream owner will be
+   * +   * <code>Activity.userId</code> in case that information has not already been
+   * +   * set.
+   * +   *
+   * +   * @param streamOwner The activity stream owner.
+   * +   * @param activity The activity to be saved.
+   * +   * @param broadcast if true broadcast the event.
+   * +   * @LevelAPI Platform
+   * +   * @since 6.4.0-GA
+   * +
    */
-  void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity activity);
+  default void saveActivityNoReturn(Identity streamOwner, ExoSocialActivity activity, boolean broadcast) {
+    throw new UnsupportedOperationException("No implementation provided in interface !");
+  }
 
   /**
    * Saves a newly created activity to the stream. In this case, information of

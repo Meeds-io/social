@@ -54,4 +54,9 @@ public class ActivityESListener implements ActivityListener {
     indexingService.unindex(ActivityIndexingServiceConnector.TYPE, activity.getId());
   }
 
+  @Override
+  public void shareActivity(ActivityLifeCycleEvent event) {
+    reindexActivity(event.getActivity(), "save activity");
+  }
+
 }

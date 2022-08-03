@@ -74,7 +74,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     testSpaceActivity.setTitle("activity title");
     testSpaceActivity.setPosterId(rootIdentity.getId());
     testSpaceActivity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
     ExoSocialActivity testComment = new ExoSocialActivityImpl();
     testComment.setPosterId(rootIdentity.getId());
     testComment.setUserId(rootIdentity.getId());
@@ -109,7 +109,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     testSpaceActivity.setTitle("activity title");
     testSpaceActivity.setPosterId(rootIdentity.getId());
     testSpaceActivity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
     activityManager.deleteActivity(testSpaceActivity);
     ContainerResponse response = null;
 
@@ -137,7 +137,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     testSpaceActivity.setTitle("activity title");
     testSpaceActivity.setPosterId(rootIdentity.getId());
     testSpaceActivity.setUserId(rootIdentity.getId());
-    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+    activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
     ExoSocialActivity testComment = new ExoSocialActivityImpl();
     testComment.setPosterId(rootIdentity.getId());
     testComment.setUserId(rootIdentity.getId());
@@ -168,7 +168,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     try {
       ExoSocialActivity testSpaceActivity = new ExoSocialActivityImpl();
       testSpaceActivity.setTitle("Test activity");
-      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity);
+      activityManager.saveActivityNoReturn(testSpaceIdentity, testSpaceActivity,true);
       ExoSocialActivity testComment = new ExoSocialActivityImpl();
       testComment.setTitle("Test Comment");
       testComment.setUserId("root");

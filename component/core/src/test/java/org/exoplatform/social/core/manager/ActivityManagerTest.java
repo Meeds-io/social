@@ -158,7 +158,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     //
     activity.isHidden(false);
     activity.isLocked(true);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     activity = activityManager.getActivity(activity.getId());
@@ -370,7 +370,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     originalActivity.setUserId(johnIdentity.getId());
 
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(originalSpace.getPrettyName());
-    activityManager.saveActivityNoReturn(spaceIdentity, originalActivity);
+    activityManager.saveActivityNoReturn(spaceIdentity, originalActivity,true);
 
     originalActivity = activityManager.getActivity(originalActivity.getId());
     assertTrue(CollectionUtils.isEmpty(originalActivity.getShareActions()));
@@ -554,7 +554,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
 
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -604,7 +604,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     tearDownActivityList.add(activity);
 
     activity = activityManager.getActivity(activity.getId());
@@ -631,7 +631,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
 
@@ -651,7 +651,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
 
@@ -671,7 +671,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
 
     activity = activityManager.getActivity(activity.getId());
 
@@ -696,7 +696,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     ExoSocialActivity maryComment = new ExoSocialActivityImpl();
@@ -718,7 +718,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     Identity streamOwnerIdentity = activityManager.getActivityStreamOwnerIdentity(demoActivity.getId());
@@ -742,7 +742,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("&\"demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
@@ -770,7 +770,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     templateParams.put("link", "http://exoplatform.com?test=<script>");
     demoActivity.setTemplateParams(templateParams);
 
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
@@ -793,7 +793,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
@@ -835,7 +835,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     templateParams.put("link", "http://exoplatform.com?test=<script>");
     demoActivity.setTemplateParams(templateParams);
 
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity,true);
     tearDownActivityList.add(demoActivity);
 
     demoActivity = activityManager.getActivity(demoActivity.getId());
@@ -861,7 +861,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("blah blah");
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setTitle(htmlString);
@@ -881,7 +881,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     ;
     activity.setTitle("blah blah");
-    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity,true);
 
     List<ExoSocialActivity> comments = new ArrayList<ExoSocialActivity>();
     for (int i = 0; i < 10; i++) {
@@ -914,7 +914,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       ExoSocialActivity activity1 = new ExoSocialActivityImpl();
       activity1.setUserId(demoIdentity.getId());
       activity1.setTitle(title);
-      activityManager.saveActivityNoReturn(demoIdentity, activity1);
+      activityManager.saveActivityNoReturn(demoIdentity, activity1,true);
 
       final int numberOfComments = 10;
       final String commentTitle = "Activity Comment";
@@ -965,18 +965,18 @@ public class ActivityManagerTest extends AbstractCoreTest {
     // Disabled activity Type
     activity.setType("cs-calendar:spaces");
 
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     assertNull(activity.getId());
 
     // Disabled Custom activity Type
     activity.setType("MY_ACTIVITY");
 
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     assertNull(activity.getId());
 
     // enabled activity Types
     activity.setType("DEFAULT_ACTIVITY");
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     assertNotNull(activity.getId());
     activity = activityManager.getActivity(activity.getId());
     assertNotNull(activity);
@@ -993,7 +993,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     // Disabled activity Type
     activity.setType("cs-calendar:spaces");
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     assertNull(activity.getId());
 
     // demo comments on john's activity
@@ -1014,7 +1014,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
     activity.setType("EnableType");
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(johnIdentity, activity,true);
     assertNotNull(activity.getId());
 
     // demo comments on john's activity
@@ -1042,7 +1042,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       activity.setTitle("title " + i);
       activity.setUserId(user.getId());
       try {
-        activityManager.saveActivityNoReturn(user, activity);
+        activityManager.saveActivityNoReturn(user, activity,true);
         tearDownActivityList.add(activity);
       } catch (Exception e) {
         LOG.error("can not save activity.", e);

@@ -120,4 +120,14 @@ public class ActivityNotificationImpl extends ActivityListenerPlugin {
             .execute(ctx);
   }
 
+  @Override
+  public void shareActivity(ActivityLifeCycleEvent event) {
+    // Create a new notification that contains all objects needed to create Mail notification with information about initial activity and new one
+    ExoSocialActivity activity = event.getSource();
+    NotificationContext ctx = NotificationContextImpl.cloneInstance().append(SocialNotificationUtils.ACTIVITY, activity);
+    ctx.getNotificationExecutor().with(ctx.makeCommand(PluginKey.key(PostActivityPlugin.ID)))
+       .with(ctx.makeCommand(PluginKey.key(SharedActivitySpaceStreamPlugin.ID)))
+       .execute(ctx);
+  }
+
 }

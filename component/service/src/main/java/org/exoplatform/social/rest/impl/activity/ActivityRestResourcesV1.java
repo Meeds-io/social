@@ -309,9 +309,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     EntityBuilder.buildActivityParamsFromEntity(activity, model.getTemplateParams());
 
     if (StringUtils.isBlank(spaceId)) {
-      activityManager.saveActivityNoReturn(authenticatedUserIdentity, activity);
+      activityManager.saveActivityNoReturn(authenticatedUserIdentity, activity,true);
     } else {
-      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      activityManager.saveActivityNoReturn(spaceIdentity, activity,true);
     }
 
     ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity,

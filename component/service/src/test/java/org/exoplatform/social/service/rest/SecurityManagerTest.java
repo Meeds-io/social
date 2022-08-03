@@ -416,7 +416,7 @@ public class SecurityManagerTest extends AbstractServiceTest {
       activity.setTitle("title " + i);
       activity.setUserId(posterIdentity.getId());
       activity.setPosterId(posterIdentity.getId());
-      activityManager.saveActivityNoReturn(identityStream, activity);
+      activityManager.saveActivityNoReturn(identityStream, activity,true);
       activity = activityManager.getActivity(activity.getId());
     }
   }
@@ -426,7 +426,7 @@ public class SecurityManagerTest extends AbstractServiceTest {
     activity.setTitle("hello " + "@" + mentionedIdentity.getRemoteId());
     activity.setUserId(posterIdentity.getId());
     activity.setPosterId(posterIdentity.getId());
-    activityManager.saveActivityNoReturn(posterIdentity, activity);
+    activityManager.saveActivityNoReturn(posterIdentity, activity,true);
     activity = activityManager.getActivity(activity.getId());
   }
   
