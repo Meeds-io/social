@@ -32,9 +32,7 @@
         <v-list-item-title>
           <exo-space-avatar
             :space="space"
-            :size="40"
-            avatar-class="border-color"
-            class="d-inline-block my-auto"
+            :size="45"
             bold-title
             link-style
             subtitle-new-line>
