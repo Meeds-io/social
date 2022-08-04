@@ -134,7 +134,6 @@ export default {
   methods: {
     initCKEditor: function (reset) {
       this.inputVal = this.replaceWithSuggesterClass(this.value);
-
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -147,10 +146,10 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,emoji';
+      let extraPlugins = 'simpleLink,suggester,widget,emoji,formatOption';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+        ['formatOption','Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
       if (this.newEditorToolbarEnabled) {
         if (this.tagSuggesterEnabled) {
