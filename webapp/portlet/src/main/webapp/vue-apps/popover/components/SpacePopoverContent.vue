@@ -51,6 +51,10 @@
       </v-list-item-content>
     </v-list-item>
     <div class="d-flex justify-end">
+      <exo-space-favorite-action
+        v-if="favoriteActionEnabled"
+        :key="space.id"
+        :space="space" />
       <extension-registry-components
         :params="params"
         class="d-flex"
@@ -81,6 +85,7 @@ export default {
   data() {
     return {
       externalExtensions: [],
+      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
     };
   },
   computed: {
@@ -102,6 +107,9 @@ export default {
         identityId: this.spaceId,
       };
     },
+    favoriteActionEnabled() {
+      return this.space?.isMember && this.favoritesSpaceEnabled;
+    }
   },
   watch: {
     spaceId: {
