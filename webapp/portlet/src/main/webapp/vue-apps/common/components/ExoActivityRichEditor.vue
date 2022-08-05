@@ -146,17 +146,22 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,emoji,formatOption';
+      let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
-        ['formatOption','Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
+        ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
       if (this.newEditorToolbarEnabled) {
+        extraPlugins = `${extraPlugins},emoji,formatOption`;
         if (this.tagSuggesterEnabled) {
           toolbar[0].push('tagSuggester');
         }
+        toolbar[0].unshift('formatOption');
         toolbar[0].push('emoji');
+      } else {
+        removePlugins = `${removePlugins},emoji,formatOption`;
       }
+      
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
