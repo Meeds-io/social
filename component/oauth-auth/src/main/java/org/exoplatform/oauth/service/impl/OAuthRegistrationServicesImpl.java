@@ -87,11 +87,9 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
 
     @Override
     public User detectGateInUser(HttpServletRequest request, OAuthPrincipal<? extends AccessTokenContext> principal) {
-      OAuthProviderType providerType = principal.getOauthProviderType();
-      User gtnUser = providerType.getOauthPrincipalProcessor().convertToGateInUser(principal);
 
-      String email = gtnUser.getEmail();
-      String username = gtnUser.getUserName();
+      String email = principal.getEmail();
+      String username = principal.getUserName();
 
       User foundUser = null;
 
@@ -119,6 +117,26 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
             foundUser = users.load(0, 1)[0];
           }
         }
+
+        // find recent user logged in
+        Cookie[] cookies = request.getCookies();
+        if (foundUser == null && cookies != null && cookies.length > 0) {
+          for (Cookie cookie : cookies) {
+            if (OAuthAbstractFilter.COOKIE_LAST_LOGIN.equals(cookie.getName())) {
+              username = cookie.getValue();
+              if(username != null && username.length() > 0) {
+                query = new Query();
+                query.setUserName(username);
+                users = userHandler.findUsersByQuery(query, UserStatus.ANY);
+                if(users != null && users.getSize() > 0) {
+                  foundUser = users.load(0, 1)[0];
+                }
+              }
+              break;
+            }
+          }
+        }
+
       } catch (Exception ex) {
         log.error("Exception when trying to detect user: ", ex);
       }
@@ -140,7 +158,7 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
       try {
         if(StringUtils.isBlank(user.getUserName())) {
           if(StringUtils.isNotBlank(user.getFirstName()) && StringUtils.isNotBlank(user.getLastName())) {
-            userName = user.getFirstName().concat(".").concat(user.getLastName());
+            userName = user.getFirstName().concat(".").concat(user.getLastName()).toLowerCase();
           } else {
             user.setUserName(user.getEmail().substring(0, user.getEmail().indexOf('@')));
           }
