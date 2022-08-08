@@ -77,7 +77,7 @@ export default {
     },
   },
   created() {
-    window.addEventListener('popover-identity-display', event => {
+    document.addEventListener('popover-identity-display', event => {
       const data = event?.detail;
       this.identityType = data.identityType;
       if (this.isUserIdentity) {

@@ -50,6 +50,7 @@ export default {
     removed() {
       this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('spaceList.alert.label')}));
       this.$emit('removed');
+      document.dispatchEvent(new CustomEvent('space-favorite-removed', {detail: this.space.id}));
     },
     removeError() {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
@@ -57,6 +58,7 @@ export default {
     added() {
       this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('spaceList.alert.label')}));
       this.$emit('added');
+      document.dispatchEvent(new CustomEvent('space-favorite-added', {detail: this.space.id}));
     },
     addError() {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
