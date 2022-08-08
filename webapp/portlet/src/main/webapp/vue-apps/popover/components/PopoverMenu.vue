@@ -91,8 +91,10 @@ export default {
           position: data?.position,
           external: data?.external,
         };
+        localStorage.setItem('popover-identity-type', 'USER_TIPTIP');
       } else if (this.isSpaceIdentity) {
         this.space = data;
+        localStorage.setItem('popover-identity-type', 'SPACE_TIPTIP');
       }
 
       if (this.menu && this.element === data?.element) {
@@ -177,10 +179,12 @@ export default {
       if (this.menu) {
         if (immediatly) {
           this.menu = false;
+          localStorage.removeItem('popover-identity-type');
         } else {
           this.menuCloseTimer = window.setTimeout(() => {
             if (!this.isMenuHovered && !this.isActivatorHovered) {
               this.menu = false;
+              localStorage.removeItem('popover-identity-type');
             }
           }, this.popoverCloseDelay);
         }

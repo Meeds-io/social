@@ -35,7 +35,6 @@
             :size="46"
             :popover="false"
             bold-title
-            @click.native="profileAccess()"
             link-style>
             <template v-if="position" slot="subTitle">
               <span class="caption text-bold">
@@ -133,13 +132,6 @@ export default {
         }
       }
     },
-    profileAccess() {
-      document.dispatchEvent(new CustomEvent('identity-profile-access', {
-        detail: {
-          entityType: 'USER_TIPTIP',
-        }
-      }));
-    }
   }
 };
 </script>
