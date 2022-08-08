@@ -11,9 +11,10 @@ const urls = [
 Vue.directive('identity-popover', (el, binding) => {
   el.addEventListener('mouseover', () => {
     const rect = el.getBoundingClientRect();
-    window.dispatchEvent(new CustomEvent('popover-user-display', {detail: Object.assign({
+    window.dispatchEvent(new CustomEvent('popover-identity-display', {detail: Object.assign({
       offsetX: rect.left + window.scrollX,
       offsetY: rect.top + window.scrollY,
+      identityType: binding?.value?.username ? 'User' : 'Space',
       element: el,
     }, binding?.value || {})}));
   });
@@ -30,5 +31,5 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     template: `<popover id="${appId}" />`,
     i18n,
     vuetify: Vue.prototype.vuetifyOptions,
-  }, `#${appId}`, 'User Popover');
+  }, `#${appId}`, 'identity Popover');
 });
