@@ -35,6 +35,7 @@
             :size="45"
             bold-title
             link-style
+            @click.native="spaceAccess()"
             subtitle-new-line>
             <template slot="subTitle">
               <span v-if="spaceMembersCount" class="caption text-bold">
@@ -143,6 +144,14 @@ export default {
         }
       }
     },
+    spaceAccess() {
+      document.dispatchEvent(new CustomEvent('identity-profile-access', {
+        detail: {
+          entityType: 'SPACE_TIPTIP',
+          spaceId: this.spaceId,
+        }
+      }));
+    }
   }
 };
 </script>

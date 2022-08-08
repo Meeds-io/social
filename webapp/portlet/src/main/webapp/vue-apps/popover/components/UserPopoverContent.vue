@@ -35,6 +35,7 @@
             :size="46"
             :popover="false"
             bold-title
+            @click.native="profileAccess()"
             link-style>
             <template v-if="position" slot="subTitle">
               <span class="caption text-bold">
@@ -79,7 +80,7 @@ export default {
   computed: {
     params() {
       return {
-        identityType: 'USER_PROFILE',
+        identityType: 'USER_TIPTIP',
         identityId: this.identity && this.identity.username,
         identityEnabled: this.identity && this.identity.enabled,
         identityDeleted: this.identity && this.identity.deleted,
@@ -132,6 +133,13 @@ export default {
         }
       }
     },
+    profileAccess() {
+      document.dispatchEvent(new CustomEvent('identity-profile-access', {
+        detail: {
+          entityType: 'USER_TIPTIP',
+        }
+      }));
+    }
   }
 };
 </script>
