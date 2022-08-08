@@ -19,6 +19,7 @@
 package org.exoplatform.oauth.service.impl;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -118,26 +119,6 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
             foundUser = users.load(0, 1)[0];
           }
         }
-
-        // find recent user logged in
-        Cookie[] cookies = request.getCookies();
-        if (foundUser == null && cookies != null && cookies.length > 0) {
-          for (Cookie cookie : cookies) {
-            if (OAuthAbstractFilter.COOKIE_LAST_LOGIN.equals(cookie.getName())) {
-              username = cookie.getValue();
-              if(username != null && username.length() > 0) {
-                query = new Query();
-                query.setUserName(username);
-                users = userHandler.findUsersByQuery(query, UserStatus.ANY);
-                if(users != null && users.getSize() > 0) {
-                  foundUser = users.load(0, 1)[0];
-                }
-              }
-              break;
-            }
-          }
-        }
-
       } catch (Exception ex) {
         log.error("Exception when trying to detect user: ", ex);
       }
@@ -155,7 +136,25 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
       if (orgService instanceof ComponentRequestLifecycle) {
         RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
       }
+
+      String userName = "";
       try {
+        if(StringUtils.isBlank(user.getUserName())) {
+          if(StringUtils.isNotBlank(user.getFirstName()) && StringUtils.isNotBlank(user.getLastName())) {
+            userName = user.getFirstName().concat(".").concat(user.getLastName());
+          } else {
+            user.setUserName(user.getEmail().substring(0, user.getEmail().indexOf('@')));
+          }
+
+          user.setUserName(userName);
+        }
+        User userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
+        Random random = new Random();
+        while (userWithSameUsername != null) {
+          userName = userName.concat(String.valueOf(random.nextInt(3)));
+          user.setUserName(userName);
+          userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
+        }
         orgService.getUserHandler().createUser(user, true);
 
         //User profile
