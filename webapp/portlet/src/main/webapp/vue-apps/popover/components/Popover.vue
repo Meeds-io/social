@@ -20,7 +20,7 @@
 -->
 <template>
   <div>
-    <popover-user v-if="!isMobile" />
+    <popover-menu v-if="!isMobile" />
     <notification-alerts />
   </div>
 </template>
