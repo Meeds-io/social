@@ -132,12 +132,11 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
       OAuthProviderType providerType = principal.getOauthProviderType();
       User user = providerType.getOauthPrincipalProcessor().convertToGateInUser(principal);
       user.setPassword(randomPassword(16));
+      String userName = "";
 
       if (orgService instanceof ComponentRequestLifecycle) {
         RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
       }
-
-      String userName = "";
       try {
         if(StringUtils.isBlank(user.getUserName())) {
           if(StringUtils.isNotBlank(user.getFirstName()) && StringUtils.isNotBlank(user.getLastName())) {
