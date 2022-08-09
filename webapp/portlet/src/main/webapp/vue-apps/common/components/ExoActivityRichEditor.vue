@@ -134,7 +134,6 @@ export default {
   methods: {
     initCKEditor: function (reset) {
       this.inputVal = this.replaceWithSuggesterClass(this.value);
-
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
@@ -147,17 +146,22 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,emoji';
+      let extraPlugins = 'simpleLink,suggester,widget';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
       if (this.newEditorToolbarEnabled) {
+        extraPlugins = `${extraPlugins},emoji,formatOption`;
         if (this.tagSuggesterEnabled) {
           toolbar[0].push('tagSuggester');
         }
+        toolbar[0].unshift('formatOption');
         toolbar[0].push('emoji');
+      } else {
+        removePlugins = `${removePlugins},emoji,formatOption`;
       }
+
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
