@@ -67,6 +67,8 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
     private final OrganizationService orgService;
     private final IdentityManager identityManager;
 
+    private final Random random = new Random();
+
     public OAuthRegistrationServicesImpl(InitParams initParams, OrganizationService orgService, IdentityManager identityManager) {
         ValueParam onFly = initParams.getValueParam("registerOnFly");
         String onFlyValue = onFly == null ? "" : onFly.getValue();
@@ -147,9 +149,8 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
           user.setUserName(userName);
         }
         User userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
-        Random random = new Random();
         while (userWithSameUsername != null) {
-          userName = userName.concat(String.valueOf(random.nextInt(3)));
+          userName = userName.concat(String.valueOf(this.random.nextInt(1000)));
           user.setUserName(userName);
           userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
         }
@@ -229,11 +230,10 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
       final String CHAR_ENABLED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
       char[] chars = new char[length];
-      Random random = new Random();
       int rand;
       final int len = CHAR_ENABLED.length();
       for (int i = 0; i < length; i++) {
-        rand = random.nextInt(len) % len;
+        rand = this.random.nextInt(len) % len;
         chars[i] = CHAR_ENABLED.charAt(rand);
       }
       return new String(chars);
