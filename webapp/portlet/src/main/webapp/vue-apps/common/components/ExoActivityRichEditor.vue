@@ -1,5 +1,5 @@
 <template>
-  <div class="activityRichEditor">
+  <div class="activityRichEditor" :class="newEditorToolbarEnabled && 'newEditorToolbar' || ''">
     <textarea
       ref="editor"
       :id="ckEditorType"
