@@ -118,25 +118,6 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
           }
         }
 
-        // find recent user logged in
-        Cookie[] cookies = request.getCookies();
-        if (foundUser == null && cookies != null && cookies.length > 0) {
-          for (Cookie cookie : cookies) {
-            if (OAuthAbstractFilter.COOKIE_LAST_LOGIN.equals(cookie.getName())) {
-              username = cookie.getValue();
-              if(username != null && username.length() > 0) {
-                query = new Query();
-                query.setUserName(username);
-                users = userHandler.findUsersByQuery(query, UserStatus.ANY);
-                if(users != null && users.getSize() > 0) {
-                  foundUser = users.load(0, 1)[0];
-                }
-              }
-              break;
-            }
-          }
-        }
-
       } catch (Exception ex) {
         log.error("Exception when trying to detect user: ", ex);
       }
@@ -182,7 +163,7 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
           newUserProfile = orgService.getUserProfileHandler().createUserProfileInstance(user.getUserName());
         }
 
-        newUserProfile.setAttribute(providerType.getUserNameAttrName(), principal.getUserName());
+        newUserProfile.setAttribute(providerType.getUserNameAttrName(), user.getUserName());
         profileHandler.saveUserProfile(newUserProfile, true);
 
         //
