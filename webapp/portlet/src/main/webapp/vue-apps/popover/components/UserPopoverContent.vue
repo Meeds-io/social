@@ -79,7 +79,7 @@ export default {
   computed: {
     params() {
       return {
-        identityType: 'USER_PROFILE',
+        identityType: 'USER_TIPTIP',
         identityId: this.identity && this.identity.username,
         identityEnabled: this.identity && this.identity.enabled,
         identityDeleted: this.identity && this.identity.deleted,
