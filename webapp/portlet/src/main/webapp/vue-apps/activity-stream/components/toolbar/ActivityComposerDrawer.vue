@@ -43,16 +43,6 @@
             :params="extensionParams"
             name="ActivityComposerAction"
             type="activity-composer-action" />
-          <v-spacer />
-          <v-btn
-            :disabled="postDisabled"
-            :loading="loading"
-            :aria-label="$t(`activity.composer.${composerAction}`)"
-            type="button"
-            class="primary btn no-box-shadow ms-auto"
-            @click="postMessage()">
-            {{ composerActionLabel }}
-          </v-btn>
         </v-card-actions>
         <v-card-text class="composerActions">
           <extension-registry-components
@@ -66,6 +56,20 @@
           </extension-registry-components>
         </v-card-text>
       </v-card>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          :disabled="postDisabled"
+          :loading="loading"
+          :aria-label="$t(`activity.composer.${composerAction}`)"
+          type="button"
+          class="primary btn no-box-shadow ms-auto"
+          @click="postMessage()">
+          {{ composerActionLabel }}
+        </v-btn>
+      </div>
     </template>
   </exo-drawer>
 </template>
