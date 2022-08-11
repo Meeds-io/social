@@ -6,7 +6,7 @@
     <div  v-if="showAddDescription && !useCustomAddDescriptionContent" class="d-flex justify-center">
       <div class="mb-6">
         <div class="d-flex justify-center">
-          <v-icon color="blue-grey lighten-4" large>chat</v-icon>
+          <v-icon color="blue-grey lighten-4" large>mdi-message-text-outline</v-icon>
         </div>
         <div class="ml-2 font-weight-thin blue-grey--text lighten-6" >
           {{noDescriptionText}}
