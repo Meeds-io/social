@@ -137,7 +137,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
                 return;
             }
         } else {
-            RequestDispatcher register = context.getRequestDispatcher("/login/jsp/oauth_register.jsp");
+            RequestDispatcher register = context.getRequestDispatcher("/WEB-INF/jsp/login/oauth_register.jsp");
             if(register != null) {
                 register.forward(req, res);
                 return;
