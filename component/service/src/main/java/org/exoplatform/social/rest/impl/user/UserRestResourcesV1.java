@@ -32,6 +32,13 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,7 +85,6 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
-import io.swagger.annotations.*;
 import org.exoplatform.services.rest.http.PATCH;
 /**
  * 
@@ -87,7 +93,7 @@ import org.exoplatform.services.rest.http.PATCH;
  */
 
 @Path(VersionResources.VERSION_ONE + "/social/users")
-@Api(tags = VersionResources.VERSION_ONE + "/social/users", value = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
+@Tag(name = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   public static final String  PROFILE_DEFAULT_BANNER_URL = "/skin/images/banner/DefaultUserBanner.png";
@@ -190,30 +196,30 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @GET
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets all users",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
+  @Operation(
+          summary = "Gets all users",
+          method = "GET",
+          description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
                 + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
                 + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
                 + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored")
   @ApiResponses(value = {
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 404, message = "Resource not found"),
-    @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUsers(@Context UriInfo uriInfo,
-                           @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
-                           @ApiParam(value = "User status to filter online users, ex: online", required = false) @QueryParam("status") String status,
-                           @ApiParam(value = "User type to filter, ex: internal, external", required = false) @DefaultValue("internal") @QueryParam("userType") String userType,
-                           @ApiParam(value = "Is connected users", required = false) @QueryParam("isConnected") String isConnected,
-                           @ApiParam(value = "Space id to filter only its members, ex: 1", required = false) @QueryParam("spaceId") String spaceId,
-                           @ApiParam(value = "Is disabled users", required = false, defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
-                           @ApiParam(value = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment", required = false) @QueryParam("enrollmentStatus") String enrollmentStatus,
-                           @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                           @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                           @ApiParam(value = "Returning the number of users found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                           @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
+                           @Parameter(description = "User status to filter online users, ex: online") @QueryParam("status") String status,
+                           @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
+                           @Parameter(description = "Is connected users") @QueryParam("isConnected") String isConnected,
+                           @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") String spaceId,
+                           @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
+                           @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
+                           @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                           @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                           @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
 
     String userId;
     try {
@@ -346,16 +352,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Creates a new user",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the user if the authenticated user is in the /platform/administrators group.")
+  @Operation(
+          summary = "Creates a new user",
+          method = "POST",
+          description = "This creates the user if the authenticated user is in the /platform/administrators group.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response addUser(@Context UriInfo uriInfo,
-                          @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                          @ApiParam(value = "User object to be created, ex:<br />" +
+                          @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                          @RequestBody(description = "User object to be created, ex:<br />" +
                                             "{<br />\"username\": \"john\"," +
                                             "<br />\"password\": \"gtngtn\"," +
                                             "<br />\"email\": \"john@exoplatform.com\"," +
@@ -396,19 +402,19 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("{id}")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @ApiOperation(value = "Gets a specific user by user name",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Gets a specific user by user name",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 404, message = "Resource not found"),
-    @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUserById(@Context UriInfo uriInfo,
                               @Context Request request,
-                              @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                              @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                              @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                              @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     //
     if (identity == null) {
@@ -434,17 +440,17 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("email/{email}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets a specific user by user email",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Gets a specific user by user email",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 404, message = "Resource not found"),
-          @ApiResponse(code = 500, message = "Internal server error due to data encoding"),
-          @ApiResponse(code = 400, message = "Invalid query input")})
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "404", description = "Resource not found"),
+          @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input")})
   public Response getUserByEmail(@Context UriInfo uriInfo,
-                                 @ApiParam(value = "User email", required = true) @PathParam("email") String email) throws JSONException {
+                                 @Parameter(description = "User email", required = true) @PathParam("email") String email) throws JSONException {
     User user = getUserByEmail(email);
     if (user == null) {
       return Response.ok().entity("{\"id\":\"" + null + "\"}").build();
@@ -467,22 +473,21 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   
   @GET
   @Path("{id}/avatar")
-  @ApiOperation(value = "Gets a specific user avatar by username",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @Operation(
+          summary = "Gets a specific user avatar by username",
+          method = "GET",
+          description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-          @ApiResponse (code = 400, message = "Invalid query input") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUserAvatarById(@Context UriInfo uriInfo,
                                     @Context Request request,
-                                    @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                    @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                    @ApiParam(
-                                        value = "A mandatory valid token that is used to authorize anonymous request",
-                                        required = false
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(
+                                        description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
@@ -563,22 +568,21 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @GET
   @Path("{id}/banner")
-  @ApiOperation(value = "Gets a specific user banner by username",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @Operation(
+          summary = "Gets a specific user banner by username",
+          method = "GET",
+          description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-          @ApiResponse (code = 400, message = "Invalid query input") })
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUserBannerById(@Context UriInfo uriInfo,
                                     @Context Request request,
-                                    @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                    @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                    @ApiParam(
-                                        value = "A mandatory valid token that is used to authorize anonymous request",
-                                        required = false
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(
+                                        description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
@@ -659,16 +663,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @PATCH
   @Path("{id}")
-  @ApiOperation(value = "Update user property", httpMethod = "PATCH", response = Response.class, notes = "This can only be done by the logged in user.")
+  @Operation(summary = "Update user property", method = "PATCH", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse(code = 204, message = "Request fulfilled but not content returned"),
-      @ApiResponse(code = 500, message = "Internal server error due to data encoding"),
-      @ApiResponse(code = 403, message = "Unothorized to modify user profile"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
+      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+      @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateUserProfileAttribute(@Context HttpServletRequest request,
-                                             @ApiParam(value = "User name", required = true) @PathParam("id") String username,
-                                             @ApiParam(value = "User profile attribute name", required = true) @FormParam("name") String name,
-                                             @ApiParam(value = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
+                                             @Parameter(description = "User name", required = true) @PathParam("id") String username,
+                                             @Parameter(description = "User profile attribute name", required = true) @FormParam("name") String name,
+                                             @Parameter(description = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
@@ -736,18 +740,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @PATCH
   @Path("{id}/profile")
-  @ApiOperation(value = "Update set of properties in user profile",
-                httpMethod = "PATCH",
-                response = Response.class,
-                notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Update set of properties in user profile",
+          method = "PATCH",
+          description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse (code = 204, message = "Request fulfilled but not content returned"),
-      @ApiResponse (code = 500, message = "Internal server error due to data encoding"),
-      @ApiResponse (code = 403, message = "Unothorized to modify user profile"),
-      @ApiResponse (code = 400, message = "Invalid query input") })
+      @ApiResponse (responseCode = "204", description = "Request fulfilled but not content returned"),
+      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+      @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
+      @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response updateUserProfileAttributes(@Context HttpServletRequest request,
-                                              @ApiParam(value = "User name", required = true) @PathParam("id") String username,
-                                              @ApiParam(value = "User profile attributes map", required = true) ProfileEntity profileEntity) throws Exception {
+                                              @Parameter(description = "User name", required = true) @PathParam("id") String username,
+                                              @RequestBody(description = "User profile attributes map", required = true) ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -804,13 +808,13 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Deletes a specific user by user name",
-                httpMethod = "DELETE",
-                response = Response.class,
-                notes = "This deletes the user if the authenticated user is in the /platform/administrators group.")
+  @Operation(
+          summary = "Deletes a specific user by user name",
+          method = "DELETE",
+          description = "This deletes the user if the authenticated user is in the /platform/administrators group.")
   public Response deleteUserById(@Context UriInfo uriInfo,
-                                 @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                 @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
     //Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -833,14 +837,14 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Updates a specific user by user name",
-                httpMethod = "PUT",
-                response = Response.class,
-                notes = "This updates the user if he is the authenticated user.")
+  @Operation(
+          summary = "Updates a specific user by user name",
+          method = "PUT",
+          description = "This updates the user if he is the authenticated user.")
   public Response updateUserById(@Context UriInfo uriInfo,
-                                 @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                 @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                 @ApiParam(value = "User object to be updated, ex:<br />" +
+                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                                 @RequestBody(description = "User object to be updated, ex:<br />" +
                                             "{<br />\"username\": \"john\"," +
                                             "<br />\"password\": \"gtngtn\"," +
                                             "<br />\"email\": \"john@exoplatform.com\"," +
@@ -869,12 +873,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Send onBoarding email to a specific user", 
-                httpMethod = "PATCH", 
-                response = Response.class, 
-                notes = "This send onBoarding email to a specific user.")
+  @Operation(
+          summary = "Send onBoarding email to a specific user",
+          method = "PATCH",
+          description = "This send onBoarding email to a specific user.")
   public Response sendOnBoardingEmail(@Context HttpServletRequest request,
-                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id) throws Exception {
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id) throws Exception {
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
@@ -892,10 +896,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("bulk/{action}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Make action on list of users", httpMethod = "PATCH", response = Response.class, notes = "This will realize the action on the list of users if possible")
+  @Operation(summary = "Make action on list of users", method = "PATCH", description = "This will realize the action on the list of users if possible")
   public Response bulk(@Context HttpServletRequest request,
-                                       @ApiParam(value = "Action", required = true) @PathParam("action") String action,
-                                       @ApiParam(value = "User List", required = true) List<String> users) throws Exception {
+                                       @Parameter(description = "Action", required = true) @PathParam("action") String action,
+                                       @Parameter(description = "User List", required = true) List<String> users) throws Exception {
 
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -968,15 +972,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets connections of a specific user",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Gets connections of a specific user",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
   public Response getConnectionsOfUser(@Context UriInfo uriInfo,
-                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                      @ApiParam(value = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
-                                      @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                      @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                      @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
+                                      @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                      @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -1005,10 +1009,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("connections/invitations")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets received invitations of current user", httpMethod = "GET", response = Response.class, notes = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
   public Response getInvitationsOfUser(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                       @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                       @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
     if (target == null) {
@@ -1035,10 +1039,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @GET
   @Path("connections/pending")
-  @ApiOperation(value = "Gets received invitations of current user", httpMethod = "GET", response = Response.class, notes = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
   public Response getPendingOfUser(@Context UriInfo uriInfo,
-                                   @ApiParam(value = "Returning the number of connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                   @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
     if (target == null) {
@@ -1066,16 +1070,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets spaces of a specific user",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(
+          summary = "Gets spaces of a specific user",
+          method = "GET",
+          description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   public Response getSpacesOfUser(@Context UriInfo uriInfo,
-                                  @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                  @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                  @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                  @ApiParam(value = "Returning the number of spaces or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                  @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>", required = false) @QueryParam("expand") String expand) throws Exception {
+                                  @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                  @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                  @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                  @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -1116,17 +1120,17 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{userId}/spaces/{profileId}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets commons spaces of current user",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(
+          summary = "Gets commons spaces of current user",
+          method = "GET",
+          description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   public Response getCommonSpacesOfUser(@Context UriInfo uriInfo,
-                                        @ApiParam(value = "User Id", required = true) @PathParam("userId") String userId,
-                                        @ApiParam(value = "Profile Id", required = true) @PathParam("profileId") String profileId,
-                                        @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                        @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                        @ApiParam(value = "Returning the number of spaces or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                        @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>", required = false) @QueryParam("expand") String expand) throws Exception {
+                                        @Parameter(description = "User Id", required = true) @PathParam("userId") String userId,
+                                        @Parameter(description = "Profile Id", required = true) @PathParam("profileId") String profileId,
+                                        @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                        @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                        @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -1159,37 +1163,39 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @POST
   @Path("{id}/activities")
   @RolesAllowed("users")
-  @ApiOperation(value = "Creates an activity by a specific user",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the activity if the given user is the authenticated user.")
+  @Operation(
+          summary = "Creates an activity by a specific user",
+          method = "POST",
+          description = "This creates the activity if the given user is the authenticated user.")
   @Deprecated
   @DeprecatedAPI(value = "Use ActivityRestResourcesV1.postActivity instead", insist = true)
   public Response addActivityByUser(@Context UriInfo uriInfo,
-                                    @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                    @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand,
-                                    @ApiParam(value = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityEntity model) throws Exception {
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand,
+                                    @RequestBody(description = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityEntity model) throws Exception {
     return activityRestResourcesV1.postActivity(uriInfo, null, expand, model);
   }
 
   @GET
   @Path("{id}/activities")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets activities of a specific user",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns an activity in the list in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li><li>this is a space activity and the authenticated user is a member of the space</li></ul>")
+  @Operation(
+          summary = "Gets activities of a specific user",
+          method = "GET",
+          description = "This returns an activity in the list in the following cases: " +
+                  "<br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li>" +
+                  "<li>this is a space activity and the authenticated user is a member of the space</li></ul>")
   @Deprecated
   @DeprecatedAPI(value = "Use ActivityRestResourcesV1.getActivities instead", insist = true)
   public Response getActivitiesOfUser(@Context UriInfo uriInfo,
-                                      @ApiParam(value = "User name", required = true) @PathParam("id") String id,
-                                      @ApiParam(value = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>", required = false, defaultValue = "all") @QueryParam("type") String type,
-                                      @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                      @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                      @ApiParam(value = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("before") String before,
-                                      @ApiParam(value = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)", required = false) @QueryParam("after") String after,
-                                      @ApiParam(value = "Returning the number of activities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                      @ApiParam(value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false) @QueryParam("expand") String expand) throws Exception {
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                      @Parameter(description = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>") @Schema(defaultValue = "all") @QueryParam("type") String type,
+                                      @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                      @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                      @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("before") String before,
+                                      @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("after") String after,
+                                      @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                      @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand) throws Exception {
     return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, returnSize, expand, null);
   }
 
@@ -1197,15 +1203,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("csv")
   @RolesAllowed("administrators")
-  @ApiOperation(value = "Import users using CSV file that has a header defining user fields names."
-      + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
-  httpMethod = "POST",
-  response = Response.class)
+  @Operation(
+          summary = "Import users using CSV file",
+          description = "Import users using CSV file that has a header defining user fields names."
+               + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
+          method = "POST")
   public Response importUsers(@Context HttpServletRequest request,
-                              @ApiParam(value = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
-                              @ApiParam(value = "Get processing progress percentage of imported file", required = false, defaultValue = "false") @FormParam("progress") boolean progress,
-                              @ApiParam(value = "Whether clean file after processing or not", required = false, defaultValue = "false") @FormParam("clean") boolean clean,
-                              @ApiParam(value = "Whether process importing users in a sync or async way of current request", required = false, defaultValue = "false") @FormParam("sync") boolean sync) {
+                              @Parameter(description = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
+                              @Parameter(description = "Get processing progress percentage of imported file") @Schema(defaultValue = "false") @FormParam("progress") boolean progress,
+                              @Parameter(description = "Whether clean file after processing or not") @Schema(defaultValue = "false") @FormParam("clean") boolean clean,
+                              @Parameter(description = "Whether process importing users in a sync or async way of current request") @Schema(defaultValue = "false") @FormParam("sync") boolean sync) {
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }

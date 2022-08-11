@@ -8,7 +8,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.exoplatform.common.http.HTTPStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -16,11 +19,10 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.model.GettingStartedStep;
 import org.exoplatform.social.core.service.GettingStartedService;
 
-import io.swagger.annotations.*;
 
 @Path("getting-started")
 @RolesAllowed("users")
-@Api(value = "/getting-started", description = "Check getting Started steps for currently authenticated user")
+@Tag(name = "/getting-started", description = "Check getting Started steps for currently authenticated user")
 public class GettingStartedRestService implements ResourceContainer {
 
   private static final Log      LOG = ExoLogger.getLogger(GettingStartedRestService.class);
@@ -48,9 +50,10 @@ public class GettingStartedRestService implements ResourceContainer {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @ApiOperation(value = "Collect Getting Started Steps", httpMethod = "GET", response = Response.class, produces = "application/json", notes = "Return getting started steps in json format")
-  @ApiResponses(value = { @ApiResponse(code = HTTPStatus.OK, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error") })
+  @Operation(summary = "Collect Getting Started Steps", method = "GET", description = "Return getting started steps in json format")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error") })
   public Response getGettingStartedSteps() {
     ConversationState current = ConversationState.getCurrent();
     try {
@@ -71,16 +74,15 @@ public class GettingStartedRestService implements ResourceContainer {
   }
 
   @DELETE
-  @ApiOperation(
-      value = "Delete Getting Started Application display for current user",
-      httpMethod = "DELETE",
-      response = Response.class,
-      notes = "Doesn't return a response content"
+  @Operation(
+      summary = "Delete Getting Started Application display for current user",
+      method = "DELETE",
+      description = "Doesn't return a response content"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = HTTPStatus.OK, message = "Request fulfilled"),
-          @ApiResponse(code = HTTPStatus.NO_CONTENT, message = "Internal server error"),
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "204", description = "Internal server error"),
       }
   )
   public Response hideGettingStartedApplication() {
