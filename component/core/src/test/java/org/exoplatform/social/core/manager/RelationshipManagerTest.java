@@ -1440,8 +1440,10 @@ public class RelationshipManagerTest extends AbstractCoreTest {
   public void testGetLastConnections() throws Exception {
     Relationship maryToGhostRelationship = relationshipManager.inviteToConnect(ghostIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, ghostIdentity);
+    Thread.sleep(1);
     Relationship maryToDemoRelationship = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, demoIdentity);
+    Thread.sleep(1);
     Relationship paulToMaryRelationship = relationshipManager.inviteToConnect(paulIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, paulIdentity);
     
