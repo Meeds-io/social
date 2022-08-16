@@ -95,7 +95,7 @@ export default {
   },
   computed: {
     composerPlaceholder() {
-      return this.$t('activity.newComposer.placeholder');
+      return this.$t('activity.composer.placeholder');
     },
     composerAction() {
       return this.activityId && 'update' || 'post';
