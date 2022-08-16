@@ -32,6 +32,8 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Unit Tests for {@link RelationshipManager}
  *
@@ -205,7 +207,9 @@ public class RelationshipManagerTest extends AbstractCoreTest {
    */
   public void testGetWithRelationshipId() throws Exception {
     Relationship relationship = relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
+    sleep(1);
     String relationshipId = relationship.getId();
+    assertNotNull(relationshipId);
     
     relationshipManager.confirm(johnIdentity, rootIdentity);
     relationship = relationshipManager.get(relationship.getId());
@@ -325,9 +329,12 @@ public class RelationshipManagerTest extends AbstractCoreTest {
    */
   public void testConfirmWithIdentity() throws Exception {
     Relationship rootToDemoRelationship = relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
+    sleep(1);
     Relationship maryToRootRelationship = relationshipManager.inviteToConnect(maryIdentity, rootIdentity);
+    sleep(1);
     Relationship rootToJohnRelationship = relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
-    
+    sleep(1);
+
     rootToJohnRelationship = relationshipManager.get(rootToJohnRelationship.getId());
     
     relationshipManager.confirm(rootIdentity, demoIdentity);
@@ -1025,6 +1032,7 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     Relationship johnMaryRelationship = relationshipManager.invite(johnIdentity, maryIdentity);
     Relationship johnRootRelationship = relationshipManager.invite(johnIdentity, rootIdentity);
     Relationship maryDemoRelationship = relationshipManager.invite(maryIdentity, demoIdentity);
+    sleep(5);
 
     List<Identity> listIdentities = new ArrayList<Identity>();
     listIdentities.add(demoIdentity);
@@ -1440,10 +1448,10 @@ public class RelationshipManagerTest extends AbstractCoreTest {
   public void testGetLastConnections() throws Exception {
     Relationship maryToGhostRelationship = relationshipManager.inviteToConnect(ghostIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, ghostIdentity);
-    Thread.sleep(1);
+    sleep(1);
     Relationship maryToDemoRelationship = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, demoIdentity);
-    Thread.sleep(1);
+    sleep(1);
     Relationship paulToMaryRelationship = relationshipManager.inviteToConnect(paulIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, paulIdentity);
     
