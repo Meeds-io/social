@@ -81,7 +81,7 @@ export default {
       editor: null,
       newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
       tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
-      displayPlaceholder: false
+      displayPlaceholder: true
     };
   },
   computed: {
@@ -101,6 +101,13 @@ export default {
   watch: {
     inputVal(val) {
       if (this.editorReady) {
+        if (val!== '') {
+          if (this.displayPlaceholder) {
+            this.displayPlaceholder = false;
+          }
+        } else {
+          this.displayPlaceholder = true;
+        }
         this.$emit('input', val);
       }
     },
@@ -249,7 +256,6 @@ export default {
           },
           change: function (evt) {
             const newData = evt.editor.getData();
-
             self.inputVal = newData;
           },
           destroy: function () {
