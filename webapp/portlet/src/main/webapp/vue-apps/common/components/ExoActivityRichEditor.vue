@@ -257,6 +257,9 @@ export default {
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
+            if ( !self.activityId ) {
+              localStorage.setItem('activity-message', newData);
+            }
           },
           destroy: function () {
             self.inputVal = '';
