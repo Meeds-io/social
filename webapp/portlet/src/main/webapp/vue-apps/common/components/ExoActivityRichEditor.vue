@@ -3,7 +3,7 @@
     <div
       v-if="displayPlaceholder"
       @click="hidePlaceholder()" 
-      class="caption text-sub-title position-absolute pa-5 full-width">
+      class="caption text-sub-title position-absolute pa-5 m-px full-width">
       {{ placeholder }}
     </div>
     <textarea
