@@ -1,5 +1,11 @@
 <template>
   <div class="activityRichEditor" :class="newEditorToolbarEnabled && 'newEditorToolbar' || ''">
+    <div
+      v-if="displayPlaceholder"
+      @click="hidePlaceholder()" 
+      class="caption text-sub-title position-absolute pa-5 ma-1px full-width">
+      {{ placeholder }}
+    </div>
     <textarea
       ref="editor"
       :id="ckEditorType"
@@ -66,7 +72,7 @@ export default {
     useExtraPlugins: {
       type: Boolean,
       default: false
-    }
+    },
   },
   data() {
     return {
@@ -75,6 +81,7 @@ export default {
       editor: null,
       newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
       tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
+      displayPlaceholder: true
     };
   },
   computed: {
@@ -89,11 +96,18 @@ export default {
     },
     validLength() {
       return this.charsCount <= this.maxLength;
-    },
+    }
   },
   watch: {
     inputVal(val) {
       if (this.editorReady) {
+        if (val!== '') {
+          if (this.displayPlaceholder) {
+            this.displayPlaceholder = false;
+          }
+        } else {
+          this.displayPlaceholder = true;
+        }
         this.$emit('input', val);
       }
     },
@@ -133,6 +147,9 @@ export default {
   },
   methods: {
     initCKEditor: function (reset) {
+      if ( this.value !== '') {
+        this.displayPlaceholder = false;
+      }
       this.inputVal = this.replaceWithSuggesterClass(this.value);
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
@@ -232,9 +249,13 @@ export default {
           requestCanceled: function () {
             self.cleanupOembed();
           },
+          blur: function (evt) {
+            if (evt.editor.getData() === '') {
+              self.displayPlaceholder = true;
+            }
+          },
           change: function (evt) {
             const newData = evt.editor.getData();
-
             self.inputVal = newData;
           },
           destroy: function () {
@@ -345,6 +366,10 @@ export default {
         this.templateParams.registeredKeysForProcessor = '-';
       }
     },
+    hidePlaceholder() {
+      this.displayPlaceholder = false;
+      this.setFocus();
+    }
   }
 };
 </script>

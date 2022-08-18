@@ -137,11 +137,11 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
                 return;
             }
         } else {
-            RequestDispatcher register = context.getRequestDispatcher("/login/jsp/oauth_register.jsp");
-            if(register != null) {
-                register.forward(req, res);
-                return;
-            }
+            req.setAttribute("SSO.Login.Status", "USER_ACCOUNT_NOT_FOUND");
+            req.removeAttribute("portalUser");
+            authReg.removeAttributeOfClient(req, OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
+            authReg.removeAttributeOfClient(req, OAuthConstants.ATTRIBUTE_AUTHENTICATED_PORTAL_USER);
+            log.warn("User {} does not have an account and On the fly registration is disabled, could not login !", portalUser.getDisplayName());
         }
 
         chain.doFilter(req, res);
