@@ -95,7 +95,7 @@ export default {
   },
   computed: {
     composerPlaceholder() {
-      return this.$t('activity.composer.placeholder', {0: this.MESSAGE_MAX_LENGTH});
+      return this.$t('activity.composer.placeholder');
     },
     composerAction() {
       return this.activityId && 'update' || 'post';
