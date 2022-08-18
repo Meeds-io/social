@@ -258,7 +258,7 @@ export default {
             const newData = evt.editor.getData();
             self.inputVal = newData;
             if (!self.activityId) {
-              localStorage.setItem('activity-message', newData);
+              localStorage.setItem('activity-message',  JSON.stringify({'url': self.baseUrl, 'text': newData}));
             }
           },
           destroy: function () {
