@@ -26,6 +26,13 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,14 +63,8 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import io.swagger.annotations.*;
-
 @Path(VersionResources.VERSION_ONE + "/social/activities")
-@Api(
-    tags = VersionResources.VERSION_ONE + "/social/activities",
-    value = VersionResources.VERSION_ONE + "/social/activities",
-    description = "Managing activities together with comments and likes" // NOSONAR
-)
+@Tag(name = VersionResources.VERSION_ONE + "/social/activities", description = "Managing activities together with comments and likes")
 public class ActivityRestResourcesV1 implements ResourceContainer {
 
   private static final Log        LOG            = ExoLogger.getLogger(ActivityRestResourcesV1.class);
@@ -90,68 +91,50 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   @GET
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Gets activities of a specific user",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns an activity in the list in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li><li>this is a space activity and the authenticated user is a member of the space</li></ul>"
-  )
+  @Operation(
+      summary = "Gets activities of a specific user",
+      description = "This returns an activity in the list in the following cases: " +
+              "<br/><ul><li>this is a user activity and the owner of the activity is" +
+              "the authenticated user or one of his connections</li><li>" +
+              "this is a space activity and the authenticated user is a member of the space</li></ul>",
+      method = "GET")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 401, message = "Unauthorized"),
-          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
       }
   )
   public Response getActivities(
-                                @Context
-                                UriInfo uriInfo,
-                                @ApiParam(
-                                    value = "Space technical identifier",
+                                @Context UriInfo uriInfo,
+                                @Parameter(
+                                    description = "Space technical identifier",
                                     required = false
                                 )
-                                @QueryParam("spaceId")
-                                String spaceId,
-                                @ApiParam(
-                                    value = "offset time to use for searching newer activities until a time identified using format yyyy-MM-dd HH:mm:ss",
-                                    required = false,
-                                    defaultValue = "0"
-                                )
-                                @QueryParam("beforeTime")
-                                String beforeTime,
-                                @ApiParam(
-                                    value = "offset time to use for searching newer activities since a time identified using format yyyy-MM-dd HH:mm:ss",
-                                    required = false,
-                                    defaultValue = "0"
-                                )
-                                @QueryParam("afterTime")
-                                String afterTime,
-                                @ApiParam(
-                                    value = "Offset",
+                                @QueryParam("spaceId") String spaceId,
+                                @Parameter(
+                                    description = "offset time to use for searching newer activities until a time identified using format yyyy-MM-dd HH:mm:ss",
+                                    required = false
+                                ) @Schema(defaultValue = "0")
+                                @QueryParam("beforeTime") String beforeTime,
+                                @Parameter(
+                                    description = "offset time to use for searching newer activities since a time identified using format yyyy-MM-dd HH:mm:ss",
+                                    required = false
+                                ) @Schema(defaultValue = "0")
+                                @QueryParam("afterTime") String afterTime,
+                                @Parameter(description = "Offset", required = false)
+                                @QueryParam("offset") int offset,
+                                @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
+                                @QueryParam("limit") int limit,
+                                @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false")
+                                @QueryParam("returnSize") boolean returnSize,
+                                @Parameter(
+                                    description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>",
                                     required = false
                                 )
-                                @QueryParam("offset")
-                                int offset,
-                                @ApiParam(
-                                    value = "Limit",
-                                    required = false,
-                                    defaultValue = "20"
-                                )
-                                @QueryParam("limit")
-                                int limit,
-                                @ApiParam(
-                                    value = "Returning the number of activities or not",
-                                    defaultValue = "false"
-                                )
-                                @QueryParam("returnSize")
-                                boolean returnSize,
-                                @ApiParam(
-                                    value = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>",
-                                    required = false
-                                )
-                                @QueryParam("expand")
-                                String expand,
-                                @ApiParam(value = "Activity stream type. Possible values: ALL_STREAM, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false) @QueryParam("streamType") ActivityStreamType streamType) {
+                                @QueryParam("expand") String expand,
+                                @Parameter(description = "Activity stream type. Possible values: ALL_STREAM, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false)
+                                @QueryParam("streamType") ActivityStreamType streamType) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -245,33 +228,27 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Posts an activity to a specific space",
-      httpMethod = "POST",
-      response = Response.class,
-      produces = "application/json",
-      notes = "This posts the activity if the authenticated user is a member of the space or a spaces super manager."
-  )
+  @Operation(
+      summary = "Posts an activity to a specific space",
+      description = "This posts the activity if the authenticated user is a member of the space or a spaces super manager.",
+      method = "POST")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response postActivity(
                                @Context
                                UriInfo uriInfo,
-                               @ApiParam(value = "Space id", required = true)
-                               @QueryParam("spaceId")
-                               String spaceId,
-                               @ApiParam(
-                                   value = "Asking for a full representation of a specific subresource, ex: comments or likes",
+                               @Parameter(description = "Space id", required = true)
+                               @QueryParam("spaceId") String spaceId,
+                               @Parameter(
+                                   description = "Asking for a full representation of a specific subresource, ex: comments or likes",
                                    required = false
                                )
-                               @QueryParam("expand")
-                               String expand,
-                               @ApiParam(value = "Activity object to be created", required = true)
-                               ActivityEntity model) {
+                               @QueryParam("expand") String expand,
+                               @RequestBody(description = "Activity object to be created", required = true) ActivityEntity model) {
     if (model == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -328,28 +305,26 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Gets a specific activity by id",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li><li>this is a space activity and the authenticated user is a member of the space</li><li>the authenticated user is the super user</li></ul>"
-  )
+  @Operation(
+      summary = "Gets a specific activity by id",
+      description = "This returns the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li><li>this is a space activity and the authenticated user is a member of the space</li><li>the authenticated user is the super user</li></ul>",
+      method = "GET")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response getActivityById(
                                   @Context
                                   UriInfo uriInfo,
                                   @Context
                                   Request request,
-                                  @ApiParam(value = "Activity id", required = true)
+                                  @Parameter(description = "Activity id", required = true)
                                   @PathParam("activityId")
                                   String activityId,
-                                  @ApiParam(
-                                      value = "Asking for a full representation of a specific subresource, ex: comments or likes",
+                                  @Parameter(
+                                      description = "Asking for a full representation of a specific subresource, ex: comments or likes",
                                       required = false
                                   )
                                   @QueryParam("expand")
@@ -380,35 +355,31 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Updates a specific activity by id",
-      httpMethod = "PUT",
-      response = Response.class,
-      notes = "This updates the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user</li><li>the authenticated user is the super user</li></ul>"
-  )
+  @Operation(
+      summary = "Updates a specific activity by id",
+      description = "This updates the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user</li><li>the authenticated user is the super user</li></ul>",
+      method = "PUT")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response updateActivityById(
                                      @Context
                                      UriInfo uriInfo,
-                                     @ApiParam(value = "Activity id", required = true)
-                                     @PathParam("activityId")
-                                     String activityId,
-                                     @ApiParam(
-                                         value = "Asking for a full representation of a specific subresource, ex: comments or likes",
+                                     @Parameter(description = "Activity id", required = true)
+                                     @PathParam("activityId") String activityId,
+                                     @Parameter(
+                                         description = "Asking for a full representation of a specific subresource, ex: comments or likes",
                                          required = false
                                      )
                                      @QueryParam("expand")
                                      String expand,
-                                     @ApiParam(
-                                         value = "Activity object to be updated, ex: <br/>{<br/>\"title\" : \"My activity\"<br/>}",
+                                     @RequestBody(
+                                         description = "Activity object to be updated, ex: <br/>{<br/>\"title\" : \"My activity\"<br/>}",
                                          required = true
-                                     )
-                                     ActivityEntity model) {
+                                     ) ActivityEntity model) {
 
     if (model == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -434,37 +405,31 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @DELETE
   @Path("{activityId}")
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Deletes a specific activity by id",
-      httpMethod = "DELETE",
-      response = Response.class,
-      notes = "This deletes the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user</li><li>the authenticated user is the super user</li></ul>"
-  )
+  @Operation(
+      summary = "Deletes a specific activity by id",
+      description = "This deletes the activity in the following cases: <br/><ul><li>this is a user activity and the owner of the activity is the authenticated user</li><li>the authenticated user is the super user</li></ul>",
+      method = "DELETE")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response deleteActivityById(
                                      @Context
                                      UriInfo uriInfo,
-                                     @ApiParam(value = "Activity id", required = true)
-                                     @PathParam("activityId")
-                                     String activityId,
-                                     @ApiParam(
-                                         value = "Whether to just hide the activity or effectively delete it from database",
-                                         defaultValue = "false",
+                                     @Parameter(description = "Activity id", required = true)
+                                     @PathParam("activityId") String activityId,
+                                     @Parameter(
+                                         description = "Whether to just hide the activity or effectively delete it from database",
+                                         required = false
+                                     ) @Schema(defaultValue = "false")
+                                     @QueryParam("hide") boolean hide,
+                                     @Parameter(
+                                         description = "Asking for a full representation of a specific subresource if any",
                                          required = false
                                      )
-                                     @QueryParam("hide")
-                                     boolean hide,
-                                     @ApiParam(
-                                         value = "Asking for a full representation of a specific subresource if any",
-                                         required = false
-                                     )
-                                     @QueryParam("expand")
-                                     String expand) {
+                                     @QueryParam("expand") String expand) {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
@@ -487,45 +452,37 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @GET
   @Path("{activityId}/comments")
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Gets comments of a specific activity",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns a list of comments if the authenticated user has permissions to see the activity."
+  @Operation(
+      summary = "Gets comments of a specific activity",
+      method = "GET",
+      description = "This returns a list of comments if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response getComments(
                               @Context
                               UriInfo uriInfo,
-                              @ApiParam(value = "Activity id", required = true)
-                              @PathParam("activityId")
-                              String activityId,
-                              @ApiParam(value = "Offset", required = false, defaultValue = "0")
-                              @QueryParam("offset")
-                              int offset,
-                              @ApiParam(value = "Limit", required = false, defaultValue = "20")
-                              @QueryParam("limit")
-                              int limit,
-                              @ApiParam(value = "Returning the number of activities or not", defaultValue = "false")
-                              @QueryParam("returnSize")
-                              boolean returnSize,
-                              @ApiParam(
-                                  value = "Retrieve comments by last post time or by first post time",
-                                  defaultValue = "false"
-                              )
-                              @QueryParam("sortDescending")
-                              boolean sortDescending,
-                              @ApiParam(
-                                  value = "Asking for a full representation of a specific subresource if any",
+                              @Parameter(description = "Activity id", required = true)
+                              @PathParam("activityId") String activityId,
+                              @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
+                              @QueryParam("offset") int offset,
+                              @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
+                              @QueryParam("limit") int limit,
+                              @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false")
+                              @QueryParam("returnSize") boolean returnSize,
+                              @Parameter(
+                                  description = "Retrieve comments by last post time or by first post time"
+                              ) @Schema(defaultValue = "false")
+                              @QueryParam("sortDescending") boolean sortDescending,
+                              @Parameter(
+                                  description = "Asking for a full representation of a specific subresource if any",
                                   required = false
                               )
-                              @QueryParam("expand")
-                              String expand) {
+                              @QueryParam("expand") String expand) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -559,35 +516,32 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/comments")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Posts a comment on a specific activity",
-      httpMethod = "POST",
-      response = Response.class,
-      notes = "This posts the comment if the authenticated user has permissions to see the activity."
+  @Operation(
+      summary = "Posts a comment on a specific activity",
+      method = "POST",
+      description = "This posts the comment if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response postComment(
                               @Context
                               UriInfo uriInfo,
-                              @ApiParam(value = "Activity id", required = true)
-                              @PathParam("activityId")
-                              String activityId,
-                              @ApiParam(
-                                  value = "Asking for a full representation of a specific subresource if any",
+                              @Parameter(description = "Activity id", required = true)
+                              @PathParam("activityId") String activityId,
+                              @Parameter(
+                                  description = "Asking for a full representation of a specific subresource if any",
                                   required = false
                               )
                               @QueryParam("expand")
                               String expand,
-                              @ApiParam(
-                                  value = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}",
+                              @RequestBody(
+                                  description = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}",
                                   required = true
-                              )
-                              CommentEntity model) {
+                              ) CommentEntity model) {
 
     if (model == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity("Comment entity is mandatory").build();
@@ -633,35 +587,32 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/comments")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Updates an existing comment",
-      httpMethod = "PUT",
-      response = Response.class,
-      notes = "This updates an existing comment if the authenticated user is poster of the comment."
+  @Operation(
+      summary = "Updates an existing comment",
+      method = "PUT",
+      description = "This updates an existing comment if the authenticated user is poster of the comment."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response updateComment(
                                 @Context
                                 UriInfo uriInfo,
-                                @ApiParam(value = "Activity id", required = true)
-                                @PathParam("activityId")
-                                String activityId,
-                                @ApiParam(
-                                    value = "Asking for a full representation of a specific subresource if any",
+                                @Parameter(description = "Activity id", required = true)
+                                @PathParam("activityId") String activityId,
+                                @Parameter(
+                                    description = "Asking for a full representation of a specific subresource if any",
                                     required = false
                                 )
                                 @QueryParam("expand")
                                 String expand,
-                                @ApiParam(
-                                    value = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}",
+                                @RequestBody(
+                                    description = "Comment object to be posted, ex: <br/>{<br/>\"title\" : \"My comment\"<br/>}",
                                     required = true
-                                )
-                                CommentEntity model) {
+                                ) CommentEntity model) {
 
     if (model == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity("Comment entity is mandatory").build();
@@ -713,32 +664,31 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/share")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Shares a specific activity to specific spaces",
-      httpMethod = "POST",
-      response = Response.class,
-      notes = "This shares the given activity to the target spaces if the authenticated user has permissions to post to the target spaces"
+  @Operation(
+      summary = "Shares a specific activity to specific spaces",
+      method = "POST",
+      description = "This shares the given activity to the target spaces if the authenticated user has permissions to post to the target spaces"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 401, message = "Unauthorized"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response shareActivity(
                                 @Context
                                 UriInfo uriInfo,
-                                @ApiParam(value = "Activity id", required = true)
+                                @Parameter(description = "Activity id", required = true)
                                 @PathParam("activityId")
                                 String activityId,
-                                @ApiParam(
-                                    value = "Asking for a full representation of a specific subresource, ex: comments or likes",
+                                @Parameter(
+                                    description = "Asking for a full representation of a specific subresource, ex: comments or likes",
                                     required = false
                                 )
                                 @QueryParam("expand")
                                 String expand,
-                                @ApiParam(value = "Share target spaces", required = true)
+                                @RequestBody(description = "Share target spaces", required = true)
                                 ActivityEntity model) {
     if (StringUtils.isBlank(activityId)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -793,37 +743,30 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/likes")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Gets likes of a specific activity",
-      httpMethod = "GET",
-      response = Response.class,
-      produces = "application/json",
-      notes = "This returns a list of likes if the authenticated user has permissions to see the activity."
+  @Operation(
+      summary = "Gets likes of a specific activity",
+      method = "GET",
+      description = "This returns a list of likes if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response getLikesOfActivity(
-                                     @Context
-                                     UriInfo uriInfo,
-                                     @ApiParam(value = "Activity id", required = true)
-                                     @PathParam("activityId")
-                                     String activityId,
-                                     @ApiParam(value = "Offset", required = false, defaultValue = "0")
-                                     @QueryParam("offset")
-                                     int offset,
-                                     @ApiParam(value = "Limit", required = false, defaultValue = "20")
-                                     @QueryParam("limit")
-                                     int limit,
-                                     @ApiParam(
-                                         value = "Asking for a full representation of a specific subresource if any",
+                                     @Context UriInfo uriInfo,
+                                     @Parameter(description = "Activity id", required = true)
+                                     @PathParam("activityId") String activityId,
+                                     @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
+                                     @QueryParam("offset") int offset,
+                                     @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
+                                     @QueryParam("limit") int limit,
+                                     @Parameter(
+                                         description = "Asking for a full representation of a specific subresource if any",
                                          required = false
                                      )
-                                     @QueryParam("expand")
-                                     String expand) {
+                                     @QueryParam("expand") String expand) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -846,27 +789,24 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/likes")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Adds a like to a specific activity",
-      httpMethod = "POST",
-      response = Response.class,
-      produces = "application/json",
-      notes = "This adds the like if the authenticated user has permissions to see the activity."
+  @Operation(
+      summary = "Adds a like to a specific activity",
+      method = "POST",
+      description = "This adds the like if the authenticated user has permissions to see the activity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response addLike(
                           @Context
                           UriInfo uriInfo,
                           @Context
                           Request request,
-                          @ApiParam(value = "Activity id", required = true)
-                          @PathParam("activityId")
-                          String activityId) {
+                          @Parameter(description = "Activity id", required = true)
+                          @PathParam("activityId") String activityId) {
 
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
@@ -885,27 +825,22 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("{activityId}/likes")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Deletes a like of a specific user for a given activity",
-      httpMethod = "DELETE",
-      response = Response.class,
-      produces = "application/json",
-      notes = "This deletes the like of authenticated user from an activity"
+  @Operation(
+      summary = "Deletes a like of a specific user for a given activity",
+      method = "DELETE",
+      description = "This deletes the like of authenticated user from an activity"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response deleteLike(
-                             @Context
-                             UriInfo uriInfo,
-                             @Context
-                             Request request,
-                             @ApiParam(value = "Activity id", required = true)
-                             @PathParam("activityId")
-                             String activityId) {
+                             @Context UriInfo uriInfo,
+                             @Context Request request,
+                             @Parameter(description = "Activity id", required = true)
+                             @PathParam("activityId") String activityId) {
 
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
@@ -924,46 +859,38 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @Path("search")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Search activities using a query",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns a list of activities found by using search term"
+  @Operation(
+      summary = "Search activities using a query",
+      method = "GET",
+      description = "This returns a list of activities found by using search term"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   public Response searchActivities(
                                    @Context
                                    UriInfo uriInfo,
-                                   @ApiParam(value = "Term to search", required = true)
-                                   @QueryParam(
-                                     "q"
-                                   )
-                                   String query,
-                                   @ApiParam(value = "Whether to search in favorites only or not", required = true)
+                                   @Parameter(description = "Term to search", required = true)
+                                   @QueryParam("q") String query,
+                                   @Parameter(description = "Whether to search in favorites only or not", required = true)
                                    @QueryParam(
                                      "favorites"
-                                   )
-                                   boolean favorites,
-                                   @ApiParam(value = "Tag names used to search activities", required = true)
+                                   ) boolean favorites,
+                                   @Parameter(description = "Tag names used to search activities", required = true)
                                    @QueryParam(
                                      "tags"
-                                   )
-                                   List<String> tagNames,
-                                   @ApiParam(value = "Offset", required = false, defaultValue = "0")
+                                   ) List<String> tagNames,
+                                   @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
-                                   )
-                                   int offset,
-                                   @ApiParam(value = "Limit", required = false, defaultValue = "20")
+                                   ) int offset,
+                                   @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
                                    @QueryParam(
                                      "limit"
-                                   )
-                                   int limit) {
+                                   ) int limit) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
