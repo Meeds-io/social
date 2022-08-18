@@ -16,7 +16,11 @@
  */
 package org.exoplatform.social.rest.impl.spacetemplates;
 
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.log.ExoLogger;
@@ -44,7 +48,7 @@ import java.util.*;
  *
  */
 @Path(VersionResources.VERSION_ONE + "/social/spaceTemplates")
-@Api(tags = VersionResources.VERSION_ONE + "/social/spaceTemplates", value = VersionResources.VERSION_ONE + "/social/spaceTemplates", description = "Managing Spaces Templates")
+@Tag(name = VersionResources.VERSION_ONE + "/social/spaceTemplates", description = "Managing Spaces Templates")
 public class SpaceTemplatesRestResourcesV1 implements SocialRest {
 
   private static final Log          LOG                         = ExoLogger.getLogger(SpaceTemplatesRestResourcesV1.class);
@@ -74,13 +78,13 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
   @GET
   @Path("templates")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets all spaces templates",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This returns space templates details")
+  @Operation(
+          summary = "Gets all spaces templates",
+          method = "GET",
+          description = "This returns space templates details")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 500, message = "Internal server error")})
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "500", description = "Internal server error")})
   public Response getAllTemplates(@Context UriInfo uriInfo,
                                   @Context HttpServletRequest request) {
     Identity identity = ConversationState.getCurrent().getIdentity();
@@ -99,19 +103,19 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
   @GET
   @Path("{templateName}/banner")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets space template banner",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This returns space template banner input stream")
+  @Operation(
+          summary = "Gets space template banner",
+          method = "GET",
+          description = "This returns space template banner input stream")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 404, message = "Resource not found"),
-          @ApiResponse (code = 500, message = "Internal server error")})
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error")})
   public Response getBannerStream(@Context UriInfo uriInfo,
                                   @Context Request request,
-                                  @ApiParam(value = "Space template name", required = true)
+                                  @Parameter(description = "Space template name", required = true)
                                   @PathParam("templateName") String templateName,
-                                  @ApiParam(value = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
+                                  @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
                                   @QueryParam("lastModified") String lastModified) {
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(templateName);
     if (spaceTemplate == null) {

@@ -16,12 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.identity;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -30,10 +24,13 @@ import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang3.StringUtils;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.ConversationState;
@@ -54,7 +51,7 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 
 
 @Path(VersionResources.VERSION_ONE + "/social/identities")
-@Api(tags = VersionResources.VERSION_ONE + "/social/identities", value = VersionResources.VERSION_ONE + "/social/identities", description = "Managing identities")
+@Tag(name = VersionResources.VERSION_ONE + "/social/identities", description = "Managing identities")
 public class IdentityRestResourcesV1 implements IdentityRestResources {
 
   private IdentityManager identityManager;
@@ -67,20 +64,20 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
    */
   @GET
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets all identities",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns a list of identities in the following cases: <br/><ul><li>the authenticated user has permissions to view the object linked to these identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+  @Operation(
+          summary = "Gets all identities",
+          method = "GET",
+          description = "This returns a list of identities in the following cases: <br/><ul><li>the authenticated user has permissions to view the object linked to these identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getIdentities(@Context UriInfo uriInfo,
-                                @ApiParam(value = "Provider type: space or organization", required = false, defaultValue="organization") @QueryParam("type") String type,
-                                @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                @ApiParam(value = "Returning the number of identities or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                @Parameter(description = "Provider type: space or organization", required = false) @Schema(defaultValue="organization") @QueryParam("type") String type,
+                                @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                @Parameter(description = "Returning the number of identities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     try {
       offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
       limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -111,18 +108,18 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @Path("{id}")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @ApiOperation(value = "Gets an identity by id",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns the identity if the authenticated user has permissions to view the object linked to this identity.")
+  @Operation(
+          summary = "Gets an identity by id",
+          method = "GET",
+          description = "This returns the identity if the authenticated user has permissions to view the object linked to this identity.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getIdentityById(@Context UriInfo uriInfo,
                                   @Context Request request,
-                                  @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
-                                  @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                  @Parameter(description = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
+                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -146,31 +143,30 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{providerId}/{remoteId}")
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Gets an identity by id",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns the identity if the authenticated user has permissions to view the object linked to this identity."
+  @Operation(
+      summary = "Gets an identity by id",
+      method = "GET",
+      description = "This returns the identity if the authenticated user has permissions to view the object linked to this identity."
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
-          @ApiResponse(code = 400, message = "Invalid query input") }
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
   )
   @Produces(MediaType.APPLICATION_JSON)
   public Response getIdentityByProviderIdAndRemoteId(@Context UriInfo uriInfo,
                                                      @Context Request request,
-                                                   @ApiParam(
-                                                       value = "Identity provider id which can be of type 'space' or 'organization' for example",
+                                                   @Parameter(
+                                                       description = "Identity provider id which can be of type 'space' or 'organization' for example",
                                                        required = true
                                                    ) @PathParam("providerId") String providerId,
-                                                   @ApiParam(
-                                                       value = "Identity id which is the unique name (remote id) of identity",
+                                                   @Parameter(
+                                                       description = "Identity id which is the unique name (remote id) of identity",
                                                        required = true
                                                    ) @PathParam("remoteId") String remoteId,
-                                                   @ApiParam(
-                                                       value = "Asking for a full representation of a specific subresource if any",
+                                                   @Parameter(
+                                                       description = "Asking for a full representation of a specific subresource if any",
                                                        required = false
                                                    ) @QueryParam("expand") String expand) {
     Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId);
@@ -203,18 +199,18 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{id}/avatar")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets an identity avatar by id",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Gets an identity avatar by id",
+          method = "GET",
+          description = "Gets an identity avatar by id, This can only be done by the logged in user.")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 500, message = "Internal server error"),
-          @ApiResponse (code = 400, message = "Invalid query input"),
-          @ApiResponse (code = 404, message = "Resource not found")})
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input"),
+          @ApiResponse(responseCode = "404", description = "Resource not found")})
   public Response getIdentityAvatarById(@Context UriInfo uriInfo,
                                         @Context Request request,
-                                        @ApiParam(value = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
+                                        @Parameter(description = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
   
     Identity identity = identityManager.getIdentity(id, true);
     if (identity == null) {
@@ -259,18 +255,18 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{id}/banner")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets an identity banner by id",
-          httpMethod = "GET",
-          response = Response.class,
-          notes = "This can only be done by the logged in user.")
+  @Operation(
+          summary = "Gets an identity banner by id",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-          @ApiResponse (code = 200, message = "Request fulfilled"),
-          @ApiResponse (code = 500, message = "Internal server error"),
-          @ApiResponse (code = 400, message = "Invalid query input"),
-          @ApiResponse (code = 404, message = "Resource not found")})
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "500", description = "Internal server error"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input"),
+          @ApiResponse (responseCode = "404", description = "Resource not found")})
   public Response getIdentityBannerById(@Context UriInfo uriInfo,
                                         @Context Request request,
-                                        @ApiParam(value = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
+                                        @Parameter(description = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
 
     Identity identity = identityManager.getIdentity(id, true);
     if (identity == null) {
@@ -332,21 +328,24 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{id}/relationships")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets relationships of a specific identity",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns a list of relationships if the authenticated user can view the object linked to the identity.")
+  @Operation(
+          summary = "Gets relationships of a specific identity",
+          method = "GET",
+          description = "This returns a list of relationships if the authenticated user can view the object linked to the identity.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getRelationshipsOfIdentity(@Context UriInfo uriInfo,
-                                             @ApiParam(value = "The given identity id", required = true) @PathParam("id") String id,
-                                             @ApiParam(value = "The other identity id to get the relationship with the given one") @QueryParam("with") String with,
-                                             @ApiParam(value = "Returning the number of relationships or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                             @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                             @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                             @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                             @Parameter(description = "The given identity id", required = true) @PathParam("id") String id,
+                                             @Parameter(description = "The other identity id to get the relationship with the given one") @QueryParam("with") String with,
+                                             @Parameter(description = "Returning the number of relationships or not")
+                                             @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize,
+                                             @Parameter(description = "Offset", required = false)
+                                             @Schema(defaultValue = "0")  @QueryParam("offset") int offset,
+                                             @Parameter(description = "Limit", required = false)
+                                             @Schema(defaultValue = "20")  @QueryParam("limit") int limit,
+                                             @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -386,20 +385,23 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
   @GET
   @Path("{id}/commonConnections")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets common connections with identity",
-      httpMethod = "GET",
-      response = Response.class,
-      notes = "This returns the common connections between a the authenticated user and a given identity.")
+  @Operation(
+          summary = "Gets common connections with identity",
+          method = "GET",
+          description = "This returns the common connections between a the authenticated user and a given identity.")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getCommonConnectionsWithIdentity(@Context UriInfo uriInfo,
-                                                   @ApiParam(value = "The given identity id", required = true) @PathParam("id") String id,
-                                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                                   @ApiParam(value = "Returning the number of common connections or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                                   @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                                   @Parameter(description = "The given identity id", required = true) @PathParam("id") String id,
+                                                   @Parameter(description = "Offset", required = false)
+                                                   @Schema(defaultValue = "0")  @QueryParam("offset") int offset,
+                                                   @Parameter(description = "Limit", required = false)
+                                                   @Schema(defaultValue = "20")  @QueryParam("limit") int limit,
+                                                   @Parameter(description = "Returning the number of common connections or not")
+                                                   @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize,
+                                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
 
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
 

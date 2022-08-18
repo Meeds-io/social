@@ -7,6 +7,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.json.*;
 
 import org.exoplatform.common.http.HTTPStatus;
@@ -24,8 +28,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-
-import io.swagger.annotations.*;
 
 
 @Path("/homepage/intranet/spaces/")
@@ -295,13 +297,13 @@ public class SpaceRestServices implements ResourceContainer {
     @DELETE
     @Path("leave/{spaceId}")
     @RolesAllowed("users")
-    @ApiOperation(value = "A user leaves a space", httpMethod = "POST", response = Response.class, notes = "This can only be done by the logged in user.")
+    @Operation(summary = "A user leaves a space", method = "POST", description = "This can only be done by the logged in user.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Request fulfilled"),
-        @ApiResponse(code = 500, message = "Internal server error"),
-        @ApiResponse(code = 404, message = "Space not found") })
+        @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+        @ApiResponse(responseCode = "500", description = "Internal server error"),
+        @ApiResponse(responseCode = "404", description = "Space not found") })
     @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
-    public Response leave(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
+    public Response leave(@Parameter(description = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
                           @Context SecurityContext sc,
                           @Context UriInfo uriInfo) {
       try {
@@ -328,13 +330,13 @@ public class SpaceRestServices implements ResourceContainer {
     @DELETE
     @Path("cancel/{spaceId}")
     @RolesAllowed("users")
-    @ApiOperation(value = "A user cancels his request to join a space", httpMethod = "POST", response = Response.class, notes = "This can only be done by the logged in user.")
+    @Operation(summary = "A user cancels his request to join a space", method = "POST", description = "This can only be done by the logged in user.")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Request fulfilled"),
-        @ApiResponse(code = 500, message = "Internal server error"),
-        @ApiResponse(code = 404, message = "Space not found") })
+        @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+        @ApiResponse(responseCode = "500", description = "Internal server error"),
+        @ApiResponse(responseCode = "404", description = "Space not found") })
     @DeprecatedAPI("Use SpaceMembershipRestResourcesV1.updateSpaceMembershipById instead")
-    public Response cancel(@ApiParam(value = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
+    public Response cancel(@Parameter(description = "Space technical identifier", required = true) @PathParam("spaceId") String spaceId,
                           @Context SecurityContext sc,
                           @Context UriInfo uriInfo) {
       try {

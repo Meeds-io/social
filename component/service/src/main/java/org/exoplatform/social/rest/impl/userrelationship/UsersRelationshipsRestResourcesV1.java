@@ -25,6 +25,13 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.social.core.identity.model.Identity;
@@ -35,11 +42,9 @@ import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import io.swagger.annotations.*;
 
 @Path(VersionResources.VERSION_ONE + "/social/usersRelationships")
-@Api(tags = VersionResources.VERSION_ONE + "/social/usersRelationships", value = VersionResources.VERSION_ONE
-    + "/social/usersRelationships", description = "Managing relationships of users") // NOSONAR
+@Tag(name = VersionResources.VERSION_ONE + "/social/usersRelationships", description = "Managing relationships of users") // NOSONAR
 public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRestResources {
 
   private RelationshipManager relationshipManager;
@@ -50,7 +55,7 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
 
   @RolesAllowed("users")
   @GET
-  @ApiOperation(value = "Gets all user relationships", httpMethod = "GET", response = Response.class, notes = "This returns a list of relationships in the following cases: <br/><ul>"
+  @Operation(summary = "Gets all user relationships", method = "GET", description = "This returns a list of relationships in the following cases: <br/><ul>"
       +
       "<li>if the query param \"user\" is not defined: returns the relationships of the authenticated user</li>" +
       "<li>if the \"user\" is defined and the authenticated user is not an administrator: returns the relationships of the authenticated user</li>"
@@ -59,17 +64,17 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
       +
       "<li>if the \"others\" is defined: returns the relationships between the user and the users defined in \"others\" only</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getUsersRelationships(@Context UriInfo uriInfo,
-                                        @ApiParam(value = "Specific status of relationships: pending, confirmed or all", defaultValue = "all") @QueryParam("status") String status,
-                                        @ApiParam(value = "User name to get relationships") @QueryParam("user") String user,
-                                        @ApiParam(value = "Usernames of the others users to get relationships with the given user") @QueryParam("others") String others,
-                                        @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                        @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                        @ApiParam(value = "Returning the number of relationships or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                        @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand) throws Exception {
+                                        @Parameter(description = "Specific status of relationships: pending, confirmed or all") @Schema(defaultValue = "all") @QueryParam("status") String status,
+                                        @Parameter(description = "User name to get relationships") @QueryParam("user") String user,
+                                        @Parameter(description = "Usernames of the others users to get relationships with the given user") @QueryParam("others") String others,
+                                        @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                        @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                        @Parameter(description = "Returning the number of relationships or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -111,14 +116,14 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
 
   @POST
   @RolesAllowed("users")
-  @ApiOperation(value = "Creates a relationship between two specific users", httpMethod = "POST", response = Response.class, notes = "This creates the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Creates a relationship between two specific users", method = "POST", description = "This creates the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response createUsersRelationships(@Context UriInfo uriInfo,
-                                           @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand,
-                                           @ApiParam(value = "Relationship object to be created, required fields: <br/>sender - user name of the sender,<br/>receiver - user name of the receiver,<br/>status - pending or confirmed", required = true) RelationshipEntity model) throws Exception {
+                                           @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand,
+                                           @RequestBody(description = "Relationship object to be created, required fields: <br/>sender - user name of the sender,<br/>receiver - user name of the receiver,<br/>status - pending or confirmed", required = true) RelationshipEntity model) throws Exception {
     if (model == null || model.getReceiver() == null || model.getSender() == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -166,15 +171,15 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
   @GET
   @RolesAllowed("users")
   @Path("{id}")
-  @ApiOperation(value = "Gets a specific relationship of user by id", httpMethod = "GET", response = Response.class, notes = "This returns the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Gets a specific relationship of user by id", method = "GET", description = "This returns the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated
   public Response getUsersRelationshipsById(@Context UriInfo uriInfo,
-                                            @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                            @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand) throws Exception {
+                                            @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                            @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand) throws Exception {
     if (StringUtils.isBlank(id)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -190,16 +195,16 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
   @PUT
   @RolesAllowed("users")
   @Path("{id}")
-  @ApiOperation(value = "Updates a specific relationship of user by id", httpMethod = "PUT", response = Response.class, notes = "This updates the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Updates a specific relationship of user by id", method = "PUT", description = "This updates the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated
   public Response updateUsersRelationshipsById(@Context UriInfo uriInfo,
-                                               @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                               @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand,
-                                               @ApiParam(value = "Relationship object to be updated", required = true) RelationshipEntity model) throws Exception {
+                                               @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                               @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand,
+                                               @RequestBody(description = "Relationship object to be updated", required = true) RelationshipEntity model) throws Exception {
     if (StringUtils.isBlank(id)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -215,15 +220,15 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
   @DELETE
   @RolesAllowed("users")
   @Path("{id}")
-  @ApiOperation(value = "Deletes a specific relationship of user by id", httpMethod = "DELETE", response = Response.class, notes = "This deletes the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Deletes a specific relationship of user by id", method = "DELETE", description = "This deletes the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated
   public Response deleteUsersRelationshipsById(@Context UriInfo uriInfo,
-                                               @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                               @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                               @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                               @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
     if (StringUtils.isBlank(id)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -240,15 +245,15 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
   @GET
   @RolesAllowed("users")
   @Path("{sender}/{receiver}")
-  @ApiOperation(value = "Gets a specific relationship of user with another user", httpMethod = "GET", response = Response.class, notes = "This returns the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Gets a specific relationship of user with another user", method = "GET", description = "This returns the relationship in the following cases: <br/><ul><li>the sender or the receiver of the user relationship is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getUsersRelationship(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Relationship id", required = true) @PathParam("sender") String sender,
-                                       @ApiParam(value = "Relationship id", required = true) @PathParam("receiver") String receiver,
-                                       @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand) {
+                                       @Parameter(description = "Relationship id", required = true) @PathParam("sender") String sender,
+                                       @Parameter(description = "Relationship id", required = true) @PathParam("receiver") String receiver,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand) {
     checkCurrentUserIsPartOfRelationship(sender, receiver);
 
     Identity senderIdentity = getUserIdentity(sender);
@@ -263,14 +268,14 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
 
   @PUT
   @RolesAllowed("users")
-  @ApiOperation(value = "Updates a specific relationship of two users. One of them must be the current user.", httpMethod = "PUT", response = Response.class, notes = "Return updated relationship")
+  @Operation(summary = "Updates a specific relationship of two users. One of them must be the current user.", method = "PUT", description = "Return updated relationship")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateUsersRelationship(@Context UriInfo uriInfo,
-                                          @ApiParam(value = "Relationship object to be updated", required = true) RelationshipEntity model,
-                                          @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand) {
+                                          @RequestBody(description = "Relationship object to be updated", required = true) RelationshipEntity model,
+                                          @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand) {
     if (model == null || StringUtils.isBlank(model.getStatus()) || StringUtils.isBlank(model.getSender())
         || StringUtils.isBlank(model.getReceiver())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -314,15 +319,15 @@ public class UsersRelationshipsRestResourcesV1 implements UsersRelationshipsRest
   @DELETE
   @Path("{sender}/{receiver}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Deletes a specific relationship of two users.One of them must be currrent user", httpMethod = "DELETE", response = Response.class, notes = "Return the deleted relationship")
+  @Operation(summary = "Deletes a specific relationship of two users.One of them must be currrent user", method = "DELETE", description = "Return the deleted relationship")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"),
-      @ApiResponse(code = 400, message = "Invalid query input") })
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response deleteUsersRelationship(@Context UriInfo uriInfo,
-                                          @ApiParam(value = "Relationship sender", required = true) @PathParam("sender") String sender,
-                                          @ApiParam(value = "Relationship receiver", required = true) @PathParam("receiver") String receiver,
-                                          @ApiParam(value = "Asking for a full representation of a specific subresource, ex: sender or receiver", required = false) @QueryParam("expand") String expand) {
+                                          @Parameter(description = "Relationship sender", required = true) @PathParam("sender") String sender,
+                                          @Parameter(description = "Relationship receiver", required = true) @PathParam("receiver") String receiver,
+                                          @Parameter(description = "Asking for a full representation of a specific subresource, ex: sender or receiver") @QueryParam("expand") String expand) {
     checkCurrentUserIsPartOfRelationship(sender, receiver);
     Identity senderIdentity = getUserIdentity(sender);
     Identity receiverIdentity = getUserIdentity(receiver);

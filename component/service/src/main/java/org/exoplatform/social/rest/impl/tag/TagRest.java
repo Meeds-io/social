@@ -7,6 +7,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -16,14 +22,8 @@ import org.exoplatform.social.metadata.tag.model.TagName;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import io.swagger.annotations.*;
-
 @Path(VersionResources.VERSION_ONE + "/social/tags")
-@Api(
-    tags = VersionResources.VERSION_ONE + "/social/tags",
-    value = VersionResources.VERSION_ONE + "/social/tags",
-    description = "Managing tags for any type of data" // NOSONAR
-)
+@Tag(name = VersionResources.VERSION_ONE + "/social/tags", description = "Managing tags for any type of data")
 public class TagRest implements ResourceContainer {
 
   private static final Log LOG = ExoLogger.getLogger(TagRest.class);
@@ -37,34 +37,23 @@ public class TagRest implements ResourceContainer {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(
-      value = "Find list of tags using a search term",
-      httpMethod = "POST",
-      response = Response.class,
-      produces = MediaType.APPLICATION_JSON,
-      notes = "Returns list of tags"
+  @Operation(
+      summary = "Find list of tags using a search term",
+      method = "POST",
+      description = "Returns list of tags"
   )
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Request fulfilled"),
-          @ApiResponse(code = 500, message = "Internal server error"),
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
       }
   )
   public Response findTags(
-                           @ApiParam(
-                               value = "Search term",
-                               required = false,
-                               defaultValue = "false"
-                           )
+                           @Parameter(description = "Search term") @Schema(defaultValue = "false")
                            @QueryParam("q")
                            String term,
-                           @ApiParam(
-                               value = "Search results limit",
-                               required = false,
-                               defaultValue = "false"
-                           )
-                           @QueryParam("limit")
-                           long limit) {
+                           @Parameter(description = "Search results limit") @Schema(defaultValue = "false")
+                           @QueryParam("limit") long limit) {
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
       List<TagName> tagNames = tagService.findTags(new TagFilter(term, limit), userIdentityId);

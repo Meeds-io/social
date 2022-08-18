@@ -16,12 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.relationship;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +35,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -59,7 +60,7 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.utils.LogUtils;
 
 @Path(VersionResources.VERSION_ONE + "/social/relationships")
-@Api(tags = VersionResources.VERSION_ONE + "/social/relationships", value = VersionResources.VERSION_ONE + "/social/relationships", description = "Managing relationships of identities")
+@Tag(name = VersionResources.VERSION_ONE + "/social/relationships", description = "Managing relationships of identities")
 public class RelationshipsRestResourcesV1 implements RelationshipsRestResources {
 
   public RelationshipsRestResourcesV1() {
@@ -67,21 +68,24 @@ public class RelationshipsRestResourcesV1 implements RelationshipsRestResources 
   
   @GET
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets relationships of identities",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns a list of relationships in the following cases: <br/><ul><li>the authenticated user has permissions to view the 2 objects linked to the 2 identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input"),
-    @ApiResponse (code = 412, message = "Precondition failed, check your input params")})
+  @Operation(
+          summary = "Gets relationships of identities",
+          method = "GET",
+          description = "This returns a list of relationships in the following cases: <br/><ul><li>the authenticated user has permissions to view the 2 objects linked to the 2 identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "412", description = "Precondition failed, check your input params")})
   public Response getRelationships(@Context UriInfo uriInfo,
-                                   @ApiParam(value = "Status of the target relationship: pending, confirmed or all") @QueryParam("status") String status,
-                                   @ApiParam(value = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4") @QueryParam("identityId") String identityId,
-                                   @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                   @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                   @ApiParam(value = "Returning the number of relationships or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize) throws Exception {
+                                   @Parameter(description = "Status of the target relationship: pending, confirmed or all") @QueryParam("status") String status,
+                                   @Parameter(description = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4") @QueryParam("identityId") String identityId,
+                                   @Parameter(description = "Offset", required = false)
+                                   @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                   @Parameter(description = "Limit", required = false)
+                                   @Schema(defaultValue = "20")  @QueryParam("limit") int limit,
+                                   @Parameter(description = "Returning the number of relationships or not")
+                                   @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize) throws Exception {
 
     //
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -128,17 +132,17 @@ public class RelationshipsRestResourcesV1 implements RelationshipsRestResources 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Creates a relationship",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the relationship in the following cases: <br/><ul><li>the authenticated user has permissions to view the 2 objects linked to the 2 identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(
+          summary = "Creates a relationship",
+          method = "POST",
+          description = "This creates the relationship in the following cases: <br/><ul><li>the authenticated user has permissions to view the 2 objects linked to the 2 identities</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response createRelationship(@Context UriInfo uriInfo,
-                                     @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                     @ApiParam(value = "Relationship object to be created", required = true)  RelationshipEntity model) throws Exception {
+                                     @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
+                                     @RequestBody(description = "Relationship object to be created", required = true)  RelationshipEntity model) throws Exception {
     
     String senderRemoteId, receiverRemoteId;
     if (model == null || (senderRemoteId = model.getSender()) == null || senderRemoteId.isEmpty()
@@ -176,17 +180,18 @@ public class RelationshipsRestResourcesV1 implements RelationshipsRestResources 
   @GET
   @Path("{id}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets a specific relationship by id",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
+  @Operation(
+          summary = "Gets a specific relationship by id",
+          method = "GET",
+          description = "This returns the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getRelationshipById(@Context UriInfo uriInfo,
-                                      @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                      @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                      @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                      @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                      @QueryParam("expand") String expand) throws Exception {
     
     Identity authenticatedUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, ConversationState.getCurrent().getIdentity().getUserId(), true);
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
@@ -201,18 +206,18 @@ public class RelationshipsRestResourcesV1 implements RelationshipsRestResources 
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @ApiOperation(value = "Updates a specific relationship by id",
-                httpMethod = "PUT",
-                response = Response.class,
-                notes = "This updates the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
+  @Operation(
+          summary = "Updates a specific relationship by id",
+          method = "PUT",
+          description = "This updates the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateRelationshipById(@Context UriInfo uriInfo,
-                                         @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                         @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                         @ApiParam(value = "Relationship object to be updated", required = true) RelationshipEntity model) throws Exception {
+                                         @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                         @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
+                                         @RequestBody(description = "Relationship object to be updated", required = true) RelationshipEntity model) throws Exception {
     
     if(model == null || model.getStatus() == null || model.getStatus().length() == 0) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -251,17 +256,18 @@ public class RelationshipsRestResourcesV1 implements RelationshipsRestResources 
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Deletes a specific relationship by id",
-                httpMethod = "DELETE",
-                response = Response.class,
-                notes = "This deletes the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
+  @Operation(
+          summary = "Deletes a specific relationship by id",
+          method = "DELETE",
+          description = "This deletes the relationship if the authenticated user has permissions to view the objects linked to this relationship.")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response deleteRelationshipById(@Context UriInfo uriInfo,
-                                         @ApiParam(value = "Relationship id", required = true) @PathParam("id") String id,
-                                         @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                         @Parameter(description = "Relationship id", required = true) @PathParam("id") String id,
+                                         @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                         @QueryParam("expand") String expand) throws Exception {
     
     Identity authenticatedUser = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, ConversationState.getCurrent().getIdentity().getUserId(), true);
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
