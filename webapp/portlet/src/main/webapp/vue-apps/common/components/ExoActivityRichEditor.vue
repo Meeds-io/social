@@ -152,26 +152,27 @@ export default {
     }
   },
   mounted() {
-    if (this.value === '') {
+    if (!this.value?.length && this.useDraftManagement) {
       const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
       const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
       const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
-      this.value = storageMessageText;
+      this.initCKEditor(true,storageMessageText);
+    } else {
+      this.initCKEditor(true,this.value);
     }
-    this.initCKEditor(true);
   },
   methods: {
-    initCKEditor: function (reset) {
-      if ( this.value !== '') {
+    initCKEditor: function (reset, textValue) {
+      if ( textValue !== '') {
         this.displayPlaceholder = false;
       }
-      this.inputVal = this.replaceWithSuggesterClass(this.value);
+      this.inputVal = this.replaceWithSuggesterClass(textValue);
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
           this.editor.destroy(true);
         } else {
-          this.initCKEditorData(this.value);
+          this.initCKEditorData(textValue);
           this.setEditorReady();
           return;
         }
