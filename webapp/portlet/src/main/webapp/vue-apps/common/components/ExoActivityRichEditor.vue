@@ -73,6 +73,14 @@ export default {
       type: Boolean,
       default: false
     },
+    useDraftManagement: {
+      type: Boolean,
+      default: false
+    },
+    contextName: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
@@ -81,7 +89,8 @@ export default {
       editor: null,
       newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
       tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
-      displayPlaceholder: true
+      displayPlaceholder: true,
+      baseUrl: eXo.env.server.portalBaseURL
     };
   },
   computed: {
@@ -226,6 +235,7 @@ export default {
         activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
+        startupFocus: 'end',
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -257,8 +267,8 @@ export default {
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
-            if (!self.activityId) {
-              localStorage.setItem('activity-message',  JSON.stringify({'url': self.baseUrl, 'text': newData}));
+            if (!self.activityId && self.useDraftManagement && self.contextName) {
+              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
             }
           },
           destroy: function () {

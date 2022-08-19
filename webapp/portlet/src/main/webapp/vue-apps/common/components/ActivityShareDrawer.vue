@@ -132,9 +132,6 @@ export default {
             displayName: space && space.profile && space.profile.fullName,
             avatarUrl: space && space.profile && space.profile.avatarUrl,
           })), this.currentApp);
-          if (localStorage.getItem('activity-message')) {
-            localStorage.removeItem('activity-message');
-          }
           this.close();
           this.clear();
         })
