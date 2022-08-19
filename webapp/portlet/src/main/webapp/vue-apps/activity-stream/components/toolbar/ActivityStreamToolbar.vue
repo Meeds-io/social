@@ -95,12 +95,9 @@ export default {
   },
   methods: {
     openComposerDrawer() {
-      const storageMessage =  localStorage.getItem('activity-message-activityComposer');
-      const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
-      const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
       document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
         activityId: this.activityId,
-        activityBody: this.activityBody || storageMessageText,
+        activityBody: this.activityBody,
         activityParams: this.activityParams,
         files: [],
         activityType: []

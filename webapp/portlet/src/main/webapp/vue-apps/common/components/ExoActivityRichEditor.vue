@@ -152,6 +152,12 @@ export default {
     }
   },
   mounted() {
+    if (this.value === '') {
+      const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
+      const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
+      const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
+      this.value = storageMessageText;
+    }
     this.initCKEditor(true);
   },
   methods: {
