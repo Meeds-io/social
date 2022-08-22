@@ -95,10 +95,9 @@ export default {
   },
   methods: {
     openComposerDrawer() {
-      const storageMessage = localStorage.getItem('activity-message') || '';
       document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
         activityId: this.activityId,
-        activityBody: this.activityBody || storageMessage,
+        activityBody: this.activityBody,
         activityParams: this.activityParams,
         files: [],
         activityType: []
