@@ -105,7 +105,10 @@ export default {
     },
     validLength() {
       return this.charsCount <= this.maxLength;
-    }
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
   },
   watch: {
     inputVal(val) {
@@ -184,16 +187,6 @@ export default {
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
-      if (this.newEditorToolbarEnabled) {
-        extraPlugins = `${extraPlugins},emoji,formatOption`;
-        if (this.tagSuggesterEnabled) {
-          toolbar[0].push('tagSuggester');
-        }
-        toolbar[0].unshift('formatOption');
-        toolbar[0].push('emoji');
-      } else {
-        removePlugins = `${removePlugins},emoji,formatOption`;
-      }
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
@@ -210,6 +203,19 @@ export default {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
+      }
+
+      if (this.newEditorToolbarEnabled) {
+        extraPlugins = `${extraPlugins},emoji,formatOption`;
+        if (this.tagSuggesterEnabled) {
+          toolbar[0].push('tagSuggester');
+        }
+        if (!this.isMobile) {
+          toolbar[0].push('emoji');
+        }
+        toolbar[0].unshift('formatOption');
+      } else {
+        removePlugins = `${removePlugins},emoji,formatOption`;
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
