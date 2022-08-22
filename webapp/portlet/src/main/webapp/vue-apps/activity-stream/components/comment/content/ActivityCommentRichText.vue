@@ -17,6 +17,7 @@
           :placeholder="$t('activity.composer.placeholder')"
           :activity-id="activityId"
           :template-params="templateParams"
+          context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
           autofocus
