@@ -158,12 +158,12 @@ export default {
       const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
       this.initCKEditor(true,storageMessageText);
     } else {
-      this.initCKEditor(true,this.value);
+      this.initCKEditor(true, this.value);
     }
   },
   methods: {
     initCKEditor: function (reset, textValue) {
-      if ( textValue !== '') {
+      if (textValue?.length) {
         this.displayPlaceholder = false;
       }
       this.inputVal = this.replaceWithSuggesterClass(textValue);
