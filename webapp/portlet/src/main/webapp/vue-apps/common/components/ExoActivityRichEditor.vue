@@ -73,6 +73,14 @@ export default {
       type: Boolean,
       default: false
     },
+    useDraftManagement: {
+      type: Boolean,
+      default: false
+    },
+    contextName: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
@@ -81,7 +89,8 @@ export default {
       editor: null,
       newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
       tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
-      displayPlaceholder: true
+      displayPlaceholder: true,
+      baseUrl: eXo.env.server.portalBaseURL
     };
   },
   computed: {
@@ -143,20 +152,27 @@ export default {
     }
   },
   mounted() {
-    this.initCKEditor(true);
+    if (!this.value?.length && this.useDraftManagement) {
+      const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
+      const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
+      const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
+      this.initCKEditor(true,storageMessageText);
+    } else {
+      this.initCKEditor(true, this.value);
+    }
   },
   methods: {
-    initCKEditor: function (reset) {
-      if ( this.value !== '') {
+    initCKEditor: function (reset, textValue) {
+      if (textValue?.length) {
         this.displayPlaceholder = false;
       }
-      this.inputVal = this.replaceWithSuggesterClass(this.value);
+      this.inputVal = this.replaceWithSuggesterClass(textValue);
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
           this.editor.destroy(true);
         } else {
-          this.initCKEditorData(this.value);
+          this.initCKEditorData(textValue);
           this.setEditorReady();
           return;
         }
@@ -226,6 +242,7 @@ export default {
         activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
+        startupFocus: 'end',
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -257,6 +274,9 @@ export default {
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
+            if (!self.activityId && self.useDraftManagement && self.contextName) {
+              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
+            }
           },
           destroy: function () {
             self.inputVal = '';
