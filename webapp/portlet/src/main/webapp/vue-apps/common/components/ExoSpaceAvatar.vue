@@ -27,7 +27,7 @@
       </div>
     </a>
     <a
-      v-if="avatar"
+      v-else-if="avatar"
       v-bind="attrs"
       v-on="on"
       :id="id"
