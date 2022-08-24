@@ -2,6 +2,7 @@
   <v-app v-if="loaded" role="main">
     <activity-notification-alerts />
     <activity-stream-toolbar
+      v-if="canPostInitialized"
       :can-post="canPost"
       :can-filter="canFilter" />
     <activity-stream-list
@@ -11,7 +12,7 @@
       :comment-types="commentTypes"
       :comment-actions="commentActions"
       @activity-select="displayActivityDetail"
-      @can-post-loaded="canPost = $event" />
+      @can-post-loaded="canPostLoaded($event)" />
     <extension-registry-components
       :params="drawerParams"
       name="ActivityStream"
@@ -26,6 +27,7 @@
 export default {
   data: () => ({
     loaded: false,
+    canPostInitialized: false,
     spaceId: eXo.env.portal.spaceId,
     forceReload: false,
     canPost: false,
@@ -117,6 +119,10 @@ export default {
       const uri = window.location.search.substring(1);
       const params = new URLSearchParams(uri);
       return params.get(paramName);
+    },
+    canPostLoaded(canPost) {
+      this.canPost = canPost;
+      this.canPostInitialized = true;
     },
   },
 };
