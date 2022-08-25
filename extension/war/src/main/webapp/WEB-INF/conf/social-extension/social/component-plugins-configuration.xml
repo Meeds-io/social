@@ -134,4 +134,22 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.favorite.FavoriteService</target-component>
+    <component-plugin>
+      <name>SpaceFavoriteACLPlugin</name>
+      <set-method>addFavoriteACLPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.SpaceFavoriteACLPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.favorite.FavoriteService</target-component>
+    <component-plugin>
+      <name>SpaceFavoriteACLPlugin</name>
+      <set-method>addFavoriteACLPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.ActivityFavoriteACLPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
