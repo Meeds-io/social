@@ -21,6 +21,7 @@ package org.exoplatform.social.metadata.favorite;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
@@ -116,4 +117,23 @@ public interface FavoriteService {
    */
   public void deleteFavorite(Favorite favorite) throws ObjectNotFoundException;
 
+  /**
+   * Checks whether the user can mark an entity as favorite
+   *
+   * @param userIdentity user identity
+   * @param entityType object type, can be of any type: activity, comment,
+   *          notes...
+   * @param entityId object technical unique identifier
+   * @return true if the user can mark entity as favorite, else false.
+   */
+  default boolean canCreateFavorite(org.exoplatform.services.security.Identity userIdentity, String entityType, String entityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Add a favorite ACL plugins
+   */
+  default void addFavoriteACLPlugin(FavoriteACLPlugin favoriteACLPlugin) {
+    throw new UnsupportedOperationException();
+  }
 }

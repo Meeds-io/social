@@ -18,13 +18,16 @@
  */
 package org.exoplatform.social.core.metadata.favorite;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
-import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -33,7 +36,9 @@ import org.exoplatform.social.metadata.model.*;
 
 public class FavoriteServiceImpl implements FavoriteService {
 
-  private MetadataService metadataService;
+  private final MetadataService metadataService;
+
+  private final Map<String, FavoriteACLPlugin> favoriteACLPluginMap = new HashMap<>();
 
   public FavoriteServiceImpl(MetadataService metadataService) {
     this.metadataService = metadataService;
@@ -51,6 +56,20 @@ public class FavoriteServiceImpl implements FavoriteService {
                                        userIdentityId);
   }
 
+  @Override
+  public void addFavoriteACLPlugin(FavoriteACLPlugin favoriteACLPlugin) {
+    this.favoriteACLPluginMap.put(favoriteACLPlugin.getEntityType(), favoriteACLPlugin);
+  }
+
+  @Override
+  public boolean canCreateFavorite(Identity userIdentity, String objectType, String objectId) {
+    FavoriteACLPlugin favoriteACLPlugin = this.favoriteACLPluginMap.get(objectType);
+    if (favoriteACLPlugin != null) {
+      return favoriteACLPlugin.canCreateFavorite(userIdentity, objectId);
+    }
+    return true;
+  }
+  
   @Override
   public List<MetadataItem> getFavoriteItemsByCreator(long creatorId, long offset, long limit) {
     return metadataService.getMetadataItemsByMetadataTypeAndCreator(METADATA_TYPE.getName(), creatorId, offset, limit);
