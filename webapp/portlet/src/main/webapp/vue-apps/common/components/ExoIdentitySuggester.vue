@@ -41,6 +41,12 @@
             {{ labels.searchPlaceholder }}
           </v-list-item-title>
           <v-list-item-title
+            v-else-if="loadingSuggestions > 0"
+            :style="menuItemStyle"
+            class="px-2">
+            {{ $t('Search.label.inProgress') }}
+          </v-list-item-title>
+          <v-list-item-title
             v-else-if="labels.noDataLabel"
             :style="menuItemStyle"
             class="px-2">
