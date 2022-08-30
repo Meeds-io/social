@@ -132,7 +132,7 @@
         </v-list>
       </v-card>
     </v-menu>
-    <exo-space-hosts-drawer />
+    <space-hosts-drawer />
   </v-app>
 </template>
 
