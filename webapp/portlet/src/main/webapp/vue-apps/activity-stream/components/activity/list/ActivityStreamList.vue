@@ -111,10 +111,13 @@ export default {
     },
   },
   created() {
-    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter');
-    if (this.streamFilter) {
-      this.$root.$emit('activity-stream-stored-filter-applied', this.streamFilter);
-    }
+    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || null;
+    document.addEventListener('activity-favorite-removed', event => {
+      const activity = event && event.detail && event.detail;
+      if (this.streamFilter === 'user_favorite_stream') {
+        this.$set(activity, 'deleted', true);
+      }
+    });
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
       if (this.activityId) {
