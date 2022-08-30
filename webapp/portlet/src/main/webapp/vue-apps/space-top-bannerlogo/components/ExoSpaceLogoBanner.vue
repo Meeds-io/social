@@ -39,7 +39,7 @@
         <v-list class="pa-0">
           <v-list-item class="pt-3">
             <v-list-item-avatar
-              class="spaceAvatar mt-0 align-self-start"
+              class="spaceAvatar mt-0"
               width="60"
               height="60">
               <v-img
@@ -89,7 +89,7 @@
                       max="3"
                       retrieve-extra-information
                       avatar-overlay-position
-                      @open-detail="openDetails()" />
+                      @open-detail="$root.$emit('displaySpaceHosts', mangersToDisplay)" />
                   </v-col>
                 </v-row>
               </v-container>
