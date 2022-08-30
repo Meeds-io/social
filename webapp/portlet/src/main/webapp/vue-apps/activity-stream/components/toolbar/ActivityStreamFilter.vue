@@ -77,6 +77,7 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
+    spaceId: eXo.env.portal.spaceId,
     filter: 'all_stream',
   }),
   computed: {
@@ -102,14 +103,14 @@ export default {
     },
   },
   created() {
-    this.$root.$on('activity-stream-stored-filter-applied', filter => {
-      this.filter = filter;
-    });
+    this.filter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
   },
   methods: {
     applyFilter() {
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
-      localStorage.setItem('activity-stream-stored-filter', this.filter);
+      if (!this.spaceId) {
+        localStorage.setItem('activity-stream-stored-filter', this.filter);
+      }
     },
     openBottomMenuFilter() {
       this.filterToChange = this.filter;
