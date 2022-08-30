@@ -87,10 +87,10 @@ export default {
       }
     },
     overlayStyle(){
-      if (this.avatarOverlayPosition) {
+      if (!this.avatarOverlayPosition) {
         return `right: ${this.iconSize + 4}px !important`;
       } 
-      return 'right: 4px !important';
+      return 'right: 0px !important';
     },
   },
 };
