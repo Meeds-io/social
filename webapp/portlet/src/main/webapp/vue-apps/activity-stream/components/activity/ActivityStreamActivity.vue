@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="white border-radius activity-detail flex d-flex flex-column position-relative">
+    class="white border-radius activity-detail flex flex-column position-relative">
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
