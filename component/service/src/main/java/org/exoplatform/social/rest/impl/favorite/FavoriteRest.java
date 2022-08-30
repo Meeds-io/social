@@ -19,6 +19,8 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -91,6 +93,10 @@ public class FavoriteRest implements ResourceContainer {
     }
     if (StringUtils.isBlank(objectId)) {
       return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectIdRequired").build();
+    }
+    Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    if (!favoriteService.canCreateFavorite(authenticatedUserIdentity, objectType, objectId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
