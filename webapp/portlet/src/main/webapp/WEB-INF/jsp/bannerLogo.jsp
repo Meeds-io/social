@@ -1,4 +1,10 @@
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
+<%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
+<%@ page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="org.exoplatform.services.security.ConversationState"%>
+<%@ page import="org.exoplatform.social.metadata.favorite.FavoriteService"%>
+<%@ page import="org.exoplatform.social.metadata.favorite.model.Favorite"%>
+<%@ page import="org.exoplatform.social.core.identity.model.Identity"%>
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@ page import="org.exoplatform.portal.config.UserPortalConfigService"%>
 <%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
@@ -15,6 +21,7 @@
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
 <%@ page import="java.util.Optional" %>
 <%
+  String spaceId = null;
   String logoPath = null;
   String logoTitle = null;
   String portalPath = null;
@@ -23,11 +30,18 @@
   String imageClass = "";
   String homePath= "";
   int membersNumber= 0;
+  boolean isFavorite= false;
+  boolean isMember =false;
   List<Profile> managers = new ArrayList<>();
   String spaceDescription= "";
   Space space = SpaceUtils.getSpaceByContext();
+
+  FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+  String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+
   PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+  Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
   UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
 
   defaultHomePath = "/portal/" + requestContext.getPortalOwner();
@@ -44,6 +58,10 @@
     }
     titleClass = "company";
   } else {
+    spaceId = space.getId();
+    SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+    isMember = spaceService.isMember(space, authenticatedUser);
+    isFavorite = favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
     String permanentSpaceName = space.getGroupId().split("/")[2];
@@ -71,6 +89,9 @@
   });
   <%} %>
   let params = {
+    id: `<%=spaceId%>`,
+    isFavorite: `<%=isFavorite%>`,
+    isMember: `<%=isMember%>`,
     logoPath: `<%=logoPath%>`,
     portalPath: `<%=portalPath%>`,
     logoTitle: `<%=logoTitle%>`,
