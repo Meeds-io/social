@@ -74,6 +74,7 @@ import org.exoplatform.webui.utils.TimeConvertUtils;
        @TemplateConfig( pluginId=NewUserPlugin.ID, template="war:/intranet-notification/templates/NewUserPlugin.gtmpl"),
        @TemplateConfig( pluginId=PostActivityPlugin.ID, template="war:/intranet-notification/templates/PostActivityPlugin.gtmpl"),
        @TemplateConfig( pluginId=PostActivitySpaceStreamPlugin.ID, template="war:/intranet-notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
+       @TemplateConfig( pluginId=SharedActivitySpaceStreamPlugin.ID, template="war:/intranet-notification/templates/SharedActivitySpaceStreamPlugin.gtmpl"),
        @TemplateConfig( pluginId=RelationshipReceivedRequestPlugin.ID, template="war:/intranet-notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
        @TemplateConfig( pluginId=RequestJoinSpacePlugin.ID, template="war:/intranet-notification/templates/RequestJoinSpacePlugin.gtmpl"),
        @TemplateConfig( pluginId=SpaceInvitationPlugin.ID, template="war:/intranet-notification/templates/SpaceInvitationPlugin.gtmpl"),
@@ -690,10 +691,58 @@ public class WebTemplateProvider extends TemplateProvider {
     protected boolean makeDigest(NotificationContext ctx, Writer writer) {
       return false;
     }
-    
-    
   };
-  
+
+  /** Defines the template builder for SharedActivitySpaceStreamPlugin*/
+  private AbstractTemplateBuilder shareActivitySpace = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+      TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
+
+      String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+      if (activity == null) {
+        LOG.debug("Notification related to activity with id '{}' couldn't be found. The related notification will be ignored", activityId);
+        return null;
+      }
+      Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId());
+      Profile profile = identity.getProfile();
+      Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
+      Space space = Utils.getSpaceService().getSpaceByPrettyName(spaceIdentity.getRemoteId());
+      if (space == null) {
+        return null;
+      }
+
+      templateContext.put("isIntranet", "true");
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(notification.getLastModifiedDate());
+      templateContext.put("READ", Boolean.parseBoolean(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
+      templateContext.put("NOTIFICATION_ID", notification.getId());
+      templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
+      templateContext.put("USER", Utils.addExternalFlag(identity));
+      templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("SPACE", space.getDisplayName());
+      templateContext.put("SPACE_URL", LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")));
+      templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
+      templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProvider.getSingleActivityUrl(activity.getId()));
+      //
+      String body = TemplateUtils.processGroovy(templateContext);
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+      MessageInfo messageInfo = new MessageInfo();
+      return messageInfo.body(body).end();
+
+    }
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      return false;
+    }
+
+  };
   /** Defines the template builder for PostActivitySpaceStreamPlugin*/
   private AbstractTemplateBuilder postActivitySpace = new AbstractTemplateBuilder() {
 
@@ -1041,6 +1090,7 @@ public class WebTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(NewUserPlugin.ID), newUser);
     this.templateBuilders.put(PluginKey.key(PostActivityPlugin.ID), postActivity);
     this.templateBuilders.put(PluginKey.key(PostActivitySpaceStreamPlugin.ID), postActivitySpace);
+    this.templateBuilders.put(PluginKey.key(SharedActivitySpaceStreamPlugin.ID), shareActivitySpace);
     this.templateBuilders.put(PluginKey.key(RelationshipReceivedRequestPlugin.ID), relationshipReceived);
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);

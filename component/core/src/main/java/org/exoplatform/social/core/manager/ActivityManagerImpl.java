@@ -251,7 +251,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     checkCanShareActivityToSpaces(spaceIds, viewer);
     activityShareAction.setUserIdentityId(Long.parseLong(viewerIdentity.getId()));
-    List<ExoSocialActivity> sharedActivities = createShareActivities(activityTemplate, activityShareAction, viewerIdentity.getId());
+    List<ExoSocialActivity> sharedActivities = createShareActivities(activityTemplate, activityShareAction, viewerIdentity.getId(),activity);
     Set<Long> sharedActivityIds = sharedActivities.stream()
                                                    .map(tmpActivity -> Long.parseLong(tmpActivity.getId()))
                                                    .collect(Collectors.toSet());
@@ -845,7 +845,8 @@ public class ActivityManagerImpl implements ActivityManager {
 
   private List<ExoSocialActivity> createShareActivities(ExoSocialActivity activityTemplate,
                                                         ActivityShareAction activityShareAction,
-                                                        String viewerIdentityId) {
+                                                        String viewerIdentityId,
+                                                        ExoSocialActivity activity) {
     String title = activityTemplate == null || activityTemplate.getTitle() == null ? "" : activityTemplate.getTitle();
     String type = activityTemplate == null ? null : activityTemplate.getType();
     Map<String, String> templateParams = activityTemplate == null
@@ -864,6 +865,7 @@ public class ActivityManagerImpl implements ActivityManager {
       Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
       ExoSocialActivity sharedActivity = new ExoSocialActivityImpl();
       sharedActivity.setTitle(title);
+      sharedActivity.setBody(activity != null ? activity.getTitle() : null);
       sharedActivity.setType(type);
       sharedActivity.setUserId(viewerIdentityId);
       sharedActivity.setTemplateParams(templateParams);
