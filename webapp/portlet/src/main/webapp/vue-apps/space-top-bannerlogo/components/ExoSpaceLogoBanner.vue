@@ -37,16 +37,16 @@
       </template>
       <v-card elevation="2">
         <v-list class="pa-0">
-          <v-list-item>
+          <v-list-item class="pt-3">
             <v-list-item-avatar
-              class="spaceAvatar mt-0"
+              class="spaceAvatar mt-0 align-self-start"
               width="60"
               height="60">
               <v-img
                 class="object-fit-cover"
                 :src="logoPath" />
             </v-list-item-avatar>
-            <v-list-item-content class="pb-0">
+            <v-list-item-content class="pb-0 pt-0">
               <v-list-item-title>
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
