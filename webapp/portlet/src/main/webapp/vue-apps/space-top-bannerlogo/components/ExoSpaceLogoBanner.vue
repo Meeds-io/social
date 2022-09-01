@@ -39,7 +39,7 @@
         <v-list class="pa-0">
           <v-list-item class="pt-3">
             <v-list-item-avatar
-              class="spaceAvatar mt-0"
+              class="spaceAvatar mt-0 align-self-start"
               width="60"
               height="60">
               <v-img
