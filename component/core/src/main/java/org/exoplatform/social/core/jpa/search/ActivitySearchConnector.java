@@ -190,7 +190,7 @@ public class ActivitySearchConnector {
         Long posterId = parseLong(hitSource, "posterId");
         Long parentId = parseLong(hitSource, "parentId");
         Long streamOwner = parseLong(hitSource, "streamOwner");
-        if (!streamFeedOwnerIds.contains(streamOwner)) {
+        if (!streamFeedOwnerIds.contains(streamOwner) && !streamFeedOwnerIds.contains(posterId)) {
           LOG.warn("Activity '{}' is returned in search result while it's not permitted to user {}. Ignore it.",
                    id,
                    viewerIdentity.getId());
