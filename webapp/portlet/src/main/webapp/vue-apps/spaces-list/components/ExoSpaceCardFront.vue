@@ -25,7 +25,8 @@
       <v-spacer />
       <exo-space-favorite-action
         v-if="space.isMember && favoritesSpaceEnabled"
-        :space="space" />
+        :is-favorite="space.isFavorite"
+        :space-id="space.id" />
       <template v-if="canUseActionsMenu">
         <v-btn
           v-if="space.canEdit"
