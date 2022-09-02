@@ -37,7 +37,6 @@ export function init(params) {
       },
       template: `<exo-space-logo-banner
                     id="SpaceTopBannerLogo"
-                    v-cacheable
                     :space-id="spaceId"
                     :is-favorite="isFavorite"
                     :is-member="isMember"

@@ -129,7 +129,6 @@
           </a>
           <% } else { %>
           <div app-data="true" id="SpaceTopBannerLogo">
-            <v-cacheable-dom-app cache-id="SpaceTopBannerLogo"></v-cacheable-dom-app>
             <script type="text/javascript">
               require(["SHARED/spaceBannerLogoPopover"], app => app.init(params));
             </script>

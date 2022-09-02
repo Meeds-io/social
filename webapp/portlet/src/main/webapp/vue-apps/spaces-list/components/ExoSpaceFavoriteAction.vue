@@ -41,14 +41,11 @@ export default {
   },
   data: () => ({
     favorite: false,
+    id: ''
   }),
-  computed: {
-    id() {
-      return this.spaceId;
-    },
-  },
   created() {
     this.favorite = this.isFavorite === 'true';
+    this.id = this.spaceId;
   },
   methods: {
     removed() {
