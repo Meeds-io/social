@@ -103,8 +103,12 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
   }
 
   private String getActivityBody(ExoSocialActivity activity) {
+    String contentType = MapUtils.getString(activity.getTemplateParams(), "contentType");
+    String content = MapUtils.getString(activity.getTemplateParams(), contentType);
     String body = MapUtils.getString(activity.getTemplateParams(), "comment");
-    if (StringUtils.isNotBlank(body)) {
+    if (StringUtils.isNotBlank(content)) {
+      return content;
+    } else if (StringUtils.isNotBlank(body)) {
       return body;
     } else if (StringUtils.isNotBlank(activity.getTitle())) {
       return activity.getTitle();
@@ -112,5 +116,4 @@ public class ActivityTagMetadataListener extends ActivityListenerPlugin {
       return activity.getBody();
     }
   }
-
 }
