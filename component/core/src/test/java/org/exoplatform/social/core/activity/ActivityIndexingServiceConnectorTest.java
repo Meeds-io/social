@@ -127,7 +127,7 @@ public class ActivityIndexingServiceConnectorTest {
     assertNotNull(document.getLastUpdatedDate());
     assertEquals(4321L, document.getLastUpdatedDate().getTime());
     assertNotNull(document.getPermissions());
-    assertEquals(1, document.getPermissions().size());
+    assertEquals(2, document.getPermissions().size());
     assertEquals("streamOwner", document.getPermissions().iterator().next());
   }
 
@@ -197,7 +197,7 @@ public class ActivityIndexingServiceConnectorTest {
     assertNotNull(document.getLastUpdatedDate());
     assertEquals(4321L, document.getLastUpdatedDate().getTime());
     assertNotNull(document.getPermissions());
-    assertEquals(1, document.getPermissions().size());
+    assertEquals(2, document.getPermissions().size());
     assertEquals("streamOwner", document.getPermissions().iterator().next());
   }
 
