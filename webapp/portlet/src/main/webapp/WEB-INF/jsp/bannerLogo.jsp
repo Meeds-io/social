@@ -35,13 +35,8 @@
   List<Profile> managers = new ArrayList<>();
   String spaceDescription= "";
   Space space = SpaceUtils.getSpaceByContext();
-
-  FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
-  String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-
   PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-  Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
   UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
 
   defaultHomePath = "/portal/" + requestContext.getPortalOwner();
@@ -58,6 +53,9 @@
     }
     titleClass = "company";
   } else {
+    FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
     spaceId = space.getId();
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
     isMember = spaceService.isMember(space, authenticatedUser);

@@ -1,7 +1,7 @@
 <template>
   <favorite-button
     :id="spaceId"
-    :space-id="id"
+    :space-id="spaceId"
     :favorite="favorite"
     :absolute="absolute"
     :top="top"
@@ -40,18 +40,16 @@ export default {
     },
   },
   data: () => ({
-    favorite: false,
-    id: ''
+    favorite: false
   }),
   created() {
     this.favorite = this.isFavorite === 'true';
-    this.id = this.spaceId;
   },
   methods: {
     removed() {
       this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('spaceList.alert.label')}));
       this.$emit('removed');
-      document.dispatchEvent(new CustomEvent('space-favorite-removed', {detail: this.id}));
+      document.dispatchEvent(new CustomEvent('space-favorite-removed', {detail: this.spaceId}));
     },
     removeError() {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
@@ -59,7 +57,7 @@ export default {
     added() {
       this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('spaceList.alert.label')}));
       this.$emit('added');
-      document.dispatchEvent(new CustomEvent('space-favorite-added', {detail: this.id}));
+      document.dispatchEvent(new CustomEvent('space-favorite-added', {detail: this.spaceId}));
     },
     addError() {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
