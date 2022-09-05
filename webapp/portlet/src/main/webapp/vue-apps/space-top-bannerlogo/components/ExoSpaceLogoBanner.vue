@@ -119,6 +119,10 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
+              <exo-space-favorite-action
+                v-if="favoriteActionEnabled"
+                :is-favorite="isFavorite"
+                :space-id="spaceId" />
               <extension-registry-components
                 :params="params"
                 name="SpacePopover"
@@ -181,10 +185,30 @@ export default {
         return null;
       },
     },
+    spaceId: {
+      type: String,
+      default: ''
+    },
+    isFavorite: {
+      type: Boolean,
+      default: false
+    },
+    isMember: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data: () => {
+    return {
+      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
+    };
   },
   computed: {
     mangersToDisplay() {
       return this.managers;
+    },
+    favoriteActionEnabled() {
+      return this.isMember && this.favoritesSpaceEnabled;
     },
     params() {
       return {
