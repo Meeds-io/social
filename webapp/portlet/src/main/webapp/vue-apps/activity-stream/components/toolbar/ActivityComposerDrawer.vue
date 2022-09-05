@@ -200,6 +200,7 @@ export default {
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
+            this.cleareActivityMessage();
             this.close();
           })
           .catch(error => {
@@ -221,9 +222,7 @@ export default {
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
-              if (localStorage.getItem('activity-message-activityComposer')) {
-                localStorage.removeItem('activity-message-activityComposer');
-              }
+              this.cleareActivityMessage();
               this.close();
             })
             .catch(error => {
@@ -235,6 +234,11 @@ export default {
         }
       }
     },
+    cleareActivityMessage() {
+      if (localStorage.getItem('activity-message-activityComposer')) {
+        localStorage.removeItem('activity-message-activityComposer');
+      }
+    }
   },
 };
 </script>
