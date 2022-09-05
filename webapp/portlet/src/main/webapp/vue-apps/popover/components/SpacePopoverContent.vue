@@ -52,7 +52,8 @@
       <exo-space-favorite-action
         v-if="favoriteActionEnabled"
         :key="space.id"
-        :space="space" />
+        :is-favorite="space.isFavorite"
+        :space-id="space.id" />
       <extension-registry-components
         :params="params"
         class="d-flex"
