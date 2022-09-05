@@ -1,7 +1,7 @@
 <template>
   <div 
     class="d-flex flex-row changeBannerButton"
-    v-if="hover">
+    v-show="hover">
     <div 
       v-if="!isDefaultBanner"
       class="changeBannerButtonIcon me-2">
@@ -25,6 +25,7 @@
     <div class="changeBannerButtonIcon">
       <v-file-input
         v-if="!sendingImage"
+        id="bannerInput"
         ref="bannerInput"
         class="d-flex justify-center"
         prepend-icon="fa-file-image"
