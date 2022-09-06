@@ -89,7 +89,7 @@
                       max="3"
                       retrieve-extra-information
                       avatar-overlay-position
-                      @open-detail="$root.$emit('displaySpaceHosts', mangersToDisplay)" />
+                      @open-detail="$root.$emit('displaySpaceHosts', mangersToDisplay);popoverActionEvent('displaySpaceHosts')" />
                   </v-col>
                 </v-row>
               </v-container>
@@ -107,7 +107,8 @@
                   :href="homePath"
                   color="primary"
                   text
-                  class="pa-0 pe-2">
+                  class="pa-0 pe-2"
+                  @click="popoverActionEvent('backToHome')">
                   <v-icon
                     dense
                     right
@@ -122,7 +123,9 @@
               <exo-space-favorite-action
                 v-if="favoriteActionEnabled"
                 :is-favorite="isFavorite"
-                :space-id="spaceId" />
+                :space-id="spaceId"
+                @added="popoverActionEvent('favoriteAction')"
+                @removed="popoverActionEvent('favoriteAction')" />
               <extension-registry-components
                 :params="params"
                 name="SpacePopover"
@@ -217,5 +220,10 @@ export default {
       };
     },
   },
+  methods: {
+    popoverActionEvent(clickedItem) {
+      document.dispatchEvent(new CustomEvent('space-topbar-popover-click', {detail: clickedItem} ));
+    }
+  }
 };
 </script>
