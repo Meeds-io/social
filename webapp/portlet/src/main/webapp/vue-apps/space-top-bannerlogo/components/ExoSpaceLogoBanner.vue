@@ -124,8 +124,8 @@
                 v-if="favoriteActionEnabled"
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
-                @added="popoverActionEvent('favoriteAction')"
-                @removed="popoverActionEvent('favoriteAction')" />
+                @added="popoverActionEvent('bookmarkAction')"
+                @removed="popoverActionEvent('unBookmarkAction')" />
               <extension-registry-components
                 :params="params"
                 name="SpacePopover"
