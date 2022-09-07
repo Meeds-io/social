@@ -130,6 +130,44 @@ public interface ExoSocialActivity extends CacheEntry {
   void isLocked(boolean isLockedOrNot);
 
   /**
+   * To know if this is a pinned activity.
+   *
+   * @return true or false
+   */
+  boolean isPinned();
+
+  /**
+   * Sets to indicate if this is a pinned activity or not.
+   *
+   * @param pinned true or false
+   */
+  void setPinned(boolean pinned);
+
+  /**
+   * Gets the pin datetime.*
+   */
+  Date getPinDate();
+
+  /**
+   * Set the pin datetime
+   *
+   * @param pinDate pin datetime
+   */
+  void setPinDate(Long pinDate);
+
+  /**
+   * Gets the Id of the identity that pinned the activity.
+   *
+   * @return Id of the identity that pinned the activity.
+   */
+  Long getPinAuthorId();
+
+  /**
+   * Sets the Id of the identity that pinned the activity.
+   */
+  void setPinAuthorId(Long pinAuthorId);
+
+  /**
    * Gets array of identityIds who like this activity.
    *
    * @return array of identityIds

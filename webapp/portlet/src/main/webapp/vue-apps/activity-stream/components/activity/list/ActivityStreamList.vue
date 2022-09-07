@@ -19,6 +19,7 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :is-activity-detail="activityId"
+        :stream-filter="streamFilter"
         class="mb-6 contentBox"
         @loaded="activityLoaded(activity.id)" />
     </template>

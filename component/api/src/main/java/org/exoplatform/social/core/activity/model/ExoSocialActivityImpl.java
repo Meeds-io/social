@@ -107,6 +107,12 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private Date updated;
 
+  private boolean                         pinned;
+
+  private Date                            pinDate;
+
+  private Long                            pinAuthorId;
+
   private long cacheTime;
 
   private String url;
@@ -339,6 +345,48 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
    */
   public final void isLocked(final boolean isLockedOrNot) {
     isLockedActivity = isLockedOrNot;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isPinned() {
+    return pinned;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setPinned(boolean pinned) {
+    this.pinned = pinned;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Date getPinDate() {
+    return pinDate;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setPinDate(Long pinDate) {
+    this.pinDate = pinDate != null ? new Date(pinDate) : null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Long getPinAuthorId() {
+    return pinAuthorId;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setPinAuthorId(Long pinAuthorId) {
+    this.pinAuthorId = pinAuthorId;
   }
 
   /**

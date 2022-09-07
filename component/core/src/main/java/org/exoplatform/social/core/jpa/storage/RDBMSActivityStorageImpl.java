@@ -168,6 +168,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activity.setPostedTime(activityEntity.getPosted() != null ? activityEntity.getPosted().getTime() : 0);
     activity.setUpdated(activityEntity.getUpdatedDate().getTime());
     //
+    activity.setPinned(activityEntity.getPinned());
+    activity.setPinDate(activityEntity.getPinDate() == null ? null : activityEntity.getPinDate().getTime());
+    activity.setPinAuthorId(activityEntity.getPinAuthorId());
+    //
     List<String> commentPosterIds = new ArrayList<>();
     List<String> replyToIds = new ArrayList<>();
     fillCommentsIdsAndPosters(activityEntity, commentPosterIds, replyToIds, false);
@@ -232,6 +236,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     processDates(activityEntity);
     activityEntity.setLocked(activity.isLocked());
     activityEntity.setHidden(activity.isHidden());
+    activityEntity.setPinned(activity.isPinned());
+    activityEntity.setPinDate(activity.getPinDate());
+    activityEntity.setPinAuthorId(activity.getPinAuthorId());
     activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentions(activity.getTitle(),
                                                                                      activity.getTemplateParams()))));
     //
@@ -515,6 +522,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -553,6 +561,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -1359,6 +1368,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       updatedActivity.setHidden(existingActivity.isHidden());
       updatedActivity.setComment(existingActivity.isComment());
       updatedActivity.setLocked(existingActivity.isLocked());
+      updatedActivity.setPinned(existingActivity.isPinned());
+      updatedActivity.setPinDate(existingActivity.getPinDate());
+      updatedActivity.setPinAuthorId(existingActivity.getPinAuthorId());
+
 
       activityDAO.update(updatedActivity);
     } else {

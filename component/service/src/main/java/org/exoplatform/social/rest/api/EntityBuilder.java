@@ -661,6 +661,9 @@ public class EntityBuilder {
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
+    activityEntity.setPinned(activity.isPinned());
+    activityEntity.setPinDate(activity.getPinDate() != null ? RestUtils.formatISO8601(activity.getPinDate()) : null);
+    activityEntity.setPinAuthorId(activity.getPinAuthorId());
 
     DataEntity as = getActivityStream(activity, restPath, authentiatedUser);
     activityEntity.setActivityStream(as);

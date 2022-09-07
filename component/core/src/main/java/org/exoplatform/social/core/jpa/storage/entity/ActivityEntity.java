@@ -307,6 +307,15 @@ public class ActivityEntity implements Serializable {
 
   @Column(name="BODY", length = 2000)
   private String body;
+
+  @Column(name = "PINNED", nullable = false)
+  private Boolean                pinned;
+
+  @Column(name = "PIN_DATE", nullable = false)
+  private Long pinDate;
+
+  @Column(name = "PIN_AUTHOR_ID")
+  private Long pinAuthorId;
   
   @ElementCollection
   @CollectionTable(
@@ -435,6 +444,30 @@ public class ActivityEntity implements Serializable {
   }
   public void setBody(String body) {
     this.body = body;
+  }
+
+  public Boolean getPinned() {
+    return pinned;
+  }
+
+  public void setPinned(Boolean pinned) {
+    this.pinned = pinned;
+  }
+
+  public Date getPinDate() {
+    return pinDate != null && pinDate > 0 ? new Date(pinDate) : null;
+  }
+
+  public void setPinDate(Date pinDate) {
+    this.pinDate = (pinDate != null ? pinDate.getTime() : 0);
+  }
+
+  public Long getPinAuthorId() {
+    return pinAuthorId;
+  }
+
+  public void setPinAuthorId(Long pinAuthorId) {
+    this.pinAuthorId = pinAuthorId;
   }
 
   public void addLiker(String likerId) {

@@ -28,6 +28,7 @@ import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
  * Provides APIs to manage activities. All methods to manipulate with
@@ -224,6 +225,40 @@ public interface ActivityManager {
    * @since 1.2.0-GA
    */
   void deleteLike(ExoSocialActivity activity, Identity identity);
+
+  /**
+   * Pins a specific activity to space stream.
+   *
+   * @param activity {@link ExoSocialActivity} that will be pinned
+   * @param identity The identity who pin the activity.
+   * @param replaceOlder
+   * @LevelAPI Platform
+   */
+  default void pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityStorageException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Unpins a specific activity from space stream.
+   *
+   * @param activity {@link ExoSocialActivity} that will be unpinned
+   * @param identity The identity who unpin the activity.
+   * @LevelAPI Platform
+   */
+  default void unpinActivity(ExoSocialActivity activity, Identity identity) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return whether a user can pin or unpin an activity or not
+   *
+   * @param activity checked activity
+   * @param identity user identity
+   * @return true is user can pin or unpin activity, else false
+   */
+  default boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets activities posted on the provided activity stream owner. The type of

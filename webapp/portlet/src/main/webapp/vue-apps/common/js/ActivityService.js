@@ -138,6 +138,33 @@ export function deleteActivity(id, hide) {
   });
 }
 
+export function pinActivity(activityId, replaceOlder) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins?replaceOlder=${replaceOlder}`, {
+    method: 'POST',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function unpinActivity(activityId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+
 export function getActivityLikers(id, offset, limit) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/likes?offset=${offset || 0}&limit=${limit || 50}`, {
     method: 'GET',

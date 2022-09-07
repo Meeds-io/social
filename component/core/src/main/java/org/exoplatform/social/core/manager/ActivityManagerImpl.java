@@ -131,6 +131,12 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
+  /**
+   * Exo property name used for the maximum number of activities that can be pinned in
+   * the space
+   */
+  private static final String         PINNED_ACTIVITIES_LIMIT_SIZE   = "exo.service.PinActivity.limit.size";
+
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
                              SpaceService spaceService,
@@ -530,6 +536,68 @@ public class ActivityManagerImpl implements ActivityManager {
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityStorageException {
+    // in order to avoid updating unnecessarily activity title, body and template params
+    activity.setTitle(null);
+    activity.setBody(null);
+    activity.setTemplateParams(null);
+
+    String pinLimitSize = PropertyManager.getProperty(PINNED_ACTIVITIES_LIMIT_SIZE);
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setPinned(true);
+    activityFilter.setShowPinned(true);
+    activityFilter.setSpaceId(activity.getSpaceId());
+    activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    List<ExoSocialActivity> pinnedActivities = activityStorage.getActivitiesByFilter(identity, activityFilter, 0, -1);
+    if ((Integer.parseInt(pinLimitSize) <= pinnedActivities.size())) {
+      if (replaceOlder) {
+        ExoSocialActivity oldPinnedActivity = pinnedActivities.get(pinnedActivities.size() - 1);
+        unpinActivity(oldPinnedActivity, identity);
+      } else {
+        throw new ActivityStorageException(ActivityStorageException.Type.MAXIMUM_PINNED_ACTIVITIES_REACHED,
+                                           "maximum pinned activities reached");
+      }
+    }
+    activity.setPinned(true);
+    activity.setPinDate(System.currentTimeMillis());
+    activity.setPinAuthorId(Long.parseLong(identity.getId()));
+    // broadcast is false : we don't want to launch update listeners for a pin
+    updateActivity(activity, false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void unpinActivity(ExoSocialActivity activity, Identity identity) {
+    // in order to avoid updating unnecessarily activity title, body and template params
+    activity.setTitle(null);
+    activity.setBody(null);
+    activity.setTemplateParams(null);
+
+    activity.setPinned(false);
+    activity.setPinDate(null);
+    activity.setPinAuthorId(null);
+    // broadcast is false : we don't want to launch update listeners for a pin
+    updateActivity(activity, false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
+    Space space = spaceService.getSpaceById(activity.getSpaceId());
+    if (space != null) {
+      return spaceService.isManager(space, identity.getRemoteId()) || spaceService.isRedactor(space, identity.getRemoteId());
+    }
+    return false;
   }
 
   @Override

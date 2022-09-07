@@ -929,7 +929,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (filterNamedQueries.containsKey(queryName)) {
       query = getEntityManager().createNamedQuery(queryName, clazz);
     } else {
-      String queryContent = getQueryFilterContent(predicates, count);
+      String queryContent = getQueryFilterContent(predicates, activityFilter, count);
       query = getEntityManager().createQuery(queryContent, clazz);
       getEntityManager().getEntityManagerFactory().addNamedQuery(queryName, query);
       filterNamedQueries.put(queryName, true);
@@ -968,6 +968,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       predicates.add("item.streamType = :streamType");
       predicates.add("item.ownerId in (:ownerIds)");
     }
+    if (activityFilter.isPinned()) {
+      suffixes.add("Pinned");
+      predicates.add("item.activity.pinned = true");
+    }
   }
 
   private String getQueryFilterName(List<String> suffixes, boolean count) {
@@ -980,11 +984,11 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return queryName;
   }
 
-  private String getQueryFilterContent(List<String> predicates, boolean count) {
-    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.updatedDate";
+  private String getQueryFilterContent(List<String> predicates, ActivityFilter activityFilter, boolean count) {
+    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.activity.pinDate, item.updatedDate";
     querySelect = querySelect + " FROM SocStreamItem item WHERE item.activity.hidden = false";
 
-    String orderBy = " ORDER BY item.updatedDate DESC";
+    String orderBy = activityFilter.isShowPinned() ? " ORDER BY item.activity.pinDate DESC, item.updatedDate DESC" : " ORDER BY item.updatedDate DESC";
 
     String queryContent;
     if (predicates.isEmpty()) {
