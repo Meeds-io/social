@@ -42,6 +42,10 @@ export default {
       type: String,
       default: null,
     },
+    entityType: {
+      type: String,
+      default: null,
+    },
     id: {
       type: String,
       default: null,
@@ -143,6 +147,7 @@ export default {
                 typeLabel: this.typeLabel,
                 id: this.id,
                 spaceId: this.spaceId,
+                entityType: this.entityType,
               }
             }));
             this.isFavorite = false;
@@ -160,6 +165,7 @@ export default {
                 typeLabel: this.typeLabel,
                 id: this.id,
                 spaceId: this.spaceId,
+                entityType: this.entityType,
               }
             }));
             this.isFavorite = true;
