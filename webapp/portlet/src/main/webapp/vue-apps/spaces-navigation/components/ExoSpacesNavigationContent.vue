@@ -31,6 +31,8 @@
               <v-list-item-icon
                 :disabled="loading"
                 :loading="loading"
+                icon
+                small
                 class="me-2 align-center"
                 v-bind="attrs"
                 v-on="on">
@@ -39,23 +41,16 @@
             </template>
             <v-list class="pa-0">
               <v-list-item
-                :href="url(space)"
+                :href="space.spaceUrl" 
                 target="_blank"
-                link
-                @click="leftNavigationActionEvent('openInNewTab')">
+                link>
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
                 <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
               </v-list-item>
-              <exo-space-favorite-action
-                v-if="favoriteActionEnabled"
-                :is-favorite="space.isFavorite"
-                :space-id="space.id"
-                entity-type="spaces_left_navigation"
-                display-label />
               <v-list-item
-                v-if="homeLink !== url(space)"
-                @click="selectHome($event, space)">
-                <v-icon size="16" class="fas fa-house-user icon-default-color mr-3" />
+                v-if="homeLink !== space.spaceUrl"
+                @click="$emit('selectHome', $event, space)">
+                <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
               </v-list-item>
             </v-list>
