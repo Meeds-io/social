@@ -21,9 +21,40 @@
           <v-list-item-content>
             <v-list-item-title class="body-2" v-text="space.displayName" />
           </v-list-item-content>
-          <v-list-item-icon @click="$emit('selectHome', $event, space)">
-            <span class="UserPageHome"></span>
-          </v-list-item-icon>
+          <v-menu
+            v-model="menu"
+            right
+            bottom
+            offset-y
+            open-on-hover>
+            <template #activator="{ on, attrs }">
+              <v-list-item-icon
+                :disabled="loading"
+                :loading="loading"
+                icon
+                small
+                class="me-2 align-center"
+                v-bind="attrs"
+                v-on="on">
+                <span :class="menu && 'spaceMenuOpened' || '' " class="fas spaceThreeDotsMenu"></span>
+              </v-list-item-icon>
+            </template>
+            <v-list class="pa-0">
+              <v-list-item
+                :href="space.spaceUrl" 
+                target="_blank"
+                link>
+                <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
+                <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
+              </v-list-item>
+              <v-list-item
+                v-if="homeLink !== space.spaceUrl"
+                @click="$emit('selectHome', $event, space)">
+                <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
+                <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-list-item>
       </v-list-item-group>
     </v-list>
