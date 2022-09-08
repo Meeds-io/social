@@ -48,7 +48,7 @@ public enum SpaceAccessType {
 
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && "close".equals(space.getRegistration());
+      return !getSpaceService().isMember(space, remoteId) && Space.CLOSED.equals(space.getRegistration());
     }
     
   },
@@ -56,7 +56,7 @@ public enum SpaceAccessType {
 
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && "open".equals(space.getRegistration());
+      return !getSpaceService().isMember(space, remoteId) && Space.OPEN.equals(space.getRegistration());
     }
     
   }, //request to join space validation
@@ -64,7 +64,7 @@ public enum SpaceAccessType {
 
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && "validation".equals(space.getRegistration());
+      return !getSpaceService().isMember(space, remoteId) && Space.VALIDATION.equals(space.getRegistration());
     }
     
   },
