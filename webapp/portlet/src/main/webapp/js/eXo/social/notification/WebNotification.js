@@ -19,10 +19,7 @@
       appendMessage : function(message) {
         WebNotification.evalMethod('appendMessage', message);
       },
-      doAction : function(elm) {
-        WebNotification.evalMethod('doAction', elm);
-      },
-      doCancelAction : function(id, restURL) {
+      doAction : function(id, restURL) {
         if (restURL && restURL.length > 0) {
           WebNotification.ajaxReq(restURL, function(data) {
             WebNotification.evalMethod('doCancelAction', {
