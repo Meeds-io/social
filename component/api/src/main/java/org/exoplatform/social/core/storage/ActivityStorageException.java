@@ -47,7 +47,7 @@ public class ActivityStorageException extends ExoSocialException {
     FAILED_TO_GET_NUMBER_OF_OLDER_ON_ACTIVITIES_OF_CONNECTIONS("Failed_To_Get_Number_Of_Older_On_Activities_Of_Connections"),
     FAILED_TO_GET_USER_SPACE_ACTIVITIES_WITH_OFFSET_LIMIT("Failed_To_Get_User_Space_Activities_With_Offset_Limit"),
     FAILED_TO_GET_NUMBER_OF_USER_SPACE_ACTIVITIES("Failed_To_Get_Number_Of_User_Space_Activities");;
-    
+
     private final String msgKey;
 
     private Type(String msgKey) {

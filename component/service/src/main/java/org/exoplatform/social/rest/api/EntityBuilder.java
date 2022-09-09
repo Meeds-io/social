@@ -612,6 +612,8 @@ public class EntityBuilder {
     activityEntity.setCanEdit(canEdit);
     boolean canDelete = getActivityManager().isActivityDeletable(activity, ConversationState.getCurrent().getIdentity());
     activityEntity.setCanDelete(canDelete);
+    boolean canPin = activityManager.canPinActivity(activity, authentiatedUser);
+    activityEntity.setCanPin(canPin);
 
     LinkEntity commentLink;
     if (expandFields.contains(COMMENTS_TYPE)) {
@@ -661,6 +663,9 @@ public class EntityBuilder {
 
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
+    activityEntity.setPinned(activity.isPinned());
+    activityEntity.setPinDate(activity.getPinDate());
+    activityEntity.setPinAuthorId(activity.getPinAuthorId());
 
     DataEntity as = getActivityStream(activity, restPath, authentiatedUser);
     activityEntity.setActivityStream(as);
