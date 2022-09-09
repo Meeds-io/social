@@ -29,16 +29,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.rest.impl.space.SpaceRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList;
@@ -79,6 +85,8 @@ public class SpacesRestService implements ResourceContainer {
   private static final String ALL_SPACES_STATUS = "all_spaces";
 
   private String portalContainerName;
+
+  private static IdentityManager     identityManager;
 
 
   /**
@@ -468,7 +476,7 @@ public class SpacesRestService implements ResourceContainer {
       mySpaces = spaceService.getSpaces(userId);
       
       for (Space space : mySpaces) {
-        SpaceRest spaceRest = new SpaceRest(space);
+        SpaceRest spaceRest = new SpaceRest(space, "");
         mySpacesRest.add(spaceRest);
       }
       
@@ -497,8 +505,12 @@ public class SpacesRestService implements ResourceContainer {
     try {
       mySpaces = spaceService.getLastAccessedSpace(userId, appId, offset, limit);
       SpaceRest spaceRest;
+      FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+      IdentityManager identityManager = getIdentityManager();
+      Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
       for (Space space : mySpaces) {
-        spaceRest = new SpaceRest(space);
+        boolean isFavorite = favoriteService.isFavorite(new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
+        spaceRest = new SpaceRest(space, String.valueOf(isFavorite));
         spaceList.addSpace(spaceRest);
       }
     } catch (Exception e) {
@@ -521,7 +533,7 @@ public class SpacesRestService implements ResourceContainer {
     try {
       pendingSpaces = spaceService.getPendingSpaces(userId);
       for (Space space : pendingSpaces) {
-        SpaceRest spaceRest = new SpaceRest(space);
+        SpaceRest spaceRest = new SpaceRest(space, "");
         pendingSpacesRest.add(spaceRest);
       }
     } catch (SpaceException e) {
@@ -582,5 +594,12 @@ public class SpacesRestService implements ResourceContainer {
       throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
+  public static IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = CommonsUtils.getService(IdentityManager.class);
+    }
+    return identityManager;
+  }
+
 
 }

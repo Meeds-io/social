@@ -16,13 +16,22 @@
  */
 package org.exoplatform.social.service.rest;
 
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 /**
  * @since 1.2.2
  */
 public class SpaceRest {
+
+  /**
+   * The id of the space.
+   */
+  private String id;
   
   /**
    * The name of the space. 
@@ -60,18 +69,36 @@ public class SpaceRest {
   private String avatarUrl;
 
   /**
+   * The Space is bookmarked or nor.
+   */
+  private String isFavorite;
+
+  /**
    * The constructor.
    * 
    * @param space
    * 
    */
-  public SpaceRest(Space space) {
+  public SpaceRest(Space space, String isFavorite) {
+    this.id = space.getId();
     this.url = space.getUrl();
     this.groupId = space.getGroupId();
     this.name = space.getName();
     this.displayName = space.getDisplayName();
     
     this.avatarUrl = space.getAvatarUrl() == null ? LinkProvider.SPACE_DEFAULT_AVATAR_URL : space.getAvatarUrl();
+
+    this.isFavorite = isFavorite;
+  }
+
+  /**
+   * Gets the space id .
+   *
+   * @return
+   *
+   */
+  public String getId() {
+    return id;
   }
   
   /**
@@ -172,6 +199,23 @@ public class SpaceRest {
   public String getDisplayName() {
     return displayName;
   }
-  
-  
+
+  /**
+   * Gets if the space is bookmarked or not.
+   *
+   * @return
+   */
+  public String getIsFavorite() {
+    return isFavorite;
+  }
+
+  /**
+   * Sets if the space is bookmarked or not.
+   *
+   * @param isFavorite
+   */
+  public void setIsFavorite(String isFavorite) {
+    this.isFavorite = isFavorite;
+  }
+
 }
