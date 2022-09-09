@@ -90,6 +90,7 @@ export default {
     error: false,
     isDeleted: false,
     streamFilter: null,
+    pinActivityLimit: eXo.env.portal.pinActivityLimit,
   }),
   computed: {
     activitiesToDisplay() {
@@ -172,6 +173,7 @@ export default {
       if (this.activityId) {
         return this.loadActivity();
       } else {
+        this.limit += (this.spaceId && this.pinActivityLimit) || 0;
         return this.loadActivityIds();
       }
     },

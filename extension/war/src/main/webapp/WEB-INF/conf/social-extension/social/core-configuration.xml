@@ -772,13 +772,13 @@
     </component>
 
     <component>
-        <key>PinActivityLimitSize</key>
+        <key>PinActivityLimit</key>
         <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
         <init-params>
             <properties-param>
                 <name>PinActivityLimitSize</name>
-                <description>Pin Activity Limit Size</description>
-                <property name="exo.service.PinActivity.limit.size" value="${exo.service.PinActivity.limit.size:1}" />
+                <description>Pin Activity Limit</description>
+                <property name="social.pinActivity.limit" value="${social.pinActivity.limit:1}" />
             </properties-param>
         </init-params>
     </component>

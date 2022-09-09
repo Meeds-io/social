@@ -1,6 +1,10 @@
 package org.exoplatform.social.core.storage.impl;
 
 import java.lang.reflect.Method;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -49,6 +53,9 @@ public class StorageUtils {
   public static final String SOC_ACTIVITY_INFO = "soc:activityInfo";
 
   public static final String SOC_PREFIX        = "soc:";
+
+  public static final DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]")
+                                                                              .withResolverStyle(ResolverStyle.LENIENT);
 
   private final static long  DAY_MILISECONDS   = 86400000;                                         // a
                                                                                                    // day
@@ -379,5 +386,28 @@ public class StorageUtils {
     }
 
     return ids;
+  }
+
+  public static String toRFC3339Date(Date dateTime) {
+    if (dateTime == null) {
+      return null;
+    }
+    ZonedDateTime zonedDateTime = dateTime.toInstant().atZone(ZoneOffset.UTC);
+    return zonedDateTime.format(RFC_3339_FORMATTER);
+  }
+
+  public static Date parseRFC3339Date(String dateString) {
+    if (org.apache.commons.lang3.StringUtils.isBlank(dateString)) {
+      return null;
+    }
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, RFC_3339_FORMATTER);
+    return Date.from(zonedDateTime.toInstant());
+  }
+
+  public static String toRFC3339Date(ZonedDateTime zonedDateTime) {
+    if (zonedDateTime == null) {
+      return null;
+    }
+    return zonedDateTime.format(RFC_3339_FORMATTER);
   }
 }

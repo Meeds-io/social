@@ -144,7 +144,13 @@ export function pinActivity(activityId, replaceOlder) {
     credentials: 'include',
   }).then(resp => {
     if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
+      if (resp.status === 400) {
+        return resp.text().then(error => {
+          throw new Error(error);
+        });
+      } else {
+        throw new Error('Response code indicates a server error', resp);
+      }
     } else {
       return resp.json();
     }

@@ -72,7 +72,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
   private final boolean                         pinned;
 
-  private final Long                            pinDate;
+  private final String                          pinDate;
 
   private final Long                            pinAuthorId;
 
@@ -124,7 +124,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
       this.linkedProcessedEntities = null;
     }
     this.pinned = activity.isPinned();
-    this.pinDate = activity.getPinDate() == null ? null : activity.getPinDate().getTime();
+    this.pinDate = activity.getPinDate();
     this.pinAuthorId = activity.getPinAuthorId();
 
   }
@@ -216,9 +216,13 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return pinned;
   }
 
-  public Long getPinDate() {return pinDate;}
+  public String getPinDate() {
+    return pinDate;
+  }
 
-  public Long getPinAuthorId() {return pinAuthorId;}
+  public Long getPinAuthorId() {
+    return pinAuthorId;
+  }
 
 
   @Override

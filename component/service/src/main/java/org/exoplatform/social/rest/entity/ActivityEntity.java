@@ -253,6 +253,10 @@ public class ActivityEntity extends BaseEntity {
     return canDelete != null && Boolean.parseBoolean(canDelete.toString());
   }
 
+  public void setCanPin(boolean canPin) {
+    setProperty(RestProperties.CAN_PIN, canPin);
+  }
+
   public ActivityEntity setActivityStream(DataEntity activityStream) {
     setProperty("activityStream", activityStream);
     return this;

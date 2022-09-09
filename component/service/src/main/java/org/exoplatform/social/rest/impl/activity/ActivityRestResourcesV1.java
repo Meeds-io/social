@@ -45,6 +45,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityPinLimitExceededException;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
@@ -881,13 +882,14 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (!activityManager.canPinActivity(activity, currentUser)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    ActivityEntity activityEntity;
     try {
-      activityManager.pinActivity(activity, currentUser, replaceOlder);
-    } catch (ActivityStorageException e) {
-      return Response.status(Status.BAD_REQUEST).entity(ActivityStorageException.Type.MAXIMUM_PINNED_ACTIVITIES_REACHED).build();
+      activity = activityManager.pinActivity(activity, currentUser, replaceOlder);
+      activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
+      return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    } catch (ActivityPinLimitExceededException e) {
+      return Response.status(Status.BAD_REQUEST).entity("maximum_pinned_activities_reached").build();
     }
-    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
-    return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @DELETE
@@ -914,7 +916,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (!activityManager.canPinActivity(activity, currentUser)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
-    activityManager.unpinActivity(activity, currentUser);
+    activity = activityManager.unpinActivity(activity.getId());
     ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
     return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }

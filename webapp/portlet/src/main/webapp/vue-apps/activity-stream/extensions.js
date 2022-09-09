@@ -117,7 +117,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return (activity?.activityStream?.space?.isManager || activity?.activityStream?.space?.isRedactor) && !activity.pinned;
+    return activity.canPin && !activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.pinActivity(activity.id, true)
@@ -135,7 +135,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return (activity?.activityStream?.space?.isManager || activity?.activityStream?.space?.isRedactor) && activity.pinned;
+    return activity.canPin && activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.unpinActivity(activity.id)

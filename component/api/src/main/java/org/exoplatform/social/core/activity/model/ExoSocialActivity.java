@@ -146,14 +146,14 @@ public interface ExoSocialActivity extends CacheEntry {
   /**
    * Gets the pin datetime.*
    */
-  Date getPinDate();
+  String getPinDate();
 
   /**
    * Set the pin datetime
    *
    * @param pinDate pin datetime
    */
-  void setPinDate(Long pinDate);
+  void setPinDate(String pinDate);
 
   /**
    * Gets the Id of the identity that pinned the activity.

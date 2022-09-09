@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
  * Class ActivityManagerImpl implements ActivityManager without caching.
@@ -106,6 +108,12 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
 
+  /**
+   * Exo property name used for the maximum number of activities that can be pinned in
+   * the space
+   */
+  private static final String         PIN_ACTIVITY_LIMIT             = "social.pinActivity.limit";
+
   private Set<String>                 systemActivityTypes            = new HashSet<>();
 
   private Set<String>                 systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
@@ -122,6 +130,8 @@ public class ActivityManagerImpl implements ActivityManager {
   private boolean                     enableEditComment               = true;
 
   private boolean                     enableUserComposer              = true;
+  
+  private int                         pinActivityLimit               = 1;
 
   public static final String          SEPARATOR_REGEX                 = "\\|@\\|";
 
@@ -130,12 +140,6 @@ public class ActivityManagerImpl implements ActivityManager {
   public static final String          STORAGE                         = "storage";
 
   public static final String          FILE                            = "file";
-
-  /**
-   * Exo property name used for the maximum number of activities that can be pinned in
-   * the space
-   */
-  private static final String         PINNED_ACTIVITIES_LIMIT_SIZE   = "exo.service.PinActivity.limit.size";
 
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
@@ -163,6 +167,9 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       if (params.containsKey(ENABLE_USER_COMPOSER)) {
         enableUserComposer = Boolean.parseBoolean(params.getValueParam(ENABLE_USER_COMPOSER).getValue());
+      }
+      if (params.containsKey(PIN_ACTIVITY_LIMIT)) {
+        pinActivityLimit = Integer.parseInt(params.getValueParam(PIN_ACTIVITY_LIMIT).getValue());
       }
     } else {
       String maxUploadString = System.getProperty("wcm.connector.drives.uploadLimit");
@@ -542,50 +549,39 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   @Override
-  public void pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityStorageException {
-    // in order to avoid updating unnecessarily activity title, body and template params
-    activity.setTitle(null);
-    activity.setBody(null);
-    activity.setTemplateParams(null);
+  public ExoSocialActivity pinActivity(ExoSocialActivity activity,
+                                       Identity identity,
+                                       boolean replaceOlder) throws ActivityPinLimitExceededException {
+    Long userIdentityId = Long.parseLong(identity.getId());
 
-    String pinLimitSize = PropertyManager.getProperty(PINNED_ACTIVITIES_LIMIT_SIZE);
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setPinned(true);
     activityFilter.setShowPinned(true);
     activityFilter.setSpaceId(activity.getSpaceId());
     activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
     List<ExoSocialActivity> pinnedActivities = activityStorage.getActivitiesByFilter(identity, activityFilter, 0, -1);
-    if ((Integer.parseInt(pinLimitSize) <= pinnedActivities.size())) {
+    if (pinActivityLimit <= pinnedActivities.size()) {
       if (replaceOlder) {
-        ExoSocialActivity oldPinnedActivity = pinnedActivities.get(pinnedActivities.size() - 1);
-        unpinActivity(oldPinnedActivity, identity);
+        List<ExoSocialActivity> activitiesToBeUnpinned = pinnedActivities.subList(pinActivityLimit - 1, pinnedActivities.size());
+        activitiesToBeUnpinned.forEach(activityToBeUnpinned -> activityStorage.unpinActivity(activityToBeUnpinned.getId()));
       } else {
-        throw new ActivityStorageException(ActivityStorageException.Type.MAXIMUM_PINNED_ACTIVITIES_REACHED,
-                                           "maximum pinned activities reached");
+        throw new ActivityPinLimitExceededException();
       }
     }
-    activity.setPinned(true);
-    activity.setPinDate(System.currentTimeMillis());
-    activity.setPinAuthorId(Long.parseLong(identity.getId()));
-    // broadcast is false : we don't want to launch update listeners for a pin
-    updateActivity(activity, false);
+    return activityStorage.pinActivity(activity.getId(), userIdentityId);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void unpinActivity(ExoSocialActivity activity, Identity identity) {
-    // in order to avoid updating unnecessarily activity title, body and template params
-    activity.setTitle(null);
-    activity.setBody(null);
-    activity.setTemplateParams(null);
-
-    activity.setPinned(false);
-    activity.setPinDate(null);
-    activity.setPinAuthorId(null);
-    // broadcast is false : we don't want to launch update listeners for a pin
-    updateActivity(activity, false);
+  public ExoSocialActivity unpinActivity(String activityId) {
+    // in order to avoid updating unnecessarily activity title, body and template
+    // params
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException("activityId is mandatory");
+    }
+    return activityStorage.unpinActivity(activityId);
   }
 
   /**

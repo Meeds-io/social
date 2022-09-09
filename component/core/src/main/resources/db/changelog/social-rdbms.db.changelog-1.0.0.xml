@@ -830,8 +830,8 @@
     <changeSet id="1.0.0-84" author="social">
         <addColumn tableName="SOC_ACTIVITIES">
             <column name="PINNED" type="BOOLEAN"/>
-            <column name="PIN_DATE" type="BIGINT"/>
-            <column name="PIN_AUTHOR_ID" type="BIGINT"/>
+            <column name="PIN_DATE" type="TIMESTAMP" defaultValueComputed="NULL"/>
+            <column name="PIN_AUTHOR_ID" type="BIGINT" defaultValueComputed="NULL"/>
         </addColumn>
     </changeSet>
 

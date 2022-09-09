@@ -19,6 +19,10 @@ package org.exoplatform.social.rest.api;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
 
 import javax.ws.rs.WebApplicationException;
@@ -59,6 +63,9 @@ public class RestUtils {
   public static final String DELEGATED_GROUP    = "/platform/delegated";
 
   public static final String     INVISIBLE       = "invisible";
+
+  public static final DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]")
+                                                                              .withResolverStyle(ResolverStyle.LENIENT);
 
   private static IdentityManager identityManager;
 
@@ -339,5 +346,21 @@ public class RestUtils {
       identityManager = ExoContainerContext.getService(IdentityManager.class);
     }
     return identityManager;
+  }
+
+  public static String toRFC3339Date(Date dateTime) {
+    if (dateTime == null) {
+      return null;
+    }
+    ZonedDateTime zonedDateTime = dateTime.toInstant().atZone(ZoneOffset.UTC);
+    return zonedDateTime.format(RFC_3339_FORMATTER);
+  }
+
+  public static Date parseRFC3339Date(String dateString) {
+    if (org.apache.commons.lang3.StringUtils.isBlank(dateString)) {
+      return null;
+    }
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, RFC_3339_FORMATTER);
+    return Date.from(zonedDateTime.toInstant());
   }
 }

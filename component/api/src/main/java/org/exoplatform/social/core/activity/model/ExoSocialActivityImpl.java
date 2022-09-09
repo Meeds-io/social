@@ -109,7 +109,7 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private boolean                         pinned;
 
-  private Date                            pinDate;
+  private String                          pinDate;
 
   private Long                            pinAuthorId;
 
@@ -364,15 +364,15 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   /**
    * {@inheritDoc}
    */
-  public Date getPinDate() {
+  public String getPinDate() {
     return pinDate;
   }
 
   /**
    * {@inheritDoc}
    */
-  public void setPinDate(Long pinDate) {
-    this.pinDate = pinDate != null ? new Date(pinDate) : null;
+  public void setPinDate(String pinDate) {
+    this.pinDate = pinDate;
   }
 
   /**

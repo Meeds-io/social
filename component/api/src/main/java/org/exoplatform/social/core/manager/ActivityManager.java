@@ -24,6 +24,7 @@ import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
+import org.exoplatform.social.core.activity.ActivityPinLimitExceededException;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -234,7 +235,7 @@ public interface ActivityManager {
    * @param replaceOlder
    * @LevelAPI Platform
    */
-  default void pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityStorageException {
+  default ExoSocialActivity pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityPinLimitExceededException {
     throw new UnsupportedOperationException();
   }
 
@@ -245,7 +246,7 @@ public interface ActivityManager {
    * @param identity The identity who unpin the activity.
    * @LevelAPI Platform
    */
-  default void unpinActivity(ExoSocialActivity activity, Identity identity) {
+  default ExoSocialActivity unpinActivity(String activityId) {
     throw new UnsupportedOperationException();
   }
 

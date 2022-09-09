@@ -311,8 +311,8 @@ public class ActivityEntity implements Serializable {
   @Column(name = "PINNED", nullable = false)
   private Boolean                pinned;
 
-  @Column(name = "PIN_DATE", nullable = false)
-  private Long pinDate;
+  @Column(name = "PIN_DATE")
+  private Date pinDate;
 
   @Column(name = "PIN_AUTHOR_ID")
   private Long pinAuthorId;
@@ -455,11 +455,11 @@ public class ActivityEntity implements Serializable {
   }
 
   public Date getPinDate() {
-    return pinDate != null && pinDate > 0 ? new Date(pinDate) : null;
+    return pinDate;
   }
 
   public void setPinDate(Date pinDate) {
-    this.pinDate = (pinDate != null ? pinDate.getTime() : 0);
+    this.pinDate = pinDate;
   }
 
   public Long getPinAuthorId() {

@@ -19,6 +19,8 @@ package org.exoplatform.social.rest.api;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -612,6 +614,8 @@ public class EntityBuilder {
     activityEntity.setCanEdit(canEdit);
     boolean canDelete = getActivityManager().isActivityDeletable(activity, ConversationState.getCurrent().getIdentity());
     activityEntity.setCanDelete(canDelete);
+    boolean canPin = activityManager.canPinActivity(activity, authentiatedUser);
+    activityEntity.setCanPin(canPin);
 
     LinkEntity commentLink;
     if (expandFields.contains(COMMENTS_TYPE)) {
@@ -662,7 +666,7 @@ public class EntityBuilder {
     activityEntity.setCreateDate(RestUtils.formatISO8601(new Date(activity.getPostedTime())));
     activityEntity.setUpdateDate(RestUtils.formatISO8601(activity.getUpdated()));
     activityEntity.setPinned(activity.isPinned());
-    activityEntity.setPinDate(activity.getPinDate() != null ? RestUtils.formatISO8601(activity.getPinDate()) : null);
+    activityEntity.setPinDate(activity.getPinDate());
     activityEntity.setPinAuthorId(activity.getPinAuthorId());
 
     DataEntity as = getActivityStream(activity, restPath, authentiatedUser);
