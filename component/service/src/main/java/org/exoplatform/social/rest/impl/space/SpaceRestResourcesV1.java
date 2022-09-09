@@ -87,6 +87,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   
   private static final String SPACE_FILTER_TYPE_FAVORITE = "favorite";
 
+  private static final String LAST_VISITED_SPACES = "lastVisited";
+
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
@@ -185,6 +187,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       listAccess = spaceService.getPendingSpaceRequestsToManage(authenticatedUser);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_FAVORITE, filterType)) {
       listAccess = spaceService.getFavoriteSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(LAST_VISITED_SPACES, filterType)) {
+      listAccess = spaceService.getLastAccessedSpace(authenticatedUser,null);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }
