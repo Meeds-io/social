@@ -45,7 +45,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
  * Class ActivityManagerImpl implements ActivityManager without caching.
@@ -576,8 +575,6 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   @Override
   public ExoSocialActivity unpinActivity(String activityId) {
-    // in order to avoid updating unnecessarily activity title, body and template
-    // params
     if (StringUtils.isBlank(activityId)) {
       throw new IllegalArgumentException("activityId is mandatory");
     }

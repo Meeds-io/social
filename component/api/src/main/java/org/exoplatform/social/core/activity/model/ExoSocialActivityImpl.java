@@ -107,11 +107,11 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private Date updated;
 
-  private boolean                         pinned;
+  private boolean pinned;
 
-  private String                          pinDate;
+  private String pinDate;
 
-  private Long                            pinAuthorId;
+  private Long pinAuthorId;
 
   private long cacheTime;
 

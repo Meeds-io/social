@@ -19,8 +19,6 @@ package org.exoplatform.social.rest.api;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;

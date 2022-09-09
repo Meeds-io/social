@@ -308,8 +308,8 @@ public class ActivityEntity implements Serializable {
   @Column(name="BODY", length = 2000)
   private String body;
 
-  @Column(name = "PINNED", nullable = false)
-  private Boolean                pinned;
+  @Column(name = "PINNED")
+  private Boolean pinned;
 
   @Column(name = "PIN_DATE")
   private Date pinDate;

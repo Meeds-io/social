@@ -975,9 +975,6 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       suffixes.add("Pinned");
       predicates.add("item.activity.pinned = true");
     }
-    if (activityFilter.isShowPinned()) {
-      suffixes.add("ShowPinned");
-    }
   }
 
   private String getQueryFilterName(List<String> suffixes, boolean count) {

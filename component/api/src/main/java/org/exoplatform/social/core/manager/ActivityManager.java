@@ -29,7 +29,6 @@ import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
  * Provides APIs to manage activities. All methods to manipulate with

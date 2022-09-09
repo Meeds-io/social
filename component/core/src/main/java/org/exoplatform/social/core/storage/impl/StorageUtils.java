@@ -403,11 +403,4 @@ public class StorageUtils {
     ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, RFC_3339_FORMATTER);
     return Date.from(zonedDateTime.toInstant());
   }
-
-  public static String toRFC3339Date(ZonedDateTime zonedDateTime) {
-    if (zonedDateTime == null) {
-      return null;
-    }
-    return zonedDateTime.format(RFC_3339_FORMATTER);
-  }
 }
