@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,6 +105,8 @@ public class ActivityManagerImpl implements ActivityManager {
   public static final String          ENABLE_MANAGER_EDIT_ACTIVITY    = "exo.manager.edit.activity.enabled";
 
   public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
+  
+  public static final String          MANDATORY_ACTIVITY_ID          = "activityId is mandatory";
 
   /**
    * Exo property name used for the maximum number of activities that can be pinned in
@@ -243,7 +244,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     long activityId = activityShareAction.getActivityId();
     if (activityId <= 0) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = getActivity(String.valueOf(activityId));
     if (activity == null) {
@@ -389,7 +390,7 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public ExoSocialActivity hideActivity(String activityId) {
     if (StringUtils.isBlank(activityId)) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = activityStorage.hideActivity(activityId);
     activityLifeCycle.hideActivity(activity);
@@ -576,7 +577,7 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public ExoSocialActivity unpinActivity(String activityId) {
     if (StringUtils.isBlank(activityId)) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     return activityStorage.unpinActivity(activityId);
   }
