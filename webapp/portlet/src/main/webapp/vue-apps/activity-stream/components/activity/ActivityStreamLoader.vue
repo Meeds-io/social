@@ -21,16 +21,16 @@
   </transition>
   <transition v-else>
     <activity-stream-activity
-        v-show="!activityDeleted"
-        :key="activity.id"
-        :activity="activity"
-        :activity-types="activityTypes"
-        :activity-actions="activityActions"
-        :comment-types="commentTypes"
-        :comment-actions="commentActions"
-        :is-activity-detail="isActivityDetail"
-        class="mb-6 contentBox"
-        @loaded="$emit('loaded')" />
+      v-show="!activityDeleted"
+      :key="activity.id"
+      :activity="activity"
+      :activity-types="activityTypes"
+      :activity-actions="activityActions"
+      :comment-types="commentTypes"
+      :comment-actions="commentActions"
+      :is-activity-detail="isActivityDetail"
+      class="mb-6 contentBox"
+      @loaded="$emit('loaded')" />
   </transition>
 </template>
 
