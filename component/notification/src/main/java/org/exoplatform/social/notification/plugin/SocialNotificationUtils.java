@@ -64,6 +64,7 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<String> SENDER = new ArgumentLiteral<String>(String.class, "sender");
   public final static ArgumentLiteral<ExoSocialActivity> ACTIVITY = new ArgumentLiteral<ExoSocialActivity>(ExoSocialActivity.class, "activity");
   public final static ArgumentLiteral<String> ORIGINAL_TITLE = new ArgumentLiteral<>(String.class, "original_title");
+  public static final ArgumentLiteral<String> ORIGINAL_TITLE_SHARED = new ArgumentLiteral<>(String.class, "original_title_shared");
   public final static ArgumentLiteral<Profile> PROFILE = new ArgumentLiteral<Profile>(Profile.class, "profile");
   public final static ArgumentLiteral<Space> SPACE = new ArgumentLiteral<Space>(Space.class, "space");
   public final static ArgumentLiteral<String> REMOTE_ID = new ArgumentLiteral<String>(String.class, "remoteId");

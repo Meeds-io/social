@@ -43,6 +43,7 @@ import org.exoplatform.commons.api.notification.plugin.NotificationPluginUtils;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
 import org.exoplatform.commons.notification.NotificationUtils;
 import org.exoplatform.commons.notification.template.TemplateUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -60,6 +61,7 @@ import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.*;
 import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectionItemConnector;
+import org.jsoup.Jsoup;
 
 /**
  * Created by The eXo Platform SAS
@@ -79,6 +81,7 @@ import org.exoplatform.social.service.malwareDetection.connector.MalwareDetectio
     @TemplateConfig(pluginId = PostActivityPlugin.ID, template = "war:/notification/templates/PostActivityPlugin.gtmpl"),
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "war:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
+    @TemplateConfig(pluginId = SharedActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/SharedActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "war:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
     @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
     @TemplateConfig(pluginId = DlpAdminDetectedItemPlugin.ID, template = "war:/notification/templates/DlpAdminDetectedItemPlugin.gtmpl"),
@@ -920,6 +923,89 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
+  /** Defines the template builder for PostActivitySpaceStreamPlugin*/
+  private AbstractTemplateBuilder shareActivitySpace = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+      String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      String originalTitle = notification.getValueOwnerParameter(SocialNotificationUtils.ORIGINAL_TITLE.getKey());
+      String sharedTitle = Jsoup.parse(notification.getValueOwnerParameter(SocialNotificationUtils.ORIGINAL_TITLE_SHARED.getKey())).text();
+      ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+      Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId());
+
+      Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner());
+      if (spaceIdentity == null) {
+        return null;
+      }
+      Space space = Utils.getSpaceService().getSpaceByPrettyName(spaceIdentity.getRemoteId());
+      if (space == null) {
+        return null;
+      }
+      templateContext.put("USER", Utils.addExternalFlag(identity));
+      templateContext.put("SPACE", space.getDisplayName());
+      templateContext.put("SHORT_TITLE", sharedTitle.substring(0, sharedTitle.length() < 10 ? sharedTitle.length() :   sharedTitle.length()/2 ) + "...");
+      templateContext.put("SUBJECT", originalTitle);
+      templateContext.put("TITLE", sharedTitle);
+      templateContext.put("IMAGE", CommonsUtils.getCurrentDomain() +"/news/images/news.png");
+      templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
+      templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
+      templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
+      templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activity.getId()));
+      templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activity.getId()));
+      String subject = TemplateUtils.processSubject(templateContext);
+      String body = SocialNotificationUtils.getBody(ctx, templateContext, activity);
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+
+      MessageInfo messageInfo = new MessageInfo();
+
+      return messageInfo.subject(subject).body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      List<NotificationInfo> notifications = ctx.getNotificationInfos();
+      NotificationInfo first = notifications.get(0);
+
+      String language = getLanguage(first);
+      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
+
+      Map<String, List<String>> map = new LinkedHashMap<>();
+
+      try {
+        for (NotificationInfo message : notifications) {
+          String poster = message.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey());
+          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+          if (activity != null) {
+            Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
+            if (space != null) {
+              if (!Arrays.asList(space.getMembers()).contains(message.getTo())) {
+                continue;
+              }
+              if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
+                continue;
+              }
+              SocialNotificationUtils.processInforSendTo(map, space.getId(), poster);
+            }
+          }
+        }
+        writer.append(SocialNotificationUtils.getMessageInSpace(map, templateContext));
+      } catch (IOException e) {
+        ctx.setException(e);
+        return false;
+      }
+      return true;
+    }
+
+  };
 
 
   /** Defines the template builder for RelationshipReceivedRequestPlugin*/
@@ -1253,6 +1339,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(NewUserPlugin.ID), newUser);
     this.templateBuilders.put(PluginKey.key(PostActivityPlugin.ID), postActivity);
     this.templateBuilders.put(PluginKey.key(PostActivitySpaceStreamPlugin.ID), postActivitySpace);
+    this.templateBuilders.put(PluginKey.key(SharedActivitySpaceStreamPlugin.ID), shareActivitySpace);
     this.templateBuilders.put(PluginKey.key(RelationshipReceivedRequestPlugin.ID), relationshipReceived);
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
