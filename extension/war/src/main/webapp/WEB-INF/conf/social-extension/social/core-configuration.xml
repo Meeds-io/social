@@ -759,6 +759,30 @@
         </init-params>
     </component>
 
+    <component>
+        <key>PinActivityFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>PinActivityFeatureProperties</name>
+                <description>Pin Activity Feature enablement flag</description>
+                <property name="exo.feature.PinActivity.enabled" value="${exo.feature.PinActivity.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
+
+    <component>
+        <key>PinActivityLimit</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>PinActivityLimitSize</name>
+                <description>Pin Activity Limit</description>
+                <property name="social.pinActivity.limit" value="${social.pinActivity.limit:1}" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>
