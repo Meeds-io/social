@@ -45,6 +45,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityPinLimitExceededException;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
@@ -853,6 +854,70 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
     activityManager.deleteLike(activity, currentUser);
     return getLikesOfActivity(uriInfo, activityId, 0, RestUtils.DEFAULT_LIMIT, null);
+  }
+
+  @POST
+  @Path("{activityId}/pins")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Pin a specific activity to space stream", method = "POST", description = "This pins an activity to space stream if the authenticated user is a manager or a redactor of the space.")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response pinActivity(@Context UriInfo uriInfo,
+                              @Context Request request,
+                              @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId,
+                              @Parameter(description = "Replacing the old pinned activity or not if maximum of pinned activities is reached)") @Schema(defaultValue = "false") @QueryParam("replaceOlder") boolean replaceOlder) {
+
+    if (StringUtils.isBlank(activityId)) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    ExoSocialActivity activity = activityManager.getActivity(activityId);
+
+    if (!activityManager.canPinActivity(activity, currentUser)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+    ActivityEntity activityEntity;
+    try {
+      activity = activityManager.pinActivity(activity, currentUser, replaceOlder);
+      activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
+      return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    } catch (ActivityPinLimitExceededException e) {
+      return Response.status(Status.BAD_REQUEST).entity("maximum_pinned_activities_reached").build();
+    }
+  }
+
+  @DELETE
+  @Path("{activityId}/pins")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Unpin a specific activity from space stream", method = "DELETE", description = "This Unpins an activity from space stream")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response unpinActivity(@Context UriInfo uriInfo,
+                                @Context Request request,
+                                @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId) {
+
+    if (StringUtils.isBlank(activityId)) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+
+    ExoSocialActivity activity = activityManager.getActivity(activityId);
+
+    if (!activityManager.canPinActivity(activity, currentUser)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+    activity = activityManager.unpinActivity(activity.getId());
+    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
+    return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @GET

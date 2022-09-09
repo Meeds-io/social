@@ -105,6 +105,14 @@ public class ActivityManagerImpl implements ActivityManager {
   public static final String          ENABLE_MANAGER_EDIT_ACTIVITY    = "exo.manager.edit.activity.enabled";
 
   public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
+  
+  public static final String          MANDATORY_ACTIVITY_ID          = "activityId is mandatory";
+
+  /**
+   * Exo property name used for the maximum number of activities that can be pinned in
+   * the space
+   */
+  private static final String         PIN_ACTIVITY_LIMIT             = "social.pinActivity.limit";
 
   private Set<String>                 systemActivityTypes            = new HashSet<>();
 
@@ -122,6 +130,8 @@ public class ActivityManagerImpl implements ActivityManager {
   private boolean                     enableEditComment               = true;
 
   private boolean                     enableUserComposer              = true;
+  
+  private int                         pinActivityLimit               = 1;
 
   public static final String          SEPARATOR_REGEX                 = "\\|@\\|";
 
@@ -157,6 +167,9 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       if (params.containsKey(ENABLE_USER_COMPOSER)) {
         enableUserComposer = Boolean.parseBoolean(params.getValueParam(ENABLE_USER_COMPOSER).getValue());
+      }
+      if (params.containsKey(PIN_ACTIVITY_LIMIT)) {
+        pinActivityLimit = Integer.parseInt(params.getValueParam(PIN_ACTIVITY_LIMIT).getValue());
       }
     } else {
       String maxUploadString = System.getProperty("wcm.connector.drives.uploadLimit");
@@ -231,7 +244,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     long activityId = activityShareAction.getActivityId();
     if (activityId <= 0) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = getActivity(String.valueOf(activityId));
     if (activity == null) {
@@ -377,7 +390,7 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public ExoSocialActivity hideActivity(String activityId) {
     if (StringUtils.isBlank(activityId)) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = activityStorage.hideActivity(activityId);
     activityLifeCycle.hideActivity(activity);
@@ -530,6 +543,55 @@ public class ActivityManagerImpl implements ActivityManager {
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ExoSocialActivity pinActivity(ExoSocialActivity activity,
+                                       Identity identity,
+                                       boolean replaceOlder) throws ActivityPinLimitExceededException {
+    Long userIdentityId = Long.parseLong(identity.getId());
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setPinned(true);
+    activityFilter.setShowPinned(true);
+    activityFilter.setSpaceId(activity.getSpaceId());
+    activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    List<ExoSocialActivity> pinnedActivities = activityStorage.getActivitiesByFilter(identity, activityFilter, 0, -1);
+    if (pinActivityLimit <= pinnedActivities.size()) {
+      if (replaceOlder) {
+        List<ExoSocialActivity> activitiesToBeUnpinned = pinnedActivities.subList(pinActivityLimit - 1, pinnedActivities.size());
+        activitiesToBeUnpinned.forEach(activityToBeUnpinned -> activityStorage.unpinActivity(activityToBeUnpinned.getId()));
+      } else {
+        throw new ActivityPinLimitExceededException();
+      }
+    }
+    return activityStorage.pinActivity(activity.getId(), userIdentityId);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ExoSocialActivity unpinActivity(String activityId) {
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
+    }
+    return activityStorage.unpinActivity(activityId);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
+    Space space = spaceService.getSpaceById(activity.getSpaceId());
+    if (space != null) {
+      return spaceService.isManager(space, identity.getRemoteId()) || spaceService.isRedactor(space, identity.getRemoteId());
+    }
+    return false;
   }
 
   @Override

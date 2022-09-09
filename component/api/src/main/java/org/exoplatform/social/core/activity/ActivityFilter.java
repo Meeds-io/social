@@ -34,4 +34,8 @@ public class ActivityFilter implements Serializable {
 
   private String             spaceId;
 
+  private boolean            showPinned;
+
+  private boolean            pinned;
+
 }
