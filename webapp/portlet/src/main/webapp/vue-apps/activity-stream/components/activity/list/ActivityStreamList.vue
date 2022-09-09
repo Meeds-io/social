@@ -19,7 +19,7 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :is-activity-detail="activityId"
-        :pin-activity-enabled="pinActivityEnabled"
+        :stream-filter="streamFilter"
         class="mb-6 contentBox"
         @loaded="activityLoaded(activity.id)" />
     </template>
@@ -90,6 +90,7 @@ export default {
     error: false,
     isDeleted: false,
     streamFilter: null,
+    pinActivityLimit: eXo.env.portal.pinActivityLimit,
   }),
   computed: {
     activitiesToDisplay() {
@@ -217,6 +218,7 @@ export default {
       if (this.activityId) {
         return this.loadActivity();
       } else {
+        this.limit += (this.spaceId && this.pinActivityLimit) || 0;
         return this.loadActivityIds();
       }
     },

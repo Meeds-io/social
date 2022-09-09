@@ -63,4 +63,5 @@
      eXo.env.portal.engagementCenterEnabled = <%=featureService.isFeatureActiveForUser("engagementCenter", userName)%>;
      eXo.env.portal.StreamFilterEnabled = <%=PropertyManager.getProperty("exo.feature.StreamFilter.enabled")%>;
      eXo.env.portal.PinActivityEnabled = <%=PropertyManager.getProperty("exo.feature.PinActivity.enabled")%>;
+     eXo.env.portal.pinActivityLimit = <%=PropertyManager.getProperty("social.pinActivity.limit")%>;
 </script>

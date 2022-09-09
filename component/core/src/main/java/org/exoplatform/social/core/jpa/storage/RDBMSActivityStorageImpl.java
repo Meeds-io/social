@@ -529,7 +529,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(pinActivityEnabled);
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -568,7 +568,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(pinActivityEnabled);
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -995,11 +995,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
-  public ExoSocialActivity pinActivity(String activityId, String userId) {
+  public ExoSocialActivity pinActivity(String activityId, Long userId) {
     ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
     activityEntity.setPinned(true);
     activityEntity.setPinDate(new Date());
-    activityEntity.setPinAuthorId(Long.valueOf(userId));
+    activityEntity.setPinAuthorId(userId);
     activityEntity = activityDAO.update(activityEntity);
     return convertActivityEntityToActivity(activityEntity);
   }

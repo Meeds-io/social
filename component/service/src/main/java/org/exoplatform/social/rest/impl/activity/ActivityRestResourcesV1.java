@@ -45,6 +45,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityPinLimitExceededException;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.*;
@@ -865,7 +866,8 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response pinActivity(@Context UriInfo uriInfo,
                               @Context Request request,
-                              @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId) {
+                              @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId,
+                              @Parameter(description = "Replacing the old pinned activity or not if maximum of pinned activities is reached)") @Schema(defaultValue = "false") @QueryParam("replaceOlder") boolean replaceOlder) {
 
     if (StringUtils.isBlank(activityId)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -880,9 +882,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       return Response.status(Status.UNAUTHORIZED).build();
     }
     ActivityEntity activityEntity;
-    activity = activityManager.pinActivity(activity.getId(), currentUser.getId());
-    activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
-    return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    try {
+      activity = activityManager.pinActivity(activity, currentUser, replaceOlder);
+      activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), null);
+      return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    } catch (ActivityPinLimitExceededException e) {
+      return Response.status(Status.BAD_REQUEST).entity("maximum_pinned_activities_reached").build();
+    }
   }
 
   @DELETE

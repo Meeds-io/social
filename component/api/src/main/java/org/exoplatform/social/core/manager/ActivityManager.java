@@ -24,6 +24,7 @@ import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
+import org.exoplatform.social.core.activity.ActivityPinLimitExceededException;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -228,21 +229,21 @@ public interface ActivityManager {
   /**
    * Pins a specific activity to space stream.
    *
-   * @param activityId {@link ExoSocialActivity} technical identifier} that will
-   *          be pinned
-   * @param userIdentityId User {@link Identity} ID who pin the activity.
-   * @return pinned {@link ExoSocialActivity}
+   * @param activity {@link ExoSocialActivity} that will be pinned
+   * @param identity The identity who pin the activity.
+   * @param replaceOlder
+   * @LevelAPI Platform
    */
-  default ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
+  default ExoSocialActivity pinActivity(ExoSocialActivity activity, Identity identity, boolean replaceOlder) throws ActivityPinLimitExceededException {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Unpins a specific activity from space stream.
    *
-   * @param activityId {@link ExoSocialActivity} technical identifier that will be
-   *          unpinned
-   * @return unpinned {@link ExoSocialActivity}
+   * @param activity {@link ExoSocialActivity} that will be unpinned
+   * @param identity The identity who unpin the activity.
+   * @LevelAPI Platform
    */
   default ExoSocialActivity unpinActivity(String activityId) {
     throw new UnsupportedOperationException();

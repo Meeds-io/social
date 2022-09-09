@@ -111,36 +111,36 @@ extensionRegistry.registerExtension('activity', 'type', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'pin',
-  labelKey: 'UIActivity.label.pin',
+  labelKey: 'UIActivity.label.Pin',
   icon: 'mdi-pin',
   isEnabled: (activity, activityTypeExtension) => {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return eXo.env.portal.PinActivityEnabled && activity.canPin && !activity.pinned;
+    return activity.canPin && !activity.pinned;
   },
   click: (activity) => {
-    return Vue.prototype.$activityService.pinActivity(activity.id)
+    return Vue.prototype.$activityService.pinActivity(activity.id, true)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity.id}));
       });
   },
 });
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'unpin',
-  labelKey: 'UIActivity.label.unpin',
+  labelKey: 'UIActivity.label.UnPin',
   icon: 'mdi-pin-off',
   isEnabled: (activity, activityTypeExtension) => {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return eXo.env.portal.PinActivityEnabled && activity.canPin && activity.pinned;
+    return activity.canPin && activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.unpinActivity(activity.id)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity.id}));
       });
   },
 });

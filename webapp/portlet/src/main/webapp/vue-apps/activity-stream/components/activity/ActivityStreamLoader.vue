@@ -9,6 +9,17 @@
       indeterminate
       class="mx-auto my-10" />
   </div>
+  <transition v-else-if="activityPinned">
+    <activity-pinned
+      :key="activity.id"
+      :activity="activity"
+      :activity-types="activityTypes"
+      :activity-actions="activityActions"
+      :comment-types="commentTypes"
+      :comment-actions="commentActions"
+      :is-activity-detail="isActivityDetail"
+      class="mb-6 contentBox" />
+  </transition>
   <transition v-else>
     <activity-stream-activity
         v-show="!activityDeleted"
@@ -63,10 +74,14 @@ export default {
       type: Boolean,
       default: false,
     },
-    pinActivityEnabled: {
-      type: Boolean,
-      default: false,
+    streamFilter: {
+      type: String,
+      default: null,
     },
+  },
+  created() {
+    document.addEventListener('activity-pinned', () => this.displayAlert(this.$t('UIActivity.label.SuccessfullyPinned')));
+    document.addEventListener('activity-unpinned', () => this.displayAlert(this.$t('UIActivity.label.SuccessfullyUnpinned')));
   },
   computed: {
     activityLoading() {
@@ -75,6 +90,17 @@ export default {
     activityDeleted() {
       return this.activity && this.activity.deleted;
     },
+    activityPinned() {
+      return this.activity && this.activity.pinned && (this.streamFilter === null || this.streamFilter === 'all_stream') && eXo.env.portal.spaceId;
+    },
   },
+  methods: {
+    displayAlert(message, type) {
+      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
+        message,
+        type: type || 'success',
+      }}));
+    },
+  }
 };
 </script>
