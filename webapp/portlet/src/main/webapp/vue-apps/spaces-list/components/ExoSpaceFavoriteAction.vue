@@ -8,6 +8,7 @@
     :right="right"
     type="space"
     type-label="space"
+    :entity-type="entityType"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -25,6 +26,10 @@ export default {
     isFavorite: {
       type: Boolean,
       default: false,
+    },
+    entityType: {
+      type: String,
+      default: null,
     },
     absolute: {
       type: Boolean,
