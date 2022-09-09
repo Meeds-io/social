@@ -29,6 +29,8 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -687,6 +689,78 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("Should be able to access activity even when hidden", activity);
+  }
+
+  /**
+   * Test {@link ActivityManager#pinActivity(String, String)} Test
+   * {@link ActivityManager#unpinActivity(String)}
+   */
+  public void testPinActivity() throws Exception {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    Space space = createSpace("spaceTestPin", "john");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    // when
+    activityManager.pinActivity(activity.getId(), johnIdentity.getId());
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setPinned(true);
+    activityFilter.setStreamType(ActivityStreamType.USER_STREAM);
+
+    RealtimeListAccess<ExoSocialActivity> activitiesListAccess =
+                                                               activityManager.getActivitiesByFilterWithListAccess(johnIdentity,
+                                                                                                                   activityFilter);
+    List<ExoSocialActivity> activities = activitiesListAccess.loadAsList(0, activitiesListAccess.getSize());
+    // then
+    assertEquals(1, activities.size());
+    assertTrue(activities.get(0).isPinned());
+
+    // when
+    activityManager.unpinActivity(activity.getId());
+
+    activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter);
+    activities = activitiesListAccess.loadAsList(0, activitiesListAccess.getSize());
+    // then
+    assertEquals(0, activities.size());
+  }
+
+  /**
+   * Test {@link ActivityManager#canPinActivity(ExoSocialActivity, Identity)}
+   */
+  public void testCanActivity() throws Exception {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    Space space = createSpace("spaceTestPin", "john");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    // when
+    boolean maryCanPinActivity = activityManager.canPinActivity(activity, maryIdentity);
+    boolean demoCanPinActivity = activityManager.canPinActivity(activity, demoIdentity);
+
+    // then
+    assertFalse(maryCanPinActivity);
+    assertFalse(demoCanPinActivity);
+
+    // when
+    String[] managers = new String[] { "mary" };
+    String[] redactors = new String[] { "demo" };
+    space.setRedactors(redactors);
+    space.setManagers(managers);
+    spaceService.updateSpace(space);
+    maryCanPinActivity = activityManager.canPinActivity(activity, maryIdentity);
+    demoCanPinActivity = activityManager.canPinActivity(activity, demoIdentity);
+
+    // then
+    assertTrue(maryCanPinActivity);
+    assertTrue(demoCanPinActivity);
   }
 
   /**
