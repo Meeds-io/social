@@ -13,7 +13,7 @@
           link
           class="px-2 spaceItem">
           <v-list-item-avatar 
-            size="26"
+            size="28"
             class="me-3 tile my-0 spaceAvatar"
             tile>
             <v-img :src="space.avatarUrl" />
