@@ -1,9 +1,14 @@
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="filterSpaces d-flex align-center">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu me-2 my-5 icon-default-color" @click="closeMenu()">
-        <i class="fas fa-arrow-left"></i>
-      </v-list-item-icon>
+      <a  
+        v-if="canAddSpaces"
+        :href="allSpacesLink" 
+        class="addNewSpaceIcon px-2 primary rounded py-6px">
+        <v-icon 
+          class="fas fa-plus white--text" 
+          size="20" />
+      </a>
       <v-list-item class="recentSpacesTitle">
         <v-list-item-icon 
           class="me-2 align-self-center " 
@@ -13,8 +18,8 @@
         <v-list-item-content v-if="showFilter" class="recentSpacesTitleLabel">
           <v-text-field
             v-model="keyword"
-            :placeholder="$t('menu.spaces.recentSpaces')"
-            class="recentSpacesFilter border-bottom-color pt-0 mt-0"
+            placeholder="Filter spaces here"
+            class="recentSpacesFilter border-bottom-color body-2 pt-0 mt-0"
             single-line
             hide-details
             required
@@ -22,8 +27,8 @@
         </v-list-item-content>
         <v-list-item-content
           v-else
-          class="recentSpacesTitleLabel pt-1 pb-2px disabled--text border-bottom-color "
-          @click="openFilter()">
+          class="recentSpacesTitleLabel body-2 py-1 disabled--text border-bottom-color "
+          @click="showFilter = true">
           {{ $t('menu.spaces.recentSpaces') }}
         </v-list-item-content>
         <v-list-item-action v-if="showFilter" class="recentSpacesTitleIcon position-absolute r-3">

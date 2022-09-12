@@ -5,8 +5,8 @@
     class="border-box-sizing">
     <v-row class="mx-0 spacesNavigationTitle">
       <v-list-item
-        v-if="isMobile"
-        @click="openOrCloseDrawer()">
+        link
+        @click="openDrawer()">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
