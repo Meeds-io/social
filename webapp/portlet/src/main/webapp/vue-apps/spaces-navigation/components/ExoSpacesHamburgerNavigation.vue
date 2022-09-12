@@ -6,7 +6,6 @@
     <v-row class="mx-0 clickable spacesNavigationTitle">
       <v-list-item
         link
-        @mouseover="openDrawer()"
         @click="openDrawer()">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
