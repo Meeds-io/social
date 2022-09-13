@@ -10,36 +10,46 @@
       :activities="activities"
       @loadActivities="loadActivities" />
     <template v-if="initialized">
-      <template v-if="pinnedActivitiesToDisplay.length">
-        <pinned-activity-stream-loader
-          v-for="activity of pinnedActivitiesToDisplay"
-          :key="activity.id"
-          :activity="activity"
-          :activity-types="activityTypes"
-          :activity-actions="activityActions"
-          :comment-types="commentTypes"
-          :comment-actions="commentActions"
-          :is-activity-detail="activityId"
-          :stream-filter="streamFilter"
-          class="mb-6 contentBox"
-          @loaded="activityLoaded(activity.id)" />
+      <template v-if="activities.length">
+        <template v-if="pinnedActivitiesToDisplay.length">
+          <pinned-activity-stream-loader
+            v-for="activity of pinnedActivitiesToDisplay"
+            :key="activity.id"
+            :activity="activity"
+            :activity-types="activityTypes"
+            :activity-actions="activityActions"
+            :comment-types="commentTypes"
+            :comment-actions="commentActions"
+            :is-activity-detail="activityId"
+            :stream-filter="streamFilter"
+            class="mb-6 contentBox"
+            @loaded="activityLoaded(activity.id)" />
+        </template>
+        <template v-if="activitiesToDisplay.length">
+          <activity-stream-loader
+            v-for="activity of activitiesToDisplay"
+            :key="activity.id"
+            :activity="activity"
+            :activity-types="activityTypes"
+            :activity-actions="activityActions"
+            :comment-types="commentTypes"
+            :comment-actions="commentActions"
+            :is-activity-detail="activityId"
+            class="mb-6 contentBox"
+            @loaded="activityLoaded(activity.id)" />
+        </template>
       </template>
-
-      <template v-if="activitiesToDisplay.length">
-        <activity-stream-loader
-          v-for="activity of activitiesToDisplay"
-          :key="activity.id"
-          :activity="activity"
-          :activity-types="activityTypes"
-          :activity-actions="activityActions"
-          :comment-types="commentTypes"
-          :comment-actions="commentActions"
-          :is-activity-detail="activityId"
-          class="mb-6 contentBox"
-          @loaded="activityLoaded(activity.id)" />
+      <template v-else-if="!activityId && !isDeleted">
+        <activity-not-found v-if="activityId" />
+        <template v-else-if="!error">
+          <activity-stream-empty-message-filter
+            v-if="streamFilter && streamFilter !== 'all_stream'"
+            :stream-filter="streamFilter" />
+          <activity-stream-empty-message-space v-else-if="spaceId" />
+          <activity-stream-empty-message-user v-else />
+        </template>
       </template>
     </template>
-
     <div
       v-else-if="loading"
       class="white border-radius activity-detail flex d-flex flex-column mb-6 contentBox">
@@ -49,14 +59,6 @@
         indeterminate
         class="mx-auto my-10" />
     </div>
-    <template v-else-if="!activityId && !isDeleted">
-      <activity-not-found v-if="activityId" />
-      <template v-else-if="!error">
-        <activity-stream-empty-message-filter v-if="streamFilter && streamFilter !== 'all_stream'" :stream-filter="streamFilter" />
-        <activity-stream-empty-message-space v-else-if="spaceId" />
-        <activity-stream-empty-message-user v-else />
-      </template>
-    </template>
     <v-btn
       v-if="hasMore"
       :loading="loading"
@@ -186,11 +188,16 @@ export default {
       if (index >= 0) {
         this.pinnedActivitiesToDisplay.splice(index, 1);
       }
-      for (let i = 0; i < this.activitiesToDisplay.length - 1; i++) {
+      let added = false;
+      for (let i = 0; i < this.activitiesToDisplay.length; i++) {
         if (new Date(unpinnedActivity.updateDate) > new Date(this.activitiesToDisplay[i].updateDate)) {
           this.activitiesToDisplay.splice(i, 0, unpinnedActivity);
+          added = true;
           break;
         }
+      }
+      if (!added && !this.hasMore) {
+        this.activitiesToDisplay.push(unpinnedActivity);
       }
       this.$forceUpdate();
       this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
