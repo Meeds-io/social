@@ -31,8 +31,6 @@
               <v-list-item-icon
                 :disabled="loading"
                 :loading="loading"
-                icon
-                small
                 class="me-2 align-center"
                 v-bind="attrs"
                 v-on="on">
@@ -47,6 +45,11 @@
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
                 <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
               </v-list-item>
+              <exo-space-favorite-action
+                v-if="favoriteActionEnabled"
+                :is-favorite="space.isFavorite"
+                :space-id="space.id"
+                display-label />
               <v-list-item
                 v-if="homeLink !== space.spaceUrl"
                 @click="$emit('selectHome', $event, space)">
@@ -128,6 +131,9 @@ export default {
     },
     selectedSpaceIndex() {
       return this.spaces.findIndex(space => this.url(space) === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${this.url(space)}/`) === 0);
+    },
+    favoriteActionEnabled() {
+      return this.favoritesSpaceEnabled;
     },
     favoriteActionEnabled() {
       return this.favoritesSpaceEnabled;
