@@ -39,7 +39,7 @@
             </template>
             <v-list class="pa-0">
               <v-list-item
-                :href="space.spaceUrl" 
+                :href="url(space)" 
                 target="_blank"
                 link>
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
@@ -51,7 +51,7 @@
                 :space-id="space.id"
                 display-label />
               <v-list-item
-                v-if="homeLink !== space.spaceUrl"
+                v-if="homeLink !== url(space)"
                 @click="$emit('selectHome', $event, space)">
                 <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
@@ -135,9 +135,6 @@ export default {
     favoriteActionEnabled() {
       return this.favoritesSpaceEnabled;
     },
-    favoriteActionEnabled() {
-      return this.favoritesSpaceEnabled;
-    },
   },
   watch: {
     keyword() {
@@ -208,13 +205,6 @@ export default {
         return '#';
       }
     },
-    leftNavigationActionEvent(clickedItem) {
-      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
-    },
-    selectHome(event, space) {
-      this.$emit('selectHome', event, space);
-      this.leftNavigationActionEvent('makeAsHomePage');
-    }
   }
 };
 </script>
