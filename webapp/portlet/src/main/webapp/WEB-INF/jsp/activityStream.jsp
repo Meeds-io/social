@@ -9,17 +9,16 @@
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.commons.api.settings.ExoFeatureService"%>
 <%@page import="org.exoplatform.services.security.ConversationState"%>
-<%@ page import="org.exoplatform.commons.utils.PropertyManager" %>
 <%
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
-  Space space = SpaceUtils.getSpaceByContext();
+  List<String> activitiesListURL = new ArrayList<>();
   String activityId = rcontext.getRequest().getParameter("id");
-  long pinActivityLimit = Long.parseLong(PropertyManager.getProperty("social.pinActivity.limit"));
-  long limitToDisplay = 10 + (space != null ? pinActivityLimit : 0);
+  long limitToDisplay = 10;
   long initialLimit = limitToDisplay * 2;
   String activitiesLoadingURL;
   if (activityId == null) {
+    Space space = SpaceUtils.getSpaceByContext();
     activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
   } else {
     activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments,favorite";
