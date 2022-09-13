@@ -9,7 +9,7 @@ import ActivityStreamUpdater from './components/common/ActivityStreamUpdater.vue
 import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue';
 import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
 import ActivityStreamActivity from './components/activity/ActivityStreamActivity.vue';
-import ActivityPinned from './components/common/ActivityPinned.vue';
+import PinnedActivityStreamLoader from './components/pinned-activity/PinnedActivityStreamLoader.vue';
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
 import ActivityStreamFilter from './components/toolbar/ActivityStreamFilter.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
@@ -54,7 +54,7 @@ const components = {
   'activity-stream-updater': ActivityStreamUpdater,
   'activity-stream-confirm-dialog': ActivityStreamConfirm,
   'activity-stream-activity': ActivityStreamActivity,
-  'activity-pinned': ActivityPinned,
+  'pinned-activity-stream-loader': PinnedActivityStreamLoader,
   'activity-stream-loader': ActivityStreamLoader,
   'activity-stream-filter': ActivityStreamFilter,
   'activity-head': ActivityHead,

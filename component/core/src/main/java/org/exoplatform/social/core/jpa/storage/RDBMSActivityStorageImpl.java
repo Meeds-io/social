@@ -64,6 +64,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public static final String                     COMMENT_PREFIX              = "comment";
 
+  public static final String                     PIN_ACTIVITY_ENABLED        = "exo.feature.PinActivity.enabled";
+  
   private final ActivityShareActionDAO           activityShareActionDAO;
 
   private final ActivityDAO                      activityDAO;
@@ -88,6 +90,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
    */
   private Map<String, ActivityFileStoragePlugin> activityFileStorageByDSName = new HashMap<>();
 
+  private boolean                                enablePinActivity           = false;
+
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
                                   ActivityShareActionDAO activityShareActionDAO,
@@ -99,6 +103,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
+    if (StringUtils.isNotBlank(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED))) {
+      enablePinActivity = Boolean.parseBoolean(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED));
+    }
   }
 
   private static Comparator<ActivityProcessor> processorComparator() {
@@ -522,7 +529,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(true);
+      activityFilter.setShowPinned(enablePinActivity);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -561,7 +568,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(true);
+      activityFilter.setShowPinned(enablePinActivity);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -988,11 +995,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
-  public ExoSocialActivity pinActivity(String activityId, Long userId) {
+  public ExoSocialActivity pinActivity(String activityId, String userId) {
     ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
     activityEntity.setPinned(true);
     activityEntity.setPinDate(new Date());
-    activityEntity.setPinAuthorId(userId);
+    activityEntity.setPinAuthorId(Long.valueOf(userId));
     activityEntity = activityDAO.update(activityEntity);
     return convertActivityEntityToActivity(activityEntity);
   }

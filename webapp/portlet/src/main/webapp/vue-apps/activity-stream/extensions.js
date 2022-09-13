@@ -117,12 +117,12 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return activity.canPin && !activity.pinned;
+    return eXo.env.portal.PinActivityEnabled && activity.canPin && !activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.pinActivity(activity.id, true)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity.id}));
+        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
       });
   },
 });
@@ -135,12 +135,12 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return activity.canPin && activity.pinned;
+    return eXo.env.portal.PinActivityEnabled && activity.canPin && activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.unpinActivity(activity.id)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity.id}));
+        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity}));
       });
   },
 });
