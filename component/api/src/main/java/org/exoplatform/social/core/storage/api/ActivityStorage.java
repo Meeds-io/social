@@ -1167,7 +1167,7 @@ public interface ActivityStorage {
    * @param userIdentityId user identity Technical Identifier
    * @return pinned {@link ExoSocialActivity}
    */
-  default ExoSocialActivity pinActivity(String activityId, Long userIdentityId) {
+  default ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
     throw new UnsupportedOperationException();
   }
 
