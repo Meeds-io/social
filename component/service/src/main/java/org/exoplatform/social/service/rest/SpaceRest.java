@@ -172,6 +172,4 @@ public class SpaceRest {
   public String getDisplayName() {
     return displayName;
   }
-  
-  
 }

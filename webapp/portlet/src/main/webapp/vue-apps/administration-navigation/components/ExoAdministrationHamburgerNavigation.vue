@@ -5,7 +5,7 @@
     py-0
     class="white d-none d-sm-block">
     <v-row v-if="navigationTree && navigationTree.length" class="mx-0 administrationTitle">
-      <v-list-item @mouseover="openDrawer()" @click="openDrawer()">
+      <v-list-item @click="openDrawer()">
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
         <v-list-item-content class="subtitle-2 titleLabel clickable">
           {{ this.$t('menu.administration.title') }}

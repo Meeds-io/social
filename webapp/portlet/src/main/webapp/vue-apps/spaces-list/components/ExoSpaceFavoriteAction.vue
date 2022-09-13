@@ -9,6 +9,7 @@
     type="space"
     type-label="space"
     :entity-type="entityType"
+    :display-label="displayLabel"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -43,6 +44,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    displayLabel: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     favorite: false
