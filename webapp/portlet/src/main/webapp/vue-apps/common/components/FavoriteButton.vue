@@ -116,7 +116,7 @@ export default {
       return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
     },
     favoriteIconColor() {
-      return this.isFavorite && 'yellow--text text--darken-2' || 'icon-default-color';
+      return this.isFavorite && 'yellow--text text--darken-2 ml-n2px' || 'icon-default-color';
     },
     favoriteIcon() {
       return this.isFavorite && 'fas fa-star' || 'far fa-star';
