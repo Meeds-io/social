@@ -3,17 +3,16 @@
     px-0
     pt-0
     class="border-box-sizing">
-    <v-row class="mx-0 clickable spacesNavigationTitle">
+    <v-row class="mx-0 spacesNavigationTitle">
       <v-list-item
-        link
-        @click="openDrawer()">
+        link>
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
         <v-list-item-content class="subtitle-1 titleLabel">
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
-        <v-list-item-action class="my-0">
+        <v-list-item-action class="my-0" @click="toggleOpenDrawer()">
           <i class="uiIcon uiArrowRightIcon" color="grey lighten-1"></i>
         </v-list-item-action>
       </v-list-item>
@@ -45,6 +44,7 @@ export default {
       selectedSpace: null,
       spacesLimit: 7,
       secondLevelVueInstance: null,
+      secondeLevel: false
     };
   },
   computed: {
@@ -101,8 +101,13 @@ export default {
         });
       });
     },
-    openDrawer() {
-      this.$emit('open-second-level');
+    toggleOpenDrawer() {
+      this.secondeLevel = !this.secondeLevel;
+      if (this.secondeLevel) {
+        this.$emit('open-second-level');
+      } else {
+        this.$emit('close-second-level');
+      }
     },
   },
 };
