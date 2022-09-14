@@ -14,7 +14,7 @@
     @remove-error="removeError"
     @added="added"
     @add-error="addError"
-    class="pt-1 pe-1" />
+    :class="!displayLabel && 'pt-1 pe-1'" />
 </template>
 
 <script>
