@@ -5,36 +5,15 @@
     class="border-box-sizing">
     <v-row class="mx-0 spacesNavigationTitle">
       <v-list-item
-        link
-        @click="openDrawer()">
+        link>
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
         <v-list-item-content class="subtitle-1 titleLabel">
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
-      </v-list-item>
-      <v-list-item
-        v-else
-        @mouseover="showItemActions = true" 
-        @mouseleave="showItemActions = false">
-        <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
-          <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
-        </v-list-item-icon>
-        <v-list-item-content class="subtitle-1 titleLabel">
-          {{ $t('menu.spaces.lastVisitedSpaces') }}
-        </v-list-item-content>
-        <v-list-item-action v-if="toggleArrow" class="my-0 d-flex flex-row align-center">
-          <v-btn icon @click="leftNavigationActionEvent('addNewSpace')">
-            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
-              fa-plus
-            </v-icon>
-          </v-btn>
-          <v-btn icon @click="openOrCloseDrawer()">
-            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
-              {{ arrowIconClass }} 
-            </v-icon>
-          </v-btn>
+        <v-list-item-action class="my-0" @click="toggleOpenDrawer()">
+          <i class="uiIcon uiArrowRightIcon" color="grey lighten-1"></i>
         </v-list-item-action>
       </v-list-item>
     </v-row>
@@ -65,10 +44,7 @@ export default {
       selectedSpace: null,
       spacesLimit: 7,
       secondLevelVueInstance: null,
-      secondeLevel: false,
-      showItemActions: false,
-      arrowIcon: 'fa-arrow-right',
-      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
+      secondeLevel: false
     };
   },
   computed: {
@@ -142,28 +118,13 @@ export default {
         });
       });
     },
-    hideSecondeItem() {
-      this.arrowIcon= 'fa-arrow-right';
-      this.showItemActions = false;
-      this.secondeLevel = false;
-    },
-    openOrCloseDrawer() {
-      if (this.isMobile) {
+    toggleOpenDrawer() {
+      this.secondeLevel = !this.secondeLevel;
+      if (this.secondeLevel) {
         this.$emit('open-second-level');
       } else {
-        this.secondeLevel = !this.secondeLevel;
-        if (this.secondeLevel) {
-          this.arrowIcon = 'fa-arrow-left';
-          this.$emit('open-second-level');
-        } else {
-          this.arrowIcon = 'fa-arrow-right';
-          this.$emit('close-second-level');
-        }
+        this.$emit('close-second-level');
       }
-    },
-    leftNavigationActionEvent(clickedItem) {
-      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
-      window.location.href  = this.allSpacesLink;
     },
   },
 };
