@@ -1,6 +1,9 @@
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="filterSpaces d-flex align-center">
+      <v-list-item-icon class="d-flex d-sm-none backToMenu me-2 my-5 icon-default-color" @click="closeMenu()">
+        <i class="fas fa-arrow-left"></i>
+      </v-list-item-icon>
       <a  
         v-if="canAddSpaces"
         :href="allSpacesLink" 
