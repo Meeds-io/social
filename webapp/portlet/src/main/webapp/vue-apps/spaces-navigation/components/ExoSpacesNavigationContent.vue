@@ -8,12 +8,12 @@
         <v-list-item
           v-for="space in filteredSpaces"
           :key="space.id"
-          :href="url(space)"
-          :class="homeIcon && (homeLink === url(space) && 'UserPageLinkHome' || 'UserPageLink')"
+          :href="space.spaceUrl"
+          :class="homeIcon && (homeLink === space.spaceUrl && 'UserPageLinkHome' || 'UserPageLink')"
           link
           class="px-2 spaceItem">
           <v-list-item-avatar 
-            size="28"
+            size="26"
             class="me-3 tile my-0 spaceAvatar"
             tile>
             <v-img :src="space.avatarUrl" />
@@ -41,14 +41,14 @@
             </template>
             <v-list class="pa-0">
               <v-list-item
-                :href="url(space)" 
+                :href="space.spaceUrl"
                 target="_blank"
                 link>
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
                 <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
               </v-list-item>
               <v-list-item
-                v-if="homeLink !== url(space)"
+                v-if="homeLink !== space.spaceUrl"
                 @click="$emit('selectHome', $event, space)">
                 <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
@@ -126,7 +126,7 @@ export default {
       }
     },
     selectedSpaceIndex() {
-      return this.spaces.findIndex(space => this.url(space) === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${this.url(space)}/`) === 0);
+      return this.spaces.findIndex(space => space.spaceUrl === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${space.spaceUrl}/`) === 0);
     },
   },
   watch: {
@@ -141,6 +141,11 @@ export default {
         this.loadingSpaces = true;
         this.waitForEndTyping();
       }
+    },
+    spaces() {
+      this.spaces.forEach(space => {
+        space.spaceUrl = `${eXo.env.portal.context}${space.spaceUrl}`;
+      });
     },
     limitToFetch() {
       this.searchSpaces()
@@ -189,14 +194,6 @@ export default {
           this.waitForEndTyping();
         }
       }, this.endTypingKeywordTimeout);
-    },
-    url(space) {
-      if (space && space.groupId) {
-        const uriPart = space.groupId.replace(/\//g, ':');
-        return `${eXo.env.portal.context}/g/${uriPart}/`;
-      } else {
-        return '#';
-      }
     },
   }
 };
