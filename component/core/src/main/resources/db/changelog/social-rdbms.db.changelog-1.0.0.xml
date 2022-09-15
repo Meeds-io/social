@@ -827,4 +827,12 @@
     <createSequence sequenceName="SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID" startValue="1"/>  
   </changeSet>
 
+    <changeSet id="1.0.0-84" author="social">
+        <addColumn tableName="SOC_ACTIVITIES">
+            <column name="PINNED" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="PIN_DATE" type="TIMESTAMP" defaultValueComputed="NULL"/>
+            <column name="PIN_AUTHOR_ID" type="BIGINT" defaultValueComputed="NULL"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

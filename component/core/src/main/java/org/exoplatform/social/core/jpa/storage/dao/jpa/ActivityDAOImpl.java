@@ -929,7 +929,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (filterNamedQueries.containsKey(queryName)) {
       query = getEntityManager().createNamedQuery(queryName, clazz);
     } else {
-      String queryContent = getQueryFilterContent(predicates, count);
+      String queryContent = getQueryFilterContent(predicates, activityFilter.isShowPinned(), count);
       query = getEntityManager().createQuery(queryContent, clazz);
       getEntityManager().getEntityManagerFactory().addNamedQuery(queryName, query);
       filterNamedQueries.put(queryName, true);
@@ -958,7 +958,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
   }
 
-  private void buildPredicates(ActivityFilter activityFilter, List<String> spaceIdentityIds, List<String> suffixes, List<String> predicates) {
+  private void buildPredicates(ActivityFilter activityFilter,
+                               List<String> spaceIdentityIds,
+                               List<String> suffixes,
+                               List<String> predicates) {
     if (activityFilter.getUserId() != null) {
       suffixes.add("Poster");
       predicates.add("item.activity.posterId = :posterId");
@@ -967,6 +970,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       suffixes.add("StreamType");
       predicates.add("item.streamType = :streamType");
       predicates.add("item.ownerId in (:ownerIds)");
+    }
+    if (activityFilter.isPinned()) {
+      suffixes.add("Pinned");
+      predicates.add("item.activity.pinned = true");
     }
   }
 
@@ -980,11 +987,11 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return queryName;
   }
 
-  private String getQueryFilterContent(List<String> predicates, boolean count) {
-    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.updatedDate";
+  private String getQueryFilterContent(List<String> predicates, boolean showPinned, boolean count) {
+    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.activity.pinDate, item.updatedDate";
     querySelect = querySelect + " FROM SocStreamItem item WHERE item.activity.hidden = false";
 
-    String orderBy = " ORDER BY item.updatedDate DESC";
+    String orderBy = showPinned ? " ORDER BY item.activity.pinDate DESC NULLS LAST, item.updatedDate DESC" : " ORDER BY item.updatedDate DESC";
 
     String queryContent;
     if (predicates.isEmpty()) {

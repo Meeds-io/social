@@ -96,15 +96,19 @@ public class ActivityManagerImpl implements ActivityManager {
   /**
    * exo property for editing activity permission
    */
-  public static final String          ENABLE_EDIT_ACTIVITY            = "exo.edit.activity.enabled";
+  public static final String          ENABLE_EDIT_ACTIVITY           = "exo.edit.activity.enabled";
 
-  public static final String          ENABLE_EDIT_COMMENT             = "exo.edit.comment.enabled";
+  public static final String          ENABLE_EDIT_COMMENT            = "exo.edit.comment.enabled";
 
   public static final String          ENABLE_USER_COMPOSER           = "userStreamComposer.enabled";
 
-  public static final String          ENABLE_MANAGER_EDIT_ACTIVITY    = "exo.manager.edit.activity.enabled";
+  public static final String          ENABLE_MANAGER_EDIT_ACTIVITY   = "exo.manager.edit.activity.enabled";
 
-  public static final String          ENABLE_MANAGER_EDIT_COMMENT     = "exo.manager.edit.comment.enabled";
+  public static final String          ENABLE_MANAGER_EDIT_COMMENT    = "exo.manager.edit.comment.enabled";
+
+  public static final String          MANDATORY_ACTIVITY_ID          = "activityId is mandatory";
+
+  public static final String          MANDATORY_USER_IDENTITY_ID     = "userIdentityId is mandatory";
 
   private Set<String>                 systemActivityTypes            = new HashSet<>();
 
@@ -231,7 +235,7 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     long activityId = activityShareAction.getActivityId();
     if (activityId <= 0) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = getActivity(String.valueOf(activityId));
     if (activity == null) {
@@ -377,7 +381,7 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public ExoSocialActivity hideActivity(String activityId) {
     if (StringUtils.isBlank(activityId)) {
-      throw new IllegalArgumentException("activityId is mandatory");
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
     ExoSocialActivity activity = activityStorage.hideActivity(activityId);
     activityLifeCycle.hideActivity(activity);
@@ -530,6 +534,43 @@ public class ActivityManagerImpl implements ActivityManager {
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
+    }
+    if (StringUtils.isBlank(userIdentityId)) {
+      throw new IllegalArgumentException(MANDATORY_USER_IDENTITY_ID);
+    }
+    return activityStorage.pinActivity(activityId, userIdentityId);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ExoSocialActivity unpinActivity(String activityId) {
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
+    }
+    return activityStorage.unpinActivity(activityId);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
+    Space space = spaceService.getSpaceById(activity.getSpaceId());
+    if (space != null) {
+      return spaceService.isManager(space, identity.getRemoteId()) || spaceService.isRedactor(space, identity.getRemoteId());
+    }
+    return false;
   }
 
   @Override

@@ -759,6 +759,18 @@
         </init-params>
     </component>
 
+    <component>
+        <key>PinActivityFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>PinActivityFeatureProperties</name>
+                <description>Pin Activity Feature enablement flag</description>
+                <property name="exo.feature.PinActivity.enabled" value="${exo.feature.PinActivity.enabled:true}" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>
