@@ -1,8 +1,8 @@
 <template>
   <div
-    class="d-inline-flex">
+    :class="!displayLabel && 'd-inline-flex'">
     <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+      <template v-if="!displayLabel" #activator="{ on, attrs }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
@@ -23,6 +23,19 @@
             </v-icon>
           </div>
         </v-btn>
+      </template>
+      <template v-else #activator="{ on, attrs }">
+        <v-list-item 
+          v-bind="attrs" 
+          v-on="on" 
+          @click="changeFavorite">
+          <v-icon 
+            class="mr-3"
+            :class="favoriteIconColor"
+            size="16" > 
+            {{ favoriteIcon }} </v-icon>
+          <span class="text-color mt-1">{{ favoriteLabel }}</span>
+        </v-list-item> 
       </template>
       <span>
         {{ favoriteTooltip }}
@@ -78,6 +91,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    displayLabel: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     isFavorite: false,
@@ -98,11 +115,14 @@ export default {
       return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
     },
     favoriteIconColor() {
-      return this.isFavorite && 'yellow--text text--darken-2' || 'icon-default-color';
+      return this.isFavorite && 'yellow--text text--darken-2 ml-n2px' || 'icon-default-color';
     },
     favoriteIcon() {
       return this.isFavorite && 'fas fa-star' || 'far fa-star';
     },
+    favoriteLabel() {
+      return this.isFavorite && this.$t('Favorite.tooltip.unBookmark') || this.$t('Favorite.tooltip.bookmark');
+    }
   },
   watch: {
     favorite: {

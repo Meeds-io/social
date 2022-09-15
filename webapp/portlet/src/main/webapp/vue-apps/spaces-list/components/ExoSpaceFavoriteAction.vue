@@ -9,11 +9,12 @@
     type="space"
     type-label="space"
     :entity-type="entityType"
+    :display-label="displayLabel"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
     @add-error="addError"
-    class="pt-1 pe-1" />
+    :class="!displayLabel && 'pt-1 pe-1'" />
 </template>
 
 <script>
@@ -43,6 +44,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    displayLabel: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     favorite: false
