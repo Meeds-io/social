@@ -23,7 +23,7 @@
         :size="16">
         fa-thumbtack
       </v-icon>
-      <span class="ms-2">{{ $t('UIActivity.label.pinnedActivity') }}</span>
+      <span class="ms-2">{{ $t('UIActivity.label.PinnedActivity') }}</span>
     </div>
     <activity-stream-activity
       :key="activity.id"

@@ -9,6 +9,16 @@
       indeterminate
       class="mx-auto my-10" />
   </div>
+  <transition v-else-if="pinnedActivity">
+    <activity-stream-pinned-activity
+        :key="activity.id"
+        :activity="activity"
+        :activity-types="activityTypes"
+        :activity-actions="activityActions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        :is-activity-detail="isActivityDetail" />
+  </transition>
   <transition v-else>
     <activity-stream-activity
         v-show="!activityDeleted"
@@ -63,6 +73,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    pinActivityEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     activityLoading() {
@@ -70,6 +84,9 @@ export default {
     },
     activityDeleted() {
       return this.activity && this.activity.deleted;
+    },
+    pinnedActivity() {
+      return this.activity && this.activity.pinned && this.pinActivityEnabled;
     },
   },
 };

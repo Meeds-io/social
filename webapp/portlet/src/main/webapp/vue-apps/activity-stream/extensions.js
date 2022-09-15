@@ -120,7 +120,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     return eXo.env.portal.PinActivityEnabled && activity.canPin && !activity.pinned;
   },
   click: (activity) => {
-    return Vue.prototype.$activityService.pinActivity(activity.id, true)
+    return Vue.prototype.$activityService.pinActivity(activity.id)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
       });
