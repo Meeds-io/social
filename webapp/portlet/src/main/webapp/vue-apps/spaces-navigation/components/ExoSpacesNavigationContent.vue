@@ -41,7 +41,7 @@
             </template>
             <v-list class="pa-0">
               <v-list-item
-                :href="space.spaceUrl" 
+                :href="space.spaceUrl"
                 target="_blank"
                 link>
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
