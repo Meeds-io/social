@@ -9,46 +9,19 @@
       :space-id="spaceId"
       :activities="activities"
       @loadActivities="loadActivities" />
-    <template v-if="initialized">
-      <template v-if="activities.length">
-        <template v-if="pinnedActivitiesToDisplay.length">
-          <pinned-activity-stream-loader
-            v-for="activity of pinnedActivitiesToDisplay"
-            :key="activity.id"
-            :activity="activity"
-            :activity-types="activityTypes"
-            :activity-actions="activityActions"
-            :comment-types="commentTypes"
-            :comment-actions="commentActions"
-            :is-activity-detail="activityId"
-            :stream-filter="streamFilter"
-            class="mb-6 contentBox"
-            @loaded="activityLoaded(activity.id)" />
-        </template>
-        <template v-if="activitiesToDisplay.length">
-          <activity-stream-loader
-            v-for="activity of activitiesToDisplay"
-            :key="activity.id"
-            :activity="activity"
-            :activity-types="activityTypes"
-            :activity-actions="activityActions"
-            :comment-types="commentTypes"
-            :comment-actions="commentActions"
-            :is-activity-detail="activityId"
-            class="mb-6 contentBox"
-            @loaded="activityLoaded(activity.id)" />
-        </template>
-      </template>
-      <template v-else-if="!activityId && !isDeleted">
-        <activity-not-found v-if="activityId" />
-        <template v-else-if="!error">
-          <activity-stream-empty-message-filter
-            v-if="streamFilter && streamFilter !== 'all_stream'"
-            :stream-filter="streamFilter" />
-          <activity-stream-empty-message-space v-else-if="spaceId" />
-          <activity-stream-empty-message-user v-else />
-        </template>
-      </template>
+    <template v-if="activitiesToDisplay.length">
+      <activity-stream-loader
+        v-for="activity of activitiesToDisplay"
+        :key="activity.id"
+        :activity="activity"
+        :activity-types="activityTypes"
+        :activity-actions="activityActions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        :is-activity-detail="activityId"
+        :pin-activity-enabled="pinActivityEnabled"
+        class="mb-6 contentBox"
+        @loaded="activityLoaded(activity.id)" />
     </template>
     <div
       v-else-if="loading"
@@ -59,6 +32,14 @@
         indeterminate
         class="mx-auto my-10" />
     </div>
+    <template v-else-if="!activityId && !isDeleted">
+      <activity-not-found v-if="activityId" />
+      <template v-else-if="!error">
+        <activity-stream-empty-message-filter v-if="streamFilter && streamFilter !== 'all_stream'" :stream-filter="streamFilter" />
+        <activity-stream-empty-message-space v-else-if="spaceId" />
+        <activity-stream-empty-message-user v-else />
+      </template>
+    </template>
     <v-btn
       v-if="hasMore"
       :loading="loading"
@@ -109,25 +90,16 @@ export default {
     error: false,
     isDeleted: false,
     streamFilter: null,
-    initialized: false,
-    pinActivityEnabled: eXo.env.portal.PinActivityEnabled,
   }),
   computed: {
     activitiesToDisplay() {
-      if (this.displayPinnedActivities) {
-        return this.activities && this.activities.filter(activity => activity && !activity.activityId && !activity.pinned) || [];
-      } else {
-        return this.activities && this.activities.filter(activity => activity && !activity.activityId) || [];
-      }
-    },
-    pinnedActivitiesToDisplay() {
-      return this.displayPinnedActivities && this.activities && this.activities.filter(activity => activity && !activity.activityId && activity.pinned) || [];
+      return this.activities && this.activities.filter(activity => activity && !activity.activityId) || [];
     },
     activityStreamTypeClass() {
       return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
     },
-    displayPinnedActivities() {
-      return this.pinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream');
+    pinActivityEnabled() {
+      return eXo.env.portal.PinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
     }
   },
   watch: {
@@ -171,35 +143,45 @@ export default {
       }
     });
     document.addEventListener('activity-pinned', event => {
-      const pinnedActivity = event && event.detail && event.detail;
-      this.$set(pinnedActivity, 'pinned', true);
-      const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
-      if (index >= 0) {
+      if (this.pinActivityEnabled) {
+        const pinnedActivity = event?.detail;
+        this.$set(pinnedActivity, 'pinned', true);
+        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
         this.activitiesToDisplay.splice(index, 1);
+        this.$forceUpdate();
+        const self = this;
+        setTimeout(function () {
+          self.activitiesToDisplay.unshift(pinnedActivity);
+          self.$forceUpdate();
+        }, 10);
       }
-      this.pinnedActivitiesToDisplay.unshift(pinnedActivity);
-      this.$forceUpdate();
       this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
     });
     document.addEventListener('activity-unpinned', event => {
-      const unpinnedActivity = event && event.detail && event.detail;
-      this.$set(unpinnedActivity, 'pinned', false);
-      const index = this.pinnedActivitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
-      if (index >= 0) {
-        this.pinnedActivitiesToDisplay.splice(index, 1);
-      }
-      let added = false;
-      for (let i = 0; i < this.activitiesToDisplay.length; i++) {
-        if (new Date(unpinnedActivity.updateDate) > new Date(this.activitiesToDisplay[i].updateDate)) {
-          this.activitiesToDisplay.splice(i, 0, unpinnedActivity);
-          added = true;
-          break;
+      if (this.pinActivityEnabled) {
+        const unpinnedActivity = event?.detail;
+        this.$set(unpinnedActivity, 'pinned', false);
+        const index = this.activitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
+        if (index >= 0) {
+          this.activitiesToDisplay.splice(index, 1);
         }
+        this.$forceUpdate();
+        const self = this;
+        setTimeout(function () {
+          let added = false;
+          for (let i = 0; i < self.activitiesToDisplay.length; i++) {
+            if ((new Date(unpinnedActivity.updateDate) > new Date(self.activitiesToDisplay[i].updateDate)) && !self.activitiesToDisplay[i].pinned) {
+              self.activitiesToDisplay.splice(i, 0, unpinnedActivity);
+              added = true;
+              break;
+            }
+          }
+          if (!added && !self.hasMore) {
+            self.activitiesToDisplay.push(unpinnedActivity);
+          }
+          self.$forceUpdate();
+        }, 50);
       }
-      if (!added && !this.hasMore) {
-        this.activitiesToDisplay.push(unpinnedActivity);
-      }
-      this.$forceUpdate();
       this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
     });
     document.addEventListener('activity-updated', event => {
@@ -235,7 +217,6 @@ export default {
       if (this.activityId) {
         return this.loadActivity();
       } else {
-        this.limit += (this.spaceId && this.pinActivityLimit) || 0;
         return this.loadActivityIds();
       }
     },
@@ -274,10 +255,7 @@ export default {
           });
           return Promise.all(promises);
         })
-        .finally(() => {
-          this.initialized = true;
-          this.loading = false;
-        });
+        .finally(() => this.loading = false);
     },
     activityLoaded(activityId) {
       this.loadedActivities.add(activityId);

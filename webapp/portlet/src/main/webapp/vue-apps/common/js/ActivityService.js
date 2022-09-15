@@ -138,19 +138,13 @@ export function deleteActivity(id, hide) {
   });
 }
 
-export function pinActivity(activityId, replaceOlder) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins?replaceOlder=${replaceOlder}`, {
+export function pinActivity(activityId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins`, {
     method: 'POST',
     credentials: 'include',
   }).then(resp => {
     if (!resp || !resp.ok) {
-      if (resp.status === 400) {
-        return resp.text().then(error => {
-          throw new Error(error);
-        });
-      } else {
-        throw new Error('Response code indicates a server error', resp);
-      }
+      throw new Error('Response code indicates a server error', resp);
     } else {
       return resp.json();
     }
