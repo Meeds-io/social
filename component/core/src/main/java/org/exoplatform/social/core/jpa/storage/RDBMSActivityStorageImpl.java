@@ -64,6 +64,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public static final String                     COMMENT_PREFIX              = "comment";
 
+  public static final String                     PIN_ACTIVITY_ENABLED        = "exo.feature.PinActivity.enabled";
+  
   private final ActivityShareActionDAO           activityShareActionDAO;
 
   private final ActivityDAO                      activityDAO;
@@ -88,6 +90,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
    */
   private Map<String, ActivityFileStoragePlugin> activityFileStorageByDSName = new HashMap<>();
 
+  private boolean                                pinActivityEnabled          = false;
+
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
                                   ActivityShareActionDAO activityShareActionDAO,
@@ -99,6 +103,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
+    if (StringUtils.isNotBlank(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED))) {
+      pinActivityEnabled = Boolean.parseBoolean(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED));
+    }
   }
 
   private static Comparator<ActivityProcessor> processorComparator() {
@@ -168,6 +175,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activity.setPostedTime(activityEntity.getPosted() != null ? activityEntity.getPosted().getTime() : 0);
     activity.setUpdated(activityEntity.getUpdatedDate().getTime());
     //
+    activity.setPinned(activityEntity.getPinned());
+    activity.setPinDate(StorageUtils.toRFC3339Date(activityEntity.getPinDate()));
+    activity.setPinAuthorId(activityEntity.getPinAuthorId());
+    //
     List<String> commentPosterIds = new ArrayList<>();
     List<String> replyToIds = new ArrayList<>();
     fillCommentsIdsAndPosters(activityEntity, commentPosterIds, replyToIds, false);
@@ -232,6 +243,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     processDates(activityEntity);
     activityEntity.setLocked(activity.isLocked());
     activityEntity.setHidden(activity.isHidden());
+    activityEntity.setPinned(activity.isPinned());
+    activityEntity.setPinDate(StorageUtils.parseRFC3339Date(activity.getPinDate()));
+    activityEntity.setPinAuthorId(activity.getPinAuthorId());
     activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentions(activity.getTitle(),
                                                                                      activity.getTemplateParams()))));
     //
@@ -515,6 +529,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      activityFilter.setShowPinned(pinActivityEnabled);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -553,6 +568,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      activityFilter.setShowPinned(pinActivityEnabled);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -979,6 +995,25 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
+  public ExoSocialActivity pinActivity(String activityId, String userId) {
+    ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
+    activityEntity.setPinned(true);
+    activityEntity.setPinDate(new Date());
+    activityEntity.setPinAuthorId(Long.valueOf(userId));
+    activityEntity = activityDAO.update(activityEntity);
+    return convertActivityEntityToActivity(activityEntity);
+  }
+
+  @Override
+  public ExoSocialActivity unpinActivity(String activityId) {
+    ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
+    activityEntity.setPinned(false);
+    activityEntity.setPinDate(null);
+    activityEntity.setPinAuthorId(null);
+    activityEntity = activityDAO.update(activityEntity);
+    return convertActivityEntityToActivity(activityEntity);  }
+
+  @Override
   @ExoTransactional
   public void deleteComment(String activityId, String commentId) {
     ActivityEntity comment = activityDAO.find(getCommentID(commentId));
@@ -1359,6 +1394,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       updatedActivity.setHidden(existingActivity.isHidden());
       updatedActivity.setComment(existingActivity.isComment());
       updatedActivity.setLocked(existingActivity.isLocked());
+      updatedActivity.setPinned(existingActivity.isPinned());
+      updatedActivity.setPinDate(StorageUtils.parseRFC3339Date(existingActivity.getPinDate()));
+      updatedActivity.setPinAuthorId(existingActivity.getPinAuthorId());
+
 
       activityDAO.update(updatedActivity);
     } else {

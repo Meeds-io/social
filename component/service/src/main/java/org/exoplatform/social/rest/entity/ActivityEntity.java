@@ -130,6 +130,32 @@ public class ActivityEntity extends BaseEntity {
     return getString("updateDate");
   }
 
+  public void setPinned(boolean pinned) {
+    setProperty("pinned", pinned);
+  }
+
+  public boolean isPinned() {
+    return (Boolean) getProperty("pinned");
+  }
+
+  public String getPinDate() {
+    return getString("pinDate");
+  }
+
+  public ActivityEntity setPinDate(String pinDate) {
+    setProperty("pinDate", pinDate);
+    return this;
+  }
+
+  public Long getPinAuthorId() {
+    return Long.parseLong(getString("pinAuthorId"));
+  }
+
+  public ActivityEntity setPinAuthorId(Long pinAuthorId) {
+    setProperty("pinAuthorId", pinAuthorId);
+    return this;
+  }
+
   public ActivityEntity setPriority(String priority) {
     setProperty("priority", priority);
     return this;
@@ -225,6 +251,10 @@ public class ActivityEntity extends BaseEntity {
   public boolean isCanDelete() {
     Object canDelete = getProperty(RestProperties.CAN_DELETE);
     return canDelete != null && Boolean.parseBoolean(canDelete.toString());
+  }
+
+  public void setCanPin(boolean canPin) {
+    setProperty(RestProperties.CAN_PIN, canPin);
   }
 
   public ActivityEntity setActivityStream(DataEntity activityStream) {
