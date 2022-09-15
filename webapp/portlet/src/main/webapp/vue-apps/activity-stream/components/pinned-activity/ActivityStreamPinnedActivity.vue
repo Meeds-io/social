@@ -15,17 +15,7 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div
-    v-if="activityLoading"
-    :key="activity.id"
-    class="white border-radius activity-detail flex d-flex flex-column mb-6 contentBox">
-    <v-progress-circular
-      color="primary"
-      size="32"
-      indeterminate
-      class="mx-auto my-10" />
-  </div>
-  <div v-else class="pinnedActivity">
+  <div class="pinnedActivity">
     <div
       class="my-auto flex-grow-1 py-2 ps-4 pe-1">
       <v-icon
@@ -73,28 +63,7 @@ export default {
     isActivityDetail: {
       type: Boolean,
       default: false,
-    },
-    isActivityShared: {
-      type: Boolean,
-      default: false,
-    },
-    hideFooter: {
-      type: Boolean,
-      default: false,
-    },
-    hideMenu: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    activityLoading() {
-      return this.activity && this.activity.loading;
-    },
-    activityPinned() {
-      return this.activity && this.activity.pinned;
-    },
-
-  },
+    }
+  }
 };
 </script>
