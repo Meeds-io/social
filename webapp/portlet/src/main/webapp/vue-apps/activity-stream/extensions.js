@@ -110,6 +110,42 @@ extensionRegistry.registerExtension('activity', 'type', {
 });
 
 extensionRegistry.registerExtension('activity', 'action', {
+  id: 'pin',
+  labelKey: 'UIActivity.label.pin',
+  icon: 'mdi-pin',
+  isEnabled: (activity, activityTypeExtension) => {
+    if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
+      return false;
+    }
+    return eXo.env.portal.PinActivityEnabled && activity.canPin && !activity.pinned;
+  },
+  click: (activity) => {
+    return Vue.prototype.$activityService.pinActivity(activity.id)
+      .then(() => {
+        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
+      });
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'unpin',
+  labelKey: 'UIActivity.label.unpin',
+  icon: 'mdi-pin-off',
+  isEnabled: (activity, activityTypeExtension) => {
+    if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
+      return false;
+    }
+    return eXo.env.portal.PinActivityEnabled && activity.canPin && activity.pinned;
+  },
+  click: (activity) => {
+    return Vue.prototype.$activityService.unpinActivity(activity.id)
+      .then(() => {
+        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity}));
+      });
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
   id: 'edit',
   labelKey: 'UIActivity.label.Edit',
   icon: 'fa-edit',
