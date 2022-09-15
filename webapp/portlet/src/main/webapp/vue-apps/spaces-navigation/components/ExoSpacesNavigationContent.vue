@@ -8,12 +8,12 @@
         <v-list-item
           v-for="space in filteredSpaces"
           :key="space.id"
-          :href="space.spaceUrl"
-          :class="homeIcon && (homeLink === space.spaceUrl && 'UserPageLinkHome' || 'UserPageLink')"
+          :href="url(space)"
+          :class="homeIcon && (homeLink === url(space) && 'UserPageLinkHome' || 'UserPageLink')"
           link
           class="px-2 spaceItem">
           <v-list-item-avatar 
-            size="26"
+            size="28"
             class="me-3 tile my-0 spaceAvatar"
             tile>
             <v-img :src="space.avatarUrl" />
@@ -31,9 +31,7 @@
               <v-list-item-icon
                 :disabled="loading"
                 :loading="loading"
-                icon
-                small
-                class="me-2 align-center icon-default-color"
+                class="me-2 align-center"
                 v-bind="attrs"
                 v-on="on">
                 <span :class="menu && 'spaceMenuOpened' || '' " class="fas spaceThreeDotsMenu"></span>
@@ -41,14 +39,19 @@
             </template>
             <v-list class="pa-0">
               <v-list-item
-                :href="space.spaceUrl"
+                :href="url(space)"
                 target="_blank"
                 link>
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
                 <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
               </v-list-item>
+              <exo-space-favorite-action
+                v-if="favoriteActionEnabled"
+                :is-favorite="space.isFavorite"
+                :space-id="space.id"
+                display-label />
               <v-list-item
-                v-if="homeLink !== space.spaceUrl"
+                v-if="homeLink !== url(space)"
                 @click="$emit('selectHome', $event, space)">
                 <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
@@ -113,6 +116,7 @@ export default {
     loadingSpaces: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
   }),
   computed: {
     canShowMore() {
@@ -126,7 +130,10 @@ export default {
       }
     },
     selectedSpaceIndex() {
-      return this.spaces.findIndex(space => space.spaceUrl === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${space.spaceUrl}/`) === 0);
+      return this.spaces.findIndex(space => this.url(space) === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${this.url(space)}/`) === 0);
+    },
+    favoriteActionEnabled() {
+      return this.favoritesSpaceEnabled;
     },
   },
   watch: {
@@ -141,11 +148,6 @@ export default {
         this.loadingSpaces = true;
         this.waitForEndTyping();
       }
-    },
-    spaces() {
-      this.spaces.forEach(space => {
-        space.spaceUrl = `${eXo.env.portal.context}${space.spaceUrl}`;
-      });
     },
     limitToFetch() {
       this.searchSpaces()
@@ -162,7 +164,7 @@ export default {
   },
   methods: {
     searchSpaces() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/${eXo.env.portal.containerName}/social/spaces/lastVisitedSpace/list.json?offset=${this.offset}&limit=${this.limitToFetch}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,favorite`, {
         method: 'GET',
         credentials: 'include',
       })
@@ -194,6 +196,14 @@ export default {
           this.waitForEndTyping();
         }
       }, this.endTypingKeywordTimeout);
+    },
+    url(space) {
+      if (space && space.groupId) {
+        const uriPart = space.groupId.replace(/\//g, ':');
+        return `${eXo.env.portal.context}/g/${uriPart}/`;
+      } else {
+        return '#';
+      }
     },
   }
 };
