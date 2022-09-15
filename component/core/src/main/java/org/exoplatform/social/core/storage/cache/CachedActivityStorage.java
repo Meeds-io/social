@@ -332,6 +332,22 @@ public class CachedActivityStorage implements ActivityStorage {
     return a;
   }
 
+  @Override
+  public ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
+    ExoSocialActivity a = storage.pinActivity(activityId, userIdentityId);
+    ActivityKey key = new ActivityKey(a.getId());
+    exoActivityCache.remove(key);
+    return a;
+  }
+
+  @Override
+  public ExoSocialActivity unpinActivity(String activityId) {
+    ExoSocialActivity a = storage.unpinActivity(activityId);
+    ActivityKey key = new ActivityKey(a.getId());
+    exoActivityCache.remove(key);
+    return a;
+  }
+
   /**
    * {@inheritDoc}
    */
