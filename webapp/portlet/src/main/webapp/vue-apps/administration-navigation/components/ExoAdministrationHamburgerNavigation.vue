@@ -5,12 +5,12 @@
     py-0
     class="white d-none d-sm-block">
     <v-row v-if="navigationTree && navigationTree.length" class="mx-0 administrationTitle">
-      <v-list-item @mouseover="openDrawer()" @click="openDrawer()">
+      <v-list-item>
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
         <v-list-item-content class="subtitle-2 titleLabel clickable">
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
-        <v-list-item-action class="my-0">
+        <v-list-item-action class="my-0" @click="toggleOpenDrawer()">
           <i class="uiIcon uiArrowRightIcon" color="grey lighten-1"></i>
         </v-list-item-action>
       </v-list-item>
@@ -27,6 +27,7 @@ export default {
       loading: false,
       navigations: [],
       embeddedTree: {},
+      secondeLevel: false
     };
   },
   computed: {
@@ -148,8 +149,13 @@ export default {
         vuetify: Vue.prototype.vuetifyOptions,
       }).$mount(parentId);
     },
-    openDrawer() {
-      this.$emit('open-second-level');
+    toggleOpenDrawer() {
+      this.secondeLevel = !this.secondeLevel;
+      if (this.secondeLevel) {
+        this.$emit('open-second-level');
+      } else {
+        this.$emit('close-second-level');
+      }
     },
     filterDisplayedNavigations(navigations, excludeHidden) {
       return navigations
