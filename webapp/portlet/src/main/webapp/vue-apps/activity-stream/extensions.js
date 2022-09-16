@@ -123,6 +123,12 @@ extensionRegistry.registerExtension('activity', 'action', {
     return Vue.prototype.$activityService.pinActivity(activity.id)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-stream-pinned', {
+          detail: {
+            type: activity.type,
+            spaceId: eXo.env.portal.spaceId || activity.activityStream?.space?.dataEntity?.id,
+          }
+        }));
       });
   },
 });
@@ -141,6 +147,12 @@ extensionRegistry.registerExtension('activity', 'action', {
     return Vue.prototype.$activityService.unpinActivity(activity.id)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-stream-unpinned', {
+          detail: {
+            type: activity.type,
+            spaceId: eXo.env.portal.spaceId || activity.activityStream?.space?.dataEntity?.id,
+          }
+        }));
       });
   },
 });
