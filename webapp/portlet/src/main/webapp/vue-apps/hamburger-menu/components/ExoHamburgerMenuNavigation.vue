@@ -136,7 +136,7 @@ export default {
                     }, this.idleTimeToDisplaySecondLevel);
                   });
                   this.vueChildInstances[contentDetail.id].$on('close-second-level', () => {
-                    this.hideSecondLevel();
+                    this.secondLevel = false;
                   });
                 }
               } finally {
@@ -161,6 +161,7 @@ export default {
     },
     hideSecondLevel() {
       this.secondLevel = false;
+      document.dispatchEvent(new CustomEvent('second-level-hidden'));
     },
     openOrHideMenu() {
       this.hamburgerMenu = true;
