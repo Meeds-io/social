@@ -5,13 +5,17 @@
     py-0
     class="white d-none d-sm-block">
     <v-row v-if="navigationTree && navigationTree.length" class="mx-0 administrationTitle">
-      <v-list-item>
+      <v-list-item @mouseover="showItemActions = true">
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
         <v-list-item-content class="subtitle-2 titleLabel">
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
-        <v-list-item-action class="my-0" @click="toggleOpenDrawer()">
-          <i class="uiIcon uiArrowRightIcon" color="grey lighten-1"></i>
+        <v-list-item-action v-if="toggleArrow" class="my-0">
+          <v-btn icon @click="openOrCloseDrawer()">
+            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+              {{ arrowIconClass }} 
+            </v-icon>
+          </v-btn>
         </v-list-item-action>
       </v-list-item>
     </v-row>
@@ -27,7 +31,9 @@ export default {
       loading: false,
       navigations: [],
       embeddedTree: {},
-      secondeLevel: false
+      secondeLevel: false,
+      showItemActions: false,
+      arrowIcon: 'fa-arrow-right'
     };
   },
   computed: {
@@ -93,7 +99,7 @@ export default {
       return this.arrowIcon;
     },
     toggleArrow() {
-      return this.secondeLevel || this.showItemActions;
+      return this.showItemActions;
     }
   },
   created() {
@@ -101,12 +107,8 @@ export default {
       .finally(() => this.$root.$applicationLoaded());
 
     document.addEventListener('second-level-hidden', () => {
-      this.hideSecondeItem();
-    });
-    document.addEventListener('second-level-opened', (event) => {
-      if ( event && event.detail && event.detail.contentDetail.id !== 'HamburgerMenuNavigationAdministration') {
-        this.hideSecondeItem();
-      }
+      this.arrowIcon= 'fa-arrow-right';
+      this.showItemActions = false;
     });
   },
   methods: {
@@ -164,11 +166,13 @@ export default {
         vuetify: Vue.prototype.vuetifyOptions,
       }).$mount(parentId);
     },
-    toggleOpenDrawer() {
+    openOrCloseDrawer() {
       this.secondeLevel = !this.secondeLevel;
       if (this.secondeLevel) {
+        this.arrowIcon = 'fa-arrow-left';
         this.$emit('open-second-level');
       } else {
+        this.arrowIcon = 'fa-arrow-right';
         this.$emit('close-second-level');
       }
     },

@@ -52,8 +52,8 @@
                 display-label />
               <v-list-item
                 v-if="homeLink !== url(space)"
-                @click="$emit('selectHome', $event, space)">
-                <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
+                @click="selectHome($event, space)">
+                <v-icon size="16" class="fas fa-house-user icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
               </v-list-item>
             </v-list>
