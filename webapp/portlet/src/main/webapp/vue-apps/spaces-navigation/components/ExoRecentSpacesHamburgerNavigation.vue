@@ -7,6 +7,7 @@
       <a  
         v-if="canAddSpaces"
         :href="allSpacesLink" 
+        @click="leftNavigationActionEvent('addNewSpace')"
         class="addNewSpaceIcon px-2 primary rounded py-1">
         <v-icon 
           class="fas fa-plus white--text" 
@@ -31,7 +32,7 @@
         <v-list-item-content
           v-else
           class="recentSpacesTitleLabel pt-1 pb-2px disabled--text border-bottom-color "
-          @click="showFilter = true">
+          @click="openFilter()">
           {{ $t('menu.spaces.recentSpaces') }}
         </v-list-item-content>
         <v-list-item-action v-if="showFilter" class="recentSpacesTitleIcon position-absolute r-3">
@@ -90,6 +91,13 @@ export default {
           this.showButton = false;
         }
       }
+    },
+    leftNavigationActionEvent(clickedItem) {
+      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
+    },
+    openFilter() {
+      this.showFilter = true;
+      this.leftNavigationActionEvent('filterBySpaces');
     }
   }
 };
