@@ -4,7 +4,9 @@
     pt-0
     class="border-box-sizing">
     <v-row class="mx-0 spacesNavigationTitle">
-      <v-list-item @mouseover="showItemActions = true">
+      <v-list-item 
+        @mouseover="showItemActions = true" 
+        @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
@@ -62,7 +64,7 @@ export default {
       return this.arrowIcon;
     },
     toggleArrow() {
-      return this.showItemActions;
+      return this.secondeLevel || this.showItemActions;
     }
   },
   created() {
@@ -70,8 +72,12 @@ export default {
       this.homeLink = eXo.env.portal.homeLink;
     });
     document.addEventListener('second-level-hidden', () => {
-      this.arrowIcon= 'fa-arrow-right';
-      this.showItemActions = false;
+      this.hideSecondeItem();
+    });
+    document.addEventListener('second-level-opened', (event) => {
+      if ( event && event.detail && event.detail.contentDetail.id !== 'HamburgerMenuNavigationSpaces') {
+        this.hideSecondeItem();
+      }
     });
   },
   methods: {
@@ -115,6 +121,11 @@ export default {
           this.$emit('close-second-level');
         });
       });
+    },
+    hideSecondeItem() {
+      this.arrowIcon= 'fa-arrow-right';
+      this.showItemActions = false;
+      this.secondeLevel = false;
     },
     openOrCloseDrawer() {
       this.secondeLevel = !this.secondeLevel;

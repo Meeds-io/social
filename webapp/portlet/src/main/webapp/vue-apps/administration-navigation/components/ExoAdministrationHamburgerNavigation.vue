@@ -5,7 +5,9 @@
     py-0
     class="white d-none d-sm-block">
     <v-row v-if="navigationTree && navigationTree.length" class="mx-0 administrationTitle">
-      <v-list-item @mouseover="showItemActions = true">
+      <v-list-item 
+        @mouseover="showItemActions = true"
+        @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
         <v-list-item-content class="subtitle-2 titleLabel">
           {{ this.$t('menu.administration.title') }}
@@ -99,7 +101,7 @@ export default {
       return this.arrowIcon;
     },
     toggleArrow() {
-      return this.showItemActions;
+      return this.secondeLevel || this.showItemActions;
     }
   },
   created() {
@@ -107,8 +109,12 @@ export default {
       .finally(() => this.$root.$applicationLoaded());
 
     document.addEventListener('second-level-hidden', () => {
-      this.arrowIcon= 'fa-arrow-right';
-      this.showItemActions = false;
+      this.hideSecondeItem();
+    });
+    document.addEventListener('second-level-opened', (event) => {
+      if ( event && event.detail && event.detail.contentDetail.id !== 'HamburgerMenuNavigationAdministration') {
+        this.hideSecondeItem();
+      }
     });
   },
   methods: {
@@ -175,6 +181,11 @@ export default {
         this.arrowIcon = 'fa-arrow-right';
         this.$emit('close-second-level');
       }
+    },
+    hideSecondeItem() {
+      this.arrowIcon= 'fa-arrow-right';
+      this.showItemActions = false;
+      this.secondeLevel = false;
     },
     filterDisplayedNavigations(navigations, excludeHidden) {
       return navigations
