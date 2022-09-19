@@ -4,7 +4,9 @@
     pt-0
     class="border-box-sizing">
     <v-row class="mx-0 spacesNavigationTitle">
-      <v-list-item @mouseover="showItemActions = true">
+      <v-list-item 
+        @mouseover="showItemActions = true" 
+        @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
@@ -49,7 +51,8 @@ export default {
       secondLevelVueInstance: null,
       secondeLevel: false,
       showItemActions: false,
-      arrowIcon: 'fa-arrow-right'
+      arrowIcon: 'fa-arrow-right',
+      isInSecondeLevel: false
     };
   },
   computed: {
@@ -62,16 +65,29 @@ export default {
       return this.arrowIcon;
     },
     toggleArrow() {
-      return this.showItemActions;
+      if (this.isInSecondeLevel && this.secondeLevel) {
+        return true;
+      } else {
+        return this.showItemActions;
+      }
     }
+  },
+  watch: {
+    secondeLevel() {
+      this.isInSecondeLevel = true;
+    },
   },
   created() {
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });
     document.addEventListener('second-level-hidden', () => {
-      this.arrowIcon= 'fa-arrow-right';
-      this.showItemActions = false;
+      this.hideSecondeItem();
+    });
+    document.addEventListener('second-level-opened', (event) => {
+      if ( event && event.detail && event.detail.contentDetail.id !== 'HamburgerMenuNavigationSpaces') {
+        this.hideSecondeItem();
+      }
     });
   },
   methods: {
@@ -115,6 +131,11 @@ export default {
           this.$emit('close-second-level');
         });
       });
+    },
+    hideSecondeItem() {
+      this.arrowIcon= 'fa-arrow-right';
+      this.showItemActions = false;
+      this.secondeLevel = false;
     },
     openOrCloseDrawer() {
       this.secondeLevel = !this.secondeLevel;
