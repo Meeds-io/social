@@ -51,8 +51,7 @@ export default {
       secondLevelVueInstance: null,
       secondeLevel: false,
       showItemActions: false,
-      arrowIcon: 'fa-arrow-right',
-      isInSecondeLevel: false
+      arrowIcon: 'fa-arrow-right'
     };
   },
   computed: {
@@ -65,17 +64,8 @@ export default {
       return this.arrowIcon;
     },
     toggleArrow() {
-      if (this.isInSecondeLevel && this.secondeLevel) {
-        return true;
-      } else {
-        return this.showItemActions;
-      }
+      return this.secondeLevel || this.showItemActions;
     }
-  },
-  watch: {
-    secondeLevel() {
-      this.isInSecondeLevel = true;
-    },
   },
   created() {
     document.addEventListener('homeLinkUpdated', () => {
