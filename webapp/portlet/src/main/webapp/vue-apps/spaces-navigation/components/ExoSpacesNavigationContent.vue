@@ -41,7 +41,8 @@
               <v-list-item
                 :href="url(space)"
                 target="_blank"
-                link>
+                link
+                @click="leftNavigationActionEvent('openInNewTab')">
                 <v-icon size="15" class="fas fa-external-link-alt icon-default-color mr-3" />
                 <span class="text-color">{{ $t('menu.spaces.openInNewTab') }}</span>
               </v-list-item>
@@ -49,10 +50,11 @@
                 v-if="favoriteActionEnabled"
                 :is-favorite="space.isFavorite"
                 :space-id="space.id"
+                entity-type="spaces_left_navigation"
                 display-label />
               <v-list-item
                 v-if="homeLink !== url(space)"
-                @click="$emit('selectHome', $event, space)">
+                @click="selectHome($event, space)">
                 <v-icon size="16" class="fas fa-home icon-default-color mr-3" />
                 <span class="text-color mt-1">{{ $t('menu.spaces.makeAsHomePage') }}</span>
               </v-list-item>
@@ -205,6 +207,13 @@ export default {
         return '#';
       }
     },
+    leftNavigationActionEvent(clickedItem) {
+      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
+    },
+    selectHome(event, space) {
+      this.$emit('selectHome', event, space);
+      this.leftNavigationActionEvent('makeAsHomePage');
+    }
   }
 };
 </script>
