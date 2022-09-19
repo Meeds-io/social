@@ -153,6 +153,9 @@ export default {
         return;
       }
       this.secondLevel = true;
+      document.dispatchEvent(new CustomEvent('second-level-opened', {
+        detail: {'contentDetail': contentDetail}
+      }));
 
       if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel) {
         this.openedSecondLevel = contentDetail.id;
