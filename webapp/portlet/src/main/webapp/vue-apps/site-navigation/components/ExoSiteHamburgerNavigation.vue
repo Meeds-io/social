@@ -30,7 +30,7 @@
                 v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-icon @click="selectHome($event, nav)">
-              <span class="UserPageHome">
+              <span class="fas mt-1 UserPageHome icon-default-color">
               </span>
             </v-list-item-icon>
           </v-list-item>
