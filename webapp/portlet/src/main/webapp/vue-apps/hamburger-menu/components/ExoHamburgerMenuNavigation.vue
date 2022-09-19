@@ -136,7 +136,7 @@ export default {
                     }, this.idleTimeToDisplaySecondLevel);
                   });
                   this.vueChildInstances[contentDetail.id].$on('close-second-level', () => {
-                    this.hideSecondLevel();
+                    this.secondLevel = false;
                   });
                 }
               } finally {
@@ -153,6 +153,9 @@ export default {
         return;
       }
       this.secondLevel = true;
+      document.dispatchEvent(new CustomEvent('second-level-opened', {
+        detail: {'contentDetail': contentDetail}
+      }));
 
       if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel) {
         this.openedSecondLevel = contentDetail.id;
@@ -161,6 +164,7 @@ export default {
     },
     hideSecondLevel() {
       this.secondLevel = false;
+      document.dispatchEvent(new CustomEvent('second-level-hidden'));
     },
     openOrHideMenu() {
       this.hamburgerMenu = true;
