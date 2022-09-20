@@ -4,7 +4,18 @@
     pt-0
     class="border-box-sizing">
     <v-row class="mx-0 spacesNavigationTitle">
-      <v-list-item 
+      <v-list-item
+        v-if="isMobile"
+        @click="openOrCloseDrawer()">
+        <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
+          <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
+        </v-list-item-icon>
+        <v-list-item-content class="subtitle-1 titleLabel">
+          {{ $t('menu.spaces.lastVisitedSpaces') }}
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        v-else 
         @mouseover="showItemActions = true" 
         @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
@@ -65,7 +76,10 @@ export default {
     },
     toggleArrow() {
       return this.secondeLevel || this.showItemActions;
-    }
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
   },
   created() {
     document.addEventListener('homeLinkUpdated', () => {
@@ -128,15 +142,19 @@ export default {
       this.secondeLevel = false;
     },
     openOrCloseDrawer() {
-      this.secondeLevel = !this.secondeLevel;
-      if (this.secondeLevel) {
-        this.arrowIcon = 'fa-arrow-left';
+      if (this.isMobile) {
         this.$emit('open-second-level');
       } else {
-        this.arrowIcon = 'fa-arrow-right';
-        this.$emit('close-second-level');
+        this.secondeLevel = !this.secondeLevel;
+        if (this.secondeLevel) {
+          this.arrowIcon = 'fa-arrow-left';
+          this.$emit('open-second-level');
+        } else {
+          this.arrowIcon = 'fa-arrow-right';
+          this.$emit('close-second-level');
+        }
       }
-    },
+    }
   },
 };
 </script>
