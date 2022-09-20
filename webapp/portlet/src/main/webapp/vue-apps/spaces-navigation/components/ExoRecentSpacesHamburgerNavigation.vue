@@ -4,15 +4,6 @@
       <v-list-item-icon class="d-flex d-sm-none backToMenu me-2 my-5 icon-default-color" @click="closeMenu()">
         <i class="fas fa-arrow-left"></i>
       </v-list-item-icon>
-      <a  
-        v-if="canAddSpaces"
-        :href="allSpacesLink" 
-        @click="leftNavigationActionEvent('addNewSpace')"
-        class="addNewSpaceIcon px-2 primary rounded py-1">
-        <v-icon 
-          class="fas fa-plus white--text" 
-          size="16" />
-      </a>
       <v-list-item class="recentSpacesTitle">
         <v-list-item-icon 
           class="me-2 align-self-center " 
@@ -64,7 +55,6 @@ export default {
       itemsToShow: 15,
       canAddSpaces: false,
       showFilter: false,
-      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
       keyword: '',
     };
   },
