@@ -15,7 +15,7 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        v-else 
+        v-else
         @mouseover="showItemActions = true" 
         @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
@@ -24,7 +24,12 @@
         <v-list-item-content class="subtitle-1 titleLabel">
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
-        <v-list-item-action v-if="toggleArrow" class="my-0">
+        <v-list-item-action v-if="toggleArrow" class="my-0 d-flex flex-row align-center">
+          <v-btn icon @click="leftNavigationActionEvent('addNewSpace')">
+            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+              fa-plus
+            </v-icon>
+          </v-btn>
           <v-btn icon @click="openOrCloseDrawer()">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               {{ arrowIconClass }} 
@@ -62,7 +67,8 @@ export default {
       secondLevelVueInstance: null,
       secondeLevel: false,
       showItemActions: false,
-      arrowIcon: 'fa-arrow-right'
+      arrowIcon: 'fa-arrow-right',
+      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
     };
   },
   computed: {
@@ -154,7 +160,11 @@ export default {
           this.$emit('close-second-level');
         }
       }
-    }
+    },
+    leftNavigationActionEvent(clickedItem) {
+      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
+      window.location.href  = this.allSpacesLink;
+    },
   },
 };
 </script>
