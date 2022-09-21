@@ -47,21 +47,14 @@
   </v-container>
 </template>
 <script>
-import {checkCanCreateSpaces} from '../../spaces-administration/spacesAdministrationServices.js';
 
 export default {
   data () {
     return {
       itemsToShow: 15,
-      canAddSpaces: false,
       showFilter: false,
       keyword: '',
     };
-  },
-  created() {
-    checkCanCreateSpaces().then(data => {
-      this.canAddSpaces = data;
-    });
   },
   methods: {
     closeMenu() {

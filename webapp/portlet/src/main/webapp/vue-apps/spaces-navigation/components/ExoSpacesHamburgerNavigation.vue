@@ -13,6 +13,18 @@
         <v-list-item-content class="subtitle-1 titleLabel">
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
+        <v-list-item-action class="my-0 d-flex flex-row align-center">
+          <v-btn 
+            v-if="canAddSpaces"
+            icon 
+            link
+            :href="allSpacesLink" 
+            @click="leftNavigationActionEvent($event,'addNewSpace')">
+            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+              fa-plus
+            </v-icon>
+          </v-btn>
+        </v-list-item-action>
       </v-list-item>
       <v-list-item
         v-else
@@ -25,7 +37,12 @@
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0 d-flex flex-row align-center">
-          <v-btn icon @click="leftNavigationActionEvent('addNewSpace')">
+          <v-btn
+            v-if="canAddSpaces"
+            link
+            icon 
+            :href="allSpacesLink" 
+            @click="leftNavigationActionEvent($event,'addNewSpace')">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               fa-plus
             </v-icon>
@@ -69,6 +86,7 @@ export default {
       showItemActions: false,
       arrowIcon: 'fa-arrow-right',
       allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
+      canAddSpaces: false,
     };
   },
   computed: {
@@ -88,6 +106,9 @@ export default {
     },
   },
   created() {
+    this.$spacesAdministrationServices.checkCanCreateSpaces().then(data => {
+      this.canAddSpaces = data;
+    });
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });
@@ -161,9 +182,11 @@ export default {
         }
       }
     },
-    leftNavigationActionEvent(clickedItem) {
+    leftNavigationActionEvent(event,clickedItem) {
+      if (this.isMobile && event) {
+        event.stopPropagation();
+      }
       document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
-      window.location.href  = this.allSpacesLink;
     },
   },
 };
