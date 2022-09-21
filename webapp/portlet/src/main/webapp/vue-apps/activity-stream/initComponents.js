@@ -13,6 +13,7 @@ import ActivityStreamPinnedActivity from './components/pinned-activity/ActivityS
 import ActivityStreamLoader from './components/activity/ActivityStreamLoader.vue';
 import ActivityStreamFilter from './components/toolbar/ActivityStreamFilter.vue';
 import ActivityHead from './components/activity/header/ActivityHead.vue';
+import ActivityMobileHead from './components/activity/header/ActivityMobileHead.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
 import ActivityBody from './components/activity/content/ActivityBody.vue';
@@ -58,6 +59,7 @@ const components = {
   'activity-stream-loader': ActivityStreamLoader,
   'activity-stream-filter': ActivityStreamFilter,
   'activity-head': ActivityHead,
+  'activity-mobile-head': ActivityMobileHead,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
   'activity-body': ActivityBody,
