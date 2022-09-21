@@ -3,47 +3,13 @@
     class="activity-head"
     dense>
     <template v-if="isMobile">
-      <div>
-        <exo-space-avatar
-          :space="space"
-          :size="42"
-          avatar
-          popover />
-        <exo-user-avatar
-          :identity="posterIdentity"
-          :size="31"
-          :extra-class="'ms-7 mt-n6'"
-          popover
-          avatar />
-      </div>
-      <v-list-item-content class="py-0 accountTitleLabel">
-        <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
-          <exo-space-avatar
-            :space="space"
-            fullname
-            popover
-            bold-title
-            link-style
-            username-class />
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          <v-row class="ms-2">
-            <exo-user-avatar
-              :identity="posterIdentity"
-              :extra-class="'me-5'"
-              fullname
-              popover
-              link-style
-              username-class />
-            <activity-head-time
-              :activity="activity"
-              :is-activity-shared="isActivityShared"
-              is-mobile="isMobile"
-              no-icon
-              class="d-flex activity-head-time mt-1" />
-          </v-row>
-        </v-list-item-subtitle>
-      </v-list-item-content>
+      <activity-mobile-head
+        :activity="activity"
+        :is-activity-shared="isActivityShared"
+        :is-mobile="isMobile"
+        :poster-identity="posterIdentity"
+        :space="space"
+        class="px-0" />
     </template>
     <template v-else>
       <exo-user-avatar
