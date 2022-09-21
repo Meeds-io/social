@@ -6,7 +6,6 @@
       <activity-mobile-head
         :activity="activity"
         :is-activity-shared="isActivityShared"
-        :is-mobile="isMobile"
         :poster-identity="posterIdentity"
         :space="space"
         class="px-0" />
