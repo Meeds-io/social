@@ -24,12 +24,12 @@
             label="UIActivity.label.EditedFrom"
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             :value="activity.updateDate"
-            :short="isShort" />
+            :short="isMobile" />
           <relative-date-format
             v-else
             class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
             :value="activity.createDate"
-            :short="isShort" />
+            :short="isMobile" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
@@ -78,10 +78,7 @@ export default {
     },
     activityPostedTime() {
       return this.activity && (this.activity.updateDate || this.activity.createDate);
-    },
-    isShort() {
-      return this.isMobile;
-    },
+    }
   },
 };
 </script>

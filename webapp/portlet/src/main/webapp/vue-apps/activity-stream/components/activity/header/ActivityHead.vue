@@ -35,7 +35,6 @@
               popover
               link-style
               username-class />
-
             <activity-head-time
               :activity="activity"
               :is-activity-shared="isActivityShared"
