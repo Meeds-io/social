@@ -1,5 +1,5 @@
 <template>
-  <v-list-item v-if="isSpaceStream">
+  <v-list-item v-if="displayUserAvatar" class="text-truncate">
     <exo-user-avatar
       :identity="posterIdentity"
       :size="42"
@@ -24,7 +24,7 @@
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
-  <v-list-item v-else>
+  <v-list-item v-else class="text-truncate">
     <exo-space-avatar
       :space="space"
       :size="42"
@@ -45,18 +45,22 @@
       </v-list-item-title>
       <v-list-item-subtitle>
         <v-row class="ms-2">
-          <exo-user-avatar
-            :identity="posterIdentity"
-            :extra-class="'me-5'"
-            fullname
-            link-style
-            username-class />
-          <activity-head-time
-            :activity="activity"
-            :is-activity-shared="isActivityShared"
-            is-mobile
-            no-icon
-            class="d-flex activity-head-time mt-1" />
+          <v-col class="px-0 py-0" cols="7">
+            <exo-user-avatar
+              :identity="posterIdentity"
+              :extra-class="'me-5 text-truncate'"
+              fullname
+              link-style
+              username-class />
+          </v-col>
+          <v-col class="px-0 py-0" cols="3">
+            <activity-head-time
+              :activity="activity"
+              :is-activity-shared="isActivityShared"
+              is-mobile
+              no-icon
+              class="d-flex activity-head-time mt-1" />
+          </v-col>
         </v-row>
       </v-list-item-subtitle>
     </v-list-item-content>
@@ -84,8 +88,8 @@ export default {
     }
   },
   computed: {
-    isSpaceStream() {
-      return eXo.env.portal.spaceId !== '';
+    displayUserAvatar() {
+      return eXo.env.portal.spaceId !== '' || !this.space;
     },
   },
 
