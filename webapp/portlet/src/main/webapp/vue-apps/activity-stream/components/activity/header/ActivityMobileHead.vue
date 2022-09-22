@@ -1,5 +1,5 @@
 <template>
-  <v-list-item v-if="isSpaceStream || !space" class="text-truncate">
+  <v-list-item v-if="displayUserAvatar" class="text-truncate">
     <exo-user-avatar
       :identity="posterIdentity"
       :size="42"
@@ -88,8 +88,8 @@ export default {
     }
   },
   computed: {
-    isSpaceStream() {
-      return eXo.env.portal.spaceId !== '';
+    displayUserAvatar() {
+      return eXo.env.portal.spaceId !== '' || !this.space;
     },
   },
 
