@@ -1937,10 +1937,9 @@ public class SpaceUtils {
       return null;
     }
     if (isHomeNavigation(node)) {
-      return "uiIconAppSpaceHomePage uiIconDefaultApp";
+      return "fa-stream";
     }
-    String appName = node.getPageRef().getName();
-    return "uiIconApp" + node.getName() + " uiIconApp" + appName + " uiIconDefaultApp";
+    return "fa-icon-" + node.getName();
   }
 
   public static boolean isHomeNavigation(UserNode node) {
