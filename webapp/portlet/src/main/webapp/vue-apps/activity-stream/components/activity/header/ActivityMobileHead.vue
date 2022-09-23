@@ -20,10 +20,10 @@
       </v-list-item-title>
       <v-list-item-subtitle>
         <v-row class="ms-2">
-          <v-col class="px-0 py-0" cols="7">
+          <v-col class="px-0 py-0" cols="9">
             <exo-user-avatar
               :identity="posterIdentity"
-              :extra-class="'me-5 text-truncate'"
+              :extra-class="'text-truncate'"
               fullname
               link-style
               username-class />
@@ -34,7 +34,7 @@
               :is-activity-shared="isActivityShared"
               is-mobile
               no-icon
-              class="d-flex activity-head-time mt-1" />
+              class="d-flex activity-head-time pt-1" />
           </v-col>
         </v-row>
       </v-list-item-subtitle>
