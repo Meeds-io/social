@@ -16,22 +16,24 @@
  */
 package org.exoplatform.social.core.listeners;
 
+import java.util.List;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-
-import java.util.List;
 
 /**
  * SocialMembershipListenerImpl is registered to OrganizationService to handle membership operation associated
@@ -53,7 +55,6 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   @Override
   public void postDelete(Membership m) throws Exception {
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
-      OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
       UserACL acl =  CommonsUtils.getService(UserACL.class);
       
       //only handles these memberships have types likes 'manager' 
@@ -65,17 +66,30 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         if(state != null && state.getIdentity() != null && space.getEditor() == null) {
           space.setEditor(state.getIdentity().getUserId());
         }
-        boolean hasAllMembership = SpaceUtils.isUserHasMembershipTypesInGroup(m.getUserName(), m.getGroupId(), MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
-        boolean hasManagerMembership = hasAllMembership || SpaceUtils.isUserHasMembershipTypesInGroup(m.getUserName(), m.getGroupId(), acl.getAdminMSType());
-        boolean hasMemberMembership = hasManagerMembership || SpaceUtils.isUserHasMembershipTypesInGroup(m.getUserName(), m.getGroupId(), SpaceUtils.MEMBER);
-
+        IdentityRegistry identityRegistry = CommonsUtils.getService(IdentityRegistry.class);
+        Identity deletedMembershipIdentity = identityRegistry.getIdentity(m.getUserName());
+        OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
+        boolean hasManagerMembership =
+                                     deletedMembershipIdentity != null ? deletedMembershipIdentity.isMemberOf(m.getGroupId(),
+                                                                                                              acl.getAdminMSType())
+                                                                       : orgService.getMembershipHandler()
+                                                                                   .findMembershipByUserGroupAndType(m.getUserName(),
+                                                                                                                     m.getGroupId(),
+                                                                                                                     acl.getAdminMSType()) != null;
+        boolean hasMemberMembership =
+                                    deletedMembershipIdentity != null ? deletedMembershipIdentity.isMemberOf(m.getGroupId(),
+                                                                                                             SpaceUtils.MEMBER)
+                                                                      : orgService.getMembershipHandler()
+                                                                                  .findMembershipByUserGroupAndType(m.getUserName(),
+                                                                                                                    m.getGroupId(),
+                                                                                                                    SpaceUtils.MEMBER) != null;
         if (!hasManagerMembership) {
           spaceService.setManager(space, m.getUserName(), false);
         }
         if (!hasMemberMembership) {
           spaceService.removeMember(space, m.getUserName());
         }
-
+  
         SpaceUtils.refreshNavigation();
       }
     }
