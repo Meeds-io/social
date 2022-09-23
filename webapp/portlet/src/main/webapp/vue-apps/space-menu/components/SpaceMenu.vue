@@ -18,7 +18,7 @@
             :href="nav.uri"
             class="subtitle-2 spaceButtomNavigationItem">
             <span>{{ nav.label }}</span>
-            <i :class="nav.icon"></i>
+            <i class="fas" :class="nav.icon"></i>
           </v-btn>
         </v-bottom-navigation>
       </v-slide-group>
