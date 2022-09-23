@@ -32,15 +32,15 @@
     </node>
 
     <node>
-      <name>spaces</name>
-      <label>#{portal.global.spaces}</label>
-      <page-reference>portal::global::all-spaces</page-reference>
-    </node>
-
-    <node>
       <name>people</name>
       <label>#{portal.global.people}</label>
       <page-reference>portal::global::all-people</page-reference>
+    </node>
+
+    <node>
+      <name>spaces</name>
+      <label>#{portal.global.spaces}</label>
+      <page-reference>portal::global::all-spaces</page-reference>
     </node>
 
     <node>
