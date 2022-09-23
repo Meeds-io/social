@@ -1,10 +1,10 @@
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="filterSpaces d-flex align-center">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu me-2 my-5 icon-default-color" @click="closeMenu()">
-        <i class="fas fa-arrow-left"></i>
+      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
+        <v-icon class="fas fa-arrow-left" small />
       </v-list-item-icon>
-      <v-list-item class="recentSpacesTitle">
+      <v-list-item class="recentSpacesTitle px-2">
         <v-list-item-icon 
           class="me-2 align-self-center " 
           @click="closeMenu()"> 
