@@ -74,6 +74,7 @@ export default {
     removed() {
       this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('activity.label')}));
       this.$emit('removed');
+      document.dispatchEvent(new CustomEvent('activity-favorite-removed', {detail: this.activity}));
     },
     removeError() {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')}), 'error');
