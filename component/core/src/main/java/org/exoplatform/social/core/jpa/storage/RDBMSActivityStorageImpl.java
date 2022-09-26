@@ -580,6 +580,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return Collections.emptyList();
       }
       activityFilter.setPinned(true);
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
