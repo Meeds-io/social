@@ -88,7 +88,7 @@ export default {
       },{
         text: this.$t('activity.filter.pinnedActivities'),
         value: 'user_pin_stream',
-        enable: !eXo.env.portal.spaceId,
+        enable: eXo.env.portal.PinActivityEnabled && !eXo.env.portal.spaceId,
       },{
         text: this.$t('activity.filter.myActivities'),
         value: 'user_stream',
