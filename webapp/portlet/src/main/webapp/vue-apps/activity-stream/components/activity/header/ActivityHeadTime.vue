@@ -1,5 +1,5 @@
 <template>
-  <div class="caption text-light-color text-truncate">
+  <div class="text-light-color text-truncate">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
@@ -10,10 +10,10 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :href="activityLink"
-          :height="20"
+          :height="btnHeight"
           :disabled="isActivityShared"
-          class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
-          x-small
+          class="hover-underline width-auto text-capitalize-first-letter px-0"
+          :x-small="btnXSmall"
           link
           text
           plain
@@ -22,12 +22,12 @@
           <relative-date-format
             v-if="isActivityEdited"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass"
             :value="activity.updateDate"
             :short="isMobile" />
           <relative-date-format
             v-else
-            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass"
             :value="activity.createDate"
             :short="isMobile" />
         </v-btn>
@@ -78,6 +78,15 @@ export default {
     },
     activityPostedTime() {
       return this.activity && (this.activity.updateDate || this.activity.createDate);
+    },
+    btnHeight() {
+      return this.isMobile && '22' || '20';
+    },
+    btnXSmall() {
+      return !this.isMobile;
+    },
+    relativeDateFormatClass() {
+      return !this.isMobile && 'pt-1 ps-1' || '';
     }
   },
 };
