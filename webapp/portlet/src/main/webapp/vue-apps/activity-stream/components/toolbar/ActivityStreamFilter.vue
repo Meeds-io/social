@@ -86,6 +86,10 @@ export default {
         text: eXo.env.portal.spaceId && this.$t('activity.filter.anyActivity') || this.$t('activity.filter.all'),
         value: 'all_stream',
       },{
+        text: this.$t('activity.filter.pinnedActivities'),
+        value: 'user_pin_stream',
+        enable: !eXo.env.portal.spaceId,
+      },{
         text: this.$t('activity.filter.myActivities'),
         value: 'user_stream',
       },{
