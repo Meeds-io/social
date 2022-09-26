@@ -570,6 +570,18 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     case ANY_SPACE_ACTIVITY:
       activityFilter.setShowPinned(pinActivityEnabled);
       break;
+
+    case USER_PIN_STREAM:
+      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+        String.valueOf(SpaceMemberEntity.Status.MEMBER),
+        0,
+        -1);
+      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+        return Collections.emptyList();
+      }
+      activityFilter.setPinned(true);
+      activityFilter.setShowPinned(true);
+      break;
     default:
       throw new UnsupportedOperationException();
     }
