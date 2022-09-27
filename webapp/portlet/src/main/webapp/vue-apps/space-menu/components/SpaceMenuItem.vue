@@ -40,25 +40,24 @@ export default {
     },
     icon() {
       const navigationIcon = this.navigation && this.navigation.icon || '';
-      if (navigationIcon === '') {
+      if (!navigationIcon?.length) {
         return 'fas fa-sticky-note';
-      } else {
-        if (navigationIcon.includes('uiIconAppSpaceHomePage')) {
-          return 'fas fa-stream';
-        } else if (navigationIcon.includes('uiIconAppMembersPortlet')) {
-          return 'fas fa-users';
-        } else if (navigationIcon.includes('uiIconAppTasksManagement')) {
-          return 'fas fa-tasks';
-        } else if (navigationIcon.includes('uiIconAppNotes')) {
-          return 'fas fa-clipboard';
-        } else if (navigationIcon.includes('uiIconAppSpaceWallet')) {
-          return 'fas fa-wallet';
-        } else if (navigationIcon.includes('uiIconAppSpaceSettingPortlet')) {
-          return 'fas fa-cog';
-        } else {
-          return navigationIcon;
-        } 
       }
+      if (navigationIcon.includes('uiIconAppSpaceHomePage')) {
+        return 'fas fa-stream';
+      } else if (navigationIcon.includes('uiIconAppMembersPortlet')) {
+        return 'fas fa-users';
+      } else if (navigationIcon.includes('uiIconAppTasksManagement') || navigationIcon.includes('uiIconApptasks')) {
+        return 'fas fa-tasks';
+      } else if (navigationIcon.includes('uiIconAppNotes') || navigationIcon.includes('uiIconAppnotes') ) {
+        return 'fas fa-clipboard';
+      } else if (navigationIcon.includes('uiIconAppSpaceWallet')) {
+        return 'fas fa-wallet';
+      } else if (navigationIcon.includes('uiIconAppSpaceSettingPortlet')) {
+        return 'fas fa-cog';
+      } else {
+        return navigationIcon;
+      } 
     },
   }
 };
