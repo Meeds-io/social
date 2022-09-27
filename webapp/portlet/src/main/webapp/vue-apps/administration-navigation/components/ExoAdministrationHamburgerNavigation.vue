@@ -9,7 +9,7 @@
         @mouseover="showItemActions = true"
         @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
-        <v-list-item-content class="subtitle-2 titleLabel">
+        <v-list-item-content class="subtitle-2">
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0">
