@@ -1156,6 +1156,38 @@
   </portlet>
 
   <portlet>
+    <name>SpacePanelHamburgerMenu</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/spacePanelHamburgerMenu.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>SpacesHamburgerMenu</name>
     <module>
       <script>

@@ -29,6 +29,7 @@ let config = {
     userHamburgerMenu: './src/main/webapp/vue-apps/user-navigation/main.js',
     siteHamburgerMenu: './src/main/webapp/vue-apps/site-navigation/main.js',
     spacesHamburgerMenu: './src/main/webapp/vue-apps/spaces-navigation/main.js',
+    spacePanelHamburgerMenu: './src/main/webapp/vue-apps/space-panel/main.js',
     profileHamburgerMenu: './src/main/webapp/vue-apps/profile-navigation/main.js',
     topBarNotification: './src/main/webapp/vue-apps/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/vue-apps/getting-started/main.js',
