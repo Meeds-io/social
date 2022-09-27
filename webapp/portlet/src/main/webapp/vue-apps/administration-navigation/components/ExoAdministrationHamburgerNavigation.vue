@@ -1,3 +1,4 @@
+
 <template>
   <v-container
     id="AdministrationHamburgerNavigation"
@@ -13,7 +14,7 @@
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0">
-          <v-btn icon @click="openOrCloseDrawer()">
+          <v-btn icon @click="openOrCloseDrawer(false)">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               {{ arrowIconClass }} 
             </v-icon>
@@ -24,7 +25,7 @@
   </v-container>
 </template>
 <script>
-
+/* eslint-disable vue/one-component-per-file */
 export default {
   data() {
     return {
@@ -172,11 +173,12 @@ export default {
         vuetify: Vue.prototype.vuetifyOptions,
       }).$mount(parentId);
     },
-    openOrCloseDrawer() {
+    openOrCloseDrawer(value) {
       this.secondeLevel = !this.secondeLevel;
       if (this.secondeLevel) {
         this.arrowIcon = 'fa-arrow-left';
-        this.$emit('open-second-level');
+        this.$emit('open-second-level', value);
+        document.dispatchEvent(new CustomEvent('second-panel-opened' ));
       } else {
         this.arrowIcon = 'fa-arrow-right';
         this.$emit('close-second-level');
