@@ -20,7 +20,7 @@
     :href="uri"
     class="subtitle-2 spaceButtomNavigationItem">
     <span>{{ label }}</span>
-    <i :class="icon"> </i>
+    <i aria-hidden="true" :class="icon"> </i>
   </v-btn>
 </template>
 <script>
