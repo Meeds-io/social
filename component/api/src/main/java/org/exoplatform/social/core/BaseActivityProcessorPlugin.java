@@ -44,17 +44,8 @@ public abstract class BaseActivityProcessorPlugin extends BaseComponentPlugin im
   public static final String TEMPLATE_PARAM_LIST_DELIM = "\\|";
   
   public BaseActivityProcessorPlugin(InitParams params) {
-
     try {
       priority = Integer.valueOf(params.getValueParam("priority").getValue());
-      if (priority < 1) {
-        LOG.warn("<value-param> 'priority' of type int should be higher than 1");
-        priority = 1;
-      } else if (priority > 10) {
-        LOG.warn("<value-param> 'priority' of type int should be lower than 10");
-        priority = 10;
-
-      }
     } catch (Exception e) {
       priority = 5; //default, it should be in range of 1-10
       LOG.warn("an <value-param> 'priority' of type int is recommanded for component " + getClass());
