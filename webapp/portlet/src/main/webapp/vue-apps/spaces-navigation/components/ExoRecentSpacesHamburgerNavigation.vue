@@ -43,7 +43,8 @@
       :page-size="itemsToShow"
       :keyword="keyword"
       show-more-button
-      class="recentSpacesWrapper mt-4" />
+      class="recentSpacesWrapper mt-4"
+      @open-space-panel="$emit('open-space-panel',$event)" />
   </v-container>
 </template>
 <script>
@@ -81,7 +82,7 @@ export default {
     openFilter() {
       this.showFilter = true;
       this.leftNavigationActionEvent('filterBySpaces');
-    }
+    },
   }
 };
 </script>
