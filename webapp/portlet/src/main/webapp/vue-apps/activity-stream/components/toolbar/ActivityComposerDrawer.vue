@@ -16,6 +16,7 @@
 -->
 <template>
   <exo-drawer
+    id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-model="drawer"
     disable-pull-to-refresh
@@ -63,6 +64,7 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
+          id="activityComposerPostButton"
           :disabled="postDisabled"
           :loading="loading"
           :aria-label="$t(`activity.composer.${composerAction}`)"
