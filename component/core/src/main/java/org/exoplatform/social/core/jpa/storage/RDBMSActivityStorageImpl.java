@@ -571,7 +571,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setShowPinned(pinActivityEnabled);
       break;
 
-    case USER_PIN_STREAM:
+    case PIN_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
         String.valueOf(SpaceMemberEntity.Status.MEMBER),
         0,
