@@ -13,7 +13,8 @@
           :height="btnHeight"
           :disabled="isActivityShared"
           :x-small="btnXSmall"
-          class="hover-underline width-auto text-capitalize-first-letter px-0"
+          :class="btnClass"
+          class="hover-underline width-auto text-capitalize-first-letter px-0 "
           link
           text
           plain
@@ -84,6 +85,9 @@ export default {
     },
     btnXSmall() {
       return !this.isMobile;
+    },
+    btnClass() {
+      return this.isMobile && 'text-caption' || ' ';
     },
     relativeDateFormatClass() {
       return !this.isMobile && 'pt-1 ps-1' || '';
