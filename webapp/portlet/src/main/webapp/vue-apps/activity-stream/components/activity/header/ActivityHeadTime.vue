@@ -1,5 +1,5 @@
 <template>
-  <div class="caption text-light-color text-truncate">
+  <div class="text-light-color text-truncate">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
@@ -10,10 +10,10 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :href="activityLink"
-          :height="20"
+          :height="btnHeight"
           :disabled="isActivityShared"
-          class="hover-underline width-auto text-capitalize-first-letter d-inline px-0"
-          x-small
+          :x-small="btnXSmall"
+          class="hover-underline width-auto text-capitalize-first-letter px-0"
           link
           text
           plain
@@ -21,13 +21,15 @@
           v-on="on">
           <relative-date-format
             v-if="isActivityEdited"
+            :value="activity.updateDate"
+            :short="isMobile"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
-            :value="activity.updateDate" />
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
           <relative-date-format
             v-else
-            class="text-capitalize-first-letter text-light-color text-truncate pt-1 ps-1"
-            :value="activity.createDate" />
+            :value="activity.createDate"
+            :short="isMobile"
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
@@ -47,6 +49,10 @@ export default {
       default: false,
     },
     isActivityShared: {
+      type: Boolean,
+      default: () => false
+    },
+    isMobile: {
       type: Boolean,
       default: () => false
     },
@@ -73,6 +79,15 @@ export default {
     activityPostedTime() {
       return this.activity && (this.activity.updateDate || this.activity.createDate);
     },
+    btnHeight() {
+      return this.isMobile && '22' || '20';
+    },
+    btnXSmall() {
+      return !this.isMobile;
+    },
+    relativeDateFormatClass() {
+      return !this.isMobile && 'pt-1 ps-1' || '';
+    }
   },
 };
 </script>
