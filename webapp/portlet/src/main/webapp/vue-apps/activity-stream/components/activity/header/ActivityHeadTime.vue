@@ -12,8 +12,8 @@
           :href="activityLink"
           :height="btnHeight"
           :disabled="isActivityShared"
-          class="hover-underline width-auto text-capitalize-first-letter px-0"
           :x-small="btnXSmall"
+          class="hover-underline width-auto text-capitalize-first-letter px-0"
           link
           text
           plain
@@ -21,15 +21,15 @@
           v-on="on">
           <relative-date-format
             v-if="isActivityEdited"
-            label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass"
             :value="activity.updateDate"
-            :short="isMobile" />
+            :short="isMobile"
+            label="UIActivity.label.EditedFrom"
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
           <relative-date-format
             v-else
-            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass"
             :value="activity.createDate"
-            :short="isMobile" />
+            :short="isMobile"
+            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />

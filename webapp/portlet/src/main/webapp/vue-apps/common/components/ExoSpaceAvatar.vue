@@ -9,8 +9,8 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
       <v-avatar
         :size="size"
-        tile
         :class="pullLeft"
+        tile
         class="my-auto">
         <img
           :src="defaultAvatarUrl"
@@ -36,8 +36,8 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
-        tile
         :class="pullLeft"
+        tile
         class="my-auto">
         <img
           :src="avatarUrl"
@@ -79,8 +79,8 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
-        tile
         :class="pullLeft"
+        tile
         class="my-auto">
         <img
           :src="avatarUrl"
