@@ -9,8 +9,9 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
       <v-avatar
         :size="size"
+        :class="pullLeft"
         tile
-        class="pull-left my-auto">
+        class="my-auto">
         <img
           :src="defaultAvatarUrl"
           class="object-fit-cover ma-auto"
@@ -18,7 +19,7 @@
           role="presentation">
       </v-avatar>
       <div
-        :class="!subtitleNewLine && 'd-flex'"
+        :class="subtitleNewLineClass"
         class="pull-left text-truncate ms-2">
         <p
           class="text-truncate subtitle-2 my-auto hidden-space">
@@ -35,8 +36,9 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
+        :class="pullLeft"
         tile
-        class="pull-left my-auto">
+        class="my-auto">
         <img
           :src="avatarUrl"
           :class="avatarClass"
@@ -54,8 +56,8 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <div
         v-if="displayName || $slots.subTitle"
-        :class="!subtitleNewLine && 'd-flex'"
-        class="pull-left text-truncate ms-2">
+        :class="subtitleNewLineClass"
+        class="text-truncate ms-2">
         <p
           v-if="displayName"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -77,8 +79,9 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
+        :class="pullLeft"
         tile
-        class="pull-left my-auto">
+        class="my-auto">
         <img
           :src="avatarUrl"
           :class="avatarClass"
@@ -88,8 +91,8 @@
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
-        :class="!subtitleNewLine && 'd-flex'"
-        class="pull-left text-truncate ms-2">
+        :class="subtitleNewLineClass"
+        class="text-truncate ms-2">
         <p
           v-if="displayName"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -208,6 +211,12 @@ export default {
     },
     defaultAvatarUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
+    },
+    pullLeft() {
+      return this.isMobile && ' ' || 'pull-left';
+    },
+    subtitleNewLineClass() {
+      return !this.subtitleNewLine && `d-flex${this.pullLeft}` || this.pullLeft;
     },
   },
   created() {
