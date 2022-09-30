@@ -1,40 +1,42 @@
 <template>
-  <v-list-item>
+  <v-list-item  class="text-truncate">
     <exo-space-avatar
       :space="space"
+      extra-class="text-truncate"
       :size="42"
       avatar />
     <exo-user-avatar
       :identity="posterIdentity"
       :size="31"
-      :extra-class="'ms-n4 mt-6'"
+      extra-class="ms-n4 mt-6"
       avatar />
-    <v-list-item-content class="py-0 accountTitleLabel">
+    <v-list-item-content class="py-0 accountTitleLabel text-truncate">
       <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
         <exo-space-avatar
           :space="space"
+          extra-class="text-truncate"
           fullname
           bold-title
           link-style
           username-class />
       </v-list-item-title>
       <v-list-item-subtitle>
-        <v-row class="ms-2">
-          <v-col class="px-0 py-0" cols="9">
+        <v-row class="ms-2 text-truncate">
+          <v-col class="px-0 py-0 text-truncate" cols="9">
             <exo-user-avatar
               :identity="posterIdentity"
-              :extra-class="'text-truncate'"
+              extra-class="text-truncate"
               fullname
               link-style
               username-class />
           </v-col>
-          <v-col class="px-0 py-0" cols="3">
+          <v-col class="px-0 py-0 subTitle-2 align-center" cols="3">
             <activity-head-time
               :activity="activity"
               :is-activity-shared="isActivityShared"
               is-mobile
               no-icon
-              class="d-flex activity-head-time pt-1" />
+              class="activity-head-time pt-0 ps-0" />
           </v-col>
         </v-row>
       </v-list-item-subtitle>
