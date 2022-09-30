@@ -20,7 +20,7 @@
           :is-activity-shared="isActivityShared"
           is-mobile
           no-icon
-          class="d-flex activity-head-time mt-1 ms-n1" />
+          class="d-flex activity-head-time" />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
@@ -47,12 +47,13 @@
       </v-list-item-title>
       <v-list-item-subtitle>
         <v-row class="ms-2 text-truncate">
-          <v-col class="px-0 py-0 text-truncate" cols="9">
+          <v-col class="px-0 py-0 text-truncate" cols="7">
             <exo-user-avatar
               :identity="posterIdentity"
               extra-class="text-truncate"
               fullname
               link-style
+              smallFontSize
               username-class />
           </v-col>
           <v-col class="px-0 py-0 subTitle-2 align-center" cols="3">
@@ -61,7 +62,7 @@
               :is-activity-shared="isActivityShared"
               is-mobile
               no-icon
-              class="activity-head-time pt-0 ps-0" />
+              class="text-caption activity-head-time pt-0 ps-0" />
           </v-col>
         </v-row>
       </v-list-item-subtitle>
