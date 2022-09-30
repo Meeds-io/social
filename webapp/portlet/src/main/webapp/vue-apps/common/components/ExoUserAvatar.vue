@@ -12,7 +12,8 @@
       :class="avatarClass">
       <v-avatar
         :size="size"
-        class="ma-0 pull-left">
+        :class="pullLeft"
+        class="ma-0">
         <img
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
@@ -24,7 +25,8 @@
       v-else-if="fullname"
       :id="id"
       :href="profileUrl"
-      class="pull-left d-flex align-start text-truncate">
+      :class="pullLeft"
+      class="d-flex align-start text-truncate">
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -80,7 +82,8 @@
       :class="avatarClass">
       <v-avatar
         :size="size"
-        class="ma-0 pull-left">
+        :class="pullLeft"
+        class="ma-0">
         <img
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
@@ -92,7 +95,8 @@
       v-else-if="fullname"
       :id="id"
       :href="profileUrl"
-      class="pull-left d-flex align-start text-truncate">
+      :class="pullLeft"
+      class="d-flex align-start text-truncate">
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -287,6 +291,9 @@ export default {
         external: this.isExternal,
       };
     },
+    pullLeft() {
+      return this.isMobile && ' ' || 'pull-left';
+    }
   },
   created() {
     if (this.profileId) {
