@@ -1,5 +1,7 @@
 <template>
-  <div class="text-light-color text-truncate">
+  <div
+      :class="truncateText"
+      class="text-light-color">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
@@ -24,13 +26,15 @@
             v-if="isActivityEdited"
             :value="activity.updateDate"
             :short="isMobile"
+            :class="truncateText"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
+            class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
           <relative-date-format
             v-else
             :value="activity.createDate"
             :short="isMobile"
-            class="text-capitalize-first-letter text-light-color text-truncate relativeDateFormatClass" />
+            :class="truncateText"
+            class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
@@ -81,7 +85,7 @@ export default {
       return this.activity && (this.activity.updateDate || this.activity.createDate);
     },
     btnHeight() {
-      return this.isMobile && '22' || '20';
+      return this.isMobile && '18' || '20';
     },
     btnXSmall() {
       return !this.isMobile;
@@ -91,6 +95,9 @@ export default {
     },
     relativeDateFormatClass() {
       return !this.isMobile && 'pt-1 ps-1' || '';
+    },
+    truncateText() {
+      return !this.isMobile && 'text-truncate' || ' ';
     }
   },
 };
