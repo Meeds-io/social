@@ -45,26 +45,20 @@
           link-style
           username-class />
       </v-list-item-title>
-      <v-list-item-subtitle>
-        <v-row class="ms-2 text-truncate">
-          <v-col class="px-0 py-0 text-truncate" cols="7">
-            <exo-user-avatar
+      <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
+          <exo-user-avatar
               :identity="posterIdentity"
-              extra-class="text-truncate"
+              extra-class="text-truncate ms-2 me-1"
               fullname
               link-style
               smallFontSize
               username-class />
-          </v-col>
-          <v-col class="px-0 py-0 subTitle-2 align-center" cols="3">
-            <activity-head-time
+          <activity-head-time
               :activity="activity"
               :is-activity-shared="isActivityShared"
               is-mobile
               no-icon
               class="text-caption activity-head-time pt-0 ps-0" />
-          </v-col>
-        </v-row>
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
