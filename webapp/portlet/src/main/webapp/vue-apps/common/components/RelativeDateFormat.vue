@@ -37,7 +37,7 @@ export default {
     },
     relativeDateLabel() {
       const label = this.date && this.$t(this.relativeDateLabelKey, {0: this.relativeDateLabelValue}) || '';
-      if (this.label) {
+      if (this.label && !this.short) {
         return this.$t(this.label, {0: label});
       } else {
         return label;
