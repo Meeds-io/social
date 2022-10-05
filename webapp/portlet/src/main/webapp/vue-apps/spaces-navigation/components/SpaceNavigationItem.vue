@@ -39,7 +39,7 @@
       class="me-2 align-center">
       <v-btn icon @click="openOrCloseDrawer($event)">
         <v-icon :id="space.id" class="me-0 pa-2 icon-default-color clickable" small>
-          {{ arrowIconClass }} 
+          {{ arrowIcon }} 
         </v-icon>
       </v-btn>
     </v-list-item-icon>
@@ -82,9 +82,6 @@ export default {
     },
     spaceDisplayName() {
       return this.space?.displayName;
-    },
-    arrowIconClass() {
-      return this.arrowIcon;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;

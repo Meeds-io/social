@@ -72,7 +72,6 @@
   </v-container>
 </template>
 <script>
-/* eslint-disable vue/one-component-per-file */
 import {setSettingValue} from '../../common/js/SettingService.js';
 
 export default {
