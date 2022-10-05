@@ -24,7 +24,6 @@
   </v-container>
 </template>
 <script>
-
 export default {
   data() {
     return {
@@ -176,7 +175,8 @@ export default {
       this.secondeLevel = !this.secondeLevel;
       if (this.secondeLevel) {
         this.arrowIcon = 'fa-arrow-left';
-        this.$emit('open-second-level');
+        this.$emit('open-second-level', false);
+        document.dispatchEvent(new CustomEvent('second-panel-opened' ));
       } else {
         this.arrowIcon = 'fa-arrow-right';
         this.$emit('close-second-level');
