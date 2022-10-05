@@ -16,36 +16,42 @@
 -->
 <template>
   <v-container class="recentDrawer" flat>
-    <v-flex class="d-flex pa-0">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
-        <v-icon class="fas fa-arrow-left" small />
-      </v-list-item-icon>
-      <v-list-item class="width-min-content pt-3">
+    <v-flex class="pa-0">
+      <v-list-item class="pt-3">
         <v-list-item-avatar
-          class="spaceAvatar mt-0 mb-0 align-self-start"
-          :width="isMobile && '45' || '60'"
-          :height="isMobile && '45' || '60'">
+          class="spaceAvatar mt-0 align-self-start"
+          width="60"
+          height="60">
           <v-img
             class="object-fit-cover"
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <p class="blue--text text--darken-3 font-weight-bold text-truncate-2 text-break-all">{{ spaceDisplayName }}</p>
+          <v-list-item-title>
+            <v-tooltip bottom>
+              <template #activator="{ on, attrs }">
+                <span
+                  v-on="on"
+                  v-bind="attrs"
+                  class="blue--text text--darken-3 font-weight-bold">
+                  {{ spaceDisplayName }}
+                </span>
+              </template>
+              <span>{{ spaceDisplayName }}</span>
+            </v-tooltip>
+          </v-list-item-title>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
-          <p v-if="!isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium mb-0 mt-2 text-break-all">
+          <p class="text-truncate-2 text-caption text--primary font-weight-medium">
             {{ description }}
           </p>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p v-if="isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4 text-break-all">
-      {{ description }}
-    </p>
     <v-flex>
       <v-list-item>
-        <v-list-item-content class="body-2 grey--text text-truncate text--darken-1">
+        <v-list-item-content class="body-2 text-truncate text--darken-1">
           {{ $t('space.logo.banner.popover.managers') }}
         </v-list-item-content>
         <v-list-item-action>
@@ -53,7 +59,7 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            max="3"
+            max="1"
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
@@ -62,60 +68,30 @@
     </v-flex>
     <v-flex>
       <v-list-item-action class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs" 
-              v-on="on" 
-              link
-              icon 
-              @click="selectHome()">
-              <v-icon 
-                class="me-0 pa-2" 
-                :class="url() === homeLink && 'primary--text' || 'icon-default-color'" 
-                small>
-                fa-house-user
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>
-            {{ $t('menu.spaces.makeAsHomePage') }}
-          </span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs" 
-              v-on="on" 
-              icon>
-              <v-icon class="me-0 pa-2 disabled--text not-clickable" small>
-                fa-envelope-open-text
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>
-            {{ $t('menu.spaces.unreadActivities') }}
-          </span>
-        </v-tooltip>
+        <v-btn
+          v-if="homeLink !== url"
+          link
+          icon 
+          @click="selectHome()">
+          <v-icon class="me-0 pa-2 icon-default-color" small>
+            fa-house-user
+          </v-icon>
+        </v-btn>
+        <v-btn
+          :href="url"
+          target="_blank"
+          link
+          icon 
+          @click="leftNavigationActionEvent('openInNewTab')">
+          <v-icon class="me-0 pa-2 icon-default-color" small>
+            fa-envelope-open-text
+          </v-icon>
+        </v-btn>
         <exo-space-favorite-action
           v-if="favoriteActionEnabled"
           :is-favorite="isFavorite"
           :space-id="spaceId"
           entity-type="spaces_left_navigation" />
-        <extension-registry-components
-          :params="params"
-          name="SpacePopover"
-          type="space-popover-action"
-          parent-element="div"
-          element="div"
-          element-class="mx-auto ma-lg-0"
-          class="space-panel-action" />
-        <span
-          v-for="extension in enabledExtensionComponents"
-          class="space-panel-action"
-          :key="extension.key"
-          :class="`${extension.appClass} ${extension.typeClass}`"
-          :ref="extension.key"></span>
       </v-list-item-action>
     </v-flex>
     <v-flex>
@@ -124,10 +100,11 @@
           v-for="navigation in spaceNavigations"
           :key="navigation.id"
           :href="navigation.uri">
-          <v-list-item-icon class="me-3 my-3 d-flex">
+          <v-list-item-icon class="me-3">
             <i 
               aria-hidden="true" 
-              :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
+              class="icon-default-color icon-default-size" 
+              :class="applicationIcon(navigation.icon)"> </i>
           </v-list-item-icon>
           <v-list-item-content>
             {{ navigation.label }}
@@ -142,8 +119,7 @@ export default {
   data() {
     return {
       spaceNavigations: [],
-      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
-      externalExtensions: [],
+      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled
     };
   },
   props: {
@@ -180,29 +156,7 @@ export default {
     },
     favoriteActionEnabled() {
       return this.favoritesSpaceEnabled;
-    },
-    params() {
-      return {
-        identityType: 'space',
-        identityId: eXo.env.portal.spaceId
-      };
-    },
-    enabledExtensionComponents() {
-      return this.externalExtensions.filter(extension => extension.enabled);
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
-    },
-  },
-  watch: {
-    spaceId: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.refreshExtensions();
-        }
-      },
-    },
+    }
   },
   created() {
     this.retrieveSpaceNavigations(this.spaceId);
@@ -242,9 +196,6 @@ export default {
         return navigationIcon;
       } 
     },
-    closeMenu() {
-      this.$emit('close-menu');
-    },
     url() {
       if (this.space && this.space.groupId) {
         const uriPart = this.space.groupId.replace(/\//g, ':');
@@ -261,29 +212,8 @@ export default {
       this.leftNavigationActionEvent('makeAsHomePage');
     },
     openDetails() {
-      document.dispatchEvent(new CustomEvent('display-users-list-drawer', {detail: this.managersToDisplay} ));
-    },
-    refreshExtensions() {
-      this.externalExtensions = [];
-      this.$nextTick(() => {
-        this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
-        this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
-      });
-    },
-    initExtensionAction(extension) {
-      if (extension.enabled) {
-        let container = this.$refs[extension.key];
-        if (container && container.length > 0) {
-          container = container[0];
-          extension.init(container, this.space.prettyName);
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(
-            `Error initialization of the ${extension.key} action component: empty container`
-          );
-        }
-      }
-    },
+      document.dispatchEvent(new CustomEvent('display-space-managers', {detail: this.managersToDisplay} ));
+    }
   },
 };
 </script>

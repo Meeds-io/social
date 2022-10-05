@@ -50,6 +50,7 @@
         </v-row>
       </template>
     </exo-drawer>
+    <space-hosts-drawer />
   </v-app>
 </template>
 <script>
