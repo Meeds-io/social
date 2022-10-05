@@ -20,7 +20,7 @@ if (extensionRegistry) {
     'exo-hamburger-menu-navigation',
     'exo-hamburger-menu-navigation-items', {
       id: 'HamburgerMenuNavigationAdministration',
-      priority: 30,
+      priority: 40,
       secondLevel: true,
       vueComponent: ExoAdministrationHamburgerNavigation,
     },
