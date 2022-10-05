@@ -16,22 +16,15 @@
 -->
 <template>
   <exo-drawer
-    @closed="closed"
     ref="versionHistoryDrawer"
     class="versionHistoryDrawer"
+    @closed="closed"
     show-overlay
     right>
     <template slot="title">
       {{ $t('versionHistory.label.title') }}
     </template>
     <template slot="content">
-      <div
-        v-if="isLoading"
-        class="text-center mt-5">
-        <v-progress-circular
-          indeterminate
-          color="primary" />
-      </div>
       <div
         v-if="!isLoading && versions.length === 0"
         class="text-center mt-5">
@@ -47,26 +40,26 @@
             <v-list-item
               v-for="version in versions"
               :key="version.id"
-              :class="[version.current? 'current_version' : '']"
-              @click="openVersion($event, version)"
+              :class="[version.current? 'light-grey-background-color' : '']"
+              @click="openVersion(version)"
               class="history-line pa-2 mb-2 border-color border-radius d-block">
               <version-card
-                @version-update-description="updateVersionDescription"
-                @restore-version="restoreVersion"
                 :version="version"
                 :can-manage="canManage"
                 :disable-restore-version="disableRestoreVersion"
-                :enable-edit-description="enableEditDescription" />
+                :enable-edit-description="enableEditDescription"
+                @version-update-description="updateVersionDescription"
+                @restore-version="restoreVersion" />
             </v-list-item>
           </v-slide-y-transition>
         </v-list-item-group>
       </v-list>
     </template>
-    <template slot="footer">
+    <template v-if="showLoadMore" slot="footer">
       <div
-        v-if="showLoadMore"
         class="d-flex mx-4">
         <v-btn
+          :loading="isLoading"
           @click="loadMore"
           class="primary--text mx-auto"
           text>
@@ -84,7 +77,7 @@ export default {
     versions: {
       type: Array,
       default: () => {
-        return [];
+        return null;
       }
     },
     canManage: {
@@ -118,6 +111,15 @@ export default {
       }
     }
   },
+  watch: {
+    isLoading() {
+      if (this.isLoading) {
+        this.$refs.versionHistoryDrawer.startLoading();
+      } else {
+        this.$refs.versionHistoryDrawer.endLoading();
+      }
+    },
+  },
   methods: {
     open() {
       this.$refs.versionHistoryDrawer.open();
@@ -128,11 +130,8 @@ export default {
     loadMore() {
       this.$emit('load-more');
     },
-    openVersion(event, version) {
-      if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'BUTTON'
-          && !event.target.classList.contains('descriptionContent')) {
-        this.$emit('open-version', version);
-      }
+    openVersion(version) {
+      this.$emit('open-version', version);
     },
     updateVersionDescription(version, newDescription) {
       this.$emit('version-update-description', version, newDescription);
