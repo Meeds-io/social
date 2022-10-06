@@ -1,9 +1,7 @@
 <template>
-  <div 
-    class="d-flex flex-row changeBannerButton"
-    v-show="hover">
+  <div class="d-flex flex-row changeBannerButton">
     <div 
-      v-if="!isDefaultBanner"
+      v-show="!isDefaultBanner && hover"
       class="changeBannerButtonIcon me-2">
       <v-btn 
         class="d-flex justify-center"
@@ -22,7 +20,9 @@
         </v-icon>
       </v-btn>
     </div>
-    <div class="changeBannerButtonIcon">
+    <div 
+      class="changeBannerButtonIcon"
+      v-show="hover">
       <v-file-input
         v-if="!sendingImage"
         id="bannerInput"
@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     isDefaultBanner() {
-      return this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
+      return this.user && this.user.banner && this.user.banner.startsWith('/portal/rest/v1/social/users/default-image/');
     },
   },
   methods: {
