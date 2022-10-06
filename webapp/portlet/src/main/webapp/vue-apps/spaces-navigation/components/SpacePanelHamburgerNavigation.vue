@@ -59,7 +59,7 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            max="1"
+            max="4"
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
@@ -78,10 +78,8 @@
           </v-icon>
         </v-btn>
         <v-btn
-          :href="url"
-          target="_blank"
-          link
           icon 
+          disabled
           @click="leftNavigationActionEvent('openInNewTab')">
           <v-icon class="me-0 pa-2 icon-default-color" small>
             fa-envelope-open-text
@@ -92,6 +90,20 @@
           :is-favorite="isFavorite"
           :space-id="spaceId"
           entity-type="spaces_left_navigation" />
+        <extension-registry-components
+          :params="params"
+          name="SpacePopover"
+          type="space-popover-action"
+          parent-element="div"
+          element="div"
+          element-class="mx-auto ma-lg-0"
+          class="space-panel-action" />
+        <span
+          v-for="extension in enabledExtensionComponents"
+          class="space-panel-action"
+          :key="extension.key"
+          :class="`${extension.appClass} ${extension.typeClass}`"
+          :ref="extension.key"></span>
       </v-list-item-action>
     </v-flex>
     <v-flex>
@@ -100,11 +112,10 @@
           v-for="navigation in spaceNavigations"
           :key="navigation.id"
           :href="navigation.uri">
-          <v-list-item-icon class="me-3">
+          <v-list-item-icon class="me-3 my-3">
             <i 
               aria-hidden="true" 
-              class="icon-default-color icon-default-size" 
-              :class="applicationIcon(navigation.icon)"> </i>
+              :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
           </v-list-item-icon>
           <v-list-item-content>
             {{ navigation.label }}
@@ -119,7 +130,8 @@ export default {
   data() {
     return {
       spaceNavigations: [],
-      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled
+      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
+      externalExtensions: [],
     };
   },
   props: {
@@ -156,7 +168,26 @@ export default {
     },
     favoriteActionEnabled() {
       return this.favoritesSpaceEnabled;
-    }
+    },
+    params() {
+      return {
+        identityType: 'space',
+        identityId: eXo.env.portal.spaceId
+      };
+    },
+    enabledExtensionComponents() {
+      return this.externalExtensions.filter(extension => extension.enabled);
+    },
+  },
+  watch: {
+    spaceId: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.refreshExtensions();
+        }
+      },
+    },
   },
   created() {
     this.retrieveSpaceNavigations(this.spaceId);
@@ -213,7 +244,28 @@ export default {
     },
     openDetails() {
       document.dispatchEvent(new CustomEvent('display-space-managers', {detail: this.managersToDisplay} ));
-    }
+    },
+    refreshExtensions() {
+      this.externalExtensions = [];
+      this.$nextTick(() => {
+        this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
+        this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
+      });
+    },
+    initExtensionAction(extension) {
+      if (extension.enabled) {
+        let container = this.$refs[extension.key];
+        if (container && container.length > 0) {
+          container = container[0];
+          extension.init(container, this.space.prettyName);
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(
+            `Error initialization of the ${extension.key} action component: empty container`
+          );
+        }
+      }
+    },
   },
 };
 </script>
