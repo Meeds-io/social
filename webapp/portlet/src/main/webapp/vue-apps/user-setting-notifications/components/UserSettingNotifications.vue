@@ -74,6 +74,9 @@ export default {
         .then(resp => resp && resp.ok && resp.json())
         .then(settings => {
           this.notificationSettings = settings;
+          if (!eXo.env.portal.SpaceWebNotificationsEnabled) {
+            this.notificationSettings.channels = this.notificationSettings.channels.filter((ch) => ch !== 'SPACE_WEB_CHANNEL');
+          }
           return this.$nextTick();
         })
         .finally(() => {

@@ -770,6 +770,17 @@
             </properties-param>
         </init-params>
     </component>
+    <component>
+        <key>SpaceWebNotificationsFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>SpaceWebNotificationsProperties</name>
+                <description>Space Web Notifications Feature enablement flag</description>
+                <property name="exo.feature.SpaceWebNotifications.enabled" value="${exo.feature.SpaceWebNotifications.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
 
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
