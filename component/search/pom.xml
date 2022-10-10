@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.exoplatform.social</groupId>
     <artifactId>social-component</artifactId>
-    <version>6.4.x-meed-SNAPSHOT</version>
+    <version>6.4.0-meed-20221010</version>
   </parent>
   <artifactId>social-component-search</artifactId>
   <packaging>jar</packaging>
