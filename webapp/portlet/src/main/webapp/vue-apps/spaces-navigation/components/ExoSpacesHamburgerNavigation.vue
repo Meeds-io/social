@@ -47,7 +47,7 @@
               fa-plus
             </v-icon>
           </v-btn>
-          <v-btn icon @click="openOrCloseDrawer(true,true)">
+          <v-btn icon @click="openOrCloseDrawer()">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               {{ arrowIconClass }} 
             </v-icon>
@@ -60,8 +60,8 @@
       :home-link="homeLink"
       home-icon
       shaped
-      @open-space-panel="openSpacePanel(true,false,$event)"
-      @close-space-pane="openSpacePanel(true,false,$event)" />
+      @open-space-panel="openSpacePanel($event)"
+      @close-space-pane="openSpacePanel($event)" />
     <exo-confirm-dialog
       ref="confirmDialog"
       :title="$t('menu.confirmation.title.changeHome')"
@@ -89,7 +89,7 @@ export default {
       canAddSpaces: false,
       isRecentSpaces: false,
       space: null,
-      spacePanel: false,
+      spacePanel: false
     };
   },
   computed: {
@@ -181,8 +181,15 @@ export default {
                     homeLink: this.homeLink,
                   };
                 },
+                methods: {
+                  closeMenu() {
+                    self.$emit('close-second-level');
+                    self.secondeLevel = false;
+                    document.dispatchEvent(new CustomEvent('hide-third-level'));
+                  },
+                },
                 template: `
-                  <space-panel-hamburger-navigation :space="space" :home-link="homeLink" />
+                  <space-panel-hamburger-navigation :space="space" :home-link="homeLink" @close-menu="closeMenu" />
                 `,
               });
               new VueHamburgerMenuItem({
@@ -193,10 +200,14 @@ export default {
                 vuetify: Vue.prototype.vuetifyOptions,
                 el: parentId,
               });
-            }
+            },
+            closeMenu() {
+              document.dispatchEvent(new CustomEvent('hide-third-level'));
+              self.openOrCloseDrawer();
+            },
           },
           template: `
-            <exo-recent-spaces-hamburger-menu-navigation @open-space-panel="openSpacePanel($event)" />
+            <exo-recent-spaces-hamburger-menu-navigation @open-space-panel="openSpacePanel($event)" @close-menu="closeMenu" />
           `,
         });
       } else {
@@ -210,14 +221,18 @@ export default {
           methods: {
             selectHome(space) {
               self.selectHome(space);
-            }
+            },
+            closeMenu() {
+              document.dispatchEvent(new CustomEvent('hide-third-level'));
+              self.openSpacePanel();
+            },
           },
           template: `
-            <space-panel-hamburger-navigation :space="space" :home-link="homeLink" @selectHome="selectHome(space)" />
+            <space-panel-hamburger-navigation :space="space" :home-link="homeLink" @selectHome="selectHome(space)" @close-menu="closeMenu" />
           `,
         });
       }
-      new VueHamburgerMenuItem({
+      this.secondLevelVueInstance = new VueHamburgerMenuItem({
         i18n: new VueI18n({
           locale: this.$i18n.locale,
           messages: this.$i18n.messages,
@@ -230,32 +245,29 @@ export default {
       this.arrowIcon= 'fa-arrow-right';
       this.showItemActions = false;
       this.secondeLevel = false;
+      this.secondeLevelSpacePanel = false;
       this.spacePanel = false;
     },
-    openOrCloseDrawer(recentSpaces, isSpacePanel ) {
-      this.isRecentSpaces = isSpacePanel;
+    openOrCloseDrawer() {
+      this.isRecentSpaces = true;
       this.arrowIcon = 'fa-arrow-right';
-      if (this.isMobile) {
-        this.$emit('open-second-level');
+      this.secondeLevel = !this.secondeLevel;
+      if (this.secondeLevel) {
+        this.secondeLevelSpacePanel = false;
+        this.arrowIcon = 'fa-arrow-left';
+        this.$emit('open-second-level', true);
+        document.dispatchEvent(new CustomEvent('hide-space-panel'));
       } else {
-        this.secondeLevel = !this.secondeLevel;
-        if (this.secondeLevel) {
-          this.secondeLevelSpacePanel = false;
-          this.arrowIcon = 'fa-arrow-left';
-          this.$emit('open-second-level', recentSpaces);
-          document.dispatchEvent(new CustomEvent('hide-space-panel'));
-        } else {
-          this.arrowIcon = 'fa-arrow-right';
-          this.$emit('close-second-level');
-        }
+        this.arrowIcon = 'fa-arrow-right';
+        this.$emit('close-second-level');
       }
     },
-    openSpacePanel(recentSpaces, isSpacePanel,event) {
+    openSpacePanel(event) {
       let openedSpace = null;
       if (this.space) {
         openedSpace = this.space.id;
       }
-      this.isRecentSpaces = isSpacePanel;
+      this.isRecentSpaces = false;
       this.spacePanel = false;
       if (event) {
         this.space = event;
@@ -265,7 +277,7 @@ export default {
       if (this.secondeLevelSpacePanel || (openedSpace !== this.space.id && openedSpace!==null)) {
         document.dispatchEvent(new CustomEvent('space-opened', {detail: openedSpace} ));
         this.secondeLevel = false;
-        this.$emit('open-second-level', recentSpaces);
+        this.$emit('open-second-level', true);
         this.arrowIcon = 'fa-arrow-right';
       } else {
         this.$emit('close-second-level');

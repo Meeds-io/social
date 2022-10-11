@@ -41,7 +41,7 @@ export default {
     displaySpaceHosts: null,
   }),
   mounted() {
-    document.addEventListener('display-space-managers', (event) => {
+    document.addEventListener('display-space-hosts', (event) => {
       if (event && event.detail) {
         this.displaySpaceHosts = event.detail;
         this.$refs.managersDrawer.open();
