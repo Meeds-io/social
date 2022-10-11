@@ -19,11 +19,13 @@ package org.exoplatform.social.notification;
 import org.exoplatform.commons.api.notification.service.setting.PluginContainer;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
+import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
@@ -39,7 +41,11 @@ import org.exoplatform.social.core.manager.RelationshipManagerImpl;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.notification.channel.SpaceWebChannel;
+import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceImpl;
 import org.exoplatform.social.notification.mock.MockNotificationService;
+import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,7 +70,11 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected PluginSettingService pluginSettingService;
   protected ExoFeatureService exoFeatureService;
   protected OrganizationService organizationService;
-
+  protected SettingService settingService;
+  protected SpaceWebNotificationService spaceWebNotificationService;
+  protected MetadataService metadataService;
+  protected ExoFeatureService featureService;
+  protected ListenerService listenerService;
   protected Identity rootIdentity;
   protected Identity johnIdentity;
   protected Identity maryIdentity;
@@ -94,6 +104,11 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     pluginSettingService = getService(PluginSettingService.class);
     exoFeatureService = getService(ExoFeatureService.class);
     organizationService = getService(OrganizationService.class);
+    settingService = getService(SettingService.class);
+    metadataService = getService(MetadataService.class);
+    listenerService = getService(ListenerService.class);
+    featureService = getService(ExoFeatureService.class);
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(metadataService, featureService, listenerService);
     System.setProperty(CommonsUtils.CONFIGURED_DOMAIN_URL_KEY, "http://exoplatform.com");
     //
     checkAndCreateDefaultUsers();

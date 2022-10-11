@@ -673,6 +673,34 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>UnreadMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>4</int>
+            </field>
+            <field name="name">
+              <string>unread</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>

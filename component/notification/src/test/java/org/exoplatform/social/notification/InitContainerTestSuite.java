@@ -3,9 +3,12 @@ package org.exoplatform.social.notification;
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.notification.channel.MailTemplateProviderTest;
+import org.exoplatform.social.notification.channel.SpaceWebChannelTest;
 import org.exoplatform.social.notification.channel.WebTemplateProviderTest;
 import org.exoplatform.social.notification.channel.template.*;
 
+import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
+import org.exoplatform.social.notification.upgrade.SpaceWebNotificationsSettingsUpgradePluginTest;
 import org.exoplatform.social.notification.web.template.*;
 
 import org.junit.AfterClass;
@@ -36,6 +39,9 @@ import org.junit.runners.Suite.SuiteClasses;
   EditCommentMailBuilderTest.class,
   EditActivityWebBuilderTest.class,
   EditCommentWebBuilderTest.class,
+  SpaceWebNotificationsSettingsUpgradePluginTest.class,
+  SpaceWebChannelTest.class,
+  SpaceWebNotificationServiceTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
