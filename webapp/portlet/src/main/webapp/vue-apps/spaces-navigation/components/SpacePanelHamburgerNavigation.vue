@@ -16,12 +16,15 @@
 -->
 <template>
   <v-container class="recentDrawer" flat>
-    <v-flex class="pa-0">
+    <v-flex class="d-flex pa-0">
+      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
+        <v-icon class="fas fa-arrow-left" small />
+      </v-list-item-icon>
       <v-list-item class="pt-3">
         <v-list-item-avatar
-          class="spaceAvatar mt-0 align-self-start"
-          width="60"
-          height="60">
+          class="spaceAvatar mt-0 mb-0 align-self-start"
+          :width="isMobile && '45' || '60'"
+          :height="isMobile && '45' || '60'">
           <v-img
             class="object-fit-cover"
             :src="avatar" />
@@ -43,15 +46,18 @@
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
-          <p class="text-truncate-2 text-caption text--primary font-weight-medium">
+          <p v-if="!isMobile" class="text-truncate-2 text-caption text--primary font-weight-medium mb-0">
             {{ description }}
           </p>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
+    <p v-if="isMobile" class="text-truncate-2 text-caption text--primary font-weight-medium pt-3 px-4">
+      {{ description }}
+    </p>
     <v-flex>
       <v-list-item>
-        <v-list-item-content class="body-2 text-truncate text--darken-1">
+        <v-list-item-content class="body-2 grey--text text-truncate text--darken-1">
           {{ $t('space.logo.banner.popover.managers') }}
         </v-list-item-content>
         <v-list-item-action>
@@ -59,7 +65,7 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            max="4"
+            max="1"
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
@@ -112,7 +118,7 @@
           v-for="navigation in spaceNavigations"
           :key="navigation.id"
           :href="navigation.uri">
-          <v-list-item-icon class="me-3 my-3">
+          <v-list-item-icon class="me-3 my-3 d-flex">
             <i 
               aria-hidden="true" 
               :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
@@ -178,6 +184,9 @@ export default {
     enabledExtensionComponents() {
       return this.externalExtensions.filter(extension => extension.enabled);
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
   },
   watch: {
     spaceId: {
@@ -227,6 +236,9 @@ export default {
         return navigationIcon;
       } 
     },
+    closeMenu() {
+      this.$emit('close-menu');
+    },
     url() {
       if (this.space && this.space.groupId) {
         const uriPart = this.space.groupId.replace(/\//g, ':');
@@ -243,7 +255,7 @@ export default {
       this.leftNavigationActionEvent('makeAsHomePage');
     },
     openDetails() {
-      document.dispatchEvent(new CustomEvent('display-space-managers', {detail: this.managersToDisplay} ));
+      document.dispatchEvent(new CustomEvent('display-space-hosts', {detail: this.managersToDisplay} ));
     },
     refreshExtensions() {
       this.externalExtensions = [];
