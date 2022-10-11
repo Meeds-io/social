@@ -17,6 +17,22 @@
 -->
 <template>
   <v-list-item
+    v-if="isMobile"
+    :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
+    class="px-2 spaceItem"
+    @click="openOrCloseDrawer()">
+    <v-list-item-avatar 
+      size="28"
+      class="me-3 tile my-0 spaceAvatar"
+      tile>
+      <v-img :src="spaceAvatar" />
+    </v-list-item-avatar>
+    <v-list-item-content>
+      <v-list-item-title class="body-2" v-text="spaceDisplayName" />
+    </v-list-item-content>
+  </v-list-item>
+  <v-list-item
+    v-else
     :href="spaceLink"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     link
@@ -85,6 +101,9 @@ export default {
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   created() {

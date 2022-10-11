@@ -32,7 +32,7 @@
           </div>
           <div
             v-show="secondLevel"
-            :class="secondLevel && 'open'"
+            :class="[secondLevel && 'open', thirdLevel && 'd-none d-sm-block']"
             class="HamburgerMenuSecondLevelParent border-box-sizing"
             role="navigation"
             :aria-label="$t('menu.role.navigation.second.level')">
