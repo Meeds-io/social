@@ -19,6 +19,8 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class TagObject extends MetadataObject {
 
+  private long userId;
+
   public TagObject() {
   }
 
@@ -32,6 +34,14 @@ public class TagObject extends MetadataObject {
 
   public TagObject(String objectType, String objectId, String parentObjectId, long spaceId) {
     super(objectType, objectId, parentObjectId, spaceId);
+  }
+
+  public TagObject(String objectType, String objectId, String parentObjectId, long spaceId, long userId) {
+    super(objectType, objectId, parentObjectId, spaceId);
+    this.userId = userId;
+  }
+  public long getUserId() {
+    return userId;
   }
 
 }
