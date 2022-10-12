@@ -20,7 +20,7 @@
       <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
         <v-icon class="fas fa-arrow-left" small />
       </v-list-item-icon>
-      <v-list-item class="pt-3">
+      <v-list-item class="width-min-content pt-3">
         <v-list-item-avatar
           class="spaceAvatar mt-0 mb-0 align-self-start"
           :width="isMobile && '45' || '60'"
@@ -30,29 +30,17 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <v-list-item-title>
-            <v-tooltip bottom>
-              <template #activator="{ on, attrs }">
-                <span
-                  v-on="on"
-                  v-bind="attrs"
-                  class="blue--text text--darken-3 font-weight-bold">
-                  {{ spaceDisplayName }}
-                </span>
-              </template>
-              <span>{{ spaceDisplayName }}</span>
-            </v-tooltip>
-          </v-list-item-title>
+          <p class="blue--text text--darken-3 font-weight-bold text-truncate-2">{{ spaceDisplayName }}</p>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
-          <p v-if="!isMobile" class="text-truncate-2 text-caption text--primary font-weight-medium mb-0">
+          <p v-if="!isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium mb-0 mt-2">
             {{ description }}
           </p>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p v-if="isMobile" class="text-truncate-2 text-caption text--primary font-weight-medium pt-3 px-4">
+    <p v-if="isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4">
       {{ description }}
     </p>
     <v-flex>
