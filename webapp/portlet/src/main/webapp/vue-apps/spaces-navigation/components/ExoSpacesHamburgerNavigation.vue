@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     changeHome() {
-      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedSpace.spaceUrl)
+      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url(this.selectedSpace))
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = this.url(this.selectedSpace);
           $('#UserHomePortalLink').attr('href', this.homeLink);
@@ -178,7 +178,7 @@ export default {
                 data: () => {
                   return {
                     space: this.space,
-                    homeLink: this.homeLink,
+                    homeLink: self.homeLink,
                   };
                 },
                 methods: {
@@ -187,9 +187,12 @@ export default {
                     self.secondeLevel = false;
                     document.dispatchEvent(new CustomEvent('hide-third-level'));
                   },
+                  selectThirdLevelHome(space) {
+                    self.selectHome(space);
+                  },
                 },
                 template: `
-                  <space-panel-hamburger-navigation :space="space" :home-link="homeLink" @close-menu="closeMenu" />
+                  <space-panel-hamburger-navigation :space="space" :home-link="homeLink" @selectHome="selectThirdLevelHome(space)" @close-menu="closeMenu" />
                 `,
               });
               new VueHamburgerMenuItem({
