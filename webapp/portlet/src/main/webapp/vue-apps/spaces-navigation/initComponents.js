@@ -3,15 +3,13 @@ import ExoRecentSpacesHamburgerNavigation from './components/ExoRecentSpacesHamb
 import ExoSpacesNavigationContent from './components/ExoSpacesNavigationContent.vue';
 import SpaceNavigationItem from './components/SpaceNavigationItem.vue';
 import SpacePanelHamburgerNavigation from './components/SpacePanelHamburgerNavigation.vue';
-import SpaceHostsDrawer from './components/SpaceHostsDrawer.vue';
 
 const components = {
   'exo-spaces-hamburger-menu-navigation': ExoSpacesHamburgerNavigation,
   'exo-recent-spaces-hamburger-menu-navigation': ExoRecentSpacesHamburgerNavigation,
   'exo-spaces-navigation-content': ExoSpacesNavigationContent,
   'space-navigation-item': SpaceNavigationItem,
-  'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
-  'space-hosts-drawer': SpaceHostsDrawer,
+  'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation
 };
 
 for (const key in components) {
