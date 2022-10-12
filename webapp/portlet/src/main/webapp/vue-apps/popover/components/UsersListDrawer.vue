@@ -41,12 +41,12 @@ export default {
     displaySpaceHosts: null,
   }),
   mounted() {
-    document.addEventListener('display-space-hosts', (event) => {
+    document.addEventListener('display-users-list-drawer', (event) => {
       if (event && event.detail) {
         this.displaySpaceHosts = event.detail;
         this.$refs.managersDrawer.open();
       }
     });
-  }
+  },
 };
 </script>
