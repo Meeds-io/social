@@ -62,23 +62,38 @@
     </v-flex>
     <v-flex>
       <v-list-item-action class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
-        <v-btn
-          v-if="homeLink !== url"
-          link
-          icon 
-          @click="selectHome()">
-          <v-icon class="me-0 pa-2 icon-default-color" small>
-            fa-house-user
-          </v-icon>
-        </v-btn>
-        <v-btn
-          icon 
-          disabled
-          @click="leftNavigationActionEvent('openInNewTab')">
-          <v-icon class="me-0 pa-2 icon-default-color" small>
-            fa-envelope-open-text
-          </v-icon>
-        </v-btn>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs" 
+              v-on="on" 
+              link
+              icon 
+              @click="selectHome()">
+              <v-icon class="me-0 pa-2 icon-default-color" small>
+                fa-house-user
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.spaces.makeAsHomePage') }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs" 
+              v-on="on" 
+              icon>
+              <v-icon class="me-0 pa-2 disabled--text not-clickable" small>
+                fa-envelope-open-text
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.spaces.unreadActivities') }}
+          </span>
+        </v-tooltip>
         <exo-space-favorite-action
           v-if="favoriteActionEnabled"
           :is-favorite="isFavorite"
