@@ -1,5 +1,7 @@
 <template>
-  <div class="text-light-color text-truncate">
+  <div
+    :class="truncateText"
+    class="text-light-color">
     <v-icon
       v-if="!noIcon"
       class="text-light-color"
