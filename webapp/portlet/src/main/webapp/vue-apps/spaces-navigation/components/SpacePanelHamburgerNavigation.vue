@@ -30,17 +30,17 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <p class="blue--text text--darken-3 font-weight-bold text-truncate-2">{{ spaceDisplayName }}</p>
+          <p class="blue--text text--darken-3 font-weight-bold text-truncate-2 text-break-all">{{ spaceDisplayName }}</p>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
-          <p v-if="!isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium mb-0 mt-2">
+          <p v-if="!isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium mb-0 mt-2 text-break-all">
             {{ description }}
           </p>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p v-if="isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4">
+    <p v-if="isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4 text-break-all">
       {{ description }}
     </p>
     <v-flex>
@@ -53,7 +53,7 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            max="1"
+            max="4"
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
