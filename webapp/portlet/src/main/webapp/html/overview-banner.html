@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<style>
+.overlay {
+  position: absolute;
+  background: rgb(0, 0, 0);
+  background: rgba(0, 0, 0, 0.5); /* Black see-through */
+  color: #f1f1f1;
+  width: 100%;
+  opacity:1;
+  color: white;
+  font-size: 20px;
+  padding: 20px;
+  text-align: center;
+  z-index: 1;
+}
+.img {
+    position: absolute;
+    text-align: center;
+}
+.container{
+    position: relative;
+}
+</style>
+<body>
+    <div class="container">
+        <div z-index="0">
+            <img src="/social-portlet/images/overviewBanner.webp">
+        </div>
+        <div class="overlay">
+            <h1>
+                <strong text-color="white">
+                    Let's see what to do today 
+                </strong>
+            </h1>
+            <h3 text-color="white"> Check below how to contribute</h3>
+        </div>
+    </div>
+</body>
+</html>
