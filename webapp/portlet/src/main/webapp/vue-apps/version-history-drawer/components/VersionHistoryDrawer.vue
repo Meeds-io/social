@@ -29,8 +29,8 @@
           active-class="bg-active">
           <v-slide-y-transition group>
             <v-list-item
-              v-for="(version,index) in versions"
-              :key="index"
+              v-for="version in versions"
+              :key="version.id"
               :class="[version.current? 'current_version' : '']"
               @click="openVersion($event, version)"
               class="history-line pa-2 mb-2 border-color border-radius d-block">
