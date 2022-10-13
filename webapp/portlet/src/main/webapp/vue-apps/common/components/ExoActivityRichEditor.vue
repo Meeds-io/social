@@ -112,11 +112,11 @@ export default {
   },
   watch: {
     inputVal(val) {
-      if (val!== '') {
+      if (val !== '') {
         this.displayPlaceholder = false;
       }
       if (this.editorReady) {
-        if (val!== '') {
+        if (val !== '') {
           if (this.displayPlaceholder) {
             this.displayPlaceholder = false;
           }
