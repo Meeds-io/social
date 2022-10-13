@@ -53,7 +53,7 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            max="4"
+            max="3"
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
@@ -258,7 +258,7 @@ export default {
       this.leftNavigationActionEvent('makeAsHomePage');
     },
     openDetails() {
-      document.dispatchEvent(new CustomEvent('display-space-hosts', {detail: this.managersToDisplay} ));
+      document.dispatchEvent(new CustomEvent('display-users-list-drawer', {detail: this.managersToDisplay} ));
     },
     refreshExtensions() {
       this.externalExtensions = [];
