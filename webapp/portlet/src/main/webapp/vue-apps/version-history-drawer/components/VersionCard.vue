@@ -103,10 +103,11 @@
           :size="20"
           color="primary"
           indeterminate />
-        <v-tooltip bottom>
+        <v-tooltip
+          v-if="!isRestoringVersion"
+          bottom>
           <template #activator="{ on, attrs }">
             <v-icon
-              v-if="!isRestoringVersion"
               v-bind="attrs"
               v-on="on"
               size="22"
@@ -167,11 +168,7 @@ export default {
   }),
   created() {
     this.$root.$on('version-restored', (restoredVersion) => {
-      if (this.versionObject.id === restoredVersion.id) {
-        this.versionObject.current = true;
-      } else {
-        this.versionObject.current = false;
-      }
+      this.versionObject.current = this.versionObject.id === restoredVersion.id;
       this.isRestoringVersion = false;
     });
     this.$root.$on('version-restore-error', () => {
