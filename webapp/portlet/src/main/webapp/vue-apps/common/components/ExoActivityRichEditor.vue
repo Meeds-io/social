@@ -112,6 +112,9 @@ export default {
   },
   watch: {
     inputVal(val) {
+      if (val!== '') {
+        this.displayPlaceholder = false;
+      }
       if (this.editorReady) {
         if (val!== '') {
           if (this.displayPlaceholder) {
