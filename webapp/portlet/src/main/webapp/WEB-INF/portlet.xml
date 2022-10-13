@@ -823,4 +823,41 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>OverviewBanner</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/overview-banner.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+      <portlet-mode>view</portlet-mode>
+      <portlet-mode>edit</portlet-mode>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <portlet-info>
+      <title>Overview Page Banner</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>bannerUrl</name>
+        <value>bannerUrl</value>
+        <read-only>false</read-only>
+      </preference>
+      <preference>
+        <name>bannerDescription</name>
+        <value>bannerDescription</value>
+        <read-only>false</read-only>
+      </preference>
+      <preference>
+        <name>bannerCaption</name>
+        <value>bannerCaption</value>
+        <read-only>false</read-only>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
 </portlet-app>
