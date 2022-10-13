@@ -16,7 +16,8 @@
       <div class="seeMoreReactionsContainer">
         <div
           v-if="seeMoreLikerToDisplay"
-          class="seeMoreLikers">
+          class="seeMoreLikers"
+          @click="openDrawer">
           <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
         </div>
         <p
