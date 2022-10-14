@@ -2,7 +2,7 @@
   <div class="activityRichEditor" :class="newEditorToolbarEnabled && 'newEditorToolbar' || ''">
     <div
       v-if="displayPlaceholder"
-      @click="hidePlaceholder()" 
+      @click="setFocus"
       class="caption text-sub-title position-absolute pa-5 ma-1px full-width">
       {{ placeholder }}
     </div>
@@ -112,17 +112,8 @@ export default {
   },
   watch: {
     inputVal(val) {
-      if (val !== '') {
-        this.displayPlaceholder = false;
-      }
+      this.computePlaceHolderVisibility();
       if (this.editorReady) {
-        if (val !== '') {
-          if (this.displayPlaceholder) {
-            this.displayPlaceholder = false;
-          }
-        } else {
-          this.displayPlaceholder = true;
-        }
         this.$emit('input', val);
       }
     },
@@ -131,6 +122,7 @@ export default {
     },
     editorReady() {
       if (this.editorReady) {
+        this.computePlaceHolderVisibility();
         this.$emit('ready');
       } else {
         this.$emit('unloaded');
@@ -162,16 +154,14 @@ export default {
       const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
       const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
       const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
-      this.initCKEditor(true,storageMessageText);
+      this.initCKEditor(true, storageMessageText);
+      this.$emit('input', this.inputVal);
     } else {
       this.initCKEditor(true, this.value);
     }
   },
   methods: {
     initCKEditor: function (reset, textValue) {
-      if (textValue?.length) {
-        this.displayPlaceholder = false;
-      }
       this.inputVal = this.replaceWithSuggesterClass(textValue);
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
@@ -275,11 +265,6 @@ export default {
           requestCanceled: function () {
             self.cleanupOembed();
           },
-          blur: function (evt) {
-            if (evt.editor.getData() === '') {
-              self.displayPlaceholder = true;
-            }
-          },
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
@@ -298,6 +283,9 @@ export default {
       if (this.editor) {
         this.editor.destroy(true);
       }
+    },
+    computePlaceHolderVisibility() {
+      this.displayPlaceholder = this.editor?.status === 'ready' && !this.inputVal && !this.inputVal.trim();
     },
     replaceWithSuggesterClass: function(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
@@ -395,10 +383,6 @@ export default {
         this.templateParams.registeredKeysForProcessor = '-';
       }
     },
-    hidePlaceholder() {
-      this.displayPlaceholder = false;
-      this.setFocus();
-    }
   }
 };
 </script>
