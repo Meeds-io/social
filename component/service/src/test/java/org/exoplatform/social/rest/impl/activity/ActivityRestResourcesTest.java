@@ -9,9 +9,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.core.activity.model.ActivityFile;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
@@ -20,6 +18,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
+import org.exoplatform.social.metadata.favorite.model.FavoriteObject;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -173,6 +172,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
   public void testGetActivitiesByStreamType() throws Exception {
     startSessionAs("mary");
 
+    // Get my posted activities
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("mary activity");
     activityManager.saveActivityNoReturn(maryIdentity, activity);
@@ -192,6 +192,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("mary activity", activityEntity.getTitle());
 
+    // Get manage spaces activities
     Space space = getSpaceInstance(1, "mary");
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
 
@@ -206,12 +207,11 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    // must return one activity of root and one of demo
     assertEquals(2, collections.getEntities().size());
     activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("mary activity1", activityEntity.getTitle());
 
-    // Bookmark a space
+    // Get favorite space activities
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
     Favorite spaceFavorite = new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
                                           space.getId(),
@@ -226,14 +226,82 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(2, collections.getEntities().size());
 
+    // Get favorite activities
+    Favorite favoriteActivity = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                             activity.getId(),
+                                             null,
+                                             Long.parseLong(maryIdentity.getId()));
+    Favorite favoriteActivity1 = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                              activity1.getId(),
+                                              null,
+                                              Long.parseLong(maryIdentity.getId()));
+
+    favoriteActivity1.getObject().setSpaceId(Long.parseLong(space.getId()));
+    favoriteService.createFavorite(favoriteActivity);
+    favoriteService.createFavorite(favoriteActivity1);
+
+    response = service("GET", getURLResource("activities?streamType=USER_FAVORITE_STREAM&limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
+    // Get any space activity
+    ExoSocialActivityImpl activity3 = new ExoSocialActivityImpl();
+    activity3.setTitle("activity 3");
+    activity3.setUserId(maryIdentity.getId());
+
+    ExoSocialActivityImpl activity4 = new ExoSocialActivityImpl();
+    activity4.setTitle("activity 4");
+    activity4.setUserId(maryIdentity.getId());
+
+    activityManager.saveActivityNoReturn(spaceIdentity, activity3);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity4);
+
+    response = service("GET",
+                       getURLResource("activities?streamType=ALL_STREAM&spaceId=" + space.getId() + "&limit=5&offset=0"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(4, collections.getEntities().size());
+
+    // Get space favorite activities
+    response =
+             service("GET",
+                     getURLResource("activities?streamType=USER_FAVORITE_STREAM&spaceId=" + space.getId() + "&limit=5&offset=0"),
+                     "",
+                     null,
+                     null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    // Get space my posted activities
+    response = service("GET",
+                       getURLResource("activities?streamType=USER_STREAM&spaceId=" + space.getId() + "&limit=5&offset=0"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+
     // without filter
     response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(3, collections.getEntities().size());
-
+    assertEquals(5, collections.getEntities().size());
   }
 
   public void testGetActivity() throws Exception {

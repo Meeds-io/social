@@ -24,7 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Provides REST/JSON API to manage the binding between a space and an
@@ -97,10 +97,10 @@ public interface GroupSpaceBindingRestResources extends SocialRest {
    */
   @GET
   Response getReport(@Context UriInfo uriInfo,
-                     @ApiParam(value = "spaceId", required = true) @QueryParam("spaceId") String spaceId,
-                     @ApiParam(value = "action", required = true) @QueryParam("action") String action,
-                     @ApiParam(value = "group", required = true) @QueryParam("group") String group,
-                     @ApiParam(value = "groupBindingId") @QueryParam("groupBindingId") String groupBindingId) throws Exception;
+                     @Parameter(description = "spaceId", required = true) @QueryParam("spaceId") String spaceId,
+                     @Parameter(description = "action", required = true) @QueryParam("action") String action,
+                     @Parameter(description = "group", required = true) @QueryParam("group") String group,
+                     @Parameter(description = "groupBindingId") @QueryParam("groupBindingId") String groupBindingId) throws Exception;
 
   @GET
   Response getBindingReportOperations(@Context UriInfo uriInfo) throws Exception;

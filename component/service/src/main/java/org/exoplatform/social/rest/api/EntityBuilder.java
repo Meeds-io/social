@@ -1065,7 +1065,7 @@ public class EntityBuilder {
         as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
 
         Space space = getSpaceService().getSpaceByPrettyName(owner.getRemoteId());
-        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, null));
+        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, "favorite"));
       }
       as.put(RestProperties.ID, owner.getRemoteId());
     }

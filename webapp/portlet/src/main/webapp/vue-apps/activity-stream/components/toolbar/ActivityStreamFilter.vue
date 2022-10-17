@@ -17,27 +17,109 @@
 <template>
   <v-flex class="d-flex content-box-sizing justify-end">
     <select
-      v-model="streamFilter"
-      class="width-auto my-auto ignore-vuetify-classes"
+      v-model="filter"
+      class="width-auto my-auto ignore-vuetify-classes d-none d-sm-inline"
       @change="applyFilter">
-      <option value="all">{{ $t('activity.filter.all') }}</option>
-      <option value="user_stream">{{ $t('activity.filter.myActivities') }}</option>
-      <option value="manage_spaces_stream">{{ $t('activity.filter.manageSpaces') }}</option>
-      <option value="favorite_spaces_stream">{{ $t('activity.filter.favoriteSpaces') }}</option>
+      <option
+        v-for="streamFilter in streamFilters"
+        :key="streamFilter.value"
+        :value="streamFilter.value">
+        {{ streamFilter.text }}
+      </option>
     </select>
+    <v-icon
+      class="d-sm-none"
+      @click="openBottomMenuFilter">
+      fa-filter
+    </v-icon>
+    <v-bottom-sheet v-model="bottomMenu" class="pa-0">
+      <v-sheet class="text-center">
+        <v-toolbar
+          color="primary"
+          dark
+          class="border-box-sizing">
+          <v-btn text @click="bottomMenu = false">
+            {{ $t('activity.filter.button.cancel') }}
+          </v-btn>
+          <v-spacer />
+          <v-toolbar-title>
+            <v-icon>fa-filter</v-icon>
+            {{ $t('activity.filter.label') }}
+          </v-toolbar-title>
+          <v-spacer />
+          <v-btn text @click="changeFilterSelection">
+            {{ $t('activity.filter.button.confirm') }}
+          </v-btn>
+        </v-toolbar>
+        <v-list>
+          <v-list-item
+            v-for="streamFilter in streamFilters"
+            :key="streamFilter"
+            @click="filterToChange = streamFilter.value">
+            <v-list-item-title class="align-center d-flex">
+              <v-icon v-if="filterToChange === streamFilter.value">fa-check</v-icon>
+              <span v-else class="me-6"></span>
+              <v-spacer />
+              <div>
+                {{ streamFilter.text }}
+              </div>
+              <v-spacer />
+              <span class="me-6"></span>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-sheet>
+    </v-bottom-sheet>
   </v-flex>
 </template>
 <script>
 export default {
-  props: {
-    streamFilter: {
-      type: String,
-      default: () => 'all',
+  data: () => ({
+    filterToChange: null,
+    bottomMenu: false,
+    spaceId: eXo.env.portal.spaceId,
+    filter: 'all_stream',
+  }),
+  computed: {
+    streamFilters() {
+      return [{
+        text: eXo.env.portal.spaceId && this.$t('activity.filter.anyActivity') || this.$t('activity.filter.all'),
+        value: 'all_stream',
+      },{
+        text: this.$t('activity.filter.myActivities'),
+        value: 'user_stream',
+      },{
+        text: this.$t('activity.filter.favoriteActivities'),
+        value: 'user_favorite_stream',
+      },{
+        text: this.$t('activity.filter.manageSpaces'),
+        value: 'manage_spaces_stream',
+        enable: !eXo.env.portal.spaceId,
+      },{
+        text: this.$t('activity.filter.favoriteSpaces'),
+        value: 'favorite_spaces_stream',
+        enable: eXo.env.portal.spaceFavoritesEnabled && !eXo.env.portal.spaceId,
+      }].filter(filter => filter.enable == null || filter.enable === true);
     },
+  },
+  created() {
+    this.filter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
   },
   methods: {
     applyFilter() {
-      document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.streamFilter}));
+      document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
+      if (!this.spaceId) {
+        localStorage.setItem('activity-stream-stored-filter', this.filter);
+      }
+    },
+    openBottomMenuFilter() {
+      this.filterToChange = this.filter;
+      this.bottomMenu = true;
+    },
+    changeFilterSelection() {
+      this.bottomMenu = false;
+      this.filter = this.filterToChange;
+      this.applyFilter();
     },
   },
 };

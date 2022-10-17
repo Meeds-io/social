@@ -16,6 +16,7 @@
 -->
 <template>
   <exo-drawer
+    id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-model="drawer"
     disable-pull-to-refresh
@@ -35,7 +36,9 @@
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
             ck-editor-type="activityContent"
+            context-name="activityComposer"
             use-extra-plugins
+            use-draft-management
             autofocus />
         </v-card-text>
         <v-card-actions class="d-flex px-4">
@@ -43,16 +46,6 @@
             :params="extensionParams"
             name="ActivityComposerAction"
             type="activity-composer-action" />
-          <v-spacer />
-          <v-btn
-            :disabled="postDisabled"
-            :loading="loading"
-            :aria-label="$t(`activity.composer.${composerAction}`)"
-            type="button"
-            class="primary btn no-box-shadow ms-auto"
-            @click="postMessage()">
-            {{ composerActionLabel }}
-          </v-btn>
         </v-card-actions>
         <v-card-text class="composerActions">
           <extension-registry-components
@@ -66,6 +59,21 @@
           </extension-registry-components>
         </v-card-text>
       </v-card>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          id="activityComposerPostButton"
+          :disabled="postDisabled"
+          :loading="loading"
+          :aria-label="$t(`activity.composer.${composerAction}`)"
+          type="button"
+          class="primary btn no-box-shadow ms-auto"
+          @click="postMessage()">
+          {{ composerActionLabel }}
+        </v-btn>
+      </div>
     </template>
   </exo-drawer>
 </template>
@@ -91,7 +99,7 @@ export default {
   },
   computed: {
     composerPlaceholder() {
-      return this.$t('activity.composer.placeholder', {0: this.MESSAGE_MAX_LENGTH});
+      return this.$t('activity.composer.placeholder');
     },
     composerAction() {
       return this.activityId && 'update' || 'post';
@@ -215,6 +223,9 @@ export default {
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+              if (localStorage.getItem('activity-message-activityComposer')) {
+                localStorage.removeItem('activity-message-activityComposer');
+              }
               this.close();
             })
             .catch(error => {

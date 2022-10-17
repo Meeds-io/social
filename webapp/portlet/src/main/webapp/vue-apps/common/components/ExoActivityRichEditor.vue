@@ -1,5 +1,11 @@
 <template>
-  <div class="activityRichEditor">
+  <div class="activityRichEditor" :class="newEditorToolbarEnabled && 'newEditorToolbar' || ''">
+    <div
+      v-if="displayPlaceholder"
+      @click="hidePlaceholder()" 
+      class="caption text-sub-title position-absolute pa-5 ma-1px full-width">
+      {{ placeholder }}
+    </div>
     <textarea
       ref="editor"
       :id="ckEditorType"
@@ -66,6 +72,14 @@ export default {
     useExtraPlugins: {
       type: Boolean,
       default: false
+    },
+    useDraftManagement: {
+      type: Boolean,
+      default: false
+    },
+    contextName: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -73,6 +87,10 @@ export default {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
       editor: null,
+      newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
+      tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
+      displayPlaceholder: true,
+      baseUrl: eXo.env.server.portalBaseURL
     };
   },
   computed: {
@@ -88,10 +106,20 @@ export default {
     validLength() {
       return this.charsCount <= this.maxLength;
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
   },
   watch: {
     inputVal(val) {
       if (this.editorReady) {
+        if (val!== '') {
+          if (this.displayPlaceholder) {
+            this.displayPlaceholder = false;
+          }
+        } else {
+          this.displayPlaceholder = true;
+        }
         this.$emit('input', val);
       }
     },
@@ -127,18 +155,27 @@ export default {
     }
   },
   mounted() {
-    this.initCKEditor(true);
+    if (!this.value?.length && this.useDraftManagement) {
+      const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
+      const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
+      const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
+      this.initCKEditor(true,storageMessageText);
+    } else {
+      this.initCKEditor(true, this.value);
+    }
   },
   methods: {
-    initCKEditor: function (reset) {
-      this.inputVal = this.replaceWithSuggesterClass(this.value);
-
+    initCKEditor: function (reset, textValue) {
+      if (textValue?.length) {
+        this.displayPlaceholder = false;
+      }
+      this.inputVal = this.replaceWithSuggesterClass(textValue);
       this.editor = CKEDITOR.instances[this.ckEditorType];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
           this.editor.destroy(true);
         } else {
-          this.initCKEditorData(this.value);
+          this.initCKEditorData(textValue);
           this.setEditorReady();
           return;
         }
@@ -166,6 +203,19 @@ export default {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
+      }
+
+      if (this.newEditorToolbarEnabled) {
+        extraPlugins = `${extraPlugins},emoji,formatOption`;
+        if (this.tagSuggesterEnabled) {
+          toolbar[0].push('tagSuggester');
+        }
+        if (!this.isMobile) {
+          toolbar[0].push('emoji');
+        }
+        toolbar[0].unshift('formatOption');
+      } else {
+        removePlugins = `${removePlugins},emoji,formatOption`;
       }
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
@@ -198,6 +248,7 @@ export default {
         activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
+        startupFocus: 'end',
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -221,10 +272,17 @@ export default {
           requestCanceled: function () {
             self.cleanupOembed();
           },
+          blur: function (evt) {
+            if (evt.editor.getData() === '') {
+              self.displayPlaceholder = true;
+            }
+          },
           change: function (evt) {
             const newData = evt.editor.getData();
-
             self.inputVal = newData;
+            if (!self.activityId && self.useDraftManagement && self.contextName) {
+              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
+            }
           },
           destroy: function () {
             self.inputVal = '';
@@ -334,6 +392,10 @@ export default {
         this.templateParams.registeredKeysForProcessor = '-';
       }
     },
+    hidePlaceholder() {
+      this.displayPlaceholder = false;
+      this.setFocus();
+    }
   }
 };
 </script>

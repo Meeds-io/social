@@ -1,5 +1,6 @@
 <template>
-  <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
+  <v-app 
+    :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
       <v-img
         slot-scope="{ hover }"
@@ -39,7 +40,7 @@
                     class="ma-auto pb-0" />
                 </div>
                 <div class="flex-grow-1"></div>
-                <div v-if="!skeleton" class="d-flex flex-grow-0 justify-end pe-2">
+                <div v-if="!skeleton" class="d-flex flex-row justify-end pe-6">
                   <profile-header-banner-button
                     v-if="owner"
                     :user="user"

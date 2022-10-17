@@ -104,9 +104,12 @@
                         id="password"
                         :placeholder="$t('portal.login.Password')"
                         tabindex="2"
-                        type="password"
+                        :type="passwordType"
                         name="password"
                         aria-required="true">
+                      <span class="PswdToggleShow" @click="toggleShow()">
+                        <i :class="{'fas fa-eye-slash':showPassword ,'fas fa-eye':!showPassword}"></i>
+                      </span>
                     </div>
                     <div class="rememberContent ms-1">
                       <input
@@ -186,8 +189,12 @@ export default {
   data: () => ({
     rememberme: true,
     username: '',
+    showPassword: false
   }),
   computed: {
+    passwordType(){
+      return this.showPassword ? 'text' :'password';
+    },
     companyName() {
       return this.params && this.params.companyName;
     },
@@ -229,6 +236,9 @@ export default {
       if (urlParams.has('username')) {
         this.username = urlParams.get('username');
       }
+    },
+    toggleShow(){
+      this.showPassword = !this.showPassword;
     }
   }
 };

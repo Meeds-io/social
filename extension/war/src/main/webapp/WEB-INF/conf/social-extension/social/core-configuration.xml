@@ -685,20 +685,16 @@
                 <type>org.exoplatform.social.core.profile.settings.IMTypesPlugin</type>
                 <init-params>
                     <value-param>
-                        <name>gtalk</name>
-                        <value>Gtalk</value>
+                        <name>skype</name>
+                        <value>Skype</value>
                     </value-param>
                     <value-param>
                         <name>msn</name>
                         <value>MSN</value>
                     </value-param>
                     <value-param>
-                        <name>yahoo</name>
-                        <value>Yahoo</value>
-                    </value-param>
-                    <value-param>
-                        <name>skype</name>
-                        <value>Skype</value>
+                        <name>facebook</name>
+                        <value>Facebook</value>
                     </value-param>
                     <value-param>
                         <name>other</name>
@@ -725,6 +721,18 @@
           <property name="exo.feature.SpaceFavorites.enabled" value="${exo.feature.SpaceFavorites.enabled:true}" />
         </properties-param>
       </init-params>
+    </component>
+
+    <component>
+        <key>EditorToolbarFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>EditorToolbarFeatureProperties</name>
+                <description>New editor toolbar Feature enablement flag</description>
+                <property name="exo.feature.NewEditorToolbar.enabled" value="${exo.feature.NewEditorToolbar.enabled:false}" />
+            </properties-param>
+        </init-params>
     </component>
 
     <component>

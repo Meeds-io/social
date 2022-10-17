@@ -17,11 +17,6 @@
 package org.exoplatform.social.rest.impl.spacemembership;
 
 import static org.exoplatform.social.service.rest.RestChecker.checkAuthenticatedUserPermission;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +36,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -61,7 +63,7 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.utils.LogUtils;
 
 @Path(VersionResources.VERSION_ONE + "/social/spacesMemberships")
-@Api(tags = VersionResources.VERSION_ONE + "/social/spacesMemberships", value = VersionResources.VERSION_ONE + "/social/spacesMemberships", description = "Managing memberships of users in a space")
+@Tag(name = VersionResources.VERSION_ONE + "/social/spacesMemberships", description = "Managing memberships of users in a space")
 public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResources {
   
   private static final String SPACE_PREFIX = "/spaces/";
@@ -81,23 +83,23 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
 
   @GET
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets space memberships",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
-  @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 404, message = "Resource not found"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input") })
+  @Operation(
+          summary = "Gets space memberships",
+          method = "GET",
+          description = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getSpacesMemberships(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Space display name to get membership, ex: my space", required = false) @QueryParam("space") String spaceDisplayName,
-                                       @ApiParam(value = "User name to filter only memberships of the given user", required = false) @QueryParam("user") String user,
-                                       @ApiParam(value = "Type of membership to get (All, Pending, Approved, Invited)", required = false) @QueryParam("status") String status,
-                                       @ApiParam(value = "Offset", required = false, defaultValue = "0") @QueryParam("offset") int offset,
-                                       @ApiParam(value = "Limit", required = false, defaultValue = "20") @QueryParam("limit") int limit,
-                                       @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                       @ApiParam(value = "Returning the number of memberships or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize) throws Exception {
+                                       @Parameter(description = "Space display name to get membership, ex: my space") @QueryParam("space") String spaceDisplayName,
+                                       @Parameter(description = "User name to filter only memberships of the given user") @QueryParam("user") String user,
+                                       @Parameter(description = "Type of membership to get (All, Pending, Approved, Invited)") @QueryParam("status") String status,
+                                       @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                       @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                                       @Parameter(description = "Returning the number of memberships or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize) throws Exception {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (user == null) {
@@ -173,18 +175,18 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
   
   @POST
   @RolesAllowed("users")
-  @ApiOperation(value = "Creates a space membership for a specific user",
-                httpMethod = "POST",
-                response = Response.class,
-                notes = "This creates the space membership in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user and the space subscription is open</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(
+          summary = "Creates a space membership for a specific user",
+          method = "POST",
+          description = "This creates the space membership in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user and the space subscription is open</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = {
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error"),
-    @ApiResponse (code = 400, message = "Invalid query input"),
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input"),
   })
   public Response addSpacesMemberships(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                       @ApiParam(value = "Space membership object to be created, ex:<br />{" +
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                                       @RequestBody(description = "Space membership object to be created, ex:<br />{" +
                                                                                                "<br />\"role\": \"manager\"," +
                                                                                                "<br />\"user\": \"john\"," +
                                                                                                "<br />\"space\": \"my space\"" +
@@ -233,17 +235,17 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
   @GET
   @Path("{id}") //id must have this format spaceName:userName:type
   @RolesAllowed("users")
-  @ApiOperation(value = "Gets a specific space membership by id",
-                httpMethod = "GET",
-                response = Response.class,
-                notes = "This returns the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(
+          summary = "Gets a specific space membership by id",
+          method = "GET",
+          description = "This returns the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 404, message = "Resource not found"),
-    @ApiResponse (code = 500, message = "Internal server error due to data encoding") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding") })
   public Response getSpaceMembershipById(@Context UriInfo uriInfo,
-                                         @ApiParam(value = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
-                                         @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                         @Parameter(description = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
+                                         @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     String[] idParams = RestUtils.getPathParam(uriInfo, "id").split(":");
     if (idParams.length != 3) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -272,17 +274,17 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
   @PUT
   @Path("{id}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Updates a specific space membership by id",
-                httpMethod = "PUT",
-                response = Response.class,
-                notes = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li><li>the user of the space membership is the authenticated user, he can update his own membership to \"approved\" or \"ignored\" for a space with a \"closed\" subscription</li></ul>")
+  @Operation(
+          summary = "Updates a specific space membership by id",
+          method = "PUT",
+          description = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li><li>the user of the space membership is the authenticated user, he can update his own membership to \"approved\" or \"ignored\" for a space with a \"closed\" subscription</li></ul>")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 500, message = "Internal server error due to data encoding") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding") })
   public Response updateSpaceMembershipById(@Context UriInfo uriInfo,
-                                            @ApiParam(value = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
-                                            @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
-                                            @ApiParam(value = "Space membership object to be updated", required = true) SpaceMembershipEntity model) throws Exception {
+                                            @Parameter(description = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
+                                            @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand,
+                                            @RequestBody(description = "Space membership object to be updated", required = true) SpaceMembershipEntity model) throws Exception {
     String[] idParams = RestUtils.getPathParam(uriInfo, "id").split(":");
     if (idParams.length != 3) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -342,18 +344,18 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @ApiOperation(value = "Deletes a specific space membership by id",
-                httpMethod = "DELETE",
-                response = Response.class,
-                notes = "This deletes the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(
+          summary = "Deletes a specific space membership by id",
+          method = "DELETE",
+          description = "This deletes the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = { 
-    @ApiResponse (code = 200, message = "Request fulfilled"),
-    @ApiResponse (code = 404, message = "Resource not found"),
-    @ApiResponse (code = 412, message = "Precondition is not acceptable. For instance, the last manager membership could not be removed."),
-    @ApiResponse (code = 500, message = "Internal server error due to data encoding") })
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "412", description = "Precondition is not acceptable. For instance, the last manager membership could not be removed."),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding") })
   public Response deleteSpaceMembershipById(@Context UriInfo uriInfo,
-                                            @ApiParam(value = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
-                                            @ApiParam(value = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                            @Parameter(description = "Space membership id which is in format spaceName:userName:role, ex: my_space:root:manager", required = true) @PathParam("id") String id,
+                                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
     String[] idParams = RestUtils.getPathParam(uriInfo, "id").split(":");
     if (idParams.length != 3) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);

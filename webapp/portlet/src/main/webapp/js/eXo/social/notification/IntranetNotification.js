@@ -90,13 +90,14 @@
         // click action
         item.find('.action-item').off('click').on('click', function(evt) {
           evt.stopPropagation();
-          webNotif.doAction($(this));
+          const id = $(this).parents('li:first').data('id');
+          webNotif.doAction(id, me.appendCSRFToken($(this).data('rest')));
         });
         // cancel action
         item.find('.cancel-item').off('click').on('click', function(evt) {
           evt.stopPropagation();
           var id = $(this).parents('li:first').data('id');
-          webNotif.doCancelAction(id, me.appendCSRFToken($(this).data('rest')));
+          webNotif.doAction(id, me.appendCSRFToken($(this).data('rest')));
         });
 
         var comment = item.find('.comment')[0];

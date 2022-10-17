@@ -1,0 +1,141 @@
+<table border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 13px;color:#333333;line-height: 18px;font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+    <%
+      _templateContext.put("header_title", _ctx.appRes("Notification.title.SharedActivitySpaceStreamPlugin", _ctx.escapeHTML(SPACE)));
+      _ctx.include("war:/notification/templates/mail/NotificationHeader.gtmpl", _templateContext);
+    %>
+    <tr>
+        <td bgcolor="#ffffff" style="background-color: #ffffff;">
+            <table cellpadding="0" cellspacing="0" width="100%"  bgcolor="#ffffff" style="background-color: #ffffff; border-left:1px solid #d8d8d8;border-right:1px solid #d8d8d8;">
+                <tr>
+                    <td bgcolor="#ffffff" style="background-color: #ffffff;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="92%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 13px;color:#333333;line-height: 18px;">
+                            <tr>
+                                <td align="left" bgcolor="#ffffff" style="background-color: #ffffff;padding: 10px 0;">
+                                    <p style="margin: 10px 0; color: #333333; font-family: HelveticaNeue,Helvetica,Arial,sans-serif; font-size: 13px; line-height: 18px;"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
+                                    <p style="margin: 10px 0; color: #333333; font-family: HelveticaNeue,Helvetica,Arial,sans-serif; font-size: 13px; line-height: 18px;">
+                                        <%
+                                          String titleShared = "<strong><a target=\"_blank\" style=\"color: #333333; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; text-decoration: none; font-size: 12px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; width: 70px; line-height: 18px;\" href=\""+ VIEW_FULL_DISCUSSION_ACTION_URL + "\">" + _ctx.escapeHTML(SHORT_TITLE) + "</a></strong>"
+                                          String profileUrl = "<strong><a target=\"_blank\" style=\"color: #2f5e92; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; text-decoration: none; font-size: 13px; line-height: 18px;\" href=\""+ PROFILE_URL + "\">" + _ctx.escapeHTML(USER) + "</a></strong>";
+                                          String spaceUrl = "<strong><a target=\"_blank\" style=\"color: #2f5e92; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; text-decoration: none; font-size: 13px; line-height: 18px;\" href=\""+ SPACE_URL + "\">" + _ctx.escapeHTML(SPACE) + "</a></strong>";
+                                        %>
+                                    <%=_ctx.appRes("Notification.message.SharedActivitySpaceStreamPlugin", profileUrl, titleShared, spaceUrl)%>:
+                                    </p>
+
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 13px;color:#333333;line-height: 18px; margin-bottom: 15px; padding-left: 23px;">
+                                        <tbody>
+                                            <% if ( SUBJECT.length() > 0) { %>
+                                                <tr>
+                                                    <td align="left" bgcolor="#ffffff" style="color: #476A9C; padding-top: 13px; font-family: HelveticaNeue,Helvetica,Arial,sans-serif;"><%= profileUrl %></td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="left" bgcolor="#ffffff" style="background-color: #f9f9f9; padding-top: 13px;  padding-bottom: 13px;"><%=_ctx.escapeHTML(SUBJECT)%></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="border: 1px solid #CDCCCC;"></td>
+                                                </tr>
+                                            <% } %>
+                                            <tr>
+                                                <td style="display: flex; align-items: center; padding-top: 17px;">
+                                                 <img width="45px" height="45px" style="margin-top: 5px;border-radius: 4px;border: 1px solid #c7c7c7;" src="$IMAGE" alt="" />
+                                                 <span style="background-color: #f9f9f9; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; font-weight: bold; font-size: 12px; color: #333333; padding-left: 15px; "><%=_ctx.escapeHTML(TITLE)%></span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p style="margin: 0 0 20px;">
+                                        <% if (OPEN_URL != null) { %>
+                                            <a target="_blank" style="
+                                                display: inline-block;
+                                                text-decoration: none;
+                                                font-size: 11px;
+                                                font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif;
+                                                color: #ffffff;
+                                                background-color: #567ab6;
+                                                background-image: -moz-linear-gradient(top, #638acd, #426393);
+                                                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#638acd), to(#426393));
+                                                background-image: -webkit-linear-gradient(top, #638acd, #426393);
+                                                background-image: -o-linear-gradient(top, #638acd, #426393);
+                                                background-image: linear-gradient(to bottom, #638acd, #426393);
+                                                background-repeat: repeat-x;
+                                                border-radius: 4px;
+                                                -moz-border-radius: 4px;
+                                                padding: 5px 8px;
+                                                height: 11px;
+                                                line-height: 11px;
+                                                max-height: 11px;
+                                                text-align: center;
+                                                border: 1px solid #224886;
+                                                font-weight: bold;
+                                                -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                vertical-align: middle;
+                                                " href="$OPEN_URL" title=<%=_ctx.appRes("Notification.label.Open.Title")%>""><%=_ctx.appRes("Notification.label.Open")%></a>
+                                            <% } %>
+                                        <a target="_blank" style="display: inline-block;
+                                                    text-decoration: none;
+                                                    font-size: 11px;
+                                                    font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif;
+                                                    color: #ffffff;
+                                                    background-color: #567ab6;
+                                                    background-image: -moz-linear-gradient(top, #638acd, #426393);
+                                                    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#638acd), to(#426393));
+                                                    background-image: -webkit-linear-gradient(top, #638acd, #426393);
+                                                    background-image: -o-linear-gradient(top, #638acd, #426393);
+                                                    background-image: linear-gradient(to bottom, #638acd, #426393);
+                                                    background-repeat: repeat-x;
+                                                    border-radius: 4px;
+                                                    -moz-border-radius: 4px;
+                                                    padding: 5px 8px;
+                                                    height: 11px;
+                                                    line-height: 11px;
+                                                    max-height: 11px;
+                                                    text-align: center;
+                                                    border: 1px solid #224886;
+                                                    font-weight: bold;
+                                                    -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                    -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                    box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                                    vertical-align: middle" href="$REPLY_ACTION_URL" title="Reply"><%=_ctx.appRes("Notification.label.Reply")%></a>
+                                        <a target="_blank" style="
+                                            display: inline-block;
+                                            text-decoration: none;
+                                            font-size: 11px;
+                                            font-family: HelveticaNeue, Helvetica, Arial, sans-serif,serif;
+                                            color: #333333;
+                                            background-color: #f1f1f1;
+                                            background-image: -moz-linear-gradient(top, #ffffff, #f1f1f1);
+                                            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f1f1f1));
+                                            background-image: -webkit-linear-gradient(top, #ffffff, #f1f1f1);
+                                            background-image: -o-linear-gradient(top, #ffffff, #f1f1f1);
+                                            background-image: linear-gradient(to bottom, #ffffff, #f1f1f1);
+                                            background-repeat: repeat-x;
+                                            border-radius: 4px;
+                                            -moz-border-radius: 4px;
+                                            padding: 5px 8px;
+                                            height: 11px;
+                                            line-height: 12px;
+                                            max-height: 11px;
+                                            text-align: center;
+                                            border: 1px solid #c7c7c7;
+                                            -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            vertical-align: middle;
+                                            margin-left: 3px;
+                                        " href="$VIEW_FULL_DISCUSSION_ACTION_URL" target="_blank"><%=_ctx.appRes("Notification.label.ViewFullDiscussion")%></a>
+                                    </p>
+                                    <p style="margin: 10px 0; color: #999999">
+                                        <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK)%>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr><!--end content area-->
+    <% _ctx.include("war:/notification/templates/mail/NotificationFooter.gtmpl", _templateContext);%>
+</table>

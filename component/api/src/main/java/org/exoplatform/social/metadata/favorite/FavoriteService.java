@@ -21,6 +21,7 @@ package org.exoplatform.social.metadata.favorite;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
@@ -66,6 +67,25 @@ public interface FavoriteService {
   List<MetadataItem> getFavoriteItemsByCreatorAndType(String objectType, long creatorId, long offset, long limit);
 
   /**
+   * Retrieves the favorite items attached to a given {@link MetadataItem}
+   * creatorId and {@link MetadataObject} type and {@link MetadataObject} spaceId
+   *
+   * @param objectType {@link MetadataObject} type
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param spaceId {@link MetadataItem} spaceId
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getFavoriteItemsByCreatorAndTypeAndSpaceId(String objectType,
+                                                                        long creatorId,
+                                                                        long spaceId,
+                                                                        long offset,
+                                                                        long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Count the favorite items attached to a given {@link MetadataItem} creatorId
    *
    * @param creatorId {@link MetadataItem} creatorId
@@ -97,4 +117,23 @@ public interface FavoriteService {
    */
   public void deleteFavorite(Favorite favorite) throws ObjectNotFoundException;
 
+  /**
+   * Checks whether the user can mark an entity as favorite
+   *
+   * @param userIdentity user identity
+   * @param entityType object type, can be of any type: activity, comment,
+   *          notes...
+   * @param entityId object technical unique identifier
+   * @return true if the user can mark entity as favorite, else false.
+   */
+  default boolean canCreateFavorite(org.exoplatform.services.security.Identity userIdentity, String entityType, String entityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Add a favorite ACL plugins
+   */
+  default void addFavoriteACLPlugin(FavoriteACLPlugin favoriteACLPlugin) {
+    throw new UnsupportedOperationException();
+  }
 }

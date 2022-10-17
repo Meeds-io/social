@@ -34,6 +34,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -57,15 +63,13 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import io.swagger.annotations.*;
-
 /**
  * {@link org.exoplatform.social.rest.api.GroupSpaceBindingRestResources}
  * implementation.
  */
 
 @Path(VersionResources.VERSION_ONE + "/social/spaceGroupBindings")
-@Api(tags = VersionResources.VERSION_ONE + "/social/groupSpaceBindings", value = VersionResources.VERSION_ONE
+@Tag(name = VersionResources.VERSION_ONE
     + "/social/groupSpaceBindings", description = "API  to manage the binding between a space and an organization group")
 public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestResources {
 
@@ -94,14 +98,17 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @RolesAllowed("administrators")
   @Produces(MediaType.APPLICATION_JSON)
   @Path("{spaceId}")
-  @ApiOperation(value = "Gets list of binding for a space.", httpMethod = "GET", response = Response.class, notes = "Returns a list of bindings in the following cases if the authenticated user is an administrator.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  @Operation(summary = "Gets list of binding for a space.", method = "GET", description = "Returns a list of bindings in the following cases if the authenticated user is an administrator.")
+  @ApiResponses(value = { 
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"), 
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getBindingsBySpaceId(@Context UriInfo uriInfo,
-                                       @ApiParam(value = "Space id", required = true) @PathParam("spaceId") String spaceId,
-                                       @ApiParam(value = "Offset", defaultValue = "0") @QueryParam("offset") int offset,
-                                       @ApiParam(value = "Limit", defaultValue = "10") @QueryParam("limit") int limit,
-                                       @ApiParam(value = "Returning the number of spaces found or not", defaultValue = "false") @QueryParam("returnSize") boolean returnSize) throws Exception {
+                                       @Parameter(description = "Space id", required = true) @PathParam("spaceId") String spaceId,
+                                       @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                       @Parameter(description = "Limit") @Schema(defaultValue = "10") @QueryParam("limit") int limit,
+                                       @Parameter(description = "Returning the number of spaces found or not") 
+                                       @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize) throws Exception {
 
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -157,12 +164,13 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Path("saveGroupsSpaceBindings/{spaceId}")
-  @ApiOperation(value = "Save space group bindings", httpMethod = "POST", response = Response.class, notes = "This method set bindings for a specific space with a list of groups if the authenticated user is an administrator.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error due to data encoding") })
+  @Operation(summary = "Save space group bindings", method = "POST", description = "This method set bindings for a specific space with a list of groups if the authenticated user is an administrator.")
+  @ApiResponses(value = { 
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding") })
   public Response saveGroupSpaceBindings(@Context UriInfo uriInfo,
-                                         @ApiParam(value = "SpaceId of the space", required = true) @PathParam("spaceId") String spaceId,
-                                         @ApiParam(value = "List of group names to be bound to the space", required = true) List<String> groupNames) {
+                                         @Parameter(description = "SpaceId of the space", required = true) @PathParam("spaceId") String spaceId,
+                                         @Parameter(description = "List of group names to be bound to the space", required = true) List<String> groupNames) {
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -203,11 +211,13 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")
   @Path("removeGroupSpaceBinding/{bindingId}")
-  @ApiOperation(value = "Deletes a binding.", httpMethod = "DELETE", response = Response.class, notes = "This method deletes a binding in the following cases the authenticated user is an administrator.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  @Operation(summary = "Deletes a binding.", method = "DELETE", description = "This method deletes a binding in the following cases the authenticated user is an administrator.")
+  @ApiResponses(value = { 
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"), 
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response deleteSpaceBinding(@Context UriInfo uriInfo,
-                                     @ApiParam(value = "spaceId", required = true) @PathParam("bindingId") String bindingId) throws Exception {
+                                     @Parameter(description = "spaceId", required = true) @PathParam("bindingId") String bindingId) throws Exception {
 
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -224,9 +234,11 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @RolesAllowed("administrators")
   @Produces(MediaType.APPLICATION_JSON)
   @Path("getGroupsTree")
-  @ApiOperation(value = "Gets list of groups entities from the parent group root.", httpMethod = "GET", response = Response.class, notes = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  @Operation(summary = "Gets list of groups entities from the parent group root.", method = "GET", description = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getGroupsTree(@Context UriInfo uriInfo) throws Exception {
 
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
@@ -250,14 +262,16 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @RolesAllowed("administrators")
   @Produces("application/vnd.ms-excel")
   @Path("getExport")
-  @ApiOperation(value = "Gets CSV report", httpMethod = "GET", response = Response.class, notes = "Given a (space,group,action,groupBindingId), it return all lines of the report in a csv file")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  @Operation(summary = "Gets CSV report", method = "GET", description = "Given a (space,group,action,groupBindingId), it return all lines of the report in a csv file")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getReport(@Context UriInfo uriInfo,
-                            @ApiParam(value = "spaceId", required = true) @QueryParam("spaceId") String spaceId,
-                            @ApiParam(value = "action", required = true) @QueryParam("action") String action,
-                            @ApiParam(value = "group", required = true) @QueryParam("group") String group,
-                            @ApiParam(value = "groupBindingId") @QueryParam("groupBindingId") String groupBindingId) throws Exception {
+                            @Parameter(description = "spaceId", required = true) @QueryParam("spaceId") String spaceId,
+                            @Parameter(description = "action", required = true) @QueryParam("action") String action,
+                            @Parameter(description = "group", required = true) @QueryParam("group") String group,
+                            @Parameter(description = "groupBindingId") @QueryParam("groupBindingId") String groupBindingId) throws Exception {
 
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -300,9 +314,11 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
   @RolesAllowed("administrators")
   @Produces(MediaType.APPLICATION_JSON)
   @Path("getBindingReportOperations")
-  @ApiOperation(value = "Gets list of groups entities from the parent group root.", httpMethod = "GET", response = Response.class, notes = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
-  @ApiResponses(value = { @ApiResponse(code = 200, message = "Request fulfilled"),
-      @ApiResponse(code = 500, message = "Internal server error"), @ApiResponse(code = 400, message = "Invalid query input") })
+  @Operation(summary = "Gets list of groups entities from the parent group root.", method = "GET", description = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getBindingReportOperations(@Context UriInfo uriInfo) throws Exception {
     if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);

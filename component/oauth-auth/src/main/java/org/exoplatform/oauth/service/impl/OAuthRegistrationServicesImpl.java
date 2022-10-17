@@ -19,6 +19,7 @@
 package org.exoplatform.oauth.service.impl;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -66,6 +67,8 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
     private final OrganizationService orgService;
     private final IdentityManager identityManager;
 
+    private final Random random = new Random();
+
     public OAuthRegistrationServicesImpl(InitParams initParams, OrganizationService orgService, IdentityManager identityManager) {
         ValueParam onFly = initParams.getValueParam("registerOnFly");
         String onFlyValue = onFly == null ? "" : onFly.getValue();
@@ -86,11 +89,9 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
 
     @Override
     public User detectGateInUser(HttpServletRequest request, OAuthPrincipal<? extends AccessTokenContext> principal) {
-      OAuthProviderType providerType = principal.getOauthProviderType();
-      User gtnUser = providerType.getOauthPrincipalProcessor().convertToGateInUser(principal);
 
-      String email = gtnUser.getEmail();
-      String username = gtnUser.getUserName();
+      String email = principal.getEmail();
+      String username = principal.getUserName();
 
       User foundUser = null;
 
@@ -119,25 +120,6 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
           }
         }
 
-        // find recent user logged in
-        Cookie[] cookies = request.getCookies();
-        if (foundUser == null && cookies != null && cookies.length > 0) {
-          for (Cookie cookie : cookies) {
-            if (OAuthAbstractFilter.COOKIE_LAST_LOGIN.equals(cookie.getName())) {
-              username = cookie.getValue();
-              if(username != null && username.length() > 0) {
-                query = new Query();
-                query.setUserName(username);
-                users = userHandler.findUsersByQuery(query, UserStatus.ANY);
-                if(users != null && users.getSize() > 0) {
-                  foundUser = users.load(0, 1)[0];
-                }
-              }
-              break;
-            }
-          }
-        }
-
       } catch (Exception ex) {
         log.error("Exception when trying to detect user: ", ex);
       }
@@ -156,6 +138,15 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
         RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
       }
       try {
+        if(StringUtils.isBlank(user.getUserName())) {
+          user.setUserName(user.getEmail().substring(0, user.getEmail().indexOf('@')));
+        }
+        User userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
+        String userName = user.getUserName();
+        while (userWithSameUsername != null) {
+          user.setUserName(userName.concat(String.valueOf(this.random.nextInt(1000))));
+          userWithSameUsername = orgService.getUserHandler().findUserByName(user.getUserName());
+        }
         orgService.getUserHandler().createUser(user, true);
 
         //User profile
@@ -166,7 +157,7 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
           newUserProfile = orgService.getUserProfileHandler().createUserProfileInstance(user.getUserName());
         }
 
-        newUserProfile.setAttribute(providerType.getUserNameAttrName(), principal.getUserName());
+        newUserProfile.setAttribute(providerType.getUserNameAttrName(), user.getUserName());
         profileHandler.saveUserProfile(newUserProfile, true);
 
         //
@@ -232,11 +223,10 @@ public class OAuthRegistrationServicesImpl implements OAuthRegistrationServices 
       final String CHAR_ENABLED = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
       char[] chars = new char[length];
-      Random random = new Random();
       int rand;
       final int len = CHAR_ENABLED.length();
       for (int i = 0; i < length; i++) {
-        rand = random.nextInt(len) % len;
+        rand = this.random.nextInt(len) % len;
         chars[i] = CHAR_ENABLED.charAt(rand);
       }
       return new String(chars);

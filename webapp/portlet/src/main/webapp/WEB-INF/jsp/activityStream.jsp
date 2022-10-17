@@ -19,9 +19,9 @@
   String activitiesLoadingURL;
   if (activityId == null) {
     Space space = SpaceUtils.getSpaceByContext();
-    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments";
+    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
   } else {
-    activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments";
+    activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments,favorite";
   }
   responseWrapper.addHeader("Link", "<" + activitiesLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>

@@ -588,7 +588,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(403, response.getStatus());
   }
 
-  public void testUpdateProfileAtribute() throws Exception {
+  public void testUpdateProfileAttribute() throws Exception {
     startSessionAs("root");
     String email = "root@test.com";
     byte[] formData = ("name=email&value=" + email).getBytes();
@@ -597,11 +597,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
-
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     assertNotNull(identity);
     assertEquals(email, identity.getProfile().getEmail());
-
     response = service("PATCH", getURLResource("users/john/"), "", headers, formData);
     assertNotNull(response);
     assertEquals("User root shouldn't be able to modify john attributes", 401, response.getStatus());
@@ -659,6 +657,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String storedContent = IOUtil.getStreamContentAsString(bannerInputStream);
     String content = IOUtil.getStreamContentAsString(getClass().getClassLoader().getResourceAsStream("blank.gif"));
     assertEquals(content, storedContent);
+
+    // Test remove banner
+    byte[] formDataDefaultBanner = ("name=banner&value=DEFAULT_BANNER").getBytes();
+    ContainerResponse responseDefaultBanner = service("PATCH", getURLResource("users/root/"), "", headers, formDataDefaultBanner);
+    identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    //assertEquals("DEFAULT_BANNER", identity.getProfile().getBannerUrl());
+    assertNull(identity.getProfile().getProperty("banner"));
+    assertNotNull(responseDefaultBanner);
+    assertEquals(String.valueOf(responseDefaultBanner.getEntity()), 204, responseDefaultBanner.getStatus());
   }
 
 

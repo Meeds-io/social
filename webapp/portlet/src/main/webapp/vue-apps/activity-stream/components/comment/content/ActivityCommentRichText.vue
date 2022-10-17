@@ -14,9 +14,10 @@
           v-model="message"
           :ck-editor-type="ckEditorId"
           :max-length="$activityConstants.COMMENT_MAX_LENGTH"
-          :placeholder="$t('activity.composer.placeholder', {0: $activityConstants.COMMENT_MAX_LENGTH})"
+          :placeholder="$t('activity.composer.placeholder')"
           :activity-id="activityId"
           :template-params="templateParams"
+          context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
           autofocus

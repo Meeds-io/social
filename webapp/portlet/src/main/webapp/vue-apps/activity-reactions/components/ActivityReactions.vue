@@ -16,17 +16,8 @@
       <div class="seeMoreReactionsContainer">
         <div
           v-if="seeMoreLikerToDisplay"
-          class="seeMoreLikers"
-          @click="openDrawer">
-          <v-avatar :size="avatarSize" class="ma-0">
-            <img
-              :src="seeMoreLikerToDisplay.avatar"
-              :title="seeMoreLikerToDisplay.fullname"
-              class="object-fit-cover"
-              loading="lazy"
-              role="presentation">
-            <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
-          </v-avatar>
+          class="seeMoreLikers">
+          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
         </div>
         <p
           v-if="likersNumber && likersNumber <= 1"

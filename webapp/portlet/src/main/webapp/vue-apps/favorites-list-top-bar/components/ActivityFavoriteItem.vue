@@ -96,11 +96,10 @@ export default {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('activity.label')}), 'error');
     },
     displayAlert(message, type) {
-      this.$root.$emit('activity-notification-alert', {
-        activityId: this.id,
+      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
         message,
         type: type || 'success',
-      });
+      }}));
     },
   }
 };

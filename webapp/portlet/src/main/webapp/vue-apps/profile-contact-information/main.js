@@ -21,12 +21,15 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileContactInformation-${lang}.json`;
 
-export function init(uploadLimit) {
+export function init(uploadLimit, imTypes) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     Vue.createApp({
+      data: () => ({
+        imTypes,
+      }),
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
