@@ -32,11 +32,19 @@
           </div>
           <div
             v-show="secondLevel"
-            :class="secondLevel && 'open'"
+            :class="[secondLevel && 'open', thirdLevel && 'd-none d-sm-block']"
             class="HamburgerMenuSecondLevelParent border-box-sizing"
             role="navigation"
             :aria-label="$t('menu.role.navigation.second.level')">
             <div id="HamburgerMenuSecondLevel"></div>
+          </div>
+          <div
+            v-show="thirdLevel"
+            :class="thirdLevel && 'open'"
+            class="HamburgerMenuThirdLevelParent border-box-sizing"
+            role="navigation"
+            :aria-label="$t('menu.role.navigation.second.level')">
+            <div id="HamburgerMenuThirdLevel"></div>
           </div>
           <span id="HamburgerMenuVisibility" class="d-none d-sm-block"></span>
         </v-row>
@@ -52,6 +60,7 @@ export default {
       hamburgerMenu: false,
       hamburgerMenuInitialized: false,
       secondLevel: false,
+      thirdLevel: false,
       openedSecondLevel: null,
       contents: [],
       vueChildInstances: {},
@@ -62,7 +71,18 @@ export default {
   },
   computed: {
     drawerWidth() {
-      return this.isMobile || !this.secondLevel ? '310' : '620';
+      if (this.isMobile) {
+        return '310';
+      } 
+      if (this.secondLevel) {
+        if (this.thirdLevel) {
+          return '930';
+        } else {
+          return '620';
+        }
+      } else {
+        return '310';
+      }
     },
     hamburgerMenuStyle() {
       return this.initializing ? 'left: -5000px;' : '';
@@ -82,6 +102,12 @@ export default {
   },
   created() {
     document.addEventListener('exo-hamburger-menu-navigation-refresh', this.refreshMenu);
+    document.addEventListener('display-third-level', (event) => {
+      this.openThirdLevel(event && event.detail);
+    });
+    document.addEventListener('hide-third-level', () => {
+      this.thirdLevel = false;
+    });
     const extensions = extensionRegistry.loadExtensions('exo-hamburger-menu-navigation', 'exo-hamburger-menu-navigation-items');
     if (extensions) {
       extensions.forEach(contentDetail => delete contentDetail.loaded);
@@ -130,12 +156,13 @@ export default {
                     },
                     el: `#${contentDetail.id}`,
                   });
-                  this.vueChildInstances[contentDetail.id].$on('open-second-level', () => {
+                  this.vueChildInstances[contentDetail.id].$on('open-second-level', (value) => {
                     window.setTimeout(() => {
-                      this.openSecondLevel(contentDetail);
+                      this.openSecondLevel(contentDetail,value);
                     }, this.idleTimeToDisplaySecondLevel);
                   });
                   this.vueChildInstances[contentDetail.id].$on('close-second-level', () => {
+                    this.thirdLevel = false;
                     this.secondLevel = false;
                   });
                 }
@@ -148,23 +175,30 @@ export default {
         }
       });
     },
-    openSecondLevel(contentDetail) {
+    openSecondLevel(contentDetail,value) {
       if (!contentDetail.secondLevel || !this.vueChildInstances[contentDetail.id]) {
         return;
       }
       this.secondLevel = true;
+      this.thirdLevel = false;
       document.dispatchEvent(new CustomEvent('second-level-opened', {
         detail: {'contentDetail': contentDetail}
       }));
 
-      if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel) {
+      if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel || value) {
         this.openedSecondLevel = contentDetail.id;
         this.vueChildInstances[contentDetail.id].mountSecondLevel('.HamburgerMenuSecondLevelParent > div');
       }
     },
+    openThirdLevel(contentDetail) {
+      this.thirdLevel = true;
+      contentDetail.component.mountThirdLevel('.HamburgerMenuThirdLevelParent > div');
+    },
     hideSecondLevel() {
       this.secondLevel = false;
+      this.thirdLevel = false;
       document.dispatchEvent(new CustomEvent('second-level-hidden'));
+      document.dispatchEvent(new CustomEvent('hide-space-panel'));
     },
     openOrHideMenu() {
       this.hamburgerMenu = true;
