@@ -1,8 +1,7 @@
 <template>
-  <div
-    :class="!displayLabel && 'd-inline-flex'">
+  <div class="d-inline-flex">
     <v-tooltip bottom>
-      <template v-if="!displayLabel" #activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
@@ -23,19 +22,6 @@
             </v-icon>
           </div>
         </v-btn>
-      </template>
-      <template v-else #activator="{ on, attrs }">
-        <v-list-item 
-          v-bind="attrs" 
-          v-on="on" 
-          @click="changeFavorite">
-          <v-icon 
-            class="mr-3"
-            :class="favoriteIconColor"
-            size="16" >
-            {{ favoriteIcon }} </v-icon>
-          <span class="text-color mt-1">{{ favoriteLabel }}</span>
-        </v-list-item> 
       </template>
       <span>
         {{ favoriteTooltip }}
@@ -90,10 +76,6 @@ export default {
     small: {
       type: Boolean,
       default: true,
-    },
-    displayLabel: {
-      type: Boolean,
-      default: false
     }
   },
   data: () => ({
