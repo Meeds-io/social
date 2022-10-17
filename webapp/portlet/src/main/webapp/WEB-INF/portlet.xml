@@ -400,7 +400,7 @@
     </init-param>
     <init-param>
       <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/portal/social/spaces/lastVisitedSpace/list.json?offset=0&limit=7]]></value>
+      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
