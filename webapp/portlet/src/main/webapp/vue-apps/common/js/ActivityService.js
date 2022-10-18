@@ -14,7 +14,7 @@ export function getActivities(spaceId, streamType, limit, expand) {
   }
 
   if (streamType) {
-    formData.append('streamType', streamType);
+    formData.append('streamType', streamType.toUpperCase());
   }
 
   const params = decodeURIComponent(new URLSearchParams(formData).toString());
