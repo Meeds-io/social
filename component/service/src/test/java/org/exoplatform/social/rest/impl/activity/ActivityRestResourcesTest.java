@@ -631,11 +631,44 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                                          null);
     // then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(404, response.getStatus());
 
     // when
     response = service("DELETE",
                        "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    // when
+    response = service("DELETE", "/" + VersionResources.VERSION_ONE + "/social/activities/20000/pins", "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    // when
+    ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
+    maryActivity.setTitle("root activity");
+    maryActivity.setPosterId(maryIdentity.getId());
+    maryActivity.setUserId(maryIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, maryActivity);
+    restartTransaction();
+
+    response = service("POST",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    // when
+    response = service("DELETE",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
                        "",
                        null,
                        null);
@@ -649,7 +682,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     spaceService.updateSpace(space);
 
     response = service("POST",
-                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/pins",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
                        "",
                        null,
                        null);
@@ -661,7 +694,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     // when
     response = service("DELETE",
-                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/pins",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
                        "",
                        null,
                        null);
