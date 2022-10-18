@@ -861,8 +861,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @RolesAllowed("users")
   @Operation(summary = "Pin a specific activity to space stream", method = "POST", description = "This pins an activity to space stream if the authenticated user is a manager or a redactor of the space.")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "500", description = "Internal server error"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "404", description = "Activity not found"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"), })
   public Response pinActivity(@Context UriInfo uriInfo,
                               @Context Request request,
                               @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId) {
@@ -875,7 +876,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
     ExoSocialActivity activity = activityManager.getActivity(activityId);
-
+    if (activity == null || !activityManager.isActivityViewable(activity, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Status.NOT_FOUND);
+    }
     if (!activityManager.canPinActivity(activity, currentUser)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
@@ -891,8 +894,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   @RolesAllowed("users")
   @Operation(summary = "Unpin a specific activity from space stream", method = "DELETE", description = "This Unpins an activity from space stream")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "500", description = "Internal server error"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "404", description = "Activity not found"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"), })
   public Response unpinActivity(@Context UriInfo uriInfo,
                                 @Context Request request,
                                 @Parameter(description = "Activity id", required = true) @PathParam("activityId") String activityId) {
@@ -905,7 +909,9 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
 
     ExoSocialActivity activity = activityManager.getActivity(activityId);
-
+    if (activity == null || !activityManager.isActivityViewable(activity, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Status.NOT_FOUND);
+    }
     if (!activityManager.canPinActivity(activity, currentUser)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
