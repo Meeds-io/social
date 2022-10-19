@@ -4,7 +4,7 @@
     class="text-light-color">
     <v-icon
       v-if="!noIcon"
-      class="text-light-color"
+      class="text-light-color me-1"
       x-small>
       far fa-clock
     </v-icon>
