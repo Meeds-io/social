@@ -1160,4 +1160,25 @@ public interface ActivityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Pins a specific activity to space stream.
+   *
+   * @param activityId Activity Identifier to pin
+   * @param userIdentityId user identity Technical Identifier
+   * @return pinned {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Unpins a specific activity from space stream.
+   *
+   * @param activityId Activity Identifier to pin
+   * @return unpinned {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity unpinActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
 }

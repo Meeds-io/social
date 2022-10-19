@@ -70,6 +70,13 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final List<ActivityFile> files;
   private final Map<String, List<MetadataItem>> metadatas;
 
+  private final boolean                         pinned;
+
+  private final String                          pinDate;
+
+  private final Long                            pinAuthorId;
+
+
   public ActivityData(final ExoSocialActivity activity) {
     this.id = activity.getId();
     this.title = activity.getTitle();
@@ -116,6 +123,9 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     } else {
       this.linkedProcessedEntities = null;
     }
+    this.pinned = activity.isPinned();
+    this.pinDate = activity.getPinDate();
+    this.pinAuthorId = activity.getPinAuthorId();
 
   }
 
@@ -170,6 +180,10 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
     activity.setActivityStream(activityStream);
 
+    activity.setPinned(pinned);
+    activity.setPinDate(pinDate);
+    activity.setPinAuthorId(pinAuthorId);
+
     return activity;
 
   }
@@ -197,6 +211,19 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   public Map<String, List<MetadataItem>> getMetadatas() {
     return metadatas;
   }
+
+  public boolean isPinned() {
+    return pinned;
+  }
+
+  public String getPinDate() {
+    return pinDate;
+  }
+
+  public Long getPinAuthorId() {
+    return pinAuthorId;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -233,7 +260,10 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
             streamType == that.streamType &&
             Objects.equals(posterId, that.posterId) &&
             Objects.equals(parentId, that.parentId) &&
-            Objects.equals(parentCommentId, that.parentCommentId);
+            Objects.equals(parentCommentId, that.parentCommentId) &&
+            pinned == that.pinned &&
+            Objects.equals(pinDate, that.pinDate) &&
+            Objects.equals(pinAuthorId, that.pinAuthorId);
   }
 
   @Override
@@ -241,6 +271,6 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return Objects.hash(id, title, body, likes, isComment, isHidden, isLocked, postedTime, lastUpdated, replyIds,
             userId, spaceId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
             streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId,
-            shareActions, files);
+            shareActions, files, pinned, pinDate, pinAuthorId);
   }
 }

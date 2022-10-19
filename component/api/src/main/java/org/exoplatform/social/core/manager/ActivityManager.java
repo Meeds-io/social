@@ -226,6 +226,40 @@ public interface ActivityManager {
   void deleteLike(ExoSocialActivity activity, Identity identity);
 
   /**
+   * Pins a specific activity to space stream.
+   *
+   * @param activityId {@link ExoSocialActivity} technical identifier} that will
+   *          be pinned
+   * @param userIdentityId User {@link Identity} ID who pin the activity.
+   * @return pinned {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Unpins a specific activity from space stream.
+   *
+   * @param activityId {@link ExoSocialActivity} technical identifier that will be
+   *          unpinned
+   * @return unpinned {@link ExoSocialActivity}
+   */
+  default ExoSocialActivity unpinActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return whether a user can pin or unpin an activity or not
+   *
+   * @param activity checked activity
+   * @param identity user identity
+   * @return true is user can pin or unpin activity, else false
+   */
+  default boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets activities posted on the provided activity stream owner. The type of
    * returned result is <code>ListAccess</code> which can be lazy loaded.
    *

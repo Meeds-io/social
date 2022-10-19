@@ -614,6 +614,97 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull("Should be able to access activity even when hidden", activity);
   }
 
+  public void testPinActivityById() throws Exception {
+    startSessionAs("mary");
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("test activity");
+
+    Space space = getSpaceInstance("spaceTestPin", "john");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    // when
+    ContainerResponse response = service("POST",
+                                         "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/pins",
+                                         "",
+                                         null,
+                                         null);
+    // then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    // when
+    response = service("DELETE",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    // when
+    response = service("DELETE", "/" + VersionResources.VERSION_ONE + "/social/activities/20000/pins", "", null, null);
+    // then
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+
+    // when
+    ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
+    maryActivity.setTitle("root activity");
+    maryActivity.setPosterId(maryIdentity.getId());
+    maryActivity.setUserId(maryIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, maryActivity);
+    restartTransaction();
+
+    response = service("POST",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    // when
+    response = service("DELETE",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    // when
+    String[] redactors = new String[] { "mary" };
+    space.setRedactors(redactors);
+    spaceService.updateSpace(space);
+
+    response = service("POST",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity activityEntity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertTrue(activityEntity.isPinned());
+
+    // when
+    response = service("DELETE",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    activityEntity = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertFalse(activityEntity.isPinned());
+  }
+
   public void testGetUpdatedDeletedActivityById() throws Exception {
     startSessionAs("root");
 

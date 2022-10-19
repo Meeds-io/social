@@ -19,6 +19,7 @@
         :comment-types="commentTypes"
         :comment-actions="commentActions"
         :is-activity-detail="activityId"
+        :pin-activity-enabled="pinActivityEnabled"
         class="mb-6 contentBox"
         @loaded="activityLoaded(activity.id)" />
     </template>
@@ -97,6 +98,9 @@ export default {
     activityStreamTypeClass() {
       return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
     },
+    pinActivityEnabled() {
+      return eXo.env.portal.PinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
+    }
   },
   watch: {
     loading() {
@@ -137,6 +141,48 @@ export default {
           this.$forceUpdate();
         }
       }
+    });
+    document.addEventListener('activity-pinned', event => {
+      if (this.pinActivityEnabled) {
+        const pinnedActivity = event?.detail;
+        this.$set(pinnedActivity, 'pinned', true);
+        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
+        this.activitiesToDisplay.splice(index, 1);
+        this.$forceUpdate();
+        const self = this;
+        setTimeout(function () {
+          self.activitiesToDisplay.unshift(pinnedActivity);
+          self.$forceUpdate();
+        }, 10);
+      }
+      this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
+    });
+    document.addEventListener('activity-unpinned', event => {
+      if (this.pinActivityEnabled) {
+        const unpinnedActivity = event?.detail;
+        this.$set(unpinnedActivity, 'pinned', false);
+        const index = this.activitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
+        if (index >= 0) {
+          this.activitiesToDisplay.splice(index, 1);
+        }
+        this.$forceUpdate();
+        const self = this;
+        setTimeout(function () {
+          let added = false;
+          for (let i = 0; i < self.activitiesToDisplay.length; i++) {
+            if ((new Date(unpinnedActivity.updateDate) > new Date(self.activitiesToDisplay[i].updateDate)) && !self.activitiesToDisplay[i].pinned) {
+              self.activitiesToDisplay.splice(i, 0, unpinnedActivity);
+              added = true;
+              break;
+            }
+          }
+          if (!added && !self.hasMore) {
+            self.activitiesToDisplay.push(unpinnedActivity);
+          }
+          self.$forceUpdate();
+        }, 50);
+      }
+      this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
     });
     document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
@@ -260,6 +306,12 @@ export default {
     applyFilter(streamFilter) {
       this.streamFilter = streamFilter;
       this.loadActivityIds();
+    },
+    displayAlert(message, type) {
+      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
+        message,
+        type: type || 'success',
+      }}));
     },
   },
 };
