@@ -8,13 +8,13 @@ export function getActivities(spaceId, streamType, limit, expand) {
   if (limit && limit > 0) {
     formData.append('limit', limit);
   }
+  
+  if (streamType) {
+    formData.append('streamType', streamType.toUpperCase());
+  }
 
   if (expand) {
     formData.append('expand', expand);
-  }
-
-  if (streamType) {
-    formData.append('streamType', streamType.toUpperCase());
   }
 
   const params = decodeURIComponent(new URLSearchParams(formData).toString());
