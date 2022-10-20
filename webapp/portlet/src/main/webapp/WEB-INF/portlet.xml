@@ -828,16 +828,15 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/overview-banner.html</value>
+      <value>/WEB-INF/jsp/overviewBanner.jsp</value>
     </init-param>
     <expiration-cache>31536000</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
-      <portlet-mode>view</portlet-mode>
-      <portlet-mode>edit</portlet-mode>
     </supports>
     <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.OverviewPage</resource-bundle>
     <portlet-info>
       <title>Overview Page Banner</title>
     </portlet-info>
