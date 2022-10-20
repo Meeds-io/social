@@ -26,7 +26,7 @@
   } else if (space == null) {
     activitiesLoadingURL = "/portal/rest/v1/social/activities?limit=" + initialLimit + streamType  + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
   } else {
-    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + space.getId() + "&limit=" + initialLimit + isStreamFilterEnabled ? "&streamType=ALL_STREAM" : "" + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
+    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + space.getId() + "&limit=" + initialLimit + streamType + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
   }
   responseWrapper.addHeader("Link", "<" + activitiesLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
