@@ -90,7 +90,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
    */
   private Map<String, ActivityFileStoragePlugin> activityFileStorageByDSName = new HashMap<>();
 
-  private boolean                                pinActivityEnabled          = false;
+  private boolean                                pinActivityEnabled          = true;
 
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
