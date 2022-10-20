@@ -100,7 +100,10 @@ export default {
     },
     pinActivityEnabled() {
       return eXo.env.portal.PinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
-    }
+    },
+    streamFilterProperty() {
+      return eXo.env.portal.StreamFilterEnabled ? 'all_stream' : null;
+    },
   },
   watch: {
     loading() {
@@ -115,7 +118,7 @@ export default {
     },
   },
   created() {
-    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || null;
+    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || this.streamFilterProperty;
     document.addEventListener('activity-favorite-removed', event => {
       const favoriteActivity = event && event.detail && event.detail;
       if (this.streamFilter === 'user_favorite_stream') {
