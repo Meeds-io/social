@@ -21,6 +21,9 @@ export function init(params) {
     popover = Vue.createApp({
       data: function() {
         return {
+          spaceId: params.id,
+          isFavorite: params.isFavorite,
+          isMember: params.isMember,
           logoPath: params.logoPath,
           portalPath: params.portalPath,
           imageClass: params.imageClass,
@@ -34,7 +37,9 @@ export function init(params) {
       },
       template: `<exo-space-logo-banner
                     id="SpaceTopBannerLogo"
-                    v-cacheable
+                    :space-id="spaceId"
+                    :is-favorite="isFavorite"
+                    :is-member="isMember"
                     :logo-path="logoPath" 
                     :portal-path="portalPath"
                     :logo-title="logoTitle" 

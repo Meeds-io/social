@@ -5,6 +5,7 @@
       elevation="2"
       v-model="menu"
       open-on-hover
+      transition="slide-x-transition"
       :close-on-content-click="false"
       :nudge-width="200"
       max-width="350"
@@ -36,15 +37,16 @@
       </template>
       <v-card elevation="2">
         <v-list class="pa-0">
-          <v-list-item>
+          <v-list-item class="pt-3">
             <v-list-item-avatar
+              class="spaceAvatar mt-0 align-self-start"
               width="60"
               height="60">
               <v-img
                 class="object-fit-cover"
                 :src="logoPath" />
             </v-list-item-avatar>
-            <v-list-item-content class="pb-0">
+            <v-list-item-content class="pb-0 pt-0">
               <v-list-item-title>
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
@@ -61,35 +63,33 @@
               <v-list-item-subtitle>
                 {{ membersNumber }} {{ $t('space.logo.banner.popover.members') }}
               </v-list-item-subtitle>
-              <p class="text-truncate-3 text-caption text--primary font-weight-medium">
+              <p class="text-truncate-2 text-caption text--primary font-weight-medium">
                 {{ spaceDescription }}
               </p>
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <v-divider />
         <v-list class="pa-0 mt-0 mb-0">
           <v-list-item class="pt-0 pb-0">
             <v-list-item-content>
               <v-container class="pa-0">
-                <v-row no-gutters>
+                <v-row no-gutters class="align-center">
                   <v-col
                     cols="6"
-                    class="pt-1 body-2 grey--text text-truncate text--darken-1"
-                    justify="center">
+                    class="body-2 grey--text text-truncate text--darken-1 text-left">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
                   <v-col
                     cols="6"
-                    justify="center"
-                    class="d-flex flex-nowrap pa-0">
+                    class="d-flex flex-nowrap justify-end pa-0">
                     <exo-user-avatars-list
                       :users="mangersToDisplay"
                       :icon-size="30"
                       :popover="false"
-                      max="4"
+                      max="3"
                       retrieve-extra-information
-                      avatar-overlay-position />
+                      avatar-overlay-position
+                      @open-detail="openDetails()" />
                   </v-col>
                 </v-row>
               </v-container>
@@ -101,17 +101,18 @@
           class="pa-0 mt-0 mb-0">
           <v-list-item
             class="pt-0 pb-0">
-            <v-list-item-content>
+            <v-list-item-content class="py-1">
               <v-list-item-title>
                 <v-btn
                   :href="homePath"
                   color="primary"
                   text
-                  class="pa-0 pe-2">
+                  class="pa-0 pe-2"
+                  @click="popoverActionEvent('backToHome')">
                   <v-icon
                     dense
                     right
-                    class="me-1">
+                    class="me-1 ms-0">
                     mdi-home
                   </v-icon>
                   <span class="text-caption pt-1">{{ $t('space.logo.banner.popover.home') }}</span>
@@ -119,6 +120,11 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
+              <exo-space-favorite-action
+                v-if="favoriteActionEnabled"
+                :is-favorite="isFavorite"
+                :space-id="spaceId"
+                entity-type="SPACE_TOP_BAR_TIPTIP" />
               <extension-registry-components
                 :params="params"
                 name="SpacePopover"
@@ -132,6 +138,7 @@
         </v-list>
       </v-card>
     </v-menu>
+    <space-hosts-drawer />
   </v-app>
 </template>
 
@@ -180,13 +187,30 @@ export default {
         return null;
       },
     },
+    spaceId: {
+      type: String,
+      default: ''
+    },
+    isFavorite: {
+      type: Boolean,
+      default: false
+    },
+    isMember: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data: () => {
+    return {
+      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
+    };
   },
   computed: {
-    KeepDisplayManagers() {
-      return this.managers && this.managers.length <= this.sizeToDisplay;
-    },
     mangersToDisplay() {
       return this.managers;
+    },
+    favoriteActionEnabled() {
+      return this.isMember && this.favoritesSpaceEnabled;
     },
     params() {
       return {
@@ -195,5 +219,14 @@ export default {
       };
     },
   },
+  methods: {
+    popoverActionEvent(clickedItem) {
+      document.dispatchEvent(new CustomEvent('space-topbar-popover-action', {detail: clickedItem} ));
+    },
+    openDetails() {
+      this.$root.$emit('displaySpaceHosts', this.mangersToDisplay);
+      this.popoverActionEvent('displaySpaceHosts');
+    }
+  }
 };
 </script>
