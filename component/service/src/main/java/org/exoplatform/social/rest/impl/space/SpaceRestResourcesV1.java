@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
@@ -811,51 +812,31 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   @Path("{id}/navigations")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-    summary = "Return list of navigations of a space",
-    method = "GET",
-    description = "Return list of navigations of a space"
-  )
-  @ApiResponses(value = {
-    @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-    @ApiResponse (responseCode = "500", description = "Internal server error"),
-    @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response getSpaceNavigations(@Context HttpServletRequest httpRequest,
-                                      @Context Request request,
-                                      @Parameter(description = "Space id", required = true) @PathParam("id") String spaceId) {
+  @Operation(summary = "Return list of navigations of a space", method = "GET", description = "Return list of navigations of a space")
+  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized") })
+  public Response getSpaceNavigations(@Context HttpServletRequest httpRequest, @Context Request request,
+                                      @Parameter(description = "Space id", required = true)
+                                      @PathParam("id")
+                                      String spaceId) {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
-
-    long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(cacheTime);
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space,
-                                                                  httpRequest.getLocale(),
-                                                                  authenticatedUser);
-
-      if (navigations == null) {
-        return Response.ok(Collections.emptyList()).build();
-      }
-      List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
-        BaseEntity app = new BaseEntity(node.getId());
-        app.setProperty("label", node.getResolvedLabel());
-        app.setProperty("icon", node.getIcon());
-        app.setProperty("uri", node.getURI());
-        return app.getDataEntity();
-      }).collect(Collectors.toList());
-      builder = Response.ok(spaceNavigations, MediaType.APPLICATION_JSON);
-      builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
+    List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space, httpRequest.getLocale(), authenticatedUser);
+    if (CollectionUtils.isEmpty(navigations)) {
+      return Response.ok(Collections.emptyList()).build();
     }
-    return builder.build();
+    List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
+      BaseEntity app = new BaseEntity(node.getId());
+      app.setProperty("label", node.getResolvedLabel());
+      app.setProperty("icon", node.getIcon());
+      app.setProperty("uri", node.getURI());
+      return app.getDataEntity();
+    }).collect(Collectors.toList());
+    return Response.ok(spaceNavigations, MediaType.APPLICATION_JSON).build();
   }
 
   @GET
