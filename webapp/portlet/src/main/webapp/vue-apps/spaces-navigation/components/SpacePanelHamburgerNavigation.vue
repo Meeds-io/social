@@ -30,7 +30,7 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="url" class="font-weight-bold text-truncate-2 text-break-all primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a :href="spaceURL" class="font-weight-bold text-truncate-2 text-break-all primary--text mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
@@ -69,7 +69,7 @@
               @click="selectHome()">
               <v-icon 
                 class="me-0 pa-2" 
-                :class="url === homeLink && 'primary--text' || 'icon-default-color'" 
+                :class="isHomeLink && 'primary--text' || 'icon-default-color'" 
                 small>
                 fa-house-user
               </v-icon>
@@ -178,6 +178,9 @@ export default {
     favoriteActionEnabled() {
       return this.favoritesSpaceEnabled;
     },
+    isHomeLink() {
+      return this.spaceURL === this.homeLink;
+    },
     params() {
       return {
         identityType: 'space',
@@ -190,7 +193,7 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
-    url() {
+    spaceURL() {
       if (this.space && this.space.groupId) {
         const uriPart = this.space.groupId.replace(/\//g, ':');
         return `${eXo.env.portal.context}/g/${uriPart}/`;
@@ -221,7 +224,7 @@ export default {
         .then(resp => resp && resp.ok && resp.json())
         .then(data => {
           data.forEach(navigation => {
-            navigation.uri = `${this.url}${navigation.uri}`;
+            navigation.uri = `${this.spaceURL}${navigation.uri}`;
           });
           this.spaceNavigations = data || [];
         });
