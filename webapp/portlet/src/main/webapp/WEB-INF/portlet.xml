@@ -836,24 +836,24 @@
       <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.social.OverviewPage</resource-bundle>
+    <resource-bundle>locale.navigation.portal.meeds</resource-bundle>
     <portlet-info>
       <title>Overview Page Banner</title>
     </portlet-info>
     <portlet-preferences>
       <preference>
         <name>bannerUrl</name>
-        <value>bannerUrl</value>
+        <value>/images/overviewBanner.webp</value>
         <read-only>false</read-only>
       </preference>
       <preference>
-        <name>bannerDescription</name>
-        <value>bannerDescription</value>
+        <name>bannerTitle</name>
+        <value>Let's see what to do today !</value>
         <read-only>false</read-only>
       </preference>
       <preference>
         <name>bannerCaption</name>
-        <value>bannerCaption</value>
+        <value>Check below how to contribute</value>
         <read-only>false</read-only>
       </preference>
     </portlet-preferences>
