@@ -429,9 +429,8 @@ public class ActivityManagerImpl implements ActivityManager {
     // as a solution we pass them throw the activity's template params
     String[] previousMentions = StringUtils.isEmpty(commentId) ? new String[0] : getActivity(commentId).getMentionedIds();
     activityStorage.saveComment(existingActivity, comment);
-
     if (StringUtils.isEmpty(commentId)) {
-      activityLifeCycle.saveComment(comment);
+      activityLifeCycle.saveComment(existingActivity);
     } else {
       if (previousMentions.length > 0) {
         String mentions = String.join(",", previousMentions);
@@ -512,10 +511,11 @@ public class ActivityManagerImpl implements ActivityManager {
     existingActivity.setLikeIdentityIds(identityIds);
     //broadcast is false : we don't want to launch update listeners for a like
     updateActivity(existingActivity, false);
+    ExoSocialActivity updatedActivity = getActivity(existingActivity.getId());
     if(existingActivity.isComment()){
-      activityLifeCycle.likeComment(existingActivity);
+      activityLifeCycle.likeComment(updatedActivity);
     } else {
-      activityLifeCycle.likeActivity(existingActivity);
+      activityLifeCycle.likeActivity(updatedActivity);
     }
   }
 
