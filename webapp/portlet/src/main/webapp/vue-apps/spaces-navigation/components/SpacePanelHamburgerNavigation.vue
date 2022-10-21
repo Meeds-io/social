@@ -30,17 +30,14 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <p class="blue--text text--darken-3 font-weight-bold text-truncate-2 text-break-all">{{ spaceDisplayName }}</p>
+          <a :href="url()" class="font-weight-bold text-truncate-2 text-break-all primary--text mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
-          <p v-if="!isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium mb-0 mt-2 text-break-all">
-            {{ description }}
-          </p>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p v-if="isMobile" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4 text-break-all">
+    <p class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4 text-break-all">
       {{ description }}
     </p>
     <v-flex>
@@ -70,7 +67,10 @@
               link
               icon 
               @click="selectHome()">
-              <v-icon class="me-0 pa-2 icon-default-color" small>
+              <v-icon 
+                class="me-0 pa-2 icon-default-color" 
+                :class="url() === homeLink && 'primary--text' || 'icon-default-color'" 
+                small>
                 fa-house-user
               </v-icon>
             </v-btn>
@@ -121,12 +121,12 @@
           v-for="navigation in spaceNavigations"
           :key="navigation.id"
           :href="navigation.uri">
-          <v-list-item-icon class="me-3 my-3 d-flex">
+          <v-list-item-icon class="me-3 py-3 my-0 d-flex">
             <i 
               aria-hidden="true" 
               :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
           </v-list-item-icon>
-          <v-list-item-content>
+          <v-list-item-content class="mt-n1">
             {{ navigation.label }}
           </v-list-item-content>
         </v-list-item>
