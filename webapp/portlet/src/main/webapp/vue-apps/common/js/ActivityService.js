@@ -1,23 +1,23 @@
 export function getActivities(spaceId, streamType, limit, expand) {
-  let params = {};
+  const formData = new FormData();
 
   if (spaceId) {
-    params.spaceId = spaceId;
+    formData.append('spaceId', spaceId);
   }
 
   if (limit && limit > 0) {
-    params.limit = limit;
+    formData.append('limit', limit);
+  }
+  
+  if (streamType) {
+    formData.append('streamType', streamType.toUpperCase());
   }
 
   if (expand) {
-    params.expand = expand;
+    formData.append('expand', expand);
   }
 
-  if (streamType) {
-    params.streamType = streamType.toUpperCase();
-  }
-
-  params = $.param(params, true);
+  const params = decodeURIComponent(new URLSearchParams(formData).toString());
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?${params}`, {
     method: 'GET',
