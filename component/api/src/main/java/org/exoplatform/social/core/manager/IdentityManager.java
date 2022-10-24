@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.*;
@@ -680,6 +681,16 @@ public interface IdentityManager {
    */
   default Identity getOrCreateUserIdentity(String username) {
     return getOrCreateIdentity(ActivityStream.ORGANIZATION_PROVIDER_ID, username);
+  }
+
+  /**
+   * Retrieves user avatar file by a given identity
+   *
+   * @param identity User social identity
+   * @return {@link FileItem}
+   */
+  default FileItem getAvatarFile(Identity identity) {
+    throw new UnsupportedOperationException();
   }
 
 }

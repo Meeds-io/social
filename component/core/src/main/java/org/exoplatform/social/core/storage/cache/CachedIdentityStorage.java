@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
@@ -700,6 +701,14 @@ public class CachedIdentityStorage implements IdentityStorage {
   @Override
   public InputStream getAvatarInputStreamById(Identity identity) throws IOException {
     return storage.getAvatarInputStreamById(identity);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public FileItem getAvatarFile(Identity identity) {
+    return storage.getAvatarFile(identity);
   }
 
   /**

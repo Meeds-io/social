@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -479,6 +480,16 @@ public interface IdentityStorage {
    * @param imageUploadLimit upload limit in MB, default is 2 MB
    */
   default void setImageUploadLimit(int imageUploadLimit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves user avatar file by a given identity
+   *
+   * @param identity User social identity
+   * @return {@link FileItem}
+   */
+  default FileItem getAvatarFile(Identity identity) {
     throw new UnsupportedOperationException();
   }
 

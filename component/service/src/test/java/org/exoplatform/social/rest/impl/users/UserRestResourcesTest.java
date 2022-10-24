@@ -11,6 +11,8 @@ import java.util.*;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.thumbnail.ImageResizeService;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
@@ -64,6 +66,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private MockUploadService   uploadService;
 
   private UserSearchService   userSearchService;
+  
+  private ImageThumbnailService imageThumbnailService;
 
   private Identity            rootIdentity;
 
@@ -88,6 +92,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
+    imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
@@ -110,7 +115,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       userStateService,
                                                                       spaceService,
                                                                       uploadService,
-                                                                      userSearchService);
+                                                                      userSearchService,
+                                                                      imageThumbnailService);
     registry(userRestResourcesV1);
   }
 
@@ -175,7 +181,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
 
-    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null),
+    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(
+                                                                    new ActivityRestResourcesV1(activityManager,
+                                                                                                identityManager,
+                                                                                                spaceService,
+                                                                                                null),
                                                                     userACL,
                                                                     organizationService,
                                                                     identityManager,
@@ -183,7 +193,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                     userStateService,
                                                                     spaceService,
                                                                     uploadService,
-                                                                    userSearchService);
+                                                                    userSearchService,
+                                                                    imageThumbnailService);
     registry(userRestResources);
 
     //when
