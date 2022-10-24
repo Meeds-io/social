@@ -56,6 +56,15 @@ export default {
       default: null,
     },
   },
+  data (){
+    return {
+      enabledigest: true,
+    };
+  },
+  created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.enabledigest = enabled);
+  },
   computed: {
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
@@ -67,7 +76,7 @@ export default {
       return this.hasInstantNotificationSettings || this.enabledDigest;
     },
     enabledDigest() {
-      return this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.settings.emailChannel && choice.pluginId === this.plugin.type);
+      return this.enabledigest ? this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.settings.emailChannel && choice.pluginId === this.plugin.type) : [];
     },
     enabledDigestLabel() {
       return this.enabledDigest && this.settings.digestDescriptions && this.enabledDigest.value && this.enabledDigest.value !== 'Never' && this.settings.digestDescriptions[this.enabledDigest.value];
