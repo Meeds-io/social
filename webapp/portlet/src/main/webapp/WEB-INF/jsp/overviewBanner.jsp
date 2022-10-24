@@ -8,7 +8,7 @@
 <%
   PortletPreferences preferences = renderRequest.getPreferences();
   String bannerUrl = renderRequest.getParameter("bannerUrl");
-  String captionClass = "white--text mt-n1";
+  String captionClass = "white--text";
   String titleClass = "white--text" ;
   String bannerOpacity = "rgba(0, 0, 0, 0.5)";
   if (bannerUrl == null) {
@@ -23,15 +23,15 @@
     bannerTitle = preferences.getValue("bannerTitle", "");
     if (bannerTitle == null || bannerTitle.isEmpty()) {
       titleClass = "";
-      bannerTitle = "change the title";
+      bannerTitle = "portal.meeds.overview.NoTitleFound";
     }
   }
   String bannerCaption = renderRequest.getParameter("bannerCaption");
   if (bannerCaption == null) {
     bannerCaption = preferences.getValue("bannerCaption", "");
     if (bannerCaption == null || bannerCaption.isEmpty()) {
-      captionClass = "mt-n1";
-      bannerCaption = "change the caption";
+      captionClass = "";
+      bannerCaption = "portal.meeds.overview.NoCaptionFound";
     }
   }
   ResourceBundle bundle;
@@ -43,15 +43,10 @@
     title = bundle.getString(bannerTitle);
     caption = bundle.getString(bannerCaption);
   } catch (Exception e) {
-    try {
-      bundle = ExoContainerContext.getService(ResourceBundleService.class)
-                                  .getResourceBundle("locale.navigation.portal.meeds", Locale.ENGLISH);
-      title = bundle.getString(bannerTitle);
-      caption = bundle.getString(bannerCaption);
-    } catch (Exception e1) {
-      title = bannerTitle;
-      caption = bannerCaption;
-    }
+    bundle = ExoContainerContext.getService(ResourceBundleService.class)
+                                .getResourceBundle("locale.navigation.portal.meeds", Locale.ENGLISH);
+    title = bundle.getString(bannerTitle);
+    caption = bundle.getString(bannerCaption);
   }
 %>
 <div class="VuetifyApp">
@@ -65,17 +60,18 @@
                 <div 
                 class="justify-content-center mx-auto mt-2" 
                 style="background-image: url(<%=bannerUrl%>);
-                       height:142px;
-                       width:1150px">
+                       background-repeat: repeat;
+                       height: 119%;
+                       width: 90%;">
                         <div 
-                          class="d-flex justify-content-center flex-column text-center"
-                          style="background-color: <%=bannerOpacity%>; height:100%; width:100%">
+                          class="d-flex justify-content-center flex-column text-center full-height"
+                          style="background-color: <%=bannerOpacity%>; width:100%">
                           <h1 class=" mt-7">
                             <strong class="<%=titleClass%>">
                               <%=title%>
                             </strong>
                           </h1>
-                          <h3 class="<%=captionClass%>"><%=caption%></h3>
+                          <h3 class="<%=captionClass%> mt-n1 d-none d-sm-flex justify-center"><%=caption%></h3>
                         </div>
                 </div>
 
