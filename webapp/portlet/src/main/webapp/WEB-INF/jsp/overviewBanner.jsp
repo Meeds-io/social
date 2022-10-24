@@ -6,39 +6,40 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects /> 
 <%
-	PortletPreferences preferences = renderRequest.getPreferences();
-	String bannerUrl = renderRequest.getParameter("bannerUrl");
-	if (bannerUrl == null) {
-		bannerUrl = preferences.getValue("bannerUrl", "");
-		if (bannerUrl == null) {
-			bannerUrl = "images/overviewBanner.webp";
-		}
-	}
+  PortletPreferences preferences = renderRequest.getPreferences();
+  String bannerUrl = renderRequest.getParameter("bannerUrl");
+  if (bannerUrl == null) {
+    bannerUrl = preferences.getValue("bannerUrl", "");
+    if (bannerUrl == null) {
+      bannerUrl = "images/overviewBanner.webp";
+    }
+  }
   String bannerTitle = renderRequest.getParameter("bannerTitle");
-	if (bannerTitle == null) {
-		bannerTitle = preferences.getValue("bannerTitle", "");
-		if (bannerTitle == null) {
-			bannerTitle = "";
-		}
-	}
+  if (bannerTitle == null) {
+    bannerTitle = preferences.getValue("bannerTitle", "");
+    if (bannerTitle == null) {
+      bannerTitle = "Let's see what to do today !";
+    }
+  }
   String bannerCaption = renderRequest.getParameter("bannerCaption");
-	if (bannerCaption == null) {
-		bannerCaption = preferences.getValue("bannerCaption", "");
-		if (bannerCaption == null) {
-			bannerCaption = "";
-		}
-	}
+  if (bannerCaption == null) {
+    bannerCaption = preferences.getValue("bannerCaption", "");
+    if (bannerCaption == null) {
+      bannerCaption = "Check below how to contribute";
+    }
+  }
   ResourceBundle bundle;
-  String         title   = "";
-  String         caption = "";
-  
+  String title = "";
+  String caption = ""; 
   try {
-    bundle  = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.navigation.portal.meeds", request.getLocale());
-    title   = bundle.getString(bannerTitle.toString());
+    bundle = ExoContainerContext.getService(ResourceBundleService.class)
+                                .getResourceBundle("locale.navigation.portal.meeds", request.getLocale());
+    title = bundle.getString(bannerTitle.toString());
     caption = bundle.getString(bannerCaption.toString());
   } catch (Exception e) {
-    bundle  = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.navigation.portal.meeds", Locale.ENGLISH);
-    title   = bundle.getString(bannerTitle.toString());
+    bundle = ExoContainerContext.getService(ResourceBundleService.class)
+                                .getResourceBundle("locale.navigation.portal.meeds", Locale.ENGLISH);
+    title = bundle.getString(bannerTitle.toString());
     caption = bundle.getString(bannerCaption.toString());
   }
 %>

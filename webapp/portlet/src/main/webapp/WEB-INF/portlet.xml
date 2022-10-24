@@ -843,17 +843,14 @@
     <portlet-preferences>
       <preference>
         <name>bannerUrl</name>
-        <value>/images/overviewBanner.webp</value>
         <read-only>false</read-only>
       </preference>
       <preference>
         <name>bannerTitle</name>
-        <value>Let's see what to do today !</value>
         <read-only>false</read-only>
       </preference>
       <preference>
         <name>bannerCaption</name>
-        <value>Check below how to contribute</value>
         <read-only>false</read-only>
       </preference>
     </portlet-preferences>
