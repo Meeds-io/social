@@ -9,19 +9,24 @@
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.commons.api.settings.ExoFeatureService"%>
 <%@page import="org.exoplatform.services.security.ConversationState"%>
+<%@page import="org.exoplatform.commons.utils.PropertyManager"%>
 <%
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
   List<String> activitiesListURL = new ArrayList<>();
   String activityId = rcontext.getRequest().getParameter("id");
+  Space space = SpaceUtils.getSpaceByContext();
   long limitToDisplay = 10;
   long initialLimit = limitToDisplay * 2;
   String activitiesLoadingURL;
-  if (activityId == null) {
-    Space space = SpaceUtils.getSpaceByContext();
-    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + (space == null ? "" : space.getId()) + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
-  } else {
+  boolean isStreamFilterEnabled = Boolean.parseBoolean(PropertyManager.getProperty("exo.feature.StreamFilter.enabled"));
+  String streamType = isStreamFilterEnabled ? "&streamType=ALL_STREAM" : "";
+  if (activityId != null) {
     activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments,favorite";
+  } else if (space == null) {
+    activitiesLoadingURL = "/portal/rest/v1/social/activities?limit=" + initialLimit + streamType  + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
+  } else {
+    activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + space.getId() + "&limit=" + initialLimit + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
   }
   responseWrapper.addHeader("Link", "<" + activitiesLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
