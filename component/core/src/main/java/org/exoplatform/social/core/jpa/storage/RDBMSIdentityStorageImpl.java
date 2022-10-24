@@ -996,25 +996,26 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   
   @Override
   public InputStream getAvatarInputStreamById(Identity identity) throws IOException {
+    FileItem fileItem = getAvatarFile(identity);
+    if (fileItem != null) {
+      return fileItem.getAsStream();
+    }
+    return null;
+  }
+
+  @Override
+  public FileItem getAvatarFile(Identity identity) {
     FileItem file = null;
-    IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(), identity.getRemoteId());
-    if (entity == null) {
-      return null;
+    IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(),
+                                                                  identity.getRemoteId());
+    if (entity != null && entity.getAvatarFileId() != null) {
+      try {
+        file = fileService.getFile(entity.getAvatarFileId());
+      } catch (FileStorageException e) {
+        return null;
+      }
     }
-    Long avatarId = entity.getAvatarFileId();
-    if (avatarId == null) {
-      return null;
-    }
-    try {
-      file = fileService.getFile(avatarId);
-    } catch (FileStorageException e) {
-      return null;
-    }
-  
-    if (file == null) {
-      return null;
-    }
-    return file.getAsStream();
+    return file;
   }
 
   @Override

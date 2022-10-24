@@ -16,7 +16,7 @@
           <space-setting-avatar
             ref="spaceAvatar"
             v-model="space.avatarId"
-            :avatar-url="space.avatarUrl"
+            :avatar-url="`${space.avatarUrl}&size=165x165`"
             :max-upload-size="maxUploadSize"
             class="mx-auto mb-6 mt-2"
             hover

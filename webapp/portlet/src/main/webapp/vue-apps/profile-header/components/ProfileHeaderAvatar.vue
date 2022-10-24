@@ -4,8 +4,8 @@
     :size="size"
     class="align-start flex-grow-0 ms-3 my-3 profileHeaderAvatar">
     <v-img
-      :lazy-src="(avatarData || user && user.avatar) || ''" 
-      :src="(avatarData || user && user.avatar) || ''" 
+      :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
+      :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
       transition="none"
       eager
       role="presentation" />
