@@ -23,7 +23,7 @@
     bannerTitle = preferences.getValue("bannerTitle", "");
     if (bannerTitle == null || bannerTitle.isEmpty()) {
       titleClass = "";
-      bannerTitle = "portal.meeds.overview.NoTitleFound";
+      bannerTitle = "portal.meeds.overview.title";
     }
   }
   String bannerCaption = renderRequest.getParameter("bannerCaption");
@@ -31,7 +31,7 @@
     bannerCaption = preferences.getValue("bannerCaption", "");
     if (bannerCaption == null || bannerCaption.isEmpty()) {
       captionClass = "";
-      bannerCaption = "portal.meeds.overview.NoCaptionFound";
+      bannerCaption = "portal.meeds.overview.description";
     }
   }
   ResourceBundle bundle;
