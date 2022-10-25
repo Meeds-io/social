@@ -23,8 +23,8 @@
       <v-list-item class="width-min-content pt-3">
         <v-list-item-avatar
           class="spaceAvatar mt-0 mb-0 align-self-start"
-          :width="isMobile && '45' || '60'"
-          :height="isMobile && '45' || '60'">
+          :width="avatarWidth"
+          :height="avatarHeight">
           <v-img
             class="object-fit-cover"
             :src="avatar" />
@@ -201,6 +201,12 @@ export default {
         return '#';
       }
     },
+    avatarWidth() {
+      return this.isMobile && '45' || '60';
+    },
+    avatarHeight() {
+      return this.isMobile && '45' || '60';
+    }
   },
   watch: {
     spaceId: {
