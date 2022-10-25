@@ -23,7 +23,7 @@
               class="mt-0" />
           </v-col>
         </v-row>
-        <template v-if="pluginOption.channelId === emailChannel">
+        <template v-if="pluginOption.channelId === emailChannel && digestMailNotificationEnabled">
           <v-row class="ma-0">
             <v-col>
               <label for="EMAIL_DIGEST" class="align-start">{{ $t('UINotification.label.selectBox-mail') }}</label>
@@ -85,7 +85,12 @@ export default {
     digest: null,
     emailChannel: null,
     listChannelOptions: [],
+    digestMailNotificationEnabled: true
   }),
+  created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.digestMailNotificationEnabled = enabled);
+  },
   computed: {
     digestOptions() {
       return this.settings && Object.keys(this.settings.digestLabels).map(digestLabel => ({
