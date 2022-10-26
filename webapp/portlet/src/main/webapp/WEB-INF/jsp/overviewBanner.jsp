@@ -52,21 +52,26 @@
 <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
-      id="OverviewPage">
+      id="OverviewBanner">
         <div class="v-application--wrap">
-          <div class="flex hiddenable-widget d-flex xs12 sm12">
-            <div class="layout row wrap mx-0">
-
+          <div class="flex hiddenable-widget d-flex">
+            <div class="layout">
                 <div 
-                class="justify-content-center mx-auto mt-2" 
+                class="justify-content-center"
                 style="background-image: url(<%=bannerUrl%>);
                        background-repeat: repeat;
+                       background-clip: content-box;
                        height: 119%;
-                       width: 90%;">
+                       width: 100%;">
                         <div 
                           class="d-flex justify-content-center flex-column text-center full-height"
                           style="background-color: <%=bannerOpacity%>; width:100%">
-                          <h1 class=" mt-7">
+                          <h1 class=" mt-7 d-none d-sm-block">
+                            <strong class="<%=titleClass%>">
+                              <%=title%>
+                            </strong>
+                          </h1>
+                          <h1 class=" mt-7 d-block d-sm-none text-h5">
                             <strong class="<%=titleClass%>">
                               <%=title%>
                             </strong>
@@ -74,7 +79,6 @@
                           <h3 class="<%=captionClass%> mt-n1 d-none d-sm-flex justify-center"><%=caption%></h3>
                         </div>
                 </div>
-
             </div>
           </div>
         </div>
