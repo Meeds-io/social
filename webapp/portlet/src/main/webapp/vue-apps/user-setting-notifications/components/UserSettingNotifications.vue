@@ -3,6 +3,7 @@
     <user-setting-notifications-window
       v-if="displayDetails"
       :settings="notificationSettings"
+      :digest-mail-notification-enabled="digestMailNotificationEnabled"
       @back="closeDetail" />
     <v-card
       v-else
@@ -57,8 +58,11 @@ export default {
     notificationSettings: null,
     displayDetails: false,
     displayed: true,
+    digestMailNotificationEnabled: false
   }),
   created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.digestMailNotificationEnabled = enabled);
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {
         this.displayed = false;

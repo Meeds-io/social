@@ -28,12 +28,14 @@
         :settings="settings"
         :key="group.groupId"
         :group="group"
+        :digest-mail-notification-enabled="digestMailNotificationEnabled"
         @edit="openDrawer" />
     </v-flex>
     <user-setting-notification-drawer
       ref="drawer"
       :group="selectedGroup"
       :plugin="selectedPlugin"
+      :digest-mail-notification-enabled="digestMailNotificationEnabled"
       :settings="settings" />
   </v-card>
 </template>
@@ -45,6 +47,10 @@ export default {
       type: Object,
       default: null,
     },
+    digestMailNotificationEnabled: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     selectedPlugin: null,
