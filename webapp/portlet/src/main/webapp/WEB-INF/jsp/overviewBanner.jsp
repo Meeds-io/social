@@ -71,7 +71,7 @@
                               <%=title%>
                             </strong>
                           </h1>
-                          <h1 class=" mt-7 d-block d-sm-none" style="font-size: 1.5rem;">
+                          <h1 class=" mt-7 d-block d-sm-none text-h5">
                             <strong class="<%=titleClass%>">
                               <%=title%>
                             </strong>
