@@ -58,7 +58,7 @@ export default {
   },
   data (){
     return {
-      digestMailNotificationEnabled: true,
+      digestMailNotificationEnabled: false,
     };
   },
   created() {
