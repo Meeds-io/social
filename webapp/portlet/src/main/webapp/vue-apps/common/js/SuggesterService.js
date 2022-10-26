@@ -19,7 +19,7 @@ export function search(filter) {
   }
   if (filter.includeGroups) {
     filter.loadingCallback('group');
-    searchGroups(filter.term, filter.groupMember, filter.groupType, filter.items, filter.errorCallback)
+    searchGroups(filter.term, filter.groupMember, filter.groupType, filter.items, filter.allGroupsForAdmin, filter.errorCallback)
       .finally(() => filter.successCallback && filter.successCallback('group'));
   }
 }
@@ -57,11 +57,12 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
     });
 }
 
-function searchGroups(filter, groupMember, groupType, items, errorCallback) {
+function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, errorCallback) {
   const formData = new FormData();
   formData.append('q', filter);
   formData.append('groupMember', groupMember);
   formData.append('groupType', groupType);
+  formData.append('allGroupsForAdmin', allGroupsForAdmin);
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`/portal/rest/v1/groups/treeMembers?${params}`, { credentials: 'include' })

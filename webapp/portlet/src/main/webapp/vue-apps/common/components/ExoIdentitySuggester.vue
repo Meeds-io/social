@@ -89,6 +89,10 @@
 <script>
 export default {
   props: {
+    allGroupsForAdmin: {
+      type: Boolean,
+      default: false,
+    },
     value: {
       type: Object,
       default: null,
@@ -374,6 +378,7 @@ export default {
               includeGroups: this.includeGroups,
               onlyRedactor: this.onlyRedactor,
               groupMember: this.groupMember,
+              allGroupsForAdmin: this.allGroupsForAdmin,
               groupType: this.groupType,
               noRedactorSpace: this.noRedactorSpace,
               onlyManager: this.onlyManager,
