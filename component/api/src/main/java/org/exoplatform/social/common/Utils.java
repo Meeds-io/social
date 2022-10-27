@@ -54,7 +54,7 @@ public class Utils {
    * Filter all invalid character (anything except word, number, space and
    * search wildcard) from Space search conditional.
    * 
-   * @since: 1.2.2
+   * @since 1.2.2
    * @param input String
    * @return
    */
