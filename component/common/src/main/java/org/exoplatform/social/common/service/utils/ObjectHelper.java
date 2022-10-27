@@ -41,7 +41,7 @@ public class ObjectHelper {
    *
    * @param type the exception type wanted to retrieve
    * @param exception the caused exception
-   * @return the exception found (or <tt>null</tt> if not found in the exception hierarchy)
+   * @return the exception found (or <code>null</code> if not found in the exception hierarchy)
    */
   public static <T> T getException(Class<T> type, Throwable exception) {
       if (exception == null) {

@@ -452,7 +452,6 @@ public interface IdentityManager {
    * Updates an avatar.
    *
    * @param p The profile containing its avatar which is updated.
-   * @throws MessageException
    * @LevelAPI Provisional
    * @deprecated Will be removed by 4.0.x.
    */
