@@ -388,7 +388,7 @@ public interface ActivityManager {
    * Add a new Type(s) or Title(s) definition marked as system to not allow to
    * edit them
    * 
-   * @param activitySystemTypePlugin plugin to retrieve types & titleIds
+   * @param activitySystemTypePlugin plugin to retrieve types and titleIds
    */
   default void addSystemActivityDefinition(ActivitySystemTypePlugin activitySystemTypePlugin) {
     // nothing to do by default
