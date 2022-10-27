@@ -19,7 +19,7 @@
 package org.exoplatform.social.metadata.favorite;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -101,7 +101,6 @@ public interface FavoriteService {
    *          object type, can be of any type: activity, comment, notes... -
    *          objectId object technical unique identifier - userIdentityId
    *          {@link Identity} technical identifier of the user
-   * @throws ObjectNotFoundException when the favorite doesn't exists
    */
   public boolean isFavorite(Favorite favorite);
 

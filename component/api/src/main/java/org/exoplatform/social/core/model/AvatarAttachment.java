@@ -19,7 +19,7 @@ package org.exoplatform.social.core.model;
 import java.io.IOException;
 import java.io.InputStream;
 
-/*
+/**
  * This class using for attachment profile of identity or of space, such as
  * image.
  *
