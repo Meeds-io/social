@@ -89,7 +89,12 @@ export default {
     digest: null,
     emailChannel: null,
     listChannelOptions: [],
+    digestMailNotificationEnabled: false
   }),
+  created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.digestMailNotificationEnabled = enabled);
+  },
   computed: {
     digestOptions() {
       return this.settings && Object.keys(this.settings.digestLabels).map(digestLabel => ({

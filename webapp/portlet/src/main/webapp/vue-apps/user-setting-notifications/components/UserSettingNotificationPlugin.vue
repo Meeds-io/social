@@ -60,6 +60,15 @@ export default {
       default: false
     }
   },
+  data (){
+    return {
+      digestMailNotificationEnabled: false,
+    };
+  },
+  created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.digestMailNotificationEnabled = enabled);
+  },
   computed: {
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
