@@ -498,10 +498,11 @@ public class EntityBuilder {
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
+      boolean canEdit = isManager || spaceService.isSuperManager(userId);
       spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
       spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
-      spaceEntity.setCanEdit(spaceService.isSuperManager(userId) || isManager);
+      spaceEntity.setCanEdit(canEdit);
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
     }

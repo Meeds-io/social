@@ -114,7 +114,7 @@ public class ThreadPoolConfig implements Serializable {
   /**
    * Whether this profile is the default profile (there can only be one).
    *
-   * @return <tt>true</tt> if its the default profile, <tt>false</tt> otherwise
+   * @return <code>true</code> if its the default profile, <code>false</code> otherwise
    */
   public Boolean isDefaultProfile() {
       return defaultProfile != null && defaultProfile;
@@ -204,7 +204,7 @@ public class ThreadPoolConfig implements Serializable {
   /**
    * Gets the maximum number of tasks in the work queue.
    * <br>
-   * Use <tt>-1</tt> or <tt>Integer.MAX_VALUE</tt> for an unbounded queue
+   * Use <code>-1</code> or <code>Integer.MAX_VALUE</code> for an unbounded queue
    *
    * @return the max queue size
    */
@@ -215,7 +215,7 @@ public class ThreadPoolConfig implements Serializable {
   /**
    * Sets the maximum number of tasks in the work queue.
    * <br>
-   * Use <tt>-1</tt> or <tt>Integer.MAX_VALUE</tt> for an unbounded queue
+   * Use <code>-1</code> or <code>Integer.MAX_VALUE</code> for an unbounded queue
    *
    * @param maxQueueSize the max queue size
    */
