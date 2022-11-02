@@ -80,7 +80,7 @@ const defaultActivityOptions = {
            || '');
   },
   getBodyToEdit: activity => {
-    const templateParams = activity.templateParams;
+    const templateParams = encodeURIComponent(activity.templateParams);
     return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
       && templateParams.default_title
       && templateParams.default_title
