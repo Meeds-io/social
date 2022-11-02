@@ -31,6 +31,8 @@ import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
  */
 public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlugin {
 
+  public static final String ID = "ActivitySpaceWebNotificationPlugin";
+
   private ActivityManager activityManager;
 
   public ActivitySpaceWebNotificationPlugin(ActivityManager activityManager, IdentityManager identityManager, InitParams params) {

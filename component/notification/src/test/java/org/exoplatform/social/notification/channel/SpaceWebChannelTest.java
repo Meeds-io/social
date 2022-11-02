@@ -1,4 +1,6 @@
 package org.exoplatform.social.notification.channel;
 
-public class SpaceWebChannelTest {
+import org.exoplatform.social.notification.AbstractCoreTest;
+
+public class SpaceWebChannelTest extends AbstractCoreTest {
 }
