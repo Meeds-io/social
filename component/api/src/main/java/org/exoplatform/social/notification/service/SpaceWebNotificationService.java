@@ -25,14 +25,14 @@ import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 public interface SpaceWebNotificationService {
 
   /**
-   * TODO
+   * Register the space web notification plugin
    * 
    * @param spaceWebNotification
    */
   void addPlugin(SpaceWebNotificationPlugin spaceWebNotification);
 
   /**
-   * TODO
+   * Dispatch notification info
    * 
    * @param notification
    * @param username
@@ -41,7 +41,7 @@ public interface SpaceWebNotificationService {
   void dispatch(NotificationInfo notification, String username) throws Exception;
 
   /**
-   * TODO
+   * Mark a space notification item as unread
    * 
    * @param notificationItem
    * @throws Exception
@@ -49,7 +49,7 @@ public interface SpaceWebNotificationService {
   void markAsUnread(SpaceWebNotificationItem notificationItem) throws Exception;
 
   /**
-   * TODO
+   * Mark a space notification item as read
    * 
    * @param notificationItem
    * @throws Exception

@@ -29,9 +29,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
-/**
- * TODO
- */
 public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
 
   private IdentityManager identityManager;
@@ -47,21 +44,21 @@ public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
   }
 
   /**
-   * TODO
+   * Test if a given plugin is a managed plugin
    * 
    * @param pluginKey
-   * @return
+   * @return boolean
    */
   public boolean isManagedPlugin(PluginKey pluginKey) {
     return notificationPluginIds.stream().anyMatch(pluginId -> StringUtils.equals(pluginKey.getId(), pluginId));
   }
 
   /**
-   * TODO
+   * Get the space application Item for a specific notification info and username
    * 
    * @param notification
    * @param username
-   * @return
+   * @return SpaceWebNotificationItem
    */
   public SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification, String username) {
     SpaceWebNotificationItem notificationItem = getSpaceApplicationItem(notification);
@@ -73,10 +70,10 @@ public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
   }
 
   /**
-   * TODO
+   * Get the space application Item for a specific notification info
    * 
    * @param notification
-   * @return
+   * @return SpaceWebNotificationItem
    */
   protected abstract SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification);
 

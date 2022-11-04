@@ -26,9 +26,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
-/**
- * TODO
- */
 public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlugin {
 
   public static final String ID = "ActivitySpaceWebNotificationPlugin";

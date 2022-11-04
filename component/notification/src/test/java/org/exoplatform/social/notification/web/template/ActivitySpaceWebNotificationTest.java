@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import org.exoplatform.commons.api.notification.channel.ChannelManager;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValuesParam;
@@ -33,9 +32,6 @@ public class ActivitySpaceWebNotificationTest {
   private static final String                       ACTIVITY_NOTIFICATION_PLUGIN_ID = "ACTIVITY_NOTIFICATION";
 
   private static final String                       USERNAME                        = "username";
-
-  @Mock
-  private ChannelManager                            channelManager;
 
   @Mock
   private IdentityManager                           identityManager;
