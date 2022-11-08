@@ -3,14 +3,24 @@ import ExoRecentSpacesHamburgerNavigation from './components/ExoRecentSpacesHamb
 import ExoSpacesNavigationContent from './components/ExoSpacesNavigationContent.vue';
 import SpaceNavigationItem from './components/SpaceNavigationItem.vue';
 import SpacePanelHamburgerNavigation from './components/SpacePanelHamburgerNavigation.vue';
+import LegacyExoSpacesHamburgerNavigation from './components/legacy/ExoSpacesHamburgerNavigation.vue';
+import LegacyExoRecentSpacesHamburgerNavigation from './components/legacy/ExoRecentSpacesHamburgerNavigation.vue';
+import LegacyExoSpacesNavigationContent from './components/legacy/ExoSpacesNavigationContent.vue';
 
 const components = {
-  'exo-spaces-hamburger-menu-navigation': ExoSpacesHamburgerNavigation,
-  'exo-recent-spaces-hamburger-menu-navigation': ExoRecentSpacesHamburgerNavigation,
-  'exo-spaces-navigation-content': ExoSpacesNavigationContent,
   'space-navigation-item': SpaceNavigationItem,
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation
 };
+
+if (eXo.env.portal.leftMenuEnabled) {
+  components['exo-spaces-hamburger-menu-navigation'] = ExoSpacesHamburgerNavigation;
+  components['exo-recent-spaces-hamburger-menu-navigation'] = ExoRecentSpacesHamburgerNavigation;
+  components['exo-spaces-navigation-content'] = ExoSpacesNavigationContent;
+} else {
+  components['exo-spaces-hamburger-menu-navigation'] = LegacyExoSpacesHamburgerNavigation;
+  components['exo-recent-spaces-hamburger-menu-navigation'] = LegacyExoRecentSpacesHamburgerNavigation;
+  components['exo-spaces-navigation-content'] = LegacyExoSpacesNavigationContent;
+}
 
 for (const key in components) {
   Vue.component(key, components[key]);
@@ -23,7 +33,7 @@ if (extensionRegistry) {
       id: 'HamburgerMenuNavigationSpaces',
       priority: 20,
       secondLevel: true,
-      vueComponent: ExoSpacesHamburgerNavigation,
+      vueComponent: components['exo-spaces-hamburger-menu-navigation'],
     },
   );
 }
