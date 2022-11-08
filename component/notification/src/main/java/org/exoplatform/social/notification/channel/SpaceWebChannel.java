@@ -28,10 +28,6 @@ import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
-
-/**
- * TODO
- */
 public class SpaceWebChannel extends AbstractChannel {
 
   private static final Log            LOG = ExoLogger.getLogger(SpaceWebChannel.class);

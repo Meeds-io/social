@@ -38,11 +38,11 @@ import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService {
 
-  private static final String              NOTIFICATION_UNREAD_EVENT_NAME = "notification.unread.item";
+  public static final String               METADATA_TYPE_NAME             = "unread";
 
-  private static final String              NOTIFICATION_READ_EVENT_NAME   = "notification.read.item";
+  public static final String               NOTIFICATION_UNREAD_EVENT_NAME = "notification.unread.item";
 
-  private static final String              METADATA_TYPE_NAME             = "unread";
+  public static final String               NOTIFICATION_READ_EVENT_NAME   = "notification.read.item";
 
   private static final Log                 LOG                            =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
