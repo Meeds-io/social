@@ -54,7 +54,10 @@
       :loading="loading"
       class="me-2 align-center">
       <v-btn icon @click="openOrCloseDrawer($event)">
-        <v-icon :id="space.id" class="me-0 pa-2 icon-default-color clickable" small>
+        <v-icon
+          :id="space.id"
+          class="me-0 pa-2 icon-default-color clickable"
+          small>
           {{ arrowIcon }} 
         </v-icon>
       </v-btn>
