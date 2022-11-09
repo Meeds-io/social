@@ -62,6 +62,7 @@
 
      eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
      eXo.env.portal.engagementCenterEnabled = <%=featureService.isFeatureActiveForUser("engagementCenter", userName)%>;
+     eXo.env.portal.leftMenuReviewEnabled = <%=featureService.isFeatureActiveForUser("leftMenuReview", userName)%>;
      eXo.env.portal.StreamFilterEnabled = <%=PropertyManager.getProperty("exo.feature.StreamFilter.enabled")%>;
      eXo.env.portal.PinActivityEnabled = <%=PropertyManager.getProperty("exo.feature.PinActivity.enabled")%>;
 </script>
