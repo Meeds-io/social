@@ -721,7 +721,7 @@
             <property name="exo.feature.ActivityTags.enabled" value="${exo.feature.ActivityTags.enabled:true}"/>
             <property name="exo.feature.SpaceFavorites.enabled" value="${exo.feature.SpaceFavorites.enabled:true}" />
             <property name="exo.feature.PinActivity.enabled" value="${exo.feature.PinActivity.enabled:true}" />
-            <property name="exo.feature.LeftMenu.enabled" value="${exo.feature.LeftMenu.enabled:true}" />
+            <property name="exo.feature.leftMenuReview.enabled" value="${exo.feature.leftMenuReview.enabled:true}" />
             <property name="exo.feature.StreamFilter.enabled" value="${exo.feature.StreamFilter.enabled:false}" />
           </properties-param>
         </init-params>
