@@ -11,7 +11,7 @@ const components = {
   'exo-administration-navigations': ExoAdministrationNavigations,
 };
 
-if (eXo.env.portal.leftMenuEnabled) {
+if (eXo.env.portal.leftMenuReviewEnabled) {
   components['exo-administration-hamburger-menu-navigation'] = ExoAdministrationHamburgerNavigation;
 } else {
   components['exo-administration-hamburger-menu-navigation'] = LegacyExoAdministrationHamburgerNavigation;

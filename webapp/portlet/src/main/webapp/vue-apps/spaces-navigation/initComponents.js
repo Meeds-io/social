@@ -12,7 +12,7 @@ const components = {
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation
 };
 
-if (eXo.env.portal.leftMenuEnabled) {
+if (eXo.env.portal.leftMenuReviewEnabled) {
   components['exo-spaces-hamburger-menu-navigation'] = ExoSpacesHamburgerNavigation;
   components['exo-recent-spaces-hamburger-menu-navigation'] = ExoRecentSpacesHamburgerNavigation;
   components['exo-spaces-navigation-content'] = ExoSpacesNavigationContent;
