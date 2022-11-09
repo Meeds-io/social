@@ -30,7 +30,7 @@
                 v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-icon @click="selectHome($event, nav)">
-              <span class="fas mt-1 fa-house-user icon-default-color homePage">
+              <span class="UserPageHome">
               </span>
             </v-list-item-icon>
           </v-list-item>
@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import {setSettingValue} from '../../common/js/SettingService.js';
+import {setSettingValue} from '../../../common/js/SettingService.js';
 
 export default {
   data: () => ({
@@ -57,7 +57,7 @@ export default {
     selectedNavigation: null,
     navigationScope: 'children',
     navigationVisibilities: ['displayed'],
-    navigations: []
+    navigations: [],
   }),
   computed: {
     confirmMessage() {
