@@ -89,7 +89,7 @@ export default {
     loading: false,
     error: false,
     isDeleted: false,
-    streamFilter: null,
+    streamFilter: 'all_stream',
   }),
   computed: {
     activitiesToDisplay() {
@@ -115,7 +115,7 @@ export default {
     },
   },
   created() {
-    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || null;
+    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
     document.addEventListener('activity-favorite-removed', event => {
       const favoriteActivity = event && event.detail && event.detail;
       if (this.streamFilter === 'user_favorite_stream') {
