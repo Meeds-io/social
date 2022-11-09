@@ -61,7 +61,7 @@
                 style="background-image: url(<%=bannerUrl%>);
                        background-repeat: repeat;
                        background-clip: content-box;
-                       height: 119%;
+                       height: 133px;
                        width: 100%;">
                         <div 
                           class="d-flex justify-content-center flex-column text-center full-height"
