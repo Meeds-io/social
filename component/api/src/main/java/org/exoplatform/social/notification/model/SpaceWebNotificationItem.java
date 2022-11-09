@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  * 
- * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ * Copyright (C) 2022 Meeds Association contact@meeds.io
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,39 +16,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.metadata.model;
-
-import java.util.Map;
+package org.exoplatform.social.notification.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Metadata {
+@AllArgsConstructor
+public class SpaceWebNotificationItem {
 
-  private long                id;
+  @Getter
+  @Setter
+  private String applicationName;
 
-  private MetadataType        type;
+  @Getter
+  @Setter
+  private String applicationItemId;
 
-  private String              name;
+  @Getter
+  @Setter
+  private long   userId;
 
-  private long                audienceId;
-
-  private long                creatorId;
-
-  private long                createdDate;
-
-  private Map<String, String> properties;
-
-  public MetadataKey key() {
-    return new MetadataKey(getTypeName(), name, audienceId);
-  }
-
-  public String getTypeName() {
-    return type == null ? null : type.getName();
-  }
+  @Getter
+  @Setter
+  private long   spaceId;
 
 }
