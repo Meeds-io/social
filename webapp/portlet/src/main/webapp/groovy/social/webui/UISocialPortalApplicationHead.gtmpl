@@ -48,6 +48,7 @@
        silent: !eXo.developing,
        iconfont: 'mdi',
        rtl: eXo.env.portal.orientation === 'rtl',
+       theme: { disable: true },
        breakpoint: {
          thresholds: {
            xs: 380,

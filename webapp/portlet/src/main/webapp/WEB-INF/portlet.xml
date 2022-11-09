@@ -834,7 +834,7 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/overviewBanner.jsp</value>
     </init-param>
-    <expiration-cache>31536000</expiration-cache>
+    <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
