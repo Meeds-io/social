@@ -19,21 +19,34 @@
 
 -->
 <template>
-  <div>
-    <popover-menu v-if="!isMobile" />
-    <notification-alerts />
-    <users-list-drawer />
-  </div>
+  <exo-drawer ref="managersDrawer" right>
+    <template slot="title">
+      {{ $t('spacesList.title.managers') }}
+    </template>
+    <template v-if="displaySpaceHosts" slot="content">
+      <v-layout column class="ma-3">
+        <exo-user-avatar
+          v-for="host in displaySpaceHosts"
+          :key="host.id"
+          :identity="host"
+          :extra-class="'my-2'"
+          popover />
+      </v-layout>
+    </template>
+  </exo-drawer>
 </template>
 <script>
 export default {
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
-    },
-  },
+  data: () => ({
+    displaySpaceHosts: null,
+  }),
   mounted() {
-    this.$root.$applicationLoaded();
+    document.addEventListener('display-users-list-drawer', (event) => {
+      if (event && event.detail) {
+        this.displaySpaceHosts = event.detail;
+        this.$refs.managersDrawer.open();
+      }
+    });
   },
 };
 </script>

@@ -12,8 +12,7 @@
     @removed="removed"
     @remove-error="removeError"
     @added="added"
-    @add-error="addError"
-    class="pt-1 pe-1" />
+    @add-error="addError" />
 </template>
 
 <script>
