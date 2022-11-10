@@ -80,7 +80,13 @@ const defaultActivityOptions = {
            || '');
   },
   getBodyToEdit: activity => {
-    const templateParams = encodeURIComponent(activity.templateParams);
+    let templateParams = activity.templateParams; 
+    if (templateParams.default_title && templateParams.default_title.includes('<oembed>') && templateParams.link){
+      const url = window.encodeURIComponent(templateParams.link);
+      templateParams.default_title = templateParams.default_title.replace(`<oembed>${url}</oembed>`, `<oembed>${templateParams.link}</oembed>`);
+      activity.title = activity.title.replace(`<oembed>${url}</oembed>`, `<oembed>${templateParams.link}</oembed>`);
+    }
+    templateParams = encodeURIComponent(activity.templateParams);
     return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
       && templateParams.default_title
       && templateParams.default_title
