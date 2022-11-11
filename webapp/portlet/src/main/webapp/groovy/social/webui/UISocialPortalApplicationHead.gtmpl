@@ -64,4 +64,5 @@
      eXo.env.portal.leftMenuReviewEnabled = <%=featureService.isFeatureActiveForUser("leftMenuReview", userName)%>;
      eXo.env.portal.StreamFilterEnabled = <%=PropertyManager.getProperty("exo.feature.StreamFilter.enabled")%>;
      eXo.env.portal.PinActivityEnabled = <%=PropertyManager.getProperty("exo.feature.PinActivity.enabled")%>;
+     eXo.env.portal.SpaceWebNotificationsEnabled = <%=PropertyManager.getProperty("exo.feature.SpaceWebNotifications.enabled")%>;
 </script>
