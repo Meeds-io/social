@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="white border-radius activity-detail flex flex-column position-relative">
+    :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`">
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
@@ -138,6 +138,9 @@ export default {
         return {};
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
+    },
+    activityUnreadClass() {
+      return this.activity?.metadatas?.unread?.length && 'elevation-4' || '';
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
