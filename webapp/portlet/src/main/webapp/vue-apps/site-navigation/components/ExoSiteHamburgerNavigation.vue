@@ -4,10 +4,9 @@
     px-0
     py-0
     class="white">
-    <v-row
+    <div
       class="mx-0">
-      <v-list 
-        shaped 
+      <v-list  
         dense 
         min-width="90%"
         class="pb-0">
@@ -36,7 +35,7 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-    </v-row>
+    </div>
     <exo-confirm-dialog
       ref="confirmDialog"
       :title="$t('menu.confirmation.title.changeHome')"
