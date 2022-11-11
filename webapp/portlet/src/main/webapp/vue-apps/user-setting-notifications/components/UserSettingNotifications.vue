@@ -57,6 +57,7 @@ export default {
     notificationSettings: null,
     displayDetails: false,
     displayed: true,
+    SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled
   }),
   created() {
     document.addEventListener('hideSettingsApps', (event) => {
@@ -74,6 +75,9 @@ export default {
         .then(resp => resp && resp.ok && resp.json())
         .then(settings => {
           this.notificationSettings = settings;
+          if (!this.SpaceWebNotificationsEnabled) {
+            this.notificationSettings.channels = this.notificationSettings.channels.filter((channel) => channel !== 'SPACE_WEB_CHANNEL');
+          }
           return this.$nextTick();
         })
         .finally(() => {
