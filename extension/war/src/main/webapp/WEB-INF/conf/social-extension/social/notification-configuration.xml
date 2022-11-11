@@ -4,6 +4,35 @@
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
+  <component>
+    <key>org.exoplatform.social.notification.service.SpaceWebNotificationService</key>
+    <type>org.exoplatform.social.notification.impl.SpaceWebNotificationServiceImpl</type>
+  </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.notification.service.SpaceWebNotificationService</target-component>
+    <component-plugin>
+      <name>ActivitySpaceWebNotificationPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.notification.plugin.ActivitySpaceWebNotificationPlugin</type>
+      <init-params>
+        <values-param>
+          <name>notification.plugin.ids</name>
+          <value>PostActivitySpaceStreamPlugin</value>
+          <value>PostActivityPlugin</value>
+          <value>SharedActivitySpaceStreamPlugin</value>
+          <value>ActivityMentionPlugin</value>
+          <value>ActivityCommentPlugin</value>
+          <value>ActivityReplyToCommentPlugin</value>
+          <value>EditActivityPlugin</value>
+          <value>EditCommentPlugin</value>
+          <value>LikePlugin</value>
+          <value>LikeCommentPlugin</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
     <component-plugin>
@@ -64,6 +93,11 @@
           <value>WEB_CHANNEL</value>
         </value-param>
       </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>space.web.channel</name>
+      <set-method>register</set-method>
+      <type>org.exoplatform.social.notification.channel.SpaceWebChannel</type>
     </component-plugin>
   </external-component-plugins>
 </configuration>
