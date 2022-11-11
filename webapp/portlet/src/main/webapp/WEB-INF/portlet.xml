@@ -402,6 +402,10 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite]]></value>
     </init-param>
+    <init-param>
+      <name>separator</name>
+      <value>|</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
