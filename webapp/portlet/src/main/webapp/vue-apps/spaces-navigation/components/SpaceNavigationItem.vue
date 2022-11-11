@@ -23,7 +23,7 @@
     @click="openOrCloseDrawer()">
     <v-list-item-avatar 
       size="28"
-      class="me-3 tile my-0 spaceAvatar"
+      class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
       <v-img :src="spaceAvatar" />
     </v-list-item-avatar>
@@ -41,7 +41,7 @@
     @mouseleave="showItemActions = false">
     <v-list-item-avatar 
       size="28"
-      class="me-3 tile my-0 spaceAvatar"
+      class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>
       <v-img :src="spaceAvatar" />
     </v-list-item-avatar>
