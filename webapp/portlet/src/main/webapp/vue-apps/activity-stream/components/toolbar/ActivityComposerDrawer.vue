@@ -162,7 +162,7 @@ export default {
         this.originalBody = params.activityBody;
         this.activityId = params.activityId;
         this.spaceId = params.spaceId;
-        this.templateParams = params.activityParams || {};
+        this.templateParams = params.activityParams || params.templateParams || {};
         this.files = params.files || [];
         this.activityType = params.activityType;
       } else {

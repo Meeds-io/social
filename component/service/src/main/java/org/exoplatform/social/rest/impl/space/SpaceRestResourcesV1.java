@@ -72,21 +72,23 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRestResourcesV1 implements SpaceRestResources {
 
-  private static final Log LOG = ExoLogger.getLogger(SpaceRestResourcesV1.class);
+  private static final Log          LOG                         = ExoLogger.getLogger(SpaceRestResourcesV1.class);
 
-  private static final String SPACE_FILTER_TYPE_ALL = "all";
-  
-  private static final String SPACE_FILTER_TYPE_MEMBER = "member";
+  private static final String       SPACE_FILTER_TYPE_ALL       = "all";
 
-  private static final String SPACE_FILTER_TYPE_MANAGER = "manager";
+  private static final String       SPACE_FILTER_TYPE_MEMBER    = "member";
 
-  private static final String SPACE_FILTER_TYPE_PENDING = "pending";
+  private static final String       SPACE_FILTER_TYPE_MANAGER   = "manager";
 
-  private static final String SPACE_FILTER_TYPE_INVITED = "invited";
+  private static final String       SPACE_FILTER_TYPE_PENDING   = "pending";
 
-  private static final String SPACE_FILTER_TYPE_REQUESTS = "requests";
-  
-  private static final String SPACE_FILTER_TYPE_FAVORITE = "favorite";
+  private static final String       SPACE_FILTER_TYPE_INVITED   = "invited";
+
+  private static final String       SPACE_FILTER_TYPE_REQUESTS  = "requests";
+
+  private static final String       SPACE_FILTER_TYPE_FAVORITE  = "favorite";
+
+  private static final String       LAST_VISITED_SPACES         = "lastVisited";
 
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
@@ -105,7 +107,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private SpaceService              spaceService;
 
-  private byte[]              defaultSpaceAvatar = null;
+  private byte[]                    defaultSpaceAvatar          = null;
 
   public SpaceRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
                               SpaceService spaceService,
@@ -186,6 +188,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       listAccess = spaceService.getPendingSpaceRequestsToManage(authenticatedUser);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_FAVORITE, filterType)) {
       listAccess = spaceService.getFavoriteSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(LAST_VISITED_SPACES, filterType)) {
+      listAccess = spaceService.getLastAccessedSpace(authenticatedUser, null);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }

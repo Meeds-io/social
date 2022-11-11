@@ -1,3 +1,20 @@
+
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+  Copyright (C) 2022 Meeds Association
+  contact@meeds.io
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
 <template>
   <v-app
     color="transaprent"
@@ -32,19 +49,11 @@
           </div>
           <div
             v-show="secondLevel"
-            :class="[secondLevel && 'open', thirdLevel && 'd-none d-sm-block']"
+            :class="secondLevel && 'open'"
             class="HamburgerMenuSecondLevelParent border-box-sizing"
             role="navigation"
             :aria-label="$t('menu.role.navigation.second.level')">
             <div id="HamburgerMenuSecondLevel"></div>
-          </div>
-          <div
-            v-show="thirdLevel"
-            :class="thirdLevel && 'open'"
-            class="HamburgerMenuThirdLevelParent border-box-sizing"
-            role="navigation"
-            :aria-label="$t('menu.role.navigation.second.level')">
-            <div id="HamburgerMenuThirdLevel"></div>
           </div>
           <span id="HamburgerMenuVisibility" class="d-none d-sm-block"></span>
         </v-row>
@@ -60,7 +69,6 @@ export default {
       hamburgerMenu: false,
       hamburgerMenuInitialized: false,
       secondLevel: false,
-      thirdLevel: false,
       openedSecondLevel: null,
       contents: [],
       vueChildInstances: {},
@@ -71,18 +79,7 @@ export default {
   },
   computed: {
     drawerWidth() {
-      if (this.isMobile) {
-        return '310';
-      } 
-      if (this.secondLevel) {
-        if (this.thirdLevel) {
-          return '930';
-        } else {
-          return '620';
-        }
-      } else {
-        return '310';
-      }
+      return this.isMobile || !this.secondLevel ? '310' : '620';
     },
     hamburgerMenuStyle() {
       return this.initializing ? 'left: -5000px;' : '';
@@ -102,12 +99,6 @@ export default {
   },
   created() {
     document.addEventListener('exo-hamburger-menu-navigation-refresh', this.refreshMenu);
-    document.addEventListener('display-third-level', (event) => {
-      this.openThirdLevel(event && event.detail);
-    });
-    document.addEventListener('hide-third-level', () => {
-      this.thirdLevel = false;
-    });
     const extensions = extensionRegistry.loadExtensions('exo-hamburger-menu-navigation', 'exo-hamburger-menu-navigation-items');
     if (extensions) {
       extensions.forEach(contentDetail => delete contentDetail.loaded);
@@ -156,14 +147,13 @@ export default {
                     },
                     el: `#${contentDetail.id}`,
                   });
-                  this.vueChildInstances[contentDetail.id].$on('open-second-level', (value) => {
+                  this.vueChildInstances[contentDetail.id].$on('open-second-level', () => {
                     window.setTimeout(() => {
-                      this.openSecondLevel(contentDetail,value);
+                      this.openSecondLevel(contentDetail);
                     }, this.idleTimeToDisplaySecondLevel);
                   });
                   this.vueChildInstances[contentDetail.id].$on('close-second-level', () => {
-                    this.thirdLevel = false;
-                    this.secondLevel = false;
+                    this.hideSecondLevel();
                   });
                 }
               } finally {
@@ -175,30 +165,19 @@ export default {
         }
       });
     },
-    openSecondLevel(contentDetail,value) {
+    openSecondLevel(contentDetail) {
       if (!contentDetail.secondLevel || !this.vueChildInstances[contentDetail.id]) {
         return;
       }
       this.secondLevel = true;
-      this.thirdLevel = false;
-      document.dispatchEvent(new CustomEvent('second-level-opened', {
-        detail: {'contentDetail': contentDetail}
-      }));
 
-      if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel || value) {
+      if (this.openedSecondLevel !== contentDetail.id && this.vueChildInstances[contentDetail.id].mountSecondLevel) {
         this.openedSecondLevel = contentDetail.id;
         this.vueChildInstances[contentDetail.id].mountSecondLevel('.HamburgerMenuSecondLevelParent > div');
       }
     },
-    openThirdLevel(contentDetail) {
-      this.thirdLevel = true;
-      contentDetail.component.mountThirdLevel('.HamburgerMenuThirdLevelParent > div');
-    },
     hideSecondLevel() {
       this.secondLevel = false;
-      this.thirdLevel = false;
-      document.dispatchEvent(new CustomEvent('second-level-hidden'));
-      document.dispatchEvent(new CustomEvent('hide-space-panel'));
     },
     openOrHideMenu() {
       this.hamburgerMenu = true;
