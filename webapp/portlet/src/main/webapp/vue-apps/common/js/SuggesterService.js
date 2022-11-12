@@ -63,6 +63,8 @@ function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, 
   formData.append('groupMember', groupMember);
   formData.append('groupType', groupType);
   formData.append('allGroupsForAdmin', allGroupsForAdmin);
+  formData.append('excludeParentGroup', '/space');
+  formData.append('excludeParentGroup', '/');
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`/portal/rest/v1/groups/treeMembers?${params}`, { credentials: 'include' })
