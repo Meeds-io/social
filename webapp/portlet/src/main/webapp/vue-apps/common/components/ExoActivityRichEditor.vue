@@ -342,9 +342,9 @@ export default {
           && this.templateParams.link
           && this.templateParams.default_title !== message) {
         this.templateParams.default_title = message;
-        const url = window.decodeURIComponent(this.templateParams.link);
-        this.templateParams.comment = window.decodeURIComponent(message)
-          .replace(`<oembed>${url}</oembed>`, '');
+        const url = window.encodeURIComponent(this.templateParams.link);
+        const codedMessage = window.encodeURIComponent(message.replace(`<oembed>${url}</oembed>`, ''));
+        this.templateParams.comment = window.decodeURIComponent(codedMessage);
       }
     },
     installOembed: function(embedResponse) {

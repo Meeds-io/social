@@ -11,15 +11,10 @@
           background-color="transparent"
           class="spaceButtomNavigationParent"
           flat>
-          <v-btn
+          <space-menu-item
             v-for="nav in navigations"
             :key="nav.id"
-            :value="nav.uri"
-            :href="nav.uri"
-            class="subtitle-2 spaceButtomNavigationItem">
-            <span>{{ nav.label }}</span>
-            <i :class="nav.icon"></i>
-          </v-btn>
+            :navigation="nav" />
         </v-bottom-navigation>
       </v-slide-group>
     </v-footer>    

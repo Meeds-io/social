@@ -30,7 +30,7 @@
                 v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-icon @click="selectHome($event, nav)">
-              <span class="UserPageHome">
+              <span class="fas mt-1 fa-house-user icon-default-color homePage">
               </span>
             </v-list-item-icon>
           </v-list-item>
@@ -57,7 +57,7 @@ export default {
     selectedNavigation: null,
     navigationScope: 'children',
     navigationVisibilities: ['displayed'],
-    navigations: [],
+    navigations: []
   }),
   computed: {
     confirmMessage() {

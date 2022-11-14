@@ -5,20 +5,25 @@
     py-0
     class="white d-none d-sm-block">
     <v-row v-if="navigationTree && navigationTree.length" class="mx-0 administrationTitle">
-      <v-list-item @mouseover="openDrawer()" @click="openDrawer()">
+      <v-list-item 
+        @mouseover="showItemActions = true"
+        @mouseleave="showItemActions = false">
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon"><i class="uiIcon uiIconToolbarNavItem uiAdministrationIcon"></i></v-list-item-icon>
-        <v-list-item-content class="subtitle-2 titleLabel clickable">
+        <v-list-item-content class="subtitle-2">
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
-        <v-list-item-action class="my-0">
-          <i class="uiIcon uiArrowRightIcon" color="grey lighten-1"></i>
+        <v-list-item-action v-if="toggleArrow" class="my-0">
+          <v-btn icon @click="openOrCloseDrawer()">
+            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+              {{ arrowIconClass }} 
+            </v-icon>
+          </v-btn>
         </v-list-item-action>
       </v-list-item>
     </v-row>
   </v-container>
 </template>
 <script>
-
 export default {
   data() {
     return {
@@ -27,6 +32,9 @@ export default {
       loading: false,
       navigations: [],
       embeddedTree: {},
+      secondeLevel: false,
+      showItemActions: false,
+      arrowIcon: 'fa-arrow-right'
     };
   },
   computed: {
@@ -88,10 +96,25 @@ export default {
       });
       return navigationTree;
     },
+    arrowIconClass() {
+      return this.arrowIcon;
+    },
+    toggleArrow() {
+      return this.secondeLevel || this.showItemActions;
+    }
   },
   created() {
     Promise.resolve(this.retrieveAdministrationMenu())
       .finally(() => this.$root.$applicationLoaded());
+
+    document.addEventListener('second-level-hidden', () => {
+      this.hideSecondeItem();
+    });
+    document.addEventListener('second-level-opened', (event) => {
+      if ( event && event.detail && event.detail.contentDetail.id !== 'HamburgerMenuNavigationAdministration') {
+        this.hideSecondeItem();
+      }
+    });
   },
   methods: {
     retrieveAdministrationMenu() {
@@ -148,8 +171,21 @@ export default {
         vuetify: Vue.prototype.vuetifyOptions,
       }).$mount(parentId);
     },
-    openDrawer() {
-      this.$emit('open-second-level');
+    openOrCloseDrawer() {
+      this.secondeLevel = !this.secondeLevel;
+      if (this.secondeLevel) {
+        this.arrowIcon = 'fa-arrow-left';
+        this.$emit('open-second-level', false);
+        document.dispatchEvent(new CustomEvent('second-panel-opened' ));
+      } else {
+        this.arrowIcon = 'fa-arrow-right';
+        this.$emit('close-second-level');
+      }
+    },
+    hideSecondeItem() {
+      this.arrowIcon= 'fa-arrow-right';
+      this.showItemActions = false;
+      this.secondeLevel = false;
     },
     filterDisplayedNavigations(navigations, excludeHidden) {
       return navigations
