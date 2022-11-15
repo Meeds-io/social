@@ -202,6 +202,9 @@ export default {
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
+            if (localStorage.getItem('activity-message-activityComposer')) {
+              localStorage.removeItem('activity-message-activityComposer');
+            }
             this.close();
           })
           .catch(error => {
