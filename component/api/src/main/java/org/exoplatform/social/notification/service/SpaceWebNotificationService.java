@@ -69,6 +69,6 @@ public interface SpaceWebNotificationService {
    * @spaceId spaceId {@link Space} spaceId
    * @return Map of application and unread items
    */
-  Map<String, Long> mapUnreadApplicationItemsBySpace(long creatorId, long spaceId);
+  Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId);
 
 }

@@ -491,7 +491,7 @@ public class EntityBuilder {
           SpaceWebNotificationService spaceWebNotificationService =
                                                                   ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
-                                        spaceWebNotificationService.mapUnreadApplicationItemsBySpace(Long.parseLong(userIdentity.getId()),
+                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
                                                                                                      Long.parseLong(space.getId()));
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);

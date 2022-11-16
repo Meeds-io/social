@@ -299,16 +299,16 @@ public interface MetadataService {
   int countMetadataItemsByMetadataTypeAndCreator (String metadataTypeName, long creatorId);
 
   /**
-   * Get a list of aunread items per application to a given {@link Metadata} type,
+   * Count the size of Metadata items to a given {@link Metadata} type,
    * {@link MetadataItem} creatorId
    * by a given {@link Space} identifier
    *
    * @param metadataTypeName {@link Metadata} type
    * @param creatorId {@link MetadataItem} creatorId
    * @param spaceId {@link Space} technical identifier
-   * @return Map of application and unread items
+   * @return map of Metadata items grouped by objectId {@link MetadataObject}
    */
-  Map<String, Long> mapMetadataItemsByMetadataTypeAndAudienceId (String metadataTypeName, long creatorId, long spaceId);
+  Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId (String metadataTypeName, long creatorId, long spaceId);
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
    * an object identified by its name and identifier

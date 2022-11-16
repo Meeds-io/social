@@ -136,9 +136,9 @@ public class MetadataStorage {
     return metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
   }
 
-  public Map<String, Long> mapMetadataItemsByMetadataTypeAndAudienceId(long metadataType, long creatorId, long spaceId) {
+  public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(long metadataType, long creatorId, long spaceId) {
     List<Tuple> metadataItemsTuple =
-                                   metadataItemDAO.mapMetadataItemsByMetadataTypeAndAudienceId(metadataType, creatorId, spaceId);
+                                   metadataItemDAO.countMetadataItemsByMetadataTypeAndAudienceId(metadataType, creatorId, spaceId);
     Map<String, Long> metadataItemsMap = new HashMap<>();
     for (Tuple tuple : metadataItemsTuple) {
       metadataItemsMap.put((String) tuple.get(0), ((BigInteger) tuple.get(1)).longValue());
