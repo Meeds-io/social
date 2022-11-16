@@ -231,7 +231,6 @@ export default {
       this.loading = true;
       return this.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
         .then(data => {
-          console.warn('data',data);
           this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];
           this.retrievedSize = activityIds.length;

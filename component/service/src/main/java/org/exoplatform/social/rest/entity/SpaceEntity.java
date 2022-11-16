@@ -331,12 +331,12 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
-  public Map<String, Long> getUnreadActivitiesCount() {
+  public Map<String, Long> getUnreadItems() {
     return (Map<String, Long>) getProperty("unreadActivitiesCount");
   }
 
-  public SpaceEntity setUnreadActivitiesCount(Map<String, Long> unreadActivitiesCount) {
-    setProperty("unreadActivitiesCount", unreadActivitiesCount);
+  public SpaceEntity setUnreadItems(Map<String, Long> getUnreadItems) {
+    setProperty("unreadActivitiesCount", getUnreadItems);
     return this;
   }
 

@@ -146,7 +146,6 @@ public class MetadataStorage {
     return metadataItemsMap;
   }
 
-
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                            String metadataTypeName,
                                                                            String objectType,

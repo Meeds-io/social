@@ -125,30 +125,49 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
    * {@inheritDoc}
    */
   @RolesAllowed("users")
-  @Operation(
-          summary = "Gets spaces of user",
-          method = "GET",
-          description = "This returns a list of spaces switch request parameters")
-  @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-    @ApiResponse(responseCode = "500", description = "Internal server error"),
-    @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaces(@Context UriInfo uriInfo,
-                            @Context Request request,
-                            @Parameter(description = "Space name search information", required = false) @QueryParam("q") String q,
+  @Operation(summary = "Gets spaces of user", method = "GET", description = "This returns a list of spaces switch request parameters")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getSpaces(@Context
+  UriInfo uriInfo, @Context
+  Request request,
+                            @Parameter(description = "Space name search information", required = false)
+                            @QueryParam("q")
+                            String q,
                             @Parameter(description = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests", required = false)
-                            @Schema(defaultValue = SPACE_FILTER_TYPE_ALL) @QueryParam("filterType") String filterType,
-                            @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                            @Schema(defaultValue = SPACE_FILTER_TYPE_ALL)
+                            @QueryParam("filterType")
+                            String filterType,
+                            @Parameter(description = "Offset", required = false)
+                            @Schema(defaultValue = "0")
+                            @QueryParam("offset")
+                            int offset,
                             @Parameter(description = "Limit, if equals to 0, it will not retrieve spaces", required = false)
-                            @Schema(defaultValue = "20")  @QueryParam("limit") int limit,
-                            @Parameter(description = "Sort", required = false) @QueryParam("sort") String sort,
-                            @Parameter(description = "Order", required = false) @QueryParam("order") String order,
+                            @Schema(defaultValue = "20")
+                            @QueryParam("limit")
+                            int limit,
+                            @Parameter(description = "Sort", required = false)
+                            @QueryParam("sort")
+                            String sort,
+                            @Parameter(description = "Order", required = false)
+                            @QueryParam("order")
+                            String order,
                             @Parameter(description = "Returning the number of spaces found or not")
-                            @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize,
+                            @Schema(defaultValue = "false")
+                            @QueryParam("returnSize")
+                            boolean returnSize,
                             @Parameter(description = "Returning the unread activities of current user in a specific space not not")
-                            @Schema(defaultValue = "false")  @QueryParam("unread") boolean unread,
-                            @Parameter(description = "Returning the favorite spaces of current user not not") @Schema(defaultValue = "false")  @QueryParam("favorites") boolean favorites,
-                            @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
+                            @Schema(defaultValue = "false")
+                            @QueryParam("unread")
+                            boolean unread,
+                            @Parameter(description = "Returning the favorite spaces of current user not not")
+                            @Schema(defaultValue = "false")
+                            @QueryParam("favorites")
+                            boolean favorites,
+                            @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
+                            @QueryParam("expand")
+                            String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit >= 0 ? limit : RestUtils.getLimit(uriInfo);

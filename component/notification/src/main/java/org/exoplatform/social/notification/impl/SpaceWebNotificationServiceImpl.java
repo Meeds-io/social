@@ -125,7 +125,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   @Override
-  public Map<String, Long> mapUnreadActivityBySpace(long creatorId, long spaceId) {
+  public Map<String, Long> mapUnreadApplicationItemsBySpace(long creatorId, long spaceId) {
     return metadataService.mapMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, creatorId, spaceId);
   }
 
