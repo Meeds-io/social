@@ -62,9 +62,22 @@
         </v-icon>
       </v-btn>
     </v-list-item-icon>
+    <v-list-item-icon
+      v-if="!toggleArrow && spaceUnreadActivities"
+      class="me-2 align-center">
+      <v-btn
+        class="error-color-background white--text"
+        width="22"
+        height="22"
+        depressed
+        fab>
+        {{ spaceUnreadActivities }}
+      </v-btn>
+    </v-list-item-icon>
   </v-list-item>
 </template>
 <script>
+
 export default {
   data () {
     return {
@@ -101,6 +114,9 @@ export default {
     },
     spaceDisplayName() {
       return this.space?.displayName;
+    },
+    spaceUnreadActivities() {
+      return this.space?.unreadActivitiesCount?.activity;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;

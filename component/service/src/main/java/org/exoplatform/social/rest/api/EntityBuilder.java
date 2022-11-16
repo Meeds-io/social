@@ -492,8 +492,10 @@ public class EntityBuilder {
                                                                   ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
                                         spaceWebNotificationService.mapUnreadApplicationItemsBySpace(Long.parseLong(userIdentity.getId()),
-                                                                                             Long.parseLong(space.getId()));
-          spaceEntity.setUnreadItems(unreadItems);
+                                                                                                     Long.parseLong(space.getId()));
+          if (MapUtils.isNotEmpty(unreadItems)) {
+            spaceEntity.setUnreadItems(unreadItems);
+          }
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
