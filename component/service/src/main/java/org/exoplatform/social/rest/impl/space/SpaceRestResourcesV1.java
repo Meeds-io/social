@@ -145,8 +145,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                             @Parameter(description = "Order", required = false) @QueryParam("order") String order,
                             @Parameter(description = "Returning the number of spaces found or not")
                             @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize,
-                            @Parameter(description = "Returning the favorite spaces of current user not not")
-                            @Schema(defaultValue = "false")  @QueryParam("favorites") boolean favorites,
+                            @Parameter(description = "Returning the unread activities of current user in a specific space not not")
+                            @Schema(defaultValue = "false")  @QueryParam("unread") boolean unread,
+                            @Parameter(description = "Returning the favorite spaces of current user not not") @Schema(defaultValue = "false")  @QueryParam("favorites") boolean favorites,
                             @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);

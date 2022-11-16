@@ -63,6 +63,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -476,10 +477,17 @@ public class EntityBuilder {
         }
 
         if (expandFields.contains(RestProperties.FAVORITE)) {
-          FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
+          FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
           boolean isFavorite = favoriteService.isFavorite(new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
           spaceEntity.setIsFavorite(String.valueOf(isFavorite));
+        }
+
+        if (expandFields.contains(RestProperties.UNREAD)) {
+          Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
+          SpaceWebNotificationService spaceWebNotificationService=ExoContainerContext.getService(SpaceWebNotificationService.class);
+          Map<String, Long> countUnreadActivities = spaceWebNotificationService.mapUnreadActivityBySpace(Long.parseLong(userIdentity.getId()), Long.parseLong(space.getId()));
+          spaceEntity.setUnreadActivitiesCount(countUnreadActivities);
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
