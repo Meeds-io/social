@@ -378,7 +378,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return this.metadataStorage.countMetadataItemsByMetadataTypeAndCreator(metadataType.getId(), creatorId);
   }
 
-  public Map<String, Long> mapMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId) {
+  public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId) {
     MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
     if (metadataType == null) {
       throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
@@ -386,7 +386,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     if (creatorId <= 0) {
       throw new IllegalArgumentException("creatorId is mandatory.");
     }
-    return this.metadataStorage.mapMetadataItemsByMetadataTypeAndAudienceId(metadataType.getId(), creatorId, spaceId);
+    return this.metadataStorage.countMetadataItemsByMetadataTypeAndAudienceId(metadataType.getId(), creatorId, spaceId);
   }
 
   @Override

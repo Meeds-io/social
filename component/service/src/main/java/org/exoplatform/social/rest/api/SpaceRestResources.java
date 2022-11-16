@@ -46,8 +46,6 @@ public interface SpaceRestResources extends SocialRest {
  * @param sort
  * @param order
  * @param returnSize
- * @param favorites
- * @param unread
  * @param expand
  * @return
  * @throws Exception
@@ -62,8 +60,6 @@ public interface SpaceRestResources extends SocialRest {
                                      @QueryParam("sort") String sort,
                                      @QueryParam("order") String order,
                                      @QueryParam("returnSize") boolean returnSize,
-                                     @QueryParam("favorites") boolean favorites,
-                                     @QueryParam("unread") boolean unread,
                                      @QueryParam("expand") String expand) throws Exception;
 
   /**
