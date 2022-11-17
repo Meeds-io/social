@@ -764,7 +764,7 @@ public class EntityBuilder {
     while (entries.hasNext()) {
       Map.Entry<String, String> entry = entries.next();
       if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
-        entries.remove();
+        entry.setValue("");
       }
     }
     activity.setTemplateParams(currentTemplateParams);
