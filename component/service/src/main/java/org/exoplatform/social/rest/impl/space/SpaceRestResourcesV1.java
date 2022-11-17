@@ -168,11 +168,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           orderBy = Sorting.OrderBy.valueOf(order.toUpperCase());
         }
         spaceFilter.setSorting(new Sorting(sortBy, orderBy));
-    }
-    if(StringUtils.isNotBlank(expand)) {
-      spaceFilter.setIsFavorite(Arrays.asList(StringUtils.split(expand,",")).contains(RestProperties.FAVORITE));
-    }
-
+      }
+      if (StringUtils.isNotBlank(expand)) {
+        spaceFilter.setIsFavorite(Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.FAVORITE));
+      }
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
       listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
