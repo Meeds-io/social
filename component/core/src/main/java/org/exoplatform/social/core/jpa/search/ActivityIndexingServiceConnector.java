@@ -157,7 +157,13 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     DocumentWithMetadata document = new DocumentWithMetadata();
     document.setId(id);
     document.setLastUpdatedDate(activity.getUpdated());
-    document.setPermissions(Collections.singleton(ownerIdentityId));
+    Set<String> permissions = new HashSet<>();
+    permissions.add(ownerIdentityId);
+    if (ActivityStream.Type.USER.equals(activity.getActivityStream().getType())
+        && !StringUtils.equals(ownerIdentityId, activity.getPosterId())) {
+      permissions.add(activity.getPosterId());
+    }
+    document.setPermissions(permissions);
     document.setFields(fields);
     activitySearchProcessor.index(activity, document);
     body = document.getFields().get("body");
