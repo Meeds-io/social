@@ -63,7 +63,7 @@
       </v-btn>
     </v-list-item-icon>
     <v-list-item-icon
-      v-if="!toggleArrow && spaceUnreadActivities"
+      v-if="!toggleArrow && spaceUnreadActivities && !this.SpaceWebNotificationsEnabled"
       class="me-2 align-center">
       <v-btn
         class="error-color-background white--text"
@@ -84,7 +84,8 @@ export default {
       secondLevelVueInstancee: null,
       secondeLevel: false,
       showItemActions: false,
-      arrowIcon: 'fa-arrow-right'
+      arrowIcon: 'fa-arrow-right',
+      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled
     };
   },
   props: {
