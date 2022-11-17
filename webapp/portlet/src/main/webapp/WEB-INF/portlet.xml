@@ -400,7 +400,7 @@
     </init-param>
     <init-param>
       <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite]]></value>
+      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread]]></value>
     </init-param>
     <init-param>
       <name>separator</name>
