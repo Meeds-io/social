@@ -40,6 +40,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.common.Utils;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -150,7 +152,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   private SpaceService spaceService;
   
   private UserSearchService userSearchService;
-  
+
+  private ImageThumbnailService imageThumbnailService;
+
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
   private byte[]              defaultUserAvatar = null;
@@ -169,7 +173,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              UserStateService userStateService,
                              SpaceService spaceService,
                              UploadService uploadService,
-                             UserSearchService userSearchService) {
+                             UserSearchService userSearchService,
+                             ImageThumbnailService imageThumbnailService) {
     this.userACL = userACL;
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
@@ -179,6 +184,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.spaceService = spaceService;
     this.uploadService = uploadService;
     this.userSearchService = userSearchService;
+    this.imageThumbnailService = imageThumbnailService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
@@ -486,6 +492,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                     @Context Request request,
                                     @Parameter(description = "User name", required = true) @PathParam("id") String id,
                                     @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(description = "resized avatar size") @DefaultValue("45x45") @QueryParam("size") String size,
                                     @Parameter(
                                         description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
@@ -533,14 +540,28 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
         if (identity.isEnable() && !identity.isDeleted()) {
           InputStream stream = identityManager.getAvatarInputStream(identity);
+          byte[] avatarContent;
           if (stream != null) {
             /*
-             * As recommended in the the RFC1341
-             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
-             * set the avatar content-type to "image/png". So, its data would be
-             * recognized as "image" by the user-agent
-             */
+            * As recommended in the the RFC1341
+            * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+            * set the avatar content-type to "image/png". So, its data would be
+            * recognized as "image" by the user-agent
+            */
             builder = Response.ok(stream, "image/png");
+            int[] dimension = Utils.parseDimension(size);
+            try {
+              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                                                                         identity,
+                                                                         dimension[0],
+                                                                         dimension[1])
+                                                   .getAsByte();
+              if (avatarContent != null) {
+                builder = Response.ok(avatarContent, "image/png");
+              }
+            } catch (Exception e) {
+              LOG.error("Error while resizing avatar, original Image will be returned", e);
+            }
             builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
 
             if (eTag != null) {

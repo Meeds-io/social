@@ -85,8 +85,8 @@
     <div class="peopleAvatar">
       <a :href="url">
         <v-img
-          :lazy-src="userAvatarUrl"
-          :src="userAvatarUrl"
+          :lazy-src="`${userAvatarUrl}&size=65x65`"
+          :src="`${userAvatarUrl}&size=65x65`"
           transition="none"
           class="mx-auto"
           height="65px"
