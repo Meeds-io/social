@@ -308,7 +308,7 @@ public interface MetadataService {
    * @param spaceId {@link Space} technical identifier
    * @return map of Metadata items grouped by objectId {@link MetadataObject}
    */
-  Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId (String metadataTypeName, long creatorId, long spaceId);
+  Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId);
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
    * an object identified by its name and identifier

@@ -55,8 +55,6 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   
   private static final String SPACE_ID             = "spaceId";
 
-  private static final String UNREAD_METADATA_TYPE = METADATA_TYPE_PARAM;
-
   private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
 
   private static final String CREATOR_ID           = "creatorId";
@@ -199,7 +197,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     TypedQuery<Tuple> query =
         getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndAudienceId",
             Tuple.class);
-    query.setParameter(UNREAD_METADATA_TYPE, metadataType);
+    query.setParameter(METADATA_TYPE_PARAM, metadataType);
     query.setParameter(CREATOR_ID, creatorId);
     query.setParameter(SPACE_ID, spaceId);
     List<Tuple> result = query.getResultList();
