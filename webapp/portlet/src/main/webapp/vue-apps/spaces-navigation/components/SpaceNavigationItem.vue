@@ -63,7 +63,7 @@
       </v-btn>
     </v-list-item-icon>
     <v-list-item-icon
-      v-if="!toggleArrow && spaceUnreadActivities && this.SpaceWebNotificationsEnabled"
+      v-if="!toggleArrow && spaceUnreadActivities && SpaceWebNotificationsEnabled"
       class="me-2 align-center">
       <v-btn
         class="error-color-background white--text"
