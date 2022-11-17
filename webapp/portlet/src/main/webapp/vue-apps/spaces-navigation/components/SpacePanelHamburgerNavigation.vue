@@ -256,6 +256,10 @@ export default {
         return navigationIcon;
       } 
     },
+    getUnreadItemsSizeByApplication() {
+      
+      console.warn('test',this.space?.unreadActivitiesCount?.activity);
+    },
     closeMenu() {
       this.$emit('close-menu');
     },
