@@ -21,7 +21,6 @@ package org.exoplatform.social.notification.service;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 
