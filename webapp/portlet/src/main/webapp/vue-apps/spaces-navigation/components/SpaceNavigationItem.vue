@@ -117,7 +117,7 @@ export default {
       return this.space?.displayName;
     },
     spaceUnreadActivities() {
-      return this.space?.unreadActivitiesCount?.activity;
+      return this.space?.unreadItemsPerApplication?.activity;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;

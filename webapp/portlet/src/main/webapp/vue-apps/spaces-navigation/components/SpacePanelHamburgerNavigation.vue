@@ -181,6 +181,9 @@ export default {
     isHomeLink() {
       return this.spaceURL === this.homeLink;
     },
+    spaceUnreadItems() {
+      return this.space?.unreadItemsPerApplication?.activity;
+    },
     params() {
       return {
         identityType: 'space',
@@ -255,6 +258,11 @@ export default {
       } else {
         return navigationIcon;
       } 
+    },
+    getUnreadItemsByApplication(iconClass) {
+      if (iconClass.includes('uiIconAppSpaceHomePage')) {
+        
+      }
     },
     closeMenu() {
       this.$emit('close-menu');
