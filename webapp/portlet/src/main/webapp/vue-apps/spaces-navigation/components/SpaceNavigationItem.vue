@@ -85,8 +85,7 @@ export default {
       secondeLevel: false,
       showItemActions: false,
       arrowIcon: 'fa-arrow-right',
-      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
-      displayBadge: true
+      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled
     };
   },
   props: {
@@ -118,18 +117,14 @@ export default {
       return this.space?.displayName;
     },
     spaceUnreadActivities() {
-      return this.space?.unreadItemsPerApplication?.activity;
+      return this.space?.unreadActivitiesCount?.activity;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
     },
-    badge() {
-      return this.displayBadge;
-    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
-
   },
   created() {
     document.addEventListener('space-opened', (event) => {
@@ -143,11 +138,6 @@ export default {
       this.arrowIcon= 'fa-arrow-right';
       this.secondeLevel = false;
       this.showItemActions = false;
-    });
-    document.addEventListener('unread-items-deleted', (event) => {
-      if (event.detail === this.space.id) {
-        this.displayBadge = false;
-      }
     });
   },
   methods: {
