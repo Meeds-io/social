@@ -101,7 +101,6 @@ public interface FavoriteService {
    *          object type, can be of any type: activity, comment, notes... -
    *          objectId object technical unique identifier - userIdentityId
    *          {@link Identity} technical identifier of the user
-   * @throws ObjectNotFoundException when the favorite doesn't exists
    */
   public boolean isFavorite(Favorite favorite);
 
