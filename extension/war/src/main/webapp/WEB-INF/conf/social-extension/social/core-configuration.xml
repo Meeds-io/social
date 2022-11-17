@@ -849,6 +849,25 @@
     </external-component-plugins>
 
     <external-component-plugins>
+        <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+        <component-plugin>
+            <name>file.created</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
+        </component-plugin>
+        <component-plugin>
+            <name>file.updated</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
+        </component-plugin>
+        <component-plugin>
+            <name>file.deleted</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
+        </component-plugin>
+    </external-component-plugins>
+
+    <external-component-plugins>
         <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
         <component-plugin profiles="all">
             <name>AddCronJob</name>
