@@ -20,7 +20,7 @@
           tile>
           <img
             v-if="thumbnail"
-            :src="thumbnail"
+            :src="`${thumbnail}&size=250x150`"
             :alt="title"
             class="object-fit-cover my-auto"
             loading="lazy"
@@ -60,7 +60,7 @@
         tile>
         <img
           v-if="thumbnail"
-          :src="thumbnail"
+          :src="`${thumbnail}&size=250x150`"
           :alt="title"
           class="object-fit-cover my-auto"
           loading="lazy"
