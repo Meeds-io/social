@@ -144,7 +144,7 @@ export default {
       this.secondeLevel = false;
       this.showItemActions = false;
     });
-    document.addEventListener('remove-unread-badge', (event) => {
+    document.addEventListener('unread-items-deleted', (event) => {
       if (event.detail === this.space.id) {
         this.displayBadge = false;
       }

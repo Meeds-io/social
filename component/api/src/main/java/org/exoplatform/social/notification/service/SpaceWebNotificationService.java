@@ -61,7 +61,17 @@ public interface SpaceWebNotificationService {
   void markAsRead(SpaceWebNotificationItem notificationItem) throws Exception;
 
   /**
-   * Get a list of aunread items per application to a given {@link MetadataItem} creatorId
+   * Marka a list of unread items per application as read to a given {@link MetadataItem} creatorId
+   * by a given {@link Space} identifier
+   *
+   * @param userIdentityId {@link MetadataItem} creatorId
+   * @throws Exception
+   * @spaceId spaceId {@link Space} spaceId
+   */
+  void markAllAsRead(long userIdentityId, long spaceId) throws Exception;
+
+  /**
+   * Get a list of unread items per application to a given {@link MetadataItem} creatorId
    * by a given {@link Space} identifier
    *
    * @param creatorId {@link MetadataItem} creatorId

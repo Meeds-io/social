@@ -82,7 +82,7 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-              :disabled="!spaceUnreadItems || !SpaceWebNotificationsEnabled"
+              :disabled="!spaceUnreadItems || !SpaceWebNotificationsEnabled || !displayBadge"
               v-bind="attrs" 
               v-on="on" 
               icon
@@ -93,7 +93,7 @@
             </v-btn>
           </template>
           <span>
-            {{ $t('menu.spaces.unreadActivities') }}
+            {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
         <exo-space-favorite-action
@@ -132,7 +132,7 @@
             <div class="d-flex align-center justify-space-between">
               <span>{{ navigation.label }}</span>
               <v-btn
-                v-if="getUnreadItemsByApplication(navigation.icon) && SpaceWebNotificationsEnabled"
+                v-if="getUnreadItemsByApplication(navigation.icon) && SpaceWebNotificationsEnabled && displayBadge"
                 class="error-color-background white--text"
                 :class="badgeAnimation && 'zoomOut' || ''"
                 width="22"
@@ -156,7 +156,8 @@ export default {
       favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
       externalExtensions: [],
       SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled, 
-      badgeAnimation: false
+      badgeAnimation: false,
+      badge: true
     };
   },
   props: {
@@ -225,6 +226,9 @@ export default {
     },
     avatarHeight() {
       return this.isMobile && '45' || '60';
+    },
+    displayBadge() {
+      return this.badge;
     }
   },
   watch: {
@@ -276,6 +280,9 @@ export default {
       } 
     },
     getUnreadItemsByApplication(iconClass) {
+      if (!this.spaceUnreadItems?.activity) {
+        return;
+      }
       if (iconClass.includes('uiIconAppSpaceHomePage')) {
         return this.spaceUnreadItems.activity;
       } else {
@@ -283,8 +290,13 @@ export default {
       }
     },
     markApplicationItemsAsRead() {
-      this.badgeAnimation = true;
-      document.dispatchEvent(new CustomEvent('remove-unread-badge', {detail: this.spaceId} ));
+      this.$spaceService.markItemsAsRead(this.spaceId)
+        .then(() => { 
+          this.badgeAnimation = true;
+          document.dispatchEvent(new CustomEvent('unread-items-deleted', {detail: this.spaceId} ));
+        }).finally(() => {
+          setTimeout(() => this.badge = false, 1500);
+        });
     },
     closeMenu() {
       this.$emit('close-menu');
