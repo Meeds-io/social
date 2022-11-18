@@ -82,10 +82,12 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
+              :disabled="!spaceUnreadItems || !SpaceWebNotificationsEnabled"
               v-bind="attrs" 
               v-on="on" 
-              icon>
-              <v-icon class="me-0 pa-2 disabled--text not-clickable" small>
+              icon
+              @click="markApplicationItemsAsRead()">
+              <v-icon class="me-0 pa-2" small>
                 fa-envelope-open-text
               </v-icon>
             </v-btn>
@@ -127,7 +129,19 @@
               :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
           </v-list-item-icon>
           <v-list-item-content class="mt-n1">
-            {{ navigation.label }}
+            <div class="d-flex align-center justify-space-between">
+              <span>{{ navigation.label }}</span>
+              <v-btn
+                v-if="getUnreadItemsByApplication(navigation.icon) && SpaceWebNotificationsEnabled"
+                class="error-color-background white--text"
+                :class="badgeAnimation && 'zoomOut' || ''"
+                width="22"
+                height="22"
+                depressed
+                fab>
+                {{ getUnreadItemsByApplication(navigation.icon) }}
+              </v-btn>
+            </div>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -141,6 +155,8 @@ export default {
       spaceNavigations: [],
       favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
       externalExtensions: [],
+      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled, 
+      badgeAnimation: false
     };
   },
   props: {
@@ -182,7 +198,7 @@ export default {
       return this.spaceURL === this.homeLink;
     },
     spaceUnreadItems() {
-      return this.space?.unreadItemsPerApplication?.activity;
+      return this.space?.unreadItemsPerApplication;
     },
     params() {
       return {
@@ -261,8 +277,14 @@ export default {
     },
     getUnreadItemsByApplication(iconClass) {
       if (iconClass.includes('uiIconAppSpaceHomePage')) {
-        
+        return this.spaceUnreadItems.activity;
+      } else {
+        return '';
       }
+    },
+    markApplicationItemsAsRead() {
+      this.badgeAnimation = true;
+      document.dispatchEvent(new CustomEvent('remove-unread-badge', {detail: this.spaceId} ));
     },
     closeMenu() {
       this.$emit('close-menu');

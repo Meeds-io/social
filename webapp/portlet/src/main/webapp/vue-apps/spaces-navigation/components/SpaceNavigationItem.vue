@@ -63,7 +63,7 @@
       </v-btn>
     </v-list-item-icon>
     <v-list-item-icon
-      v-if="!toggleArrow && spaceUnreadActivities && SpaceWebNotificationsEnabled"
+      v-if="!toggleArrow && spaceUnreadActivities && SpaceWebNotificationsEnabled && badge"
       class="me-2 align-center">
       <v-btn
         class="error-color-background white--text"
@@ -85,7 +85,8 @@ export default {
       secondeLevel: false,
       showItemActions: false,
       arrowIcon: 'fa-arrow-right',
-      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled
+      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
+      displayBadge: true
     };
   },
   props: {
@@ -122,9 +123,13 @@ export default {
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
     },
+    badge() {
+      return this.displayBadge;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
+
   },
   created() {
     document.addEventListener('space-opened', (event) => {
@@ -138,6 +143,11 @@ export default {
       this.arrowIcon= 'fa-arrow-right';
       this.secondeLevel = false;
       this.showItemActions = false;
+    });
+    document.addEventListener('remove-unread-badge', (event) => {
+      if (event.detail === this.space.id) {
+        this.displayBadge = false;
+      }
     });
   },
   methods: {
