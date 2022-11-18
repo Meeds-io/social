@@ -342,7 +342,7 @@ export default {
           && this.templateParams.link
           && this.templateParams.default_title !== message) {
         this.templateParams.default_title = message;
-        const codedMessage = window.encodeURIComponent(message.substring(0,message.indexOf('<oembed>')));
+        const codedMessage = window.encodeURIComponent(message.substring(0, message.indexOf('<oembed>')));
         this.templateParams.comment = window.decodeURIComponent(codedMessage);
       }
     },
