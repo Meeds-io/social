@@ -82,7 +82,7 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-              :disabled="!spaceUnreadItems || !SpaceWebNotificationsEnabled || !displayBadge"
+              :disabled="markAsReadEnabled"
               v-bind="attrs" 
               v-on="on" 
               icon
@@ -229,6 +229,9 @@ export default {
     },
     displayBadge() {
       return this.badge;
+    },
+    markAsReadEnabled() {
+      return !this.spaceUnreadItems || !this.SpaceWebNotificationsEnabled || !this.displayBadge;
     }
   },
   watch: {

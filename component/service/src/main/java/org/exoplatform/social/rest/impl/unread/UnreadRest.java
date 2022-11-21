@@ -23,7 +23,8 @@ import javax.ws.rs.core.Response;
 @Tag(name = VersionResources.VERSION_ONE + "/social/unread", description = "Managing unread for any type of data")
 public class UnreadRest implements ResourceContainer {
 
-  private static final Log LOG = ExoLogger.getLogger(UnreadRest.class);
+  private static final Log                  LOG = ExoLogger.getLogger(UnreadRest.class);
+
   private final SpaceWebNotificationService spaceWebNotificationService;
 
   public UnreadRest(SpaceWebNotificationService spaceWebNotificationService) {
@@ -35,14 +36,15 @@ public class UnreadRest implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @Operation(summary = "Delete a metadata items identified by space id", description = "Delete a metadata items identified by space id", method = "DELETE")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "404", description = "Not found"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized"),
-  })
-  public Response deleteAllUnreadItems(@Parameter(description = "The space Id", required = true) @PathParam("spaceId") String spaceId, @QueryParam("ignoreNotExisting") boolean ignoreNotExisting) {
+      @ApiResponse(responseCode = "401", description = "Unauthorized"), })
+  public Response deleteAllUnreadItems(@Parameter(description = "The space Id", required = true)
+  @PathParam("spaceId")
+  String spaceId, @QueryParam("ignoreNotExisting")
+  boolean ignoreNotExisting) {
     if (StringUtils.isBlank(spaceId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UnreadSpaceIdRequired").build();
     }
