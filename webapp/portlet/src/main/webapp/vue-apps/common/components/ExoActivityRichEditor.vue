@@ -289,8 +289,7 @@ export default {
           && this.templateParams.link
           && this.templateParams.default_title !== message) {
         this.templateParams.default_title = message;
-        const url = window.encodeURIComponent(this.templateParams.link);
-        const codedMessage = window.encodeURIComponent(message.replace(`<oembed>${url}</oembed>`, ''));
+        const codedMessage = window.encodeURIComponent(message.substring(0, message.indexOf('<oembed>')));
         this.templateParams.comment = window.decodeURIComponent(codedMessage);
       }
     },
