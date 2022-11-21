@@ -295,12 +295,23 @@ export default {
       return this.isMobile && ' ' || 'pull-left';
     }
   },
+  watch: {
+    profileId() {
+      if (this.profileId) {
+        this.retrieveIdentity();
+      }
+    }
+  },
   created() {
     if (this.profileId) {
+      this.retrieveIdentity();
+    }
+  },
+  methods: {
+    retrieveIdentity() {
       this.$userService.getUser(this.profileId)
         .then(user => this.retrievedIdentity = user);
     }
   },
-
 };
 </script>
