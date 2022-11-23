@@ -84,7 +84,7 @@
     <div class="spaceAvatar">
       <a :href="url">
         <v-img
-          :src="spaceAvatarUrl"
+          :src="`${spaceAvatarUrl}&size=75x75`"
           transition="none"
           class="mx-auto"
           height="75px"
