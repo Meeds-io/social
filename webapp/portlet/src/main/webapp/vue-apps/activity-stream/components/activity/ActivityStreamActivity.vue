@@ -1,7 +1,8 @@
 <template>
   <div
     :id="id"
-    :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`">
+    :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`"
+    @click="markAsread()">
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
@@ -193,6 +194,9 @@ export default {
     activityLoading() {
       return this.activity && this.activity.loading;
     },
+    spaceId() {
+      return this.activity?.activityStream?.space?.id || '';
+    }
   },
   watch: {
     activityLoading() {
@@ -304,6 +308,14 @@ export default {
         }
       }, 10);
     },
+    markAsread() {
+      if (this.spaceId.length) {
+        this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
+          .then(() => {
+            document.getElementById(`${this.id}`).classList.remove('elevation-4');
+          });
+      }
+    }
   },
 };
 </script>
