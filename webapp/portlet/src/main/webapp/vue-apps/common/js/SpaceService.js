@@ -668,3 +668,14 @@ export function shareActivityOnSpaces(spaceId, sharedActivity) {
     }
   });
 }
+
+export function markItemsAsRead(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/unread/${spaceId}?ignoreNotExisting=true`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
