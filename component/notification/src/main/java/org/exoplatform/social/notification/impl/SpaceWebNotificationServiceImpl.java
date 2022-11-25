@@ -45,6 +45,8 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   public static final String               NOTIFICATION_READ_EVENT_NAME   = "notification.read.item";
 
+  public static final String               NOTIFICATION_ALL_READ_EVENT_NAME   = "notification.read.allItems";
+
   private static final Log                 LOG                            =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
@@ -122,6 +124,12 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       }
       listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, userIdentityId, notificationItem);
     }
+  }
+
+  @Override
+  public void markAllAsRead(long userIdentityId, long spaceId) throws Exception {
+    metadataService.deleteMetadataBySpaceIdAndAudienceId(spaceId, userIdentityId);
+    listenerService.broadcast(NOTIFICATION_ALL_READ_EVENT_NAME, userIdentityId, spaceId);
   }
 
   @Override

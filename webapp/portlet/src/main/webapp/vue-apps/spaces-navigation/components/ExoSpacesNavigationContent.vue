@@ -112,6 +112,11 @@ export default {
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
+    document.addEventListener('unread-items-deleted', (event) => {
+      if (event) {
+        this.searchSpaces();
+      }
+    });
   },
   methods: {
     searchSpaces() {
