@@ -82,16 +82,18 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
+              :disabled="markAsReadEnabled"
               v-bind="attrs" 
               v-on="on" 
-              icon>
-              <v-icon class="me-0 pa-2 disabled--text not-clickable" small>
+              icon
+              @click="markApplicationItemsAsRead()">
+              <v-icon class="me-0 pa-2" small>
                 fa-envelope-open-text
               </v-icon>
             </v-btn>
           </template>
           <span>
-            {{ $t('menu.spaces.unreadActivities') }}
+            {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
         <exo-space-favorite-action
@@ -127,7 +129,19 @@
               :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
           </v-list-item-icon>
           <v-list-item-content class="mt-n1">
-            {{ navigation.label }}
+            <div class="d-flex align-center justify-space-between">
+              <span>{{ navigation.label }}</span>
+              <v-btn
+                v-if="getUnreadItemsByApplication(navigation.icon) && SpaceWebNotificationsEnabled && displayBadge"
+                class="error-color-background white--text"
+                :class="badgeAnimation && 'zoomOut' || ''"
+                width="22"
+                height="22"
+                depressed
+                fab>
+                {{ getUnreadItemsByApplication(navigation.icon) }}
+              </v-btn>
+            </div>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -141,6 +155,9 @@ export default {
       spaceNavigations: [],
       favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
       externalExtensions: [],
+      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled, 
+      badgeAnimation: false,
+      badge: true
     };
   },
   props: {
@@ -181,6 +198,9 @@ export default {
     isHomeLink() {
       return this.spaceURL === this.homeLink;
     },
+    spaceUnreadItems() {
+      return this.space?.unreadItemsPerApplication;
+    },
     params() {
       return {
         identityType: 'space',
@@ -206,6 +226,12 @@ export default {
     },
     avatarHeight() {
       return this.isMobile && '45' || '60';
+    },
+    displayBadge() {
+      return this.badge;
+    },
+    markAsReadEnabled() {
+      return !this.spaceUnreadItems || !this.SpaceWebNotificationsEnabled || !this.displayBadge;
     }
   },
   watch: {
@@ -255,6 +281,25 @@ export default {
       } else {
         return navigationIcon;
       } 
+    },
+    getUnreadItemsByApplication(iconClass) {
+      if (!this.spaceUnreadItems?.activity) {
+        return;
+      }
+      if (iconClass.includes('uiIconAppSpaceHomePage')) {
+        return this.spaceUnreadItems.activity;
+      } else {
+        return '';
+      }
+    },
+    markApplicationItemsAsRead() {
+      this.$spaceService.markItemsAsRead(this.spaceId)
+        .then(() => { 
+          this.badgeAnimation = true;
+          document.dispatchEvent(new CustomEvent('unread-items-deleted', {detail: this.spaceId} ));
+        }).finally(() => {
+          setTimeout(() => this.badge = false, 1500);
+        });
     },
     closeMenu() {
       this.$emit('close-menu');
