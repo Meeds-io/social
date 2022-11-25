@@ -197,6 +197,8 @@ export default {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
           activityType = 'LINK_ACTIVITY';
+        } else if (this.templateParams && this.templateParams.link === '-') {
+          activityType = null;
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
