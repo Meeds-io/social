@@ -67,4 +67,6 @@ public class RestProperties {
 
   public static final String FAVORITE      = "favorite";
 
+  public static final String UNREAD        = "unread";
+
 }
