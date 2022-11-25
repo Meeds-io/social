@@ -3,6 +3,9 @@
     :id="id"
     :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`"
     @click="markAsread()">
+    <span 
+      class="unread-activity-badge position-absolute"
+      :class="badgeAnimation && 'zoomOut' || ''"></span>
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
@@ -121,6 +124,7 @@ export default {
     loading: false,
     initialized: false,
     noExtension: false,
+    badgeAnimation: false,
   }),
   computed: {
     id() {
@@ -141,7 +145,7 @@ export default {
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
     activityUnreadClass() {
-      return this.activity?.metadatas?.unread?.length && 'elevation-4' || '';
+      return this.activity?.metadatas?.unread?.length && 'unread-activity' || '';
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
@@ -312,7 +316,7 @@ export default {
       if (this.spaceId.length) {
         this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
           .then(() => {
-            document.getElementById(`${this.id}`).classList.remove('elevation-4');
+            this.badgeAnimation = true;
           });
       }
     }
