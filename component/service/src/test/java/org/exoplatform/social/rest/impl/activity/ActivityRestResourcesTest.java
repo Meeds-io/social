@@ -590,6 +590,35 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(4, result.getTemplateParams().size());
   }
 
+  public void testUpdateLinkActivityById() throws Exception {
+    startSessionAs("root");
+
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("test activity");
+    rootActivity.setType("LINK_ACTIVITY");
+    Map<String, String> templateParams = new HashMap<String, String>();
+    templateParams.put("link", "https://www.linkedin.com/");
+    rootActivity.setTemplateParams(templateParams);
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+    ContainerResponse response = service("GET",
+            "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("test activity", result.getTitle());
+    assertEquals("https://www.linkedin.com/", result.getTemplateParams().get("link"));
+
+    String input = "{\"title\":\"updated title\",\"templateParams\":{\"link\":\"-\"}}";
+
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/activities/" + rootActivity.getId(), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("updated title", result.getTitle());
+    rootActivity = activityManager.getActivity(rootActivity.getId());
+    assertEquals("", rootActivity.getTemplateParams().get("link"));
+  }
+
   public void testHideActivityById() throws Exception {
     startSessionAs("root");
 
