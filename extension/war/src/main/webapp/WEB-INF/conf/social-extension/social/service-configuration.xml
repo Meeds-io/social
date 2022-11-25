@@ -93,6 +93,9 @@
     <type>org.exoplatform.social.rest.impl.tag.TagRest</type>
   </component>
   <component>
+    <type>org.exoplatform.social.rest.impl.unread.UnreadRest</type>
+  </component>
+  <component>
     <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
   </component>
   <!-- END: Supported REST service -->
