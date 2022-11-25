@@ -414,6 +414,11 @@
     </component>
 
     <component>
+        <key>org.exoplatform.social.metadata.thumbnail.ImageThumbnailService</key>
+        <type>org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImpl</type>
+    </component>
+
+    <component>
         <key>org.exoplatform.social.core.processor.I18NActivityProcessor</key>
         <type>org.exoplatform.social.core.processor.I18NActivityProcessor</type>
         <component-plugins>
@@ -840,6 +845,25 @@
             <set-method>addListener</set-method>
             <type>org.exoplatform.social.core.listeners.SynchronizedUsersListenerImpl</type>
             <description>Edit external store user listener.</description>
+        </component-plugin>
+    </external-component-plugins>
+
+    <external-component-plugins>
+        <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+        <component-plugin>
+            <name>file.created</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
+        </component-plugin>
+        <component-plugin>
+            <name>file.updated</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
+        </component-plugin>
+        <component-plugin>
+            <name>file.deleted</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.FileActionListener</type>
         </component-plugin>
     </external-component-plugins>
 
