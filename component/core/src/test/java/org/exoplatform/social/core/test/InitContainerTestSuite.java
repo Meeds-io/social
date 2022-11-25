@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImplTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -88,6 +89,7 @@ import org.exoplatform.social.metadata.tag.TagServiceTest;
     ActivityMetadataListenerTest.class,
     ActivityTagMetadataListenerTest.class,
     MetadataActivityProcessorTest.class,
+    ImageThumbnailServiceImplTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

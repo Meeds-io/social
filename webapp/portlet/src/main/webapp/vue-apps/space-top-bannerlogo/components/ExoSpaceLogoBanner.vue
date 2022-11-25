@@ -44,7 +44,7 @@
               height="60">
               <v-img
                 class="object-fit-cover"
-                :src="logoPath" />
+                :src="`${logoPath}&size=60x60`" />
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
               <v-list-item-title>
