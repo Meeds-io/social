@@ -20,6 +20,7 @@ package org.exoplatform.social.notification.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -121,6 +122,11 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       }
       listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, userIdentityId, notificationItem);
     }
+  }
+
+  @Override
+  public Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId) {
+    return metadataService.countMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, creatorId, spaceId);
   }
 
 }
