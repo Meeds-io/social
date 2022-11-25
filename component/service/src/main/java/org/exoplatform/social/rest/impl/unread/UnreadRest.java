@@ -11,6 +11,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
+import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -29,6 +30,57 @@ public class UnreadRest implements ResourceContainer {
 
   public UnreadRest(SpaceWebNotificationService spaceWebNotificationService) {
     this.spaceWebNotificationService = spaceWebNotificationService;
+  }
+
+  @DELETE
+  @Path("{applicationName}/{applicationId}/{spaceId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Delete a metadata item identified by an application name and application id and space id", description = "Delete a metadata item identified by an application name and application id and space id", method = "DELETE")
+  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "404", description = "Not found"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"), })
+  public Response deleteUnreadItem(@Parameter(description = "The space Id", required = true)
+  @PathParam("spaceId")
+  String spaceId,
+                                   @Parameter(description = "The application name", required = true)
+                                   @PathParam("applicationName")
+                                   String applicationName,
+                                   @Parameter(description = "The application id", required = true)
+                                   @PathParam("applicationId")
+                                   String applicationId,
+                                   @QueryParam("ignoreNotExisting")
+                                   boolean ignoreNotExisting) {
+    if (StringUtils.isBlank(spaceId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("UnreadSpaceIdRequired").build();
+    }
+    if (StringUtils.isBlank(applicationName)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("UnreadApplicationNameRequired").build();
+    }
+    if (StringUtils.isBlank(applicationId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("UnreadApplicationIdRequired").build();
+    }
+
+    long userIdentityId = RestUtils.getCurrentUserIdentityId();
+    SpaceWebNotificationItem notificationItem = new SpaceWebNotificationItem(applicationName,
+                                                                             applicationId,
+                                                                             userIdentityId,
+                                                                             Long.parseLong(spaceId));
+    try {
+      spaceWebNotificationService.markAsRead(notificationItem);
+      return Response.noContent().build();
+    } catch (ObjectNotFoundException e) {
+      if (ignoreNotExisting) {
+        return Response.noContent().build();
+      } else {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+    } catch (Exception e) {
+      LOG.warn("Error deleting a unread item", e);
+      return Response.serverError().entity(e.getMessage()).build();
+    }
   }
 
   @DELETE
