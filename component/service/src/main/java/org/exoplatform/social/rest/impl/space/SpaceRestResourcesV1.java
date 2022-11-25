@@ -45,6 +45,7 @@ import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -59,6 +60,7 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
@@ -106,17 +108,21 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   private UploadService             uploadService;
 
   private SpaceService              spaceService;
+  
+  private ImageThumbnailService     imageThumbnailService;
 
   private byte[]                    defaultSpaceAvatar          = null;
 
   public SpaceRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
                               SpaceService spaceService,
                               IdentityManager identityManager,
-                              UploadService uploadService) {
+                              UploadService uploadService,
+                              ImageThumbnailService imageThumbnailService) {
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.spaceService = spaceService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
+    this.imageThumbnailService = imageThumbnailService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
@@ -459,6 +465,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @Context Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @Parameter(description = "Space pretty name", required = true) @PathParam("id") String id,
+                                     @Parameter(description = "resized avatar size") @DefaultValue("45x45") @QueryParam("size") String size,
                                      @Parameter(
                                          description = "A mandatory valid token that is used to authorize anonymous request",
                                          required = false
@@ -502,6 +509,19 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         InputStream stream = identityManager.getAvatarInputStream(identity);
         if (stream != null) {
           builder = Response.ok(stream, "image/png");
+          int[] dimension = Utils.parseDimension(size);
+          try {
+            byte[] avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                            identity,
+                            dimension[0],
+                            dimension[1])
+                    .getAsByte();
+            if (avatarContent != null) {
+              builder = Response.ok(avatarContent, "image/png");
+            }
+          } catch (Exception e) {
+            LOG.error("Error while resizing avatar, original Image will be returned", e);
+          }
           builder.tag(eTag);
         }
       }
