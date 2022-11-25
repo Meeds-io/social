@@ -19,8 +19,12 @@
 package org.exoplatform.social.notification.service;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
+
+import java.util.Map;
 
 public interface SpaceWebNotificationService {
 
@@ -55,5 +59,15 @@ public interface SpaceWebNotificationService {
    * @throws Exception
    */
   void markAsRead(SpaceWebNotificationItem notificationItem) throws Exception;
+
+  /**
+   * Get a list of aunread items per application to a given {@link MetadataItem} creatorId
+   * by a given {@link Space} identifier
+   *
+   * @param creatorId {@link MetadataItem} creatorId
+   * @spaceId spaceId {@link Space} spaceId
+   * @return Map of application and unread items
+   */
+  Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId);
 
 }

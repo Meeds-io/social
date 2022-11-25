@@ -193,6 +193,21 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getSingleResult().intValue();
   }
 
+  public List<Tuple> countMetadataItemsByMetadataTypeAndAudienceId(long metadataType, long creatorId, long spaceId) {
+    TypedQuery<Tuple> query =
+        getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndAudienceId",
+            Tuple.class);
+    query.setParameter(METADATA_TYPE_PARAM, metadataType);
+    query.setParameter(CREATOR_ID, creatorId);
+    query.setParameter(SPACE_ID, spaceId);
+    List<Tuple> result = query.getResultList();
+    if (CollectionUtils.isEmpty(result)) {
+      return Collections.emptyList();
+    } else {
+      return result;
+    }
+  }
+
   public List<String> getMetadataObjectIds(long metadataType,
                                            String metadataName,
                                            String objectType,
