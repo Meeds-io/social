@@ -2,7 +2,8 @@
   <div
     :id="id"
     :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`"
-    @click="markAsread()">
+    @click="markAsread($event)"
+    @mouseover="markAsread($event)">
     <span 
       class="unread-activity-badge position-absolute"
       :class="badgeAnimation && 'zoomOut' || ''"></span>
@@ -312,14 +313,33 @@ export default {
         }
       }, 10);
     },
-    markAsread() {
+    markAsread(event) {
       if (this.spaceId.length) {
-        this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
-          .then(() => {
-            this.badgeAnimation = true;
-          });
+        if (event && event.type && event.type === 'click') {
+          this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
+            .then(() => {
+              this.badgeAnimation = true;
+            });
+        }
+        if (event && event.type && event.type === 'mouseover') {
+          let markAsReadTimer = 0;
+          const activityCaractersCount = this.activity.title.replace(/<[^>]+>/g, ' ').trim().length;
+          if (activityCaractersCount <= 100) {
+            markAsReadTimer = 3000;
+          } else if (activityCaractersCount >= 1200) {
+            markAsReadTimer = 30000;
+          } else {
+            markAsReadTimer = Math.round(activityCaractersCount / 100)*3000;
+          }
+          window.setTimeout(() => {
+            this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
+              .then(() => {
+                this.badgeAnimation = true;
+              });
+          }, markAsReadTimer);
+        }
       }
-    }
+    },
   },
 };
 </script>
