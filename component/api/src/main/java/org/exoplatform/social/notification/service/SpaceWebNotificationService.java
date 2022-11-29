@@ -65,8 +65,8 @@ public interface SpaceWebNotificationService {
    * by a given {@link Space} identifier
    *
    * @param userIdentityId {@link MetadataItem} creatorId
+   * @param spaceId {@link Space} spaceId
    * @throws Exception
-   * @spaceId spaceId {@link Space} spaceId
    */
   void markAllAsRead(long userIdentityId, long spaceId) throws Exception;
 
@@ -75,7 +75,7 @@ public interface SpaceWebNotificationService {
    * by a given {@link Space} identifier
    *
    * @param creatorId {@link MetadataItem} creatorId
-   * @spaceId spaceId {@link Space} spaceId
+   * @param spaceId {@link Space} spaceId
    * @return Map of application and unread items
    */
   Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId);
