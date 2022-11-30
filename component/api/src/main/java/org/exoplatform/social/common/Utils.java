@@ -115,7 +115,8 @@ public class Utils {
     int[] dimension = new int[2];
     if (size.contains(SIZE_SPLIT_CHAR) && !size.startsWith(SIZE_SPLIT_CHAR)) {
       dimension[0] = Integer.parseInt(size.split(SIZE_SPLIT_CHAR)[0]);
-    } else if (size.contains(SIZE_SPLIT_CHAR) && !size.endsWith(SIZE_SPLIT_CHAR)) {
+    }
+    if (size.contains(SIZE_SPLIT_CHAR) && !size.endsWith(SIZE_SPLIT_CHAR)) {
       dimension[1] = Integer.parseInt(size.split(SIZE_SPLIT_CHAR)[1]);
     }
     return dimension;
