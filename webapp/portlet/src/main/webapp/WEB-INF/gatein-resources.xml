@@ -1009,9 +1009,9 @@
     <depends>
       <module>vuetify</module>
     </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
     <depends>
       <module>eXoVueI18n</module>
     </depends>
@@ -1183,6 +1183,10 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>commons-cometd3</module>
+        <as>cCometd</as>
       </depends>
     </module>
   </portlet>
@@ -1815,7 +1819,7 @@
   <module>
     <name>intranetNotification</name>
     <script>
-       <path>/js/eXo/social/notification/IntranetNotification.js</path>
+      <path>/js/eXo/social/notification/IntranetNotification.js</path>
     </script>
     <depends>
       <module>webNotifications</module>
@@ -1829,7 +1833,7 @@
   <module>
     <name>webNotifications</name>
     <script>
-       <path>/js/eXo/social/notification/WebNotification.js</path>
+      <path>/js/eXo/social/notification/WebNotification.js</path>
     </script>
     <depends>
       <module>jquery</module>

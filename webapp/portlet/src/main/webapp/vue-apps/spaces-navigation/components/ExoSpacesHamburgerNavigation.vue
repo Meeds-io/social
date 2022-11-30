@@ -112,6 +112,7 @@ export default {
     }
   },
   created() {
+    this.$socialSpaceNotificationWebSocket.initCometd();
     this.$spacesAdministrationServices.checkCanCreateSpaces().then(data => {
       this.canAddSpaces = data;
     });
