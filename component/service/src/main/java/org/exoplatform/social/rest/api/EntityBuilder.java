@@ -199,7 +199,6 @@ public class EntityBuilder {
   public static ProfileEntity buildEntityProfile(Space space, Profile profile, String path, String expand) {
     ProfileEntity entity = buildEntityProfile(profile, path, expand);
     String userId = profile.getIdentity().getRemoteId();
-    entity.setIsSpacesManager(spaceService.isSuperManager(userId));
     entity.setIsManager(spaceService.isManager(space, userId));
     entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));

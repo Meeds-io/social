@@ -1784,10 +1784,10 @@ public class SpaceServiceImpl implements SpaceService {
     if (identity == null) {
       //user is not already loggued, and identity not present in identityRegistry
       //so we dont load it, and check only concerned membershipEntry
-      return superManagersMemberships.parallelStream()
+      return superManagersMemberships.stream()
                                          .anyMatch(membershipEntry -> isUserInGroup(userId, membershipEntry));
     } else {
-      return superManagersMemberships.parallelStream()
+      return superManagersMemberships.stream()
                                      .anyMatch(identity::isMemberOf);
     }
   }
