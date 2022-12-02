@@ -261,15 +261,6 @@ public class ProfileEntity extends BaseEntity {
     return (Boolean) getProperty("isManager");
   }
 
-  public ProfileEntity setIsSpacesManager(boolean isSpacesManager) {
-    setProperty("isSpacesManager", isSpacesManager);
-    return this;
-  }
-
-  public Boolean getIsSpacesManager() {
-    return (Boolean) getProperty("isSpacesManager");
-  }
-
   public ProfileEntity setIsSpaceRedactor(boolean isSpaceRedactor) {
     setProperty("isSpaceRedactor", isSpaceRedactor);
     return this;
