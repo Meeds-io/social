@@ -116,12 +116,12 @@ public class Utils {
     return (id != null);
   }
   
-  public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster) {
-    receivers.addAll(getDestinataires(commenters, poster));
+  public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(commenters, poster, spaceId));
   }
 
-  public static void sendToLikers(Set<String> receivers, String[] likers, String poster) {
-    receivers.addAll(getDestinataires(likers, poster));
+  public static void sendToLikers(Set<String> receivers, String[] likers, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(likers, poster, spaceId));
   }
   
   /**
@@ -148,15 +148,22 @@ public class Utils {
    * @param activityPosterId Id of the activity poster.
    * @param posteId Id of the user who has commented.
    */
-  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posteId) {
+  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posteId , String spaceId) {
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
-    if (activityPosterId.equals(posteId) == false) {
+    SpaceService spaceService = getSpaceService();
+    Space space = spaceService.getSpaceById(spaceId);
+    boolean isMember = false;
+    if (space != null) {
+      isMember = spaceService.isMember(space, activityPosterRemoteId);
+    }
+    if (!activityPosterId.equals(posteId) && ((isMember && space != null) || (space == null))) {
+
       receivers.add(activityPosterRemoteId);
     }
   }
   
   public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster) {
-    receivers.addAll(getDestinataires(mentioners, poster));
+    receivers.addAll(getDestinataires(mentioners, poster, null));
   }
   
   /**
@@ -166,12 +173,19 @@ public class Utils {
    * @param poster The user who has posted the activity or comment.
    * @return The remote Ids.
    */
-  private static Set<String> getDestinataires(String[] users, String poster) {
+  private static Set<String> getDestinataires(String[] users, String poster , String spaceId) {
     Set<String> destinataires = new HashSet<String>();
+    Space space = null ;
+    SpaceService spaceService = getSpaceService();
+    space = spaceService.getSpaceById(spaceId);
     for (String user : users) {
       user = user.split("@")[0];
       String userName = getUserId(user);
-      if (! user.equals(poster)) {
+      boolean isMember = false;
+      if(space != null) {
+        isMember = spaceService.isMember(space, userName);
+      }
+      if (!user.equals(poster) && ((isMember && space != null) || ( space == null))) {
         destinataires.add(userName);
       }
     }
