@@ -117,6 +117,9 @@ public class NotificationsRestService implements ResourceContainer {
   @DeprecatedAPI("The endpoint is deprecated, use RelationshipsRestResourcesV1 instead")
   public Response confirmInvitationToConnect(@PathParam("senderId") String senderId,
                                              @PathParam("receiverId") String receiverId) throws Exception {
+    if (receiverId.contains(JSESSION_ID_PATTERN)) {
+      receiverId = receiverId.substring(0, receiverId.indexOf(JSESSION_ID_PATTERN));
+    }
     checkAuthenticatedUserPermission(receiverId);
 
     Identity sender = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, senderId, true);
