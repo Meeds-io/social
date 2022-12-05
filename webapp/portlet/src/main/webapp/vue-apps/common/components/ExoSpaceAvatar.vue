@@ -5,7 +5,7 @@
     :class="extraClass"
     v-identity-popover="space">
     <a
-      v-if="notAccessibleSpace"
+      v-if="notAccessibleSpace && !avatar && !fullname"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
       <v-avatar
         :size="size"
