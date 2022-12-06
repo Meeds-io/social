@@ -56,8 +56,11 @@ export default {
     peopleCount: 0,
     loadingPeople: false,
     space: null,
+    publisherRolePromotionFeatureEnabled: false
   }),
   created() {
+    this.$featureService.isFeatureEnabled('publisherRolePromotion')
+      .then(enabled => this.publisherRolePromotionFeatureEnabled = enabled);
     this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
       .then( space => {
         this.space = space;
@@ -126,6 +129,19 @@ export default {
         },
         click: (user) => {
           this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
+            .then(() => this.$refs.spaceMembers.searchPeople());
+        },
+      });
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-promotePublisher',
+        title: this.$t('peopleList.button.promotePublisher'),
+        icon: 'fa fa-paper-plane',
+        order: 1,
+        enabled: (user) => {
+          return this.publisherRolePromotionFeatureEnabled && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isSpacePublisher;
+        },
+        click: (user) => {
+          this.$spaceService.promotePublisher(eXo.env.portal.spaceDisplayName, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });

@@ -202,6 +202,7 @@ public class EntityBuilder {
     entity.setIsSpacesManager(spaceService.isSuperManager(userId));
     entity.setIsManager(spaceService.isManager(space, userId));
     entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
+    entity.setIsSpacePublisher(spaceService.isPublisher(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
