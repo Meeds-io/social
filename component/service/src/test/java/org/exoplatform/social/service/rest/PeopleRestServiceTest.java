@@ -17,6 +17,7 @@
 package org.exoplatform.social.service.rest;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -261,6 +262,59 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     assertTrue(((ArrayList) response.getEntity()).size() == 0);
 
     relationshipManager.delete(relationship);
+    spaceService.deleteSpace(space);
+  }
+
+  public void testUserManagerOfSpace() throws Exception {
+    // Given
+    Relationship relationship = new Relationship(rootIdentity, maryIdentity);
+    relationship.setStatus(Relationship.Type.CONFIRMED);
+    relationshipManager.update(relationship);
+    Space space = new Space();
+    space.setPrettyName("space1");
+    space.setDisplayName("space1");
+    space.setGroupId("/platform/users");
+    space.setVisibility(Space.PUBLIC);
+    space.setManagers(new String[] {
+        rootIdentity.getRemoteId(), johnIdentity.getRemoteId()
+    });
+    String[] spaceMembers = new String[] {
+        rootIdentity.getRemoteId(), johnIdentity.getRemoteId(), demoIdentity.getRemoteId(), maryIdentity.getRemoteId()
+    };
+    space.setMembers(spaceMembers);
+    space = spaceService.createSpace(space, rootIdentity.getRemoteId());
+    MultivaluedMap<String, String> h4 = new MultivaluedMapImpl();
+    String username = "root";
+    h4.putSingle("username", username);
+    ByteArrayContainerResponseWriter writer = new ByteArrayContainerResponseWriter();
+
+    // When
+    ContainerResponse response =
+                               service("GET",
+                                       "/social/people/suggest.json?nameToSearch=o&currentUser=root&role=MEMBER&typeOfRelation=mention_activity_stream&activityId=null&spaceURL="
+                                           + space.getPrettyName(),
+                                       "",
+                                       h4,
+                                       null,
+                                       writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertEquals(3, ((List<?>) response.getEntity()).size());
+
+    response =
+             service("GET",
+                     "/social/people/suggest.json?nameToSearch=o&currentUser=root&role=MANAGER&typeOfRelation=mention_activity_stream&activityId=null&spaceURL="
+                         + space.getPrettyName(),
+                     "",
+                     h4,
+                     null,
+                     writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertEquals(2, ((List<?>) response.getEntity()).size());
+
     spaceService.deleteSpace(space);
   }
 }
