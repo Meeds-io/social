@@ -97,6 +97,9 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
     typeOfRelation: typeOfRelation || 'mention_activity_stream',
     currentUser: eXo.env.portal.userName,
   };
+  if (searchOptions?.role) {
+    options.role = searchOptions?.role;
+  }
 
   let params = null;
   let url = null;
