@@ -625,7 +625,7 @@ public class PeopleRestService implements ResourceContainer{
                                     Space space,
                                     String typeOfRelation,
                                     int order,
-                                    Locale locale) throws SpaceException {
+                                    Locale locale) {
     addSpaceOrUserToList(identities, options, space, typeOfRelation, SpaceMemberFilterListAccess.Type.MEMBER, order, locale);
   }
 
@@ -635,8 +635,7 @@ public class PeopleRestService implements ResourceContainer{
                                     String typeOfRelation,
                                     SpaceMemberFilterListAccess.Type type,
                                     int order,
-                                    Locale locale) throws SpaceException {
-    SpaceService spaceService = getSpaceService(); 
+                                    Locale locale) {
     for (Identity identity : identities) {
       String fullName = identity.getProfile().getFullName();
       if(Util.isExternal(identity.getId())){
@@ -648,23 +647,23 @@ public class PeopleRestService implements ResourceContainer{
         if (type != null) {
           switch (type) {
           case MANAGER:
-            if (!spaceService.isSuperManager(userName)
-                && !spaceService.isManager(space, userName)) {
+            if (!getSpaceService().isSuperManager(userName)
+                && !getSpaceService().isManager(space, userName)) {
               continue;
             }
             break;
           case PENDING:
-            if (!spaceService.isPendingUser(space, userName)) {
+            if (!getSpaceService().isPendingUser(space, userName)) {
               continue;
             }
             break;
           case INVITED:
-            if (!spaceService.isInvitedUser(space, userName)) {
+            if (!getSpaceService().isInvitedUser(space, userName)) {
               continue;
             }
             break;
           default:
-            if (!spaceService.isMember(space, userName)) {
+            if (!getSpaceService().isMember(space, userName)) {
               continue;
             }
             break;
@@ -674,8 +673,8 @@ public class PeopleRestService implements ResourceContainer{
         opt.setValue(userName);
         opt.setText(fullName);
         opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
-      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!spaceService.isInvitedUser(space, userName)
-                 && !spaceService.isPendingUser(space, userName) && !spaceService.isMember(space, userName)))) {
+      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!getSpaceService().isInvitedUser(space, userName)
+                 && !getSpaceService().isPendingUser(space, userName) && !getSpaceService().isMember(space, userName)))) {
         opt.setType("user");
         opt.setValue(userName);
         opt.setText(fullName + " (" + userName + ")");
