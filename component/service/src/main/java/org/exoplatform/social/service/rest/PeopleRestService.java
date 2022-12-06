@@ -136,6 +136,7 @@ public class PeopleRestService implements ResourceContainer{
    * @param activityId the Id of the activity where we want to mention a user in its comment
    * @param typeOfRelation The relationship status such as "confirmed", "pending", "incoming", "member_of_space", "mention_activity_stream", "mention_comment" or "user_to_invite"
    * @param spaceURL The URL of the related space.
+   * @param role space role, possible values: MEMBER | REDACTOR | MANAGER | INVITED | PENDING. Default = MEMBER
    * @param format The format of the returned result, for example, JSON, or XML.
    * @return A list of users' names that match the input string.
    * @throws Exception
@@ -153,6 +154,7 @@ public class PeopleRestService implements ResourceContainer{
                     @QueryParam("typeOfRelation") String typeOfRelation,
                     @QueryParam("activityId") String activityId,
                     @QueryParam("spaceURL") String spaceURL,
+                    @QueryParam("role") String role,
                     @PathParam("format") String format) throws Exception {
     String[] mediaTypes = new String[] { "json", "xml" };
     MediaType mediaType = Util.getMediaType(format, mediaTypes);
@@ -189,9 +191,15 @@ public class PeopleRestService implements ResourceContainer{
       result = listAccess.load(0, (int)SUGGEST_LIMIT);
       nameList.addToNameList(request.getLocale(), result);
     } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
+      SpaceMemberFilterListAccess.Type type;
+      if (StringUtils.isBlank(role)) {
+        type = SpaceMemberFilterListAccess.Type.MEMBER;
+      } else {
+        type = SpaceMemberFilterListAccess.Type.valueOf(StringUtils.upperCase(role));
+      }
       List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false).load(0, (int)SUGGEST_LIMIT));
       Space space = getSpaceService().getSpaceByUrl(spaceURL);
-      addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 0, request.getLocale());
+      addSpaceOrUserToList(identities, nameList, space, typeOfRelation, type, 0, request.getLocale());
     } else if (USER_TO_INVITE.equals(typeOfRelation)) {
       Space space = getSpaceService().getSpaceByUrl(spaceURL);
 
@@ -317,8 +325,12 @@ public class PeopleRestService implements ResourceContainer{
       }
       // Search in member of space first
       if (currentSpace != null) {
-        String role = SpaceMemberFilterListAccess.Type.MEMBER.name();
-        SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(role.toUpperCase());
+        SpaceMemberFilterListAccess.Type type;
+        if (StringUtils.isBlank(role)) {
+          type = SpaceMemberFilterListAccess.Type.MEMBER;
+        } else {
+          type = SpaceMemberFilterListAccess.Type.valueOf(StringUtils.upperCase(role));
+        }
         ListAccess<Identity> spaceIdentitiesListAccess = getIdentityManager().getSpaceIdentityByProfileFilter(currentSpace,
                 identityFilter,
                 type,
@@ -608,9 +620,23 @@ public class PeopleRestService implements ResourceContainer{
     return userInfos;
   }
 
-  private void addSpaceOrUserToList(List<Identity> identities, IdentityNameList options,
-                                   Space space, String typeOfRelation, int order, Locale locale) throws SpaceException {
-    SpaceService spaceSrv = getSpaceService(); 
+  private void addSpaceOrUserToList(List<Identity> identities,
+                                    IdentityNameList options,
+                                    Space space,
+                                    String typeOfRelation,
+                                    int order,
+                                    Locale locale) throws SpaceException {
+    addSpaceOrUserToList(identities, options, space, typeOfRelation, SpaceMemberFilterListAccess.Type.MEMBER, order, locale);
+  }
+
+  private void addSpaceOrUserToList(List<Identity> identities,
+                                    IdentityNameList options,
+                                    Space space,
+                                    String typeOfRelation,
+                                    SpaceMemberFilterListAccess.Type type,
+                                    int order,
+                                    Locale locale) throws SpaceException {
+    SpaceService spaceService = getSpaceService(); 
     for (Identity identity : identities) {
       String fullName = identity.getProfile().getFullName();
       if(Util.isExternal(identity.getId())){
@@ -618,13 +644,38 @@ public class PeopleRestService implements ResourceContainer{
       }
       String userName = identity.getRemoteId();
       Option opt = new Option();
-      if (SPACE_MEMBER.equals(typeOfRelation) && spaceSrv.isMember(space, userName)) {
+      if (SPACE_MEMBER.equals(typeOfRelation)) {
+        if (type != null) {
+          switch (type) {
+          case MANAGER:
+            if (!spaceService.isSuperManager(userName)
+                && !spaceService.isManager(space, userName)) {
+              continue;
+            }
+            break;
+          case PENDING:
+            if (!spaceService.isPendingUser(space, userName)) {
+              continue;
+            }
+            break;
+          case INVITED:
+            if (!spaceService.isInvitedUser(space, userName)) {
+              continue;
+            }
+            break;
+          default:
+            if (!spaceService.isMember(space, userName)) {
+              continue;
+            }
+            break;
+          }
+        }
         opt.setType("user");
         opt.setValue(userName);
         opt.setText(fullName);
         opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
-      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!spaceSrv.isInvitedUser(space, userName)
-                 && !spaceSrv.isPendingUser(space, userName) && !spaceSrv.isMember(space, userName)))) {
+      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!spaceService.isInvitedUser(space, userName)
+                 && !spaceService.isPendingUser(space, userName) && !spaceService.isMember(space, userName)))) {
         opt.setType("user");
         opt.setValue(userName);
         opt.setText(fullName + " (" + userName + ")");
