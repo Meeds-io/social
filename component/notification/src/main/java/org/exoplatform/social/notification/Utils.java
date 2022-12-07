@@ -152,11 +152,11 @@ public class Utils {
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
     SpaceService spaceService = getSpaceService();
     Space space = spaceService.getSpaceById(spaceId);
-    boolean isMember = false;
+    boolean isMember = true;
     if (space != null) {
       isMember = spaceService.isMember(space, activityPosterRemoteId);
     }
-    if (!activityPosterId.equals(posteId) && ((isMember && space != null) || (space == null))) {
+    if (!activityPosterId.equals(posteId) && isMember) {
 
       receivers.add(activityPosterRemoteId);
     }
@@ -180,11 +180,11 @@ public class Utils {
     for (String user : users) {
       user = user.split("@")[0];
       String userName = getUserId(user);
-      boolean isMember = false;
+      boolean isMember = true;
       if(space != null) {
         isMember = spaceService.isMember(space, userName);
       }
-      if (!user.equals(poster) && ((isMember && space != null) || ( space == null))) {
+      if (!user.equals(poster) && isMember) {
         destinataires.add(userName);
       }
     }
@@ -225,14 +225,15 @@ public class Utils {
     Set<String> mentioners = new HashSet<String>();
     Matcher matcher = MENTION_PATTERN.matcher(title);
     SpaceService spaceService = getSpaceService();
-    Space space = spaceService.getSpaceById(spaceId);    while (matcher.find()) {
+    Space space = spaceService.getSpaceById(spaceId);
+    while (matcher.find()) {
       String remoteId = matcher.group(2);
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
-      boolean isMember = false;
-      if(space != null) {
+      boolean isMember = true;
+      if (space != null) {
         isMember = spaceService.isMember(space, remoteId);
       }
-      if (identity != null && !posterRemoteId.equals(remoteId) && ((isMember && space != null) || ( space == null))) {
+      if (identity != null && !posterRemoteId.equals(remoteId) && isMember) {
         mentioners.add(remoteId);
       }
     }
