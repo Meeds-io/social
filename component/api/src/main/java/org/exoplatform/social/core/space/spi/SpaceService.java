@@ -476,6 +476,29 @@ public interface SpaceService {
   default boolean isRedactor(Space space, String userId) {
     return false;
   }
+  
+  /**
+   * Assigns the "publisher" role to a user in a space.
+   *
+   * @param space The space that its user is assigned to publisher.
+   * @param userId The remote user Id.
+   * @LevelAPI Platform
+   */
+  default void addPublisher(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * Checks if a given user has the "publisher" role in a space.
+   *
+   * @param space The space that its user is checked if he has the "publisher" role or not.
+   * @param userId The remote user Id.
+   * @return "True" if the user has the "publisher" role. Otherwise, it returns "false".
+   * @LevelAPI Platform
+   */
+  default boolean isPublisher(Space space, String userId) {
+    return false;
+  }
 
   /**
    * Checks if a given space has at least one "redactor"

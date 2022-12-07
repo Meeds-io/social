@@ -707,6 +707,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     //
     String[] members = getSpaceMembers(entity.getId(), Status.MEMBER);
     String[] redactors = getSpaceMembers(entity.getId(), Status.REDACTOR);
+    String[] publishers = getSpaceMembers(entity.getId(), Status.PUBLISHER);
     String[] managers = getSpaceMembers(entity.getId(), Status.MANAGER);
 
     //
@@ -719,6 +720,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     //
     space.setMembers(membersList.toArray(new String[] {}));
     space.setRedactors(redactors);
+    space.setPublishers(publishers);
     space.setManagers(managers);
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
     return space;

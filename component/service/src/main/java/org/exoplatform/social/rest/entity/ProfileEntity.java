@@ -278,6 +278,15 @@ public class ProfileEntity extends BaseEntity {
   public Boolean getIsSpaceRedactor() {
     return (Boolean) getProperty("isSpaceRedactor");
   }
+  
+  public ProfileEntity setIsSpacePublisher(boolean isSpacePublisher) {
+    setProperty("isSpacePublisher", isSpacePublisher);
+    return this;
+  }
+
+  public Boolean getIsSpacePublisher() {
+    return (Boolean) getProperty("isSpacePublisher");
+  }
 
   public ProfileEntity setIsGroupBound(boolean isSpaceRedactor) {
     setProperty("isGroupBound", isSpaceRedactor);

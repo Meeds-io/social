@@ -157,6 +157,12 @@ public class Space implements CacheEntry {
   
   private String[] redactors;
   
+  /**
+   * The publishers of a space.
+   * 
+   */
+  private String[] publishers;
+  
   /** The Constant ACTIVE_STATUS. */
   public final static String ACTIVE_STATUS = "active";
 
@@ -727,6 +733,20 @@ public class Space implements CacheEntry {
    */
   public void setRedactors(String[] redactors) {
     this.redactors = redactors;
+  }
+  
+  /**
+   * @return the publishers
+   */
+  public String[] getPublishers() {
+    return publishers;
+  }
+
+  /**
+   * @param publishers the publishers to set
+   */
+  public void setPublishers(String[] publishers) {
+    this.publishers = publishers;
   }
 
   /**
