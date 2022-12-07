@@ -27,6 +27,10 @@ export default {
       type: Array,
       default: null,
     },
+    standalone: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     updatedActivities: new Set(),
@@ -38,8 +42,10 @@ export default {
     },
   },
   created() {
-    this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
-    this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
+    this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates, this.standalone);
+    if (!this.standalone) {
+      this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
+    }
   },
   methods: {
     init() {
