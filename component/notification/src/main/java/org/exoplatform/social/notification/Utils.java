@@ -162,8 +162,8 @@ public class Utils {
     }
   }
   
-  public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster) {
-    receivers.addAll(getDestinataires(mentioners, poster, null));
+  public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(mentioners, poster, spaceId));
   }
   
   /**
@@ -175,9 +175,8 @@ public class Utils {
    */
   private static Set<String> getDestinataires(String[] users, String poster , String spaceId) {
     Set<String> destinataires = new HashSet<String>();
-    Space space = null ;
     SpaceService spaceService = getSpaceService();
-    space = spaceService.getSpaceById(spaceId);
+    Space space = spaceService.getSpaceById(spaceId);
     for (String user : users) {
       user = user.split("@")[0];
       String userName = getUserId(user);
@@ -221,14 +220,19 @@ public class Utils {
    * @param posterId id of the poster
    * @return list of mentioners
    */
-  public static Set<String> getMentioners(String title, String posterId) {
+  public static Set<String> getMentioners(String title, String posterId, String spaceId) {
     String posterRemoteId = getUserId(posterId);
     Set<String> mentioners = new HashSet<String>();
     Matcher matcher = MENTION_PATTERN.matcher(title);
-    while (matcher.find()) {
+    SpaceService spaceService = getSpaceService();
+    Space space = spaceService.getSpaceById(spaceId);    while (matcher.find()) {
       String remoteId = matcher.group(2);
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
-      if (identity != null && posterRemoteId.equals(remoteId) == false) { 
+      boolean isMember = false;
+      if(space != null) {
+        isMember = spaceService.isMember(space, remoteId);
+      }
+      if (identity != null && !posterRemoteId.equals(remoteId) && ((isMember && space != null) || ( space == null))) {
         mentioners.add(remoteId);
       }
     }
