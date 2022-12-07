@@ -18,15 +18,21 @@
  */
 package org.exoplatform.social.notification.service;
 
+import java.util.Map;
+
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 
-import java.util.Map;
-
 public interface SpaceWebNotificationService {
+
+  public static final String NOTIFICATION_UNREAD_EVENT_NAME   = "notification.unread.item";
+
+  public static final String NOTIFICATION_READ_EVENT_NAME     = "notification.read.item";
+
+  public static final String NOTIFICATION_ALL_READ_EVENT_NAME = "notification.read.allItems";
 
   /**
    * Register the space web notification plugin
@@ -38,45 +44,45 @@ public interface SpaceWebNotificationService {
   /**
    * Dispatch notification info
    * 
-   * @param notification
-   * @param username
+   * @param  notification
+   * @param  username
    * @throws Exception
    */
-  void dispatch(NotificationInfo notification, String username) throws Exception;
+  void dispatch(NotificationInfo notification, String username) throws Exception; // NOSONAR
 
   /**
    * Mark a space notification item as unread
    * 
-   * @param notificationItem
+   * @param  notificationItem
    * @throws Exception
    */
-  void markAsUnread(SpaceWebNotificationItem notificationItem) throws Exception;
+  void markAsUnread(SpaceWebNotificationItem notificationItem) throws Exception; // NOSONAR
 
   /**
    * Mark a space notification item as read
    * 
-   * @param notificationItem
+   * @param  notificationItem
    * @throws Exception
    */
-  void markAsRead(SpaceWebNotificationItem notificationItem) throws Exception;
+  void markAsRead(SpaceWebNotificationItem notificationItem) throws Exception; // NOSONAR
 
   /**
-   * Mark a list of unread items per application as read to a given {@link MetadataItem} creatorId
-   * by a given {@link Space} identifier
+   * Mark a list of unread items per application as read to a given
+   * {@link MetadataItem} creatorId by a given {@link Space} identifier
    *
-   * @param userIdentityId {@link MetadataItem} creatorId
-   * @param spaceId {@link Space} spaceId
+   * @param  userIdentityId {@link MetadataItem} creatorId
+   * @param  spaceId        {@link Space} spaceId
    * @throws Exception
    */
-  void markAllAsRead(long userIdentityId, long spaceId) throws Exception;
+  void markAllAsRead(long userIdentityId, long spaceId) throws Exception; // NOSONAR
 
   /**
-   * Get a list of unread items per application to a given {@link MetadataItem} creatorId
-   * by a given {@link Space} identifier
+   * Get a list of unread items per application to a given {@link MetadataItem}
+   * creatorId by a given {@link Space} identifier
    *
-   * @param creatorId {@link MetadataItem} creatorId
-   * @param spaceId {@link Space} spaceId
-   * @return Map of application and unread items
+   * @param  creatorId {@link MetadataItem} creatorId
+   * @param  spaceId   {@link Space} spaceId
+   * @return           Map of application and unread items
    */
   Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId);
 

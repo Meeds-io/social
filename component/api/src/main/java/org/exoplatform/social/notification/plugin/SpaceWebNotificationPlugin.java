@@ -46,19 +46,21 @@ public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
   /**
    * Test if a given plugin is a managed plugin
    * 
-   * @param pluginKey
-   * @return boolean
+   * @param  pluginKey whether {@link PluginKey} is managed or not
+   * @return           true if managed, else false
    */
   public boolean isManagedPlugin(PluginKey pluginKey) {
     return notificationPluginIds.stream().anyMatch(pluginId -> StringUtils.equals(pluginKey.getId(), pluginId));
   }
 
   /**
-   * Get the space application Item for a specific notification info and username
+   * Get the space application Item for a specific notification info and
+   * username
    * 
-   * @param notification
-   * @param username
-   * @return SpaceWebNotificationItem
+   * @param  notification {@link NotificationInfo} which is triggered to notify
+   *                        user
+   * @param  username     concerned username by the notification
+   * @return              SpaceWebNotificationItem
    */
   public SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification, String username) {
     SpaceWebNotificationItem notificationItem = getSpaceApplicationItem(notification);
@@ -72,8 +74,8 @@ public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
   /**
    * Get the space application Item for a specific notification info
    * 
-   * @param notification
-   * @return SpaceWebNotificationItem
+   * @param  notification
+   * @return              SpaceWebNotificationItem
    */
   protected abstract SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification);
 
