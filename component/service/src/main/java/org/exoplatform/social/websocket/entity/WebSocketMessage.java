@@ -18,33 +18,35 @@
  */
 package org.exoplatform.social.websocket.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
 
+import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-/**
- * Websocket message that will be sent to browser
- */
-public class ActivityStreamModification {
+@ToString
+public class WebSocketMessage {
 
-  private String activityId;
+  String              wsEventName;
 
-  private String commentId;
+  Map<String, Object> message;
 
-  private String parentCommentId;
-
-  private String eventName;
-
-  private String spaceId;
-
-  public ActivityStreamModification(String activityId, String eventName, String spaceId) {
-    this.activityId = activityId;
-    this.eventName = eventName;
-    this.spaceId = spaceId;
+  public WebSocketMessage(String wsEventName, Object... data) {
+    this.wsEventName = wsEventName;
+    if (data != null && data.length > 0) {
+      message = new HashMap<>();
+      for (Object object : data) {
+        if (object != null) {
+          message.put(object.getClass().getSimpleName().toLowerCase(), object);
+        }
+      }
+    }
   }
 
   @Override
@@ -52,7 +54,8 @@ public class ActivityStreamModification {
     try {
       return new JsonGeneratorImpl().createJsonObject(this).toString();
     } catch (JsonException e) {
-      throw new IllegalStateException("Error parsing object to JSON string", e);
+      throw new IllegalStateException("Error parsing current global object to string", e);
     }
   }
+
 }

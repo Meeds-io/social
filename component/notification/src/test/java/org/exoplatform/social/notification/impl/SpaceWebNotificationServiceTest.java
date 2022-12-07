@@ -75,7 +75,7 @@ public class SpaceWebNotificationServiceTest {
     spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
 
     verify(metadataService, times(1)).createMetadataItem(metadataObject, metadataKey, userIdentityId);
-    verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, userIdentityId, spaceWebNotificationItem);
+    verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class SpaceWebNotificationServiceTest {
     spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
 
     verify(metadataService, times(1)).deleteMetadataItem(metadataItemId, true);
-    verify(listenerService, times(1)).broadcast(NOTIFICATION_READ_EVENT_NAME, userIdentityId, spaceWebNotificationItem);
+    verify(listenerService, times(1)).broadcast(NOTIFICATION_READ_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
 
   }
 

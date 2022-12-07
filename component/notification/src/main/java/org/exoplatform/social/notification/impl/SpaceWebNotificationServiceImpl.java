@@ -39,15 +39,15 @@ import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService {
 
-  public static final String               METADATA_TYPE_NAME             = "unread";
+  public static final String               METADATA_TYPE_NAME               = "unread";
 
-  public static final String               NOTIFICATION_UNREAD_EVENT_NAME = "notification.unread.item";
+  public static final String               NOTIFICATION_UNREAD_EVENT_NAME   = "notification.unread.item";
 
-  public static final String               NOTIFICATION_READ_EVENT_NAME   = "notification.read.item";
+  public static final String               NOTIFICATION_READ_EVENT_NAME     = "notification.read.item";
 
-  public static final String               NOTIFICATION_ALL_READ_EVENT_NAME   = "notification.read.allItems";
+  public static final String               NOTIFICATION_ALL_READ_EVENT_NAME = "notification.read.allItems";
 
-  private static final Log                 LOG                            =
+  private static final Log                 LOG                              =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
   private MetadataService                  metadataService;
@@ -56,7 +56,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   private boolean                          enabled;
 
-  private List<SpaceWebNotificationPlugin> plugins                        = new ArrayList<>();
+  private List<SpaceWebNotificationPlugin> plugins                          = new ArrayList<>();
 
   public SpaceWebNotificationServiceImpl(MetadataService metadataService,
                                          ExoFeatureService featureService,
@@ -102,7 +102,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
                                                        null,
                                                        notificationItem.getSpaceId());
     metadataService.createMetadataItem(metadataObject, metadataKey, userIdentityId);
-    listenerService.broadcast(NOTIFICATION_UNREAD_EVENT_NAME, userIdentityId, notificationItem);
+    listenerService.broadcast(NOTIFICATION_UNREAD_EVENT_NAME, notificationItem, userIdentityId);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       for (MetadataItem metadataItem : metadataItems) {
         metadataService.deleteMetadataItem(metadataItem.getId(), true);
       }
-      listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, userIdentityId, notificationItem);
+      listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, notificationItem, userIdentityId);
     }
   }
 
