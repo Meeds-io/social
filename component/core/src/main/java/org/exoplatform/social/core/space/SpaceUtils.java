@@ -96,6 +96,8 @@ public class SpaceUtils {
   public static final String                                  MEMBER                = "member";
   
   public static final String                                  REDACTOR              = "redactor";
+  
+  public static final String                                  PUBLISHER             = "publisher";
 
   public static final String                                  MENU_CONTAINER        = "Menu";
 
@@ -967,6 +969,16 @@ public class SpaceUtils {
    */
   public static void addUserToGroupWithRedactorMembership(String remoteId, String groupId) {
     addUserToGroupWithMembership(remoteId, groupId, REDACTOR);
+  }
+  
+  /**
+   * Adds the user to group with the membership (publisher).
+   * 
+   * @param remoteId
+   * @param groupId
+   */
+  public static void addUserToGroupWithPublisherMembership(String remoteId, String groupId) {
+    addUserToGroupWithMembership(remoteId, groupId, PUBLISHER);
   }
 
   /**

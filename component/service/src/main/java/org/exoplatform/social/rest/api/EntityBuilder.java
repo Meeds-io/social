@@ -137,6 +137,8 @@ public class EntityBuilder {
   public static final String              MANAGER_MEMBERSHIP                         = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
+  
+  public static final String              PUBLISHER_MEMBERSHIP                        = "publisher";
 
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
@@ -201,6 +203,7 @@ public class EntityBuilder {
     String userId = profile.getIdentity().getRemoteId();
     entity.setIsManager(spaceService.isManager(space, userId));
     entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
+    entity.setIsSpacePublisher(spaceService.isPublisher(space, userId));
     entity.setIsMember(spaceService.isMember(space, userId));
     entity.setIsInvited(spaceService.isInvitedUser(space, userId));
     entity.setIsPending(spaceService.isPendingUser(space, userId));
@@ -456,6 +459,14 @@ public class EntityBuilder {
           redactors = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), REDACTOR_MEMBERSHIP, restPath));
         }
         spaceEntity.setRedactors(redactors);
+        
+        LinkEntity publishers;
+        if (expandFields.contains(RestProperties.PUBLISHERS)) {
+          publishers = new LinkEntity(buildEntityProfiles(space.getPublishers(), restPath, expand));
+        } else {
+          publishers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), PUBLISHER_MEMBERSHIP, restPath));
+        }
+        spaceEntity.setPublishers(publishers);
 
         LinkEntity members;
         if (expandFields.contains(RestProperties.MEMBERS)) {
@@ -489,6 +500,7 @@ public class EntityBuilder {
       spaceEntity.setCanEdit(canEdit);
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
+      spaceEntity.setIsPublisher(spaceService.isPublisher(space, userId));
     }
 
     spaceEntity.setDisplayName(space.getDisplayName());
@@ -506,6 +518,7 @@ public class EntityBuilder {
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : space.getMembers().length);
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
     spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
+    spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : space.getPublishers().length);
 
     return spaceEntity;
   }

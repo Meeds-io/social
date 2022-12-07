@@ -2140,6 +2140,33 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(spaceService.isRedactor(space, "ghost"));
     assertFalse(spaceService.isRedactor(space, "john"));
   }
+  
+  /**
+   * Test {@link SpaceService#addPublisher(Space, String, boolean)}
+   *
+   * @throws Exception
+   */
+  public void testAddPublisher() throws Exception {
+    Space space = new Space();
+    space.setDisplayName("space1");
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space1");
+    space.setType(DefaultSpaceApplicationHandler.NAME);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setGroupId("/space/space1");
+    space.setUrl(space.getPrettyName());
+    space = spaceService.createSpace(space, "root");
+    String[] members = new String[] { "ghost", "john" };
+    space.setMembers(members);
+    MembershipType publisherMembershipType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
+    publisherMembershipType.setName("publisher");
+    spaceService.addPublisher(space, "ghost");
+    spaceService.addPublisher(space, "john");
+    assertEquals(2, space.getPublishers().length);
+  }
 
   /**
    * Test {@link SpaceService#isOnlyManager(Space, String)}

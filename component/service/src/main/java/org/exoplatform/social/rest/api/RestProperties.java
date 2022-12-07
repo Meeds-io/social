@@ -36,6 +36,8 @@ public class RestProperties {
   public static final String MANAGERS      = "managers";
 
   public static final String REDACTORS     = "redactors";
+  
+  public static final String PUBLISHERS     = "publishers";
 
   public static final String MEMBERS       = "members";
 

@@ -341,6 +341,9 @@ public class EntityConverterUtils {
     
     Set<SpaceMemberEntity> redactor = getMembers(spaceEntity, Status.REDACTOR);
     merge(spaceEntity, redactor, space.getRedactors(), Status.REDACTOR);
+    
+    Set<SpaceMemberEntity> publisher = getMembers(spaceEntity, Status.PUBLISHER);
+    merge(spaceEntity, publisher, space.getPublishers(), Status.PUBLISHER);
 
     Set<SpaceMemberEntity> pending = getMembers(spaceEntity, Status.PENDING);
     merge(spaceEntity, pending, space.getPendingUsers(), Status.PENDING);
