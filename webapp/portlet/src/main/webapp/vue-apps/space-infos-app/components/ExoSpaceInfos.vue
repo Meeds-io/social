@@ -15,6 +15,8 @@
             :popover-left-position="true"
             :offset-x="true"
             :offset-y="false"
+            bold-title
+            link-style
             popover />
         </div>
       </div>
