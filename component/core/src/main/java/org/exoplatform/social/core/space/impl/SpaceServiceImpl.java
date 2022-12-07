@@ -16,7 +16,14 @@
  */
 package org.exoplatform.social.core.space.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1577,6 +1584,17 @@ public class SpaceServiceImpl implements SpaceService {
       space.setPublishers(publishers);
       this.updateSpace(space);
       SpaceUtils.addUserToGroupWithPublisherMembership(userId, space.getGroupId());
+    }
+  }
+  
+  @Override
+  public void removePublisher(Space space, String userId) {
+    String[] publishers = space.getPublishers();
+    if (ArrayUtils.contains(publishers, userId)) {
+      publishers = (String[]) ArrayUtils.removeElement(publishers, userId);
+      space.setPublishers(publishers);
+      this.updateSpace(space);
+      SpaceUtils.removeUserFromGroupWithPublisherMembership(userId, space.getGroupId());
     }
   }
 
