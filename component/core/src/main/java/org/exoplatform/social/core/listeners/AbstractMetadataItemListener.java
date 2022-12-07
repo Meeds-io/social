@@ -18,6 +18,7 @@ package org.exoplatform.social.core.listeners;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.log.ExoLogger;
@@ -69,17 +70,27 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
     }
   }
 
-  protected void handleMetadataModification(MetadataItem metadataItem) {
+  protected void handleMetadataModification(MetadataItem metadataItem) { // NOSONAR
     if (metadataItem != null) {
       String objectType = metadataItem.getObjectType();
       String objectId = metadataItem.getObjectId();
-      if (isActivityEvent(objectType) && cachedActivityStorage != null) {
-        ExoSocialActivity activity = cachedActivityStorage.getActivity(objectId);
-        if (activity != null && activity.hasSpecificMetadataObject()) {
-          // Copy Metadata definition into specific MetadataObject instead of
-          // Activity Object itself
-          MetadataObject metadataObject = activity.getMetadataObject();
-          moveMetadataItemToTargetObject(metadataItem, metadataObject);
+      if (cachedActivityStorage != null) {
+        if (isActivityEvent(objectType)) {
+          ExoSocialActivity activity = cachedActivityStorage.getActivity(objectId);
+          if (activity != null && activity.hasSpecificMetadataObject()) {
+            // Copy Metadata definition into specific MetadataObject instead of
+            // Activity Object itself
+            MetadataObject metadataObject = activity.getMetadataObject();
+            moveMetadataItemToTargetObject(metadataItem, metadataObject);
+          }
+        } else if (metadataItem.getSpaceId() >= 0 && cachedSpaceStorage != null) {
+          Space space = cachedSpaceStorage.getSpaceById(String.valueOf(metadataItem.getSpaceId()));
+          if (space != null) {
+            // Activities can have different object type & id, thus
+            // systematically Trigger clearing cache when it's about a space
+            // metadata
+            cachedActivityStorage.clearOwnerStreamCache(space.getPrettyName());
+          }
         }
       }
       handleMetadataModification(objectType, metadataItem.getObjectId());
@@ -92,7 +103,7 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
       // metadatas of the activity again
       clearActivityCache(objectId);
       reindexActivity(objectId);
-    }  else if (isSpaceEvent(objectType)) {
+    } else if (isSpaceEvent(objectType)) {
       clearSpaceCache(objectId);
       reindexSpace(objectId);
     }

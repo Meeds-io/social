@@ -30,7 +30,7 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
 
   public static final String ID = "ActivitySpaceWebNotificationPlugin";
 
-  private ActivityManager activityManager;
+  private ActivityManager    activityManager;
 
   public ActivitySpaceWebNotificationPlugin(ActivityManager activityManager, IdentityManager identityManager, InitParams params) {
     super(identityManager, params);
@@ -41,8 +41,21 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
   public SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification) {
     String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
     ExoSocialActivity activity = activityManager.getActivity(activityId);
-    MetadataObject metadataObject = activity.getMetadataObject();
-    return new SpaceWebNotificationItem(metadataObject.getType(), metadataObject.getId(), 0, metadataObject.getSpaceId());
+    MetadataObject metadataObject;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());
+      metadataObject = parentActivity.getMetadataObject();
+    } else {
+      metadataObject = activity.getMetadataObject();
+    }
+    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(metadataObject.getType(),
+                                                                                     metadataObject.getId(),
+                                                                                     0,
+                                                                                     metadataObject.getSpaceId());
+    if (activity.isComment()) {
+      spaceWebNotificationItem.addApplicationSubItem(activity.getId());
+    }
+    return spaceWebNotificationItem;
   }
 
 }
