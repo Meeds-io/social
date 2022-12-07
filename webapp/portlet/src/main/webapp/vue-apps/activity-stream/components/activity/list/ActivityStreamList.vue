@@ -5,9 +5,9 @@
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
-      v-if="!activityId"
       :space-id="spaceId"
       :activities="activities"
+      :standalone="!!activityId"
       @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-loader

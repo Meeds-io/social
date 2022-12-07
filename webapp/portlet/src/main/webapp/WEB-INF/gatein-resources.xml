@@ -1184,10 +1184,6 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
-      <depends>
-        <module>commons-cometd3</module>
-        <as>cCometd</as>
-      </depends>
     </module>
   </portlet>
 
@@ -1423,6 +1419,10 @@
     <depends>
       <module>commons-editor</module>
       <as>editor</as>
+    </depends>
+    <depends>
+      <module>commons-cometd3</module>
+      <as>cCometd</as>
     </depends>
   </module>
 

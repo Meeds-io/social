@@ -63,32 +63,22 @@
       </v-btn>
     </v-list-item-icon>
     <v-list-item-icon
-      v-if="!toggleArrow && spaceUnreadActivities && SpaceWebNotificationsEnabled && badge"
+      v-if="!toggleArrow && spaceUnreadCount"
       class="me-2 align-center">
-      <v-btn
-        class="error-color-background white--text"
-        width="22"
+      <v-chip
+        v-if="spaceUnreadCount"
+        color="error-color-background"
+        min-width="22"
         height="22"
-        depressed
-        fab>
-        {{ spaceUnreadActivities }}
-      </v-btn>
+        dark>
+        {{ spaceUnreadCount }}
+      </v-chip>
     </v-list-item-icon>
   </v-list-item>
 </template>
 <script>
 
 export default {
-  data () {
-    return {
-      secondLevelVueInstancee: null,
-      secondeLevel: false,
-      showItemActions: false,
-      arrowIcon: 'fa-arrow-right',
-      SpaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
-      displayBadge: true
-    };
-  },
   props: {
     space: {
       type: Object,
@@ -107,6 +97,14 @@ export default {
       default: false,
     }
   },
+  data: () => ({
+    secondLevelVueInstancee: null,
+    secondeLevel: false,
+    showItemActions: false,
+    arrowIcon: 'fa-arrow-right',
+    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
+    spaceUnreadItems: {},
+  }),
   computed: {
     spaceId() {
       return this.space?.id;
@@ -120,19 +118,32 @@ export default {
     spaceDisplayName() {
       return this.space?.displayName;
     },
-    spaceUnreadActivities() {
-      return this.space?.unreadItemsPerApplication?.activity;
+    spaceUnreadCount() {
+      return this.spaceWebNotificationsEnabled && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
     },
-    badge() {
-      return this.displayBadge;
-    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
-
+  },
+  watch: {
+    space: {
+      immediate: true,
+      deep: true,
+      handler: function() {
+        if (JSON.stringify(this.spaceUnreadItems) !== JSON.stringify(this.space?.unread || {})) {
+          this.spaceUnreadItems = this.space?.unread || {};
+        }
+      },
+    },
+    spaceUnreadItems: {
+      deep: true,
+      handler: function() {
+        this.$root.$emit('space-unread-activities-updated', this.space?.id, this.spaceUnreadItems);
+      },
+    },
   },
   created() {
     document.addEventListener('space-opened', (event) => {
@@ -147,33 +158,36 @@ export default {
       this.secondeLevel = false;
       this.showItemActions = false;
     });
-    document.addEventListener('unread-items-deleted', (event) => {
-      if (event.detail === this.space.id) {
-        this.displayBadge = false;
-      }
-    });
-    document.addEventListener('social-spaces-notification-updated', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   beforeDestroy() {
-    document.removeEventListener('social-spaces-notification-updated', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   methods: {
     handleUpdatesFromWebSocket(event) {
       const data = event?.detail;
-      const spacewebnotificationitem = data?.message?.spacewebnotificationitem;
       const wsEventName = data?.wsEventName || '';
-      if (!spacewebnotificationitem) {
-        return;
-      }
-      const spaceId = spacewebnotificationitem.spaceId.toString();
-      if (this.spaceId !== spaceId) {
-        return;
-      }
-      if (wsEventName === 'notification.unread.item') {
-        if (this.space?.unreadItemsPerApplication?.activity) {
-          const newUnreadItemsCountValue = this.space.unreadItemsPerApplication.activity += 1;
-          this.$set(this.space.unreadItemsPerApplication, 'activity', newUnreadItemsCountValue);
+      const spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+      const applicationName = spaceWebNotificationItem.applicationName;
+      const spaceId = spaceWebNotificationItem.spaceId;
+      if (spaceId && Number(this.spaceId) === Number(spaceId)) {
+        if (!this.spaceUnreadItems[applicationName]) {
+          this.spaceUnreadItems[applicationName] = 0;
         }
+        if (wsEventName === 'notification.unread.item') {
+          this.spaceUnreadItems[applicationName]++;
+        } else if (wsEventName === 'notification.read.item') {
+          if (this.spaceUnreadItems[applicationName] > 0) {
+            this.spaceUnreadItems[applicationName]--;
+          }
+        } else if (wsEventName === 'notification.read.allItems') {
+          this.spaceUnreadItems = {};
+        }
+        this.spaceUnreadItems = Object.assign({}, this.spaceUnreadItems);
       }
     },
     hideSecondeItem() {

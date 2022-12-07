@@ -112,6 +112,7 @@ export default {
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
+    this.$root.$on('space-unread-activities-updated', this.applySpaceUnreadChanges);
     document.addEventListener('unread-items-deleted', (event) => {
       if (event) {
         this.searchSpaces();
@@ -119,6 +120,12 @@ export default {
     });
   },
   methods: {
+    applySpaceUnreadChanges(spaceId, unread) {
+      const space = this.spaces?.find(displayedSpace => displayedSpace.id === spaceId);
+      if (space) {
+        space.unread = unread;
+      }
+    },
     searchSpaces() {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread`, {
         method: 'GET',

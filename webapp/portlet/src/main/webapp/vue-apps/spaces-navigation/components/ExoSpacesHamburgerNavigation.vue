@@ -77,6 +77,7 @@ import {setSettingValue} from '../../common/js/SettingService.js';
 export default {
   data() {
     return {
+      channelName: '/SpaceWebNotification',
       homeLink: eXo.env.portal.homeLink,
       selectedSpace: null,
       spacesLimit: 7,
@@ -89,7 +90,7 @@ export default {
       canAddSpaces: false,
       isRecentSpaces: false,
       space: null,
-      spacePanel: false
+      spacePanel: false,
     };
   },
   computed: {
@@ -112,10 +113,9 @@ export default {
     }
   },
   created() {
-    this.$socialSpaceNotificationWebSocket.initCometd();
-    this.$spacesAdministrationServices.checkCanCreateSpaces().then(data => {
-      this.canAddSpaces = data;
-    });
+    this.$spacesAdministrationServices.checkCanCreateSpaces()
+      .then(data => this.canAddSpaces = data);
+    this.$socialWebSocket.initCometd(this.channelName);
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });

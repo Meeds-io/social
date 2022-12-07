@@ -1,12 +1,12 @@
 <template>
-  <div
+  <unread-badge
     :id="id"
-    :class="`white border-radius activity-detail flex flex-column position-relative ${activityUnreadClass}`"
-    @click="markAsread($event)"
-    @mouseover="markAsread($event)">
-    <span 
-      class="unread-activity-badge position-absolute"
-      :class="badgeAnimation && 'zoomOut' || ''"></span>
+    :unread="displayUnread"
+    :space-id="spaceId"
+    :application-id="activityId"
+    application-name="activity"
+    class="white border-radius activity-detail flex flex-column"
+    @read="isUnread = $event">
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
@@ -78,7 +78,7 @@
           class="px-4" />
       </template>
     </template>
-  </div>
+  </unread-badge>
 </template>
 
 <script>
@@ -125,7 +125,7 @@ export default {
     loading: false,
     initialized: false,
     noExtension: false,
-    badgeAnimation: false,
+    isUnread: false,
   }),
   computed: {
     id() {
@@ -145,8 +145,8 @@ export default {
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
-    activityUnreadClass() {
-      return this.activity?.metadatas?.unread?.length && 'unread-activity' || '';
+    displayUnread() {
+      return !this.isActivityShared && this.isUnread;
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
@@ -201,7 +201,7 @@ export default {
     },
     spaceId() {
       return this.activity?.activityStream?.space?.id || '';
-    }
+    },
   },
   watch: {
     activityLoading() {
@@ -222,6 +222,11 @@ export default {
     activityTypeExtension() {
       if (this.activityTypeExtension) {
         this.retrieveActivityProperties();
+      }
+    },
+    initialized() {
+      if (this.initialized) {
+        this.isUnread = this.activity?.metadatas?.unread?.length;
       }
     },
   },
@@ -312,33 +317,6 @@ export default {
           });
         }
       }, 10);
-    },
-    markAsread(event) {
-      if (this.spaceId.length) {
-        if (event && event.type && event.type === 'click') {
-          this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
-            .then(() => {
-              this.badgeAnimation = true;
-            });
-        }
-        if (event && event.type && event.type === 'mouseover') {
-          let markAsReadTimer = 0;
-          const activityCaractersCount = this.activity.title.replace(/<[^>]+>/g, ' ').trim().length;
-          if (activityCaractersCount <= 100) {
-            markAsReadTimer = 3000;
-          } else if (activityCaractersCount >= 1200) {
-            markAsReadTimer = 30000;
-          } else {
-            markAsReadTimer = Math.round(activityCaractersCount / 100)*3000;
-          }
-          window.setTimeout(() => {
-            this.$spaceService.markAsRead('activity',this.activityId,this.spaceId)
-              .then(() => {
-                this.badgeAnimation = true;
-              });
-          }, markAsReadTimer);
-        }
-      }
     },
   },
 };

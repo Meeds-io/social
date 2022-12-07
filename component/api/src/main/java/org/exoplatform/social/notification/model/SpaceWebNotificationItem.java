@@ -18,29 +18,44 @@
  */
 package org.exoplatform.social.notification.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpaceWebNotificationItem {
 
-  @Getter
-  @Setter
-  private String applicationName;
+  private String      applicationName;
 
-  @Getter
-  @Setter
-  private String applicationItemId;
+  private String      applicationItemId;
 
-  @Getter
-  @Setter
-  private long   userId;
+  private long        userId;
 
-  @Getter
-  @Setter
-  private long   spaceId;
+  private long        spaceId;
+
+  private Set<String> applicationSubItemIds;
+
+  public SpaceWebNotificationItem(String applicationName, String applicationItemId, long userId, long spaceId) {
+    this.applicationName = applicationName;
+    this.applicationItemId = applicationItemId;
+    this.userId = userId;
+    this.spaceId = spaceId;
+  }
+
+  public void addApplicationSubItem(String itemId) {
+    if (StringUtils.isNotBlank(itemId)) {
+      if (applicationSubItemIds == null) {
+        applicationSubItemIds = new HashSet<>();
+      }
+      applicationSubItemIds.add(itemId);
+    }
+  }
 
 }

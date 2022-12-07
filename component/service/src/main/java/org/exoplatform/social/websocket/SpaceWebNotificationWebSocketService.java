@@ -18,96 +18,132 @@
  */
 package org.exoplatform.social.websocket;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_ALL_READ_EVENT_NAME;
+import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_READ_EVENT_NAME;
+import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_UNREAD_EVENT_NAME;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cometd.bayeux.server.ServerChannel;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
+import org.picocontainer.Startable;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.ws.frameworks.cometd.ContinuationService;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
+import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.websocket.entity.WebSocketMessage;
+import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketServerListener;
+import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 
-public class SpaceWebNotificationWebSocketService {
+public class SpaceWebNotificationWebSocketService implements Startable {
 
-  private static final Log      LOG            = ExoLogger.getLogger(SpaceWebNotificationWebSocketService.class);
+  public static final String          COMETD_CHANNEL = "/SpaceWebNotification";
 
-  public static final String    COMETD_CHANNEL = "/spaceWebNotification/unread";
+  private PortalContainer             container;
 
-  private ContinuationService   continuationService;
+  private SpaceWebNotificationService spaceWebNotificationService;
 
-  private EXoContinuationBayeux continuationBayeux;
+  private ContinuationService         continuationService;
 
-  private SpaceService          spaceService;
+  private EXoContinuationBayeux       continuationBayeux;
 
-  private String                cometdContextName;
+  private SpaceService                spaceService;
 
-  public SpaceWebNotificationWebSocketService(SpaceService spaceService,
+  private IdentityManager             identityManager;
+
+  public SpaceWebNotificationWebSocketService(PortalContainer container,
+                                              SpaceWebNotificationService spaceWebNotificationService,
                                               ContinuationService continuationService,
-                                              EXoContinuationBayeux continuationBayeux) {
-
-    this.spaceService = spaceService;
+                                              EXoContinuationBayeux continuationBayeux,
+                                              SpaceService spaceService,
+                                              IdentityManager identityManager) {
+    this.container = container;
+    this.spaceWebNotificationService = spaceWebNotificationService;
     this.continuationService = continuationService;
-    this.cometdContextName = continuationBayeux.getCometdContextName();
+    this.continuationBayeux = continuationBayeux;
+    this.spaceService = spaceService;
+    this.identityManager = identityManager;
+  }
+
+  @Override
+  public void start() {
+    ServerChannel serverChannel = continuationBayeux.createChannelIfAbsent(COMETD_CHANNEL).getReference();
+    serverChannel.addListener(new SpaceWebNotificationWebSocketServerListener(container, this, COMETD_CHANNEL));
+  }
+
+  @Override
+  public void stop() {
+    // Nothing To stop
   }
 
   /**
-   * Propagate an event from Backend to frontend to add dynamism in pages
+   * Propagate an event from Backend to frontend through WebSocket Message when
+   * {@link SpaceWebNotificationItem} is altered
    * 
-   * @param wsEventName event name that will allow Browser to distinguish which
-   *          behavior to adopt in order to update UI
+   * @param eventName                event name that will allow Browser to
+   *                                   distinguish which behavior to adopt in
+   *                                   order to update UI
    * @param spaceWebNotificationItem The unread item object
    */
-  
-  public void sendMessage(String wsEventName, SpaceWebNotificationItem spaceWebNotificationItem) {
-    Set<String> recipientUsers = new HashSet<>();
-    long spaceId = spaceWebNotificationItem.getSpaceId();
-    Space space = spaceService.getSpaceById(Long.toString(spaceId));
-    if (space == null) {
-      LOG.warn("Space with id " + spaceId + " wasn't found");
-      return;
-    }
-    Collections.addAll(recipientUsers, space.getMembers());
-    sendMessage(wsEventName, recipientUsers, spaceWebNotificationItem);
-
-  }
-
-  public void sendMessage(String wsEventName, Collection<String> recipientUsers, Object... params) {
-    WebSocketMessage messageObject = new WebSocketMessage(wsEventName, params);
-    String message = messageObject.toString();
-    for (String recipientUser : recipientUsers) {
-      if (continuationService.isPresent(recipientUser)) {
-        continuationService.sendMessage(recipientUser, COMETD_CHANNEL, message);
-      }
+  public void sendMessage(String eventName, SpaceWebNotificationItem spaceWebNotificationItem) {
+    long userId = spaceWebNotificationItem.getUserId();
+    Identity identity = identityManager.getIdentity(String.valueOf(userId));
+    if (identity != null && !identity.isDeleted() && identity.isEnable()
+        && continuationService.isPresent(identity.getRemoteId())) {
+      String wsMessage = new WebSocketMessage(eventName, spaceWebNotificationItem).toJsonString();
+      continuationService.sendMessage(identity.getRemoteId(), COMETD_CHANNEL, wsMessage);
     }
   }
 
   /**
-   * @return 'cometd' webapp context name
-   */
-  public String getCometdContextName() {
-    return cometdContextName;
-  }
-
-  /**
-   * Generate a cometd Token for each user
+   * Called when a new message is received via WebSocket from frontend
    * 
-   * @param username user name for whom the token will be generated
-   * @return generated cometd token
+   * @param  wsClientId               Websocket Message event name
+   * @param  eventName                Event Name
+   * @param  spaceWebNotificationItem {@link SpaceWebNotificationItem} sent via
+   *                                    Websocket
+   * @throws Exception                when an error occurred while changing
+   *                                    notification state
    */
-  public String getUserToken(String username) {
-    try {
-      return continuationService.getUserToken(username);
-    } catch (Exception e) {
-      LOG.warn("Could not retrieve continuation token for user " + username, e);
-      return "";
+  public void receiveMessage(String wsClientId,
+                             String eventName,
+                             SpaceWebNotificationItem spaceWebNotificationItem) throws Exception {
+    if (spaceWebNotificationItem == null) {
+      throw new IllegalArgumentException("Message is empty");
+    }
+    long userId = spaceWebNotificationItem.getUserId();
+    if (userId == 0) {
+      throw new IllegalArgumentException("Empty userId");
+    }
+    long spaceId = spaceWebNotificationItem.getSpaceId();
+    if (spaceId == 0) {
+      throw new IllegalArgumentException("Empty spaceId");
+    }
+    Identity identity = identityManager.getIdentity(String.valueOf(userId));
+    if (identity == null || identity.isDeleted() || !identity.isEnable()) {
+      throw new IllegalAccessException("User Identity with id " + userId + " isn't valid");
+    }
+    String username = identity.getRemoteId();
+    if (!continuationBayeux.isSubscribed(username, wsClientId)) {
+      throw new IllegalAccessException("User " + username + " isn't subscribed with a valid WebSocket token.");
+    }
+    Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+    if (space == null) {
+      throw new IllegalArgumentException("Space with id " + spaceId + " doesn't exists");
+    }
+    if (!spaceService.isMember(space, username)) {
+      throw new IllegalAccessException("User " + username + " isn't member of space " + space.getDisplayName());
+    }
+    if (StringUtils.equals(eventName, NOTIFICATION_UNREAD_EVENT_NAME)) {
+      spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
+    } else if (StringUtils.equals(eventName, NOTIFICATION_READ_EVENT_NAME)) {
+      spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
+    } else if (StringUtils.equals(eventName, NOTIFICATION_ALL_READ_EVENT_NAME)) {
+      spaceWebNotificationService.markAllAsRead(userId, spaceId);
     }
   }
+
 }
