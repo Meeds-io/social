@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -40,7 +41,10 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
 import org.picocontainer.Startable;
 
+@SuppressWarnings("removal")
 public class MetadataServiceImpl implements MetadataService, Startable {
+
+  private static final String METADATA_TYPE_IS_MANDATORY_MESSAGE = "Metadata Type is mandatory";
 
   private static final Log                LOG                 = ExoLogger.getLogger(MetadataServiceImpl.class);
 
@@ -59,20 +63,9 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public Metadata createMetadata(Metadata metadata, long userIdentityId) {
-    if (metadata == null) {
-      throw new IllegalArgumentException("Metadata is mandatory");
-    }
-    if (metadata.getType() == null) {
-      throw new IllegalArgumentException("Metadata Type is mandatory");
-    }
-    String metadataTypeName = metadata.getType().getName();
-    MetadataType type = getMetadataTypeByName(metadataTypeName);
-    if (type == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
-    }
-    if (userIdentityId <= 0) {
-      throw new IllegalArgumentException("userIdentityId is mandatory");
-    }
+    validateMetadata(metadata);
+    validateAndGetMetadataType(metadata.getType().getName());
+    validateUserIdentityId(userIdentityId);
 
     metadata.setType(metadata.getType());
     metadata.setCreatorId(userIdentityId);
@@ -88,12 +81,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public Metadata updateMetadata(Metadata metadata, long userIdentityId) {
-    if (metadata == null) {
-      throw new IllegalArgumentException("Metadata is mandatory");
-    }
-    if (userIdentityId <= 0) {
-      throw new IllegalArgumentException("userIdentityId is mandatory");
-    }
+    validateMetadata(metadata);
+    validateUserIdentityId(userIdentityId);
     metadata = metadataStorage.updateMetadata(metadata);
     try {
       this.listenerService.broadcast("social.metadata.updated", userIdentityId, metadata);
@@ -114,20 +103,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public int deleteMetadataBySpaceId(long spaceId) {
-    if (spaceId <= 0) {
-      throw new IllegalArgumentException("Space Technical Identifier is mandatory");
-    }
+    validateSpaceId(spaceId);
     return this.metadataStorage.deleteMetadataItemsBySpaceId(spaceId);
   }
 
   @Override
   public int deleteMetadataBySpaceIdAndAudienceId(long spaceId, long audienceId) {
-    if (spaceId <= 0) {
-      throw new IllegalArgumentException("Space Technical Identifier is mandatory");
-    }
-    if (audienceId <= 0) {
-      throw new IllegalArgumentException("Audience Identity Technical Identifier is mandatory");
-    }
+    validateSpaceId(spaceId);
+    validateUserIdentityId(audienceId);
     return this.metadataStorage.deleteMetadataItemsBySpaceIdAndAudienceId(spaceId, audienceId);
   }
 
@@ -137,7 +120,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
       throw new IllegalArgumentException("Metadata Key is mandatory");
     }
     if (StringUtils.isBlank(metadataKey.getType())) {
-      throw new IllegalArgumentException("Metadata Type is mandatory");
+      throw new IllegalArgumentException(METADATA_TYPE_IS_MANDATORY_MESSAGE);
     }
     if (StringUtils.isBlank(metadataKey.getName())) {
       throw new IllegalArgumentException("Metadata Name is mandatory");
@@ -160,29 +143,21 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     if (metadataObject == null) {
       throw new IllegalArgumentException("Metadata Item Object is mandatory");
     }
-    if (metadataKey == null) {
-      throw new IllegalArgumentException("Metadata Key is mandatory");
-    }
     if (StringUtils.isBlank(metadataObject.getType())) {
       throw new IllegalArgumentException("Metadata Item Object Type is mandatory");
     }
     if (StringUtils.isBlank(metadataObject.getId())) {
       throw new IllegalArgumentException("Metadata Item Object Id is mandatory");
     }
-    String metadataTypeName = metadataKey.getType();
-    if (StringUtils.isBlank(metadataTypeName)) {
-      throw new IllegalArgumentException("Metadata Type is mandatory");
+    if (metadataKey == null) {
+      throw new IllegalArgumentException("Metadata Key is mandatory");
     }
     if (StringUtils.isBlank(metadataKey.getName())) {
       throw new IllegalArgumentException("Metadata Name is mandatory");
     }
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
-    }
-    if (userIdentityId <= 0) {
-      throw new IllegalArgumentException("userIdentityId is mandatory");
-    }
+    String metadataTypeName = metadataKey.getType();
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(userIdentityId);
 
     Metadata metadata = getMetadataByKey(metadataKey);
     if (metadata == null) {
@@ -216,9 +191,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public MetadataItem deleteMetadataItem(long itemId, boolean broadcast) throws ObjectNotFoundException {
-    if (itemId <= 0) {
-      throw new IllegalArgumentException("Metadata Item Technical Identifier is mandatory");
-    }
+    validateMetadataItemId(itemId);
     MetadataItem metadataItem = this.metadataStorage.getMetadataItemById(itemId);
     if (metadataItem == null) {
       throw new ObjectNotFoundException("Metadata Item with identifier " + itemId + " wasn't found");
@@ -236,29 +209,34 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public MetadataItem deleteMetadataItem(long itemId, long userIdentityId) throws ObjectNotFoundException {
-    if (itemId <= 0) {
-      throw new IllegalArgumentException("Metadata Item Technical Identifier is mandatory");
-    }
-    if (userIdentityId <= 0) {
-      throw new IllegalArgumentException("userIdentityId is mandatory");
-    }
+    validateMetadataItemId(itemId);
+    validateUserIdentityId(userIdentityId);
 
     MetadataItem metadataItem = this.metadataStorage.getMetadataItemById(itemId);
     if (metadataItem == null) {
       throw new ObjectNotFoundException("Metadata Item with identifier " + itemId + " wasn't found");
     }
     metadataItem = this.metadataStorage.deleteMetadataItemById(itemId);
-    try {
-      this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item deleted", e);
-    }
+    broadcastDeleted(metadataItem, userIdentityId);
     return metadataItem;
   }
 
   @Override
   public void deleteMetadataItemsByObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByObject(object);
+  }
+
+  @Override
+  public void deleteByMetadataTypeAndSpaceIdAndCreatorId(String metadataTypeName, long spaceId, long userIdentityId) {
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateSpaceId(spaceId);
+    validateUserIdentityId(userIdentityId);
+    List<MetadataItem> deletedMetadataItems = this.metadataStorage.deleteByMetadataTypeAndSpaceIdAndCreatorId(metadataType.getId(), spaceId, userIdentityId);
+    if (CollectionUtils.isNotEmpty(deletedMetadataItems)) {
+      for (MetadataItem metadataItem : deletedMetadataItems) {
+        broadcastDeleted(metadataItem, userIdentityId);
+      }
+    }
   }
 
   @Override
@@ -357,35 +335,20 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                      long creatorId,
                                                                      long offset,
                                                                      long limit) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
-    }
-    if (creatorId <= 0) {
-      throw new IllegalArgumentException("creatorId is mandatory.");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(creatorId);
     return this.metadataStorage.getMetadataItemsByMetaDataTypeAndCreator(metadataType.getId(), creatorId, offset, limit);
   }
 
   public int countMetadataItemsByMetadataTypeAndCreator(String metadataTypeName, long creatorId) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
-    }
-    if (creatorId <= 0) {
-      throw new IllegalArgumentException("creatorId is mandatory.");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(creatorId);
     return this.metadataStorage.countMetadataItemsByMetadataTypeAndCreator(metadataType.getId(), creatorId);
   }
 
   public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataType + " is not registered as a plugin");
-    }
-    if (creatorId <= 0) {
-      throw new IllegalArgumentException("creatorId is mandatory.");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(creatorId);
     return this.metadataStorage.countMetadataItemsByMetadataTypeAndAudienceId(metadataType.getId(), creatorId, spaceId);
   }
 
@@ -399,10 +362,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                  String metadataTypeName,
                                                  long creatorId,
                                                  long limit) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     if (StringUtils.isBlank(term)) {
       return this.metadataStorage.getMetadataNamesByCreator(metadataType.getId(), creatorId, limit);
     } else {
@@ -416,10 +376,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                       Set<Long> audienceIds,
                                                       long creatorId,
                                                       long limit) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     if (StringUtils.isBlank(term)) {
       return this.metadataStorage.getMetadataNamesByUser(metadataType.getId(), creatorId, audienceIds, limit);
     } else {
@@ -432,10 +389,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                    String metadataTypeName,
                                                    Set<Long> audienceIds,
                                                    long limit) {
-    MetadataType metadataType = getMetadataTypeByName(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
-    }
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     if (StringUtils.isBlank(term)) {
       return this.metadataStorage.getMetadataNamesByAudiences(metadataType.getId(), audienceIds, limit);
     } else {
@@ -565,6 +519,49 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   private boolean isAllowMultipleItemsPerObject(String metadataType) {
     MetadataTypePlugin plugin = getMetadataTypePluginByName(metadataType);
     return plugin.isAllowMultipleItemsPerObject();
+  }
+
+  private void validateMetadata(Metadata metadata) {
+    if (metadata == null) {
+      throw new IllegalArgumentException("Metadata is mandatory");
+    }
+    if (metadata.getType() == null) {
+      throw new IllegalArgumentException(METADATA_TYPE_IS_MANDATORY_MESSAGE);
+    }
+  }
+
+  private void validateMetadataItemId(long itemId) {
+    if (itemId <= 0) {
+      throw new IllegalArgumentException("Metadata Item Technical Identifier is mandatory");
+    }
+  }
+
+  private void validateUserIdentityId(long userIdentityId) {
+    if (userIdentityId <= 0) {
+      throw new IllegalArgumentException("userIdentityId is mandatory");
+    }
+  }
+
+  private void validateSpaceId(long spaceId) {
+    if (spaceId <= 0) {
+      throw new IllegalArgumentException("spaceId is mandatory");
+    }
+  }
+
+  private MetadataType validateAndGetMetadataType(String metadataTypeName) {
+    MetadataType type = getMetadataTypeByName(metadataTypeName);
+    if (type == null) {
+      throw new IllegalArgumentException("Metadata Type " + metadataTypeName + " is not registered as a plugin");
+    }
+    return type;
+  }
+
+  private void broadcastDeleted(MetadataItem metadataItem, long userIdentityId) {
+    try {
+      this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata item deleted", e);
+    }
   }
 
 }

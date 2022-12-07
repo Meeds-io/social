@@ -669,24 +669,42 @@ export function shareActivityOnSpaces(spaceId, sharedActivity) {
   });
 }
 
-export function markItemsAsRead(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/unread/${spaceId}?ignoreNotExisting=true`, {
-    method: 'DELETE',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
+export function markAsRead(spaceId, applicationName, applicationItemId) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.read.item',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+        applicationName,
+        applicationItemId,
+      })
     }
-  });
+  }));
 }
 
-export function markAsRead(applicationName, applicationId, spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/unread/${applicationName}/${applicationId}/${spaceId}?ignoreNotExisting=true`, {
-    method: 'DELETE',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
+export function markAsUnread(spaceId, applicationName, applicationItemId) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.unread.item',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+        applicationName,
+        applicationItemId,
+      })
     }
-  });
+  }));
+}
+
+export function markAllAsRead(spaceId) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.read.allItems',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+      })
+    }
+  }));
 }

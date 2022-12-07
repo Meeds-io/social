@@ -62,19 +62,19 @@
           username-class />
       </v-list-item-title>
       <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
-          <exo-user-avatar
-              :identity="posterIdentity"
-              extra-class="text-truncate ms-2 me-1"
-              fullname
-              link-style
-              smallFontSize
-              username-class />
-          <activity-head-time
-              :activity="activity"
-              :is-activity-shared="isActivityShared"
-              is-mobile
-              no-icon
-              class="text-caption activity-head-time pt-0 ps-0" />
+        <exo-user-avatar
+          :identity="posterIdentity"
+          extra-class="text-truncate ms-2 me-1"
+          fullname
+          link-style
+          small-font-size
+          username-class />
+        <activity-head-time
+          :activity="activity"
+          :is-activity-shared="isActivityShared"
+          is-mobile
+          no-icon
+          class="text-caption activity-head-time pt-0 ps-0" />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
