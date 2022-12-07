@@ -218,6 +218,16 @@ public class MetadataStorage {
     }
   }
 
+  public List<MetadataItem> deleteByMetadataTypeAndSpaceIdAndCreatorId(long metadataType, long spaceId, long userIdentityId) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByTypeAndSpaceIdAndCreatorId(metadataType,
+                                                                                                                 spaceId,
+                                                                                                                 userIdentityId);
+    for (MetadataItemEntity metadataItemEntity : metadataItemEntities) {
+      deleteMetadataItemById(metadataItemEntity.getId());
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+  }
+
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(object.getType(), object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
