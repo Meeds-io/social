@@ -13,7 +13,6 @@
         <v-btn
           :href="activityLink"
           :height="btnHeight"
-          :disabled="isActivityShared"
           :x-small="btnXSmall"
           :class="btnClass"
           class="hover-underline width-auto text-capitalize-first-letter px-0 "
