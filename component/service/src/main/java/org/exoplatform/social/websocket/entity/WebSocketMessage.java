@@ -16,13 +16,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.notification.model;
+package org.exoplatform.social.websocket.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
 
+import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,31 +32,35 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpaceWebNotificationItem {
+@ToString
+public class WebSocketMessage {
 
-  private String      applicationName;
+  String              wsEventName;
 
-  private String      applicationItemId;
+  Map<String, Object> message;
 
-  private long        userId;
-
-  private long        spaceId;
-
-  private Set<String> applicationSubItemIds;
-
-  public SpaceWebNotificationItem(String applicationName, String applicationItemId, long userId, long spaceId) {
-    this.applicationName = applicationName;
-    this.applicationItemId = applicationItemId;
-    this.userId = userId;
-    this.spaceId = spaceId;
+  public WebSocketMessage(String wsEventName, Object... data) {
+    this.wsEventName = wsEventName;
+    if (data != null && data.length > 0) {
+      message = new HashMap<>();
+      for (Object object : data) {
+        if (object != null) {
+          message.put(object.getClass().getSimpleName().toLowerCase(), object);
+        }
+      }
+    }
   }
 
-  public void addApplicationSubItem(String itemId) {
-    if (StringUtils.isNotBlank(itemId)) {
-      if (applicationSubItemIds == null) {
-        applicationSubItemIds = new HashSet<>();
-      }
-      applicationSubItemIds.add(itemId);
+  @Override
+  public String toString() {
+    return toJsonString();
+  }
+
+  public String toJsonString() {
+    try {
+      return new JsonGeneratorImpl().createJsonObject(this).toString();
+    } catch (JsonException e) {
+      throw new IllegalStateException("Error parsing current global object to string", e);
     }
   }
 

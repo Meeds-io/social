@@ -21,6 +21,7 @@ import DrawersOverlay from './components/DrawersOverlay.vue';
 import ActivityShareDrawer from './components/ActivityShareDrawer.vue';
 import FavoriteButton from './components/FavoriteButton.vue';
 import ChangesReminder from './components/ChangesReminder.vue';
+import UnreadBadge from './components/UnreadBadge.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -46,6 +47,7 @@ const components = {
   'exo-group-suggester': ExoGroupSuggester,
   'favorite-button': FavoriteButton,
   'changes-reminder': ChangesReminder,
+  'unread-badge': UnreadBadge,
 };
 
 for (const key in components) {

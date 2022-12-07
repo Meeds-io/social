@@ -11,9 +11,11 @@ if (extensionRegistry) {
   }
 }
 
-window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
-  value: spacesAdministrationServices,
-});
+if (!Vue.prototype.$spacesAdministrationServices) {
+  window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
+    value: spacesAdministrationServices,
+  });
+}
 
 //add menu entry in Hamburger Menu
 document.dispatchEvent(new CustomEvent('exo-hamburger-menu-navigation-refresh'));

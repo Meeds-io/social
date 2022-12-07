@@ -3,13 +3,15 @@ import ExoRecentSpacesHamburgerNavigation from './components/ExoRecentSpacesHamb
 import ExoSpacesNavigationContent from './components/ExoSpacesNavigationContent.vue';
 import SpaceNavigationItem from './components/SpaceNavigationItem.vue';
 import SpacePanelHamburgerNavigation from './components/SpacePanelHamburgerNavigation.vue';
+import SpacePanelHamburgerNavigationItem from './components/SpacePanelHamburgerNavigationItem.vue';
 import LegacyExoSpacesHamburgerNavigation from './components/legacy/ExoSpacesHamburgerNavigation.vue';
 import LegacyExoRecentSpacesHamburgerNavigation from './components/legacy/ExoRecentSpacesHamburgerNavigation.vue';
 import LegacyExoSpacesNavigationContent from './components/legacy/ExoSpacesNavigationContent.vue';
 
 const components = {
   'space-navigation-item': SpaceNavigationItem,
-  'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation
+  'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
+  'space-panel-hamburger-navigation-item': SpacePanelHamburgerNavigationItem,
 };
 
 if (eXo.env.portal.leftMenuReviewEnabled) {

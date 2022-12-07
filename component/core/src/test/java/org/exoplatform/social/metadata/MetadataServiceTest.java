@@ -27,10 +27,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.picocontainer.Startable;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
-import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -43,8 +44,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
-import org.picocontainer.Startable;
 
+@SuppressWarnings("removal")
 public class MetadataServiceTest extends AbstractCoreTest {
 
   private static boolean  allowMultipleItemsPerObject;
@@ -61,8 +62,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private MetadataService metadataService;
 
-  private ListenerService listenerService;
-
   private MetadataDAO     metadataDAO;
 
   private MetadataType    userMetadataType;
@@ -77,7 +76,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-    listenerService = getContainer().getComponentInstanceOfType(ListenerService.class);
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
     tearDownSpaceList = new ArrayList<>();
@@ -356,35 +354,27 @@ public class MetadataServiceTest extends AbstractCoreTest {
     }
   }
 
-  public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty() {
+  public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty() throws ObjectAlreadyExistsException {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;
-    String objectId = "objectIdTestSam";
-    String parentObjectId = "parentObjectIdTestSam";
-    String objectType = "objectTypeTestSam";
-    String name = "testMetadataSam";
+    String objectId = "objectIdTest2";
+    String parentObjectId = "parentObjectIdTest2";
+    String objectType = "objectTypeTest2";
+    String name1 = "testMetadataName1";
+    String name2 = "testMetadataName2";
     String type = userMetadataType.getName();
     MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
-    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
     Map<String, String> properties = new LinkedHashMap<>();
     properties.put("staged", String.valueOf(false));
+
+    metadataService.createMetadataItem(metadataObject, new MetadataKey(type, name1, audienceId), properties, creatorId);
+
     Map<String, String> properties1 = new LinkedHashMap<>();
     properties1.put("staged", String.valueOf(true));
+    metadataService.createMetadataItem(metadataObject, new MetadataKey(type, name2, audienceId), properties1, creatorId);
 
-    try {
-      MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, properties, creatorId);
-    } catch (ObjectAlreadyExistsException e) {
-      // Expected
-    }
-    try {
-      String name1 = "testMetadataClaude";
-      MetadataKey metadataKey1 = new MetadataKey(type, name1, audienceId);
-      MetadataItem metadataItem1 = metadataService.createMetadataItem(metadataObject, metadataKey1, properties1, creatorId);
-    } catch (ObjectAlreadyExistsException e) {
-      // Expected
-    }
     List<MetadataItem> metadataItems =
-                                     metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+                                     metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name1,
                                                                                                                            type,
                                                                                                                            objectType,
                                                                                                                            "staged",
@@ -397,7 +387,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(type, metadataItems.get(0).getMetadataTypeName());
 
     // Staged property is true
-    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name,
+    metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(name1,
                                                                                                           type,
                                                                                                           objectType,
                                                                                                           "staged",
