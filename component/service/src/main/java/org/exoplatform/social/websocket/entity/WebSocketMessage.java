@@ -27,8 +27,10 @@ import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
 import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class WebSocketMessage {
@@ -51,6 +53,10 @@ public class WebSocketMessage {
 
   @Override
   public String toString() {
+    return toJsonString();
+  }
+
+  public String toJsonString() {
     try {
       return new JsonGeneratorImpl().createJsonObject(this).toString();
     } catch (JsonException e) {

@@ -1,6 +1,5 @@
 import './initComponents.js';
 import * as spacesAdministrationServices from '../spaces-administration/spacesAdministrationServices.js';
-import * as socialSpaceNotificationWebSocket from './js/WebSocket.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -12,16 +11,11 @@ if (extensionRegistry) {
   }
 }
 
-window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
-  value: spacesAdministrationServices,
-});
-
-if (!Vue.prototype.$socialSpaceNotificationWebSocket) {
-  window.Object.defineProperty(Vue.prototype, '$socialSpaceNotificationWebSocket', {
-    value: socialSpaceNotificationWebSocket,
+if (!Vue.prototype.$spacesAdministrationServices) {
+  window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
+    value: spacesAdministrationServices,
   });
 }
-
 
 //add menu entry in Hamburger Menu
 document.dispatchEvent(new CustomEvent('exo-hamburger-menu-navigation-refresh'));

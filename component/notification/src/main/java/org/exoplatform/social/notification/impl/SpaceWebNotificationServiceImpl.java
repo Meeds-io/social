@@ -19,16 +19,22 @@
 package org.exoplatform.social.notification.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
@@ -37,17 +43,14 @@ import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
+@SuppressWarnings("removal")
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService {
 
-  public static final String               METADATA_TYPE_NAME               = "unread";
+  public static final String               APPLICATION_SUB_ITEM_IDS = "applicationSubItemIds";
 
-  public static final String               NOTIFICATION_UNREAD_EVENT_NAME   = "notification.unread.item";
+  public static final String               METADATA_TYPE_NAME       = "unread";
 
-  public static final String               NOTIFICATION_READ_EVENT_NAME     = "notification.read.item";
-
-  public static final String               NOTIFICATION_ALL_READ_EVENT_NAME = "notification.read.allItems";
-
-  private static final Log                 LOG                              =
+  private static final Log                 LOG                      =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
   private MetadataService                  metadataService;
@@ -56,7 +59,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   private boolean                          enabled;
 
-  private List<SpaceWebNotificationPlugin> plugins                          = new ArrayList<>();
+  private List<SpaceWebNotificationPlugin> plugins                  = new ArrayList<>();
 
   public SpaceWebNotificationServiceImpl(MetadataService metadataService,
                                          ExoFeatureService featureService,
@@ -101,8 +104,16 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
                                                        notificationItem.getApplicationItemId(),
                                                        null,
                                                        notificationItem.getSpaceId());
-    metadataService.createMetadataItem(metadataObject, metadataKey, userIdentityId);
-    listenerService.broadcast(NOTIFICATION_UNREAD_EVENT_NAME, notificationItem, userIdentityId);
+    try {
+      mergeExistingUnreadProperties(notificationItem, metadataKey, metadataObject);
+      metadataService.createMetadataItem(metadataObject,
+                                         metadataKey,
+                                         toMetadataProperties(notificationItem),
+                                         userIdentityId);
+      listenerService.broadcast(NOTIFICATION_UNREAD_EVENT_NAME, notificationItem, userIdentityId);
+    } catch (ObjectAlreadyExistsException e) {// NOSONAR
+      LOG.debug("Object {} already marked as unread", notificationItem);
+    }
   }
 
   @Override
@@ -129,12 +140,40 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   @Override
   public void markAllAsRead(long userIdentityId, long spaceId) throws Exception {
     metadataService.deleteMetadataBySpaceIdAndAudienceId(spaceId, userIdentityId);
-    listenerService.broadcast(NOTIFICATION_ALL_READ_EVENT_NAME, userIdentityId, spaceId);
+    listenerService.broadcast(NOTIFICATION_ALL_READ_EVENT_NAME,
+                              new SpaceWebNotificationItem(null, null, userIdentityId, spaceId),
+                              userIdentityId);
   }
 
   @Override
   public Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId) {
     return metadataService.countMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, creatorId, spaceId);
+  }
+
+  private void mergeExistingUnreadProperties(SpaceWebNotificationItem notificationItem,
+                                             MetadataKey metadataKey,
+                                             MetadataObject metadataObject) throws ObjectNotFoundException {
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, metadataObject);
+    if (CollectionUtils.isNotEmpty(metadataItems)) {
+      for (MetadataItem metadataItem : metadataItems) {
+        appendNotificationSubItems(notificationItem, metadataItem);
+        metadataService.deleteMetadataItem(metadataItem.getId(), false);
+      }
+    }
+  }
+
+  private void appendNotificationSubItems(SpaceWebNotificationItem notificationItem, MetadataItem metadataItem) {
+    if (MapUtils.isNotEmpty(metadataItem.getProperties())) {
+      String concatenatedSubItemIds = metadataItem.getProperties().get(APPLICATION_SUB_ITEM_IDS);
+      if (StringUtils.isNotBlank(concatenatedSubItemIds)) {
+        Arrays.stream(StringUtils.split(concatenatedSubItemIds, ",")).forEach(notificationItem::addApplicationSubItem);
+      }
+    }
+  }
+
+  private Map<String, String> toMetadataProperties(SpaceWebNotificationItem notificationItem) {
+    return Collections.singletonMap(APPLICATION_SUB_ITEM_IDS,
+                                    StringUtils.join(notificationItem.getApplicationSubItemIds(), ","));
   }
 
 }
