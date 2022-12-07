@@ -108,6 +108,9 @@ export default {
     }
   },
   computed: {
+    spaceId() {
+      return this.space?.id;
+    },
     spaceLink() {
       return this.spaceUrl;
     },
@@ -149,8 +152,30 @@ export default {
         this.displayBadge = false;
       }
     });
+    document.addEventListener('social-spaces-notification-updated', this.handleUpdatesFromWebSocket);
+  },
+  beforeDestroy() {
+    document.removeEventListener('social-spaces-notification-updated', this.handleUpdatesFromWebSocket);
   },
   methods: {
+    handleUpdatesFromWebSocket(event) {
+      const data = event?.detail;
+      const spacewebnotificationitem = data?.message?.spacewebnotificationitem;
+      const wsEventName = data?.wsEventName || '';
+      if (!spacewebnotificationitem) {
+        return;
+      }
+      const spaceId = spacewebnotificationitem.spaceId.toString();
+      if (this.spaceId !== spaceId) {
+        return;
+      }
+      if (wsEventName === 'notification.unread.item') {
+        if (this.space?.unreadItemsPerApplication?.activity) {
+          const newUnreadItemsCountValue = this.space.unreadItemsPerApplication.activity += 1;
+          this.$set(this.space.unreadItemsPerApplication, 'activity', newUnreadItemsCountValue);
+        }
+      }
+    },
     hideSecondeItem() {
       this.arrowIcon= 'fa-arrow-right';
       this.showItemActions = false;

@@ -11,6 +11,7 @@
     "activityComposer": true,
     "socialUIProfile": true,
     "QRCode": true,
-    "ExtendedDomPurify": true
+    "ExtendedDomPurify": true,
+    "cCometd": true
   }
 }
