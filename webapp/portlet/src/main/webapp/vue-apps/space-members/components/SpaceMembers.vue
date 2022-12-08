@@ -146,6 +146,19 @@ export default {
         },
       });
       extensionRegistry.registerExtension('space-member-extension', 'action', {
+        id: 'spaceMembers-removePublisher',
+        title: this.$t('peopleList.button.removePublisher'),
+        icon: 'fa fa-paper-plane',
+        order: 1,
+        enabled: (user) => {
+          return this.publisherRolePromotionFeatureEnabled && user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor');
+        },
+        click: (user) => {
+          this.$spaceService.removePublisher(eXo.env.portal.spaceName, user.username)
+            .then(() => this.$refs.spaceMembers.searchPeople());
+        },
+      });
+      extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-cancelInvitation',
         title: this.$t('peopleList.button.cancelInvitation'),
         icon: 'uiIconTrash',

@@ -171,6 +171,12 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     response = service("DELETE", getURLResource("spacesMemberships/" + id), "", null, null);
     assertEquals(200, response.getStatus());
     assertFalse(spaceService.isRedactor(spaceService.getSpaceByPrettyName("space1"), "demo"));
+    
+    spaceService.addPublisher(spaceService.getSpaceByPrettyName("space1"), "demo");
+    id = "space1:demo:publisher";
+    response = service("DELETE", getURLResource("spacesMemberships/" + id), "", null, null);
+    assertEquals(200, response.getStatus());
+    assertFalse(spaceService.isPublisher(spaceService.getSpaceByPrettyName("space1"), "demo"));
   }
 
   public void testGetInvitedSpaceMemberships() throws Exception {
