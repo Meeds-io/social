@@ -83,13 +83,22 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
                                                                                   .findMembershipByUserGroupAndType(m.getUserName(),
                                                                                                                     m.getGroupId(),
                                                                                                                     SpaceUtils.MEMBER) != null;
+        boolean hasPublisherMembership =
+                                       deletedMembershipIdentity != null ? deletedMembershipIdentity.isMemberOf(m.getGroupId(),
+                                                                                                                SpaceUtils.PUBLISHER)
+                                                                         : orgService.getMembershipHandler()
+                                                                                     .findMembershipByUserGroupAndType(m.getUserName(),
+                                                                                                                       m.getGroupId(),
+                                                                                                                       SpaceUtils.PUBLISHER) != null;
         if (!hasManagerMembership) {
           spaceService.setManager(space, m.getUserName(), false);
         }
         if (!hasMemberMembership) {
           spaceService.removeMember(space, m.getUserName());
         }
-  
+        if (!hasPublisherMembership) {
+          spaceService.removePublisher(space, m.getUserName());
+        }
         SpaceUtils.refreshNavigation();
       }
     }

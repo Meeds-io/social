@@ -2143,10 +2143,12 @@ public class SpaceServiceTest extends AbstractCoreTest {
   
   /**
    * Test {@link SpaceService#addPublisher(Space, String, boolean)}
+   * Test {@link SpaceService#removePublisher(Space, String)}
+   * Test {@link SpaceService#isPublisher(Space, String)}
    *
    * @throws Exception
    */
-  public void testAddPublisher() throws Exception {
+  public void testSetPublisher() throws Exception {
     Space space = new Space();
     space.setDisplayName("space1");
     space.setPrettyName(space.getDisplayName());
@@ -2166,6 +2168,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addPublisher(space, "ghost");
     spaceService.addPublisher(space, "john");
     assertEquals(2, space.getPublishers().length);
+    spaceService.removePublisher(space, "john");
+    assertEquals(1, space.getPublishers().length);
+    assertTrue(spaceService.isPublisher(space, "ghost"));
+    assertFalse(spaceService.isPublisher(space, "john"));
   }
 
   /**
