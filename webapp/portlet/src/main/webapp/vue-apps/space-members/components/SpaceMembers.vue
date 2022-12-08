@@ -73,7 +73,7 @@ export default {
         icon: 'uiIconTrash',
         order: 0,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && user.isMember && !user.isGroupBound;
+          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && user.isMember && !user.isGroupBound;
         },
         click: (user) => {
           this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
@@ -86,7 +86,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return user.isManager && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor');
+          return user.isManager && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
           this.$spaceService.removeManager(eXo.env.portal.spaceName, user.username)
@@ -99,7 +99,7 @@ export default {
         icon: 'uiIconMemberAdmin',
         order: 1,
         enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isManager;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isManager;
         },
         click: (user) => {
           this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
@@ -112,7 +112,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isSpaceRedactor;
+          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpaceRedactor;
         },
         click: (user) => {
           this.$spaceService.setAsRedactor(eXo.env.portal.spaceDisplayName, user.username)
@@ -125,7 +125,7 @@ export default {
         icon: 'uiIconEditMembership',
         order: 1,
         enabled: (user) => {
-          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor');
+          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
           this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
@@ -138,7 +138,7 @@ export default {
         icon: 'fa fa-paper-plane',
         order: 1,
         enabled: (user) => {
-          return this.publisherRolePromotionFeatureEnabled && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor') && !user.isSpacePublisher;
+          return this.publisherRolePromotionFeatureEnabled && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpacePublisher;
         },
         click: (user) => {
           this.$spaceService.promotePublisher(eXo.env.portal.spaceDisplayName, user.username)
@@ -151,7 +151,7 @@ export default {
         icon: 'fa fa-paper-plane',
         order: 1,
         enabled: (user) => {
-          return this.publisherRolePromotionFeatureEnabled && user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor');
+          return this.publisherRolePromotionFeatureEnabled && user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
           this.$spaceService.removePublisher(eXo.env.portal.spaceName, user.username)

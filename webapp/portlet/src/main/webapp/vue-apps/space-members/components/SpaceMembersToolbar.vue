@@ -104,6 +104,7 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
+    publisherRolePromotionFeatureEnabled: false
   }),
   computed: {
     bottomNavigationHeight() {
@@ -111,33 +112,71 @@ export default {
     },
     peopleFilters() {
       if (this.isManager) {
-        return [{
-          text: this.$t('peopleList.label.filter.member'),
-          value: 'member',
-        },{
-          text: this.$t('peopleList.label.filter.manager'),
-          value: 'manager',
-        },{
-          text: this.$t('peopleList.label.filter.redactor'),
-          value: 'redactor',
-        },{
-          text: this.$t('peopleList.label.filter.invited'),
-          value: 'invited',
-        },{
-          text: this.$t('peopleList.label.filter.pending'),
-          value: 'pending',
-        }];
+        if (this.publisherRolePromotionFeatureEnabled) {
+          return [{
+            text: this.$t('peopleList.label.filter.member'),
+            value: 'member',
+          },{
+            text: this.$t('peopleList.label.filter.manager'),
+            value: 'manager',
+          },{
+            text: this.$t('peopleList.label.filter.redactor'),
+            value: 'redactor',
+          },{
+            text: this.$t('peopleList.label.filter.publisher'),
+            value: 'publisher',
+          },{
+            text: this.$t('peopleList.label.filter.invited'),
+            value: 'invited',
+          },{
+            text: this.$t('peopleList.label.filter.pending'),
+            value: 'pending',
+          }];
+        } else {
+          return [{
+            text: this.$t('peopleList.label.filter.member'),
+            value: 'member',
+          },{
+            text: this.$t('peopleList.label.filter.manager'),
+            value: 'manager',
+          },{
+            text: this.$t('peopleList.label.filter.redactor'),
+            value: 'redactor',
+          },{
+            text: this.$t('peopleList.label.filter.invited'),
+            value: 'invited',
+          },{
+            text: this.$t('peopleList.label.filter.pending'),
+            value: 'pending',
+          }];
+        }
       } else {
-        return [{
-          text: this.$t('peopleList.label.filter.member'),
-          value: 'member',
-        },{
-          text: this.$t('peopleList.label.filter.redactor'),
-          value: 'redactor',
-        },{
-          text: this.$t('peopleList.label.filter.manager'),
-          value: 'manager',
-        }];
+        if (this.publisherRolePromotionFeatureEnabled) {
+          return [{
+            text: this.$t('peopleList.label.filter.member'),
+            value: 'member',
+          },{
+            text: this.$t('peopleList.label.filter.redactor'),
+            value: 'redactor',
+          },{
+            text: this.$t('peopleList.label.filter.publisher'),
+            value: 'publisher',
+          },{
+            text: this.$t('peopleList.label.filter.manager'),
+            value: 'manager',
+          }];
+        } else {
+          return [{
+            text: this.$t('peopleList.label.filter.member'),
+            value: 'member',
+          },{
+            text: this.$t('peopleList.label.filter.redactor'),
+            value: 'redactor',
+          },{
+            text: this.$t('peopleList.label.filter.manager'),
+            value: 'manager',
+          }];
+        }
       }
     },
   },
@@ -148,6 +187,10 @@ export default {
     filter() {
       this.$emit('filter-changed', this.filter);
     },
+  },
+  created() {
+    this.$featureService.isFeatureEnabled('publisherRolePromotion')
+      .then(enabled => this.publisherRolePromotionFeatureEnabled = enabled);
   },
   methods: {
     openBottomMenu() {
