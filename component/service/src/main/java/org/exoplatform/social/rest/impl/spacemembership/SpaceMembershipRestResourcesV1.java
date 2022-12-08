@@ -51,6 +51,7 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
@@ -219,7 +220,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         if ("redactor".equalsIgnoreCase(model.getRole())) {
           spaceService.addRedactor(givenSpace, user);
         }
-        if ("publisher".equalsIgnoreCase(model.getRole())) {
+        if (SpaceUtils.PUBLISHER.equalsIgnoreCase(model.getRole())) {
           spaceService.addPublisher(givenSpace, user);
         }
       } else {
@@ -380,7 +381,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     String role = idParams[2];
-    if (role != null && !role.equals("redactor") && !role.equals("publisher") && spaceService.isOnlyManager(space, targetUser)) {
+    if (role != null && !role.equals("redactor") && !role.equals(SpaceUtils.PUBLISHER) && spaceService.isOnlyManager(space, targetUser)) {
       throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
     }
     //
@@ -389,7 +390,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     if (role != null && role.equals("redactor")) {
       spaceService.removeRedactor(space, targetUser);
     }
-    if (role != null && role.equals("publisher")) {
+    if (role != null && role.equals(SpaceUtils.PUBLISHER)) {
       spaceService.removePublisher(space, targetUser);
     }
     if (role != null && role.equals("manager")) {
