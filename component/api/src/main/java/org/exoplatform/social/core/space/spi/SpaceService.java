@@ -489,6 +489,17 @@ public interface SpaceService {
   }
   
   /**
+   * Removes the "publisher" role of a user in a space.
+   *
+   * @param space The space that its user is assigned to publisher.
+   * @param userId The remote user Id.
+   * @LevelAPI Platform
+   */
+  default void removePublisher(Space space, String userId) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
    * Checks if a given user has the "publisher" role in a space.
    *
    * @param space The space that its user is checked if he has the "publisher" role or not.
