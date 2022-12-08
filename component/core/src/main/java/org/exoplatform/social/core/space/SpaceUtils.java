@@ -886,6 +886,13 @@ public class SpaceUtils {
         removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
       }
     }
+    
+    // remove users from group which role is publisher
+    if (space.getPublishers() != null) {
+      for (String userId : space.getPublishers()) {
+        removeUserFromGroupWithPublisherMembership(userId, space.getGroupId());
+      }
+    }
   }
 
   /**
@@ -993,7 +1000,7 @@ public class SpaceUtils {
   }
 
   /**
-   * Removes the user from group with the membership (member, manager, redactor).
+   * Removes the user from group with the membership (member, manager, redactor, publisher).
    * 
    * @param remoteId
    * @param groupId
@@ -1062,6 +1069,16 @@ public class SpaceUtils {
    */
   public static void removeUserFromGroupWithRedactorMembership(String remoteId, String groupId) {
     removeUserFromGroupWithMembership(remoteId, groupId, REDACTOR);
+  }
+  
+  /**
+   * Removes the user from group with publisher membership.
+   * 
+   * @param remoteId
+   * @param groupId
+   */
+  public static void removeUserFromGroupWithPublisherMembership(String remoteId, String groupId) {
+    removeUserFromGroupWithMembership(remoteId, groupId, PUBLISHER);
   }
 
   /**

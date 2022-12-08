@@ -505,6 +505,18 @@ export function promotePublisher(spaceDisplayName, userId) {
   });
 }
 
+export function removePublisher(spacePrettyName, username) {
+  const id = `${spacePrettyName}:${username}:publisher`;
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function addApplication(spaceId, appId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
     method: 'POST',
