@@ -219,6 +219,9 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         if ("redactor".equalsIgnoreCase(model.getRole())) {
           spaceService.addRedactor(givenSpace, user);
         }
+        if ("publisher".equalsIgnoreCase(model.getRole())) {
+          spaceService.addPublisher(givenSpace, user);
+        }
       } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }

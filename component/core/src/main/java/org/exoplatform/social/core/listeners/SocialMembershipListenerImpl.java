@@ -137,6 +137,11 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
             return;
           }
           spaceService.addRedactor(space, userName);
+        } else if (SpaceUtils.PUBLISHER.equalsIgnoreCase(m.getMembershipType())) {
+          if (spaceService.isPublisher(space, userName)) {
+            return;
+          }
+          spaceService.addPublisher(space, userName);
         }
         
         //Refresh GroupNavigation

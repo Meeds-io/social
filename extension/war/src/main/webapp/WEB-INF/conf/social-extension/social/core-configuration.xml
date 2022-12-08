@@ -729,6 +729,7 @@
             <property name="exo.feature.leftMenuReview.enabled" value="${exo.feature.leftMenuReview.enabled:true}" />
             <property name="exo.feature.StreamFilter.enabled" value="${exo.feature.StreamFilter.enabled:false}" />
             <property name="exo.feature.SpaceWebNotifications.enabled" value="${exo.feature.StreamFilter.enabled:true}" />
+            <property name="exo.feature.publisherRolePromotion.enabled" value="${exo.feature.publisherRolePromotion.enabled:false}" />
           </properties-param>
         </init-params>
     </component>
