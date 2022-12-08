@@ -175,7 +175,8 @@ export default {
           || this.filter === 'manager'
           || this.filter === 'invited'
           || this.filter === 'pending'
-          || this.filter === 'redactor') {
+          || this.filter === 'redactor'
+          || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId);
       } else {
         searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
