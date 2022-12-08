@@ -187,6 +187,15 @@ public class SpaceEntity extends BaseEntity {
   public Boolean getIsRedactor() {
     return (Boolean) getProperty("isRedactor");
   }
+  
+  public SpaceEntity setIsPublisher(boolean isPublisher) {
+    setProperty("isPublisher", isPublisher);
+    return this;
+  }
+
+  public Boolean getIsPublisher() {
+    return (Boolean) getProperty("isPublisher");
+  }
 
   public SpaceEntity setCreatedTime(String creationTime) {
     setProperty("createdTime", creationTime);
@@ -240,6 +249,24 @@ public class SpaceEntity extends BaseEntity {
 
   public Integer getRedactorsCount() {
     return (Integer) getProperty("redactorsCount");
+  }
+  
+  public SpaceEntity setPublishers(LinkEntity publishers) {
+    setProperty("publishers", publishers.getData());
+    return this;
+  }
+
+  public String getPublishers() {
+    return getString("publishers");
+  }
+  
+  public SpaceEntity setPublishersCount(int publishersCount) {
+    setProperty("publishersCount", publishersCount);
+    return this;
+  }
+
+  public Integer getPublishersCount() {
+    return (Integer) getProperty("publishersCount");
   }
 
   public SpaceEntity setIsMember(boolean isMember) {

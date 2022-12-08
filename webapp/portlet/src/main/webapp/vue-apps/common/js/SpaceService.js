@@ -486,6 +486,25 @@ export function removeRedactor(spacePrettyName, username) {
   });
 }
 
+export function promotePublisher(spaceDisplayName, userId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      space: spaceDisplayName,
+      user: userId,
+      role: 'publisher',
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function addApplication(spaceId, appId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
     method: 'POST',

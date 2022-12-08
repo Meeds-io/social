@@ -1461,6 +1461,11 @@ public class SpaceServiceImpl implements SpaceService {
   public boolean isRedactor(Space space, String userId) {
     return ArrayUtils.contains(space.getRedactors(), userId);
   }
+  
+  @Override
+  public boolean isPublisher(Space space, String userId) {
+    return ArrayUtils.contains(space.getPublishers(), userId);
+  }
 
   @Override
   public boolean hasRedactor(Space space) {
@@ -1561,6 +1566,17 @@ public class SpaceServiceImpl implements SpaceService {
       space.setRedactors(redactors);
       this.updateSpace(space);
       SpaceUtils.removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
+    }
+  }
+  
+  @Override
+  public void addPublisher(Space space, String userId) {
+    String[] publishers = space.getPublishers();
+    if (!ArrayUtils.contains(publishers, userId)) {
+      publishers = (String[]) ArrayUtils.add(publishers, userId);
+      space.setPublishers(publishers);
+      this.updateSpace(space);
+      SpaceUtils.addUserToGroupWithPublisherMembership(userId, space.getGroupId());
     }
   }
 
