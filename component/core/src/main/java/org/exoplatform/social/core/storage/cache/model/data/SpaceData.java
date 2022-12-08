@@ -52,6 +52,7 @@ public class SpaceData implements CacheData<Space> {
 
   private final String[] members;
   private final String[] redactors;
+  private final String[] publishers;
   private final String[] managers;
   private final String[] pendingUser;
   private final String[] invitedUser;
@@ -76,6 +77,7 @@ public class SpaceData implements CacheData<Space> {
 
     members = space.getMembers();
     redactors = space.getRedactors();
+    publishers = space.getPublishers();
     managers = space.getManagers();
     pendingUser = space.getPendingUsers();
     invitedUser = space.getInvitedUsers();
@@ -106,6 +108,7 @@ public class SpaceData implements CacheData<Space> {
     space.setUrl(url);
     space.setMembers(members);
     space.setRedactors(redactors);
+    space.setPublishers(publishers);
     space.setManagers(managers);
     space.setPendingUsers(pendingUser);
     space.setInvitedUsers(invitedUser);
@@ -172,6 +175,10 @@ public class SpaceData implements CacheData<Space> {
   public String[] getRedactors() {
     return redactors;
   }
+  
+  public String[] getPublishers() {
+    return publishers;
+  }
 
   public String[] getManagers() {
     return managers;
@@ -212,6 +219,7 @@ public class SpaceData implements CacheData<Space> {
             Objects.equals(createdTime, spaceData.createdTime) &&
             Arrays.equals(members, spaceData.members) &&
             Arrays.equals(redactors, spaceData.redactors) &&
+            Arrays.equals(publishers, spaceData.publishers) &&
             Arrays.equals(managers, spaceData.managers) &&
             Arrays.equals(pendingUser, spaceData.pendingUser) &&
             Arrays.equals(invitedUser, spaceData.invitedUser);
@@ -221,6 +229,6 @@ public class SpaceData implements CacheData<Space> {
   public int hashCode() {
     return Objects.hash(id, app, prettyName, displayName, registration, description, type, visibility,
             priority, avatarUrl, bannerUrl, groupId, url, avatarLastUpdated, bannerLastUpdated, createdTime,
-            members, managers, redactors, pendingUser, invitedUser);
+            members, managers, redactors, publishers, pendingUser, invitedUser);
   }
 }

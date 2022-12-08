@@ -41,6 +41,16 @@
         <v-icon size="12">mdi-account-edit</v-icon>
       </v-btn>
       <v-btn
+        v-if="publisherRolePromotionFeatureEnabled && user.isSpacePublisher"
+        :title="$t('peopleList.label.spacePublisher')"
+        :ripple="false"
+        color="primary"
+        class="peopleInfoIcon d-flex not-clickable primary-border-color ms-1"
+        icon
+        small>
+        <v-icon size="12">fa-paper-plane</v-icon>
+      </v-btn>
+      <v-btn
         v-if="user.isGroupBound"
         :title="$t('peopleList.label.groupBound')"
         :ripple="false"
@@ -244,6 +254,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
+    publisherRolePromotionFeatureEnabled: false
   }),
   computed: {
     isSameUser() {
@@ -262,13 +273,9 @@ export default {
       if (!this.profileActionExtensions || !this.user) {
         return [];
       }
-      if (this.isSameUser && !this.user.isManager) {
-        return this.profileActionExtensions.slice().filter(extension => (extension.title === this.$t('peopleList.button.setAsRedactor')
-            || extension.title === this.$t('peopleList.button.removeRedactor')) && extension.enabled(this.user));
-      }
       if (this.isSameUser && this.user.isManager) {
         return this.profileActionExtensions.slice().filter(extension => ((extension.title === this.$t('peopleList.button.removeManager'))
-            || (extension.title === this.$t('peopleList.button.setAsRedactor') || extension.title === this.$t('peopleList.button.removeRedactor')) && (extension.enabled(this.user))));
+            || (extension.title === this.$t('peopleList.button.setAsRedactor') || extension.title === this.$t('peopleList.button.removeRedactor') || extension.title === this.$t('peopleList.button.promotePublisher')) && (extension.enabled(this.user))));
       }
       return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
     },
@@ -292,6 +299,8 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
+    this.$featureService.isFeatureEnabled('publisherRolePromotion')
+      .then(enabled => this.publisherRolePromotionFeatureEnabled = enabled);
   },
   methods: {
     connect() {

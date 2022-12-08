@@ -127,6 +127,16 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertFalse(ArrayUtils.contains(space.getRedactors(), "demo"));
     assertEquals(1, space.getRedactors().length);
     
+    input = "{\"space\":space1, \"user\":demo, \"role\":publisher}";
+    response = getResponse("POST", getURLResource("spacesMemberships"), input);
+    
+    space = spaceService.getSpaceByPrettyName("space1");
+    
+    assertTrue(ArrayUtils.contains(space.getPublishers(), "demo"));
+    assertFalse(ArrayUtils.contains(space.getPublishers(), "john"));
+    assertEquals(1, space.getPublishers().length);
+    
+    
     //demo add mary as member of space1 but has no permission
     startSessionAs("demo");
     input = "{\"space\":space1, \"user\":mary}";
