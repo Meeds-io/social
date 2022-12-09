@@ -116,12 +116,12 @@ public class Utils {
     return (id != null);
   }
   
-  public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster) {
-    receivers.addAll(getDestinataires(commenters, poster));
+  public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(commenters, poster, spaceId));
   }
 
-  public static void sendToLikers(Set<String> receivers, String[] likers, String poster) {
-    receivers.addAll(getDestinataires(likers, poster));
+  public static void sendToLikers(Set<String> receivers, String[] likers, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(likers, poster, spaceId));
   }
   
   /**
@@ -146,17 +146,24 @@ public class Utils {
    * Checks if a notification message is sent to an activity poster when a new comment is created.
    * @param receivers The list of users receiving the notification message.
    * @param activityPosterId Id of the activity poster.
-   * @param posteId Id of the user who has commented.
+   * @param posterId Id of the user who has commented.
    */
-  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posteId) {
+  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId , String spaceId) {
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
-    if (activityPosterId.equals(posteId) == false) {
+    SpaceService spaceService = getSpaceService();
+    Space space = spaceService.getSpaceById(spaceId);
+    boolean isMember = true;
+    if (space != null) {
+      isMember = spaceService.isMember(space, activityPosterRemoteId);
+    }
+    if (!activityPosterId.equals(posterId) && isMember) {
+
       receivers.add(activityPosterRemoteId);
     }
   }
   
-  public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster) {
-    receivers.addAll(getDestinataires(mentioners, poster));
+  public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster, String spaceId) {
+    receivers.addAll(getDestinataires(mentioners, poster, spaceId));
   }
   
   /**
@@ -166,12 +173,18 @@ public class Utils {
    * @param poster The user who has posted the activity or comment.
    * @return The remote Ids.
    */
-  private static Set<String> getDestinataires(String[] users, String poster) {
+  private static Set<String> getDestinataires(String[] users, String poster , String spaceId) {
     Set<String> destinataires = new HashSet<String>();
+    SpaceService spaceService = getSpaceService();
+    Space space = spaceService.getSpaceById(spaceId);
     for (String user : users) {
       user = user.split("@")[0];
       String userName = getUserId(user);
-      if (! user.equals(poster)) {
+      boolean isMember = true;
+      if(space != null) {
+        isMember = spaceService.isMember(space, userName);
+      }
+      if (!user.equals(poster) && isMember) {
         destinataires.add(userName);
       }
     }
@@ -207,14 +220,20 @@ public class Utils {
    * @param posterId id of the poster
    * @return list of mentioners
    */
-  public static Set<String> getMentioners(String title, String posterId) {
+  public static Set<String> getMentioners(String title, String posterId, String spaceId) {
     String posterRemoteId = getUserId(posterId);
     Set<String> mentioners = new HashSet<String>();
     Matcher matcher = MENTION_PATTERN.matcher(title);
+    SpaceService spaceService = getSpaceService();
+    Space space = spaceService.getSpaceById(spaceId);
     while (matcher.find()) {
       String remoteId = matcher.group(2);
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
-      if (identity != null && posterRemoteId.equals(remoteId) == false) { 
+      boolean isMember = true;
+      if (space != null) {
+        isMember = spaceService.isMember(space, remoteId);
+      }
+      if (identity != null && !posterRemoteId.equals(remoteId) && isMember) {
         mentioners.add(remoteId);
       }
     }

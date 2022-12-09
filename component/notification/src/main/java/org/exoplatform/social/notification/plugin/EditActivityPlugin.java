@@ -32,15 +32,15 @@ public class EditActivityPlugin extends BaseNotificationPlugin {
     @Override
     public NotificationInfo makeNotification(NotificationContext ctx) {
         ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-
+        String spaceId = activity.getSpaceId();
         Set<String> receivers = new HashSet<String>();
         if (activity.getStreamOwner() != null) {
             Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), activity.getPosterId());
         }
         // Send notification to all others users who have comment on this activity
-        Utils.sendToCommeters(receivers, activity.getCommentedIds(), activity.getPosterId());
-        Utils.sendToActivityPoster(receivers, activity.getPosterId(), activity.getPosterId());
-        Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId());
+        Utils.sendToCommeters(receivers, activity.getCommentedIds(), activity.getPosterId(), spaceId);
+        Utils.sendToActivityPoster(receivers, activity.getPosterId(), activity.getPosterId(), spaceId);
+        Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
 
         //
         return NotificationInfo.instance()
