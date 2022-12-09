@@ -22,6 +22,8 @@ import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.Utils;
 
 import java.util.ArrayList;
@@ -47,14 +49,22 @@ public class LikePlugin extends BaseNotificationPlugin {
     String[] likersId = activity.getLikeIdentityIds();
     String liker = Utils.getUserId(likersId[likersId.length - 1]);
 
-    List<String> toUsers = new ArrayList<String>();
-    toUsers.add(Utils.getUserId(activity.getPosterId()));
-    if (Utils.isSpaceActivity(activity) == false && liker.equals(activity.getStreamOwner()) == false) {
-      toUsers.add(activity.getStreamOwner());
+    String likeTo = Utils.getUserId(activity.getPosterId());
+    String spaceId = !activity.isComment() ? activity.getSpaceId()
+            : Utils.getActivityManager().getParentActivity(activity).getSpaceId();
+    boolean isMember = false;
+
+    if (spaceId != null) {
+      SpaceService spaceService = Utils.getSpaceService();
+      Space space = spaceService.getSpaceById(spaceId);
+      isMember = spaceService.isMember(space, likeTo);
     }
 
+    if (spaceId != null && !isMember) {
+      return null;
+    }
     return NotificationInfo.instance()
-                               .to(Utils.getUserId(activity.getPosterId()))
+                               .to(likeTo)
                                .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                                .with(SocialNotificationUtils.LIKER.getKey(), liker)
                                .key(getId()).end();

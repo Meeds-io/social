@@ -51,10 +51,12 @@ public class ActivityMentionPlugin extends BaseNotificationPlugin {
     String[] mentionedIds = getAddedMentions(previousMentions, actualMentions);
 
     Set<String> receivers = new HashSet<>();
+    String spaceId = !activity.isComment() ? activity.getSpaceId()
+                                           : Utils.getActivityManager().getParentActivity(activity).getSpaceId();
     if (actualMentions.length > 0) {
-      Utils.sendToMentioners(receivers, mentionedIds, activity.getPosterId());
+      Utils.sendToMentioners(receivers, mentionedIds, activity.getPosterId(), spaceId);
     } else {
-      receivers = Utils.getMentioners(activity.getTemplateParams().get("comment"), activity.getPosterId());
+      receivers = Utils.getMentioners(activity.getTemplateParams().get("comment"), activity.getPosterId(), spaceId);
     }
 
     return NotificationInfo.instance()
@@ -76,12 +78,9 @@ public class ActivityMentionPlugin extends BaseNotificationPlugin {
     //so the process mention is not correct and no mention is saved to activity
     //We need to process the value stored in the template param of activity with key = comment
     String commentLinkActivity = activity.getTemplateParams().get("comment");
-    if (commentLinkActivity != null && commentLinkActivity.length() > 0 &&
-        Utils.getMentioners(commentLinkActivity, activity.getPosterId()).size() > 0) {
-      return true;
-    }
 
-    return false;
+    return commentLinkActivity != null && commentLinkActivity.length() > 0
+        && !Utils.getMentioners(commentLinkActivity, activity.getPosterId(), null).isEmpty();
   }
 
   private String[] getAddedMentions(String[] previousMentions, String[] actualMentions) {
