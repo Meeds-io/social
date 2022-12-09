@@ -604,7 +604,7 @@ public class EntityBuilder {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     }
     activityEntity.setIdentity(identityLink);
-    activityEntity.setOwner(getActivityOwner(poster, restPath));
+    activityEntity.setOwner(getActivityOwner(poster, restPath, activity.getSpaceId()));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<>());
     boolean canEdit = getActivityManager().isActivityEditable(activity, ConversationState.getCurrent().getIdentity());
@@ -807,7 +807,7 @@ public class EntityBuilder {
     commentEntity.setIdentity(identityLink);
     if (poster != null) {
       commentEntity.setPoster(poster.getRemoteId());
-      commentEntity.setOwner(getActivityOwner(poster, restPath));
+      commentEntity.setOwner(getActivityOwner(poster, restPath,activityManager.getParentActivity(comment).getSpaceId()));
     }
     if (comment.getBody() == null) {
       commentEntity.setBody(comment.getTitle());
@@ -1014,9 +1014,15 @@ public class EntityBuilder {
     return spaceMembership;
   }
 
-  private static DataEntity getActivityOwner(Identity owner, String restPath) {
+  private static DataEntity getActivityOwner(Identity owner, String restPath, String spaceId) {
     BaseEntity mentionEntity = new BaseEntity(owner.getId());
     mentionEntity.setHref(RestUtils.getRestUrl(getIdentityType(owner), getIdentityId(owner), restPath));
+    if(spaceId != null && !spaceId.isEmpty()) {
+      SpaceService spaceService = getSpaceService();
+      Space space = spaceService.getSpaceById(spaceId);
+      boolean isMember = spaceService.isMember(space, owner.getRemoteId());
+      mentionEntity.setProperty("isMember", isMember);
+    }
     return mentionEntity.getDataEntity();
   }
 
@@ -1040,7 +1046,7 @@ public class EntityBuilder {
     IdentityManager identityManager = getIdentityManager();
     for (String mentionner : activity.getMentionedIds()) {
       String mentionnerId = mentionner.split("@")[0];
-      mentions.add(getActivityOwner(identityManager.getIdentity(mentionnerId), restPath));
+      mentions.add(getActivityOwner(identityManager.getIdentity(mentionnerId), restPath, null));
     }
     return mentions;
   }
