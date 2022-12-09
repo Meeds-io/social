@@ -146,9 +146,9 @@ public class Utils {
    * Checks if a notification message is sent to an activity poster when a new comment is created.
    * @param receivers The list of users receiving the notification message.
    * @param activityPosterId Id of the activity poster.
-   * @param posteId Id of the user who has commented.
+   * @param posterId Id of the user who has commented.
    */
-  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posteId , String spaceId) {
+  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId , String spaceId) {
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
     SpaceService spaceService = getSpaceService();
     Space space = spaceService.getSpaceById(spaceId);
@@ -156,7 +156,7 @@ public class Utils {
     if (space != null) {
       isMember = spaceService.isMember(space, activityPosterRemoteId);
     }
-    if (!activityPosterId.equals(posteId) && isMember) {
+    if (!activityPosterId.equals(posterId) && isMember) {
 
       receivers.add(activityPosterRemoteId);
     }
