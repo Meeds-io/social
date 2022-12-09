@@ -145,4 +145,15 @@ public class LinkProviderUtilsTest extends AbstractCoreTest {
     String openUrl2 = LinkProviderUtils.getOpenLink(comment2);
     assertEquals(expected, openUrl2);
   }
+
+  public void testGetWebNotificationRestUrl() {
+    String object1 = "demo", object2 = "root";
+    String expected = "/rest/notification/demo/root";
+    assertEquals(expected, LinkProviderUtils.getWebNotificationRestUrl("notification", object1, object2));
+  }
+  public void testGetWebNotificationRestUrlWithJsonFile() {
+    String object1 = "demo", object2 = "root", notifificationId = "12", jsonFile = "jsonFile";
+    String expected = "/rest/notification/demo/root/12/jsonFile";
+    assertEquals(expected, LinkProviderUtils.getWebNotificationRestUrl("notification", object1, object2, notifificationId, jsonFile));
+  }
 }
