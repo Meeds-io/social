@@ -27,29 +27,29 @@ public class EditCommentPlugin  extends BaseNotificationPlugin {
     public NotificationInfo makeNotification(NotificationContext ctx) {
         ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
         ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
-
+        String spaceId = activity.getSpaceId();
         Set<String> receivers = new HashSet<String>();
         if (StringUtils.isNotBlank(comment.getParentCommentId())) {
             ExoSocialActivity parentComment = Utils.getActivityManager().getActivity(comment.getParentCommentId());
             String parentCommentUserPosterId = Utils.getUserId(parentComment.getPosterId());
             if (isSubComment) {
                 // Send notification to parent comment poster
-                Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId());
+                Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId(), spaceId);
             } else {
                 // Send notification to all others users who have commented on this activity
                 // except parent comment poster
-                Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
+                Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
                 Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-                Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
-                Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
+                Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
+                Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId(), spaceId);
                 receivers.remove(parentCommentUserPosterId);
             }
         } else {
             // Send notification to all others users who have comment on this activity
-            Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId());
+            Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
             Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-            Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId());
-            Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId());
+            Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
+            Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId(), spaceId);
         }
         //
         return NotificationInfo.instance()
