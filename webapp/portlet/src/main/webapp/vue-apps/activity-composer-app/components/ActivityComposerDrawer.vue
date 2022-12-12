@@ -69,7 +69,8 @@ export default {
       activityBodyEdited: false,
       originalBody: '',
       messageEdited: false,
-      activityType: null
+      activityType: null,
+      loading: false
     };
   },
   computed: {
