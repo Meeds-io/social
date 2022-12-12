@@ -5,9 +5,10 @@
     :class="extraClass"
     v-identity-popover="space">
     <a
-      v-if="notAccessibleSpace && !avatar && !fullname"
+      v-if="notAccessibleSpace"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
       <v-avatar
+        v-if="avatar || !isMobile"
         :size="size"
         :class="pullLeft"
         tile
@@ -19,6 +20,7 @@
           role="presentation">
       </v-avatar>
       <div
+        v-if="fullname || !isMobile"
         :class="subtitleNewLineClass"
         class="pull-left text-truncate ms-2">
         <p
