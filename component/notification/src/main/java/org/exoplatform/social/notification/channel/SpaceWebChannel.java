@@ -32,9 +32,9 @@ public class SpaceWebChannel extends AbstractChannel {
 
   private static final Log            LOG = ExoLogger.getLogger(SpaceWebChannel.class);
 
-  private static final String         ID  = "SPACE_WEB_CHANNEL";
+  public static final String         ID  = "SPACE_WEB_CHANNEL";
 
-  private final ChannelKey            key = ChannelKey.key(ID);
+  public final ChannelKey            key = ChannelKey.key(ID);
 
   private SpaceWebNotificationService spaceWebNotificationService;
 
@@ -65,6 +65,11 @@ public class SpaceWebChannel extends AbstractChannel {
   @Override
   public void registerTemplateProvider(TemplateProvider provider) {
     // No registration will be needed
+  }
+
+  @Override
+  public boolean isDefaultChannel() {
+    return false;
   }
 
   @Override

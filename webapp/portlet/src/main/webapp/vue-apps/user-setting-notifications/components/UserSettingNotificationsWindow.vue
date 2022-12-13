@@ -28,13 +28,13 @@
         :settings="settings"
         :key="group.groupId"
         :group="group"
+        :digest-mail-notification-enabled="digestMailNotificationEnabled"
         @edit="openDrawer" />
     </v-flex>
     <user-setting-notification-drawer
       ref="drawer"
-      :group="selectedGroup"
-      :plugin="selectedPlugin"
-      :settings="settings" />
+      :settings="settings"
+      :digest-mail-notification-enabled="digestMailNotificationEnabled" />
   </v-card>
 </template>
 
@@ -47,14 +47,15 @@ export default {
     },
   },
   data: () => ({
-    selectedPlugin: null,
-    selectedGroup: null,
+    digestMailNotificationEnabled: false,
   }),
+  created() {
+    this.$featureService.isFeatureEnabled('digestMailNotification')
+      .then(enabled => this.digestMailNotificationEnabled = enabled);
+  },
   methods: {
     openDrawer(plugin, group) {
-      this.selectedPlugin = plugin;
-      this.selectedGroup = group;
-      this.$nextTick(this.$refs.drawer.open);
+      this.$nextTick(() => this.$refs.drawer.open(plugin, group));
     },
   },
 };

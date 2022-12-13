@@ -146,8 +146,12 @@ public class ActivityMentionWebBuilderTest extends AbstractPluginTest {
     // mary post comment on ghost's activity and mention to ghost and demo
     ExoSocialActivity maryComment = makeComment(ghostActivity, maryIdentity, "hello @john and @demo");
 
-    // 2 messages to john and demo for mention
-    assertMadeWebNotifications(2);
+    // 2 messages to john and demo for mention + 1 message for ghost for commenting his activity
+    assertMadeWebNotifications(3);
+    assertMadeWebNotifications("ghost", 1);
+    assertMadeWebNotifications("john", 1);
+    assertMadeWebNotifications("demo", 1);
+
     List<NotificationInfo> toJohn = assertMadeWebNotifications(johnIdentity.getRemoteId(), 1);
     NotificationInfo mentionNotification = toJohn.get(0);
 
@@ -173,7 +177,7 @@ public class ActivityMentionWebBuilderTest extends AbstractPluginTest {
     editComment(ghostActivity, maryComment, "hello @root @john and @demo");
 
     // Only 1 message to root for mention
-    assertMadeWebNotifications(1);
+    assertMadeWebNotifications(2);
     assertMadeWebNotifications(johnIdentity.getRemoteId(), 0);
     assertMadeWebNotifications(demoIdentity.getRemoteId(), 0);
     List<NotificationInfo> toRoot = assertMadeWebNotifications(rootIdentity.getRemoteId(), 1);
