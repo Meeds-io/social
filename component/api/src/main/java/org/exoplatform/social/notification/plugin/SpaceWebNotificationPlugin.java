@@ -29,10 +29,13 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
+import lombok.Getter;
+
 public abstract class SpaceWebNotificationPlugin extends BaseComponentPlugin {
 
   private IdentityManager identityManager;
 
+  @Getter
   private List<String>    notificationPluginIds;
 
   protected SpaceWebNotificationPlugin(IdentityManager identityManager, InitParams params) {

@@ -97,7 +97,7 @@ public class PostActivityMailBuilderTest extends AbstractPluginTest {
     userSettingService.save(rootSetting);
     
     //create new user
-    Identity ghostIdentity = identityManager.getOrCreateIdentity("organization", "ghost", true);
+    Identity ghostIdentity = identityManager.getOrCreateUserIdentity("ghost");
     notificationService.clearAll();
     
     makeActivity(demoIdentity, "demo post activity on activity stream of root");
@@ -107,7 +107,7 @@ public class PostActivityMailBuilderTest extends AbstractPluginTest {
     
     //Digest
     assertMadeMailDigestNotifications(4);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 4);
     
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));

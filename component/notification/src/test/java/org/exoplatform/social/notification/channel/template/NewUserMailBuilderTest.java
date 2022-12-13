@@ -56,7 +56,7 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     manager = getService(ChannelManager.class);
     
     //By default the plugin and feature are active
-    assertTrue(pluginSettingService.isActive(getPlugin().getId()));
+    assertTrue(pluginSettingService.isActive(MailChannel.ID, getPlugin().getId()));
     assertTrue(exoFeatureService.isActiveFeature("notification"));
     //
     notificationService.clearAll();
@@ -71,7 +71,7 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
   @Override
   public AbstractTemplateBuilder getTemplateBuilder() {
     AbstractChannel channel = manager.getChannel(ChannelKey.key(MailChannel.ID));
-    assertTrue(channel != null);
+    assertNotNull(channel);
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(NewUserPlugin.ID)));
     return channel.getTemplateBuilder(PluginKey.key(NewUserPlugin.ID));
   }
@@ -82,11 +82,16 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
   }
   
   public void testSimpleCase() throws Exception {
+    assertMadeMailDigestNotifications(0);
+
     //STEP 1 create new user
     createUser("user_1");
     // will sent 4 mails to 4 users existing.
-    assertMadeMailDigestNotifications(4);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 4);
+    assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(maryIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
+    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
     NotificationInfo newUserNotification = list.get(0);
     //STEP 2 assert Message info
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
@@ -102,8 +107,10 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
   public void testPluginONOFF() throws Exception {
     //by default the plugin is ON
     createUser("user_11");
-    assertMadeMailDigestNotifications(4);
     assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(maryIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
     notificationService.clearAll();
     removeUser("user_11");
     //turn off the plugin
@@ -117,8 +124,10 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     //turn on the plugin
     turnON(getPlugin());
     createUser("user_123");
-    assertMadeMailDigestNotifications(4);
     assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(maryIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
     notificationService.clearAll();
     removeUser("user_123");
   }
@@ -126,8 +135,10 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
   public void testFeatureONOFF() throws Exception {
     //by default the feature is ON
     createUser("user_13");
-    assertMadeMailDigestNotifications(4);
     assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(maryIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
     notificationService.clearAll();
     removeUser("user_13");
     
@@ -142,8 +153,10 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     turnFeatureOn();
     //
     createUser("user_234");
-    assertMadeMailDigestNotifications(4);
     assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(maryIdentity.getRemoteId(), 1);
+    assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
     notificationService.clearAll();
     removeUser("user_234");
   }
@@ -153,9 +166,11 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     createUser("user_222");
     createUser("user_333");
     
-    //Digest
-    // will sent 12 mails to 4 users existing.
-    assertMadeMailDigestNotifications(12);
+    //Digest will sent 12 mails to 4 users existing.
+    assertMadeMailDigestNotifications("root", 3);
+    assertMadeMailDigestNotifications("john", 3);
+    assertMadeMailDigestNotifications("mary", 3);
+    assertMadeMailDigestNotifications("demo", 3);
     List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
     
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
