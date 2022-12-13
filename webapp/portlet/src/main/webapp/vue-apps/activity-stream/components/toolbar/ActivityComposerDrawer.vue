@@ -196,10 +196,10 @@ export default {
       const message = this.ckEditorInstance.getMessage();
       if (this.activityId) {
         let activityType = this.activityType;
-        if (this.templateParams && this.templateParams.link && !this.activityType) {
+        if (this.files?.length) {
+          activityType = 'DOC_ACTIVITY';
+        } else if (!this.files?.length && this.templateParams && this.templateParams.link && (!this.activityType || !this.activityType.length)) {
           activityType = 'LINK_ACTIVITY';
-        } else if (this.templateParams && this.templateParams.link === '-') {
-          activityType = null;
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
@@ -216,7 +216,9 @@ export default {
           .finally(() => this.loading = false);
       } else {
         let activityType = this.activityType;
-        if (this.templateParams && this.templateParams.link && !this.activityType) {
+        if (this.files?.length) {
+          activityType = 'files:spaces';
+        } else if ( !this.files?.length &&this.templateParams && this.templateParams.link && (!this.activityType || !this.activityType.length)) {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {

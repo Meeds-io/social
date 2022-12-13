@@ -324,6 +324,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     templateParams.put("key1", "value 1");
     templateParams.put("key2", "value 2");
     templateParams.put("key3", "value 3");
+    templateParams.put("link", "http://exoplatform.com?test=<script>");
     activity.setTemplateParams(templateParams);
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
@@ -341,6 +342,8 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertEquals("value 1", gotTemplateParams.get("key1"));
     assertEquals("value 2", gotTemplateParams.get("key2"));
     assertEquals("value 3", gotTemplateParams.get("key3"));
+    assertEquals("http://exoplatform.com?test=<script>", gotTemplateParams.get("link"));
+    assertEquals(ActivityPluginType.LINK.getName(), activity.getType());
 
     //
     assertTrue(activity.isLocked());
@@ -348,7 +351,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link ActivityManager#saveActivity(ExoSocialActivity)}
+   * Test {@link ActivityManager#saveActivityNoReturn(ExoSocialActivity)}
    * 
    * @throws Exception
    * @since 1.2.0-Beta3
@@ -451,15 +454,22 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertNotNull("activity must not be null", activity);
     assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-
+    assertNull(activity.getType());
     String newTitle = "new activity title";
     activity.setTitle(newTitle);
+    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    templateParams.put("link", "http://exoplatform.com?test=<script>");
+    activity.setTemplateParams(templateParams);
     activityManager.updateActivity(activity);
 
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
     assertEquals("activity.getTitle() must return: " + newTitle, newTitle, activity.getTitle());
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
+
+    assertEquals(ActivityPluginType.LINK.getName(), activity.getType());
+    Map<String, String> gotTemplateParams = activity.getTemplateParams();
+    assertEquals("http://exoplatform.com?test=<script>", gotTemplateParams.get("link"));
   }
 
   /**

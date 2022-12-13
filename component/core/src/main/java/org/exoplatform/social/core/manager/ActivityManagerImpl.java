@@ -194,7 +194,7 @@ public class ActivityManagerImpl implements ActivityManager {
       }
       return;
     }
-
+    setActivityType(newActivity);
     ExoSocialActivity savedActivity = activityStorage.saveActivity(streamOwner, newActivity);
     newActivity.setId(savedActivity.getId());
     activityLifeCycle.saveActivity(newActivity);
@@ -335,6 +335,7 @@ public class ActivityManagerImpl implements ActivityManager {
     // so,
     // as a solution we pass them throw the activity's template params
     String[] previousMentions = getActivity(activityId).getMentionedIds();
+    setActivityType(existingActivity);
     activityStorage.updateActivity(existingActivity);
 
     if (previousMentions.length > 0) {
@@ -944,6 +945,19 @@ public class ActivityManagerImpl implements ActivityManager {
             + space.getDisplayName());
       }
     }
+  }
+
+  private void setActivityType(ExoSocialActivity activity) {
+    String type = activity.getType();
+    if (type == null || type.isEmpty()) {
+      if (activity.getFiles() != null && !activity.getFiles().isEmpty()) {
+        type = ActivityPluginType.FILE.getName();
+      } else if (activity.getTemplateParams() != null && !activity.getTemplateParams().isEmpty()
+              && activity.getTemplateParams().get("link") != null) {
+        type = ActivityPluginType.LINK.getName();
+      }
+    }
+    activity.setType(type);
   }
 
 }
