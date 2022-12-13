@@ -24,7 +24,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.metadata.MetadataService;
@@ -58,6 +60,9 @@ public class SpaceWebNotificationServiceTest {
   private ListenerService                        listenerService;
 
   @Mock
+  private PluginSettingService                   pluginSettingService;
+
+  @Mock
   private ExoFeatureService                      featureService;
 
   private static SpaceWebNotificationServiceImpl spaceWebNotificationService;
@@ -65,7 +70,11 @@ public class SpaceWebNotificationServiceTest {
   @Before
   public void setUp() throws Exception {
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(true);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(metadataService, featureService, listenerService);
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+                                                                      metadataService,
+                                                                      featureService,
+                                                                      pluginSettingService,
+                                                                      listenerService);
   }
 
   @Test
